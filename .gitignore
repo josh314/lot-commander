@@ -1,0 +1,31 @@
+# Node stuff
+node_modules
+npm-debug.log
+
+# Temp files
+*~
+*\#
+*.josh
+
+#Bower stuff
+bower_components
+
+#compiled stuff
+build/
+css/
+ng-app-precache.js
+app.css
+app.css.map
+
+# deployment settings
+config/deploy.js
+config.js
+settings.js
+
+# data and generated files
+dat/
+files/
+logs/
+
+# assorted
+notes

@@ -1,0 +1,24 @@
+<div class="container" id="contact">
+	<div class="row well">
+		<h2>Manifests</h2>
+		<table class="table table-striped">
+			<thead><tr>
+				<th>Handle</th>
+				<th>Total Units</th>
+				<th>Last Updated</th>
+				<th></th>
+				<th></th>
+			</tr></thead>
+			<tbody>	
+				<tr ng-repeat="manifest in manifests">
+					<td>{{manifest.handle}}</td>
+				    <td>{{manifest.totalUnits}}</td>
+				    <td>{{manifest.readableUpdatedAt}}</td>
+	                <td><button class="btn btn-success btn-xs" ng-click="launchRequestFileModal(manifest)">Create Download File</button></td>
+	                <td><button class="btn btn-warning btn-xs" ng-click="editManifest(manifest._id)">Edit Manifest</button></td>
+	                <!-- <td><button class="btn btn-danger btn-xs" ng-click="deleteManifest(manifest._id)">Delete</button></td> -->
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

@@ -1,0 +1,9 @@
+{{#if flash}}
+  <aside ng-controller="FlashCtrl">
+	  <div class="flash alert alert-{{flash.type}}" ng-hide="isHidden">
+	    <button type="button" class="close" ng-click="closeFlash()">&times;</button>
+	    <strong>{{flash.intro}}</strong> {{{flash.message}}}
+	  </div>
+	</aside>
+{{/if}}
+

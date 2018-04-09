@@ -1,0 +1,72 @@
+/* General styles for site-wide usage */
+body {
+  //background: url('/img/8096899965_22c3b815a6_o.jpg') repeat center top fixed;
+  // background: linear-gradient(@body-bg-stop-begin, @body-bg-stop-end);
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  margin-top: @navbar-height;
+}
+#top-level-view-container {
+  padding-top: @font-size-base;
+}
+address {
+  font-size:@font-size-large*.85;
+  margin-left: 5px;
+}
+
+p {
+  font-size: @font-size-large;
+  text-align: justify;
+}
+@media (max-width: 767px) {
+  p {
+    font-size: @font-size-base;
+  }
+  h1 {
+    font-size: @font-size-h2;
+  }
+  h2 {
+    font-size: @font-size-h3;
+  }
+  h3 {
+    font-size: @font-size-h4;
+  }
+  @media (max-width: 380px) {
+    p {
+      font-size: @font-size-small;
+    }
+    h1 {
+      font-size: @font-size-h3;
+    }
+    h2 {
+      font-size: @font-size-h4;
+    }
+    h3 {
+      font-size: @font-size-h5;
+    }
+  }
+}
+
+.well {
+  box-shadow: 5px 5px 10px rgba(0,0,0,.25);
+}
+
+.invalid-input {
+  background-color: red;
+}
+
+.user-info-box { margin:10px; padding:10px; }
+
+.user-info-topbar .panel-body {
+  padding-top: 10px;
+  padding-bottom: 0px;
+}
+
+.progress {
+  margin-bottom: 10px;
+}
+//.progress { text-align:center; height:50px; }
+// .progress-value { position:absolute; right:0; left:0; font-size: 30px; line-height:50px; }
+

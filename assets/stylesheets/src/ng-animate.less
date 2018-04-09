@@ -1,0 +1,24 @@
+/* AngularJS NgAnimate classes */
+@transition-duration: .25s;
+@transition-delay: 2*@transition-duration;
+
+#top-level-view {
+	&.ng-enter {
+		position:absolute;
+	  transition:@transition-duration;
+    transition-delay:@transition-delay;
+	  opacity:0;
+	}
+	&.ng-enter-active {
+	  opacity:1;
+	}
+
+	&.ng-leave {
+		position:absolute;
+	  transition:@transition-duration;
+	  opacity:1;
+	}
+	&.ng-leave-active {
+	  opacity:0;
+	}
+}

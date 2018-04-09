@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" ng-app="myApp" ng-controller="RootCtrl" ng-strict-di>
+  <head>
+    <base href="/">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Language" content="en">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="author" content="Joshua Davis">
+    {{! DESCRIPTION META }}
+    <meta name="description" content="{{description}}">
+    <title>{{{title}}}</title>
+    {{! Load Stylesheets}}
+    {{#each assets.stylesheets}}
+        <link href={{.}} rel="stylesheet">
+    {{/each}}
+
+  </head>
+  <body>
+    {{! Flash Message}}
+    {{> flash}}
+    {{! Load main body}}
+    {{{body}}}
+
+    {{!
+    Load JavaScripts
+    ==================================================
+    Placed at the end of the document so the pages load faster
+    }}
+    {{#each assets.scripts.ext}}
+      <script src={{.}}></script>
+    {{/each}}
+    {{#each assets.scripts.local}}
+      <script src={{.}}></script>
+    {{/each}}
+  </body>
+</html>

@@ -1,0 +1,41 @@
+<div class="modal-header">
+	<h3 class="modal-title">Build Manifest File</h3>
+</div>
+<div class="modal-body">
+	<div class="row">
+		<div class="form-group col-xs-12">
+			<label for="manifestTypeInput">Manifest Format</label>
+			<select class="form-control" name="format" id="formatInput" autofocus ng-model="fileRequest.format">
+				<option>Default</option>
+				<option>Bstock</option>
+			</select>
+		</div>
+		<div ng-show="fileRequest.format==='Bstock'">
+			<div class="form-group col-xs-12 col-sm-6">
+				<label for="categoryInput">Category</label>
+				<select class="form-control" class="form-control" name="category" id="categoryInput" required ng-model="fileRequest.category">
+				    <option></option>
+					<option ng-repeat="category in bstockConstants.Category">{{category}}</option>
+				</select>
+			</div>
+			<div class="form-group col-xs-12 col-sm-6">
+				<label for="conditionInput">Condition</label>
+				<select class="form-control" class="form-control" name="condition" id="conditionInput" required ng-model="fileRequest.condition">
+				    <option></option>
+					<option ng-repeat="condition in bstockConstants.Condition">{{condition}}</option>
+				</select>
+			</div>
+			<div class="form-group col-xs-12 col-sm-6">
+				<label for="packagingInput">Packaging</label>
+				<select class="form-control" class="form-control" name="packaging" id="packagingInput" required ng-model="fileRequest.packaging">
+				    <option></option>
+					<option ng-repeat="packaging in bstockConstants.Packaging">{{packaging}}</option>
+				</select>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="$close(fileRequest)">Request File</button>
+    <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+</div>

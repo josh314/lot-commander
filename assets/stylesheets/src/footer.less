@@ -1,0 +1,26 @@
+/* Footer */
+html {
+  position: relative;
+  min-height: 100%;
+}
+@footer-size: 45px;
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: @footer-size;
+}
+#footer {
+  p {
+    font-size: @footer-size / 3;
+    margin-top: @footer-size / 3;
+    text-align: center;
+  }
+  hr {
+    margin: 0px;
+  }
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+//  height: @footer-size;
+  background: @body-bg;
+}

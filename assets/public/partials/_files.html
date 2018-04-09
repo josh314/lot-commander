@@ -1,0 +1,23 @@
+<div class="container" id="contact">
+	<div class="row well">
+		<h2>Available Downloads</h2>
+		<table class="table table-striped">
+			<thead><tr>
+				<th>Handle</th>
+				<th>Format</th>
+				<th>Size</th>
+				<th>Last Updated</th>
+				<th>Download</th>
+			</tr></thead>
+			<tbody>	
+				<tr ng-repeat="file in files">
+					<td>{{file.handle}}</td>
+					<td>{{file.format}}</td>
+				    <td>{{file.size}}</td>
+				    <td>{{file.updatedAt}}</td>
+	                <td><a ng-href="/api/files/download/{{file.filename}}" target="_self" download><button class="btn btn-danger btn-xs" ng-click=""><span class="glyphicon glyphicon-download-alt"></span></button></a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
