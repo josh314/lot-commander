@@ -6,9 +6,9 @@
     { name: "main", abstract:true, templateUrl: '/partials/_main.html'},
     { name: "main.home", url: '/', templateUrl: '/partials/_home.html'},
     // manifest making states
-    { name: "main.new", navName: 'New Manifest', url: '/new', templateUrl: '/partials/_new_manifest.html', controller: 'NewManifestCtrl'},
+    { name: "main.new", navName: 'New Lot', url: '/new', templateUrl: '/partials/_new_lot.html', controller: 'NewLotCtrl'},
     { name: "main.scan", url: '/scan', templateUrl: '/partials/_scan.html', controller: 'ScanCtrl'},
-    { name: "main.list", navName: 'List Manifests', url: '/list', templateUrl: '/partials/_list_manifests.html', controller: 'ListManifestsCtrl'},
+    { name: "main.list", navName: 'List Lots', url: '/list', templateUrl: '/partials/_list_lots.html', controller: 'ListLotsCtrl'},
     // files
     { name: "main.files", navName: 'Files', url: '/files', templateUrl: '/partials/_files.html', controller: 'FilesCtrl'},
     // users

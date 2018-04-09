@@ -45,7 +45,7 @@ module.exports = {
         "js/components/list-manifests.js",
         "/js/components/manifest-store.js",
         "/js/components/navbar.js",
-        "/js/components/new-manifest.js",
+        "/js/components/new-lot.js",
         "/js/components/root.js",
         "/js/components/scan.js",
         "/js/components/users.js",

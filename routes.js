@@ -11,8 +11,8 @@ const users = require(path.join(__basedir, config.modulesPath, 'users'));
 
 function getLayoutDataByEnv(env) {
 	const res = {
-	  title: "Manifest Commander",
-	  description: "App for storing scanned barcodes and outputting manifests dressed with product data.",
+	  title: "Lot Commander",
+	  description: "App for creating and managing product lots and associated manifests.",
 	};
 
   let assets;
