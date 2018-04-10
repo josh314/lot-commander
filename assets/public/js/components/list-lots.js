@@ -37,45 +37,50 @@
 		}
 
 
-		// $scope.launchRequestFileModal = function(manifest) {
-	 //    const modalInstance = $uibModal.open({
-	 //      templateUrl: '/partials/_request_file_modal.html',
-	 //      size: 'lg',
-	 //      controller: 'RequestFileModalController',
-	 //      resolve: {
-	 //        manifest: function () {
-	 //          return manifest;
-	 //        }
-	 //      },
-	 //    });
+		$scope.launchRequestFileModal = function(lot) {
+			if(!lot.manifestId) {
+				console.log('No manifested items for this lot.');
+				return;
+			}
 
-  //     modalInstance.result.then(function(fileRequest) {
-  //     	if(!fileRequest) {
-  //     		return;
-  //     	}
-		// 		const body = {
-		// 			manifestId: manifest._id,
-		// 		}
-		// 		if(fileRequest.format==='Bstock') {
-		// 			body.bstock = {
-		// 				Category: fileRequest.category,
-		// 				Condition: fileRequest.condition,
-		// 				Packaging: fileRequest.packaging,
-		// 			};
-		// 		}
-		// 		$http.post(`/api/files/generate`, body).then(resp=>{
-		// 			//TODO: some sort of acknoledgement of success/failure
-		// 			$state.reload();
-		// 		});
-		// 	}, function () {
-	 //      console.log('Modal dismissed at: ' + new Date());
-	 //    });
-		// };
+	    const modalInstance = $uibModal.open({
+	      templateUrl: '/partials/_request_file_modal.html',
+	      size: 'lg',
+	      controller: 'RequestFileModalController',
+	      resolve: {
+	        lot: function () {
+	          return lot;
+	        }
+	      },
+	    });
+
+      modalInstance.result.then(function(fileRequest) {
+      	if(!fileRequest) {
+      		return;
+      	}
+				const body = {
+					manifestId: lot.manifestId,
+				}
+				if(fileRequest.format==='Bstock') {
+					body.bstock = {
+						Category: fileRequest.category,
+						Condition: fileRequest.condition,
+						Packaging: fileRequest.packaging,
+					};
+				}
+				$http.post(`/api/files/generate`, body).then(resp=>{
+					//TODO: some sort of acknoledgement of success/failure
+					$state.reload();
+				});
+			}, function () {
+	      console.log('Modal dismissed at: ' + new Date());
+	    });
+		};
 	}]);
 
-	// /***************** Modal Controller ************************/
-	// app.controller('RequestFileModalController', [ '$scope', 'manifest', 'bstockConstants', function($scope, manifest, bstockConstants){
-	// 	$scope.manifest = JSON.parse(JSON.stringify(manifest));
-	// 	$scope.bstockConstants = bstockConstants;
-	// }]);
+	/***************** Modal Controller ************************/
+	app.controller('RequestFileModalController', [ '$scope', 'lot', 'bstockConstants', function($scope, lot, bstockConstants){
+		$scope.lot = JSON.parse(JSON.stringify(lot));
+		$scope.bstockConstants = bstockConstants;
+	}]);
 })();
