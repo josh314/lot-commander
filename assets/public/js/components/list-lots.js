@@ -6,11 +6,11 @@
 	var app = angular.module('myApp');
 
 	/******************* Manifest List Controller *************************/
-	app.controller('ListManifestsCtrl', ['$scope', '$state', '$http', '$uibModal', 'manifestStore', 'sessionTimeout', function($scope, $state, $http, $uibModal, manifestStore, sessionTimeout) {
+	app.controller('ListLotsCtrl', ['$scope', '$state', '$http', '$uibModal', 'manifestStore', 'sessionTimeout', function($scope, $state, $http, $uibModal, manifestStore, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.manifests = [];
 
-		function updateManifestList() {
+		function updateLotList() {
 			//TODO: incorporate search/sort options
 			const query = {};
 			$http.post('/api/db/get', query).then(resp=>{
@@ -22,7 +22,7 @@
 				$scope.manifests = manifests;
 			});
 		}
-		updateManifestList();
+		updateLotList();
 
 		$scope.editManifest = function(manifestId) {
 			const targetManifest = $scope.manifests.find(man => man._id === manifestId);

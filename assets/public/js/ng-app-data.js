@@ -20,7 +20,7 @@
  
   var stateConfigData = [];
   var navbar = {
-    brand: {title:"Manifest Commander", route:"/", state:"main.home"},
+    brand: {title:"Lot Commander", route:"/", state:"main.home"},
     navItems: []
   };
 
