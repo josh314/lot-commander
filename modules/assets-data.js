@@ -39,6 +39,7 @@ module.exports = {
         "/js/ng-app-config.js",
         "/js/ng-app-run.js",
         //angular components
+        "/js/components/file-request-modal.js",
         "/js/components/files.js",
         "/js/components/focus.js",
         "/js/components/footer.js",
