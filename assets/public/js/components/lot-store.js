@@ -12,7 +12,7 @@
 			this.handle = undefined;
 			this.description = undefined;
 			this.inventory = [];
-			this.id = undefined;
+			this._id = undefined;
 			this.manifestId = undefined;
 		};
 		this.reset();
@@ -32,8 +32,8 @@
 			if(_lot.inventory) {
 				this.inventory = _lot.inventory;
 			}
-			if(_lot.id) {
-				this._id = _lot.id;
+			if(_lot._id) {
+				this._id = _lot._id;
 			}
 			if(_lot.manifestId) {
 				this.manifestId = _lot.manifestId;

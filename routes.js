@@ -56,7 +56,7 @@ function routes(env) {
   // lot database api
   router.post('/api/db/get', lotdb.getLots);
   router.post('/api/db/new-lot', lotdb.newLot);
-  router.post('/api/db/save-manifest/:lotId', lotdb.saveManifest);
+  router.post('/api/db/save-manifest', lotdb.saveManifest);
   router.get('/api/db/manifest/:manifestId', lotdb.getManifest);
 
   // interact with manifest database

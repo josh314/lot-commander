@@ -40,10 +40,9 @@ function newLot(req, res) {
 }
 
 function saveManifest(req, res) {
-	console.log(req.params.lotId)
-	console.log(req.body)
+	console.log(JSON.stringify(req.body,null,2))
 	Promise.resolve({}).then(resp=>{
-		res.json(resp)
+		res.json(resp);
 	})
 }
 

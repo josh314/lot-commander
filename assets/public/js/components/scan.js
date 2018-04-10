@@ -32,5 +32,10 @@
 		// 		$state.go('main.home');
 		// 	});
 		// }
+		$scope.saveManifest = function() {
+			$http.post('/api/db/save-manifest/', {lot: lotStore}).then(resp=>{
+				$state.go('main.home');
+			});
+		}
 	}]);
 })();
