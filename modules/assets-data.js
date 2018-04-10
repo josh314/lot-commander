@@ -45,6 +45,7 @@ module.exports = {
         "/js/components/footer.js",
         "js/components/list-lots.js",
         "/js/components/lot-store.js",
+        "/js/components/message-modal.js",
         "/js/components/navbar.js",
         "/js/components/new-lot.js",
         "/js/components/root.js",
