@@ -1,6 +1,6 @@
 <div class="container" id="contact">
 	<div class="row well">
-		<h2>Manifests</h2>
+		<h2>Lots</h2>
 		<table class="table table-striped">
 			<thead><tr>
 				<th>Handle</th>
@@ -10,13 +10,12 @@
 				<th></th>
 			</tr></thead>
 			<tbody>	
-				<tr ng-repeat="manifest in manifests">
-					<td>{{manifest.handle}}</td>
-				    <td>{{manifest.totalUnits}}</td>
-				    <td>{{manifest.readableUpdatedAt}}</td>
-	                <td><button class="btn btn-success btn-xs" ng-click="launchRequestFileModal(manifest)">Create Download File</button></td>
-	                <td><button class="btn btn-warning btn-xs" ng-click="editManifest(manifest._id)">Edit Manifest</button></td>
-	                <!-- <td><button class="btn btn-danger btn-xs" ng-click="deleteManifest(manifest._id)">Delete</button></td> -->
+				<tr ng-repeat="lot in lots">
+					<td>{{lot.handle}}</td>
+				    <td>{{lot.totalUnits ? lot.totalUnits : '---'}}</td>
+				    <td>{{lot.readableUpdatedAt}}</td>
+	                <td><button class="btn btn-success btn-xs" ng-click="editLot(lot._id)">Scan Items</button></td>
+	                <td><button class="btn btn-success btn-xs" ng-click="launchRequestFileModal(lot)">Create Manifest File</button></td>
 				</tr>
 			</tbody>
 		</table>

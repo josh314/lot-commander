@@ -6,7 +6,7 @@
 	var app = angular.module('myApp');
 
 	/******************* Newe Manifest Controller *************************/
-	app.controller('NewLotCtrl', ['$scope', '$state', 'manifestStore', 'sessionTimeout', function($scope, $state, manifestStore, sessionTimeout) {
+	app.controller('NewLotCtrl', ['$http', '$scope', '$state', 'sessionTimeout', function($http, $scope, $state, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.startLot = function() {
 			if(!$scope.lotId) {
@@ -15,8 +15,18 @@
 			else {
 				//TODO: check if this lotId exists in db
 				$scope.noLotIdSubmitted = false;
-				manifestStore.newManifest($scope.lotId, $scope.desc);
-				$state.go('main.scan');
+				var newLot = {
+					handle: $scope.lotId,
+					description: $scope.desc,
+				};
+				$http.post('/api/db/new-lot', newLot).then(resp=>{
+					if(resp.data.error) {
+						console.log(resp.data.error);
+					}
+					else {
+						$state.go('main.list');
+					}
+				})
 			}
 		};
 	}]);

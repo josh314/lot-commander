@@ -4,7 +4,7 @@ const express = require('express');
 const config = require(path.join(__basedir, 'config'));
 
 const assetsData = require(path.join(__basedir, config.modulesPath, 'assets-data'));
-const mandb = require(path.join(__basedir, config.modulesPath, 'manifest-db'));
+const lotdb = require(path.join(__basedir, config.modulesPath, 'lot-db'));
 const files = require(path.join(__basedir, config.modulesPath, 'files'));
 
 const users = require(path.join(__basedir, config.modulesPath, 'users'));
@@ -52,12 +52,16 @@ function routes(env) {
   // router.get('/api/users/get/:username', users.api.isLoggedIn , users.api.getUserInfo );
   // router.post('/api/users/edit-role', users.api.isManager, users.api.editUserRole);
 
+  // lot database api
+  router.post('/api/db/get', lotdb.getLots);
+  router.post('/api/db/new-lot', lotdb.newLot);
 
   // interact with manifest database
-  router.post('/api/db/get', mandb.getManifests);
-  router.post('/api/db/submit/:manifestId', mandb.submitManifest);
-  router.post('/api/db/submit', mandb.submitManifest);
-  router.get('/api/db/delete/:manifestId', mandb.deleteManifest);
+  // router.post('/api/db/get', mandb.getManifests);
+  // router.post('/api/db/submit/:manifestId', mandb.submitManifest);
+  // router.post('/api/db/submit', mandb.submitManifest);
+  // router.get('/api/db/delete/:manifestId', mandb.deleteManifest);
+
   // deal with files
   router.get('/api/files/list', files.listManifestFiles);
   router.post('/api/files/generate', files.generateManifestFile);
