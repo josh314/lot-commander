@@ -41,7 +41,26 @@ function newLot(req, res) {
 
 function saveManifest(req, res) {
 	console.log(JSON.stringify(req.body,null,2))
-	Promise.resolve({}).then(resp=>{
+	// save inventoy to manifest db
+	// if successful, update lot db
+	const lot = req.body.lot;
+	const manifest = {
+		_id: lot.manifestId,
+		handle: lot.handle,
+		inventory: lot.inventory,
+	}
+	mandb.submitManifest(manifest)
+	.then(mandbResp=>{
+		if(mandbResp) {
+			const lotUpdate = {
+				_id: lot._id,
+				totalUnits: lot.inventory.reduce( (sum, item) => { return sum + item.quantity; }, 0),
+				manifestId: mandbResp._id,
+			}
+			return Promise.join(mandbResp, lotdbClient.updateLot(lotUpdate))
+		}
+	})
+	.then(resp=>{
 		res.json(resp);
 	})
 }

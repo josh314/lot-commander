@@ -27,19 +27,19 @@ function getManifests(req, res) {
 	})
 }
 
-function submitManifest(req, res) {
-	let manifestReq;
-	const itemList = req.body.manifest.inventory;
+function submitManifest(manifest) {
+	let manifestDbPromise;
+	const itemList = manifest.inventory;
 	const manifestSummaryStr = `${itemList.reduce((sum,item)=> sum = sum + item.quantity, 0)} units across ${itemList.length} SKUs.`;
-	if(req.params.manifestId) {
-		__logger.info(`Updating manifest with id ${req.params.manifestId}: ${manifestSummaryStr}.`);
-		manifestReq = mandbClient.updateManifest(req.body.manifest);
+	if(manifest._id) {
+		__logger.info(`Updating manifest with id ${manifest._id}: ${manifestSummaryStr}.`);
+		manifestDbPromise = mandbClient.updateManifest(manifest);
 	}
 	else {
 		__logger.info(`Submitting new manifest: ${manifestSummaryStr}.`);
-		manifestReq = mandbClient.submitNewManifest(req.body.manifest);
+		manifestDbPromise = mandbClient.submitNewManifest(manifest);
 	}
-	manifestReq.then(resp=> { res.json(resp) } );
+	return manifestDbPromise;
 }
 
 function deleteManifest(req, res) {
