@@ -43,7 +43,7 @@ module.exports = {
         "/js/components/focus.js",
         "/js/components/footer.js",
         "js/components/list-lots.js",
-        "/js/components/manifest-store.js",
+        "/js/components/lot-store.js",
         "/js/components/navbar.js",
         "/js/components/new-lot.js",
         "/js/components/root.js",
