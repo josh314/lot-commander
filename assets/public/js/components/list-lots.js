@@ -6,7 +6,7 @@
 	var app = angular.module('myApp');
 
 	/******************* Manifest List Controller *************************/
-	app.controller('ListLotsCtrl', ['$scope', '$state', '$http', '$uibModal', 'manifestStore', 'sessionTimeout', function($scope, $state, $http, $uibModal, manifestStore, sessionTimeout) {
+	app.controller('ListLotsCtrl', ['$scope', '$state', '$http', '$uibModal', 'lotStore', 'sessionTimeout', function($scope, $state, $http, $uibModal, lotStore, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.lots = [];
 
@@ -23,13 +23,18 @@
 		}
 		updateLotList();
 
-		// $scope.editManifest = function(manifestId) {
-		// 	const targetManifest = $scope.manifests.find(man => man._id === manifestId);
-		// 	if(targetManifest) {
-		// 		manifestStore.newManifest(targetManifest.handle, targetManifest.description, targetManifest.inventory, targetManifest._id )
-		// 		$state.go('main.scan');
-		// 	}
-		// }
+		$scope.editLot = function(lotId) {
+			const targetLot = $scope.lots.find(lot => lot._id === lotId);
+			if(targetLot) {
+				lotStore.save(targetLot);
+				if(lotStore.manifestId) {
+					$http.get('/api/db/manifest/'+lotStore.manifestId).then(resp=>{
+						lotStore.setInventory(resp.data.manifest.inventory);
+					})
+				}
+				$state.go('main.scan');
+			}
+		}
 
 
 		// $scope.launchRequestFileModal = function(manifest) {

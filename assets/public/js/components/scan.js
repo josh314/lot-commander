@@ -6,30 +6,31 @@
 	var app = angular.module('myApp');
 
 	/******************* Newe Manifest Controller *************************/
-	app.controller('ScanCtrl', ['$scope', '$state', '$http', 'focus', 'manifestStore', 'sessionTimeout', function($scope, $state, $http, focus, manifestStore, sessionTimeout) {
+	app.controller('ScanCtrl', ['$scope', '$state', '$http', 'focus', 'lotStore', 'sessionTimeout', function($scope, $state, $http, focus, lotStore, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		focus('barcodeInput');
-		$scope.manifest = manifestStore;
+		$scope.lot = lotStore;
 
 		$scope.scanBarcode = function() {
 			if ($scope.scanForm.barcode.$valid) {
-				manifestStore.addInventory($scope.scannedBarcode);
+				lotStore.addInventory($scope.scannedBarcode);
 				// focus('barcodeInput');
 				$state.reload();
 			}
 		};
 
 		$scope.decrementInventory = function(barcode) {
-			manifestStore.decrementInventory(barcode);
+			lotStore.decrementInventory(barcode);
 			// focus('barcodeInput');
 			$state.reload();
 		};
 
-		$scope.submitManifest = function() {
-			const url = $scope.manifest._id ? '/api/db/submit/' + $scope.manifest._id : '/api/db/submit';
-			$http.post(url, { manifest: $scope.manifest }).then(resp=>{
-				$state.go('main.home');
-			});
-		}
+		// $scope.saveManifest = function() {
+		// 	const url = $scope.lot._id ? '/api/db/save-manifest/' + $scope.manifest._id : '/api/db/save-manifest/';
+		// 	$http.post(url, {lot: lot}).then(resp=>{
+		// 		//TODO: display errors
+		// 		$state.go('main.home');
+		// 	});
+		// }
 	}]);
 })();

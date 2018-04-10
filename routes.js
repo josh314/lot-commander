@@ -4,6 +4,7 @@ const express = require('express');
 const config = require(path.join(__basedir, 'config'));
 
 const assetsData = require(path.join(__basedir, config.modulesPath, 'assets-data'));
+
 const lotdb = require(path.join(__basedir, config.modulesPath, 'lot-db'));
 const files = require(path.join(__basedir, config.modulesPath, 'files'));
 
@@ -55,6 +56,8 @@ function routes(env) {
   // lot database api
   router.post('/api/db/get', lotdb.getLots);
   router.post('/api/db/new-lot', lotdb.newLot);
+  router.post('/api/db/save-manifest/:lotId', lotdb.saveManifest);
+  router.get('/api/db/manifest/:manifestId', lotdb.getManifest);
 
   // interact with manifest database
   // router.post('/api/db/get', mandb.getManifests);

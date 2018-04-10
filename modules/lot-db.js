@@ -10,8 +10,10 @@ const libLotDb = require(path.join(config.libDir.lotdb, 'lotdb'));
 const lotdbClient = new libLotDb.Client(config.db.lotdb); 
 
 
-function getLotById(lotId) {
-	return lotdbClient.getLotById(lotId);
+function getLotById(req, res) {
+	lotdbClient.getLotById(req.params.lotId).then(resp=>{
+		res.json(resp)
+	});
 }
 
 function getLots(req, res) {
@@ -37,9 +39,25 @@ function newLot(req, res) {
 	})
 }
 
+function saveManifest(req, res) {
+	console.log(req.params.lotId)
+	console.log(req.body)
+	Promise.resolve({}).then(resp=>{
+		res.json(resp)
+	})
+}
+
+function getManifest(req, res) {
+	mandb.getManifestById(req.params.manifestId).then(resp=>{
+		res.json({ manifest: resp });
+	});
+}
+
 module.exports = {
 	getLotById: getLotById,
 	getLots: getLots,
 	newLot: newLot,
+	saveManifest: saveManifest,
+	getManifest: getManifest,
 	// deleteLot: deleteLot,
 };

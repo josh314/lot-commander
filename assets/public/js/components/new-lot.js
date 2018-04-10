@@ -9,14 +9,14 @@
 	app.controller('NewLotCtrl', ['$http', '$scope', '$state', 'sessionTimeout', function($http, $scope, $state, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.startLot = function() {
-			if(!$scope.lotId) {
-				$scope.noLotIdSubmitted = true;
+			if(!$scope.handle) {
+				$scope.noHandleSubmitted = true;
 			}
 			else {
-				//TODO: check if this lotId exists in db
-				$scope.noLotIdSubmitted = false;
+				//TODO: check if this handle exists in db
+				$scope.noHandleSubmitted = false;
 				var newLot = {
-					handle: $scope.lotId,
+					handle: $scope.handle,
 					description: $scope.desc,
 				};
 				$http.post('/api/db/new-lot', newLot).then(resp=>{
