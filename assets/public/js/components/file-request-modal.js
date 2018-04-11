@@ -5,7 +5,7 @@
 	*************************************************************************/
 	var app = angular.module('myApp');
 
-	/******************* Manifest List Controller *************************/
+	/******************* Request File Modal Service *************************/
 	app.factory('requestFileModal', ['$state', '$http', '$uibModal', function($state, $http, $uibModal) {
 		return {
 			launch: function(lot) {

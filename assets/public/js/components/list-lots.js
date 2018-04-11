@@ -5,7 +5,7 @@
 	*************************************************************************/
 	var app = angular.module('myApp');
 
-	/******************* Manifest List Controller *************************/
+	/******************* Lot List Page Controller *************************/
 	app.controller('ListLotsCtrl', ['$scope', '$state', '$http', 'lotStore', 'messageModal', 'requestFileModal', 'sessionTimeout', function($scope, $state, $http, lotStore, messageModal, requestFileModal, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.lots = [];

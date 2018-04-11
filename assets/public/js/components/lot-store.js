@@ -5,8 +5,8 @@
 	*************************************************************************/
 	var app = angular.module('myApp');
 
-	/****************** Manifest store *****************************/
-	//Constructor function for manifestStore service
+	/****************** Lot store *****************************/
+	//Constructor function for lotStore service
 	function LotStore() {
 		this.reset = function() {
 			this.handle = undefined;

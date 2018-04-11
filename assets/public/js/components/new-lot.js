@@ -5,7 +5,7 @@
 	*************************************************************************/
 	var app = angular.module('myApp');
 
-	/******************* Newe Manifest Controller *************************/
+	/******************* New Lot Controller *************************/
 	app.controller('NewLotCtrl', ['$http', '$scope', '$state', 'sessionTimeout', function($http, $scope, $state, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.startLot = function() {
