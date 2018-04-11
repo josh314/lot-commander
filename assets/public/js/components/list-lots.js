@@ -6,7 +6,7 @@
 	var app = angular.module('myApp');
 
 	/******************* Manifest List Controller *************************/
-	app.controller('ListLotsCtrl', ['$scope', '$state', '$http', 'launchRequestFileModal', 'lotStore', 'sessionTimeout', function($scope, $state, $http, launchRequestFileModal, lotStore, sessionTimeout) {
+	app.controller('ListLotsCtrl', ['$scope', '$state', '$http', 'lotStore', 'messageModal', 'requestFileModal', 'sessionTimeout', function($scope, $state, $http, lotStore, messageModal, requestFileModal, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.lots = [];
 
@@ -36,7 +36,14 @@
 			}
 		}
 
-		$scope.launchRequestFileModal = launchRequestFileModal;
-		
+		$scope.requestFile = function(lot) {
+			if(!lot.manifestId) {
+				messageModal.launch({header: 'Error', body: 'No manifested items for this lot.', type: 'error'});
+			} 
+			else {
+				requestFileModal.launch(lot);
+			}
+		};
+
 	}]);
 })();

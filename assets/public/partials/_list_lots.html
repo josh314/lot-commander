@@ -15,7 +15,7 @@
 				    <td>{{lot.totalUnits ? lot.totalUnits : '---'}}</td>
 				    <td>{{lot.readableUpdatedAt}}</td>
 	                <td><button class="btn btn-success btn-xs" ng-click="editLot(lot._id)">Scan Items</button></td>
-	                <td><button class="btn btn-success btn-xs" ng-click="launchRequestFileModal(lot)">Create Manifest File</button></td>
+	                <td><button class="btn btn-success btn-xs" ng-click="requestFile(lot)">Create Manifest File</button></td>
 				</tr>
 			</tbody>
 		</table>

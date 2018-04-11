@@ -6,47 +6,44 @@
 	var app = angular.module('myApp');
 
 	/******************* Manifest List Controller *************************/
-	app.factory('launchRequestFileModal', ['$state', '$http', '$uibModal', function($state, $http, $uibModal) {
+	app.factory('requestFileModal', ['$state', '$http', '$uibModal', function($state, $http, $uibModal) {
+		return {
+			launch: function(lot) {
 
-		return function(lot) {
-			if(!lot.manifestId) {
-				console.log('No manifested items for this lot.');
-				return;
+		    const modalInstance = $uibModal.open({
+		      templateUrl: '/partials/_request_file_modal.html',
+		      size: 'lg',
+		      controller: 'RequestFileModalController',
+		      resolve: {
+		        lot: function () {
+		          return lot;
+		        }
+		      },
+		    });
+
+	      modalInstance.result.then(function(fileRequest) {
+	      	if(!fileRequest) {
+	      		return;
+	      	}
+					const body = {
+						manifestId: lot.manifestId,
+					}
+					if(fileRequest.format==='Bstock') {
+						body.bstock = {
+							Category: fileRequest.category,
+							Condition: fileRequest.condition,
+							Packaging: fileRequest.packaging,
+						};
+					}
+					$http.post(`/api/files/generate`, body).then(resp=>{
+						//TODO: some sort of acknoledgement of success/failure
+						$state.reload();
+					});
+				}, function () {
+		      console.log('Modal dismissed at: ' + new Date());
+		    });
 			}
-
-	    const modalInstance = $uibModal.open({
-	      templateUrl: '/partials/_request_file_modal.html',
-	      size: 'lg',
-	      controller: 'RequestFileModalController',
-	      resolve: {
-	        lot: function () {
-	          return lot;
-	        }
-	      },
-	    });
-
-      modalInstance.result.then(function(fileRequest) {
-      	if(!fileRequest) {
-      		return;
-      	}
-				const body = {
-					manifestId: lot.manifestId,
-				}
-				if(fileRequest.format==='Bstock') {
-					body.bstock = {
-						Category: fileRequest.category,
-						Condition: fileRequest.condition,
-						Packaging: fileRequest.packaging,
-					};
-				}
-				$http.post(`/api/files/generate`, body).then(resp=>{
-					//TODO: some sort of acknoledgement of success/failure
-					$state.reload();
-				});
-			}, function () {
-	      console.log('Modal dismissed at: ' + new Date());
-	    });
-		};
+		}
 	}]);
 
 	/***************** Modal Controller ************************/
