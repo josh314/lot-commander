@@ -5,7 +5,7 @@
 	*************************************************************************/
 	var app = angular.module('myApp');
 
-	/******************* Newe Manifest Controller *************************/
+	/******************* Scanning Page Controller *************************/
 	app.controller('ScanCtrl', ['$scope', '$state', '$http', 'focus', 'lotStore', 'sessionTimeout', function($scope, $state, $http, focus, lotStore, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		focus('barcodeInput');
