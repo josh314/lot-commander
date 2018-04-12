@@ -2,8 +2,7 @@ const path = require('path');
 
 const bcrypt   = require('bcrypt-nodejs');
 
-const config = require(path.join(__basedir, 'config'));
-const flashMessages = require(path.join(__basedir, config.modulesPath, 'flash-messages'));
+const flashMessages = require(path.join(__basedir, __config.modulesPath, 'flash-messages'));
 
 //=======================================
 //=======================================
@@ -22,7 +21,7 @@ const mongooseConnOpts = {
   socketTimeoutMS: 300000,
 };
 
-const userDbSettings = config.db.passportUserDb;
+const userDbSettings = __config.db.passportUserDb;
 const userDbAuth = userDbSettings.auth ? `${userDbSettings.auth.user}:${userDbSettings.auth.pass}@` : ''; 
 const userDbUrl = `mongodb://${userDbAuth}${userDbSettings.host}:${userDbSettings.port}/${userDbSettings.db}`;
 

@@ -3,17 +3,15 @@ const fs = require('fs');
 const winston = require('winston');
 const moment = require('moment');
 
-const config = require(path.join(__basedir, 'config'));
-
-const loggingPath = path.join(__basedir, config.logging.path);
+const loggingPath = path.join(__basedir, __config.logging.path);
 if(!fs.existsSync(loggingPath)) {
 	fs.mkdirSync(loggingPath)
 }
 
 let consoleLevel;
 const defaultConsoleLevel = 'error';
-if(config.logging.level && config.logging.level.console) {
-	consoleLevel = config.logging.level.console;
+if(__config.logging.level && __config.logging.level.console) {
+	consoleLevel = __config.logging.level.console;
 }
 else {
 	console.log(`No console logging level set. Defaulting to ${defaultConsoleLevel}.`);
@@ -22,8 +20,8 @@ else {
 
 let fileLevel;
 const defaultFileLevel = 'error';
-if(config.logging.level && config.logging.level.file) {
-	fileLevel = config.logging.level.file;
+if(__config.logging.level && __config.logging.level.file) {
+	fileLevel = __config.logging.level.file;
 }
 else {
 	console.log(`No file logging level set. Defaulting to ${defaultFileLevel}.`);

@@ -2,12 +2,12 @@ const path = require('path');
 
 const Promise = require('bluebird');
 
-const config = require(path.join(__basedir, 'config'));
-const mandb = require(path.join(__basedir, config.modulesPath, 'manifest-db'));
+// const config = require(path.join(__basedir, 'config'));
+const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 
-const libLotDb = require(path.join(config.libDir.lotdb, 'lotdb'));
+const libLotDb = require(path.join(__config.libDir.lotdb, 'lotdb'));
 
-const lotdbClient = new libLotDb.Client(config.db.lotdb); 
+const lotdbClient = new libLotDb.Client(__config.db.lotdb); 
 
 
 function getLotById(req, res) {

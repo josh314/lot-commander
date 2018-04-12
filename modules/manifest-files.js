@@ -10,12 +10,10 @@ const readFile = Promise.promisify(fs.readFile);
 const writeFile = Promise.promisify(fs.writeFile);
 const fileStats = Promise.promisify(fs.stat);
 
-const config = require(path.join(__basedir, 'config'));
+const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
+const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
-const mandb = require(path.join(__basedir, config.modulesPath, 'manifest-db'));
-const productData = require(path.join(__basedir, config.modulesPath, 'product-data'));
-
-const manifestFilesPath = path.join(__basedir, config.manifestFilesPath);
+const manifestFilesPath = path.join(__basedir, __config.manifestFilesPath);
 if(!fs.existsSync(manifestFilesPath)) {
 	fs.mkdirSync(manifestFilesPath);
 }

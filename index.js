@@ -17,7 +17,7 @@ const bodyParser = require('body-parser');
 // Load configuration & deployment options =======
 //================================================
 const configFile = path.join(__basedir, 'config');//TODO: make a global
-const config = require(configFile);
+global.__config = require(configFile);
 // if(!config) {
 //  throw new Error(`Deployment file not found at ${deployFile}!`)
 // }
@@ -25,7 +25,7 @@ const config = require(configFile);
 //=================================================
 // General logging ================================
 //=================================================
-global.__logger = require(path.join(__basedir, config.modulesPath, 'logger'));
+global.__logger = require(path.join(__basedir, __config.modulesPath, 'logger'));
 
 //=================================================
 // INITIALIZE EXPRESS APP =========================
@@ -33,13 +33,13 @@ global.__logger = require(path.join(__basedir, config.modulesPath, 'logger'));
 const express = require('express');
 const app = express();
 
-app.set('env', config.env);
+app.set('env', __config.env);
 
 //=================================================
 // FAVICON ========================================
 //=================================================
 try {
-	const favicon = path.join(__basedir, config.assets.favicon);
+	const favicon = path.join(__basedir, __config.assets.favicon);
 	app.use(require('serve-favicon')(favicon));
 }
 catch(exception) {
@@ -50,9 +50,9 @@ catch(exception) {
 // CONFIGURE VIEW ENGINE ==========================
 //=================================================
 
-const viewsPath = path.join(__basedir, config.views.root);
-const partialsPath = config.views.partials;
-const layoutsPath = config.views.layouts;
+const viewsPath = path.join(__basedir, __config.views.root);
+const partialsPath = __config.views.partials;
+const layoutsPath = __config.views.layouts;
 const hbs = require('express-handlebars').create({
   extname: '.hbs',
   defaultLayout: path.resolve(path.join(layoutsPath, 'index')),
@@ -85,7 +85,7 @@ app.use(morgan(requestLoggingMode, {
 //================================================
 // Cookies & Session =============================
 //================================================
-require(path.join(__basedir, config.modulesPath, 'app-session'))(app);
+require(path.join(__basedir, __config.modulesPath, 'app-session'))(app);
 
 app.use(express.json());//parse json bodies
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -95,7 +95,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //=================================================
 // Initialize passport module =====================
 //=================================================
-const users = require(path.join(__basedir, config.modulesPath, 'users'));
+const users = require(path.join(__basedir, __config.modulesPath, 'users'));
 app.use(users.passport.initialize());
 app.use(users.passport.session());//initializes req.user field
 
@@ -122,7 +122,7 @@ app.get('/logout', function(req, res) {
 //=================================================
 // Static server ==================================
 //=================================================
-app.use(users.api.isLoggedIn, express.static(path.join(__basedir, config.assets.root)));
+app.use(users.api.isLoggedIn, express.static(path.join(__basedir, __config.assets.root)));
 
 // //===================================================
 // // FLASH MESSAGE MIDDLEWARE =========================
@@ -177,7 +177,7 @@ app.use(function(err, req, res, next){
 //=================================================
 // Start the server 
 //=================================================
-const port = config.port;
+const port = __config.port;
 if(!port) {
 	throw new Error('No port specified.');
 }

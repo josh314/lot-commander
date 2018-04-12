@@ -1,13 +1,11 @@
 const path = require('path');
 
-const config = require(path.join(__basedir, 'config'));
-
 //Set up mongo store for flash messages
-const credentials = require(path.join(__basedir, config.modulesPath, 'credentials'));
+const credentials = require(path.join(__basedir, __config.modulesPath, 'credentials'));
 const session = require('express-session');
 const MongoStore = require('connect-mongodb-session')(session);
 
-const sessionDbSettings = config.db.sessionDb;
+const sessionDbSettings = __config.db.sessionDb;
 const sessionDbAuth = sessionDbSettings.auth ? `${sessionDbSettings.auth.user}:${sessionDbSettings.auth.pass}@` : ''; 
 const sessionDbUrl = `mongodb://${sessionDbAuth}${sessionDbSettings.host}:${sessionDbSettings.port}/${sessionDbSettings.db}`;
 const sessionStore = new MongoStore({

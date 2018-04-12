@@ -1,11 +1,10 @@
 const path = require('path');
 
-const config = require(path.join(__basedir, 'config'));
 
-const libBarcodes = require(path.join(config.libDir.barcodes, 'lib'));
+const libBarcodes = require(path.join(__config.libDir.barcodes, 'lib'));
 
-const mwsdb = require(path.join(config.libDir.mws, 'mwsdb'));
-const mwsdbClient = new mwsdb.Client(config.db.mwsdb);
+const mwsdb = require(path.join(__config.libDir.mws, 'mwsdb'));
+const mwsdbClient = new mwsdb.Client(__config.db.mwsdb);
 
 // MWS data ////////////////////////////////////////////////
 
