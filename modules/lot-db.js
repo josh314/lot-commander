@@ -2,7 +2,6 @@ const path = require('path');
 
 const Promise = require('bluebird');
 
-// const config = require(path.join(__basedir, 'config'));
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 
 const libLotDb = require(path.join(__config.libDir.lotdb, 'lotdb'));

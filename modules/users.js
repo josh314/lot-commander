@@ -210,7 +210,6 @@ function changeUserPassword(req,res) {
     __logger.error(err);
   })
   .finally(()=>{
-    console.log(status)
     res.json({status: status});
   });
 }
