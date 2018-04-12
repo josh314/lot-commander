@@ -39,6 +39,15 @@ function newLot(req, res) {
 	})
 }
 
+function editLotMetadata(req, res) {
+	const lotData = req.body;
+	lotData._id = req.params.lotId;
+	console.log(lotData);
+	lotdbClient.updateLot(lotData).then(resp=>{
+		res.json(resp);
+	})
+}
+
 function saveManifest(req, res) {
 	console.log(JSON.stringify(req.body,null,2))
 	// save inventoy to manifest db
@@ -75,7 +84,9 @@ module.exports = {
 	getLotById: getLotById,
 	getLots: getLots,
 	newLot: newLot,
+	editLotMetadata: editLotMetadata,
 	saveManifest: saveManifest,
 	getManifest: getManifest,
+	lotStatusEnum: lotdbClient.LotModel.statusEnum,
 	// deleteLot: deleteLot,
 };

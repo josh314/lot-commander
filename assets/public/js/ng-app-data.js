@@ -9,6 +9,7 @@
     { name: "main.new", navName: 'New Lot', url: '/new', templateUrl: '/partials/_new_lot.html', controller: 'NewLotCtrl'},
     { name: "main.scan", url: '/scan', templateUrl: '/partials/_scan.html', controller: 'ScanCtrl'},
     { name: "main.list", navName: 'List Lots', url: '/list', templateUrl: '/partials/_list_lots.html', controller: 'ListLotsCtrl'},
+    { name: "main.view", url: '/view/{lotId}', templateUrl: '/partials/_view_lot.html', controller: 'ViewLotCtrl'},
     // files
     { name: "main.files", navName: 'Files', url: '/files', templateUrl: '/partials/_files.html', controller: 'FilesCtrl'},
     // users
@@ -76,4 +77,5 @@
       'See Image(s)',
     ],
   });
+
 })();

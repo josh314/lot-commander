@@ -36,6 +36,19 @@
 			}
 		}
 
+		$scope.viewLot = function(lotId) {
+			const targetLot = $scope.lots.find(lot => lot._id === lotId);
+			if(targetLot) {
+				lotStore.save(targetLot);
+				if(lotStore.manifestId) {
+					$http.get('/api/db/manifest/'+lotStore.manifestId).then(resp=>{
+						lotStore.setInventory(resp.data.manifest.inventory);
+					})
+				}
+				$state.go('main.view');
+			}
+		}
+
 		$scope.requestFile = function(lot) {
 			if(!lot.manifestId) {
 				messageModal.launch({header: 'Error', body: 'No manifested items for this lot.', type: 'error'});

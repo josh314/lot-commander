@@ -51,6 +51,8 @@ module.exports = {
         "/js/components/root.js",
         "/js/components/scan.js",
         "/js/components/users.js",
+        "/js/components/view-lot.js",
+        "/lot-status-enum"
         ]
     }
   }

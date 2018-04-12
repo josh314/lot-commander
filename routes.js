@@ -55,7 +55,9 @@ function routes(env) {
 
   // lot database api
   router.post('/api/db/get', lotdb.getLots);
+  router.get('/api/db/get/:lotId', lotdb.getLotById);
   router.post('/api/db/new-lot', lotdb.newLot);
+  router.post('/api/db/edit-lot/:lotId', lotdb.editLotMetadata);
   router.post('/api/db/save-manifest', lotdb.saveManifest);
   router.get('/api/db/manifest/:manifestId', lotdb.getManifest);
 
@@ -71,7 +73,10 @@ function routes(env) {
   router.get('/api/files/download/:file', files.downloadManifestFile);
   // router.get('/api/files/delete/:manifestId', files.deleteManifestFile);
 
-
+  // dynamically created JS scripts for the client
+  router.get('/lot-status-enum', (req,res)=>{
+    res.send('var lotStatusEnum = '+ JSON.stringify(lotdb.lotStatusEnum));
+  })
 
   //default route. the front-end rendering will all hit this.
   router.get('*', (req,res) => res.render('main.hbs', getLayoutDataByEnv(env)) );

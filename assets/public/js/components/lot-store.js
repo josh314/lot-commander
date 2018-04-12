@@ -14,6 +14,7 @@
 			this.inventory = [];
 			this._id = undefined;
 			this.manifestId = undefined;
+			this.status = lotStatusEnum[0];
 		};
 		this.reset();
 
@@ -22,6 +23,8 @@
 		this.setDescription = function(_description) { this.description = _description; }
 
 		this.setInventory = function(_inventory) { this.inventory = _inventory; }
+
+		this.setStatus = function(_status) { this.status = _status; }
 
 		this.save = function(_lot) {
 			this.reset();
@@ -37,6 +40,9 @@
 			}
 			if(_lot.manifestId) {
 				this.manifestId = _lot.manifestId;
+			}
+			if(_lot.status) {
+				this.status = _lot.status;
 			}
 		}
 
@@ -64,6 +70,7 @@
 		this.getHandle = function() { return this.handle; };
 		this.getInventory = function() { return this.inventory; };
 		this.getDescription = function() { return this.description; };
+		this.getStatus = function() { return this.status; };
 
 		this.getInventoryTotal = function() {
 			return this.inventory.reduce((acc,val) => {return acc + val.quantity;}, 0);
