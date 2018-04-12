@@ -75,7 +75,10 @@ function routes(env) {
 
   // dynamically created JS scripts for the client
   router.get('/db-enums.js', (req,res)=>{
-    res.send('var lotStatusEnum = '+ JSON.stringify(lotdb.lotStatusEnum));
+    const enums = {
+      lotStatus: lotdb.lotStatusEnum,
+    }
+    res.send('var dbEnums = '+ JSON.stringify(enums));
   })
 
   //default route. the front-end rendering will all hit this.

@@ -78,4 +78,6 @@
     ],
   });
 
+  // These enums are loaded in another script
+  app.constant('dbEnums', dbEnums);
 })();

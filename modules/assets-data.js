@@ -35,7 +35,7 @@ module.exports = {
       local: [
         //Put any non-angular files first
         "/js/ng-app-init.js",
-        "/db-enums.js",
+        "/db-enums.js",//not a static JS file but an express endpoint!
         "/js/ng-app-data.js",
         "/js/ng-app-config.js",
         "/js/ng-app-run.js",

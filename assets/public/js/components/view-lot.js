@@ -60,8 +60,8 @@
 	}]);
 
 	/***************** Modal Controller ************************/
-	app.controller('EditLotModalController', [ '$scope', 'lot', function($scope, lot){
+	app.controller('EditLotModalController', [ '$scope', 'dbEnums', 'lot', function($scope, dbEnums, lot){
 		$scope.lot = JSON.parse(JSON.stringify(lot));
-		$scope.lotStatusEnum = lotStatusEnum;
+		$scope.lotStatusEnum = dbEnums.lotStatus;
 	}]);
 })();
