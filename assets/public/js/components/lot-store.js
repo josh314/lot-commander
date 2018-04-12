@@ -7,14 +7,14 @@
 
 	/****************** Lot store *****************************/
 	//Constructor function for lotStore service
-	function LotStore() {
+	function LotStore(dbEnums) {
 		this.reset = function() {
 			this.handle = undefined;
 			this.description = undefined;
 			this.inventory = [];
 			this._id = undefined;
 			this.manifestId = undefined;
-			this.status = lotStatusEnum[0];
+			this.status = dbEnums.lotStatus[0];
 		};
 		this.reset();
 
@@ -101,5 +101,5 @@
 		};
 
 	}
-	app.service('lotStore', [LotStore]);//register service
+	app.service('lotStore', ['dbEnums', LotStore]);//register service
 })();
