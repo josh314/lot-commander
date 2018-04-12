@@ -6,7 +6,8 @@ const config = require(path.join(__basedir, 'config'));
 const assetsData = require(path.join(__basedir, config.modulesPath, 'assets-data'));
 
 const lotdb = require(path.join(__basedir, config.modulesPath, 'lot-db'));
-const files = require(path.join(__basedir, config.modulesPath, 'files'));
+const manifestFiles = require(path.join(__basedir, config.modulesPath, 'manifest-files'));
+const images = require(path.join(__basedir, config.modulesPath, 'images'));
 
 const users = require(path.join(__basedir, config.modulesPath, 'users'));
 
@@ -68,9 +69,9 @@ function routes(env) {
   // router.get('/api/db/delete/:manifestId', mandb.deleteManifest);
 
   // deal with files
-  router.get('/api/files/list', files.listManifestFiles);
-  router.post('/api/files/generate', files.generateManifestFile);
-  router.get('/api/files/download/:file', files.downloadManifestFile);
+  router.get('/api/files/list', manifestFiles.listManifestFiles);
+  router.post('/api/files/generate', manifestFiles.generateManifestFile);
+  router.get('/api/files/download/:file', manifestFiles.downloadManifestFile);
   // router.get('/api/files/delete/:manifestId', files.deleteManifestFile);
 
   // dynamically created JS scripts for the client
