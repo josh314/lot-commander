@@ -14,7 +14,7 @@
 					<td><a ng-href="view/{{lot._id}}">{{lot.handle}}</a></td>
 				    <td>{{lot.totalUnits ? lot.totalUnits : '---'}}</td>
 				    <td>{{lot.readableUpdatedAt}}</td>
-	                <td><button class="btn btn-success btn-xs" ng-click="editLot(lot._id)">Scan Items</button></td>
+	                <td><button class="btn btn-success btn-xs" ng-click="scanItems(lot._id)">Scan Items</button></td>
 	                <td><button class="btn btn-success btn-xs" ng-click="requestFile(lot)">Create Manifest File</button></td>
 				</tr>
 			</tbody>

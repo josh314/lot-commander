@@ -23,7 +23,7 @@
 		}
 		updateLotList();
 
-		$scope.editLot = function(lotId) {
+		$scope.scanItems = function(lotId) {
 			const targetLot = $scope.lots.find(lot => lot._id === lotId);
 			if(targetLot) {
 				lotStore.save(targetLot);
