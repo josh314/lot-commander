@@ -6,8 +6,9 @@
 	var app = angular.module('myApp');
 
 	/******************* View Lot Controller *************************/
-	app.controller('ViewLotCtrl', ['$http', '$scope', '$stateParams', '$uibModal', 'lotStore', 'sessionTimeout', function($http, $scope, $stateParams, $uibModal, lotStore, sessionTimeout) {
+	app.controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'lotStore', 'sessionTimeout', function($http, $scope, $state, $stateParams, $uibModal, lotStore, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
+		$scope.lot = lotStore;
 
 		function getLot() {
 			//TODO: incorporate search/sort options
@@ -36,18 +37,26 @@
 	    });
 
       modalInstance.result.then(function (lot) {
-      	console.log(lot)
-				// const data = { description: 'test' };
-				// $http.post('api/db/edit-lot/'+lotStore._id, data).then(resp=>{
-				// 	console.log(resp);
-				// 	$state.go('main.list');
-				// });
+				$http.post('api/db/edit-lot/'+lotStore._id, lot).then(resp=>{
+					console.log(resp);
+					lotStore.save(lot);
+					$state.reload();
+				// $state.go($state.current, {}, {reload: true});
+				});
 	    }, function () {
 	      console.log('Modal dismissed at: ' + new Date());
 	    });
 		}
 
-		$scope.lot = lotStore;
+		$scope.scanItems = function() {
+			if(lotStore.manifestId) {
+				$http.get('/api/db/manifest/'+lotStore.manifestId).then(resp=>{
+					lotStore.setInventory(resp.data.manifest.inventory);
+				})
+			}
+			$state.go('main.scan');
+		}
+
 	}]);
 
 	/***************** Modal Controller ************************/
