@@ -42,7 +42,6 @@ function newLot(req, res) {
 function editLotMetadata(req, res) {
 	const lotData = req.body;
 	lotData._id = req.params.lotId;
-	console.log(lotData);
 	lotdbClient.updateLot(lotData).then(resp=>{
 		res.json(resp);
 	})
