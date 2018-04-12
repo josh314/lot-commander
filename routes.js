@@ -74,7 +74,7 @@ function routes(env) {
   // router.get('/api/files/delete/:manifestId', files.deleteManifestFile);
 
   // dynamically created JS scripts for the client
-  router.get('/lot-status-enum', (req,res)=>{
+  router.get('/db-enums.js', (req,res)=>{
     res.send('var lotStatusEnum = '+ JSON.stringify(lotdb.lotStatusEnum));
   })
 

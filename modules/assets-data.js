@@ -35,6 +35,7 @@ module.exports = {
       local: [
         //Put any non-angular files first
         "/js/ng-app-init.js",
+        "/db-enums.js",
         "/js/ng-app-data.js",
         "/js/ng-app-config.js",
         "/js/ng-app-run.js",
@@ -52,7 +53,6 @@ module.exports = {
         "/js/components/scan.js",
         "/js/components/users.js",
         "/js/components/view-lot.js",
-        "/lot-status-enum"
         ]
     }
   }
