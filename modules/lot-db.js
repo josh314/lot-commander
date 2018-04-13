@@ -78,7 +78,12 @@ function getManifest(req, res) {
 	});
 }
 
+function addImage(lotId, imageMetadata) {
+	return lotdbClient.addImage(lotId, imageMetadata);
+}
+
 module.exports = {
+	//middleware
 	getLotById: getLotById,
 	getLots: getLots,
 	newLot: newLot,
@@ -87,4 +92,7 @@ module.exports = {
 	getManifest: getManifest,
 	lotStatusEnum: lotdbClient.LotModel.statusEnum,
 	// deleteLot: deleteLot,
+
+	// other functionality
+	addImage: addImage,
 };

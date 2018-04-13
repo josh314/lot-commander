@@ -29,13 +29,10 @@
 		     fd.append(key, val);
 	     }
 
-	     $http.post(uploadUrl, fd, {
+	     return $http.post(uploadUrl, fd, {
 	        transformRequest: angular.identity,
 	        headers: {'Content-Type': undefined}
 	     })
-			.catch(function(e){
-				console.log(e);
-			})
 	  }
 	}]);
 

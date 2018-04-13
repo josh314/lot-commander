@@ -29,14 +29,15 @@
 			return image.filename;
 		}
 
-		$scope.uploadImage = function() {
-
-		}
-
-    $scope.uploadFile = function(){
-     var file = $scope.myFile;
-     var uploadUrl = "/api/image/upload";
-     fileUpload.uploadFileToUrl(file, uploadUrl);
+    $scope.uploadImage = function(){
+    	if($scope.imageToUpload) {
+		    const image = $scope.imageToUpload;
+		    const uploadUrl = "/api/image/upload";
+		    const metadata = { lotId: lotStore._id, primary: false };
+		    fileUpload.uploadFileToUrl(image, uploadUrl, metadata).then(resp=>{
+		    	$state.reload();
+		    });
+		  }
     };
 
 		$scope.editLot = function() {
