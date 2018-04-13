@@ -25,13 +25,13 @@
 				<h4>Images</h4>
 			</div>
 			<div class="col-xs-4" ng-repeat="image in images">
-				<a ng-click >
-				<img ng-src="{{getImageLink(image)}}" class="img-thumbnail" width="240" height="auto">
+				<img ng-src="{{getImageLink(image)}}" class="img-thumbnail primary-image" width="240" height="auto">
 				<!-- Buttons to make primary and to remove -->
+				<input type="checkbox" ng-model="primaryImage[image.filename]" ng-click="updatePrimaryImage(image.filename)">
 				<button class="btn btn-success" ng-click="">Set as Primary</button>
 				<button class="btn btn-danger" ng-click="">Delete</button>
-				</a>
 			</div>
+
 			<div class="col-xs-12">
 				<h5>Add an image</h5>
 				<div>

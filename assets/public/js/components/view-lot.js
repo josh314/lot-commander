@@ -9,6 +9,7 @@
 	app.controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'fileUpload', 'lotStore', 'sessionTimeout', function($http, $scope, $state, $stateParams, $uibModal, fileUpload, lotStore, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.lot = lotStore;
+		$scope.primaryImage = {};//TODO: initialize from lot data
 
 		function getLot() {
 			//TODO: incorporate search/sort options
@@ -28,6 +29,12 @@
 		$scope.getImageLink = function(image) {
 			return image.filename;
 		}
+
+		$scope.updatePrimaryImage = function(image) {
+			$scope.primaryImage = {};
+			$scope.primaryImage[image] = true;
+			//TODO : update primary image in lot-db
+		};
 
     $scope.uploadImage = function(){
     	if($scope.imageToUpload) {
@@ -57,7 +64,6 @@
 					console.log(resp);
 					lotStore.save(lot);
 					$state.reload();
-				// $state.go($state.current, {}, {reload: true});
 				});
 	    }, function () {
 	      console.log('Modal dismissed at: ' + new Date());
