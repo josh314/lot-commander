@@ -55,7 +55,7 @@ function routes(env) {
   // router.post('/api/users/edit-role', users.api.isManager, users.api.editUserRole);
 
   // lot database api
-  router.post('/api/db/get', lotdb.getLots);
+  router.post('/api/db/get', express.json(), lotdb.getLots);
   router.get('/api/db/get/:lotId', lotdb.getLotById);
   router.post('/api/db/new-lot', lotdb.newLot);
   router.post('/api/db/edit-lot/:lotId', lotdb.editLotMetadata);
@@ -73,6 +73,7 @@ function routes(env) {
   router.post('/api/files/generate', manifestFiles.generateManifestFile);
   router.get('/api/files/download/:file', manifestFiles.downloadManifestFile);
   // router.get('/api/files/delete/:manifestId', files.deleteManifestFile);
+  router.post('/api/image/upload', images.upload);
 
   // dynamically created JS scripts for the client
   router.get('/db-enums.js', (req,res)=>{

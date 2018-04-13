@@ -6,7 +6,7 @@
 	var app = angular.module('myApp');
 
 	/******************* View Lot Controller *************************/
-	app.controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'lotStore', 'sessionTimeout', function($http, $scope, $state, $stateParams, $uibModal, lotStore, sessionTimeout) {
+	app.controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'fileUpload', 'lotStore', 'sessionTimeout', function($http, $scope, $state, $stateParams, $uibModal, fileUpload, lotStore, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.lot = lotStore;
 
@@ -15,14 +15,29 @@
 			$http.get('/api/db/get/' + $stateParams.lotId).then(resp=>{
 				const lot = resp.data;
 				lotStore.save(lot);
+				$scope.images = lot.images;
 				if(lot.manifestId) {
 					$http.get('/api/db/manifest/'+lot.manifestId).then(resp=>{
-						lotStore.setInventory(resp.data.manifest.inventory)
+						lotStore.setInventory(resp.data.manifest.inventory);
 					});
 				}
 			});
 		}
 		getLot();
+
+		$scope.getImageLink = function(image) {
+			return image.filename;
+		}
+
+		$scope.uploadImage = function() {
+
+		}
+
+    $scope.uploadFile = function(){
+     var file = $scope.myFile;
+     var uploadUrl = "/api/image/upload";
+     fileUpload.uploadFileToUrl(file, uploadUrl);
+    };
 
 		$scope.editLot = function() {
 	    const modalInstance = $uibModal.open({

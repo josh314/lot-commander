@@ -22,14 +22,31 @@
 	<div class="well">
 		<div class="row">
 			<div class="col-xs-12">
-				<h4>Files</h4>
+				<h4>Images</h4>
+			</div>
+			<div class="col-xs-4" ng-repeat="image in images">
+				<a ng-click >
+				<img ng-src="{{getImageLink(image)}}" class="img-thumbnail" width="240" height="auto">
+				<!-- Buttons to make primary and to remove -->
+				</a>
 			</div>
 			<div class="col-xs-12">
-				Image uploading goes here
+				<h5>Add an image</h5>
+				<div>
+				   <input type = "file" file-model = "myFile"/>
+				   <button ng-click = "uploadFile()">Upload File</button>
+				</div>
+				<!-- Search existing images on server -->
 			</div>
+		</div>
+	</div>
+
+	<div class="well">
+		<div class="row">
 			<div class="col-xs-12">
-				Uploading 3rd-party manifest files goes here
+				<h4>Third-party Manifests</h4>
 			</div>
+			Third party manifest shit goes here
 		</div>
 	</div>
 

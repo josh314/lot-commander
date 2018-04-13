@@ -11,7 +11,7 @@
     { name: "main.list", navName: 'List Lots', url: '/list', templateUrl: '/partials/_list_lots.html', controller: 'ListLotsCtrl'},
     { name: "main.view", url: '/view/{lotId}', templateUrl: '/partials/_view_lot.html', controller: 'ViewLotCtrl'},
     // files
-    { name: "main.files", navName: 'Files', url: '/files', templateUrl: '/partials/_files.html', controller: 'FilesCtrl'},
+    { name: "main.files", navName: 'Files', url: '/files', templateUrl: '/partials/_files.html', controller: 'ManifestFilesCtrl'},
     // users
     { name: "main.users", abstract:true, navName: "Users", url: "/users", templateUrl: 'partials/_container.html'},
     { name: "main.users.change-password", navName: "Change Password", navParent: 'Users', url: "/change-password", templateUrl: 'partials/users/_change_password.html', controller:'ChangeUserPasswordCtrl'},

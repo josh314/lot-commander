@@ -123,6 +123,7 @@ app.get('/logout', function(req, res) {
 // Static server ==================================
 //=================================================
 app.use(users.api.isLoggedIn, express.static(path.join(__basedir, __config.assets.root)));
+app.use(users.api.isLoggedIn, express.static(path.join(__basedir, __config.imgPath)));
 
 // //===================================================
 // // FLASH MESSAGE MIDDLEWARE =========================
