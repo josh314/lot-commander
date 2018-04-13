@@ -22,9 +22,13 @@
 	}]);
 	// File upload service
 	app.service('fileUpload', ['$http', function ($http) {
-	  this.uploadFileToUrl = function(file, uploadUrl){
+	  this.uploadFileToUrl = function(file, uploadUrl, metadata){
 	     var fd = new FormData();
 	     fd.append('file', file);
+	     for( let [key, val] of Object.entries(metadata)) {
+		     fd.append(key, val);
+	     }
+
 	     $http.post(uploadUrl, fd, {
 	        transformRequest: angular.identity,
 	        headers: {'Content-Type': undefined}
