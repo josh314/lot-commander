@@ -9,10 +9,8 @@
 	app.controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'fileUpload', 'lotStore', 'sessionTimeout', function($http, $scope, $state, $stateParams, $uibModal, fileUpload, lotStore, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.lot = lotStore;
-		$scope.primaryImage = {};//TODO: initialize from lot data
 
 		function getLot() {
-			//TODO: incorporate search/sort options
 			$http.get('/api/db/get/' + $stateParams.lotId).then(resp=>{
 				const lot = resp.data;
 				lotStore.save(lot);
@@ -31,15 +29,12 @@
 		}
 
 		$scope.updatePrimaryImage = function(image) {
-			console.log(image)
 			$http.post('/api/image/primary', {lotId: $scope.lot._id, primaryImage: image}).then(resp=>{
 				console.log(resp)
 				if(!resp.error) {
-					$scope.primaryImage = {};
-					$scope.primaryImage[image] = true;
+					$state.reload();
 				}
 			})
-			//TODO : update primary image in lot-db
 		};
 
     $scope.uploadImage = function(){
