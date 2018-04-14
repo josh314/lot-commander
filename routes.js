@@ -74,6 +74,7 @@ function routes(env) {
   router.get('/api/files/download/:file', manifestFiles.downloadManifestFile);
   // router.get('/api/files/delete/:manifestId', files.deleteManifestFile);
   router.post('/api/image/upload', images.upload);
+  router.post('/api/image/primary', lotdb.setPrimaryImage);
 
   // dynamically created JS scripts for the client
   router.get('/db-enums.js', (req,res)=>{

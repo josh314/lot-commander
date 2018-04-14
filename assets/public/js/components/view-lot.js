@@ -31,8 +31,14 @@
 		}
 
 		$scope.updatePrimaryImage = function(image) {
-			$scope.primaryImage = {};
-			$scope.primaryImage[image] = true;
+			console.log(image)
+			$http.post('/api/image/primary', {lotId: $scope.lot._id, primaryImage: image}).then(resp=>{
+				console.log(resp)
+				if(!resp.error) {
+					$scope.primaryImage = {};
+					$scope.primaryImage[image] = true;
+				}
+			})
 			//TODO : update primary image in lot-db
 		};
 

@@ -78,6 +78,20 @@ function getManifest(req, res) {
 	});
 }
 
+function setPrimaryImage(req, res) {
+	lotdbClient.setPrimaryImage(req.body.lotId, req.body.primaryImage).then(resp=>{
+		if(!resp.error) {
+			res.json({error: 'server error.'});
+		}
+		else {
+			res.json(resp);
+		}
+	})
+	.catch(e=>{
+		res.json({ error: e})
+	})
+}
+
 function addImage(lotId, imageMetadata) {
 	return lotdbClient.addImage(lotId, imageMetadata);
 }
@@ -90,9 +104,9 @@ module.exports = {
 	editLotMetadata: editLotMetadata,
 	saveManifest: saveManifest,
 	getManifest: getManifest,
-	lotStatusEnum: lotdbClient.LotModel.statusEnum,
+	setPrimaryImage: setPrimaryImage,
 	// deleteLot: deleteLot,
-
 	// other functionality
 	addImage: addImage,
+	lotStatusEnum: lotdbClient.LotModel.statusEnum,
 };
