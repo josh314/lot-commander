@@ -14,6 +14,7 @@
   "author": "Jorshua \"El\" Davis",
   "license": "ISC",
   "dependencies": {
+    "archiver": "^2.1.1",
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "^3.5.1",
     "connect-mongodb-session": "^2.0.1",
