@@ -76,6 +76,7 @@ function routes(env) {
   router.post('/api/image/upload', images.upload);
   router.post('/api/image/primary', lotdb.setPrimaryImage);
   router.get('/api/image/download/:lotId', images.downloadImages);
+  router.post('/api/image/remove', images.removeImage);
 
   // dynamically created JS scripts for the client
   router.get('/db-enums.js', (req,res)=>{

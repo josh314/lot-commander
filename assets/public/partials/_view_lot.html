@@ -31,8 +31,8 @@
 				<img ng-src="{{getImageLink(image)}}" class="img-thumbnail primary-image" width="240" height="auto">
 				<!-- Buttons to make primary and to remove -->
 				<input type="checkbox" ng-model="image.primary" ng-click="updatePrimaryImage(image.filename)">
-				<button class="btn btn-success" ng-click="">Set as Primary</button>
-				<button class="btn btn-danger" ng-click="">Delete</button>
+				<!-- <button class="btn btn-success" ng-click="">Set as Primary</button> -->
+				<button class="btn btn-danger" ng-click="removeImage(image.filename)">Remove Image</button>
 			</div>
 			<div class="col-xs-12">
 				<h5>Add an image</h5>

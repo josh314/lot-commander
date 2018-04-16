@@ -34,6 +34,18 @@ function upload(req,res) {
   });
 }
 
+function removeImage(req, res) {
+	const [lotId, imageFile] = [req.body.lotId, req.body.image];
+	lotdb.deleteImage(lotId, imageFile).then(resp=>{
+		if(resp.error) {
+			__logger.error(resp.error);
+			res.json({error: 'Server error.'});
+		}
+		__logger.info(`Removed image ${imageFile} from lot ${lotId}.`);
+		res.json({ status: "success" });
+	})
+}
+
 async function downloadImages(req, res) {
 
 	const lotRequest = lotdb.getLotById(req.params.lotId);
@@ -69,5 +81,6 @@ async function downloadImages(req, res) {
 
 module.exports = {
 	upload: upload,
+	removeImage: removeImage,
 	downloadImages: downloadImages
 };
