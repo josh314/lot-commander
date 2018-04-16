@@ -24,6 +24,9 @@
 			<div class="col-xs-12">
 				<h4>Images</h4>
 			</div>
+			<div class="col-xs-12 form-group">
+				<a ng-href="/api/image/download/{{lot._id}}" target="_self" download><button class="btn btn-info" ng-click=""><span class="glyphicon glyphicon-download-alt"></span> Download All Images</button></a>
+			</div>
 			<div class="col-xs-4" ng-repeat="image in images">
 				<img ng-src="{{getImageLink(image)}}" class="img-thumbnail primary-image" width="240" height="auto">
 				<!-- Buttons to make primary and to remove -->
@@ -31,7 +34,6 @@
 				<button class="btn btn-success" ng-click="">Set as Primary</button>
 				<button class="btn btn-danger" ng-click="">Delete</button>
 			</div>
-
 			<div class="col-xs-12">
 				<h5>Add an image</h5>
 				<div>
