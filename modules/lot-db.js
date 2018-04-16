@@ -8,9 +8,12 @@ const libLotDb = require(path.join(__config.libDir.lotdb, 'lotdb'));
 
 const lotdbClient = new libLotDb.Client(__config.db.lotdb); 
 
+function getLotById(lotId) {
+	return lotdbClient.getLotById(lotId);
+}
 
-function getLotById(req, res) {
-	lotdbClient.getLotById(req.params.lotId).then(resp=>{
+function getLotByIdApi(req, res) {
+	getLotById(req.params.lotId).then(resp=>{
 		res.json(resp)
 	});
 }
@@ -96,7 +99,7 @@ function addImage(lotId, imageMetadata) {
 
 module.exports = {
 	//middleware
-	getLotById: getLotById,
+	getLotByIdApi: getLotByIdApi,
 	getLots: getLots,
 	newLot: newLot,
 	editLotMetadata: editLotMetadata,
@@ -105,6 +108,7 @@ module.exports = {
 	setPrimaryImage: setPrimaryImage,
 	// deleteLot: deleteLot,
 	// other functionality
+	getLotById: getLotById,
 	addImage: addImage,
 	lotStatusEnum: lotdbClient.LotModel.statusEnum,
 };

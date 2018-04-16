@@ -56,7 +56,7 @@ function routes(env) {
 
   // lot database api
   router.post('/api/db/get', express.json(), lotdb.getLots);
-  router.get('/api/db/get/:lotId', lotdb.getLotById);
+  router.get('/api/db/get/:lotId', lotdb.getLotByIdApi);
   router.post('/api/db/new-lot', lotdb.newLot);
   router.post('/api/db/edit-lot/:lotId', lotdb.editLotMetadata);
   router.post('/api/db/save-manifest', lotdb.saveManifest);
@@ -75,6 +75,7 @@ function routes(env) {
   // router.get('/api/files/delete/:manifestId', files.deleteManifestFile);
   router.post('/api/image/upload', images.upload);
   router.post('/api/image/primary', lotdb.setPrimaryImage);
+  router.get('/api/image/download/:lotId', images.downloadImages);
 
   // dynamically created JS scripts for the client
   router.get('/db-enums.js', (req,res)=>{
