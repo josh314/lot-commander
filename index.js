@@ -169,7 +169,7 @@ app.use(function(err, req, res, next){
   __logger.error(err);
   res.json({
     status: 'error',
-    error: err.message,
+    error: 'Server Error.',
   });
 });
 
