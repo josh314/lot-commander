@@ -90,8 +90,6 @@ require(path.join(__basedir, __config.modulesPath, 'app-session'))(app);
 app.use(express.json());//parse json bodies
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-
 //=================================================
 // Initialize passport module =====================
 //=================================================
@@ -168,10 +166,10 @@ app.use('/', users.api.isLoggedIn, routes);
 app.use(function(err, req, res, next){
   // __logger.error(`404: path does not exist -- ${req.originalUrl}`);
   // res.status(404).render('404', {});
-  __logger.error(err)
+  __logger.error(err);
   res.json({
     status: 'error',
-    error: err
+    error: err.message,
   });
 });
 

@@ -80,15 +80,13 @@ function getManifest(req, res) {
 
 function setPrimaryImage(req, res) {
 	lotdbClient.setPrimaryImage(req.body.lotId, req.body.primaryImage).then(resp=>{
-		if(!resp.error) {
+		if(resp.error) {
+			__logger.error(resp.error)
 			res.json({error: 'server error.'});
 		}
 		else {
 			res.json(resp);
 		}
-	})
-	.catch(e=>{
-		res.json({ error: e})
 	})
 }
 

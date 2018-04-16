@@ -20,7 +20,7 @@ function upload(req,res) {
   	for(let [_, f] of Object.entries(files)){
 			const s = save(f.path, path.join(imgPath, f.name), (err)=>{
 				if (err) {
-					console.log(err);
+					__logger.error(err);
 					return;
 				}
 				if(fields.lotId) {
