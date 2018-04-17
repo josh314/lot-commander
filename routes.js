@@ -82,9 +82,11 @@ function routes(env) {
   router.get('/db-enums.js', (req,res)=>{
     const enums = {
       lotStatus: lotdb.lotStatusEnum,
+      lotType: lotdb.lotTypeEnum
     }
+    console.log(enums)
     res.send('var dbEnums = '+ JSON.stringify(enums));
-  })
+  });
 
   //default route. the front-end rendering will all hit this.
   router.get('*', (req,res) => res.render('main.hbs', getLayoutDataByEnv(env)) );
