@@ -54,7 +54,7 @@ const listingBoilerplateByAuctionType = {
 function newLot(req, res) {
 	const newLot = req.body;
 	__logger.info(`Submitting new lot with data ${JSON.stringify(newLot)}.`);
-	newLot.listings = [{ platform: 'bstock', body: boilerplate['shelf-pulls']}]
+	newLot.listings = [{ platform: 'bstock', body: listingBoilerplateByAuctionType['shelf-pulls']}]
 	lotdbClient.submitNewLot(newLot).then(resp=>{
 		res.json(resp);
 	})
