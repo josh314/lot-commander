@@ -36,7 +36,7 @@ function upload(req,res) {
 
 function removeImage(req, res) {
 	const [lotId, imageFile] = [req.body.lotId, req.body.image];
-	lotdb.deleteImage(lotId, imageFile).then(resp=>{
+	lotdb.removeImage(lotId, imageFile).then(resp=>{
 		if(resp.error) {
 			__logger.error(resp.error);
 			res.json({error: 'Server error.'});

@@ -115,8 +115,8 @@ function addImage(lotId, imageMetadata) {
 	return lotdbClient.addImage(lotId, imageMetadata);
 }
 
-function deleteImage(lotId, image) {
-	return lotdbClient.deleteImage(lotId, image);
+function removeImage(lotId, image) {
+	return lotdbClient.removeImage(lotId, image);
 }
 
 module.exports = {
@@ -132,7 +132,7 @@ module.exports = {
 	// other functionality
 	getLotById: getLotById,
 	addImage: addImage,
-	deleteImage: deleteImage,
+	removeImage: removeImage,
 	lotStatusEnum: lotdbClient.LotModel.statusEnum,
 	lotTypeEnum: lotdbClient.LotModel.typeEnum,
 };
