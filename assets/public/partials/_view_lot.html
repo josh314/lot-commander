@@ -10,10 +10,24 @@
 					<b>Description: </b>{{ lot.getDescription() }}<br>
 					<b>SKU count: </b>{{ lot.getNumSku() }}<br>
 					<b>Inventory count: </b>{{ lot.getInventoryTotal() }}<br>
+					<b>Status: </b>{{ lot.getStatus() }}<br>
+					<div class="row">
+						<div class="col-xs-12">
+							<h4>Listings</h4>
+						</div>
+						<div class="col-xs-6 col-sm-4 col-md-3 col-lg-1">
+							<label>Platform</label>
+							<select ng-model="selectedListing" class="form-control">
+								<option ng-repeat="listing in listings">{{listing.platform}}</option>
+							</select>
+						</div>
+						<div class="col-xs-12" ng-repeat="listing in listings" ng-show="selectedListing==listing.platform">
+							<pre class="pre-scrollable">{{listing.body}}</pre><br>
+						</div>
+					</div>
 					<div class="pull-right">
 						<button class="btn btn-danger" ng-click="editLot()">Edit <span class="glyphicon glyphicon-pencil"></span></button>
 					</div>
-					<b>Status: </b>{{ lot.getStatus() }}<br>
 				</div>
 			</div>
 		</div>

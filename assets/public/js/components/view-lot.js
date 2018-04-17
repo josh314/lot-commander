@@ -10,12 +10,14 @@
 		function($http, $scope, $state, $stateParams, $uibModal, fileUpload, lotStore, messageModal, sessionTimeout) {		
 			sessionTimeout.timeoutExpired();
 			$scope.lot = lotStore;
+			$scope.selectedListing = 'bstock';
 
 			function getLot() {
 				$http.get('/api/db/get/' + $stateParams.lotId).then(resp=>{
 					const lot = resp.data;
 					lotStore.save(lot);
 					$scope.images = lot.images;
+					$scope.listings = lot.listings;
 					if(lot.manifestId) {
 						$http.get('/api/db/manifest/'+lot.manifestId).then(resp=>{
 							lotStore.setInventory(resp.data.manifest.inventory);
@@ -52,7 +54,7 @@
 			$scope.editLot = function() {
 		    const modalInstance = $uibModal.open({
 		      templateUrl: '/partials/_edit_lot_modal.html',
-		      size: 'md',
+		      size: 'lg',
 		      controller: 'EditLotModalController', 
 		      resolve: {
 		        lot: function () {
@@ -62,8 +64,8 @@
 		    });
 
 	      modalInstance.result.then(function (lot) {
-					$http.post('api/db/edit-lot/'+lotStore._id, lot).then(resp=>{
-						console.log(resp);
+					$http.post('/api/db/edit-lot/'+lotStore._id, lot).then(resp=>{
+						// console.log(resp);
 						lotStore.save(lot);
 						$state.reload();
 					});
@@ -86,7 +88,7 @@
 					lotId: $scope.lot._id,
 					image: image
 				};
-				$http.post('api/image/remove', data).then(resp=>{
+				$http.post('/api/image/remove', data).then(resp=>{
 					if(!resp.data.error) {
 						$state.reload();
 					}
@@ -95,12 +97,13 @@
 					}
 				})
 			}
-
 	}]);
 
-	/***************** Modal Controller ************************/
+	/***************** Modal Controllers ************************/
 	app.controller('EditLotModalController', [ '$scope', 'dbEnums', 'lot', function($scope, dbEnums, lot){
 		$scope.lot = JSON.parse(JSON.stringify(lot));
+		$scope.listings = $scope.lot.listings;
 		$scope.lotStatusEnum = dbEnums.lotStatus;
+		$scope.selectedListing = 'bstock';
 	}]);
 })();

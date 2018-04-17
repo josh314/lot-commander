@@ -15,16 +15,19 @@
 			this._id = undefined;
 			this.manifestId = undefined;
 			this.status = dbEnums.lotStatus[0];
+			this.listings = [];
 		};
 		this.reset();
 
 		this.setHandle = function(_handle) { this.handle = _handle; };
 
-		this.setDescription = function(_description) { this.description = _description; }
+		this.setDescription = function(_description) { this.description = _description; };
 
-		this.setInventory = function(_inventory) { this.inventory = _inventory; }
+		this.setInventory = function(_inventory) { this.inventory = _inventory; };
 
-		this.setStatus = function(_status) { this.status = _status; }
+		this.setStatus = function(_status) { this.status = _status; };
+
+		this.setListings = function(_listings) {this.listings = _listings; };
 
 		this.save = function(_lot) {
 			this.reset();
@@ -33,7 +36,7 @@
 				this.setDescription(_lot.description);
 			}
 			if(_lot.inventory) {
-				this.inventory = _lot.inventory;
+				this.setInventory(_lot.inventory);
 			}
 			if(_lot._id) {
 				this._id = _lot._id;
@@ -42,7 +45,10 @@
 				this.manifestId = _lot.manifestId;
 			}
 			if(_lot.status) {
-				this.status = _lot.status;
+				this.setStatus(_lot.status);
+			}
+			if(_lot.listings) {
+				this.setListings(_lot.listings);
 			}
 		}
 
@@ -71,7 +77,8 @@
 		this.getInventory = function() { return this.inventory; };
 		this.getDescription = function() { return this.description; };
 		this.getStatus = function() { return this.status; };
-
+		this.getListings = function() { return this.listings; };
+		
 		this.getInventoryTotal = function() {
 			return this.inventory.reduce((acc,val) => {return acc + val.quantity;}, 0);
 		};

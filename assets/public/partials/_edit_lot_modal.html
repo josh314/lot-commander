@@ -5,17 +5,32 @@
 	<div class="row">
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="handleInput">Handle</label>
-			<input class="form-control" class="form-control" name="handle" id="handleInput" required ng-model="lot.handle">
+			<input class="form-control" name="handle" id="handleInput" required ng-model="lot.handle">
 		</div>
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="descriptionInput">Description</label>
-			<input class="form-control" class="form-control" name="description" id="descriptionInput" required ng-model="lot.description">
+			<input class="form-control" name="description" id="descriptionInput" required ng-model="lot.description">
 		</div>
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="handleInput">Status</label>
-			<select class="form-control" class="form-control" name="handle" id="handleInput" required ng-model="lot.status">
+			<select class="form-control" name="handle" id="handleInput" required ng-model="lot.status">
 				<option ng-repeat="status in lotStatusEnum">{{status}}</option>
 			</select>
+		</div>
+<!-- 		<div class="form-group col-xs-12">
+			<label for="listingBodyInput">Listing Body</label>
+			<input type="textarea" class="form-control" name="listingBody" id="listingBodyInput" required ng-model="listing.body">
+		</div> -->
+		<div class="col-xs-12">
+			<h3>Listings</h3>
+			<label>Platform</label>
+			<select ng-model="selectedListing" class="form-control" ng-value="bstock">
+				<option ng-repeat="listing in listings">{{listing.platform}}</option>
+			</select>
+			<div ng-repeat="listing in listings" ng-show="selectedListing==listing.platform">
+				<label>Body</label>
+				<textarea rows="15" class="form-control" name="listingBody" id="listingBodyInput" required ng-model="listing.body"></textarea>
+			</div>
 		</div>
 	</div>
 </div>
