@@ -6,11 +6,12 @@
 	var app = angular.module('myApp');
 
 	/******************* View Lot Controller *************************/
-	app.controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'fileUpload', 'lotStore', 'messageModal', 'sessionTimeout',
-		function($http, $scope, $state, $stateParams, $uibModal, fileUpload, lotStore, messageModal, sessionTimeout) {		
+	app.controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'fileUpload', 'listingsBoilerplate', 'lotStore', 'messageModal', 'sessionTimeout',
+		function($http, $scope, $state, $stateParams, $uibModal, fileUpload, listingsBoilerplate, lotStore, messageModal, sessionTimeout) {		
 			sessionTimeout.timeoutExpired();
 			$scope.lot = lotStore;
 			$scope.selectedListing = 'bstock';
+			$scope.listingsBoilerplate = listingsBoilerplate;
 
 			function getLot() {
 				$http.get('/api/db/get/' + $stateParams.lotId).then(resp=>{

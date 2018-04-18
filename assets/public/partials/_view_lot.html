@@ -23,7 +23,7 @@
 							</select>
 						</div>
 						<div class="col-xs-12" ng-repeat="listing in listings" ng-show="selectedListing==listing.platform">
-							<pre class="pre-scrollable">{{listing.body}}</pre><br>
+							<pre class="pre-scrollable">{{listing.body + '\n' + listingsBoilerplate[lot.getType()]}}</pre><br>
 						</div>
 					</div>
 					<div class="pull-right">

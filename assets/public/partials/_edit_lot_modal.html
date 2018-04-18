@@ -34,7 +34,7 @@
 				<option ng-repeat="listing in listings">{{listing.platform}}</option>
 			</select>
 			<div ng-repeat="listing in listings" ng-show="selectedListing==listing.platform">
-				<label>Body</label>
+				<label>Body (boilerplate omitted)</label>
 				<textarea rows="15" class="form-control" name="listingBody" id="listingBodyInput" required ng-model="listing.body"></textarea>
 			</div>
 		</div>
