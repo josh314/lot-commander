@@ -23,7 +23,7 @@
 							</select>
 						</div>
 						<div class="col-xs-12" ng-repeat="listing in listings" ng-show="selectedListing==listing.platform">
-							<pre class="pre-scrollable">{{listing.body + '\n' + listingsBoilerplate[lot.getType()]}}</pre><br>
+							<pre class="pre-scrollable">{{listing.body + '\n\n' + listingsBoilerplate[lot.getType()]}}</pre><br>
 						</div>
 					</div>
 					<div class="pull-right">
@@ -44,9 +44,8 @@
 			</div>
 			<div class="col-xs-4" ng-repeat="image in images">
 				<img ng-src="{{getImageLink(image)}}" class="img-thumbnail primary-image" width="240" height="auto">
-				<!-- Buttons to make primary and to remove -->
-				<input type="checkbox" ng-model="image.primary" ng-click="updatePrimaryImage(image.filename)">
-				<!-- <button class="btn btn-success" ng-click="">Set as Primary</button> -->
+				<!-- Checkbox to make primary -->
+				<!-- <input type="checkbox" ng-model="image.primary" ng-click="updatePrimaryImage(image.filename)"> -->
 				<button class="btn btn-danger" ng-click="removeImage(image.filename)">Remove Image</button>
 			</div>
 			<div class="col-xs-12">
