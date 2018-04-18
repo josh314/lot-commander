@@ -5,9 +5,12 @@ const config = require(path.join(__basedir, 'config'));
 
 const assetsData = require(path.join(__basedir, config.modulesPath, 'assets-data'));
 
+const scriptBuilder = require(path.join(__basedir, config.modulesPath, 'script-builder'));
+
 const lotdb = require(path.join(__basedir, config.modulesPath, 'lot-db'));
 const manifestFiles = require(path.join(__basedir, config.modulesPath, 'manifest-files'));
 const images = require(path.join(__basedir, config.modulesPath, 'images'));
+
 
 const users = require(path.join(__basedir, config.modulesPath, 'users'));
 
@@ -79,13 +82,8 @@ function routes(env) {
   router.post('/api/image/remove', images.removeImage);
 
   // dynamically created JS scripts for the client
-  router.get('/db-enums.js', (req,res)=>{
-    const enums = {
-      lotStatus: lotdb.lotStatusEnum,
-      lotType: lotdb.lotTypeEnum
-    }
-    console.log(enums)
-    res.send('var dbEnums = '+ JSON.stringify(enums));
+  router.get('/build/ng-app-server-data.js', (req,res)=>{
+    res.send(scriptBuilder.ngAppServerData());
   });
 
   //default route. the front-end rendering will all hit this.
