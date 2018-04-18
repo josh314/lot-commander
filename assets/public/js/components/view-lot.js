@@ -34,7 +34,6 @@
 
 			$scope.updatePrimaryImage = function(image) {
 				$http.post('/api/image/primary', {lotId: $scope.lot._id, primaryImage: image}).then(resp=>{
-					console.log(resp)
 					if(!resp.error) {
 						$state.reload();
 					}

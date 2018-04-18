@@ -33,7 +33,6 @@
 		this.setListings = function(_listings) {this.listings = _listings; };
 
 		this.save = function(_lot) {
-			console.log(_lot)
 			this.reset();
 			this.setHandle(_lot.handle);
 			if(_lot.description) {
