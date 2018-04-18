@@ -1,18 +1,16 @@
 const path = require('path');
 const express = require('express');
 
-const config = require(path.join(__basedir, 'config'));
+const assetsData = require(path.join(__basedir, __config.modulesPath, 'assets-data'));
 
-const assetsData = require(path.join(__basedir, config.modulesPath, 'assets-data'));
+const scriptBuilder = require(path.join(__basedir, __config.modulesPath, 'script-builder'));
 
-const scriptBuilder = require(path.join(__basedir, config.modulesPath, 'script-builder'));
-
-const lotdb = require(path.join(__basedir, config.modulesPath, 'lot-db'));
-const manifestFiles = require(path.join(__basedir, config.modulesPath, 'manifest-files'));
-const images = require(path.join(__basedir, config.modulesPath, 'images'));
+const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
+const manifestFiles = require(path.join(__basedir, __config.modulesPath, 'manifest-files'));
+const images = require(path.join(__basedir, __config.modulesPath, 'images'));
 
 
-const users = require(path.join(__basedir, config.modulesPath, 'users'));
+const users = require(path.join(__basedir, __config.modulesPath, 'users'));
 
 function getLayoutDataByEnv(env) {
 	const res = {
