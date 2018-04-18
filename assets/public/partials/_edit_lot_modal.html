@@ -8,12 +8,18 @@
 			<input class="form-control" name="handle" id="handleInput" required ng-model="lot.handle">
 		</div>
 		<div class="form-group col-xs-12 col-sm-6">
+			<label for="typeInput">Type</label>
+			<select class="form-control" name="type" id="typeInput" required ng-model="lot.type">
+				<option ng-repeat="type in lotTypeEnum">{{type}}</option>
+			</select>
+		</div>
+		<div class="form-group col-xs-12 col-sm-6">
 			<label for="descriptionInput">Description</label>
 			<input class="form-control" name="description" id="descriptionInput" required ng-model="lot.description">
 		</div>
 		<div class="form-group col-xs-12 col-sm-6">
-			<label for="handleInput">Status</label>
-			<select class="form-control" name="handle" id="handleInput" required ng-model="lot.status">
+			<label for="statusInput">Status</label>
+			<select class="form-control" name="status" id="statusInput" required ng-model="lot.status">
 				<option ng-repeat="status in lotStatusEnum">{{status}}</option>
 			</select>
 		</div>

@@ -104,6 +104,7 @@
 		$scope.lot = JSON.parse(JSON.stringify(lot));
 		$scope.listings = $scope.lot.listings;
 		$scope.lotStatusEnum = dbEnums.lotStatus;
+		$scope.lotTypeEnum = dbEnums.lotType;
 		$scope.selectedListing = 'bstock';
 	}]);
 })();

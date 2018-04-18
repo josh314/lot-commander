@@ -10,6 +10,12 @@
 						<span class="text-danger h4" ng-show="noHandleSubmitted">No Handle submitted.</span>
 					</div>
 					<div class="form-group">
+						<label for="typeInput">Lot Type (required)</label>
+						<select class="form-control" name="type" id="typeInput" ng-model="type">
+							<option ng-repeat="type in lotTypes">{{type}}</option>
+						</select>
+					</div>
+					<div class="form-group">
 						<label for="descInput">Description (optional)</label>
 						<input type="text" class="form-control" name="desc" id="descInput" ng-model="desc" autocomplete="off">
 					</div>

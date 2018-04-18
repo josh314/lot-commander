@@ -11,6 +11,7 @@
 		this.reset = function() {
 			this.handle = undefined;
 			this.description = undefined;
+			this.type = undefined;
 			this.inventory = [];
 			this._id = undefined;
 			this.manifestId = undefined;
@@ -23,6 +24,8 @@
 
 		this.setDescription = function(_description) { this.description = _description; };
 
+		this.setType = function(_type) { this.type = _type; };
+
 		this.setInventory = function(_inventory) { this.inventory = _inventory; };
 
 		this.setStatus = function(_status) { this.status = _status; };
@@ -30,10 +33,14 @@
 		this.setListings = function(_listings) {this.listings = _listings; };
 
 		this.save = function(_lot) {
+			console.log(_lot)
 			this.reset();
 			this.setHandle(_lot.handle);
 			if(_lot.description) {
 				this.setDescription(_lot.description);
+			}
+			if(_lot.type) {
+				this.setType(_lot.type);
 			}
 			if(_lot.inventory) {
 				this.setInventory(_lot.inventory);
@@ -76,6 +83,7 @@
 		this.getHandle = function() { return this.handle; };
 		this.getInventory = function() { return this.inventory; };
 		this.getDescription = function() { return this.description; };
+		this.getType = function() { return this.type; };
 		this.getStatus = function() { return this.status; };
 		this.getListings = function() { return this.listings; };
 		
