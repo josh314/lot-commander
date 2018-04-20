@@ -9,7 +9,6 @@ const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const manifestFiles = require(path.join(__basedir, __config.modulesPath, 'manifest-files'));
 const images = require(path.join(__basedir, __config.modulesPath, 'images'));
 
-
 const users = require(path.join(__basedir, __config.modulesPath, 'users'));
 
 function getLayoutDataByEnv(env) {
@@ -70,14 +69,18 @@ function routes(env) {
   // router.get('/api/db/delete/:manifestId', mandb.deleteManifest);
 
   // deal with files
-  router.get('/api/files/list', manifestFiles.listManifestFiles);
-  router.post('/api/files/generate', manifestFiles.generateManifestFile);
-  router.get('/api/files/download/:file', manifestFiles.downloadManifestFile);
+  router.get('/api/manifest-files/list', manifestFiles.listManifestFiles);
+  router.post('/api/manifest-files/generate', manifestFiles.generateManifestFile);
+  router.get('/api/manifest-files/download/:file', manifestFiles.downloadManifestFile);
+  router.post('/api/manifest-files/upload', manifestFiles.submit3pManifest);
   // router.get('/api/files/delete/:manifestId', files.deleteManifestFile);
   router.post('/api/image/upload', images.upload);
   router.post('/api/image/primary', lotdb.setPrimaryImage);
   router.get('/api/image/download/:lotId', images.downloadImages);
   router.post('/api/image/remove', images.removeImage);
+
+  //3rd-party manifests
+
 
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{

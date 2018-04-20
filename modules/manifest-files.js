@@ -3,12 +3,15 @@ const fs = require('fs');
 
 const moment = require('moment');
 const json2csv = require('json2csv');
+const formidable = require('formidable');
 
 const Promise = require('bluebird');
 const readDir = Promise.promisify(fs.readdir);
 const readFile = Promise.promisify(fs.readFile);
 const writeFile = Promise.promisify(fs.writeFile);
 const fileStats = Promise.promisify(fs.stat);
+
+const manParse = require(path.join(__config.libDir.manifestParse, 'lib'));
 
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
@@ -150,8 +153,29 @@ function downloadManifestFile(req, res) {
 	}
 }
 
+function submit3pManifest(req,res) {
+	const form = new formidable.IncomingForm();
+  form.parse(req, function (err, fields, files) {
+		const parseOpts = {
+			upcCol: 5,
+			blockCol: 11,
+			descCol: 6,
+			quantCol: 9,
+			priceCol: 10
+		};
+  	manParse.parse(files.file.path, parseOpts).then(blocks=>{
+  		const man = {};
+  		man.blocks = Object.entries(blocks).map( item => {
+  			return { blockId: item[0], contents: item[1] }
+  		});
+	  	res.json(man);
+	  });
+  });
+}
+
 module.exports = {
 	listManifestFiles: listManifestFiles,
 	generateManifestFile: generateManifestFile,
 	downloadManifestFile: downloadManifestFile,
+	submit3pManifest: submit3pManifest,
 }
