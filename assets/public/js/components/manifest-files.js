@@ -9,7 +9,7 @@
 	app.controller('ManifestFilesCtrl', ['$scope', '$http', 'sessionTimeout', function($scope, $http, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.files = null;
-		$http.get('/api/files/list').then(resp=>{
+		$http.get('/api/manifest-files/list').then(resp=>{
 			$scope.files = resp.data.files;
 		});
 	}]);

@@ -35,7 +35,7 @@
 							Packaging: fileRequest.packaging,
 						};
 					}
-					$http.post(`/api/files/generate`, body).then(resp=>{
+					$http.post(`/api/manifest-files/generate`, body).then(resp=>{
 						//TODO: some sort of acknoledgement of success/failure
 						$state.reload();
 					});
