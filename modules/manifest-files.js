@@ -13,6 +13,7 @@ const fileStats = Promise.promisify(fs.stat);
 
 const manParse = require(path.join(__config.libDir.manifestParse, 'lib'));
 
+const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
@@ -156,6 +157,7 @@ function downloadManifestFile(req, res) {
 function submit3pManifest(req,res) {
 	const form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
+  	//TODO: take in options from web interface, including source
 		const parseOpts = {
 			upcCol: 5,
 			blockCol: 11,
@@ -165,10 +167,18 @@ function submit3pManifest(req,res) {
 		};
   	manParse.parse(files.file.path, parseOpts).then(blocks=>{
   		const man = {};
+  		if(fields.liquidationSource) {
+  			man.liquidationSource = fields.liquidationSource;
+  		}
+  		if(fields.purchasingSource) {
+  			man.purchasingSource = fields.purchasingSource;
+  		}
   		man.blocks = Object.entries(blocks).map( item => {
   			return { blockId: item[0], contents: item[1] }
   		});
-	  	res.json(man);
+  		lotdb.add3pManifest(fields.lotId, man).then(resp=>{
+		  	res.json({ success: true });  			
+  		})
 	  });
   });
 }
