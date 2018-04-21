@@ -157,7 +157,8 @@ function downloadManifestFile(req, res) {
 function submit3pManifest(req,res) {
 	const form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
-  	//TODO: take in options from web interface, including source
+  	//TODO: take in options from web interface
+  	//TODO: add check digits
 		const parseOpts = {
 			upcCol: 5,
 			blockCol: 11,
