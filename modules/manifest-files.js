@@ -155,7 +155,7 @@ function downloadManifestFile(req, res) {
 	}
 }
 
-function submit3pManifest(req,res) {
+function submit3pManifest(req,res,next) {
 	const form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
   	manParse.parse(files.file.path, JSON.parse(fields.parseOpts)).then(blocks=>{
@@ -174,8 +174,10 @@ function submit3pManifest(req,res) {
 				res.json(newManifest);  			
   		})
 	  })
-	  .catch(e=>{console.log(e)})
-  })
+	  .catch(e=>{
+	  	next(e);
+	  })
+	})
 }
 
 module.exports = {

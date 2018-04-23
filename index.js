@@ -164,8 +164,10 @@ app.use('/', users.api.isLoggedIn, routes);
 // });
 
 app.use(function(err, req, res, next){
+  
   // __logger.error(`404: path does not exist -- ${req.originalUrl}`);
   // res.status(404).render('404', {});
+  console.log('Logging error to file.')
   __logger.error(err);
   res.json({
     status: 'error',
