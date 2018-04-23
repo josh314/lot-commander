@@ -15,6 +15,7 @@ const manParse = require(path.join(__config.libDir.manifestParse, 'lib'));
 
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
+const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
 const manifestFilesPath = path.join(__basedir, __config.manifestFilesPath);
@@ -157,28 +158,20 @@ function downloadManifestFile(req, res) {
 function submit3pManifest(req,res) {
 	const form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
-  	//TODO: take in options from web interface
-  	//TODO: add check digits
-		const parseOpts = {
-			upcCol: 5,
-			blockCol: 11,
-			descCol: 6,
-			quantCol: 9,
-			priceCol: 10
-		};
-  	manParse.parse(files.file.path, parseOpts).then(blocks=>{
-  		const man = {};
+  	manParse.parse(files.file.path, JSON.parse(fields.parseOpts)).then(blocks=>{
+  		const manifest = {};
   		if(fields.liquidationSource) {
-  			man.liquidationSource = fields.liquidationSource;
+  			manifest.liquidationSource = fields.liquidationSource;
   		}
   		if(fields.purchasingSource) {
-  			man.purchasingSource = fields.purchasingSource;
+  			manifest.purchasingSource = fields.purchasingSource;
   		}
-  		man.blocks = Object.entries(blocks).map( item => {
+  		manifest.blocks = Object.entries(blocks).map( item => {
   			return { blockId: item[0], contents: item[1] }
   		});
-  		lotdb.add3pManifest(fields.lotId, man).then(resp=>{
-		  	res.json({ success: true });  			
+			//TODO: handle other purchasing sources besides inmar
+  		inmarDb.newManifest(manifest).then(newManifest=>{
+				res.json(newManifest);  			
   		})
 	  });
   });

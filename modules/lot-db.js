@@ -3,7 +3,6 @@ const path = require('path');
 const Promise = require('bluebird');
 
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
-const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
 
 const libLotDb = require(path.join(__config.libDir.lotdb, 'lotdb'));
 
@@ -103,14 +102,14 @@ function removeImage(lotId, image) {
 }
 
 function add3pManifest(lotId, manifest){
-	return inmarDb.newManifest(manifest).then(newManifest=>{
-		//TODO: handle other purchasing sources
-		const manifestData = {
-			dbId: newManifest._id,
-			src: 'inmar',
-		}
-		return lotdbClient.add3pManifest(lotId, manifestData);
-	})
+	// return inmarDb.newManifest(manifest).then(newManifest=>{
+	// 	//TODO: handle other purchasing sources
+	// 	const manifestData = {
+	// 		dbId: newManifest._id,
+	// 		src: 'inmar',
+	// 	}
+	// 	return lotdbClient.add3pManifest(lotId, manifestData);
+	// })
 }
 
 module.exports = {
