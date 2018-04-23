@@ -173,8 +173,9 @@ function submit3pManifest(req,res) {
   		inmarDb.newManifest(manifest).then(newManifest=>{
 				res.json(newManifest);  			
   		})
-	  });
-  });
+	  })
+	  .catch(e=>{console.log(e)})
+  })
 }
 
 module.exports = {

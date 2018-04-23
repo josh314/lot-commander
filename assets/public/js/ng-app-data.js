@@ -11,7 +11,9 @@
     { name: "main.list", navName: 'List Lots', url: '/list', templateUrl: '/partials/_list_lots.html', controller: 'ListLotsCtrl'},
     { name: "main.view", url: '/view/{lotId}', templateUrl: '/partials/_view_lot.html', controller: 'ViewLotCtrl'},
     // files
-    { name: "main.files", navName: 'Files', url: '/files', templateUrl: '/partials/_files.html', controller: 'ManifestFilesCtrl'},
+    { name: "main.manifests", abstract: true, navName: 'Manifests', url: '/manifests', templateUrl: '/partials/_container.html' },
+    { name: "main.manifests.list", navName: 'List', navParent: 'Manifests', url: '/list', templateUrl: '/partials/_manifest_files_list.html', controller: 'ManifestFilesListCtrl'},
+    { name: "main.manifests.upload", navName: 'Upload', navParent: 'Manifests', url: '/3rd-party-manifest-upload', templateUrl: '/partials/_3rd_party_manifest_upload.html', controller: 'Upload3pManifestCtrl'},
     // users
     { name: "main.users", abstract:true, navName: "Users", url: "/users", templateUrl: 'partials/_container.html'},
     { name: "main.users.change-password", navName: "Change Password", navParent: 'Users', url: "/change-password", templateUrl: 'partials/users/_change_password.html', controller:'ChangeUserPasswordCtrl'},

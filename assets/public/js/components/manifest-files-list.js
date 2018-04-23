@@ -6,7 +6,7 @@
 	var app = angular.module('myApp');
 	
 	/******************* Manifest Files Controller *************************/
-	app.controller('ManifestFilesCtrl', ['$scope', '$http', 'sessionTimeout', function($scope, $http, sessionTimeout) {
+	app.controller('ManifestFilesListCtrl', ['$scope', '$http', 'sessionTimeout', function($scope, $http, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.files = null;
 		$http.get('/api/manifest-files/list').then(resp=>{

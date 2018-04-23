@@ -98,17 +98,6 @@
 				})
 			}
 
-			$scope.uploadManifest = function() {
-	    	if($scope.manifestToUpload) {
-			    const manifest = $scope.manifestToUpload;
-			    const uploadUrl = "/api/manifest-files/upload";
-			    const metadata = { lotId: $scope.lot._id };
-			    fileUpload.uploadFileToUrl(manifest, uploadUrl, metadata).then(resp=>{
-			    	console.log(resp)
-			    	$state.reload();
-			    });
-			  }
-			}
 	}]);
 
 	/***************** Modal Controllers ************************/
