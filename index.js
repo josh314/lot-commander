@@ -171,7 +171,7 @@ app.use(function(err, req, res, next){
   __logger.error(err);
   res.json({
     status: 'error',
-    error: 'Server Error.',
+    error: err.clientMessage ? err.clientMessage : 'Server Error.',
   });
 });
 
