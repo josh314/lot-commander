@@ -9,17 +9,11 @@
 	app.controller('Upload3pManifestCtrl', ['$http', '$scope', '$state', 'fileUpload', 'messageModal', 'sessionTimeout',
 		function($http, $scope, $state, fileUpload, messageModal, sessionTimeout) {		
 			sessionTimeout.timeoutExpired();
+			$scope.parseOpts = {};
 			$scope.uploadManifest = function() {
 	    	if($scope.manifestToUpload) {
 			    const manifest = $scope.manifestToUpload;
 			    const uploadUrl = "/api/manifest-files/upload";
-			    $scope.parseOpts =  {
-			    	upcCol: 5,
-			    	blockCol: 11,
-			    	descCol: 6,
-			    	quantCol: 9,
-			    	priceCol: 10
-			    };
 			    const metadata = { 
 						parseOpts: JSON.stringify($scope.parseOpts),
 			    };
