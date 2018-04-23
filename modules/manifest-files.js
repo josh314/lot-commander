@@ -158,7 +158,12 @@ function downloadManifestFile(req, res) {
 function submit3pManifest(req,res,next) {
 	const form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
-  	manParse.parse(files.file.path, JSON.parse(fields.parseOpts)).then(blocks=>{
+  	manParse.parse(files.file.path, JSON.parse(fields.parseOpts))
+  	.catch(e=>{
+			e.clientMessage = 'Error parsing uploaded file. Check if all settings are correct.';
+			throw e;
+  	}).
+  	then(blocks=>{
   		const manifest = {};
   		if(fields.liquidationSource) {
   			manifest.liquidationSource = fields.liquidationSource;
@@ -175,6 +180,7 @@ function submit3pManifest(req,res,next) {
   		})
 	  })
 	  .catch(e=>{
+	  	// Customize server error messages
 	  	next(e);
 	  })
 	})
