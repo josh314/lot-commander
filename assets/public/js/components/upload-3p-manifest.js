@@ -19,12 +19,18 @@
 					$scope.noFileSelected = true;
 					return;
 				}
-				if(!$scope.noBarcodeColSelected) {
+				else {
+					$scope.noFileSelected = false;
+				}
+
+				if(!$scope.parseOpts.upcCol) {
 					$scope.noBarcodeColSelected = true;
 					return;
 				}
+				else {
+	    		$scope.noBarcodeColSelected = false;
+				}
 
-    		$scope.noFileSelected = false;
 		    const manifest = $scope.manifestToUpload;
 		    const manifestFileExtension = manifest.name.split(".").pop();
 		    const validFileExtensions = ['xls', 'xlsx', 'xlsm'];
