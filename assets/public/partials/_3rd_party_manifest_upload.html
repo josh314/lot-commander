@@ -8,10 +8,11 @@
 			<div class="row">
 				<h4>Instructions</h4>
 				<ul>
-					<li>Only upload spreadsheet file types (.xls, .xlsx, .xlsm, etc)</li>
+					<li>Only upload spreadsheet file types (.xls, .xlsx, .xlsm)</li>
 					<li>Remove any summary page(s) from the spreadsheet</li>
 					<li>For the column fields, input the associated column letter(s) as labeled in Excel (case insensitive).</li>
 					<li>If <b>Block ID</b> column is not specified, the spreadsheet will be parsed with a block for each page. The page title will be recorded as the Block ID.</li>
+					<li>Use the <b>Number of Rows to Skip</b> field to skip over the header row or other preface material</li>
 				</ul>
 			</div>
 			<div class="row">
@@ -48,7 +49,7 @@
 			<h4>Options</h4>
 			<div class="row">
 				<div class="form-group col-xs-12 col-sm-6">
-					<label for="skiprowsInput">Rows to Skip</label>
+					<label for="skiprowsInput">Number of Rows to Skip</label>
 					<input type="number" class="form-control" id="skiprowsInput" ng-model="parseOpts.skiprows">
 				</div>
 <!-- 				<div class="col-xs-12 col-sm-6">
