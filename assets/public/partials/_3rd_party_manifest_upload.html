@@ -10,6 +10,7 @@
 				<ul>
 					<li>Only upload spreadsheet file types (.xls, .xlsx, .xlsm, etc)</li>
 					<li>Remove any summary page(s) from the spreadsheet</li>
+					<li>For the column fields, input either the column number or the column letter(s) as labeled in Excel (case insensitive).</li>
 					<li>If <b>Block ID</b> column is not specified, the spreadsheet will be parsed with a block for each page. The page title will be recorded as the Block ID.</li>
 				</ul>
 			</div>
@@ -23,23 +24,23 @@
 			<div class="row">
 				<div class="form-group col-xs-12 col-sm-6">
 					<label for="upcColInput">UPC (required)</label>
-					<input type="number" class="form-control" id="upcColInput" required ng-model="parseOpts.upcCol" required>
+					<input class="form-control" id="upcColInput" required ng-model="parseOpts.upcCol" required>
 				</div>
 				<div class="form-group col-xs-12 col-sm-6">
 					<label for="blockColInput">Block ID (manifest will be parsed by page if this is omitted)</label>
-					<input type="number" class="form-control" id="blockColInput" required ng-model="parseOpts.blockCol" required>
+					<input class="form-control" id="blockColInput" required ng-model="parseOpts.blockCol" required>
 				</div>
 				<div class="form-group col-xs-12 col-sm-6">
 					<label for="descColInput">Description/Title</label>
-					<input type="number" class="form-control" id="descColInput" required ng-model="parseOpts.descCol" required>
+					<input class="form-control" id="descColInput" required ng-model="parseOpts.descCol" required>
 				</div>
 				<div class="form-group col-xs-12 col-sm-6">
 					<label for="quantColInput">Quantity</label>
-					<input type="number" class="form-control" id="quantColInput" required ng-model="parseOpts.quantCol" required>
+					<input class="form-control" id="quantColInput" required ng-model="parseOpts.quantCol" required>
 				</div>
 				<div class="form-group col-xs-12 col-sm-6">
 					<label for="priceColInput">Price</label>
-					<input type="number" class="form-control" id="priceColInput" required ng-model="parseOpts.priceCol" required>
+					<input class="form-control" id="priceColInput" required ng-model="parseOpts.priceCol" required>
 				</div>
 			</div>
 			<button class="btn btn-primary" type="button" ng-click="uploadManifest()">Upload</button>
