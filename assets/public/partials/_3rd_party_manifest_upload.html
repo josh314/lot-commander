@@ -10,7 +10,7 @@
 				<ul>
 					<li>Only upload spreadsheet file types (.xls, .xlsx, .xlsm, etc)</li>
 					<li>Remove any summary page(s) from the spreadsheet</li>
-					<li>For the column fields, input either the column number or the column letter(s) as labeled in Excel (case insensitive).</li>
+					<li>For the column fields, input the associated column letter(s) as labeled in Excel (case insensitive).</li>
 					<li>If <b>Block ID</b> column is not specified, the spreadsheet will be parsed with a block for each page. The page title will be recorded as the Block ID.</li>
 				</ul>
 			</div>
@@ -25,24 +25,24 @@
 			<div class="row">
 				<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : noBarcodeColSelected }">
 					<label for="upcColInput">UPC (required)</label>
-					<input class="form-control" id="upcColInput" required ng-model="parseOpts.upcCol" required>
+					<input class="form-control" id="upcColInput" ng-model="parseOpts.upcCol" required>
 					<span class="text-danger h4" ng-show="noBarcodeColSelected">A UPC column is required.</span>
 				</div>
 				<div class="form-group col-xs-12 col-sm-6">
 					<label for="blockColInput">Block ID (manifest will be parsed by page if this is omitted)</label>
-					<input class="form-control" id="blockColInput" required ng-model="parseOpts.blockCol" required>
+					<input class="form-control" id="blockColInput" ng-model="parseOpts.blockCol">
 				</div>
 				<div class="form-group col-xs-12 col-sm-6">
 					<label for="descColInput">Description/Title</label>
-					<input class="form-control" id="descColInput" required ng-model="parseOpts.descCol" required>
+					<input class="form-control" id="descColInput" ng-model="parseOpts.descCol">
 				</div>
 				<div class="form-group col-xs-12 col-sm-6">
 					<label for="quantColInput">Quantity</label>
-					<input class="form-control" id="quantColInput" required ng-model="parseOpts.quantCol" required>
+					<input class="form-control" id="quantColInput" ng-model="parseOpts.quantCol">
 				</div>
 				<div class="form-group col-xs-12 col-sm-6">
 					<label for="priceColInput">Price</label>
-					<input class="form-control" id="priceColInput" required ng-model="parseOpts.priceCol" required>
+					<input class="form-control" id="priceColInput" ng-model="parseOpts.priceCol">
 				</div>
 			</div>
 			<h4>Options</h4>
@@ -50,7 +50,7 @@
 				<div class="col-xs-12 col-sm-6">
 					<div class="checkbox">
 						<label for="headerInput">
-							<input type="checkbox" id="headerInput" required ng-model="parseOpts.hasHeader">Header Row?
+							<input type="checkbox" id="headerInput" ng-model="parseOpts.hasHeader">Header Row?
 						</label>
 					</div>
 				</div>
