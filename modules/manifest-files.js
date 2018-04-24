@@ -171,6 +171,9 @@ function submit3pManifest(req,res,next) {
   		if(fields.purchasingSource) {
   			manifest.purchasingSource = fields.purchasingSource;
   		}
+  		if(fields.type) {
+  			manifest.type = fields.type;
+  		}
   		manifest.blocks = Object.entries(blocks).map( item => {
   			return { blockId: item[0], contents: item[1] }
   		});
