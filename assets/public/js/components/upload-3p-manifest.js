@@ -6,13 +6,14 @@
 	var app = angular.module('myApp');
 
 	/******************* Upload 3rd Part Manifest Controller *************************/
-	app.controller('Upload3pManifestCtrl', ['$http', '$scope', '$state', 'fileUpload', 'messageModal', 'sessionTimeout',
-		function($http, $scope, $state, fileUpload, messageModal, sessionTimeout) {
+	app.controller('Upload3pManifestCtrl', ['$http', '$scope', '$state', 'dbEnums', 'fileUpload', 'messageModal', 'sessionTimeout',
+		function($http, $scope, $state, dbEnums, fileUpload, messageModal, sessionTimeout) {
 			sessionTimeout.timeoutExpired();
 
 			$scope.parseOpts = {};
 			$scope.noFileSelected = false;
 			$scope.noBarcodeColSelected = false;
+			$scope.lotType = dbEnums.lotType;
 
 			$scope.uploadManifest = function() {
 				if(!$scope.manifestToUpload) {
@@ -38,6 +39,8 @@
 			    const uploadUrl = "/api/manifest-files/upload";
 			    const metadata = { 
 						parseOpts: JSON.stringify($scope.parseOpts),
+						liquidationSource: $scope.liquidationSource,
+						type: $scope.type,
 			    };
 			    fileUpload.uploadFileToUrl(manifest, uploadUrl, metadata).then(resp=>{
 			    	if(!resp.data.error) {
