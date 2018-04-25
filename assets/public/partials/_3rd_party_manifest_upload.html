@@ -1,10 +1,6 @@
 <div class="container">
-	<div class="well">
+	<div class="well" ng-hide="waitingForResponse">
 		<h2>Third-party Manifests</h2>
-<!-- 			<div>
-			   <input type="file" file-model="manifestToUpload"/>
-			   <button ng-click="uploadManifest()">Upload Manifest</button>
-			</div> -->
 			<div class="row">
 				<h4>Instructions</h4>
 				<ul>
@@ -65,15 +61,13 @@
 					<label for="skiprowsInput">Number of Rows to Skip</label>
 					<input type="number" class="form-control" id="skiprowsInput" ng-model="parseOpts.skiprows">
 				</div>
-<!-- 				<div class="col-xs-12 col-sm-6">
-					<div class="checkbox">
-						<label for="headerInput">
-							<input type="checkbox" id="headerInput" ng-model="parseOpts.hasHeader">Header Row?
-						</label>
-					</div>
-				</div> -->
+
 			</div>
 			<button class="btn btn-primary" type="button" ng-click="uploadManifest()">Upload</button>
 		</div>
+	</div>
+	<div class="row" ng-show="waitingForResponse">
+		<div class="center-block loader"></div>
+		<h2 class="text-center">Please wait...</h2>
 	</div>
 </div>

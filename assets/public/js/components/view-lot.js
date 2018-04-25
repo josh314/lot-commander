@@ -12,6 +12,7 @@
 			$scope.lot = lotStore;
 			$scope.selectedListing = 'bstock';
 			$scope.listingsBoilerplate = listingsBoilerplate;
+			$scope.waitingForResponse = false;
 
 			function getLot() {
 				$http.get('/api/db/get/' + $stateParams.lotId).then(resp=>{
@@ -99,10 +100,12 @@
 			}
 
 			$scope.linkManifestBlock = function() {
+				$scope.waitingForResponse = true;
 				$http.post('/api/db/link-3p-manifest-block', { lotId: lotStore._id, blockId: $scope.searchBlockId}).then(resp=>{
 					if(resp.data.error) {
 						messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'})
 					}
+					$scope.waitingForResponse = false;
 					$state.reload();
 				});
 			};

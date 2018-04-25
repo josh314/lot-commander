@@ -14,6 +14,7 @@
 			$scope.noFileSelected = false;
 			$scope.noBarcodeColSelected = false;
 			$scope.lotType = dbEnums.lotType;
+			$scope.waitingForResponse =false;
 
 			$scope.uploadManifest = function() {
 				if(!$scope.manifestToUpload) {
@@ -51,6 +52,7 @@
 				    }
 			    	$state.reload();
 			    });
+			    $scope.waitingForResponse = true;
 			  }
 			  else {
 			  	messageModal.launch({
