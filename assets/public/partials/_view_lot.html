@@ -65,9 +65,17 @@
 			<div class="col-xs-12">
 				<h4>Third-party Manifests</h4>
 			</div>
-			<h5>Link Third Party Manifest Block</h5>
-			<div>
-				place functionality for looking up na dlinking blocks here
+			<div class="col-xs-12">
+				<h5>Link Block by ID</h4>
+			</div>
+			<div class="col-xs-12 col-sm-6">
+				<div class="input-group">
+					<!-- <label>Block Id</label> -->
+					<input type="text" class="form-control" ng-model="searchBlockId" ng-keyup="$event.keyCode == 13 && linkManifestBlock()">
+				    <span class="input-group-btn">
+				        <button class="btn btn-default btn-primary" placeholder="Search for Block ID here" type="button" ng-click="linkManifestBlock()">Search & Link</button>
+				    </span>
+				</div>
 			</div>
 		</div>
 	</div>

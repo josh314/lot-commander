@@ -61,6 +61,7 @@ function routes(env) {
   router.post('/api/db/edit-lot/:lotId', lotdb.editLotMetadata);
   router.post('/api/db/save-manifest', lotdb.saveManifest);
   router.get('/api/db/manifest/:manifestId', lotdb.getManifest);
+  router.post('/api/db/link-3p-manifest-block', lotdb.link3pManifestBlock);
 
   // interact with manifest database
   // router.post('/api/db/get', mandb.getManifests);

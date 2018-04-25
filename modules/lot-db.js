@@ -3,8 +3,10 @@ const path = require('path');
 const Promise = require('bluebird');
 
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
+const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
 
 const libLotDb = require(path.join(__config.libDir.lotdb, 'lotdb'));
+
 
 const lotdbClient = new libLotDb.Client(__config.db.lotdb); 
 
@@ -101,15 +103,22 @@ function removeImage(lotId, image) {
 	return lotdbClient.removeImage(lotId, image);
 }
 
-function add3pManifest(lotId, manifest){
-	// return inmarDb.newManifest(manifest).then(newManifest=>{
-	// 	//TODO: handle other purchasing sources
-	// 	const manifestData = {
-	// 		dbId: newManifest._id,
-	// 		src: 'inmar',
-	// 	}
-	// 	return lotdbClient.add3pManifest(lotId, manifestData);
-	// })
+function link3pManifestBlock(req, res, next){
+	const blockId = req.body.blockId;
+	inmarDb.getManifestByBlockId(blockId).then(manifest=>{
+		if(!manifest) {
+			const msg = 'Block Id not found.'
+			const e = new Error(msg);
+			e.clientMessage = msg;
+			next(e);
+		}
+		else {
+			const linkManifestData = {dbId: manifest._id, blockId: blockId};
+			lotdbClient.add3pManifest(req.body.lotId, linkManifestData).then(resp=>{
+				res.json(resp);
+			});
+		}
+	});
 }
 
 module.exports = {
@@ -128,5 +137,5 @@ module.exports = {
 	removeImage: removeImage,
 	lotStatusEnum: lotdbClient.LotModel.statusEnum,
 	lotTypeEnum: lotdbClient.LotModel.typeEnum,
-	add3pManifest: add3pManifest,
+	link3pManifestBlock: link3pManifestBlock,
 };
