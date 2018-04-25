@@ -66,29 +66,31 @@
 				<h4>Third-party Manifests</h4>
 			</div>
 			<div ng-show="lot.getThirdPartyManifests().length">
-			<div class="col-xs-12">
-				<h5>Linked Blocks</h4>
+				<div class="col-xs-12">
+					<h5>Linked Blocks</h5>
+				</div>
+				<div class="col-xs-12">
+					<table class="table table-striped">
+						<thead><tr>
+							<th>Identifier</th>
+							<th>Type</th>
+							<th></th>
+						</tr></thead>
+						<tbody>
+							<tr ng-repeat="item in lot.getThirdPartyManifests()">
+								<td>{{item.blockId || item.filename}}</td>
+								<td>{{item.blockId ? 'Block ID' : 'File name'}}</td>
+								<td>
+									<!-- <button class="btn btn-primary btn-xs pull-right">Make Manifest</button> -->
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			</div>
+
 			<div class="col-xs-12">
-				<table class="table table-striped">
-					<thead><tr>
-						<th>Identifier</th>
-						<th>Type</th>
-						<th></th>
-					</tr></thead>
-					<tbody>
-						<tr ng-repeat="item in lot.getThirdPartyManifests()">
-							<td>{{item.blockId || item.filename}}</td>
-							<td>{{item.blockId ? 'Block ID' : 'File name'}}</td>
-							<td>
-								<!-- <button class="btn btn-primary btn-xs pull-right">Make Manifest</button> -->
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-			<div class="col-xs-12">
-				<h5>Link Block by ID</h4>
+				<h5>Link Block by ID</h5>
 			</div>
 			<div class="col-xs-12 col-sm-6">
 				<div class="input-group">
