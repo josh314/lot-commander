@@ -26,6 +26,9 @@ function getBlockByBlockId(blockId) {
 }
 
 module.exports = {
+	// api
 	newManifest: newManifest,
 	getManifestByBlockId: getManifestByBlockId,
+	// other
+	priceTypeEnum: inmarDbClient.InmarManifest.priceTypeEnum,
 };
