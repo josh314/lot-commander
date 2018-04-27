@@ -29,6 +29,7 @@ module.exports = {
 	// api
 	newManifest: newManifest,
 	getManifestByBlockId: getManifestByBlockId,
+	getBlockByBlockId: getBlockByBlockId,
 	// other
 	priceTypeEnum: inmarDbClient.InmarManifest.priceTypeEnum,
 };

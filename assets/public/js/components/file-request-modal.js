@@ -25,9 +25,12 @@
 	      	if(!fileRequest) {
 	      		return;
 	      	}
+					// const body = {
+					// 	manifestId: lot.manifestId,
+					// }
 					const body = {
-						manifestId: lot.manifestId,
-					}
+						lotId: lot._id,
+					};
 					if(fileRequest.format==='Bstock') {
 						body.bstock = {
 							Category: fileRequest.category,
