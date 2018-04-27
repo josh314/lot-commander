@@ -71,7 +71,7 @@ function routes(env) {
 
   // deal with files
   router.get('/api/manifest-files/list', manifestFiles.listManifestFiles);
-  router.post('/api/manifest-files/generate', manifestFiles.generateFileForScannedManifest);
+  router.post('/api/manifest-files/generate', manifestFiles.generateManifestFile);
   router.get('/api/manifest-files/download/:file', manifestFiles.downloadManifestFile);
   router.post('/api/manifest-files/upload', manifestFiles.submit3pManifest);
   // router.get('/api/files/delete/:manifestId', files.deleteManifestFile);
