@@ -50,7 +50,7 @@
 		}
 
 		$scope.requestFile = function(lot) {
-			if(!lot.manifestId) {
+			if(!lot.manifestId && !lot.thirdPartyManifests.length) {
 				messageModal.launch({header: 'Error', body: 'No manifested items for this lot.', type: 'error'});
 			} 
 			else {
