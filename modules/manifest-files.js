@@ -121,7 +121,7 @@ function buildManifestCsv(inventory, opts) {
 	});
 }
 
-function generateManifestFile(req, res){
+function generateFileForScannedManifest(req, res){
 	const manifestId = req.body.manifestId;
 	const manifestOpts = {};
 	if(req.body.bstock) {
@@ -194,7 +194,7 @@ function submit3pManifest(req,res,next) {
 
 module.exports = {
 	listManifestFiles: listManifestFiles,
-	generateManifestFile: generateManifestFile,
+	generateFileForScannedManifest: generateFileForScannedManifest,
 	downloadManifestFile: downloadManifestFile,
 	submit3pManifest: submit3pManifest,
 }
