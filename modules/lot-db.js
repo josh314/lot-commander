@@ -66,7 +66,8 @@ function saveManifest(req, res) {
 		if(mandbResp) {
 			const lotUpdate = {
 				_id: lot._id,
-				totalUnits: lot.inventory.reduce( (sum, item) => { return sum + item.quantity; }, 0),
+				// totalUnits: lot.inventory.reduce( (sum, item) => { return sum + item.quantity; }, 0),
+				totalUnits: lot.totalUnits ? lot.totalUnits : 0,
 				manifestId: mandbResp._id,
 			}
 			return Promise.join(mandbResp, lotdbClient.updateLot(lotUpdate))
@@ -113,7 +114,9 @@ function link3pManifestBlock(req, res, next){
 			next(e);
 		}
 		else {
-			const linkManifestData = {dbId: manifest._id, blockId: blockId};
+			const block = manifest.blocks.find(b => b.blockId===blockId);
+			const totalUnits = block.contents.reduce((units, item) => units + item.quantity, 0);
+			const linkManifestData = { dbId: manifest._id, blockId: blockId, totalUnits };
 			lotdbClient.add3pManifest(req.body.lotId, linkManifestData).then(resp=>{
 				res.json(resp);
 			});

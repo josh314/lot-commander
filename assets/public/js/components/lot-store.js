@@ -12,6 +12,7 @@
 			this.handle = undefined;
 			this.description = undefined;
 			this.type = undefined;
+			this.totalUnits = 0;
 			this.inventory = [];
 			this._id = undefined;
 			this.manifestId = undefined;
@@ -34,6 +35,8 @@
 		this.setListings = function(_listings) {this.listings = _listings; };
 
 		this.setThirdPartyManifests = function(_thirdPartyManifests) {this.thirdPartyManifests = _thirdPartyManifests; };
+
+		this.setTotalUnits = function(_totalUnits) { this.totalUnits = _totalUnits; };
 
 		this.save = function(_lot) {
 			this.reset();
@@ -62,6 +65,9 @@
 			if(_lot.thirdPartyManifests) {
 				this.setThirdPartyManifests(_lot.thirdPartyManifests);
 			}
+			if(_lot.totalUnits) {
+				this.setTotalUnits(_lot.totalUnits);
+			}
 		}
 
 		this.addInventory = function(newBarcode) {
@@ -82,6 +88,7 @@
 					else
 						this.inventory.push(newItem);
 				}
+				this.totalUnits += 1;
 			}
 		};
 
@@ -111,12 +118,14 @@
 				else {
 					this.inventory.splice(idx,1);
 				}
+				this.totalUnits -= 1;
 			}
 		};
 
 		this.deleteProduct = function(barcode) {
 			var idx = this.inventory.findIndex(item => item.barcode == barcode);
 			if(idx >= 0) {
+				this.totalUnits -= this.inventory[idx].quantity;
 				this.inventory.splice(idx,1);
 			}
 		};
