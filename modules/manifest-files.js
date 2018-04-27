@@ -174,6 +174,9 @@ function submit3pManifest(req,res,next) {
   		if(fields.type) {
   			manifest.type = fields.type;
   		}
+  		if(fields.priceType) {
+  			manifest.priceType = fields.priceType;
+  		}
   		manifest.blocks = Object.entries(blocks).map( item => {
   			return { blockId: item[0], contents: item[1] }
   		});
