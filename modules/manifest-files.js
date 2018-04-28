@@ -84,6 +84,7 @@ function listManifestFiles(req, res) {
 function buildManifestCsv(inventory, opts) {
 	const productDataReqs = [];
 	for(item of inventory) {
+
 		productDataReqs.push(Promise.join(item, productData.getProductDataByBarcode(item.barcode)));
 		// dbReqs.push(ehdb.)
 	}
@@ -100,7 +101,7 @@ function buildManifestCsv(inventory, opts) {
 					'Retail Per Unit': productData.price,
 					Condition: opts.bstock.Condition,
 					Packaging: opts.bstock.Packaging,
-					UPC: item.barcode,
+					UPC: productData.normalizedBarcode,
 					Manufacturer: '',
 					Model: '',
 					'Expiration Date': '',
@@ -108,7 +109,7 @@ function buildManifestCsv(inventory, opts) {
 			}
 			else {
 				csvLineItem = {
-					barcode: item.barcode,
+					barcode: productData.normalizedBarcode,
 					title: productData.title,
 					unitPrice: productData.price,
 					quantity: item.quantity,

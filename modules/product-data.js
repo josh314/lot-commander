@@ -23,28 +23,33 @@ function getProductDataFromAsinData(asinData) {
 }
 
 async function getProductDataFromMwsdb(barcode) {
-	if(barcode.length===8) {
-		const newBarcode = libBarcodes.convertUpcE2A(barcode);
-		barcode = newBarcode ? newBarcode : barcode;
-	}
 	let productData = {};
-	let asinData = await mwsdbClient.getBestAsinDataForUpcNoFilter(barcode);
-	if(asinData && asinData.price) {
-		__logger.info(`Product data found in MWSDB for barcode ${barcode}.`);
-		__logger.debug(JSON.stringify(asinData));
-		productData = getProductDataFromAsinData(asinData);
+
+	let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
+	if(!normalizedBarcode) {
+		normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
 	}
-	else {
-		__logger.info(`Requesting data from MWS API for barcode ${barcode}.`);
-		const refreshResp = await mwsdbClient.refreshBarcodeFromMws(barcode);
-		__logger.debug(JSON.stringify(refreshResp));
-		if(!refreshResp.error) {
-			__logger.info(`Product data refreshed from MWS API for barcode ${barcode}.`);
-			asinData = await mwsdbClient.getBestAsinDataForUpcNoFilter(barcode);
+
+	if(normalizedBarcode) {
+		productData.normalizedBarcode = normalizedBarcode;
+		let asinData = await mwsdbClient.getBestAsinDataForUpcNoFilter(normalizedBarcode);
+		if(asinData && asinData.price) {
+			__logger.info(`Product data found in MWSDB for barcode ${normalizedBarcode}.`);
+			__logger.debug(JSON.stringify(asinData));
 			productData = getProductDataFromAsinData(asinData);
 		}
 		else {
-			__logger.info(`No product data found in MWS API for barcode ${barcode}`);
+			__logger.info(`Requesting data from MWS API for barcode ${normalizedBarcode}.`);
+			const refreshResp = await mwsdbClient.refreshBarcodeFromMws(normalizedBarcode);
+			__logger.debug(JSON.stringify(refreshResp));
+			if(!refreshResp.error) {
+				__logger.info(`Product data refreshed from MWS API for barcode ${normalizedBarcode}.`);
+				asinData = await mwsdbClient.getBestAsinDataForUpcNoFilter(normalizedBarcode);
+				productData = getProductDataFromAsinData(asinData);
+			}
+			else {
+				__logger.info(`No product data found in MWS API for barcode ${normalizedBarcode}`);
+			}
 		}
 	}
 	return productData;
