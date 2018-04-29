@@ -83,25 +83,25 @@ function listManifestFiles(req, res) {
 
 function buildManifestCsv(inventory, opts) {
 	const productDataReqs = [];
-	for(item of inventory) {
+	for(manifestItem of inventory) {
 
-		productDataReqs.push(Promise.join(item, productData.getProductDataByBarcode(item.barcode)));
+		productDataReqs.push(Promise.join(manifestItem, productData.getProductDataByBarcode(manifestItem.barcode)));
 		// dbReqs.push(ehdb.)
 	}
 	return Promise.all(productDataReqs).then(inventoryData=>{
 		const manifestItems = inventoryData.sort((a,b) => a[0].barcode.localeCompare(b[0].barcode)).map(x=>{
-			const [item, productData] = x;
+			const [manifestItem, barcodeProductData] = x;
 
 			let csvLineItem;
 			if(opts.bstock) {
 				csvLineItem = {
 					Category: opts.bstock.Category,
-					'Item Description': productData.title,
-					Qty: item.quantity,
-					'Retail Per Unit': productData.price,
+					'Item Description': barcodeProductData.title,
+					Qty: manifestItem.quantity,
+					'Retail Per Unit': barcodeProductData.price,
 					Condition: opts.bstock.Condition,
 					Packaging: opts.bstock.Packaging,
-					UPC: productData.normalizedBarcode,
+					UPC: barcodeProductData.normalizedBarcode,
 					Manufacturer: '',
 					Model: '',
 					'Expiration Date': '',
@@ -109,10 +109,10 @@ function buildManifestCsv(inventory, opts) {
 			}
 			else {
 				csvLineItem = {
-					barcode: productData.normalizedBarcode,
-					title: productData.title,
-					unitPrice: productData.price,
-					quantity: item.quantity,
+					barcode: barcodeProductData.normalizedBarcode,
+					title: barcodeProductData.title,
+					unitPrice: barcodeProductData.price,
+					quantity: manifestItem.quantity,
 				}
 			}
 

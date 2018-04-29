@@ -31,7 +31,6 @@ async function getProductDataFromMwsdb(barcode) {
 	}
 
 	if(normalizedBarcode) {
-		productData.normalizedBarcode = normalizedBarcode;
 		let asinData = await mwsdbClient.getBestAsinDataForUpcNoFilter(normalizedBarcode);
 		if(asinData && asinData.price) {
 			__logger.info(`Product data found in MWSDB for barcode ${normalizedBarcode}.`);
@@ -51,6 +50,7 @@ async function getProductDataFromMwsdb(barcode) {
 				__logger.info(`No product data found in MWS API for barcode ${normalizedBarcode}`);
 			}
 		}
+		productData.normalizedBarcode = normalizedBarcode;
 	}
 	return productData;
 }
