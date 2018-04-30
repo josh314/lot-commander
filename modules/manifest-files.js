@@ -92,16 +92,19 @@ function buildManifestCsv(inventory, opts) {
 		const manifestItems = inventoryData.sort((a,b) => a[0].barcode.localeCompare(b[0].barcode)).map(x=>{
 			const [manifestItem, barcodeProductData] = x;
 
+			const productTitle = barcodeProductData.title ? barcodeProductData.title : manifestItem.description ? manifestItem.description : 'UNKNOWN';
+			const productBarcode = barcodeProductData.normalizedBarcode ? barcodeProductData.normalizedBarcode : manifestItem.barcode;
+
 			let csvLineItem;
 			if(opts.bstock) {
 				csvLineItem = {
 					Category: opts.bstock.Category,
-					'Item Description': barcodeProductData.title,
+					'Item Description': productTitle,
 					Qty: manifestItem.quantity,
 					'Retail Per Unit': barcodeProductData.price,
 					Condition: opts.bstock.Condition,
 					Packaging: opts.bstock.Packaging,
-					UPC: barcodeProductData.normalizedBarcode,
+					UPC: productBarcode,
 					Manufacturer: '',
 					Model: '',
 					'Expiration Date': '',
@@ -109,8 +112,8 @@ function buildManifestCsv(inventory, opts) {
 			}
 			else {
 				csvLineItem = {
-					barcode: barcodeProductData.normalizedBarcode,
-					title: barcodeProductData.title,
+					barcode: productBarcode,
+					title: productTitle,
 					unitPrice: barcodeProductData.price,
 					quantity: manifestItem.quantity,
 				}

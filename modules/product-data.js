@@ -82,7 +82,7 @@ function priceCheck(productData) {
 
 function getProductDataByBarcode(barcode) {
 	return getProductDataFromMwsdb(barcode)
-						.then(titleCheck)
+						// .then(titleCheck)
 						.then(priceCheck);
 }
 
