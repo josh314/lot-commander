@@ -5,6 +5,7 @@
 			<thead><tr>
 				<th>Handle</th>
 				<th>Total Units</th>
+				<th>Created</th>
 				<th>Last Updated</th>
 				<th>Status</th>
 				<th></th>
@@ -14,6 +15,7 @@
 				<tr ng-repeat="lot in lots">
 					<td><a ng-href="view/{{lot._id}}">{{lot.handle}}</a></td>
 				    <td>{{lot.totalUnits ? lot.totalUnits : '---'}}</td>
+				    <td>{{lot.readableCreatedAt}}</td>
 				    <td>{{lot.readableUpdatedAt}}</td>
 				    <td>{{lot.status}}</td>
 	                <td><button class="btn btn-success btn-xs" ng-click="scanItems(lot._id)">Scan Items</button></td>

@@ -24,7 +24,7 @@ function getLots(req, res) {
 	//todo: start and end dates, other search filters, sort options
 	__logger.info('Lot list requested.');
 	const query = {
-		sort: { updatedAt: -1 },
+		sort: { createdAt: -1 },
 		limit: 100
 	};
 	if(req.body.handle) {

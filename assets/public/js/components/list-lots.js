@@ -16,7 +16,8 @@
 			$http.post('/api/db/get', query).then(resp=>{
 				const lots = resp.data;
 				lots.forEach((lot,idx,array)=>{
-					lot.readableUpdatedAt = (new Date(lot.updatedAt)).toLocaleString()
+					lot.readableUpdatedAt = (new Date(lot.updatedAt)).toLocaleString();
+					lot.readableCreatedAt = (new Date(lot.createdAt)).toLocaleString();
 				});
 				$scope.lots = lots;
 			});
