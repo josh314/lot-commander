@@ -29,13 +29,11 @@
 		</div> -->
 		<div class="col-xs-12">
 			<h3>Listings</h3>
-			<label>Platform</label>
-			<select ng-model="selectedListing" class="form-control" ng-value="bstock">
-				<option ng-repeat="listing in listings">{{listing.platform}}</option>
-			</select>
-			<div ng-repeat="listing in listings" ng-show="selectedListing==listing.platform">
+			<label>Title</label>
+			<input class="form-control" name="listingTitle" id="listingTitleinput" ng-model="lot.listingData.title">
+			<div>
 				<label>Body (boilerplate omitted)</label>
-				<textarea rows="15" class="form-control" name="listingBody" id="listingBodyInput" required ng-model="listing.body"></textarea>
+				<textarea rows="15" class="form-control" name="listingBody" id="listingBodyInput" required ng-model="lot.listingData.body"></textarea>
 			</div>
 		</div>
 	</div>

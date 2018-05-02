@@ -10,7 +10,6 @@
 		function($http, $scope, $state, $stateParams, $uibModal, fileUpload, listingsBoilerplate, lotStore, messageModal, sessionTimeout) {		
 			sessionTimeout.timeoutExpired();
 			$scope.lot = lotStore;
-			$scope.selectedListing = 'bstock';
 			$scope.listingsBoilerplate = listingsBoilerplate;
 			$scope.waitingForResponse = false;
 
@@ -19,7 +18,6 @@
 					const lot = resp.data;
 					lotStore.save(lot);
 					$scope.images = lot.images;
-					$scope.listings = lot.listings;
 					if(lot.manifestId) {
 						$http.get('/api/db/manifest/'+lot.manifestId).then(resp=>{
 							lotStore.setInventory(resp.data.manifest.inventory);
@@ -115,7 +113,6 @@
 	/***************** Modal Controllers ************************/
 	app.controller('EditLotModalController', [ '$scope', 'dbEnums', 'lot', function($scope, dbEnums, lot){
 		$scope.lot = JSON.parse(JSON.stringify(lot));
-		$scope.listings = $scope.lot.listings;
 		$scope.lotStatusEnum = dbEnums.lotStatus;
 		$scope.lotTypeEnum = dbEnums.lotType;
 		$scope.selectedListing = 'bstock';

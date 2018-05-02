@@ -17,12 +17,10 @@
 							<h4>Listings</h4>
 						</div>
 						<div class="col-xs-6 col-sm-4 col-md-3 col-lg-1">
-							<label>Platform</label>
-							<select ng-model="selectedListing" class="form-control">
-								<option ng-repeat="listing in listings">{{listing.platform}}</option>
-							</select>
+							<label>Title</label>
+							<div class="well well-sm">{{lot.listingData.title}}</div><br>
 						</div>
-						<div class="col-xs-12" ng-repeat="listing in listings" ng-show="selectedListing==listing.platform">
+						<div class="col-xs-12">
 							<label>Body</label>
 							<div class="well" style="white-space: pre-wrap;">{{lot.listingData.body + '\n\n' + listingsBoilerplate[lot.getType()]}}</div><br>
 						</div>
