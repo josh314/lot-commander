@@ -18,6 +18,7 @@
 			this.manifestId = undefined;
 			this.status = dbEnums.lotStatus[0];
 			this.listings = [];
+			this.listingData = {};
 			this.thirdPartyManifests = [];
 		};
 		this.reset();
@@ -33,6 +34,8 @@
 		this.setStatus = function(_status) { this.status = _status; };
 
 		this.setListings = function(_listings) {this.listings = _listings; };
+
+		this.setListingData = function(_listingData) {this.listingData = _listingData; };
 
 		this.setThirdPartyManifests = function(_thirdPartyManifests) {this.thirdPartyManifests = _thirdPartyManifests; };
 
@@ -61,6 +64,9 @@
 			}
 			if(_lot.listings) {
 				this.setListings(_lot.listings);
+			}
+			if(_lot.listingData) {
+				this.setListingData(_lot.listingData);
 			}
 			if(_lot.thirdPartyManifests) {
 				this.setThirdPartyManifests(_lot.thirdPartyManifests);
@@ -98,6 +104,7 @@
 		this.getType = function() { return this.type; };
 		this.getStatus = function() { return this.status; };
 		this.getListings = function() { return this.listings; };
+		this.getListingData = function() { return this.listingData; };
 		this.getThirdPartyManifests = function() { return this.thirdPartyManifests; };
 		
 		this.getInventoryTotal = function() {
