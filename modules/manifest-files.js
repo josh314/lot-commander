@@ -81,7 +81,7 @@ function listManifestFiles(req, res) {
 	})
 }
 
-function buildManifestCsv(inventory, opts) {
+function buildManifestItems(inventory, opts) {
 	const productDataReqs = [];
 	for(manifestItem of inventory) {
 
@@ -121,6 +121,12 @@ function buildManifestCsv(inventory, opts) {
 
 			return csvLineItem;
 		});
+		return manifestItems;
+	});
+}
+
+function buildManifestCsv(inventory, opts) {
+	return buildManifestItems(inventory, opts).then(manifestItems=>{
 		return json2csv.parse(manifestItems);
 	});
 }
