@@ -27,7 +27,7 @@
 						console.log(resp.data.error);
 					}
 					else {
-						$state.go('main.list');
+						$state.go('main.lots.list');
 					}
 				})
 			}

@@ -33,7 +33,7 @@
 						lotStore.setInventory(resp.data.manifest.inventory);
 					})
 				}
-				$state.go('main.scan');
+				$state.go('main.lots.scan');
 			}
 		}
 
@@ -46,7 +46,7 @@
 						lotStore.setInventory(resp.data.manifest.inventory);
 					})
 				}
-				$state.go('main.view');
+				$state.go('main.lots.view');
 			}
 		}
 
