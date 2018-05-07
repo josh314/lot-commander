@@ -108,6 +108,10 @@
 				});
 			};
 
+			$scope.configureListingForSubmission = function() {
+				$state.go('main.lots.submit-listing');
+			};
+
 	}]);
 
 	/***************** Modal Controllers ************************/

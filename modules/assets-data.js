@@ -52,6 +52,7 @@ module.exports = {
         "/js/components/new-lot.js",
         "/js/components/root.js",
         "/js/components/scan.js",
+        "/js/components/submit-listing.js",
         "/js/components/upload-3p-manifest.js",
         "/js/components/users.js",
         "/js/components/view-lot.js",

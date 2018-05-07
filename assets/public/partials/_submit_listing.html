@@ -1,0 +1,54 @@
+<div class="container">
+	<div class="row well" ng-hide="waitingForResponse">
+		<h2>Listing Details</h2>
+		<div class="col-xs-12">
+			<div class="row">
+				<div class="form-group col-xs-12 col-sm-6">
+					<label for="marketplaceInput">Marketplace</label>
+					<select class="form-control" name="marketplace" id="marketplaceInput" ng-model="marketplace">
+						<option ng-repeat="marketplace in marketplaces">{{marketplace}}</option>
+					</select>
+				</div>
+			</div>
+			<div ng-show="marketplace==='bstock'">
+				<div class="row">
+					<div class="form-group col-xs-12 col-sm-6">
+						<label for="shippingChargeTypeInput">Shipping Charge Type</label>
+						<select class="form-control" name="shippingChargeType" id="shippingChargeTypeInput" ng-model="shipping.chargeType">
+							<option ng-repeat="type in shippingChargeTypes" value="{{bstockFormConstants.shippingChargeType[type]}}">{{type}}</option>
+						</select>
+					</div>
+				</div>
+				<div class="row" ng-show="shippingChargeType===bstockFormConstants.shippingChargeType['Free Shipping']">
+					<div class="col-xs-12 col-sm-6">
+						<label for="shippingAllowedDestinationsInput">Allowed Destinations</label>
+						<select class="form-control" name="shippingAllowedDestinations" id="shippingAllowedDestinationsInput" ng-model="shipping.allowedDestinations">
+							<option ng-repeat="destinations in shippingAllowedDestinations" value="{{bstockFormConstants.shippingAllowedDestinations[destinations]}}">{{destinations}}</option>
+						</select>
+					</div>
+				</div>
+				<div class="row" ng-show="shippingChargeType===bstockFormConstants.shippingChargeType['Fixed Cost']">
+					<div class="col-xs-12 col-sm-6">
+						<label for="fixedShippingCostInput">Allowed Destinations</label>
+						<input ng-model="shipping.cost">
+					</div>
+					<div class="col-xs-12 col-sm-6">
+						<label for="shippingAllowedDestinationsInput">Allowed Destinations</label>
+						<select class="form-control" name="shippingAllowedDestinations" id="shippingAllowedDestinationsInput" ng-model="shipping.allowedDestinations">
+							<option ng-repeat="destinations in shippingAllowedDestinations" value="{{bstockFormConstants.shippingAllowedDestinations[destinations]}}">{{destinations}}</option>
+						</select>
+					</div>
+				</div>
+				<div class="row" ng-show="shippingChargeType===bstockFormConstants.shippingChargeType['Buyer Arranges Shipping']"></div>
+			</div>
+			<div class="pull-right">
+				<button class="btn btn-danger" ng-click="backToLotDetails()">Back to Lot Details <span class="glyphicon glyphicon-pencil"></span></button>
+				<button class="btn btn-success" ng-click="submitListing()">Submit Listing</button>
+			</div>
+		</div>
+	</div>
+	<div class="row" ng-show="waitingForResponse">
+		<div class="center-block loader"></div>
+		<h2 class="text-center">Please wait...</h2>
+	</div>
+</div>

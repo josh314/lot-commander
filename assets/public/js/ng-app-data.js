@@ -11,6 +11,8 @@
     { name: "main.lots.scan", url: '/scan', templateUrl: '/partials/_scan.html', controller: 'ScanCtrl'},
     { name: "main.lots.list", navName: 'List Lots', url: '/list', templateUrl: '/partials/_list_lots.html', controller: 'ListLotsCtrl'},
     { name: "main.lots.view", url: '/view/{lotId}', templateUrl: '/partials/_view_lot.html', controller: 'ViewLotCtrl'},
+    { name: "main.lots.submit-listing", url: '/submit-listing', templateUrl: '/partials/_submit_listing.html', controller: 'SubmitListingCtrl'},
+
     // manifest files
     { name: "main.manifests", abstract: true, navName: 'Manifests', url: '/manifests', templateUrl: '/partials/_container.html' },
     { name: "main.manifests.list", navName: 'List', navParent: 'Manifests', url: '/list', templateUrl: '/partials/_manifest_files_list.html', controller: 'ManifestFilesListCtrl'},
