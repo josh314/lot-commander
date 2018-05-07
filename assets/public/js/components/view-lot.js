@@ -79,7 +79,7 @@
 						lotStore.setInventory(resp.data.manifest.inventory);
 					})
 				}
-				$state.go('main.scan');
+				$state.go('main.lots.scan');
 			}
 
 			$scope.removeImage = function(image) {
