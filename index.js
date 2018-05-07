@@ -97,6 +97,17 @@ const users = require(path.join(__basedir, __config.modulesPath, 'users'));
 app.use(users.passport.initialize());
 app.use(users.passport.session());//initializes req.user field
 
+
+// =====================================
+// BACKDOOR USER SIGNUP ==============
+// =====================================
+// TODO: COMMENT OUT IN PRODUCTION!!!!!!!!!!!
+// show the signup form
+// app.get('/sonic', function(req, res) {
+//     res.render('signup.hbs', { authFlash: req.session.flash });
+// });
+// app.post('/sonic/users/new', bodyParser.urlencoded({ extended: true }), users.api.createUser);
+
 // =====================================
 // LOGIN & LOGOUT ======================
 // =====================================
@@ -133,17 +144,6 @@ app.use(users.api.isLoggedIn, express.static(path.join(__basedir, __config.imgPa
 //   delete req.session.flash;
 //   next();
 // });
-
-// =====================================
-// BACKDOOR USER SIGNUP ==============
-// =====================================
-// TODO: COMMENT OUT IN PRODUCTION!!!!!!!!!!!
-// show the signup form
-// app.get('/sonic', function(req, res) {
-//     res.render('signup.hbs', { authFlash: req.session.flash });
-// });
-// app.post('/sonic/users/new', bodyParser.urlencoded({ extended: true }), users.api.createUser);
-
 
 //======================================================
 // Main app routes =====================================
