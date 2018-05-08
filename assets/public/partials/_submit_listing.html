@@ -20,26 +20,26 @@
 						<input class="form-control" id="auctionPriceInput" ng-model="listing.auctionStartPrice">
 						<span class="text-danger h4" ng-show="invalidAuctionPrice">Invalid Auction Price</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noBstockCategory && !listing.category }">
 						<label for="categoryInput">Category</label>
 						<select class="form-control" class="form-control" name="category" id="categoryInput" required ng-model="listing.category">
-						    <option></option>
 							<option ng-repeat="category in bstockCategories">{{category}}</option>
 						</select>
+						<span class="text-danger h4" ng-show="noBstockCategory && !listing.category">Required field.</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noBstockCondition && !listing.condition }">
 						<label for="conditionInput">Condition</label>
 						<select class="form-control" class="form-control" name="condition" id="conditionInput" required ng-model="listing.condition">
-						    <option></option>
 							<option ng-repeat="condition in bstockConditions">{{condition}}</option>
 						</select>
+						<span class="text-danger h4" ng-show="noBstockCondition && !listing.condition">Required field.</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noBstockPackaging && !listing.packaging }">
 						<label for="packagingInput">Packaging</label>
 						<select class="form-control" class="form-control" name="packaging" id="packagingInput" required ng-model="listing.packaging">
-						    <option></option>
 							<option ng-repeat="packaging in bstockPackagings">{{packaging}}</option>
 						</select>
+						<span class="text-danger h4" ng-show="noBstockPackaging && !listing.packaging">Required field.</span>
 					</div>
 				</div>
 				
@@ -62,7 +62,7 @@
 					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noCarrier }">
 						<label for="shippingCarrierInput">Carrier</label>
 						<input class="form-control" id="shippingCarrierInput" ng-model="listing.shipping.carrier">
-						<span class="text-danger h4" ng-show="noCarrier">Carrier Input Required.</span>
+						<span class="text-danger h4" ng-show="noCarrier">Required field.</span>
 					</div>
 				</div>
 				<div class="row" ng-show="[bstockFormConstants.shippingChargeType['Free Shipping'], bstockFormConstants.shippingChargeType['Fixed Cost']].includes(listing.shipping.chargeType)">

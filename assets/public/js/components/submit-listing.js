@@ -46,6 +46,10 @@
 				$scope.invalidAuctionPrice = ($scope.listing.auctionStartPrice && $scope.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;
 				$scope.noChargeType = $scope.listing.shipping.chargeType ? false : true;
 
+				$scope.noBstockCondition = $scope.listing.condition ? false : true;
+				$scope.noBstockCategory = $scope.listing.category ? false : true;
+				$scope.noBstockPackaging = $scope.listing.packaging ? false : true;
+
 				if($scope.listing.shipping.chargeType===bstockFormConstants.shippingChargeType['Fixed Cost']) {
 					$scope.invalidShippingCharge = ($scope.listing.shipping.charge && $scope.listing.shipping.charge.match(/[0-9]+/)) ? false : true;
 					$scope.noCarrier = $scope.listing.shipping.carrier ? false : true;
@@ -54,7 +58,7 @@
 					$scope.invalidShippingCharge = $scope.noCarrier = false;
 				}
 
-				if($scope.invalidAuctionPrice || $scope.noChargeType || $scope.invalidShippingCharge || $scope.noCarrier) {
+				if($scope.invalidAuctionPrice || $scope.noChargeType || $scope.invalidShippingCharge || $scope.noCarrier || $scope.noBstockPackaging || $scope.noBstockCategory || $scope.noBstockCondition ) {
 					return;
 				}
 
