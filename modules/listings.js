@@ -19,13 +19,25 @@ const boilerplateByLotType = {
 	'salvage': 'The lot contains units that have passed the best by date.',
 };
 
-function submitBstockListing() {
+function submitBstockListing(listingData) {
 
 }
 
+async function submit(req, res) {
+	if(req.body.lotId) {
+		const resp = await submitBstockListing(req.body.listing);
+		res.json(resp); 
+	}
+	else {
+		const e = new Error('No lotId.');
+		e.clientMessage('No lotId submitted');
+		throw e;
+	}
+}
 
 module.exports = {
 	//functions
+	submit: submit,
 	submitBstockListing: submitBstockListing,
 	// data
 	boilerplate: boilerplateByLotType,

@@ -8,8 +8,8 @@ const scriptBuilder = require(path.join(__basedir, __config.modulesPath, 'script
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const manifestFiles = require(path.join(__basedir, __config.modulesPath, 'manifest-files'));
 const images = require(path.join(__basedir, __config.modulesPath, 'images'));
-
 const users = require(path.join(__basedir, __config.modulesPath, 'users'));
+const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
 
 function getLayoutDataByEnv(env) {
 	const res = {
@@ -80,8 +80,8 @@ function routes(env) {
   router.get('/api/image/download/:lotId', images.downloadImages);
   router.post('/api/image/remove', images.removeImage);
 
-  //3rd-party manifests
-
+  // marketplace listings
+  router.post('/api/listings/submit', listings.submit);
 
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{

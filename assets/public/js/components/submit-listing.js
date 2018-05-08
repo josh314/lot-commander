@@ -63,11 +63,11 @@
 				$scope.waitingForResponse = true;
 
 				//TODO: wait while submitting 
-				// $http.post('', {}).then(resp=>{
-				// $scope.waitingForResponse = false;
-				// 	//TODO: verify submission with modal
-				// 	$state.go('main.lots.list');
-				// });
+				$http.post('/api/', { lotId: lotStore._id, listing: listing}).then(resp=>{
+				$scope.waitingForResponse = false;
+					//TODO: verify submission with modal
+					$state.go('main.lots.list');
+				});
 			};
 
 			$scope.backToLotDetails = function() {
