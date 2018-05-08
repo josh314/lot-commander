@@ -52,7 +52,7 @@
 				$scope.waitingForResponse = true;
 
 				//TODO: wait while submitting 
-				$http.post('/api/', { lotId: lotStore._id, listing: $scope.listing}).then(resp=>{
+				$http.post('/api/listings/submit', { lotId: lotStore._id, listing: $scope.listing}).then(resp=>{
 					//TODO: verify submission with modal
 					$state.go('main.lots.list');
 				})

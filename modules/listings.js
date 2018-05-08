@@ -1,6 +1,7 @@
 const path = require('path');
 
 const manifestFiles = require(path.join(__basedir, __config.modulesPath, 'manifest-files'));
+const lotDb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 
 
 const boilerplate1 = 'Our items are in good condition, but may have some or all of the following properties:\n' +
@@ -25,7 +26,9 @@ function submitBstockListing(listingData) {
 
 async function submit(req, res) {
 	if(req.body.lotId) {
-		const resp = await submitBstockListing(req.body.listing);
+		const listing = req.body.listing;
+		listing.lot = await 
+		const resp = await submitBstockListing(listing);
 		res.json(resp); 
 	}
 	else {
