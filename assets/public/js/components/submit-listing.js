@@ -21,8 +21,11 @@
 
 			// Form dropdown values
 			$scope.marketplaces = ['bstock'];
-			$scope.shippingChargeTypes = Object.keys(bstockFormConstants.shippingChargeType);
-			$scope.shippingAllowedDestinations = Object.keys(bstockFormConstants.shippingAllowedDestinations);
+			$scope.bstockCategories = Object.keys(bstockFormConstants.category);
+			$scope.bstockConditions = Object.keys(bstockFormConstants.condition);
+			$scope.bstockPackagings = Object.keys(bstockFormConstants.packaging);
+			$scope.bstockShippingChargeTypes = Object.keys(bstockFormConstants.shippingChargeType);
+			$scope.bstockShippingAllowedDestinations = Object.keys(bstockFormConstants.shippingAllowedDestinations);
 
 			//Form default values
 			$scope.listing = {
