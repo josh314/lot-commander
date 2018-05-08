@@ -4,12 +4,12 @@
 		<div class="col-xs-12">
 			<div class="row">
 				<div class="row">
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noMarketplace }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noMarketplace && !listing.marketplace }">
 						<label for="marketplaceInput">Marketplace</label>
 						<select class="form-control" name="marketplace" id="marketplaceInput" ng-model="listing.marketplace">
 							<option ng-repeat="marketplace in marketplaces">{{marketplace}}</option>
 						</select>
-						<span class="text-danger h4" ng-show="noMarketplace">No Marketplace Selected.</span>
+						<span class="text-danger h4" ng-show="noMarketplace && !listing.marketplace">No Marketplace Selected.</span>
 					</div>
 				</div>
 			</div>

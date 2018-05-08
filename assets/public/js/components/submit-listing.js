@@ -28,46 +28,40 @@
 			};
 
 			$scope.submitListing = function() {
-				if(!$scope.listing.marketplace) {
-					$scope.noMarketplace = true;
+
+				$scope.noMarketplace = $scope.listing.marketplace ? false : true;
+				if($scope.noMarketplace) {
 					return;
-				} else {
-					$scope.noMarketplace = false;
 				}
 
-				if(!$scope.listing.shipping.chargeType) {
-					$scope.noChargeType = true;
-					return;
-				}
-				else {
-					$scope.noChargeType = false;
-				}
+				$scope.noChargeType = $scope.listing.shipping.chargeType ? false : true;
 
 				if($scope.listing.shipping.chargeType===bstockFormConstants.shippingChargeType['Fixed Cost']) {
-					if(!$scope.listing.shipping.cost || !$scope.listing.shipping.cost.match(/[0-9]+/)) {
-						$scope.invalidShippingCost = true;
-						return;
-					}
-					else {
-						$scope.invalidShippingCost = false;
-					}
-					if(!$scope.listing.shipping.carrier) {
-						$scope.noCarrier = true;
-						return;
-					}
-					else {
-						$scope.noCarrier = false;
-					}
+					$scope.invalidShippingCost = ($scope.listing.shipping.cost && $scope.listing.shipping.cost.match(/[0-9]+/)) ? false : true;
+					$scope.noCarrier = $scope.listing.shipping.carrier ? false : true;
 				}
+				else {
+					$scope.invalidShippingCost = $scope.noCarrier = false;
+				}
+
+				if($scope.noChargeType || $scope.invalidShippingCost || $scope.noCarrier) {
+					return;
+				}
+
 
 				$scope.waitingForResponse = true;
 
 				//TODO: wait while submitting 
-				$http.post('/api/', { lotId: lotStore._id, listing: listing}).then(resp=>{
-				$scope.waitingForResponse = false;
+				$http.post('/api/', { lotId: lotStore._id, listing: $scope.listing}).then(resp=>{
 					//TODO: verify submission with modal
 					$state.go('main.lots.list');
-				});
+				})
+				.catch(e=>{
+					console.log(e);
+				})
+				.then(_=>{
+					$scope.waitingForResponse = false;
+				})
 			};
 
 			$scope.backToLotDetails = function() {
