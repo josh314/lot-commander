@@ -74,6 +74,12 @@
 					</div>
 				</div>
 				<div class="row" ng-show="listing.shipping.chargeType===bstockFormConstants.shippingChargeType['Buyer Arranges Shipping']"></div>
+				<div class="row">
+					<div class="form-group col-xs-12">
+						<label for="shippingNotesInput">Shipping Notes</label>
+						<textarea class="form-control" id="shippingNotesInput" ng-model="listing.shipping.notes"></textarea>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div class="col-xs-12 row">
