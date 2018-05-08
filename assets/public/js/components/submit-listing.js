@@ -10,17 +10,23 @@
 		function($scope, $state, $http, bstockFormConstants, lotStore, messageModal, sessionTimeout) {
 			sessionTimeout.timeoutExpired();
 
-			$scope.marketplaces = ['bstock'];
+			if(!lotStore._id) {
+				$state.go('main.lots.list');
+			}
 
 			$scope.lot = lotStore;
 			$scope.waitingForResponse = false;
 
 			$scope.bstockFormConstants = bstockFormConstants;
 
+			// Form dropdown values
+			$scope.marketplaces = ['bstock'];
 			$scope.shippingChargeTypes = Object.keys(bstockFormConstants.shippingChargeType);
 			$scope.shippingAllowedDestinations = Object.keys(bstockFormConstants.shippingAllowedDestinations);
 
+			//Form default values
 			$scope.listing = {
+				auctionStartPrice: '300',
 				shipping: {
 					allowedDestinations: bstockFormConstants.shippingAllowedDestinations['Continental US only (Alaska and Hawaii excluded)'],
 					chargeType: bstockFormConstants.shippingChargeType['Fixed Cost'],
@@ -34,17 +40,18 @@
 					return;
 				}
 
+				$scope.invalidAuctionPrice = ($scope.listing.auctionStartPrice && $scope.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;
 				$scope.noChargeType = $scope.listing.shipping.chargeType ? false : true;
 
 				if($scope.listing.shipping.chargeType===bstockFormConstants.shippingChargeType['Fixed Cost']) {
-					$scope.invalidShippingCost = ($scope.listing.shipping.cost && $scope.listing.shipping.cost.match(/[0-9]+/)) ? false : true;
+					$scope.invalidShippingCharge = ($scope.listing.shipping.charge && $scope.listing.shipping.charge.match(/[0-9]+/)) ? false : true;
 					$scope.noCarrier = $scope.listing.shipping.carrier ? false : true;
 				}
 				else {
-					$scope.invalidShippingCost = $scope.noCarrier = false;
+					$scope.invalidShippingCharge = $scope.noCarrier = false;
 				}
 
-				if($scope.noChargeType || $scope.invalidShippingCost || $scope.noCarrier) {
+				if($scope.invalidAuctionPrice || $scope.noChargeType || $scope.invalidShippingCharge || $scope.noCarrier) {
 					return;
 				}
 
@@ -54,6 +61,7 @@
 				//TODO: wait while submitting 
 				$http.post('/api/listings/submit', { lotId: lotStore._id, listing: $scope.listing}).then(resp=>{
 					//TODO: verify submission with modal
+					console.log(resp)
 					$state.go('main.lots.list');
 				})
 				.catch(e=>{

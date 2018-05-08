@@ -15,6 +15,13 @@
 			</div>
 			<div class="row" ng-show="listing.marketplace==='bstock'">
 				<div class="row">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidAuctionPrice }">
+						<label for="auctionPriceInput">Starting Auction Price</label>
+						<input class="form-control" id="auctionPriceInput" ng-model="listing.auctionStartPrice">
+						<span class="text-danger h4" ng-show="invalidAuctionPrice">Invalid Auction Price</span>
+					</div>
+				</div>
+				<div class="row">
 					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noChargeType }">
 						<label for="shippingChargeTypeInput">Shipping Charge Type</label>
 						<select class="form-control" name="shippingChargeType" id="shippingChargeTypeInput" ng-model="listing.shipping.chargeType">
@@ -25,10 +32,10 @@
 				</div>
 
 				<div class="row" ng-show="listing.shipping.chargeType===bstockFormConstants.shippingChargeType['Fixed Cost']">
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidShippingCost }">
-						<label for="fixedShippingCostInput">Cost</label>
-						<input class="form-control" id="fixedShippingCostInput" ng-model="listing.shipping.cost">
-						<span class="text-danger h4" ng-show="invalidShippingCost">Invalid Shipping Cost</span>
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidShippingCharge }">
+						<label for="fixedShippingChargeInput">Charge</label>
+						<input class="form-control" id="fixedShippingChargeInput" ng-model="listing.shipping.charge">
+						<span class="text-danger h4" ng-show="invalidShippingCharge">Invalid Shipping Charge</span>
 					</div>
 					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noCarrier }">
 						<label for="shippingCarrierInput">Carrier</label>
