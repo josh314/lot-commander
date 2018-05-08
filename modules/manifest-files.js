@@ -131,59 +131,28 @@ function buildManifestCsv(inventory, opts) {
 	});
 }
 
-// function generateManifestFile(req, res){
-// 	const manifestId = req.body.manifestId;
-// 	const manifestOpts = {};
-// 	if(req.body.bstock) {
-// 		manifestOpts.bstock = req.body.bstock;
-// 	}
-
-// 	mandb.getManifestById(manifestId).then(async (manifest)=>{
-// 		res.json({ status: 'submitted' });
-
-// 		const manifestCsv = await buildManifestCsv(manifest.inventory, manifestOpts);
-
-// 		const filename = path.join(manifestFilesPath, `${manifest.handle}${req.body.bstock? '-bstock': ''}-${manifest._id}.csv`);
-// 		writeFile(filename, manifestCsv).then(()=>{__logger.info(`Manifest written to ${filename}`)});
-// 	})
-// 	.catch(err=>{
-// 		__logger.error(err);
-// 	});
-// }
-
-function generateManifestFile(req, res, next){
+async function generateManifestFile(req, res, next){
 	const lotId = req.body.lotId;
 	const manifestOpts = {};
 	if(req.body.bstock) {
 		manifestOpts.bstock = req.body.bstock;
 	}
 
-	lotdb.getLotById(lotId).then(lot=>{
-		if(!lot) {
-			next(new Error(`No lot for id ${lotId}`));
-		}
+	const lot = await lotdb.getLotById(lotId);
+	if(!lot) {
+		next(new Error(`No lot for id ${lotId}`));
+	}
+	res.json({ status: 'submitted' });
 
-		const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.inventory) : Promise.resolve([]);
-
-		const thirdPartyManifestP = lot.thirdPartyManifests.length ? inmarDb.getBlockByBlockId(lot.thirdPartyManifests[0].blockId).then(b => b.contents) : Promise.resolve([]);
-
-		Promise.join(scannedManifestP, thirdPartyManifestP).spread(async (scannedInventory, thirdPartyInventory)=>{
-
-			const inventory = scannedInventory.concat(thirdPartyInventory)
-
-			res.json({ status: 'submitted' });
-
-			const manifestCsv = await buildManifestCsv(inventory, manifestOpts);
-
-			const filename = path.join(manifestFilesPath, `${lot.handle}${req.body.bstock? '-bstock': ''}-${lot._id}.csv`);
-			writeFile(filename, manifestCsv).then(()=>{__logger.info(`Manifest written to ${filename}`)});
-
-			// console.log(inventory);
-		});
+	const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.inventory) : Promise.resolve([]);
+	const thirdPartyManifestP = lot.thirdPartyManifests.length ? inmarDb.getBlockByBlockId(lot.thirdPartyManifests[0].blockId).then(b => b.contents) : Promise.resolve([]);
+	const manifestItems = await Promise.join(scannedManifestP, thirdPartyManifestP).spread(async (scannedInventory, thirdPartyInventory)=>{
+		const inventory = scannedInventory.concat(thirdPartyInventory)
+		return buildManifestItems(inventory, manifestOpts);
 	})
-	.catch(err=>{
-		__logger.error(err);
-	});
+	const manifestCsv = json2csv.parse(manifestItems);
+	const filename = path.join(manifestFilesPath, `${lot.handle}${req.body.bstock? '-bstock': ''}-${lot._id}.csv`);
+	writeFile(filename, manifestCsv).then(()=>{__logger.info(`Manifest written to ${filename}`)});
 }
 
 function downloadManifestFile(req, res) {
