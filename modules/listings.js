@@ -1,8 +1,7 @@
 const path = require('path');
 
-const manifestFiles = require(path.join(__basedir, __config.modulesPath, 'manifest-files'));
 const lotDb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
-
+const bstock = require(path.join(__basedir, __config.modulesPath, 'bstock'));
 
 const boilerplate1 = 'Our items are in good condition, but may have some or all of the following properties:\n' +
 		'•	Have retail stickers such as price tags or discount/store labels.\n' + 
@@ -20,28 +19,33 @@ const boilerplateByLotType = {
 	'salvage': 'The lot contains units that have passed the best by date.',
 };
 
-function submitBstockListing(listingData) {
-
-}
-
-async function submit(req, res) {
+async function submit(req, res, next) {
 	if(req.body.lotId) {
 		const listing = req.body.listing;
-		listing.lot = await 
-		const resp = await submitBstockListing(listing);
+		listing.lot = await lotDb.getLotById(req.body.lotId);
+		let resp;
+		if(listing.marketplace==='bstock') {
+			try {
+				resp = await bstock.submitListing(listing);
+			}
+			catch (e) {
+				console.log(e);
+			}
+		}
+		else {
+			next(new Error('Invalid marketplace.'));
+		}
 		res.json(resp); 
 	}
 	else {
 		const e = new Error('No lotId.');
-		e.clientMessage('No lotId submitted');
-		throw e;
+		e.clientMessage ='No lotId submitted';
+		next(e);
 	}
 }
 
 module.exports = {
 	//functions
-	submit: submit,
-	submitBstockListing: submitBstockListing,
-	// data
+	submit: submit,	// data
 	boilerplate: boilerplateByLotType,
 }
