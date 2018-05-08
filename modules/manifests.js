@@ -125,9 +125,12 @@ function buildManifestItems(inventory, opts) {
 	});
 }
 
-function buildManifestCsv(inventory, opts) {
-	return buildManifestItems(inventory, opts).then(manifestItems=>{
-		return json2csv.parse(manifestItems);
+function getManifestItemsForLot(lot, opts) {
+	const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.inventory) : Promise.resolve([]);
+	const thirdPartyManifestP = lot.thirdPartyManifests.length ? inmarDb.getBlockByBlockId(lot.thirdPartyManifests[0].blockId).then(b => b.contents) : Promise.resolve([]);
+	return Promise.join(scannedManifestP, thirdPartyManifestP).spread(async (scannedInventory, thirdPartyInventory)=>{
+		const inventory = scannedInventory.concat(thirdPartyInventory)
+		return buildManifestItems(inventory, opts);
 	});
 }
 
@@ -144,13 +147,7 @@ async function generateManifestFile(req, res, next){
 	}
 	res.json({ status: 'submitted' });
 
-	const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.inventory) : Promise.resolve([]);
-	const thirdPartyManifestP = lot.thirdPartyManifests.length ? inmarDb.getBlockByBlockId(lot.thirdPartyManifests[0].blockId).then(b => b.contents) : Promise.resolve([]);
-	const manifestItems = await Promise.join(scannedManifestP, thirdPartyManifestP).spread(async (scannedInventory, thirdPartyInventory)=>{
-		const inventory = scannedInventory.concat(thirdPartyInventory)
-		return buildManifestItems(inventory, manifestOpts);
-	})
-	const manifestCsv = json2csv.parse(manifestItems);
+	const manifestCsv = json2csv.parse(await getManifestItemsForLot(lot, manifestOpts));
 	const filename = path.join(manifestFilesPath, `${lot.handle}${req.body.bstock? '-bstock': ''}-${lot._id}.csv`);
 	writeFile(filename, manifestCsv).then(()=>{__logger.info(`Manifest written to ${filename}`)});
 }
@@ -207,6 +204,7 @@ function submit3pManifest(req,res,next) {
 }
 
 module.exports = {
+	getManifestItemsForLot: getManifestItemsForLot,
 	listManifestFiles: listManifestFiles,
 	generateManifestFile: generateManifestFile,
 	downloadManifestFile: downloadManifestFile,

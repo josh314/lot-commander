@@ -6,7 +6,7 @@ const assetsData = require(path.join(__basedir, __config.modulesPath, 'assets-da
 const scriptBuilder = require(path.join(__basedir, __config.modulesPath, 'script-builder'));
 
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
-const manifestFiles = require(path.join(__basedir, __config.modulesPath, 'manifest-files'));
+const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
 const images = require(path.join(__basedir, __config.modulesPath, 'images'));
 const users = require(path.join(__basedir, __config.modulesPath, 'users'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
@@ -70,10 +70,10 @@ function routes(env) {
   // router.get('/api/db/delete/:manifestId', mandb.deleteManifest);
 
   // deal with files
-  router.get('/api/manifest-files/list', manifestFiles.listManifestFiles);
-  router.post('/api/manifest-files/generate', manifestFiles.generateManifestFile);
-  router.get('/api/manifest-files/download/:file', manifestFiles.downloadManifestFile);
-  router.post('/api/manifest-files/upload', manifestFiles.submit3pManifest);
+  router.get('/api/manifest-files/list', manifests.listManifestFiles);
+  router.post('/api/manifest-files/generate', manifests.generateManifestFile);
+  router.get('/api/manifest-files/download/:file', manifests.downloadManifestFile);
+  router.post('/api/manifest-files/upload', manifests.submit3pManifest);
   // router.get('/api/files/delete/:manifestId', files.deleteManifestFile);
   router.post('/api/image/upload', images.upload);
   router.post('/api/image/primary', lotdb.setPrimaryImage);
