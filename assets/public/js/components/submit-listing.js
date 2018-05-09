@@ -71,7 +71,10 @@
 					if(resp.data.error) {
 						messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
 					}
-					$state.go('main.lots.list');
+					else {
+						messageModal.launch({header: 'Status', body: 'Submission successful.', type: 'success'});
+						$state.go('main.lots.list');
+					}
 				})
 				.catch(e=>{
 					console.log(e);
