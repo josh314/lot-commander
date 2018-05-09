@@ -30,7 +30,7 @@ async function submitListing(data) {
 		palletIds: lot.handle,
 		images: lot.images.map(x=>{
 			return {
-				primaryImage: x.primary ? true : false,
+				primary: x.primary ? true : false,
 				filename: path.join(__basedir, __config.imgPath, x.filename),
 			};
 		}),
