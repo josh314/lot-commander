@@ -28,14 +28,16 @@ async function submitListing(data) {
 		category: bstockWeb.codeMaps.category[data.category],
 		condition: bstockWeb.codeMaps.condition[data.condition],
 		palletIds: lot.handle,
-		images: lot.images,
+		images: lot.images.map(x=>{
+			return {
+				primaryImage: x.primary ? true : false,
+				filename: path.join(__basedir, __config.imgPath, x.filename),
+			};
+		}),
 		startPrice: data.auctionStartPrice,
 	};
 
-	console.log('submissionData:');
-	console.log(submissionData);
-
-	return client.test(submissionData).catch(e=>console.log(e));
+	return client.submitListing(submissionData, {debug:true}).catch(e=>console.log(e));
 }
 
 

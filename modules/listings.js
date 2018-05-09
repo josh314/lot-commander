@@ -23,6 +23,12 @@ async function submit(req, res, next) {
 	if(req.body.lotId) {
 		const listing = req.body.listing;
 		listing.lot = await lotDb.getLotById(req.body.lotId);
+		if(!listing.lot.images.length) {
+			const e = new Error(`No listing created for lot ${listing.lot.handle} (id: ${listing.lot._id}): No images.`);
+			e.clientMessage ='Please add images to this lot before submission.';
+			next(e);
+		}
+
 		let resp;
 		if(listing.marketplace==='bstock') {
 			try {
