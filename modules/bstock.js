@@ -24,9 +24,9 @@ async function submitListing(data) {
 		manifestItems: await manifests.getManifestItemsForLot(lot, manifestOptions),
 		totalUnits: lot.totalUnits,
 		title: lot.listingData.title,
-		description: lot.listingData.body,
-		category: bstockWeb.codeMaps.category[data.category],
-		condition: bstockWeb.codeMaps.condition[data.condition],
+		description: data.bodyBoilerplate ? (lot.listingData.body + '\n\n' + data.bodyBoilerplate) : lot.listingData.body,
+		category: data.category,
+		condition: data.condition,
 		palletIds: lot.handle,
 		images: lot.images.map(x=>{
 			return {

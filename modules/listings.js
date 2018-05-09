@@ -29,6 +29,8 @@ async function submit(req, res, next) {
 			next(e);
 		}
 
+		listing.bodyBoilerplate = boilerplateByLotType[listing.lot.type] ? boilerplateByLotType[listing.lot.type] : '';
+
 		let resp;
 		if(listing.marketplace==='bstock') {
 			try {
