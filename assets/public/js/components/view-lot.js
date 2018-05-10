@@ -40,7 +40,7 @@
 			};
 
 	    $scope.uploadImages = function(){
-				if($scope.imagesToUpload.length>0) {
+				if($scope.imagesToUpload && $scope.imagesToUpload.length>0) {
 					for(let i=0; i<$scope.imagesToUpload.length; i++) {
 				    const image = $scope.imagesToUpload[i];
 				    const uploadUrl = "/api/image/upload";
