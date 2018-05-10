@@ -39,14 +39,18 @@
 				})
 			};
 
-	    $scope.uploadImage = function(){
-	    	if($scope.imageToUpload) {
-			    const image = $scope.imageToUpload;
-			    const uploadUrl = "/api/image/upload";
-			    const metadata = { lotId: lotStore._id, primary: false };
-			    fileUpload.uploadFileToUrl(image, uploadUrl, metadata).then(resp=>{
-			    	$state.reload();
-			    });
+	    $scope.uploadImages = function(){
+				if($scope.imagesToUpload.length>0) {
+					for(let i=0; i<$scope.imagesToUpload.length; i++) {
+				    const image = $scope.imagesToUpload[i];
+				    const uploadUrl = "/api/image/upload";
+				    const metadata = { lotId: lotStore._id, primary: false };
+				    fileUpload.uploadFileToUrl(image, uploadUrl, metadata).then(resp=>{
+							if(i+1==$scope.imagesToUpload.length) {
+								$state.reload();
+							}
+				    });
+				  }
 			  }
 	    };
 
