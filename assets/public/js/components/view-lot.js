@@ -68,8 +68,6 @@
 
 	      modalInstance.result.then(function (lot) {
 					$http.post('/api/db/edit-lot/'+lotStore._id, lot).then(resp=>{
-						// console.log(resp);
-						lotStore.save(lot);
 						$state.reload();
 					});
 		    }, function () {
@@ -113,7 +111,24 @@
 			};
 
 			$scope.configureListingForSubmission = function() {
-				$state.go('main.lots.submit-listing');
+				const missingFields = [];
+				if(!$scope.lot.listingData.title) {
+					missingFields.push('title')
+				}
+				if(!$scope.lot.listingData.body) {
+					missingFields.push('body')
+				}
+				if(!$scope.lot.getHandle()) {
+					missingFields.push('handle')
+				}
+
+				if(!missingFields.length) {
+					$state.go('main.lots.submit-listing');
+				}
+				else {
+					const msg = `Must complete the following fields before submission: ${missingFields}`;
+					messageModal.launch({Header: 'Incomplete Lot', body: msg , type: 'error'})
+				}
 			};
 
 	}]);
