@@ -12,10 +12,14 @@
 		$scope.quickLots = [
 			{				
 				handlePrefix: 'GM',
+				name: 'General Merchandise',
 				template: {
-					title: 'General Merchandise',
-					type: 'shelf-pulls',
+					type: 'shelf-pull',
 					totalUnits: 400,
+					listingData: {
+						title: 'Brand Name General Merchandise',
+						body: 'some shizz'
+					},
 				} 
 			},
 		];
@@ -24,7 +28,7 @@
 
 		$scope.startQuickLot = function(quickLot) {
 			const newLot = {
-				handle: quickLot.prefix,
+				handle: quickLot.handlePrefix,
 			};
 			Object.assign(newLot, quickLot.template);
 			$scope.startLot(newLot);
