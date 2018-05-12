@@ -6,23 +6,10 @@
 	var app = angular.module('myApp');
 
 	/******************* New Lot Controller *************************/
-	app.controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'sessionTimeout', function($http, $scope, $state, dbEnums, sessionTimeout) {
+	app.controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'quickLotsBoilerplate', 'sessionTimeout', function($http, $scope, $state, dbEnums, quickLotsBoilerplate, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 
-		$scope.quickLots = [
-			{				
-				handlePrefix: 'GM',
-				name: 'General Merchandise',
-				template: {
-					type: 'shelf-pull',
-					totalUnits: 400,
-					listingData: {
-						title: 'Brand Name General Merchandise',
-						body: 'some shizz'
-					},
-				} 
-			},
-		];
+		$scope.quickLots = quickLotsBoilerplate;
 
 		$scope.lotTypes = dbEnums.lotType;
 
