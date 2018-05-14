@@ -9,7 +9,7 @@ const boilerplate = [
 				title: 'Brand Name General Merchandise',
 				body: 'some shizz'
 			},
-		} 
+		}
 	},
 	{
 		handlePrefix: 'GM',
@@ -21,7 +21,7 @@ const boilerplate = [
 				title: 'Brand Name General Merchandise',
 				body: 'some shizz'
 			},
-		} 
+		}
 	},
 	{
 		handlePrefix: 'CS',
@@ -33,7 +33,7 @@ const boilerplate = [
 				title: 'Brand Name Cosmetics',
 				body: 'some shizz'
 			},
-		} 
+		}
 	},
 	{
 		handlePrefix: 'CS',
@@ -45,7 +45,7 @@ const boilerplate = [
 				title: 'Brand Name Cosmetics',
 				body: 'some shizz'
 			},
-		} 
+		}
 	},
 	{
 		handlePrefix: 'VT',
@@ -57,7 +57,7 @@ const boilerplate = [
 				title: 'Brand Name Vitamins & Supplements',
 				body: 'some shizz'
 			},
-		} 
+		}
 	},
 	{
 		handlePrefix: 'PC',
@@ -69,11 +69,23 @@ const boilerplate = [
 				title: 'Brand Name Personal Care',
 				body: 'some shizz'
 			},
-		} 
+		}
+	},
+	{
+		handlePrefix: 'PC',
+		name: 'Personal Care',
+		template: {
+			type: 'customer returns',
+			totalUnits: 400,
+			listingData: {
+				title: 'Brand Name Personal Care',
+				body: 'some shizz'
+			},
+		}
 	},
 	{
 		handlePrefix: 'NP',
-		name: 'Vitamins & Supplements',
+		name: 'Nail Polish',
 		template: {
 			type: 'shelf-pull',
 			totalUnits: 400,
@@ -81,7 +93,7 @@ const boilerplate = [
 				title: 'Brand Name Nail Polish',
 				body: 'some shizz'
 			},
-		} 
+		}
 	},
 ];
 
