@@ -44,6 +44,7 @@
 					chargeType: bstockFormConstants.shippingChargeType['Fixed Cost'],
 					charge: '90',
 					carrier: 'UPS',
+					notes: 'Lot will ship within one business day after confirmed payment.'
 				},
 			};
 
