@@ -1,6 +1,7 @@
 const path = require('path');
 
 const Promise = require('bluebird');
+const moment = require('moment');
 
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
@@ -23,14 +24,23 @@ function getLotByIdApi(req, res) {
 function getLots(req, res) {
 	//todo: start and end dates, other search filters, sort options
 	__logger.info('Lot list requested.');
-	const query = {
+	const opts = {
 		sort: { createdAt: -1 },
-		limit: 100
+		limit: 100,
 	};
+	const query = {};
+	if(req.body.startDate) {
+		query.createdAt = query.createdAt || {};
+		query.createdAt.$gte = moment(req.body.startDate).startOf('day').toDate();
+	}
+	if(req.body.endDate) {
+		query.createdAt = query.createdAt || {};
+		query.createdAt.$lte = moment(req.body.endDate).endOf('day').toDate();
+	}
 	if(req.body.handle) {
 		query.handle = handle;
 	}
-	lotdbClient.getLots(query).then(resp=>{
+	lotdbClient.getLots(query, opts).then(resp=>{
 		res.json(resp);
 	})
 }

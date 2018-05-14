@@ -21,7 +21,7 @@ async function submitListing(data) {
 
 	const submissionData = {
 		shipping: data.shipping,
-		manifestItems: await manifests.getManifestItemsForLot(lot, manifestOptions),
+		manifestItems: lot.unmanifested ? manifests.boilerplateManifestItems(lot, manifestOptions) : await manifests.getManifestItemsForLot(lot, manifestOptions),
 		totalUnits: lot.totalUnits,
 		title: lot.listingData.title,
 		description: data.bodyBoilerplate ? (lot.listingData.body + '\n\n' + data.bodyBoilerplate) : lot.listingData.body,

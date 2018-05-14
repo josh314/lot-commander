@@ -23,6 +23,10 @@
 				<option ng-repeat="status in lotStatusEnum">{{status}}</option>
 			</select>
 		</div>
+		<div class="form-group col-xs-12 col-sm-6" ng-show="lot.unmanifested">
+			<label for="totalUnitsInput">Total Units</label>
+			<input class="form-control" id="totalUnitsInput" required ng-model="lot.totalUnits">
+		</div>
 <!-- 		<div class="form-group col-xs-12">
 			<label for="listingBodyInput">Listing Body</label>
 			<input type="textarea" class="form-control" name="listingBody" id="listingBodyInput" required ng-model="listing.body">
