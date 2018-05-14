@@ -13,6 +13,7 @@
 			this.description = undefined;
 			this.type = undefined;
 			this.totalUnits = 0;
+			this.unmanifested = undefined;
 			this.inventory = [];
 			this._id = undefined;
 			this.manifestId = undefined;
@@ -44,6 +45,7 @@
 		this.save = function(_lot) {
 			this.reset();
 			this.setHandle(_lot.handle);
+			this.unmanifested = _lot.unmanifested;
 			if(_lot.description) {
 				this.setDescription(_lot.description);
 			}
