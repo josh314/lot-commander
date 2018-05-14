@@ -27,12 +27,23 @@
 			$scope.bstockShippingChargeTypes = Object.keys(bstockFormConstants.shippingChargeType);
 			$scope.bstockShippingAllowedDestinations = Object.keys(bstockFormConstants.shippingAllowedDestinations);
 
+			const conditionMapping = {
+				'shelf-pull': 'Shelf Pulls',
+				'customer returns': 'Customer Returns',
+				'salvage': 'Salvage',
+			}
+
 			//Form default values
 			$scope.listing = {
+				marketplace: 'bstock',
 				auctionStartPrice: '300',
+				condition: conditionMapping[$scope.lot.type] || '',
+				packaging: 'Original',
 				shipping: {
 					allowedDestinations: bstockFormConstants.shippingAllowedDestinations['Continental US only (Alaska and Hawaii excluded)'],
 					chargeType: bstockFormConstants.shippingChargeType['Fixed Cost'],
+					charge: '90',
+					carrier: 'UPS',
 				},
 			};
 
