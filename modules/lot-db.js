@@ -134,6 +134,14 @@ function link3pManifestBlock(req, res, next){
 	});
 }
 
+function markAsListed(lotId) {
+	const data = {
+		_id: lotId,
+		status: 'Listed'
+	};
+	return lotdbClient.updateLot(data);
+}
+
 module.exports = {
 	//middleware
 	getLotByIdApi: getLotByIdApi,
@@ -151,4 +159,5 @@ module.exports = {
 	lotStatusEnum: lotdbClient.LotModel.statusEnum,
 	lotTypeEnum: lotdbClient.LotModel.typeEnum,
 	link3pManifestBlock: link3pManifestBlock,
+	markAsListed: markAsListed,
 };
