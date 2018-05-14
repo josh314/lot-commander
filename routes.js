@@ -59,6 +59,7 @@ function routes(env) {
   router.get('/api/db/get/:lotId', lotdb.getLotByIdApi);
   router.post('/api/db/new-lot', lotdb.newLot);
   router.post('/api/db/edit-lot/:lotId', lotdb.editLotMetadata);
+  router.post('/api/db/delete-lot', lotdb.deleteLot)
   router.post('/api/db/save-manifest', lotdb.saveManifest);
   router.get('/api/db/manifest/:manifestId', lotdb.getManifest);
   router.post('/api/db/link-3p-manifest-block', lotdb.link3pManifestBlock);

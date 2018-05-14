@@ -131,6 +131,20 @@
 				}
 			};
 
+			$scope.deleteLot = function(lotId) {
+		    const modalInstance = $uibModal.open({
+		      templateUrl: '/partials/_delete_lot_modal.html',
+		      size: 'lg',
+		    });
+
+	      modalInstance.result.then(function () {
+					$http.post('/api/db/delete-lot/', {lotId: lotId});
+					$state.go('main.lots.list');
+		    }, function () {
+		      console.log('Modal dismissed at: ' + new Date());
+		    });
+			}
+
 	}]);
 
 	/***************** Modal Controllers ************************/
@@ -140,4 +154,5 @@
 		$scope.lotTypeEnum = dbEnums.lotType;
 		$scope.selectedListing = 'bstock';
 	}]);
+
 })();

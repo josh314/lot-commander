@@ -142,6 +142,10 @@ function markAsListed(lotId) {
 	return lotdbClient.updateLot(data);
 }
 
+function deleteLot(req,res) {
+	return lotdbClient.deleteLot(req.body.lotId);
+}
+
 module.exports = {
 	//middleware
 	getLotByIdApi: getLotByIdApi,
@@ -151,7 +155,7 @@ module.exports = {
 	saveManifest: saveManifest,
 	getManifest: getManifest,
 	setPrimaryImage: setPrimaryImage,
-	// deleteLot: deleteLot,
+	deleteLot: deleteLot,
 	// other functionality
 	getLotById: getLotById,
 	addImage: addImage,
