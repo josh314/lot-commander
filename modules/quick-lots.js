@@ -6,8 +6,8 @@ const boilerplate = [
 			type: 'shelf-pull',
 			totalUnits: 400,
 			listingData: {
-				title: 'Brand Name General Merchandise',
-				body: 'some shizz'
+				title: 'Brand Name General Merchandise Variety',
+				body: 'The lot contains electronics, toys, games, housewares, kitchen items, everyday items and more.'
 			},
 		}
 	},
@@ -18,8 +18,8 @@ const boilerplate = [
 			type: 'customer returns',
 			totalUnits: 400,
 			listingData: {
-				title: 'Brand Name General Merchandise',
-				body: 'some shizz'
+				title: 'Brand Name General Merchandise Variety',
+				body: 'The lot contains electronics, toys, games, housewares, kitchen items, everyday items and more.'
 			},
 		}
 	},
@@ -30,8 +30,11 @@ const boilerplate = [
 			type: 'shelf-pull',
 			totalUnits: 400,
 			listingData: {
-				title: 'Brand Name Cosmetics',
-				body: 'some shizz'
+				title: 'Brand Name Cosmetics Variety',
+				body: 'Cosmetics, Maybelline & L\'Oreal Foundation, Lip, Eye & Face Makeup'
+					+ '\n'
+					+ '\nItems included:'
+					+ '\nFoundation, Lipstick, Mascara, Eyeliner, Browliner, Eyeshadow and more.'
 			},
 		}
 	},
@@ -42,8 +45,11 @@ const boilerplate = [
 			type: 'salvage',
 			totalUnits: 400,
 			listingData: {
-				title: 'Brand Name Cosmetics',
-				body: 'some shizz'
+				title: 'Brand Name Cosmetics Variety',
+				body: 'Cosmetics, Maybelline & L\'Oreal Foundation, Lip, Eye & Face Makeup'
+					+ '\n'
+					+ '\nItems included:'
+					+ '\nFoundation, Lipstick, Mascara, Eyeliner, Browliner, Eyeshadow and more.'
 			},
 		}
 	},
@@ -54,8 +60,17 @@ const boilerplate = [
 			type: 'salvage',
 			totalUnits: 400,
 			listingData: {
-				title: 'Brand Name Vitamins & Supplements',
-				body: 'some shizz'
+				title: 'Brand Name Vitamins & Supplements Variety',
+				body: 'Huge variety of brand name vitamins.'
+					+ '\n'
+					+ '\nName brands include:'
+					+ '\nC-4'
+					+ '\nAlli'
+					+ '\nSam-E'
+					+ '\nNature Made'
+					+ '\nMP Assault'
+					+ '\nCentrum'
+					+ '\nSun Down Emergen C and more'
 			},
 		}
 	},
@@ -66,8 +81,8 @@ const boilerplate = [
 			type: 'shelf-pull',
 			totalUnits: 400,
 			listingData: {
-				title: 'Brand Name Personal Care',
-				body: 'some shizz'
+				title: 'Brand Name Personal Care Variety',
+				body: 'Large lot of brand name health & beauty products from a national retail drugstore.'
 			},
 		}
 	},
@@ -78,8 +93,8 @@ const boilerplate = [
 			type: 'customer returns',
 			totalUnits: 400,
 			listingData: {
-				title: 'Brand Name Personal Care',
-				body: 'some shizz'
+				title: 'Brand Name Personal Care Variety',
+				body: 'Large lot of brand name health & beauty products from a national retail drugstore.'
 			},
 		}
 	},
@@ -90,8 +105,19 @@ const boilerplate = [
 			type: 'shelf-pull',
 			totalUnits: 400,
 			listingData: {
-				title: 'Brand Name Nail Polish',
-				body: 'some shizz'
+				title: 'Brand Name Nail Polish Variety',
+				body: 'Popular Brand Name Nail Polish Variety'
+					+ '\n'
+					+ '\nThe lot includes a huge variety of nail polishes that have been pulled from a retail environment.'
+					+ '\n'
+					+ '\nThe brands include:'
+					+ '\nRevlon'
+					+ '\nMaybelline'
+					+ '\nCoverGirl'
+					+ '\nL’Oreal'
+					+ '\nEssie'
+					+ '\nOPI'
+					+ '\nand more'
 			},
 		}
 	},
