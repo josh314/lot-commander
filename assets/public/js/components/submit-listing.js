@@ -20,7 +20,7 @@
 			$scope.bstockFormConstants = bstockFormConstants;
 
 			// Form dropdown values
-			$scope.marketplaces = ['bstock'];
+			$scope.marketplaces = ['bstock', 'shopify'];
 			$scope.bstockCategories = Object.keys(bstockFormConstants.category);
 			$scope.bstockConditions = Object.keys(bstockFormConstants.condition);
 			$scope.bstockPackagings = Object.keys(bstockFormConstants.packaging);
@@ -48,13 +48,7 @@
 				},
 			};
 
-			$scope.submitListing = function() {
-
-				$scope.noMarketplace = $scope.listing.marketplace ? false : true;
-				if($scope.noMarketplace) {
-					return;
-				}
-
+			function validateBstockListingOptions() {
 				$scope.invalidAuctionPrice = ($scope.listing.auctionStartPrice && $scope.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;
 				$scope.noChargeType = $scope.listing.shipping.chargeType ? false : true;
 
@@ -71,13 +65,37 @@
 				}
 
 				if($scope.invalidAuctionPrice || $scope.noChargeType || $scope.invalidShippingCharge || $scope.noCarrier || $scope.noBstockPackaging || $scope.noBstockCategory || $scope.noBstockCondition ) {
+					return false;
+				}
+				return true;
+			}
+
+			function validateShopifyListingOptions() {
+				return true;
+			}
+
+			function validateListingOptions() {
+				if($scope.listing.marketplace=='bstock') {
+					return validateBstockListingOptions();
+				}
+				else if($scope.listing.marketplace=='shopify') {
+					return validateShopifyListingOptions();
+				}
+			}
+
+			$scope.submitListing = function() {
+
+				$scope.noMarketplace = $scope.listing.marketplace ? false : true;
+				if($scope.noMarketplace) {
 					return;
 				}
 
+				if(!validateListingOptions()) {
+					return;
+				}
 
 				$scope.waitingForResponse = true;
 
-				//TODO: wait while submitting 
 				$http.post('/api/listings/submit', { lotId: lotStore._id, listing: $scope.listing}).then(resp=>{
 					//TODO: verify submission with modal
 					if(resp.data.error) {
