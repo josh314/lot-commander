@@ -2,6 +2,7 @@ const path = require('path');
 
 const lotDb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const bstock = require(path.join(__basedir, __config.modulesPath, 'bstock'));
+const shopify = require(path.join(__basedir, __config.modulesPath, 'shopify'));
 
 const boilerplate1 = 'Our items are in good condition, but may have some or all of the following properties:\n' +
 		'•	Have retail stickers such as price tags or discount/store labels.\n' + 
@@ -38,6 +39,16 @@ async function submit(req, res, next) {
 			}
 			catch (e) {
 				console.log(e);
+				next(e);
+			}
+		}
+		else if(listing.marketplace==='shopify') {
+			try {
+				resp = await shopify.submitListing(listing);
+			}
+			catch (e) {
+				console.log(e);
+				next(e);
 			}
 		}
 		else {
