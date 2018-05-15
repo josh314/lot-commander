@@ -97,7 +97,7 @@
 				$scope.waitingForResponse = true;
 
 				$http.post('/api/listings/submit', { lotId: lotStore._id, listing: $scope.listing}).then(resp=>{
-					//TODO: verify submission with modal
+					console.log(resp);
 					if(resp.data.error) {
 						messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
 					}
