@@ -20,13 +20,20 @@ const addImage = Promise.method(async function(productId, imageObj){
 const submitListing = Promise.method(async function (listing) {
 	const product = {
 		title: 'foobar',
+		//tags
+		// template
+		// manifest file
+		// publish status
+		// body
+		// price
+		// unit count
 	};
 	const addProductResp = await shopifyClient.addProduct(product);
 
 	const addImageReqs = [];
 	if(addProductResp) {
 		for(let image of listing.lot.images) {
-			addImageReqs.push(addImage(addProductResp.product.id));
+			addImageReqs.push(addImage(addProductResp.product.id, image));
 		}
 	}
 	const imageResps = await Promise.all(addImageReqs);
