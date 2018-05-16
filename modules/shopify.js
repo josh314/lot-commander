@@ -19,16 +19,26 @@ const addImage = Promise.method(async function(productId, imageObj){
 
 const submitListing = Promise.method(async function (listing) {
 	const product = {
-		title: 'foobar',
+		title: listing.lot.listingData.title,
+		body_html: listing.lot.listingData.body + '<br><br>' + listing.bodyBoilerplate, //TODO: whitespace/newlines not formatted right. use HTML?
+		template_suffix: 'manifested',
+		published_at: null,
 		//tags
-		// template
 		// manifest file
-		// publish status
-		// body
 		// price
 		// unit count
+		// inventory quantity -- set with new inventory API?
+		// shopify manages inventory --set with new inventory API?
+		// weight
+		//barcode
+		//collection
+		// variants -- does this hold some of the above data?
 	};
-	const addProductResp = await shopifyClient.addProduct(product);
+
+	//TODO: create unpublished then publish with a separate request after all other request have gone trhough successfully
+
+	console.log(product)
+	const addProductResp = await shopifyClient.addProduct(product).then( r => console.log(r) || r );
 
 	const addImageReqs = [];
 	if(addProductResp) {
