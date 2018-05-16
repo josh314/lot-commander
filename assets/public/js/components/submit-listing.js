@@ -36,6 +36,7 @@
 			//Form default values
 			$scope.listing = {
 				marketplace: 'bstock',
+				// bstock defaults
 				auctionStartPrice: '300',
 				condition: conditionMapping[$scope.lot.type] || '',
 				packaging: 'Original',
@@ -46,6 +47,24 @@
 					carrier: 'UPS',
 					notes: 'Lot will ship within one business day after confirmed payment.'
 				},
+				//shopify defaults
+				shopifyInventory: 1,
+				shopifyTags: (function(){
+					const tags = ['liquidation'];
+					const handleTags = {
+						'PC': 'personal care',
+						'GM': 'general merchandise',
+						'VT': 'vitamins',
+						'NP': 'nail polish',
+						'CS': 'cosmetics',
+					};
+
+                    const match = $scope.lot.handle.match(/^([a-zA-Z]{2})/);
+					if(match && match[1] && handleTags[match[1]]) {
+						tags.push(handleTags[match[1]]);
+					}
+					return tags.join(', ');
+				})(),
 			};
 
 			function validateBstockListingOptions() {
@@ -71,6 +90,12 @@
 			}
 
 			function validateShopifyListingOptions() {
+				$scope.invalidShopifyPrice = ($scope.listing.shopifyPrice && $scope.listing.shopifyPrice.match(/[0-9]+/)) ? false : true;
+				$scope.invalidShopifyInventory = ($scope.listing.shopifyInventory && ($scope.listing.shopifyInventory >= 0)) ? false : true;
+
+				if($scope.invalidShopifyPrice || $scope.invalidShopifyTags || $scope.invalidShopifyInventory) {
+					return false;
+				}
 				return true;
 			}
 
