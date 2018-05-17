@@ -19,28 +19,31 @@ const addImage = Promise.method(async function(productId, imageObj){
 
 //TODO: This function might be real slow. Return right away? 
 const submitListing = Promise.method(async function (listing) {
+
 	const product = {
 		title: listing.lot.listingData.title,
 		body_html: listing.lot.listingData.body + '<br><br>' + listing.bodyBoilerplate, //TODO: whitespace/newlines not formatted right. use HTML?
 		template_suffix: 'manifested',
 		published_at: null,
 		tags: listing.shopifyTags,
-
+		variants: [
+			{
+				price: listing.shopifyPrice,
+			}
+		],
 		// manifest file
 		// price
 		// unit count
-		// inventory quantity -- set with new inventory API?
-		// shopify manages inventory --set with new inventory API?
 		// weight
 		//barcode
 		//collection
-		// variants -- does this hold some of the above data?
 	};
 
-	//TODO: create unpublished then publish with a separate request after all other request have gone trhough successfully
+	if(listing.sku) {
+		product.variants[0].sku = listing.sku;
+	}
 
-	console.log(product)
-	const addProductResp = await shopifyClient.addProduct(product).then( r => console.log(r) || r );
+	const addProductResp = await shopifyClient.addProduct(product);
 	const newProductId = addProductResp.product.id;
 
 	// add images
@@ -51,9 +54,8 @@ const submitListing = Promise.method(async function (listing) {
 		}
 	}
 
-
-	const inventoryItemId = addProductResp.product.variants[0].inventory_item_id;
 	// Set inventory tracking and SKU if requested
+	const inventoryItemId = addProductResp.product.variants[0].inventory_item_id;
 	const updateInventoryItemP = shopifyClient.updateInventoryItem({inventoryItemId: inventoryItemId, tracked: true, sku: listing.shopifySku});
 
 	//Default inventory after product creation is 1. Make adjustment to inventory if needed
@@ -68,13 +70,11 @@ const submitListing = Promise.method(async function (listing) {
 		})
 	}
 
+	await Promise.all(addImageReqs);
+	await updateInventoryItemP;
+	await updateInventoryLevelP;
 
-	const imageResps = await Promise.all(addImageReqs);
-	const updateInventoryItemResp = await updateInventoryItemP;
-	const updateInventoryLevelResp = await updateInventoryLevelP;
-
-	//publish after all requests come back
-
+	//publish after all requests come back and return the response
 	return shopifyClient.publishProduct(newProductId);
 });
 
