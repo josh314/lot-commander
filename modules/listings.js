@@ -80,9 +80,9 @@ function getBodyBoilerplate(format) {
 		'shelf-pull': 'What are shelf-pulls? This is an industry term similar to overstock, clearance or close-outs. ' + 
 				'These items have been on retail store shelves and liquidated at the end of the season, or when the store needed to make room for new stock to be displayed. ' + 
 				'The reason for being removed from shelves may be as trivial as a new package design from the manufacturer (many stores are under contract to only sell items with the latest packaging). ' + 
-				'Shelf pulls are unused; they are NOT customer returns. This auction is for Shelf-pull items.' + 
+				'Shelf pulls are unused; they are NOT customer returns. This lot is composed of Shelf-pull items.' + 
 				bp.newline + boilerplateList,
-		'customer returns': 'This auction is for customer returns.' + bp.newline + boilerplateList,
+		'customer returns': 'This lot is composed of customer returned items.' + bp.newline + boilerplateList,
 		'salvage': 'The lot contains units that have passed the best by date.',
 	};
 
