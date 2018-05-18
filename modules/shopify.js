@@ -4,6 +4,10 @@ const path = require('path');
 const fs = require('fs');
 const readFile = Promise.promisify(fs.readFile);
 
+const json2csv = require('json2csv');
+
+const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
+
 const shopifyApi = require(path.join(__config.libDir.shopify, 'api'));
 
 const shopifyClient = new shopifyApi.Client(__config.shopify.store);
@@ -20,6 +24,8 @@ const addImage = Promise.method(async function(productId, imageObj){
 //TODO: This function might be real slow. Return right away? 
 const submitListing = Promise.method(async function (listing) {
 
+	const manifestP = manifests.getManifestItemsForLot(listing.lot);
+
 	const product = {
 		title: listing.lot.listingData.title,
 		body_html: listing.lot.listingData.body + '<br><br>' + listing.bodyBoilerplate, //TODO: whitespace/newlines not formatted right. use HTML?
@@ -32,7 +38,6 @@ const submitListing = Promise.method(async function (listing) {
 			}
 		],
 		// manifest file
-		// price
 		// unit count
 		// weight
 		//barcode
@@ -70,6 +75,28 @@ const submitListing = Promise.method(async function (listing) {
 		})
 	}
 
+	const manifestCsv = json2csv.parse(await manifestP);
+	const manifestTitle = `manifest-${newProductId}.csv`;
+
+	const addAssetP = shopifyClient.addAssetFile({
+		themeId: __config.shopify.store.themeId,
+		name: manifestTitle,
+		contents: manifestCsv
+	});
+
+
+	const addMetafieldP = shopifyClient.addProductMetafield({
+		productId: newProductId,
+		metafield: {
+			namespace: 'manifest',
+			key: 'file',
+			value: manifestTitle,
+			value_type: 'string',
+		}
+	})
+
+	await addAssetP;
+	await addMetafieldP;
 	await Promise.all(addImageReqs);
 	await updateInventoryItemP;
 	await updateInventoryLevelP;

@@ -61,7 +61,7 @@ const submit = Promise.method(async function(req, res, next) {
 
 		const boilerplateFormat = ((mp)=>{
 			if(mp=='bstock') return 'text';
-			else if(mp=='shopify') return 'html';
+			else if(mp=='shopify') return null;
 			else return '';
 		})(listing.marketplace);
 
