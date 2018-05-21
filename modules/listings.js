@@ -29,8 +29,13 @@ function getBodyBoilerplate(format) {
 				terminator: "</li>",
 			};
 		}
-		else return '';
+		else {
+			return null;
+		}
 	})(format);
+
+	if(!bp)
+		return {};
 
 	const boilerplateList = 'Our items are in good condition, but may have some or all of the following properties:' + bp.newline + (format=='html'? '<ul>' : '') +
 							conditionBoilerplateListItems.reduce((list, line) => list + bp.prefix + line + bp.terminator, '') + (format=='html'? '</ul>' : '') +

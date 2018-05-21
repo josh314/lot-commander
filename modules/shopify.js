@@ -34,19 +34,18 @@ const submitListing = Promise.method(async function (listing) {
 		tags: listing.shopifyTags,
 		variants: [
 			{
+				barcode: listing.lot.handle,
+				sku: listing.lot.handle,
 				price: listing.shopifyPrice,
+				option1: listing.lot.totalUnits,
 			}
 		],
-		// manifest file
+
 		// unit count
 		// weight
-		//barcode
+
 		//collection
 	};
-
-	if(listing.sku) {
-		product.variants[0].sku = listing.sku;
-	}
 
 	const addProductResp = await shopifyClient.addProduct(product);
 	const newProductId = addProductResp.product.id;
@@ -61,7 +60,7 @@ const submitListing = Promise.method(async function (listing) {
 
 	// Set inventory tracking and SKU if requested
 	const inventoryItemId = addProductResp.product.variants[0].inventory_item_id;
-	const updateInventoryItemP = shopifyClient.updateInventoryItem({inventoryItemId: inventoryItemId, tracked: true, sku: listing.shopifySku});
+	const updateInventoryItemP = shopifyClient.updateInventoryItem({inventoryItemId: inventoryItemId, tracked: true, sku: listing.lot.handle});
 
 	//Default inventory after product creation is 1. Make adjustment to inventory if needed
 	let updateInventoryLevelP = Promise.resolve(null);
