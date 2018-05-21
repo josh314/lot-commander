@@ -54,55 +54,75 @@ function getBodyBoilerplate(format) {
 	return boilerplateByLotType;
 }
 
+const submitFn = {
+	bstock: bstock.submitListing,
+	shopify: shopify.submitListing,
+}
+
 const submit = Promise.method(async function(req, res, next) {
-	if(req.body.lotId) {
-		const listing = req.body.listing;
-		listing.lot = await lotDb.getLotById(req.body.lotId);
-		if(!listing.lot.images.length) {
-			const e = new Error(`No listing created for lot ${listing.lot.handle} (id: ${listing.lot._id}): No images.`);
-			e.clientMessage ='Please add images to this lot before submission.';
-			next(e);
-		}
+	const listing = req.body.listing;
 
-		const boilerplateFormat = ((mp)=>{
-			if(mp=='bstock') return 'text';
-			else if(mp=='shopify') return null;
-			else return '';
-		})(listing.marketplace);
-
-		const boilerplate = getBodyBoilerplate(boilerplateFormat);
-
-		listing.bodyBoilerplate = boilerplate[listing.lot.type] ? boilerplate[listing.lot.type] : '';
-
-		let resp;
-		if(listing.marketplace==='bstock') {
-			try {
-				resp = await bstock.submitListing(listing);
-			}
-			catch (e) {
-				console.log(e);
-				next(e);
-			}
-		}
-		else if(listing.marketplace==='shopify') {
-			try {
-				resp = await shopify.submitListing(listing);
-			}
-			catch (e) {
-				console.log(e);
-				next(e);
-			}
-		}
-		else {
-			next(new Error('Invalid marketplace.'));
-		}
-		res.json(resp); 
+	if(!submitFn[listing.marketplace]) {
+		next(new Error('Invalid marketplace.'));
 	}
-	else {
-		const e = new Error('No lotId.');
-		e.clientMessage ='No lotId submitted';
+
+	let lot;
+	if(!req.body.lotId || !(lot = await lotDb.getLotById(req.body.lotId))) {
+		const e = new Error('No listing submitted: invalid or missing lotId.');
+		e.clientMessage = 'Invalid lot ID submitted.';
 		next(e);
 	}
+	listing.lot = lot;
+
+	if(!listing.lot.images || !listing.lot.images.length) {
+		const e = new Error(`No listing created for lot ${listing.lot.handle} (id: ${listing.lot._id}): no images.`);
+		e.clientMessage ='Please add images to this lot before submission.';
+		next(e);
+	}
+
+	const boilerplateFormat = ((mp)=>{
+		if(mp=='bstock') return 'text';
+		else if(mp=='shopify') return null;
+		else return '';
+	})(listing.marketplace);
+
+	const boilerplate = getBodyBoilerplate(boilerplateFormat);
+
+	listing.bodyBoilerplate = boilerplate[listing.lot.type] ? boilerplate[listing.lot.type] : '';
+
+	res.json({ message: 'Listing submitted. Submission may take several minutes.'});
+
+	const newSubmittedListing = {
+		marketplace: listing.marketplace,
+		dateSubmitted: new Date()
+	}
+	try {
+		await submitFn[listing.marketplace](listing);
+		Object.assign(newSubmittedListing, {
+			success: true,
+			message: 'Submission successful.'
+		});
+	}
+	catch (e) {
+		Object.assign(newSubmittedListing, {
+			success: false,
+			message: e.name + ': ' + e.message,
+		});
+		console.log(e);
+	}
+	if(listing.lot.submittedListings && listing.lot.submittedListings.length>0) {
+		const idx = listing.lot.submittedListings.findIndex(x => x.marketplace === listing.marketplace);
+		if(idx===-1){
+			listing.lot.submittedListings.push(newSubmittedListing);
+		} 
+		else {
+			listing.lot.submittedListings.splice(idx, 1, newSubmittedListing);
+		}
+	}
+	else {
+		listing.lot.submittedListings = [newSubmittedListing];
+	}
+	lotDb.updateLot(listing.lot)
 });
 
 module.exports = {
