@@ -44,12 +44,14 @@
 				<table class="table table-striped">
 					<thead><tr>
 						<th>Marketplace</th>
+						<th>Date submitted</th>
 						<th>Status</th>
 						<th>Message</th>
 					</tr></thead>
 					<tbody>
 						<tr ng-repeat="submission in lot.submittedListings">
 							<td>{{submission.marketplace}}</td>
+							<td>{{readableDate(submission.dateSubmitted)}}</td>
 							<td>{{submission.success ? 'success' : 'error'}}</td>
 							<td>{{submission.message}}</td>
 						</tr>

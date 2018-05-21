@@ -127,7 +127,7 @@
 						messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
 					}
 					else {
-						messageModal.launch({header: 'Status', body: 'Submission successful.', type: 'success'});
+						messageModal.launch({header: 'Status', body: 'Listing submitted. Submission may take several minutes. Return to lot page to view results.', type: 'success'});
 						$state.go('main.lots.list');
 					}
 				})
