@@ -122,7 +122,7 @@ const submit = Promise.method(async function(req, res, next) {
 	else {
 		listing.lot.submittedListings = [newSubmittedListing];
 	}
-	lotDb.updateLot(listing.lot)
+	lotDb.updateLot(listing.lot);
 });
 
 module.exports = {
