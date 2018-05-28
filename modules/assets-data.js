@@ -40,6 +40,7 @@ module.exports = {
         "/js/ng-app-config.js",
         "/js/ng-app-run.js",
         //angular components
+        "/js/components/auctions.js",
         "/js/components/file-upload.js",
         "/js/components/file-request-modal.js",
         "/js/components/focus.js",
