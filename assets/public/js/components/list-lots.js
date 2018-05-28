@@ -6,13 +6,19 @@
 	var app = angular.module('myApp');
 
 	/******************* Lot List Page Controller *************************/
-	app.controller('ListLotsCtrl', ['$scope', '$state', '$http', 'lotStore', 'messageModal', 'requestFileModal', 'sessionTimeout', function($scope, $state, $http, lotStore, messageModal, requestFileModal, sessionTimeout) {
+	app.controller('ListLotsCtrl', ['$scope', '$state', '$http', 'dbEnums', 'lotStore', 'messageModal', 'requestFileModal', 'sessionTimeout', 
+		function($scope, $state, $http, dbEnums, lotStore, messageModal, requestFileModal, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.lots = [];
+
+		$scope.statusOptions = dbEnums.lotStatus;
 
 		function updateLotList() {
 			//TODO: incorporate search/sort options
 			const query = {};
+			if($scope.lotStatus) {
+				query.status = $scope.lotStatus;
+			}
 			$http.post('/api/db/get', query).then(resp=>{
 				const lots = resp.data;
 				lots.forEach((lot,idx,array)=>{
@@ -23,6 +29,7 @@
 			});
 		}
 		updateLotList();
+		$scope.update = updateLotList;
 
 		$scope.scanItems = function(lotId) {
 			const targetLot = $scope.lots.find(lot => lot._id === lotId);
