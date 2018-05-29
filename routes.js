@@ -6,10 +6,12 @@ const assetsData = require(path.join(__basedir, __config.modulesPath, 'assets-da
 const scriptBuilder = require(path.join(__basedir, __config.modulesPath, 'script-builder'));
 
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
+const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
 const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
 const images = require(path.join(__basedir, __config.modulesPath, 'images'));
 const users = require(path.join(__basedir, __config.modulesPath, 'users'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
+
 
 function getLayoutDataByEnv(env) {
 	const res = {
@@ -63,6 +65,9 @@ function routes(env) {
   router.post('/api/db/save-manifest', lotdb.saveManifest);
   router.get('/api/db/manifest/:manifestId', lotdb.getManifest);
   router.post('/api/db/link-3p-manifest-block', lotdb.link3pManifestBlock);
+
+  // bstock db api
+  router.post('/api/bstock-db/auctions/get', express.json(), bstockDb.getAuctions);
 
   // interact with manifest database
   // router.post('/api/db/get', mandb.getManifests);

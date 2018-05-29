@@ -30,15 +30,18 @@ function getLots(req, res) {
 	};
 	const query = {};
 	if(req.body.startDate) {
-		query.createdAt = query.createdAt || {};
+		query.createdAt = req.body.createdAt || {};
 		query.createdAt.$gte = moment(req.body.startDate).startOf('day').toDate();
 	}
 	if(req.body.endDate) {
-		query.createdAt = query.createdAt || {};
+		query.createdAt = req.body.createdAt || {};
 		query.createdAt.$lte = moment(req.body.endDate).endOf('day').toDate();
 	}
+	if(req.body.status) {
+		query.status = req.body.status;
+	}
 	if(req.body.handle) {
-		query.handle = handle;
+		query.handle = new RegExp(req.body.handle, 'i');
 	}
 	lotdbClient.getLots(query, opts).then(resp=>{
 		res.json(resp);
