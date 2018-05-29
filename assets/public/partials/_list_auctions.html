@@ -1,23 +1,31 @@
 <div class="container" id="contact">
 	<div class="row well">
 		<h2>Auctions</h2>
-		<div class="form-group col-xs-12 col-sm-6">
-			<select class="form-control" ng-model="auctionStatus" ng-change="update()">
-				<option ng-repeat="status in auctionStatusOptions">{{status}}</option>
-			</select>
-		</div>
+		<fieldset class="col-xs-12 box-border">
+			<legend class="box-border">Filter</legend>
+			<div class="form-group col-xs-12 col-sm-6">
+				<label for="auctionLotIdFilter">Handle (Lot ID)</label>
+				<input class="form-control" name="auctionLotIdFilter" ng-model="auctionLotId" ng-keyup="update()">
+			</div>
+			<div class="form-group col-xs-12 col-sm-6">
+				<label for="auctionStatusFilter">Status</label>
+				<select class="form-control" name="auctionStatusFilter" ng-model="auctionStatus" ng-change="update()">
+					<option ng-repeat="status in auctionStatusOptions">{{status}}</option>
+				</select>
+			</div>
+		</fieldset>
 		<table class="table table-striped">
 			<thead><tr>
 				<th>Lot ID</th>
 				<th>Total Units</th>
-				<th>Created</th>
+				<th>Start Date</th>
 				<th>End date</th>
 			</tr></thead>
 			<tbody>
 				<tr ng-repeat="auction in auctions">
 					<td><a ng-href="lots/view/{{auction.lot_id}}">{{auction.lot_id}}</a></td>
 				    <td>{{lot.totalUnits ? lot.totalUnits : '---'}}</td>
-				    <td>{{lot.readableCreatedAt}}</td>
+				    <td>{{auction.readableStartDate}}</td>
 				    <td>{{auction.readableEndDate}}</td>
 				</tr>
 			</tbody>

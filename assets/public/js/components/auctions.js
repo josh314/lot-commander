@@ -11,19 +11,20 @@
       sessionTimeout.timeoutExpired();
       $scope.auctions = [];
 
-      $scope.auctionStatusOptions = [ 'Open', 'Sold', 'Unsold', 'Cancelled' ];
+      $scope.auctionStatusOptions = [ 'All', 'Open', 'Sold', 'Unsold', 'Cancelled' ];
       $scope.auctionStatus = 'Open';
 
       function updateAuctionList() {
         //TODO: sort by auction end date (or maybe update date)
         const query = {
-          auction_status: $scope.auctionStatus,
+          auction_status: $scope.auctionStatus==='All' ? undefined : $scope.auctionStatus,
+          lot_id: $scope.auctionLotId,
         };
         $http.post('/api/bstock-db/auctions/get', query).then(resp=>{
           const auctions = resp.data;
           auctions.forEach((auction,idx,array)=>{
             auction.readableEndDate = (new Date(auction.auction_end_time)).toLocaleString();
-            // auction.readableCreatedAt = (new Date(auction.createdAt)).toLocaleString();
+            auction.readableStartDate = (new Date(auction.auction_start_time)).toLocaleString();
           });
           $scope.auctions = auctions;
         });
