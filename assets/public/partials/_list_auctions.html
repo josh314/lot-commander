@@ -16,7 +16,7 @@
 		</fieldset>
 		<table class="table table-striped">
 			<thead><tr>
-				<th>Lot ID</th>
+				<th>Handle/Lot ID</th>
 				<th>Total Status</th>
 				<th>Start Date</th>
 				<th>End date</th>
@@ -24,7 +24,7 @@
 			<tbody>
 				<tr ng-repeat="auction in auctions">
 					<td ng-if="!auction.inLotDb">{{auction.lot_id}}</td>
-					<td ng-if="auction.inLotDb"><a ng-href="lots/view/{{auction.lot_id}}">{{auction.lot_id}}</a></td>
+					<td ng-if="auction.inLotDb"><a ng-href="lots/view/{{auction.lotDbId}}">{{auction.lot_id}}</a></td>
 				    <td>{{auction.auction_status}}</td>
 				    <td>{{auction.readableStartDate}}</td>
 				    <td>{{auction.readableEndDate}}</td>

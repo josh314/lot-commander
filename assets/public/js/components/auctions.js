@@ -31,6 +31,7 @@
             $http.post(`/api/db/get/`, {handle: auction.lot_id}).then(resp=>{
               if(resp.data && resp.data.length) {
                 auction.inLotDb = true;
+                auction.lotDbId = resp.data[0]._id;
               }
             })
           }
