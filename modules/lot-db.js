@@ -40,6 +40,9 @@ function getLots(req, res) {
 	if(req.body.status) {
 		query.status = req.body.status;
 	}
+	if(req.body.handle) {
+		query.handle = new RegExp(req.body.handle, 'i');
+	}
 	lotdbClient.getLots(query, opts).then(resp=>{
 		res.json(resp);
 	})

@@ -15,10 +15,12 @@
 
 		function updateLotList() {
 			//TODO: incorporate search/sort options
-			const query = {};
-			if($scope.lotStatus) {
-				query.status = $scope.lotStatus;
-			}
+			const query = {
+				status: $scope.lotStatus,
+				handle: $scope.lotHandle,
+				endDate: $scope.endDate,
+				startDate: $scope.startDate,
+			};
 			$http.post('/api/db/get', query).then(resp=>{
 				const lots = resp.data;
 				lots.forEach((lot,idx,array)=>{
