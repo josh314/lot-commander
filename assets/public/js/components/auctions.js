@@ -27,7 +27,14 @@
             auction.readableStartDate = (new Date(auction.auction_start_time)).toLocaleString();
           });
           $scope.auctions = auctions;
-        });
+          for(let auction of auctions) {
+            $http.post(`/api/db/get/`, {handle: auction.lot_id}).then(resp=>{
+              if(resp.data && resp.data.length) {
+                auction.inLotDb = true;
+              }
+            })
+          }
+        })
       }
       updateAuctionList();
 
