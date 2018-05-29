@@ -11,12 +11,13 @@
 		sessionTimeout.timeoutExpired();
 		$scope.lots = [];
 
-		$scope.statusOptions = dbEnums.lotStatus;
+		$scope.statusOptions = ['All'].concat(dbEnums.lotStatus);
+		$scope.lotStatus = $scope.statusOptions[0];
 
 		function updateLotList() {
 			//TODO: incorporate search/sort options
 			const query = {
-				status: $scope.lotStatus,
+				status: $scope.lotStatus===$scope.statusOptions[0] ? undefined : $scope.lotStatus,
 				handle: $scope.lotHandle,
 				endDate: $scope.endDate,
 				startDate: $scope.startDate,
