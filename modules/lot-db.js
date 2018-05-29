@@ -41,7 +41,7 @@ function getLots(req, res) {
 		query.status = req.body.status;
 	}
 	if(req.body.handle) {
-		query.handle = new RegExp(req.body.handle, 'i');
+		query.handle = new RegExp(req.body.handle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
 	}
 	lotdbClient.getLots(query, opts).then(resp=>{
 		res.json(resp);

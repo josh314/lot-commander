@@ -10,7 +10,7 @@ function getAuctions(req, res, next) {
     findQuery.auction_status = req.body.auction_status;
   }
   if(req.body.lot_id) {
-    findQuery.lot_id = new RegExp(req.body.lot_id, 'i');
+    findQuery.lot_id = new RegExp(req.body.lot_id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
   }
   const sortOpts = {
     auction_end_time: -1,
