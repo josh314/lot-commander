@@ -20,7 +20,7 @@
 			$scope.bstockFormConstants = bstockFormConstants;
 
 			// Form dropdown values
-			$scope.marketplaces = ['bstock'];
+			$scope.marketplaces = ['bstock', 'shopify'];
 			$scope.bstockCategories = Object.keys(bstockFormConstants.category);
 			$scope.bstockConditions = Object.keys(bstockFormConstants.condition);
 			$scope.bstockPackagings = Object.keys(bstockFormConstants.packaging);
@@ -36,6 +36,7 @@
 			//Form default values
 			$scope.listing = {
 				marketplace: 'bstock',
+				// bstock defaults
 				auctionStartPrice: '300',
 				condition: conditionMapping[$scope.lot.type] || '',
 				packaging: 'Original',
@@ -46,15 +47,27 @@
 					carrier: 'UPS',
 					notes: 'Lot will ship within one business day after confirmed payment.'
 				},
+				//shopify defaults
+				shopifyInventory: 1,
+				shopifyTags: (function(){
+					const tags = ['liquidation'];
+					const handleTags = {
+						'PC': 'personal care',
+						'GM': 'general merchandise',
+						'VT': 'vitamins',
+						'NP': 'nail polish',
+						'CS': 'cosmetics',
+					};
+
+                    const match = $scope.lot.handle.match(/^([a-zA-Z]{2})/);
+					if(match && match[1] && handleTags[match[1]]) {
+						tags.push(handleTags[match[1]]);
+					}
+					return tags.join(', ');
+				})(),
 			};
 
-			$scope.submitListing = function() {
-
-				$scope.noMarketplace = $scope.listing.marketplace ? false : true;
-				if($scope.noMarketplace) {
-					return;
-				}
-
+			function validateBstockListingOptions() {
 				$scope.invalidAuctionPrice = ($scope.listing.auctionStartPrice && $scope.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;
 				$scope.noChargeType = $scope.listing.shipping.chargeType ? false : true;
 
@@ -71,20 +84,50 @@
 				}
 
 				if($scope.invalidAuctionPrice || $scope.noChargeType || $scope.invalidShippingCharge || $scope.noCarrier || $scope.noBstockPackaging || $scope.noBstockCategory || $scope.noBstockCondition ) {
+					return false;
+				}
+				return true;
+			}
+
+			function validateShopifyListingOptions() {
+				$scope.invalidShopifyPrice = ($scope.listing.shopifyPrice && $scope.listing.shopifyPrice.match(/^[0-9]+(\.[0-9]{2})?$/)) ? false : true;
+				$scope.invalidShopifyInventory = ($scope.listing.shopifyInventory && ($scope.listing.shopifyInventory >= 0)) ? false : true;
+
+				if($scope.invalidShopifyPrice || $scope.invalidShopifyTags || $scope.invalidShopifyInventory) {
+					return false;
+				}
+				return true;
+			}
+
+			function validateListingOptions() {
+				if($scope.listing.marketplace=='bstock') {
+					return validateBstockListingOptions();
+				}
+				else if($scope.listing.marketplace=='shopify') {
+					return validateShopifyListingOptions();
+				}
+			}
+
+			$scope.submitListing = function() {
+
+				$scope.noMarketplace = $scope.listing.marketplace ? false : true;
+				if($scope.noMarketplace) {
 					return;
 				}
 
+				if(!validateListingOptions()) {
+					return;
+				}
 
 				$scope.waitingForResponse = true;
 
-				//TODO: wait while submitting 
 				$http.post('/api/listings/submit', { lotId: lotStore._id, listing: $scope.listing}).then(resp=>{
-					//TODO: verify submission with modal
+					console.log(resp);
 					if(resp.data.error) {
 						messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
 					}
 					else {
-						messageModal.launch({header: 'Status', body: 'Submission successful.', type: 'success'});
+						messageModal.launch({header: 'Status', body: 'Listing submitted. Submission may take several minutes. Return to lot page to view results.', type: 'success'});
 						$state.go('main.lots.list');
 					}
 				})

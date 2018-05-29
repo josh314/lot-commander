@@ -81,7 +81,7 @@ function listManifestFiles(req, res) {
 	})
 }
 
-function buildManifestItems(inventory, opts) {
+function buildManifestItems(inventory, opts={}) {
 	const productDataReqs = [];
 	for(manifestItem of inventory) {
 
@@ -95,9 +95,9 @@ function buildManifestItems(inventory, opts) {
 			const productTitle = barcodeProductData.title ? barcodeProductData.title : manifestItem.description ? manifestItem.description : 'UNKNOWN';
 			const productBarcode = barcodeProductData.normalizedBarcode ? barcodeProductData.normalizedBarcode : manifestItem.barcode;
 
-			let csvLineItem;
+			let item;
 			if(opts.bstock) {
-				csvLineItem = {
+				item = {
 					Category: opts.bstock.Category,
 					'Item Description': productTitle,
 					Qty: manifestItem.quantity,
@@ -111,7 +111,7 @@ function buildManifestItems(inventory, opts) {
 				}
 			}
 			else {
-				csvLineItem = {
+				item = {
 					barcode: productBarcode,
 					title: productTitle,
 					unitPrice: barcodeProductData.price,
@@ -119,7 +119,7 @@ function buildManifestItems(inventory, opts) {
 				}
 			}
 
-			return csvLineItem;
+			return item;
 		});
 		return manifestItems;
 	});
@@ -132,6 +132,10 @@ function getManifestItemsForLot(lot, opts) {
 		const inventory = scannedInventory.concat(thirdPartyInventory)
 		return buildManifestItems(inventory, opts);
 	});
+}
+
+async function getManifestCsv(lot, manifestOpts) {
+	return json2csv.parse(await getManifestItemsForLot(lot, manifestOpts));
 }
 
 async function generateManifestFile(req, res, next){
@@ -147,7 +151,7 @@ async function generateManifestFile(req, res, next){
 	}
 	res.json({ status: 'submitted' });
 
-	const manifestCsv = json2csv.parse(await getManifestItemsForLot(lot, manifestOpts));
+	const manifestCsv = await getManifestCsv(lot, manifestOpts);
 	const filename = path.join(manifestFilesPath, `${lot.handle}${req.body.bstock? '-bstock': ''}-${lot._id}.csv`);
 	writeFile(filename, manifestCsv).then(()=>{__logger.info(`Manifest written to ${filename}`)});
 }

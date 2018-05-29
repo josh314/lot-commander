@@ -146,6 +146,10 @@ function deleteLot(req,res) {
 	return lotdbClient.deleteLot(req.body.lotId);
 }
 
+function updateLot(lot) {
+	return lotdbClient.updateLot(lot);
+}
+
 module.exports = {
 	//middleware
 	getLotByIdApi: getLotByIdApi,
@@ -164,4 +168,5 @@ module.exports = {
 	lotTypeEnum: lotdbClient.LotModel.typeEnum,
 	link3pManifestBlock: link3pManifestBlock,
 	markAsListed: markAsListed,
+	updateLot: updateLot,
 };

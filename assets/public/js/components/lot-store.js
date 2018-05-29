@@ -21,6 +21,7 @@
 			this.listings = [];
 			this.listingData = {};
 			this.thirdPartyManifests = [];
+			this.submittedListings = [];
 		};
 		this.reset();
 
@@ -41,6 +42,8 @@
 		this.setThirdPartyManifests = function(_thirdPartyManifests) {this.thirdPartyManifests = _thirdPartyManifests; };
 
 		this.setTotalUnits = function(_totalUnits) { this.totalUnits = _totalUnits; };
+
+		this.setSubmittedListings = function(_listings) {this.submittedListings = _listings; };
 
 		this.save = function(_lot) {
 			this.reset();
@@ -75,6 +78,9 @@
 			}
 			if(_lot.totalUnits) {
 				this.setTotalUnits(_lot.totalUnits);
+			}
+			if(_lot.submittedListings) {
+				this.setSubmittedListings(_lot.submittedListings);
 			}
 		}
 

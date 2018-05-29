@@ -81,6 +81,25 @@
 					</div>
 				</div>
 			</div>
+			<div class="row" ng-show="listing.marketplace==='shopify'">
+				<div class="row">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidShopifyTags }">
+						<label for="shopifyTagsInput">Tags</label>
+						<input class="form-control" id="shopifyTagsInput" ng-model="listing.shopifyTags">
+						<span class="text-danger h4" ng-show="invalidShopifyTags">Invalid tags</span>
+					</div>
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidShopifyPrice }">
+						<label for="shopifyPriceInput">Price</label>
+						<input class="form-control" id="shopifyPriceInput" ng-model="listing.shopifyPrice">
+						<span class="text-danger h4" ng-show="invalidShopifyPrice">Invalid Price</span>
+					</div>
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidShopifyInventory }">
+						<label for="shopifyInventoryInput">Inventory (number of lots)</label>
+						<input class="form-control" type="number" id="shopifyInventoryInput" ng-model="listing.shopifyInventory">
+						<span class="text-danger h4" ng-show="invalidShopifyInventory">Invalid Inventory</span>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class="col-xs-12 row">
 			<br/>
