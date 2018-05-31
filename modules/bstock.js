@@ -41,7 +41,7 @@ async function submitListing(data) {
 	return client.submitListing(submissionData, {debug:true}).then(resp=>{
 		lotDb.markAsListed(lot._id);
 		return resp;
-	}).catch(e=>console.log(e));
+	})
 }
 
 
