@@ -10,7 +10,7 @@ function getManifestItems(lot) {
 
 async function submitListing(data) {
 	const lot = data.lot;
-	const client = new bstockWeb.Client(__config.bstock.login);
+	const client = new bstockWeb.Client(__config.bstock);
 
 	const manifestOptions = {
 		bstock: {
