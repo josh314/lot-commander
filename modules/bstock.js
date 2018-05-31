@@ -38,10 +38,7 @@ async function submitListing(data) {
 		startPrice: data.auctionStartPrice,
 	};
 
-	return client.submitListing(submissionData, {debug:true}).then(resp=>{
-		lotDb.markAsListed(lot._id);
-		return resp;
-	})
+	return client.submitListing(submissionData, {debug:true})
 }
 
 

@@ -102,12 +102,14 @@ const submit = Promise.method(async function(req, res, next) {
 			success: true,
 			message: 'Submission successful.'
 		});
+		listing.lot.status = 'Listed'
 	}
 	catch (e) {
 		Object.assign(newSubmittedListing, {
 			success: false,
 			message: e.name + ': ' + e.message,
 		});
+		listing.lot.status = 'Error'
 		console.log(e);
 	}
 	if(listing.lot.submittedListings && listing.lot.submittedListings.length>0) {
