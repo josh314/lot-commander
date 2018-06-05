@@ -14,15 +14,22 @@
 		$scope.lotTypes = dbEnums.lotType;
 
 		$scope.startQuickLot = function(quickLot) {
-			const today = new Date();
+			const today = new Date();//fix time zone to EST
+
+			const categoryDateprefix = `${quickLot.handlePrefix}${today.getMonth()+1}.${today.getDate()}.${today.getFullYear()-2000}`
+
 			const query = {
-				startDate: today,
+				// startDate: today,
+				handle: { prefix: true, value: categoryDateprefix }
 			};
 			$http.post('/api/db/get', query).then(resp=>{
-				const selectedCategoryLots = resp.data.filter(x => x.handle.startsWith(quickLot.handlePrefix))
-				const lotNumber = 1 + selectedCategoryLots.length;
+				console.log(resp)
+				// const selectedCategoryLots = resp.data.filter(x => x.handle.startsWith(quickLot.handlePrefix));
+				// console.log(selectedCategoryLots)
+				// const lotNumber = 1 + selectedCategoryLots.length;
+				const lotNumber = 1 + resp.data.length;
 				const newLot = {
-					handle: `${quickLot.handlePrefix}${today.getMonth()+1}.${today.getDate()}.${today.getFullYear()-2000}-${lotNumber}`,
+					handle: `${categoryDateprefix}-${lotNumber}`,
 					unmanifested: true,
 				};
 				Object.assign(newLot, quickLot.template);
