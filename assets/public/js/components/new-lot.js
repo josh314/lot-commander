@@ -16,20 +16,29 @@
 		$scope.startQuickLot = function(quickLot) {
 			const today = new Date();//fix time zone to EST
 
-			const categoryDateprefix = `${quickLot.handlePrefix}${today.getMonth()+1}.${today.getDate()}.${today.getFullYear()-2000}`
+			const categoryDatePrefix = `${quickLot.handlePrefix}${today.getMonth()+1}.${today.getDate()}.${today.getFullYear()-2000}`
 
 			const query = {
 				// startDate: today,
-				handle: { prefix: true, value: categoryDateprefix }
+				handle: { prefix: true, value: categoryDatePrefix }
 			};
 			$http.post('/api/db/get', query).then(resp=>{
-				console.log(resp)
-				// const selectedCategoryLots = resp.data.filter(x => x.handle.startsWith(quickLot.handlePrefix));
-				// console.log(selectedCategoryLots)
-				// const lotNumber = 1 + selectedCategoryLots.length;
-				const lotNumber = 1 + resp.data.length;
+				const handlePattern = new RegExp(`${categoryDatePrefix}-([0-9]+)`);
+				const existingLotNumbers = resp.data.reduce((numbers, lot) => {
+					const lotNumberMatch = lot.handle.match(handlePattern);
+					if(lotNumberMatch) {
+						numbers.add(parseInt(lotNumberMatch[1]));
+					}
+					return numbers;
+				}, new Set());
+				console.log(existingLotNumbers)
+				let newLotNumber = 1;
+
+				while(existingLotNumbers.has(newLotNumber))
+					newLotNumber++;
+
 				const newLot = {
-					handle: `${categoryDateprefix}-${lotNumber}`,
+					handle: `${categoryDatePrefix}-${newLotNumber}`,
 					unmanifested: true,
 				};
 				Object.assign(newLot, quickLot.template);
