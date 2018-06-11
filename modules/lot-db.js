@@ -58,9 +58,16 @@ function getLots(req, res) {
 function newLot(req, res) {
 	const newLot = req.body;
 	__logger.info(`Submitting new lot with data ${JSON.stringify(newLot)}.`);
-	newLot.listings = [{ platform: 'bstock', body: ''}]
-	lotdbClient.submitNewLot(newLot).then(resp=>{
-		res.json(resp);
+	newLot.listings = [{ platform: 'bstock', body: ''}];
+	lotdbClient.getLots({handle: newLot.handle}).then(resp=>{
+		if(!resp || !resp[0]) {
+			lotdbClient.submitNewLot(newLot).then(resp=>{
+				res.json(resp);
+			})
+		}
+		else {
+			res.json({lotExists: true});
+		}
 	})
 }
 

@@ -6,7 +6,8 @@
 	var app = angular.module('myApp');
 
 	/******************* New Lot Controller *************************/
-	app.controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'quickLotsBoilerplate', 'sessionTimeout', function($http, $scope, $state, dbEnums, quickLotsBoilerplate, sessionTimeout) {
+	app.controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'messageModal', 'quickLotsBoilerplate', 'sessionTimeout', 
+		function($http, $scope, $state, dbEnums, messageModal, quickLotsBoilerplate, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 
 		$scope.quickLots = quickLotsBoilerplate;
@@ -31,7 +32,6 @@
 					}
 					return numbers;
 				}, new Set());
-				console.log(existingLotNumbers)
 				let newLotNumber = 1;
 
 				while(existingLotNumbers.has(newLotNumber))
@@ -66,7 +66,10 @@
 				if(resp.data.error) {
 					console.log(resp.data.error);
 				}
-				else {
+				else if (resp.data.lotExists) {
+					messageModal.launch({header: 'Error', body: `A lot with handle ${newLot.handle} already exists.`, type: 'error'});
+				}
+				else{
 					$state.go('main.lots.list');
 				}
 			})
