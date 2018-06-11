@@ -24,7 +24,8 @@ const addImage = Promise.method(async function(productId, imageObj){
 //TODO: This function might be real slow. Return right away? 
 const submitListing = Promise.method(async function (listing) {
 
-	const manifestP = manifests.getManifestItemsForLot(listing.lot);
+	// Start the manifest promise if applicable
+	const manifestP = listing.lot.unmanifested ? null : manifests.getManifestItemsForLot(listing.lot);
 
 	const product = {
 		title: listing.lot.listingData.title,
@@ -74,32 +75,37 @@ const submitListing = Promise.method(async function (listing) {
 		})
 	}
 
-	const manifestCsv = json2csv.parse(await manifestP);
-	const manifestTitle = `manifest-${newProductId}.csv`;
+	//The set of promises for this listing
+	const listingPromises = [
+		Promise.all(addImageReqs),
+		updateInventoryItemP,
+		updateInventoryLevelP,
+	]
 
-	const addAssetP = shopifyClient.addAssetFile({
-		themeId: __config.shopify.store.themeId,
-		name: manifestTitle,
-		contents: manifestCsv
-	});
+	// Schedule manifest promises if applicable
+	if(!listing.lot.unmanifested) {
+		const manifestCsv = json2csv.parse(await manifestP);
+		const manifestTitle = `manifest-${newProductId}.csv`;
 
+		const addAssetP = shopifyClient.addAssetFile({
+			themeId: __config.shopify.store.themeId,
+			name: manifestTitle,
+			contents: manifestCsv
+		});
 
-	const addMetafieldP = shopifyClient.addProductMetafield({
-		productId: newProductId,
-		metafield: {
-			namespace: 'manifest',
-			key: 'file',
-			value: manifestTitle,
-			value_type: 'string',
-		}
-	})
+		const addMetafieldP = shopifyClient.addProductMetafield({
+			productId: newProductId,
+			metafield: {
+				namespace: 'manifest',
+				key: 'file',
+				value: manifestTitle,
+				value_type: 'string',
+			}
+		})
+		listingPromises.concat([ addAssetP, addMetafieldP ])
+	}
 
-	await addAssetP;
-	await addMetafieldP;
-	await Promise.all(addImageReqs);
-	await updateInventoryItemP;
-	await updateInventoryLevelP;
-
+	await listingPromises;
 	//publish after all requests come back and return the response
 	return shopifyClient.publishProduct(newProductId);
 });
