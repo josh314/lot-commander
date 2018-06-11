@@ -51,6 +51,13 @@
 				shopifyInventory: 1,
 				shopifyTags: (function(){
 					const tags = ['liquidation'];
+					if($scope.lot.unmanifested) {
+						tags.push('unmanifested');
+					}
+					else {
+						tags.push('manifested');
+					}
+
 					const handleTags = {
 						'PC': 'personal care',
 						'GM': 'general merchandise',
@@ -59,7 +66,7 @@
 						'CS': 'cosmetics',
 					};
 
-                    const match = $scope.lot.handle.match(/^([a-zA-Z]{2})/);
+          const match = $scope.lot.handle.match(/^([a-zA-Z]{2})/);
 					if(match && match[1] && handleTags[match[1]]) {
 						tags.push(handleTags[match[1]]);
 					}
