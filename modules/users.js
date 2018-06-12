@@ -245,7 +245,7 @@ function getUserInfo(req,res) {
       res.json({});
   })
   .catch(e=>{
-    console.log(e);
+    __logger.error(e);
     res.json({error: e});
   });
 }
@@ -260,8 +260,8 @@ function getAllUsers(req, res) {
 }
 
 function consoleLogUser(req,res,next) {
-  console.log('user');
-  console.log(req.user);
+  __logger.info('user');
+  __logger.info(req.user);
   return next();
 }
 

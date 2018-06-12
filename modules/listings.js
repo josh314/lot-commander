@@ -110,7 +110,7 @@ const submit = Promise.method(async function(req, res, next) {
 			message: e.name + ': ' + e.message,
 		});
 		listing.lot.status = 'Error'
-		console.log(e);
+		__logger.error(e);
 	}
 	if(listing.lot.submittedListings && listing.lot.submittedListings.length>0) {
 		const idx = listing.lot.submittedListings.findIndex(x => x.marketplace === listing.marketplace);
