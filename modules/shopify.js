@@ -82,27 +82,20 @@ const submitListing = Promise.method(async function (listing) {
 		updateInventoryLevelP,
 	]
 
-	// Schedule manifest promises if applicable
+	// Schedule manifest promise if applicable
 	if(!listing.lot.unmanifested) {
-		const manifestCsv = json2csv.parse(await manifestP);
-		const manifestTitle = `manifest-${newProductId}.csv`;
-
-		const addAssetP = shopifyClient.addAssetFile({
-			themeId: __config.shopify.store.themeId,
-			name: manifestTitle,
-			contents: manifestCsv
-		});
+		const manifest = JSON.stringify(await manifestP);
 
 		const addMetafieldP = shopifyClient.addProductMetafield({
 			productId: newProductId,
 			metafield: {
 				namespace: 'manifest',
-				key: 'file',
-				value: manifestTitle,
+				key: 'json',
+				value: manifest,
 				value_type: 'string',
 			}
 		})
-		listingPromises.concat([ addAssetP, addMetafieldP ])
+		listingPromises.push(addMetafieldP);
 	}
 
 	await listingPromises;
