@@ -92,7 +92,20 @@ function buildManifestItems(inventory, opts={}) {
 		const manifestItems = inventoryData.sort((a,b) => a[0].barcode.localeCompare(b[0].barcode)).map(x=>{
 			const [manifestItem, barcodeProductData] = x;
 
-			const productTitle = barcodeProductData.title ? barcodeProductData.title : manifestItem.description ? manifestItem.description : 'UNKNOWN';
+			let productTitle;
+			if(barcodeProductData.title) {
+				productTitle = barcodeProductData.title;
+			}
+			else if (manifestItem.description) {
+				productTitle = manifestItem.description;
+			}
+			else if (opts.defaultProductTitle) {
+				productTitle = opts.defaultProductTitle;
+			}
+			else {
+				productTitle = 'UNKNOWN';
+			}
+
 			const productBarcode = barcodeProductData.normalizedBarcode ? barcodeProductData.normalizedBarcode : manifestItem.barcode;
 
 			let item;
@@ -125,7 +138,30 @@ function buildManifestItems(inventory, opts={}) {
 	});
 }
 
-function getManifestItemsForLot(lot, opts) {
+function defaultProductTitleForLot(lot){
+	let title;
+	if(lot.handle.match(/PC/)) {
+		title = 'Personal Care Product';
+	}
+	else if(lot.handle.match(/GM/)) {
+		title = 'General Merchandise';
+	}
+	else if(lot.handle.match(/VT/)) {
+		title = 'Vitamins & Supplements';
+	}
+	else if(lot.handle.match(/CS/)) {
+		title = 'Cosmetics';
+	}
+	else if(lot.handle.match(/NP/)) {
+		title = 'Nail Polish';
+	}
+	return title;
+}
+
+function getManifestItemsForLot(lot, opts={}) {
+	if(!opts.defaultProductTitle) {
+		opts.defaultProductTitle = defaultProductTitleForLot(lot);
+	}
 	const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.inventory) : Promise.resolve([]);
 	const thirdPartyManifestP = lot.thirdPartyManifests.length ? inmarDb.getBlockByBlockId(lot.thirdPartyManifests[0].blockId).then(b => b.contents) : Promise.resolve([]);
 	return Promise.join(scannedManifestP, thirdPartyManifestP).spread(async (scannedInventory, thirdPartyInventory)=>{
@@ -134,7 +170,7 @@ function getManifestItemsForLot(lot, opts) {
 	});
 }
 
-async function getManifestCsv(lot, manifestOpts) {
+async function getManifestCsv(lot, manifestOpts={}) {
 	return json2csv.parse(await getManifestItemsForLot(lot, manifestOpts));
 }
 
