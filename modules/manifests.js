@@ -108,6 +108,10 @@ function buildManifestItems(inventory, opts={}) {
 
 			const productBarcode = barcodeProductData.normalizedBarcode ? barcodeProductData.normalizedBarcode : manifestItem.barcode;
 
+			if(barcodeProductData.price) {
+				barcodeProductData.price = barcodeProductData.price.toFixed(2)
+			}
+
 			let item;
 			if(opts.bstock) {
 				item = {
