@@ -26,10 +26,13 @@ const submitListing = Promise.method(async function (listing) {
 
 	// Start the manifest promise if applicable
 	const manifestP = listing.lot.unmanifested ? null : manifests.getManifestItemsForLot(listing.lot);
+	const manifestItems = await manifestP;
+
+	const productTitle = `${listing.lot.listingData.title}${manifestItems.totalRetailValue ? ` (Estimated Retail Value: $${manifestItems.totalRetailValue}!)` : ''}`;
 
 	const product = {
-		title: listing.lot.listingData.title,
-		body_html: listing.lot.listingData.body + '<br><br>' + listing.bodyBoilerplate, //TODO: whitespace/newlines not formatted right. use HTML?
+		title: productTitle,
+		body_html: `${productTitle}<br><br>${listing.lot.listingData.body}` + '<br><br>' + listing.bodyBoilerplate, //TODO: whitespace/newlines not formatted right. use HTML?
 		template_suffix: 'manifested',
 		published_at: null,
 		tags: listing.shopifyTags,
@@ -84,7 +87,7 @@ const submitListing = Promise.method(async function (listing) {
 
 	// Schedule manifest promise if applicable
 	if(!listing.lot.unmanifested) {
-		const manifest = JSON.stringify(await manifestP);
+		const manifest = JSON.stringify(manifestItems);
 
 		const addMetafieldP = shopifyClient.addProductMetafield({
 			productId: newProductId,

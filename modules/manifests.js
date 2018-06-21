@@ -89,6 +89,8 @@ function buildManifestItems(inventory, opts={}) {
 		// dbReqs.push(ehdb.)
 	}
 	return Promise.all(productDataReqs).then(inventoryData=>{
+		let totalRetailValue = 0;
+
 		const manifestItems = inventoryData.sort((a,b) => a[0].barcode.localeCompare(b[0].barcode)).map(x=>{
 			const [manifestItem, barcodeProductData] = x;
 
@@ -109,7 +111,8 @@ function buildManifestItems(inventory, opts={}) {
 			const productBarcode = barcodeProductData.normalizedBarcode ? barcodeProductData.normalizedBarcode : manifestItem.barcode;
 
 			if(barcodeProductData.price) {
-				barcodeProductData.price = barcodeProductData.price.toFixed(2)
+				totalRetailValue += barcodeProductData.price*manifestItem.quantity;
+				barcodeProductData.price = barcodeProductData.price.toFixed(2);
 			}
 
 			let item;
@@ -138,6 +141,9 @@ function buildManifestItems(inventory, opts={}) {
 
 			return item;
 		});
+
+		manifestItems.totalRetailValue = totalRetailValue.toFixed(2);
+
 		return manifestItems;
 	});
 }
