@@ -9,6 +9,7 @@ const quickLots = require(path.join(__basedir, __config.modulesPath, 'quick-lots
 const dbEnums = {
   lotStatus: lotdb.lotStatusEnum,
   lotType: lotdb.lotTypeEnum,
+  marketplaces: lotdb.marketplaceEnum,
   priceType: inmardb.priceTypeEnum,
 }
 

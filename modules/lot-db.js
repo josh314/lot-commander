@@ -183,6 +183,7 @@ module.exports = {
 	removeImage: removeImage,
 	lotStatusEnum: lotdbClient.LotModel.statusEnum,
 	lotTypeEnum: lotdbClient.LotModel.typeEnum,
+	marketplaceEnum: lotdbClient.LotModel.marketplaceEnum,
 	link3pManifestBlock: link3pManifestBlock,
 	markAsListed: markAsListed,
 	updateLot: updateLot,

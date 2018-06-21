@@ -10,7 +10,7 @@
 			<div class="form-group col-xs-12 col-sm-6">
 				<label for="lotStatusFilter">Status</label>
 				<select class="form-control" name="lotStatusFilter" ng-model="lotStatus" ng-change="update()">
-					<option ng-repeat="status in statusOptions">{{status}}</option>
+					<option ng-repeat="status in ['All'].concat(statusOptions)">{{status}}</option>
 				</select>
 			</div>
 		</fieldset>
@@ -21,6 +21,7 @@
 				<th>Created</th>
 				<th>Last Updated</th>
 				<th>Status</th>
+				<th>Marketplace</th>
 				<th></th>
 				<th></th>
 			</tr></thead>
@@ -30,7 +31,16 @@
 				    <td>{{lot.totalUnits ? lot.totalUnits : '---'}}</td>
 				    <td>{{lot.readableCreatedAt}}</td>
 				    <td>{{lot.readableUpdatedAt}}</td>
-				    <td>{{lot.status}}</td>
+				    <td>
+		        		<select ng-model="lot.status" ng-change="saveLot(lot)">
+		        			<option ng-repeat="status in statusOptions">{{status}}</option>
+		    	    	</select>
+	    	    	</td>
+				    <td>
+			    		<select ng-model="lot.destinationMarketplace" ng-change="saveLot(lot)">
+			    			<option ng-repeat="marketplace in marketplaces">{{marketplace}}</option>
+				    	</select>
+				    </td>
 	                <td><button class="btn btn-success btn-xs" ng-click="scanItems(lot._id)">Scan Items</button></td>
 	                <td><button class="btn btn-success btn-xs" ng-click="requestFile(lot)">Create Manifest File</button></td>
 				</tr>

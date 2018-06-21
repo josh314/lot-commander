@@ -11,13 +11,16 @@
 		sessionTimeout.timeoutExpired();
 		$scope.lots = [];
 
-		$scope.statusOptions = ['All'].concat(dbEnums.lotStatus);
-		$scope.lotStatus = $scope.statusOptions[0];
+		$scope.statusOptions = dbEnums.lotStatus;
+		$scope.lotStatus = 'All';
+
+		$scope.marketplaces = [undefined].concat(dbEnums.marketplaces);
+		console.log(dbEnums)
 
 		function updateLotList() {
 			//TODO: incorporate search/sort options
 			const query = {
-				status: $scope.lotStatus===$scope.statusOptions[0] ? undefined : $scope.lotStatus,
+				status: $scope.lotStatus==='All' ? undefined : $scope.lotStatus,
 				handle: $scope.lotHandle,
 				endDate: $scope.endDate,
 				startDate: $scope.startDate,
@@ -68,6 +71,12 @@
 				requestFileModal.launch(lot);
 			}
 		};
+
+		$scope.saveLot = function(lot) {
+			$http.post('/api/db/edit-lot/'+lot._id, lot).then(resp=>{
+			   console.log(`updated lot ${lot._id}.`)
+			});
+		}
 
 	}]);
 })();

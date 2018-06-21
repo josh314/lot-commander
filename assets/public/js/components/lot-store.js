@@ -22,6 +22,7 @@
 			this.listingData = {};
 			this.thirdPartyManifests = [];
 			this.submittedListings = [];
+			this.destinationMarketplace = undefined;
 		};
 		this.reset();
 
@@ -44,6 +45,8 @@
 		this.setTotalUnits = function(_totalUnits) { this.totalUnits = _totalUnits; };
 
 		this.setSubmittedListings = function(_listings) {this.submittedListings = _listings; };
+
+		this.setDestinationMarketplace = function(_destinationMarketplace) { this.destinationMarketplace = _destinationMarketplace; };
 
 		this.save = function(_lot) {
 			this.reset();
@@ -82,6 +85,9 @@
 			if(_lot.submittedListings) {
 				this.setSubmittedListings(_lot.submittedListings);
 			}
+			if(_lot.destinationMarketplace) {
+				this.setDestinationMarketplace(_lot.destinationMarketplace);
+			}
 		}
 
 		this.addInventory = function(newBarcode) {
@@ -114,6 +120,7 @@
 		this.getListings = function() { return this.listings; };
 		this.getListingData = function() { return this.listingData; };
 		this.getThirdPartyManifests = function() { return this.thirdPartyManifests; };
+		this.getDestinationMarketplace = function() { return this.destinationMarketplace; };
 		
 		this.getInventoryTotal = function() {
 			return this.inventory.reduce((acc,val) => {return acc + val.quantity;}, 0);
