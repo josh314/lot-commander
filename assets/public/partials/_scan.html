@@ -13,10 +13,11 @@
 			</form>
 		</div>
 	</div>
+	
 	<div class="row">
 		<div class="well">
 			<h3> Manifest Details</h3>
-			<div class="col-xs-12">
+			<div class="col-xs-6">
 				<dl class="dl-horizontal pull-left">
 					<dt>Handle</dt><dd>{{ lot.getHandle() }}</dd>
 					<dt>Description</dt><dd>{{ lot.getDescription() }}</dd>
@@ -24,6 +25,7 @@
 					<dt>Inventory count</dt><dd>{{ lot.getInventoryTotal() }}</dd>
 				</dl>
 			</div>
+			<div class="col-xs-2 pull-right"><a class="btn btn-success btn-lg" ng-click="saveManifest()">Save</a></div>
 			<table class="table table-striped">
 				<thead><tr>
 					<th>Barcode</th>
