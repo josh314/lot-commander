@@ -160,7 +160,9 @@ function markAsListed(lotId) {
 }
 
 function deleteLot(req,res) {
-	return lotdbClient.deleteLot(req.body.lotId);
+	return lotdbClient.deleteLot(req.body.lotId).then(response=>{
+		res.json({response: response});
+	})
 }
 
 function updateLot(lot) {

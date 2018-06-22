@@ -53,29 +53,9 @@
 		}
 
 		$scope.startQuickLot = function(quickLot) {
-			const today = new Date();//fix time zone to EST
-
-			const categoryDatePrefix = `${quickLot.handlePrefix}${today.getMonth()+1}.${today.getDate()}.${today.getFullYear()-2000}`
-
-			const query = {
-				handle: { prefix: true, value: categoryDatePrefix }
-			};
-			$http.post('/api/db/get', query).then(resp=>{
-				const handlePattern = new RegExp(`${categoryDatePrefix}-([0-9]+)`);
-				const existingLotNumbers = resp.data.reduce((numbers, lot) => {
-					const lotNumberMatch = lot.handle.match(handlePattern);
-					if(lotNumberMatch) {
-						numbers.add(parseInt(lotNumberMatch[1]));
-					}
-					return numbers;
-				}, new Set());
-				let newLotNumber = 1;
-
-				while(existingLotNumbers.has(newLotNumber))
-					newLotNumber++;
-
+			buildHandleForPrefix(quickLot.handlePrefix).then(handle=>{
 				Object.assign($scope.newLot, {
-					handle: `${categoryDatePrefix}-${newLotNumber}`,
+					handle: handle,
 					unmanifested: true,
 				});
 				Object.assign($scope.newLot, quickLot.template);
