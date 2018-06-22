@@ -85,4 +85,27 @@
     ],
   });
 
+  app.constant('lotCategories', [
+    {
+      prefix: 'GM',
+      name: 'General Merchandise'
+    },
+    {
+      prefix: 'CS',
+      name: 'Cosmetics'
+    },
+    {
+      prefix: 'PC',
+      name: 'Personal Care'
+    },
+    {
+      prefix: 'VT',
+      name: 'Vitamins & Supplements'
+    },
+    {
+      prefix: 'NP',
+      name: 'Nail Polish'
+    },
+  ]);
+
 })();

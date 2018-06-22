@@ -6,13 +6,51 @@
 	var app = angular.module('myApp');
 
 	/******************* New Lot Controller *************************/
-	app.controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'messageModal', 'quickLotsBoilerplate', 'sessionTimeout', 
-		function($http, $scope, $state, dbEnums, messageModal, quickLotsBoilerplate, sessionTimeout) {
+	app.controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'listingBuilder', 'lotCategories','messageModal', 'sessionTimeout', 
+		function($http, $scope, $state, dbEnums, listingBuilder, lotCategories, messageModal, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 
-		$scope.quickLots = quickLotsBoilerplate;
+		$scope.quickLots = listingBuilder.quickLotsBoilerplate;
 
 		$scope.lotTypes = dbEnums.lotType;
+
+		$scope.categories = ['None'].concat(lotCategories.map(x=>x.name));
+		$scope.newLotCategory = 'None';
+
+		$scope.newLot = {};
+
+		function buildHandleForPrefix(prefix) {
+			const today = new Date();//fix time zone to EST
+
+			const categoryDatePrefix = `${prefix}${today.getMonth()+1}.${today.getDate()}.${today.getFullYear()-2000}`
+
+			const query = {
+				handle: { prefix: true, value: categoryDatePrefix }
+			};
+			return $http.post('/api/db/get', query).then(resp=>{
+				const handlePattern = new RegExp(`${categoryDatePrefix}-([0-9]+)`);
+				const existingLotNumbers = resp.data.reduce((numbers, lot) => {
+					const lotNumberMatch = lot.handle.match(handlePattern);
+					if(lotNumberMatch) {
+						numbers.add(parseInt(lotNumberMatch[1]));
+					}
+					return numbers;
+				}, new Set());
+				let newLotNumber = 1;
+
+				while(existingLotNumbers.has(newLotNumber))
+					newLotNumber++;
+				return `${categoryDatePrefix}-${newLotNumber}`;
+			})
+		}
+
+
+		$scope.setHandleForCategory = function() {
+			const categoryObj = lotCategories.find(x=>x.name===$scope.newLotCategory);
+			if(categoryObj) {
+				buildHandleForPrefix(categoryObj.prefix).then(handle => $scope.newLot.handle = handle);
+			}
+		}
 
 		$scope.startQuickLot = function(quickLot) {
 			const today = new Date();//fix time zone to EST
@@ -20,7 +58,6 @@
 			const categoryDatePrefix = `${quickLot.handlePrefix}${today.getMonth()+1}.${today.getDate()}.${today.getFullYear()-2000}`
 
 			const query = {
-				// startDate: today,
 				handle: { prefix: true, value: categoryDatePrefix }
 			};
 			$http.post('/api/db/get', query).then(resp=>{
@@ -37,37 +74,35 @@
 				while(existingLotNumbers.has(newLotNumber))
 					newLotNumber++;
 
-				const newLot = {
+				Object.assign($scope.newLot, {
 					handle: `${categoryDatePrefix}-${newLotNumber}`,
 					unmanifested: true,
-				};
-				Object.assign(newLot, quickLot.template);
-				$scope.startLot(newLot);
+				});
+				Object.assign($scope.newLot, quickLot.template);
+				$scope.startLot();
 			});
 		}
 
 		$scope.startCustomLot = function() {
-			if(!$scope.handle) {
+			if(!$scope.newLot.handle) {
 				$scope.noHandleSubmitted = true;
 			}
 			else {
 				$scope.noHandleSubmitted = false;
-				const newLot = {
-					handle: $scope.handle,
-					description: $scope.desc,
-					type: $scope.type,
-				};
-				$scope.startLot(newLot);
+				$scope.startLot();
 			}
 		};
 
-		$scope.startLot = function(newLot) {
-			$http.post('/api/db/new-lot', newLot).then(resp=>{
+		$scope.startLot = function() {
+			if(!$scope.newLot.listingData) {
+				listingBuilder.buildFromCategory($scope.newLot);
+			}
+			$http.post('/api/db/new-lot', $scope.newLot).then(resp=>{
 				if(resp.data.error) {
 					console.log(resp.data.error);
 				}
 				else if (resp.data.lotExists) {
-					messageModal.launch({header: 'Error', body: `A lot with handle ${newLot.handle} already exists.`, type: 'error'});
+					messageModal.launch({header: 'Error', body: `A lot with handle ${$scope.newLot.handle} already exists.`, type: 'error'});
 				}
 				else{
 					$state.go('main.lots.list');
