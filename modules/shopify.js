@@ -28,7 +28,7 @@ const submitListing = Promise.method(async function (listing) {
 	const manifestP = listing.lot.unmanifested ? null : manifests.getManifestItemsForLot(listing.lot);
 	const manifestItems = await manifestP;
 
-	const productTitle = `${listing.lot.listingData.title}${manifestItems.totalRetailValue ? ` (Estimated Retail Value: $${manifestItems.totalRetailValue}!)` : ''}`;
+	const productTitle = `${listing.lot.listingData.title} (${listing.lot.totalUnits} units${manifestItems.totalRetailValue ? `: $${manifestItems.totalRetailValue} estimated retail value` : ''})`;
 
 	const product = {
 		title: productTitle,
