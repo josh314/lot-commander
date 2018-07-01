@@ -23,7 +23,9 @@
     { name: "main.users", abstract:true, navName: "Users", url: "/users", templateUrl: 'partials/_container.html'},
     { name: "main.users.change-password", navName: "Change Password", navParent: 'Users', url: "/change-password", templateUrl: 'partials/users/_change_password.html', controller:'ChangeUserPasswordCtrl'},
     { name: "main.users.logout", url: "/logout", navName: 'Logout', navParent: 'Users', controller:'LogoutCtrl' },
-
+    // imports
+    { name: "main.imports", abstract: true, url: '/imports', templateUrl: '/partials/_container.html' },
+    { name: "main.imports.submit", navName: 'Imports', url: '/submit', templateUrl: '/partials/_imports.html', controller: 'ImportsCtrl'},
   ];
  
   var stateConfigData = [];
