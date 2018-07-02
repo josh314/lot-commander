@@ -91,7 +91,7 @@ function routes(env) {
 
   //import functionality
   router.post('/api/imports/manifest', imports.importManifestApi);
-  router.post('/api/imports/barcodes', imports.importBarcodesApi);
+  router.post('/api/imports/barcodes', express.json(), imports.importBarcodesApi);
 
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{

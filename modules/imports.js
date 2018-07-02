@@ -60,7 +60,7 @@ function importManifestApi(req,res,next) {
 }
 
 function importBarcodesApi(req, res, next) {
-  const barcodeList = req.body.split('\n');
+  const barcodeList = req.body.barcodes;
   res.json({ numBarcodesSubmitted: barcodeList.length});
   importBarcodes(barcodeList);
 }
