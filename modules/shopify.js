@@ -4,8 +4,6 @@ const path = require('path');
 const fs = require('fs');
 const readFile = Promise.promisify(fs.readFile);
 
-const json2csv = require('json2csv');
-
 const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
 
 const shopifyApi = require(path.join(__config.libDir.shopify, 'api'));
