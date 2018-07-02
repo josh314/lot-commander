@@ -37,7 +37,7 @@
 		    const manifestFileExtension = manifest.name.split(".").pop();
 		    const validFileExtensions = ['xls', 'xlsx', 'xlsm']; // CSV?
 		    if(validFileExtensions.includes(manifestFileExtension)) {
-			    // const uploadUrl = "/api/manifest-files/upload";
+			    const uploadUrl = "/api/imports/manifest";
 			    const metadata = { 
 						parseOpts: JSON.stringify($scope.parseOpts),
 			    };

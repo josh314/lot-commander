@@ -117,4 +117,5 @@ function getProductDataByBarcode(barcode) {
 
 module.exports = {
 	getProductDataByBarcode: getProductDataByBarcode,
+	getAsinsFromMwsApiForBarcode: getAsinsFromMwsApiForBarcode
 }
