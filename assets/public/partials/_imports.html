@@ -1,0 +1,53 @@
+<div class="container">
+	<div class="well" ng-hide="waitingForResponse">
+		<h2>Import Manifest</h2>
+		<div class="row">
+			<h4>Instructions</h4>
+			<ul>
+				<li>Only upload spreadsheet file types (.xls, .xlsx, .xlsm)</li>
+				<li>Remove any summary page(s) from the spreadsheet</li>
+				<li>For the Barcode column field, input the associated column letter(s) as labeled in Excel (case insensitive).</li>
+				<li>Use the <b>Number of Rows to Skip</b> field to skip over the header row or other preface material</li>
+			</ul>
+		</div>
+		<div class="row">
+			<div class="form-group col-xs-12 col-sm-6 col-md-4" ng-class="{ 'has-error' : manifest.noFileSelected }">
+				<label for="fileInput">Manifest File</label>
+				<input type="file" class="form-control" id="fileInput" required file-model="manifest.file">
+				<span class="text-danger h4" ng-show="manifest.noFileSelected">Please select a file.</span>
+			</div>
+			<div class="form-group col-xs-12 col-sm-6 col-md-4" ng-class="{ 'has-error' : manifest.noBarcodeColSelected }">
+				<label for="upcColInput">UPC/Barcode Column (required)</label>
+				<input class="form-control" id="upcColInput" ng-model="manifest.parseOpts.upcCol" required>
+				<span class="text-danger h4" ng-show="manifest.noBarcodeColSelected">A UPC column is required.</span>
+			</div>
+			<div class="form-group col-xs-12 col-sm-6 col-md-4">
+				<label for="skiprowsInput">Number of Rows to Skip</label>
+				<input type="number" class="form-control" id="skiprowsInput" ng-model="manifest.parseOpts.skiprows">
+			</div>
+		</div>
+		<button class="btn btn-primary" type="button" ng-click="importManifest()">Import Manifest</button>
+	</div>
+	<div class="well" ng-hide="waitingForResponse">
+		<h2>Import Barcode List</h2>
+			<div class="row">
+				<h4>Instructions</h4>
+				<ul>
+					<li>One barcode per line. Using a scanner to input will naturally format the list this way.</li>
+				</ul>
+			</div>
+			<div class="row">
+				<div class="form-group col-xs-12 col-sm-6 col-md-4" ng-class="{ 'has-error' : tooManyBarcodes || improperBarcode }">
+					<label for="barcodesInput">Barcodes</label>
+					<textarea rows="10" class="form-control" name="barcode" id="barcodesInput" ng-model="barcodeTextarea" placeholder="Input barcodes, one on each line."></textarea>
+					<span class="text-danger h4" ng-show="tooManyBarcodes">Too many barcodes! No more than 20, please.</span><br>
+					<span class="text-danger h4" ng-show="improperBarcode">At least one of these entries is not a proper barcode.</span><br>
+				</div>
+			</div>
+			<input class="btn btn-primary" type="submit" ng-click="importBarcodes()" value="Import Barcodes" ng-disabled="tooManyBarcodes || improperBarcode">
+	</div>
+	<div class="row" ng-show="waitingForResponse">
+		<div class="center-block loader"></div>
+		<h2 class="text-center">Please wait...</h2>
+	</div>
+</div>

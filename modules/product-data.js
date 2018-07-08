@@ -55,6 +55,34 @@ async function getProductDataFromMwsdb(barcode) {
 	return productData;
 }
 
+async function getAsinsFromMwsApiForBarcode(barcode) {
+	const asins = [];
+
+	let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
+	if(!normalizedBarcode) {
+		normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
+	}
+
+	if(normalizedBarcode) {
+		let asinData;
+
+		__logger.info(`Requesting data from MWS API for barcode ${normalizedBarcode}.`);
+		const refreshResp = await mwsdbClient.refreshBarcodeFromMws(normalizedBarcode);
+		if(!refreshResp.error) {
+			__logger.info(`Product data refreshed from MWS API for barcode ${normalizedBarcode}.`);
+			for( let elem of refreshResp ) {
+				if(elem.asin) {
+					asins.push(elem.asin);
+				}
+			}
+		}
+		else {
+			__logger.info(`No product data found in MWS API for barcode ${normalizedBarcode}`);
+		}
+	}
+	return asins;
+}
+
 /////////////////////////////////////////////////////
 
 function titleCheck(productData) {
@@ -89,4 +117,5 @@ function getProductDataByBarcode(barcode) {
 
 module.exports = {
 	getProductDataByBarcode: getProductDataByBarcode,
+	getAsinsFromMwsApiForBarcode: getAsinsFromMwsApiForBarcode
 }
