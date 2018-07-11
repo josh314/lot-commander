@@ -23,6 +23,7 @@ async function init(){
 	for(let [db, conn] of Object.entries(__config.dbConnMapping)) {
 		connectionMapping[db] = connections[conn];
 	}
+	__logger.info('DB connections created and mapped.')
 	return connectionMapping;
 }
 

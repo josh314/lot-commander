@@ -32,7 +32,6 @@
   // Database connections
   //=================================================
   global.__connections = await require('./dbs').init();
-  console.log('here')
 
   //=================================================
   // INITIALIZE EXPRESS APP =========================
