@@ -199,4 +199,4 @@
   // ....export and we out
   //==========================================
   module.exports = app;
-})();
+})().catch(e=>console.log(e));
