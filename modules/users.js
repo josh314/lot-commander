@@ -13,20 +13,6 @@ const flashMessages = require(path.join(__basedir, __config.modulesPath, 'flash-
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 
-
-//Settings for connection
-const mongooseConnOpts = {
-  keepAlive: 300000,
-  connectTimeoutMS: 30000,
-  socketTimeoutMS: 300000,
-};
-
-const userDbSettings = __config.db.passportUserDb;
-const userDbAuth = userDbSettings.auth ? `${userDbSettings.auth.user}:${userDbSettings.auth.pass}@` : ''; 
-const userDbUrl = `mongodb://${userDbAuth}${userDbSettings.host}:${userDbSettings.port}/${userDbSettings.db}`;
-
-const mongooseConn = mongoose.createConnection(userDbUrl, mongooseConnOpts);
-
 //======================================
 //======================================
 // User model ==========================
@@ -71,7 +57,7 @@ userSchema.methods.getPublicInfo = function() {
 	};
 };
 
-const User = mongooseConn.model('User', userSchema);
+const User = __connections.users.model('User', userSchema);
 exports.User = User;
 
 //===============================================

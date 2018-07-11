@@ -17,7 +17,7 @@ for( let s of __config.importsFilePath.split('/').filter(x=>x)) {
 }
 
 const importCacheDb = require(path.join(__config.libDir.importCacheDb, 'lib'));
-const importCacheClient = new importCacheDb.Client({connection: __connections.importCache});
+const importCacheClient = new importCacheDb.Client({connection: __connections.importCache, logger: __logger});
 
 async function getDataForNewProducts(barcode) {
   const skulabsItems = await skulabs.getItemsByBarcode(barcode);
