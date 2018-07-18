@@ -26,7 +26,7 @@ const submitListing = Promise.method(async function (listing) {
 	const manifestP = listing.lot.unmanifested ? null : manifests.getManifestItemsForLot(listing.lot);
 	const manifestItems = await manifestP;
 
-	const productTitle = `${listing.lot.listingData.title} (${listing.lot.totalUnits} units${manifestItems.totalRetailValue ? `: $${manifestItems.totalRetailValue} estimated retail value` : ''})`;
+	const productTitle = `${listing.lot.listingData.title} (${listing.lot.totalUnits} units${manifestItems && manifestItems.totalRetailValue ? `: $${manifestItems.totalRetailValue} estimated retail value` : ''})`;
 
 	const product = {
 		title: productTitle,
@@ -49,7 +49,11 @@ const submitListing = Promise.method(async function (listing) {
 		//collection
 	};
 
-	const addProductResp = await shopifyClient.addProduct(product);
+	__logger.info('Creating new Shopify product.')
+	const addProductResp = await shopifyClient.addProduct(product).then(_=>{
+		__logger.info(`New Shopify product created with id ${_.product.id}`);
+		return _;
+	});
 	const newProductId = addProductResp.product.id;
 
 	// add images
@@ -84,15 +88,29 @@ const submitListing = Promise.method(async function (listing) {
 	]
 
 	// Schedule manifest promise if applicable
-	if(!listing.lot.unmanifested) {
+	if(manifestItems && !listing.lot.unmanifested) {
 		const manifest = JSON.stringify(manifestItems);
 
+		__logger.info()
 		const addMetafieldP = shopifyClient.addProductMetafield({
 			productId: newProductId,
 			metafield: {
 				namespace: 'manifest',
 				key: 'json',
 				value: manifest,
+				value_type: 'string',
+			}
+		})
+		listingPromises.push(addMetafieldP);
+	}
+
+	if(manifestItems && manifestItems.totalRetailValue) {
+		const addMetafieldP = shopifyClient.addProductMetafield({
+			productId: newProductId,
+			metafield: {
+				namespace: 'manifest',
+				key: 'estimatedRetailValue',
+				value: manifestItems.totalRetailValue,
 				value_type: 'string',
 			}
 		})
