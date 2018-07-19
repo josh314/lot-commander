@@ -11,7 +11,7 @@ const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'
 const images = require(path.join(__basedir, __config.modulesPath, 'images'));
 const users = require(path.join(__basedir, __config.modulesPath, 'users'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
-const imports = require(path.join(__basedir, __config.modulesPath, 'imports'));
+// const imports = require(path.join(__basedir, __config.modulesPath, 'imports'));
 
 function getLayoutDataByEnv(env) {
 	const res = {
@@ -89,9 +89,9 @@ function routes(env) {
   // marketplace listings
   router.post('/api/listings/submit', listings.submit);
 
-  //import functionality
-  router.post('/api/imports/manifest', imports.importManifestApi);
-  router.post('/api/imports/barcodes', express.json(), imports.importBarcodesApi);
+  // //import functionality
+  // router.post('/api/imports/manifest', imports.importManifestApi);
+  // router.post('/api/imports/barcodes', express.json(), imports.importBarcodesApi);
 
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{
