@@ -91,7 +91,6 @@ const submitListing = Promise.method(async function (listing) {
 	if(manifestItems && !listing.lot.unmanifested) {
 		const manifest = JSON.stringify(manifestItems);
 
-		__logger.info()
 		const addMetafieldP = shopifyClient.addProductMetafield({
 			productId: newProductId,
 			metafield: {
