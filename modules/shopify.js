@@ -26,11 +26,11 @@ const submitListing = Promise.method(async function (listing) {
 	const manifestP = listing.lot.unmanifested ? null : manifests.getManifestItemsForLot(listing.lot);
 	const manifestItems = await manifestP;
 
-	const productTitle = `${listing.lot.listingData.title} (${listing.lot.totalUnits} units${manifestItems && manifestItems.totalRetailValue ? `: $${manifestItems.totalRetailValue} estimated retail value` : ''})`;
+	const productTitle = `${listing.lot.listingData.title} (${listing.lot.totalUnits} units)`;
 
 	const product = {
 		title: productTitle,
-		body_html: `${productTitle}<br><br>${listing.lot.listingData.body}` + '<br><br>' + listing.bodyBoilerplate, //TODO: whitespace/newlines not formatted right. use HTML?
+		body_html: `${manifestItems && manifestItems.totalRetailValue ? `: $${manifestItems.totalRetailValue} estimated retail value!<br><br>` : ''}${listing.lot.listingData.body}` + '<br><br>' + listing.bodyBoilerplate, //TODO: whitespace/newlines not formatted right. use HTML?
 		template_suffix: 'manifested',
 		published_at: null,
 		tags: listing.shopifyTags,
