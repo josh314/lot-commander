@@ -27,10 +27,11 @@ const submitListing = Promise.method(async function (listing) {
 	const manifestItems = await manifestP;
 
 	const productTitle = `${listing.lot.listingData.title} (${listing.lot.totalUnits} units)`;
+	const bodyHtml =  listing.lot.listingData.body + '<br><br>' + listing.bodyBoilerplate;
 
 	const product = {
 		title: productTitle,
-		body_html: `${manifestItems && manifestItems.totalRetailValue ? `: $${manifestItems.totalRetailValue} estimated retail value!<br><br>` : ''}${listing.lot.listingData.body}` + '<br><br>' + listing.bodyBoilerplate, //TODO: whitespace/newlines not formatted right. use HTML?
+		body_html: bodyHtml,
 		template_suffix: 'manifested',
 		published_at: null,
 		tags: listing.shopifyTags,
@@ -91,7 +92,6 @@ const submitListing = Promise.method(async function (listing) {
 	if(manifestItems && !listing.lot.unmanifested) {
 		const manifest = JSON.stringify(manifestItems);
 
-		__logger.info()
 		const addMetafieldP = shopifyClient.addProductMetafield({
 			productId: newProductId,
 			metafield: {
