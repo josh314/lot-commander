@@ -107,7 +107,7 @@ const submitListing = Promise.method(async function (listing) {
 		const addMetafieldP = shopifyClient.addProductMetafield({
 			productId: newProductId,
 			metafield: {
-				namespace: 'manifest',
+				namespace: 'lot',
 				key: 'estimatedRetailValue',
 				value: manifestItems.totalRetailValue,
 				value_type: 'string',
