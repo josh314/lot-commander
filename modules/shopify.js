@@ -26,11 +26,12 @@ const submitListing = Promise.method(async function (listing) {
 	const manifestP = listing.lot.unmanifested ? null : manifests.getManifestItemsForLot(listing.lot);
 	const manifestItems = await manifestP;
 
-	const productTitle = `${listing.lot.listingData.title} (${listing.lot.totalUnits} units${manifestItems && manifestItems.totalRetailValue ? `: $${manifestItems.totalRetailValue} estimated retail value` : ''})`;
+	const productTitle = `${listing.lot.listingData.title} (${listing.lot.totalUnits} units)`;
+	const bodyHtml =  listing.lot.listingData.body + '<br><br>' + listing.bodyBoilerplate;
 
 	const product = {
 		title: productTitle,
-		body_html: `${productTitle}<br><br>${listing.lot.listingData.body}` + '<br><br>' + listing.bodyBoilerplate, //TODO: whitespace/newlines not formatted right. use HTML?
+		body_html: bodyHtml,
 		template_suffix: 'manifested',
 		published_at: null,
 		tags: listing.shopifyTags,
@@ -109,7 +110,7 @@ const submitListing = Promise.method(async function (listing) {
 			metafield: {
 				namespace: 'lot',
 				key: 'estimatedRetailValue',
-				value: manifestItems.totalRetailValue,
+				value: parseInt(manifestItems.totalRetailValue*100),//This changes it to cents so we can use Shopify money filter
 				value_type: 'string',
 			}
 		})

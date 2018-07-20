@@ -142,7 +142,7 @@ function buildManifestItems(inventory, opts={}) {
 			return item;
 		});
 
-		manifestItems.totalRetailValue = totalRetailValue.toFixed(2);
+		manifestItems.totalRetailValue = totalRetailValue;
 
 		return manifestItems;
 	});
