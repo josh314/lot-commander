@@ -32,7 +32,7 @@ const submitListing = Promise.method(async function (listing) {
 	const product = {
 		title: productTitle,
 		body_html: bodyHtml,
-		template_suffix: 'manifested',
+		template_suffix: 'featured',
 		published_at: null,
 		tags: listing.shopifyTags,
 		variants: [

@@ -50,7 +50,7 @@
 				//shopify defaults
 				shopifyInventory: 1,
 				shopifyTags: (function(){
-					const tags = ['liquidation'];
+					const tags = ['liquidation', 'featured'];
 					if($scope.lot.unmanifested) {
 						tags.push('unmanifested');
 					}
