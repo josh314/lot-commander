@@ -45,7 +45,7 @@ module.exports = {
         "/js/components/file-request-modal.js",
         "/js/components/focus.js",
         "/js/components/footer.js",
-        "/js/components/imports.js",
+        // "/js/components/imports.js",
         "/js/components/listing-builder.js",
         "/js/components/list-lots.js",
         "/js/components/lot-store.js",

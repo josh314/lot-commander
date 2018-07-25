@@ -1,12 +1,29 @@
 const path = require('path');
 
-
 const libBarcodes = require(path.join(__config.libDir.barcodes, 'lib'));
 
-const mwsdb = require(path.join(__config.libDir.mws, 'mwsdb'));
-const mwsdbClient = new mwsdb.Client(__config.db.mwsdb);
+let mwsdbClient;
+let upcItemDbClient;
 
-// MWS data ////////////////////////////////////////////////
+let getProductDataFromSrc;
+if(__config.productDataSrc && __config.productDataSrc.toLowerCase() === 'mws') {
+	const mwsdb = require(path.join(__config.libDir.mws, 'mwsdb'));
+	mwsdbClient = new mwsdb.Client(__config.db.mwsdb);
+	getProductDataFromSrc = getProductDataFromMwsdb;
+}
+else if (__config.productDataSrc && __config.productDataSrc.toLowerCase() === 'upcitemdb') {
+	const upcItemDbApi = require(path.join(__config.libDir.upcItemDb, 'lib/api'));
+	upcItemDbClient = new upcItemDbApi.Client(__config.upcItemDb);
+	getProductDataFromSrc = getProductDataFromUpcItemDb;
+}
+else {
+	throw new Error('No product data source!')
+}
+
+
+//**********************************************************
+// MWS data 
+//**********************************************************
 
 function getProductDataFromAsinData(asinData) {
 	if(!asinData) return {};
@@ -83,6 +100,47 @@ async function getAsinsFromMwsApiForBarcode(barcode) {
 	return asins;
 }
 
+//*****************************************************
+// UPC Item DB
+//*****************************************************
+
+function getQuantityFromTitle(title) {
+	//TODO
+}
+
+async function getProductDataFromUpcItemDb(barcode) {
+	let productData = {};
+
+	let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
+	if(!normalizedBarcode) {
+		normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
+	}
+
+	if(normalizedBarcode) {
+		const apiResp = await upcItemDbClient.lookup(barcode);
+		if(apiResp && apiResp.items && apiResp.items[0]) {
+			const item = apiResp.items[0];
+			productData.title = item.title;
+			if(item.offers && item.offers.length) {
+				//TODO: need to scrape pack quantity from title and get unit price
+				productData.price = item.offers.reduce( (highestUnitPrice, offer) =>{
+					if(offer.condition.toLowerCase()!=='new') {
+						let curUnitPrice = offer.list_price || offer.price || 0;
+						const offerUnitQuantity = getQuantityFromTitle(offer.title) || 1;
+						curUnitPrice = curUnitPrice / offerUnitQuantity;
+						return curUnitPrice > highestUnitPrice ? curUnitPrice : highestUnitPrice;
+					}
+					else {
+						return highestUnitPrice;
+					}
+				}, 0);
+			}
+		}
+		productData.normalizedBarcode = normalizedBarcode;
+	}
+	return productData;
+}
+
 /////////////////////////////////////////////////////
 
 function titleCheck(productData) {
@@ -109,7 +167,7 @@ function priceCheck(productData) {
 }
 
 function getProductDataByBarcode(barcode) {
-	return getProductDataFromMwsdb(barcode)
+	return getProductDataFromSrc(barcode)
 						// .then(titleCheck)
 						.then(priceCheck);
 }
