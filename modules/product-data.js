@@ -1,23 +1,36 @@
+'use strict';
+
 const path = require('path');
 
 const libBarcodes = require(path.join(__config.libDir.barcodes, 'lib'));
 
+if(!__config.productDataSrc) {
+	throw new Error('No product data source!');
+}
+
 let mwsdbClient;
 let upcItemDbClient;
+let walmartOpenApiClient;
 
 let getProductDataFromSrc;
-if(__config.productDataSrc && __config.productDataSrc.toLowerCase() === 'mws') {
+
+if( __config.productDataSrc.match(/mws/i) ) {
 	const mwsdb = require(path.join(__config.libDir.mws, 'mwsdb'));
 	mwsdbClient = new mwsdb.Client(__config.db.mwsdb);
 	getProductDataFromSrc = getProductDataFromMwsdb;
 }
-else if (__config.productDataSrc && __config.productDataSrc.toLowerCase() === 'upcitemdb') {
+else if( __config.productDataSrc.match(/upcitemdb/i) ) {
 	const upcItemDbApi = require(path.join(__config.libDir.upcItemDb, 'lib/api'));
 	upcItemDbClient = new upcItemDbApi.Client(__config.upcItemDb);
 	getProductDataFromSrc = getProductDataFromUpcItemDb;
 }
+else if( __config.productDataSrc.match(/walmart/i) ) {
+	const walmartOpenApi = require(path.join(__config.libDir.walmart, 'open-api'));
+	walmartOpenApiClient = new walmartOpenApi.Client(__config.walmartOpenApi);
+	getProductDataFromSrc = getProductDataFromWalmartOpenApi;
+}
 else {
-	throw new Error('No product data source!')
+	throw new Error('No product data source!');
 }
 
 
@@ -135,6 +148,34 @@ async function getProductDataFromUpcItemDb(barcode) {
 					}
 				}, 0);
 			}
+		}
+		productData.normalizedBarcode = normalizedBarcode;
+	}
+	return productData;
+}
+
+//***************************************************
+// Walmart Open Api
+//***************************************************
+
+async function getProductDataFromWalmartOpenApi(barcode){
+	let productData = {};
+
+	let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
+	if(!normalizedBarcode) {
+		normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
+	}
+
+	if(normalizedBarcode) {
+		const apiResp = await walmartOpenApiClient.lookup(barcode);
+		if(apiResp && apiResp.items && apiResp.items[0]) {
+			__logger.info(`Product data obtained from Walmart Open API for barcode ${normalizedBarcode}.`);
+			const item = apiResp.items[0];
+			productData.title = item.name;
+			productData.price = item.msrp ? item.msrp : (item.salePrice ? item.salePrice : 0);
+		}
+		else {
+			__logger.info(`No product data found in Walmart Open API for barcode ${normalizedBarcode}.`);
 		}
 		productData.normalizedBarcode = normalizedBarcode;
 	}
