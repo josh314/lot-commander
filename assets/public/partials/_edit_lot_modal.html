@@ -27,14 +27,13 @@
 			<label for="totalUnitsInput">Total Units</label>
 			<input class="form-control" id="totalUnitsInput" required ng-model="lot.totalUnits">
 		</div>
-<!-- 		<div class="form-group col-xs-12">
-			<label for="listingBodyInput">Listing Body</label>
-			<input type="textarea" class="form-control" name="listingBody" id="listingBodyInput" required ng-model="listing.body">
-		</div> -->
 		<div class="col-xs-12">
 			<h3>Listings</h3>
-			<label>Title</label>
-			<input class="form-control" name="listingTitle" id="listingTitleinput" ng-model="lot.listingData.title">
+			<div class="form-group" ng-class="{ 'has-error' : (titleTooLong.bstock || titleTooLong.shopify)}">
+				<label>Title</label>
+				<input class="form-control" name="listingTitle" id="listingTitleinput" ng-keyup="verifyTitle()" ng-model="lot.listingData.title">
+				<span class="text-danger h4" ng-show="titleTooLong.bstock">Title too long for a Bstock Listing</span>
+			</div>
 			<div>
 				<label>Body (boilerplate omitted)</label>
 				<textarea rows="15" class="form-control" name="listingBody" id="listingBodyInput" required ng-model="lot.listingData.body"></textarea>

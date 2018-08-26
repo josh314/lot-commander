@@ -152,11 +152,23 @@
   }]);
 
   /***************** Modal Controllers ************************/
-  app.controller('EditLotModalController', [ '$scope', 'dbEnums', 'lot', function($scope, dbEnums, lot){
+  app.controller('EditLotModalController', [ '$scope', 'dbEnums', 'listingTitleVerifier',  'lot', function($scope, dbEnums, listingTitleVerifier, lot){
     $scope.lot = JSON.parse(JSON.stringify(lot));
     $scope.lotStatusEnum = dbEnums.lotStatus;
     $scope.lotTypeEnum = dbEnums.lotType;
     $scope.selectedListing = 'bstock';
+
+    $scope.titleTooLong = {};
+
+    $scope.verifyTitle = () => {
+      $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title);
+    };
+    $scope.verifyTitle()
+
+    $scope.invalidLot = lot => {
+      return $scope.titleTooLong.bstock || $scope.titleTooLong.shopify;
+    } 
+
   }]);
 
 })();

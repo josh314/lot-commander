@@ -47,6 +47,7 @@ module.exports = {
         "/js/components/footer.js",
         // "/js/components/imports.js",
         "/js/components/listing-builder.js",
+        "/js/components/listing-title-verifier.js",
         "/js/components/list-lots.js",
         "/js/components/lot-store.js",
         "/js/components/manifest-files-list.js",
