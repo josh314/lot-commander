@@ -33,6 +33,12 @@ else {
 	throw new Error('No product data source!');
 }
 
+//==========================================================
+// Constants
+//==========================================================
+
+const MAX_UNIT_PRICE = 100;
+
 
 //**********************************************************
 // MWS data 
@@ -141,6 +147,7 @@ async function getProductDataFromUpcItemDb(barcode) {
 						let curUnitPrice = offer.list_price || offer.price || 0;
 						const offerUnitQuantity = getQuantityFromTitle(offer.title) || 1;
 						curUnitPrice = curUnitPrice / offerUnitQuantity;
+						curUnitPrice = curUnitPrice <= MAX_UNIT_PRICE ? curUnitPrice : 0;
 						return curUnitPrice > highestUnitPrice ? curUnitPrice : highestUnitPrice;
 					}
 					else {
@@ -173,6 +180,9 @@ async function getProductDataFromWalmartOpenApi(barcode){
 			const item = apiResp.items[0];
 			productData.title = item.name;
 			productData.price = item.msrp ? item.msrp : (item.salePrice ? item.salePrice : 0);
+			if( parseFloat(productData.price) > MAX_UNIT_PRICE ) {
+				productData.price = 0;
+			}
 		}
 		else {
 			__logger.info(`No product data found in Walmart Open API for barcode ${normalizedBarcode}.`);
