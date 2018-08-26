@@ -6,8 +6,8 @@
   var app = angular.module('myApp');
 
   /******************* View Lot Controller *************************/
-  app.controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'fileUpload', 'listingsBoilerplate', 'lotStore', 'messageModal', 'sessionTimeout',
-    function($http, $scope, $state, $stateParams, $uibModal, fileUpload, listingsBoilerplate, lotStore, messageModal, sessionTimeout) {   
+  app.controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'fileUpload', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout',
+    function($http, $scope, $state, $stateParams, $uibModal, fileUpload, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, sessionTimeout) {   
       sessionTimeout.timeoutExpired();
       $scope.lot = lotStore;
       $scope.listingsBoilerplate = listingsBoilerplate;
@@ -23,6 +23,7 @@
               lotStore.setInventory(resp.data.manifest.inventory);
             });
           }
+          $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title);
         });
       }
       getLot();
@@ -159,11 +160,10 @@
     $scope.selectedListing = 'bstock';
 
     $scope.titleTooLong = {};
-
     $scope.verifyTitle = () => {
       $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title);
     };
-    $scope.verifyTitle()
+    $scope.verifyTitle();
 
     $scope.invalidLot = lot => {
       return $scope.titleTooLong.bstock || $scope.titleTooLong.shopify;

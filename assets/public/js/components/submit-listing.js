@@ -6,8 +6,8 @@
 	var app = angular.module('myApp');
 
 	/******************* Scanning Page Controller *************************/
-	app.controller('SubmitListingCtrl', ['$scope', '$state', '$http', 'bstockFormConstants', 'lotStore', 'messageModal', 'sessionTimeout', 
-		function($scope, $state, $http, bstockFormConstants, lotStore, messageModal, sessionTimeout) {
+	app.controller('SubmitListingCtrl', ['$scope', '$state', '$http', 'bstockFormConstants', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout', 
+		function($scope, $state, $http, bstockFormConstants, listingTitleVerifier, lotStore, messageModal, sessionTimeout) {
 			sessionTimeout.timeoutExpired();
 
 			if(!lotStore._id) {
@@ -81,6 +81,7 @@
 				$scope.noBstockCondition = $scope.listing.condition ? false : true;
 				$scope.noBstockCategory = $scope.listing.category ? false : true;
 				$scope.noBstockPackaging = $scope.listing.packaging ? false : true;
+				$scope.bstockTitleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title).bstock;
 
 				if($scope.listing.shipping.chargeType===bstockFormConstants.shippingChargeType['Fixed Cost']) {
 					$scope.invalidShippingCharge = ($scope.listing.shipping.charge && $scope.listing.shipping.charge.match(/[0-9]+/)) ? false : true;
@@ -90,7 +91,7 @@
 					$scope.invalidShippingCharge = $scope.noCarrier = false;
 				}
 
-				if($scope.invalidAuctionPrice || $scope.noChargeType || $scope.invalidShippingCharge || $scope.noCarrier || $scope.noBstockPackaging || $scope.noBstockCategory || $scope.noBstockCondition ) {
+				if($scope.invalidAuctionPrice || $scope.noChargeType || $scope.invalidShippingCharge || $scope.noCarrier || $scope.noBstockPackaging || $scope.noBstockCategory || $scope.noBstockCondition || $scope.bstockTitleTooLong) {
 					return false;
 				}
 				return true;

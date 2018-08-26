@@ -18,7 +18,7 @@
 							<h4>Listing Data</h4>
 						</div>
 						<div class="col-xs-12">
-							<label>Title</label>
+							<label>Title<span class="text-danger h4" ng-show="titleTooLong.bstock"> (Title too long for a Bstock Listing)</span></label>
 							<div class="well well-sm">{{lot.listingData.title}}</div><br>
 						</div>
 						<div class="col-xs-12">
