@@ -69,12 +69,12 @@ const submitListing = Promise.method(async function (listing) {
 	const inventoryItemId = addProductResp.product.variants[0].inventory_item_id;
 	const updateInventoryItemP = shopifyClient.updateInventoryItem({inventoryItemId: inventoryItemId, tracked: true, sku: listing.lot.handle});
 
-	//Default inventory after product creation is 1. Make adjustment to inventory if needed
+	//Default inventory after product creation is 0. Make adjustment to inventory if needed
 	let updateInventoryLevelP = Promise.resolve(null);
-	if(listing.shopifyInventory>1) {
+	if(listing.shopifyInventory>=1) {
 		updateInventoryLevelP = shopifyClient.getInventoryLevels({inventoryItemId: inventoryItemId }).then(resp=>{
 			return shopifyClient.updateInventoryLevel({
-				availableAdjustment: parseInt(listing.shopifyInventory) - 1,
+				availableAdjustment: parseInt(listing.shopifyInventory),//Note this is an adjustment from the default value
 				inventoryItemId: inventoryItemId,
 				locationId: resp.inventory_levels[0].location_id
 			});
