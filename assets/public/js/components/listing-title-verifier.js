@@ -13,9 +13,10 @@
           bstock: false,
           shopify: false,
         };
-
-        if(title.length >= 68) {
-          res.bstock = true;
+        if(title) {
+          if(title.length >= 68) {
+            res.bstock = true;
+          }
         }
         return res;
       },
