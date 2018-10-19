@@ -155,11 +155,13 @@
 				<table class="table table-striped" ng-show="lot.manifestId">
 					<thead><tr>
 						<th>Barcode</th>
+						<th>Title</th>
 						<th>Quantity</th>
 					</tr></thead>
 					<tbody>
 						<tr ng-repeat="item in lot.getInventory()">
 							<td>{{item.barcode}}</td>
+							<td>{{item.title}}</td>
 							<td>{{item.quantity}}</td>
 						</tr>
 					</tbody>
