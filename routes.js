@@ -12,6 +12,7 @@ const images = require(path.join(__basedir, __config.modulesPath, 'images'));
 const users = require(path.join(__basedir, __config.modulesPath, 'users'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
 // const imports = require(path.join(__basedir, __config.modulesPath, 'imports'));
+const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
 function getLayoutDataByEnv(env) {
 	const res = {
@@ -92,6 +93,14 @@ function routes(env) {
   // //import functionality
   // router.post('/api/imports/manifest', imports.importManifestApi);
   // router.post('/api/imports/barcodes', express.json(), imports.importBarcodesApi);
+
+  // product data
+  router.get('/api/product-data/:barcode', (req,res)=>{
+    productData.getProductDataByBarcode(req.params.barcode).then(resp=>{
+      res.json(resp);
+    });
+    // why doesn't .then(res.json) work?
+  });
 
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{
