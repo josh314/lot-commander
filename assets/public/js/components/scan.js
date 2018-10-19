@@ -13,9 +13,19 @@
 
 		$scope.scanBarcode = function() {
 			if ($scope.scanForm.barcode.$valid) {
-				lotStore.addInventory($scope.scannedBarcode);
-				// focus('barcodeInput');
-				$state.reload();
+				const item = lotStore.addInventory($scope.scannedBarcode);
+				if(item) {
+					if(item.quantity==1) {
+						$http.get(`/api/product-data/${item.barcode}`).then(resp=>{
+							if(resp && resp.data) {
+								item.title = resp.data.title;
+								item.price = resp.data.price;
+							}
+						})
+					}
+					// focus('barcodeInput');
+					$state.reload();
+				}
 			}
 		};
 
