@@ -81,25 +81,30 @@ function listManifestFiles(req, res) {
 	})
 }
 
-function buildManifestItems(inventory, opts={}) {
+function getProductData(inventory) {
+	console.log(`Retreiving API product data for ${inventory.length} products`)
 	const productDataReqs = [];
-	for(manifestItem of inventory) {
-
-		productDataReqs.push(Promise.join(manifestItem, productData.getProductDataByBarcode(manifestItem.barcode)));
-		// dbReqs.push(ehdb.)
+	for(let manifestItem of inventory) {
+		productDataReqs.push(
+			productData.getProductDataByBarcode(manifestItem.barcode).then(retrievedProductData => {
+				return Object.assign(manifestItem, retrievedProductData);
+			})
+		);
 	}
-	return Promise.all(productDataReqs).then(inventoryData=>{
-		let totalRetailValue = 0;
+	return Promise.all(productDataReqs)
+}
 
-		const manifestItems = inventoryData.sort((a,b) => a[0].barcode.localeCompare(b[0].barcode)).map(x=>{
-			const [manifestItem, barcodeProductData] = x;
+function formatManifestFromInventoryProductData(opts={}) {
+	return inventoryProductData => {
+		let totalRetailValue = 0;
+		const manifestItems = inventoryProductData.sort((a,b) => a[0].barcode.localeCompare(b[0].barcode)).map(inventoryItem=>{
 
 			let productTitle;
-			if(barcodeProductData.title) {
-				productTitle = barcodeProductData.title;
+			if(inventoryItem.title) {
+				productTitle = inventoryItem.title;
 			}
-			else if (manifestItem.description) {
-				productTitle = manifestItem.description;
+			else if (inventoryItem.description) {
+				productTitle = inventoryItem.description;
 			}
 			else if (opts.defaultProductTitle) {
 				productTitle = opts.defaultProductTitle;
@@ -108,11 +113,11 @@ function buildManifestItems(inventory, opts={}) {
 				productTitle = 'UNKNOWN';
 			}
 
-			const productBarcode = barcodeProductData.normalizedBarcode ? barcodeProductData.normalizedBarcode : manifestItem.barcode;
+			const productBarcode = inventoryItem.normalizedBarcode ? inventoryItem.normalizedBarcode : inventoryItem.barcode;
 
-			if(barcodeProductData.price) {
-				totalRetailValue += barcodeProductData.price*manifestItem.quantity;
-				barcodeProductData.price = barcodeProductData.price.toFixed(2);
+			if(inventoryItem.price) {
+				totalRetailValue += inventoryItem.price*inventoryItem.quantity;
+				inventoryItem.price = inventoryItem.price.toFixed(2);
 			}
 
 			let item;
@@ -120,8 +125,8 @@ function buildManifestItems(inventory, opts={}) {
 				item = {
 					Category: opts.bstock.Category,
 					'Item Description': productTitle,
-					Qty: manifestItem.quantity,
-					'Retail Per Unit': barcodeProductData.price,
+					Qty: inventoryItem.quantity,
+					'Retail Per Unit': inventoryItem.price,
 					Condition: opts.bstock.Condition,
 					Packaging: opts.bstock.Packaging,
 					UPC: productBarcode,
@@ -134,8 +139,8 @@ function buildManifestItems(inventory, opts={}) {
 				item = {
 					barcode: productBarcode,
 					title: productTitle,
-					unitPrice: barcodeProductData.price,
-					quantity: manifestItem.quantity,
+					unitPrice: inventoryItem.price,
+					quantity: inventoryItem.quantity,
 				}
 			}
 
@@ -145,7 +150,12 @@ function buildManifestItems(inventory, opts={}) {
 		manifestItems.totalRetailValue = totalRetailValue;
 
 		return manifestItems;
-	});
+	}
+}
+
+function buildManifestItems(inventory, opts={}) {
+	//TODO: seemed to call getProductData even if hasProductData true
+	return (opts.hasProductData ? Promise.resolve(inventory) : getProductData(inventory)).then(formatManifestFromInventoryProductData(opts));
 }
 
 function defaultProductTitleForLot(lot){
@@ -172,7 +182,11 @@ function getManifestItemsForLot(lot, opts={}) {
 	if(!opts.defaultProductTitle) {
 		opts.defaultProductTitle = defaultProductTitleForLot(lot);
 	}
-	const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.inventory) : Promise.resolve([]);
+
+	// TODO: hasProductData isn't being communicated from lot-db to this point
+	opts.hasProductData = lot.hasProductData;
+
+	const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.toObject().inventory) : Promise.resolve([]);
 	const thirdPartyManifestP = lot.thirdPartyManifests.length ? inmarDb.getBlockByBlockId(lot.thirdPartyManifests[0].blockId).then(b => b.contents) : Promise.resolve([]);
 	return Promise.join(scannedManifestP, thirdPartyManifestP).spread(async (scannedInventory, thirdPartyInventory)=>{
 		const inventory = scannedInventory.concat(thirdPartyInventory)
