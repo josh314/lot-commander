@@ -95,11 +95,14 @@ function buildManifestItems(inventory, opts={}) {
 			const [manifestItem, barcodeProductData] = x;
 
 			let productTitle;
-			if(barcodeProductData.title) {
-				productTitle = barcodeProductData.title;
+			if (manifestItem.title) {
+				productTitle = manifestItem.title;
 			}
 			else if (manifestItem.description) {
 				productTitle = manifestItem.description;
+			}
+			else if(barcodeProductData.title) {
+				productTitle = barcodeProductData.title;
 			}
 			else if (opts.defaultProductTitle) {
 				productTitle = opts.defaultProductTitle;
@@ -110,9 +113,11 @@ function buildManifestItems(inventory, opts={}) {
 
 			const productBarcode = barcodeProductData.normalizedBarcode ? barcodeProductData.normalizedBarcode : manifestItem.barcode;
 
-			if(barcodeProductData.price) {
-				totalRetailValue += barcodeProductData.price*manifestItem.quantity;
-				barcodeProductData.price = barcodeProductData.price.toFixed(2);
+			let price = manifestItem.price ? manifestItem.price : barcodeProductData.price;
+
+			if(price) {
+				totalRetailValue += price*manifestItem.quantity;
+				price = price.toFixed(2);
 			}
 
 			let item;
@@ -121,7 +126,7 @@ function buildManifestItems(inventory, opts={}) {
 					Category: opts.bstock.Category,
 					'Item Description': productTitle,
 					Qty: manifestItem.quantity,
-					'Retail Per Unit': barcodeProductData.price,
+					'Retail Per Unit': price,
 					Condition: opts.bstock.Condition,
 					Packaging: opts.bstock.Packaging,
 					UPC: productBarcode,
@@ -134,7 +139,7 @@ function buildManifestItems(inventory, opts={}) {
 				item = {
 					barcode: productBarcode,
 					title: productTitle,
-					unitPrice: barcodeProductData.price,
+					unitPrice: price,
 					quantity: manifestItem.quantity,
 				}
 			}

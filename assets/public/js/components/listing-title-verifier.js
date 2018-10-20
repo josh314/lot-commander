@@ -14,7 +14,7 @@
           shopify: false,
         };
 
-        if(title.length >= 68) {
+        if(title && title.length >= 68) {
           res.bstock = true;
         }
         return res;
