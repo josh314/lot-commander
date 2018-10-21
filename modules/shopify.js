@@ -23,7 +23,7 @@ const addImage = Promise.method(async function(productId, imageObj){
 const submitListing = Promise.method(async function (listing) {
 
 	// Start the manifest promise if applicable
-	const manifestP = listing.lot.unmanifested ? null : manifests.getManifestItemsForLot(listing.lot);
+	const manifestP = listing.lot.unmanifested ? null : manifests.getManifestItemsForLot(listing.lot, { refreshProductData: listing.refreshProductData });
 	const manifestItems = await manifestP;
 
 	const productTitle = `${listing.lot.listingData.title} (${listing.lot.totalUnits} units)`;
