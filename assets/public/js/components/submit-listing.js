@@ -72,6 +72,7 @@
 					}
 					return tags.join(', ');
 				})(),
+				refreshProductData: false,
 			};
 
 			function validateBstockListingOptions() {
