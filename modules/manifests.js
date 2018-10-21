@@ -87,7 +87,15 @@ function getProductData(inventory) {
 	for(let manifestItem of inventory) {
 		productDataReqs.push(
 			productData.getProductDataByBarcode(manifestItem.barcode).then(retrievedProductData => {
-				return Object.assign(manifestItem, retrievedProductData);
+				//TODO: got to be more careful with this data merge. What if one of these objects has a property but it's blank?
+				const res = {
+					barcode: retrievedProductData.normalizedBarcode ? retrievedProductData.normalizedBarcode : manifestItem.barcode,
+					title:  manifestItem.title || manifestItem.description || retrievedProductData.title,
+					quantity: manifestItem.quantity,
+					price: manifestItem.price || retrievedProductData.price,
+				}
+
+				return res;
 			})
 		);
 	}
@@ -103,17 +111,12 @@ function formatManifestFromInventoryProductData(opts={}) {
 			if(inventoryItem.title) {
 				productTitle = inventoryItem.title;
 			}
-			else if (inventoryItem.description) {
-				productTitle = inventoryItem.description;
-			}
 			else if (opts.defaultProductTitle) {
 				productTitle = opts.defaultProductTitle;
 			}
 			else {
 				productTitle = 'UNKNOWN';
 			}
-
-			const productBarcode = inventoryItem.normalizedBarcode ? inventoryItem.normalizedBarcode : inventoryItem.barcode;
 
 			if(inventoryItem.price) {
 				totalRetailValue += inventoryItem.price*inventoryItem.quantity;
@@ -155,7 +158,7 @@ function formatManifestFromInventoryProductData(opts={}) {
 
 function buildManifestItems(inventory, opts={}) {
 	//TODO: seemed to call getProductData even if hasProductData true
-	return (opts.hasProductData ? Promise.resolve(inventory) : getProductData(inventory)).then(formatManifestFromInventoryProductData(opts));
+	return (opts.refreshProductData ? getProductData(inventory) : Promise.resolve(inventory) ).then(formatManifestFromInventoryProductData(opts));
 }
 
 function defaultProductTitleForLot(lot){
@@ -182,9 +185,6 @@ function getManifestItemsForLot(lot, opts={}) {
 	if(!opts.defaultProductTitle) {
 		opts.defaultProductTitle = defaultProductTitleForLot(lot);
 	}
-
-	// TODO: hasProductData isn't being communicated from lot-db to this point
-	opts.hasProductData = lot.hasProductData;
 
 	const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.toObject().inventory) : Promise.resolve([]);
 	const thirdPartyManifestP = lot.thirdPartyManifests.length ? inmarDb.getBlockByBlockId(lot.thirdPartyManifests[0].blockId).then(b => b.contents) : Promise.resolve([]);
