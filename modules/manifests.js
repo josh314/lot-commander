@@ -105,11 +105,13 @@ function getProductData(inventory) {
 function formatManifestFromInventoryProductData(opts={}) {
 	return inventoryProductData => {
 		let totalRetailValue = 0;
-		const manifestItems = inventoryProductData.sort((a,b) => a[0].barcode.localeCompare(b[0].barcode)).map(inventoryItem=>{
-
+		const manifestItems = inventoryProductData.sort((a,b) => a.barcode.localeCompare(b.barcode)).map(inventoryItem=>{
 			let productTitle;
 			if(inventoryItem.title) {
 				productTitle = inventoryItem.title;
+			}
+			else if(inventoryItem.description) {
+				productTitle = inventoryItem.description;
 			}
 			else if (opts.defaultProductTitle) {
 				productTitle = opts.defaultProductTitle;
@@ -132,7 +134,7 @@ function formatManifestFromInventoryProductData(opts={}) {
 					'Retail Per Unit': inventoryItem.price,
 					Condition: opts.bstock.Condition,
 					Packaging: opts.bstock.Packaging,
-					UPC: productBarcode,
+					UPC: inventoryItem.barcode,
 					Manufacturer: '',
 					Model: '',
 					'Expiration Date': '',
@@ -140,7 +142,7 @@ function formatManifestFromInventoryProductData(opts={}) {
 			}
 			else {
 				item = {
-					barcode: productBarcode,
+					barcode: inventoryItem.barcode,
 					title: productTitle,
 					unitPrice: inventoryItem.price,
 					quantity: inventoryItem.quantity,
