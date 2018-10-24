@@ -66,6 +66,7 @@ function routes(env) {
   router.post('/api/db/save-manifest', lotdb.saveManifest);
   router.get('/api/db/manifest/:manifestId', lotdb.getManifest);
   router.post('/api/db/link-3p-manifest-block', lotdb.link3pManifestBlock);
+  router.post('/api/db/import-3p-manifest-block', lotdb.import3pManifestBlock);
 
   // bstock db api
   router.post('/api/bstock-db/auctions/get', express.json(), bstockDb.getAuctions);

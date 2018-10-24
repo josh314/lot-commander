@@ -151,6 +151,40 @@ function link3pManifestBlock(req, res, next){
 	});
 }
 
+function import3pManifestBlock(req, res, next){
+	const blockId = req.body.blockId;
+	inmarDb.getManifestByBlockId(blockId).then(thirdPartyManifest=>{
+		if(!thirdPartyManifest) {
+			const msg = 'Block Id not found.'
+			const e = new Error(msg);
+			e.clientMessage = msg;
+			next(e);
+		}
+		else {
+			const lot = req.body.lot;
+			const block = thirdPartyManifest.blocks.find(b => b.blockId===blockId);
+
+			mandb.submitManifest({
+				handle: lot.handle,
+				inventory: block.contents,
+			})
+			.then(mandbResp=>{
+				if(mandbResp) {
+					const lotUpdate = {
+						_id: lot._id,
+						totalUnits: block.contents.reduce((units, item) => units + item.quantity, 0),
+						manifestId: mandbResp._id,
+					}
+					return Promise.join(mandbResp, lotdbClient.updateLot(lotUpdate))
+				}
+			})
+			.then(resp=>{
+				res.json(resp);
+			})
+		}
+	});
+}
+
 function markAsListed(lotId) {
 	const data = {
 		_id: lotId,
@@ -187,6 +221,7 @@ module.exports = {
 	lotTypeEnum: lotdbClient.LotModel.typeEnum,
 	marketplaceEnum: lotdbClient.LotModel.marketplaceEnum,
 	link3pManifestBlock: link3pManifestBlock,
+	import3pManifestBlock: import3pManifestBlock,
 	markAsListed: markAsListed,
 	updateLot: updateLot,
 };

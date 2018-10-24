@@ -157,12 +157,14 @@
 						<th>Barcode</th>
 						<th>Title</th>
 						<th>Quantity</th>
+						<th>Price</th>
 					</tr></thead>
 					<tbody>
 						<tr ng-repeat="item in lot.getInventory()">
 							<td>{{item.barcode}}</td>
-							<td>{{item.title}}</td>
+							<td>{{item.description}}</td>
 							<td>{{item.quantity}}</td>
+							<td>{{item.price}}</td>
 						</tr>
 					</tbody>
 				</table>
