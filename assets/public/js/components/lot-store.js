@@ -48,6 +48,8 @@
 
 		this.setDestinationMarketplace = function(_destinationMarketplace) { this.destinationMarketplace = _destinationMarketplace; };
 
+		this.updateTotalUnits = ()=>{ this.totalUnits = this.inventory ? this.inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 }
+
 		this.save = function(_lot) {
 			this.reset();
 			this.setHandle(_lot.handle);
