@@ -85,6 +85,15 @@
         $state.go('main.lots.scan');
       }
 
+      $scope.editManifest = function() {
+        if(lotStore.manifestId) {
+          $http.get('/api/db/manifest/'+lotStore.manifestId).then(resp=>{
+            lotStore.setInventory(resp.data.manifest.inventory);
+          })
+        }
+        $state.go('main.lots.edit-manifest');
+      }
+
       $scope.removeImage = function(image) {
         const data = {
           lotId: $scope.lot._id,

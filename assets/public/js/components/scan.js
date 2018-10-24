@@ -18,7 +18,7 @@
 					if(item.quantity==1) {
 						$http.get(`/api/product-data/${item.barcode}`).then(resp=>{
 							if(resp && resp.data) {
-								item.title = resp.data.title;
+								item.description = resp.data.title;
 								item.price = resp.data.price;
 							}
 						})
