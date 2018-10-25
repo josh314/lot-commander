@@ -87,12 +87,11 @@ function getProductData(inventory) {
 	for(let manifestItem of inventory) {
 		productDataReqs.push(
 			productData.getProductDataByBarcode(manifestItem.barcode).then(retrievedProductData => {
-				//TODO: got to be more careful with this data merge. What if one of these objects has a property but it's blank?
 				const res = {
 					barcode: retrievedProductData.normalizedBarcode ? retrievedProductData.normalizedBarcode : manifestItem.barcode,
-					title:  manifestItem.title || manifestItem.description || retrievedProductData.title,
+					title: retrievedProductData.title || retrievedProductData.description || manifestItem.title || manifestItem.description,
 					quantity: manifestItem.quantity,
-					price: manifestItem.price || retrievedProductData.price,
+					price: retrievedProductData.price || manifestItem.price,
 				}
 
 				return res;
@@ -159,7 +158,6 @@ function formatManifestFromInventoryProductData(opts={}) {
 }
 
 function buildManifestItems(inventory, opts={}) {
-	//TODO: seemed to call getProductData even if hasProductData true
 	return (opts.refreshProductData ? getProductData(inventory) : Promise.resolve(inventory) ).then(formatManifestFromInventoryProductData(opts));
 }
 
