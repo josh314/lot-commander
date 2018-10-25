@@ -48,6 +48,8 @@
 
 		this.setDestinationMarketplace = function(_destinationMarketplace) { this.destinationMarketplace = _destinationMarketplace; };
 
+		this.updateTotalUnits = ()=>{ this.totalUnits = this.inventory ? this.inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 }
+
 		this.save = function(_lot) {
 			this.reset();
 			this.setHandle(_lot.handle);
@@ -93,22 +95,23 @@
 		this.addInventory = function(newBarcode) {
 			//search for product in this.inventory
 			if(/[0-9]{8,15}/.test(newBarcode)) {
-				var idx = this.inventory.findIndex(item => item.barcode == newBarcode);
-				if(idx >= 0) {
-					this.inventory[idx].quantity += 1;
+				let item = this.getInventoryItemByBarcode(newBarcode);
+				if(item) {
+					item.quantity += 1;
 				}
 				else {
-					const newItem = {
+					item = {
 						barcode: newBarcode,
 						quantity: 1
 					};
-					let iidx = this.inventory.findIndex(item => item.barcode > newItem.barcode);
+					let iidx = this.inventory.findIndex(i => i.barcode > item.barcode);
 					if (iidx >= 0)
-						this.inventory.splice(iidx, 0, newItem);
+						this.inventory.splice(iidx, 0, item);
 					else
-						this.inventory.push(newItem);
+						this.inventory.push(item);
 				}
 				this.totalUnits += 1;
+				return item;
 			}
 		};
 
@@ -121,6 +124,10 @@
 		this.getListingData = function() { return this.listingData; };
 		this.getThirdPartyManifests = function() { return this.thirdPartyManifests; };
 		this.getDestinationMarketplace = function() { return this.destinationMarketplace; };
+
+		this.getInventoryItemByBarcode = function(barcode) {
+			return this.inventory.find(item => item.barcode == barcode);
+		}
 		
 		this.getInventoryTotal = function() {
 			return this.inventory.reduce((acc,val) => {return acc + val.quantity;}, 0);

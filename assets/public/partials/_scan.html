@@ -29,13 +29,17 @@
 			<table class="table table-striped">
 				<thead><tr>
 					<th>Barcode</th>
+					<th>Title</th>
 					<th>Quantity</th>
+					<th>Price</th>
 					<th>Decrease Quantity</th>
 				</tr></thead>
 				<tbody>
 					<tr ng-repeat="item in lot.getInventory()">
 						<td>{{item.barcode}}</td>
+						<td>{{item.description}}</td>
 						<td>{{item.quantity}}</td>
+						<td>{{item.price}}</td>
 						<td><button class="btn btn-danger btn-xs" ng-click="decrementInventory(item.barcode)"><span class="glyphicon glyphicon-arrow-down"></span></button></td>
 					</tr>
 				</tbody>

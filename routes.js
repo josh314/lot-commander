@@ -12,6 +12,7 @@ const images = require(path.join(__basedir, __config.modulesPath, 'images'));
 const users = require(path.join(__basedir, __config.modulesPath, 'users'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
 // const imports = require(path.join(__basedir, __config.modulesPath, 'imports'));
+const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
 function getLayoutDataByEnv(env) {
 	const res = {
@@ -65,6 +66,7 @@ function routes(env) {
   router.post('/api/db/save-manifest', lotdb.saveManifest);
   router.get('/api/db/manifest/:manifestId', lotdb.getManifest);
   router.post('/api/db/link-3p-manifest-block', lotdb.link3pManifestBlock);
+  router.post('/api/db/import-3p-manifest-block', lotdb.import3pManifestBlock);
 
   // bstock db api
   router.post('/api/bstock-db/auctions/get', express.json(), bstockDb.getAuctions);
@@ -92,6 +94,14 @@ function routes(env) {
   // //import functionality
   // router.post('/api/imports/manifest', imports.importManifestApi);
   // router.post('/api/imports/barcodes', express.json(), imports.importBarcodesApi);
+
+  // product data
+  router.get('/api/product-data/:barcode', (req,res)=>{
+    productData.getProductDataByBarcode(req.params.barcode).then(resp=>{
+      res.json(resp);
+    });
+    // why doesn't .then(res.json) work?
+  });
 
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{

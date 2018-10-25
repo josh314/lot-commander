@@ -1,0 +1,25 @@
+<div class="container">	
+	<div class="row">
+		<div class="well">
+			<h3>Edit Manifest</h3>
+			<div class="col-xs-2 pull-right"><a class="btn btn-success btn-lg" ng-click="saveManifest()">Save</a></div>
+			<table class="table table-striped">
+				<thead><tr>
+					<th>Barcode</th>
+					<th>Title</th>
+					<th>Quantity</th>
+					<th>Price</th>
+				</tr></thead>
+				<tbody>
+					<tr ng-repeat="item in lot.getInventory()">
+						<td>{{item.barcode}}</td>
+						<td><input size="64" ng-model="item.description"></td>
+						<td><input ng-model="item.quantity"></td>
+						<td><input ng-model="item.price"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="col-xs-6"><a class="btn btn-success btn-lg" ng-click="saveManifest()">Save</a></div>
+	</div>	
+</div>

@@ -11,6 +11,14 @@
 						</select>
 						<span class="text-danger h4" ng-show="noMarketplace && !listing.marketplace">No Marketplace Selected.</span>
 					</div>
+					<div class="col-xs-12 col-sm-6">
+						<div class="checkbox">
+							<label for="refreshProductDataInput">
+								<input type="checkbox" name="refreshProductData" id="refreshProductDataInput" ng-model="listing.refreshProductData">
+								<b>Check here if new product data should be obtained for this lot</b>
+							</label>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="row" ng-show="listing.marketplace==='bstock'">
