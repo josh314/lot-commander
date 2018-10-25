@@ -31,11 +31,11 @@ function submitManifest(manifest) {
 	const itemList = manifest.inventory;
 	const manifestSummaryStr = `${itemList.reduce((sum,item)=> sum = sum + item.quantity, 0)} units across ${itemList.length} SKUs.`;
 	if(manifest._id) {
-		__logger.info(`Updating manifest with id ${manifest._id}: ${manifestSummaryStr}.`);
+		__logger.info(`Updating manifest with id ${manifest._id}: ${manifestSummaryStr}`);
 		manifestDbPromise = mandbClient.updateManifest(manifest);
 	}
 	else {
-		__logger.info(`Submitting new manifest: ${manifestSummaryStr}.`);
+		__logger.info(`Submitting new manifest: ${manifestSummaryStr}`);
 		manifestDbPromise = mandbClient.submitNewManifest(manifest);
 	}
 	return manifestDbPromise;
