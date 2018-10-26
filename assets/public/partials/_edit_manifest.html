@@ -9,13 +9,15 @@
 					<th>Title</th>
 					<th>Quantity</th>
 					<th>Price</th>
+					<th>Delete</th>
 				</tr></thead>
 				<tbody>
 					<tr ng-repeat="item in lot.getInventory()">
-						<td>{{item.barcode}}</td>
-						<td><input size="64" ng-model="item.description"></td>
-						<td><input ng-model="item.quantity"></td>
-						<td><input ng-model="item.price"></td>
+						<td><input type="text" size=16 ng-model="item.barcode"></td>
+						<td><input type="text" size="64" ng-model="item.description"></td>
+						<td><input type="number" style="width: 4em" ng-model="item.quantity" ></td>
+						<td><input type="text" size="6" ng-model="item.price"></td>
+						<td><button class="btn btn-danger btn-xs" ng-click="lot.deleteProduct(item.barcode)"><span class="glyphicon glyphicon-remove"></span></button></td>
 					</tr>
 				</tbody>
 			</table>
