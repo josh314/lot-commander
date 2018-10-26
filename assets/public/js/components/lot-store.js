@@ -81,7 +81,7 @@
 			if(_lot.thirdPartyManifests) {
 				this.setThirdPartyManifests(_lot.thirdPartyManifests);
 			}
-			if(_lot.totalUnits) {
+			if('totalUnits' in _lot) {
 				this.setTotalUnits(_lot.totalUnits);
 			}
 			if(_lot.submittedListings) {
