@@ -29,7 +29,7 @@ function getManifests(req, res) {
 function submitManifest(manifest) {
 	let manifestDbPromise;
 	const itemList = manifest.inventory;
-	const manifestSummaryStr = `${itemList.reduce((sum,item)=> sum = sum + item.quantity, 0)} units across ${itemList.length} SKUs.`;
+	const manifestSummaryStr = `${itemList.reduce((sum,item)=> sum = sum + parseInt(item.quantity), 0)} units across ${itemList.length} SKUs.`;
 	if(manifest._id) {
 		__logger.info(`Updating manifest with id ${manifest._id}: ${manifestSummaryStr}`);
 		manifestDbPromise = mandbClient.updateManifest(manifest);
