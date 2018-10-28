@@ -3,6 +3,7 @@
 		<div class="well">
 			<h3>Edit Manifest</h3>
 			<div class="col-xs-2 pull-right"><a class="btn btn-success btn-lg" ng-click="saveManifest()">Save</a></div>
+			<!-- <div class="col-xs-2 pull-right"><a class="btn btn-success btn-lg" ng-click="addLineItem()">Add Item</a></div> -->
 			<table class="table table-striped">
 				<thead><tr>
 					<th>Barcode</th>
@@ -18,6 +19,13 @@
 						<td><input type="number" style="width: 4em" ng-model="item.quantity" ></td>
 						<td><input type="text" size="6" ng-model="item.price"></td>
 						<td><button class="btn btn-danger btn-xs" ng-click="lot.deleteProduct(item.barcode)"><span class="glyphicon glyphicon-remove"></span></button></td>
+					</tr>
+					<tr>
+						<td><a class="btn btn-primary btn-xs" ng-click="addLineItem()">Add New Item</a></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
 					</tr>
 				</tbody>
 			</table>

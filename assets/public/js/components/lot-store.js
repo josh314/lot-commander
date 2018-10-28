@@ -94,8 +94,13 @@
 
 		this.addInventory = function(newBarcode) {
 			//search for product in this.inventory
-			if(/[0-9]{8,15}/.test(newBarcode)) {
-				let item = this.getInventoryItemByBarcode(newBarcode);
+			let item;
+			if(!newBarcode) {
+				item = {};
+				this.inventory.push(item);
+			}
+			else if(/[0-9]{8,15}/.test(newBarcode)) {
+				item = this.getInventoryItemByBarcode(newBarcode);
 				if(item) {
 					item.quantity += 1;
 				}
@@ -111,8 +116,8 @@
 						this.inventory.push(item);
 				}
 				this.totalUnits += 1;
-				return item;
 			}
+			return item;
 		};
 
 		this.getHandle = function() { return this.handle; };

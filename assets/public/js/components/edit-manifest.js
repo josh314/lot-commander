@@ -10,6 +10,10 @@
 		sessionTimeout.timeoutExpired();
 		$scope.lot = lotStore;
 
+		$scope.addLineItem = function() {
+			lotStore.addInventory();
+		}
+
 		$scope.saveManifest = function() {
       lotStore.updateTotalUnits();
 			$http.post('/api/db/save-manifest/', {lot: lotStore}).then(resp=>{
