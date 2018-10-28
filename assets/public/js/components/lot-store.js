@@ -32,7 +32,7 @@
 
 		this.setType = function(_type) { this.type = _type; };
 
-		this.setInventory = function(_inventory) { this.inventory = _inventory; };
+		this.setInventory = function(_inventory) { this.inventory = _inventory.map(i=> i.quantity<0 ? Object.assign(i,{quantity:0}) : i ); };
 
 		this.setStatus = function(_status) { this.status = _status; };
 
