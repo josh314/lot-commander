@@ -56,6 +56,7 @@ module.exports = {
         "/js/components/navbar.js",
         "/js/components/new-lot.js",
         "/js/components/root.js",
+        "/js/components/save-manifest.js",
         "/js/components/scan.js",
         "/js/components/submit-listing.js",
         "/js/components/upload-3p-manifest.js",

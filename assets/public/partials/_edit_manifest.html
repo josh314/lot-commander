@@ -15,12 +15,12 @@
 					<tr ng-repeat="item in lot.getInventory()">
 						<td><input type="text" size=16 ng-model="item.barcode"></td>
 						<td><input type="text" size="64" ng-model="item.description"></td>
-						<td><input type="number" style="width: 4em" ng-model="item.quantity" ></td>
+						<td><input type="number" style="width: 4em" ng-model="item.quantity" value="0"></td>
 						<td><input type="text" size="6" ng-model="item.price"></td>
 						<td><button class="btn btn-danger btn-xs" ng-click="lot.deleteProduct(item.barcode)"><span class="glyphicon glyphicon-remove"></span></button></td>
 					</tr>
 					<tr>
-						<td><a class="btn btn-primary btn-xs" ng-click="addLineItem()">Add New Item</a></td>
+						<td><a class="btn btn-primary btn-xs" ng-click="lot.addInventory()">Add New Item</a></td>
 						<td></td>
 						<td></td>
 						<td></td>

@@ -5,20 +5,11 @@
 	*************************************************************************/
 	var app = angular.module('myApp');
 
+
 	/******************* Scanning Page Controller *************************/
-	app.controller('EditManifestCtrl', ['$scope', '$state', '$http', 'lotStore', 'sessionTimeout', function($scope, $state, $http, lotStore, sessionTimeout) {
+	app.controller('EditManifestCtrl', ['$scope', 'lotStore', 'saveManifest', 'sessionTimeout', function($scope, lotStore, saveManifest, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.lot = lotStore;
-
-		$scope.addLineItem = function() {
-			lotStore.addInventory();
-		}
-
-		$scope.saveManifest = function() {
-      lotStore.updateTotalUnits();
-			$http.post('/api/db/save-manifest/', {lot: lotStore}).then(resp=>{
-				$state.go('main.home');
-			});
-		}
+		$scope.saveManifest = saveManifest;
 	}]);
 })();
