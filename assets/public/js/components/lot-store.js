@@ -96,7 +96,7 @@
 			//search for product in this.inventory
 			let item;
 			if(!newBarcode) {
-				item = {};
+				item = { quantity: 0 };
 				this.inventory.push(item);
 			}
 			else if(/[0-9]{8,15}/.test(newBarcode)) {
