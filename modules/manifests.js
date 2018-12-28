@@ -113,9 +113,6 @@ function formatManifestFromInventoryProductData(opts={}) {
 			else if(inventoryItem.description) {
 				productTitle = inventoryItem.description;
 			}
-			else if(barcodeProductData.title) {
-				productTitle = barcodeProductData.title;
-			}
 			else if (opts.defaultProductTitle) {
 				productTitle = opts.defaultProductTitle;
 			}
