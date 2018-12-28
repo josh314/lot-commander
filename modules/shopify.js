@@ -117,6 +117,20 @@ const submitListing = Promise.method(async function (listing) {
 		listingPromises.push(addMetafieldP);
 	}
 
+	// Adding metafield for total units of lot. nOte added directly to product, not the variant
+	if(listing.lot.totalUnits) {
+		const addMetafieldP = shopifyClient.addProductMetafield({
+			productId: newProductId,
+			metafield: {
+				namespace: 'lot',
+				key: 'totalUnits',
+				value: parseInt(listing.lot.totalUnits),
+				value_type: 'integer',
+			}
+		})
+		listingPromises.push(addMetafieldP);
+	}
+
 	await listingPromises;
 	//publish after all requests come back and return the response
 	return shopifyClient.publishProduct(newProductId);
