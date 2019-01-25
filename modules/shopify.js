@@ -26,12 +26,9 @@ const submitListing = Promise.method(async function (listing) {
 	const manifestP = listing.lot.unmanifested ? null : manifests.getManifestItemsForLot(listing.lot, { refreshProductData: listing.refreshProductData });
 	const manifestItems = await manifestP;
 
-	const productTitle = `${listing.lot.listingData.title} (${listing.lot.totalUnits} units)`;
-	const bodyHtml =  listing.lot.listingData.body + '<br><br>' + listing.bodyBoilerplate;
-
 	const product = {
-		title: productTitle,
-		body_html: bodyHtml,
+		title: listing.lot.listingData.title,
+		body_html: listing.lot.listingData.body + '<br><br>' + listing.bodyBoilerplate,
 		template_suffix: 'featured',
 		published_at: null,
 		tags: listing.shopifyTags,
