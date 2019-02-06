@@ -1,0 +1,3 @@
+- there is no estimated retail value (ERV) without a manifest.
+	- option for user to set ERV on a total or per unit basis
+- "case-packed" lot type
