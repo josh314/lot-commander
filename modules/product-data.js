@@ -137,7 +137,7 @@ async function getProductDataFromUpcItemDb(barcode) {
 	if(normalizedBarcode) {
 		const apiResp = await upcItemDbClient.lookup(barcode);
 		if(apiResp && apiResp.items && apiResp.items[0]) {
-			productData = Object.assign(productData, dataModule.collateApiRespItems(apiResp.items));
+			productData = Object.assign(productData, dataModule.collateApiRespItems(apiResp.items, { markup: .2 }));
 		}
 		productData.normalizedBarcode = normalizedBarcode;
 	}
