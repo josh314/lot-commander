@@ -14,6 +14,8 @@ let walmartOpenApiClient;
 
 let getProductDataFromSrc;
 
+let dataModule;
+
 if( __config.productDataSrc.match(/mws/i) ) {
 	const mwsdb = require(path.join(__config.libDir.mws, 'mwsdb'));
 	mwsdbClient = new mwsdb.Client(__config.db.mwsdb);
@@ -23,6 +25,7 @@ else if( __config.productDataSrc.match(/upcitemdb/i) ) {
 	const upcItemDbApi = require(path.join(__config.libDir.upcItemDb, 'lib/api'));
 	upcItemDbClient = new upcItemDbApi.Client(__config.upcItemDb);
 	getProductDataFromSrc = getProductDataFromUpcItemDb;
+	dataModule = require(path.join(__config.libDir.upcItemDb, 'lib/data'));
 }
 else if( __config.productDataSrc.match(/walmart/i) ) {
 	const walmartOpenApi = require(path.join(__config.libDir.walmart, 'open-api'));
@@ -123,10 +126,6 @@ async function getAsinsFromMwsApiForBarcode(barcode) {
 // UPC Item DB
 //*****************************************************
 
-function getQuantityFromTitle(title) {
-	//TODO
-}
-
 async function getProductDataFromUpcItemDb(barcode) {
 	let productData = {};
 
@@ -138,23 +137,7 @@ async function getProductDataFromUpcItemDb(barcode) {
 	if(normalizedBarcode) {
 		const apiResp = await upcItemDbClient.lookup(barcode);
 		if(apiResp && apiResp.items && apiResp.items[0]) {
-			const item = apiResp.items[0];
-			productData.title = item.title;
-			if(item.offers && item.offers.length) {
-				//TODO: need to scrape pack quantity from title and get unit price
-				productData.price = item.offers.reduce( (highestUnitPrice, offer) =>{
-					if(offer.condition.toLowerCase()!=='new') {
-						let curUnitPrice = offer.list_price || offer.price || 0;
-						const offerUnitQuantity = getQuantityFromTitle(offer.title) || 1;
-						curUnitPrice = curUnitPrice / offerUnitQuantity;
-						curUnitPrice = curUnitPrice <= MAX_UNIT_PRICE ? curUnitPrice : 0;
-						return curUnitPrice > highestUnitPrice ? curUnitPrice : highestUnitPrice;
-					}
-					else {
-						return highestUnitPrice;
-					}
-				}, 0);
-			}
+			productData = Object.assign(productData, dataModule.collateApiRespItems(apiResp.items));
 		}
 		productData.normalizedBarcode = normalizedBarcode;
 	}
@@ -211,9 +194,9 @@ function priceCheck(productData) {
 	if(!productData.price) {
 		productData.price = randomPrice();
 	}
-	else {
-		productData.price = 2*productData.price;
-	}
+	// else {
+	// 	productData.price = 2*productData.price;
+	// }
 	return productData;
 }
 
