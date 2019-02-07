@@ -120,9 +120,10 @@ function formatManifestFromInventoryProductData(opts={}) {
 				productTitle = 'UNKNOWN';
 			}
 
-			if(inventoryItem.price) {
-				totalRetailValue += inventoryItem.price*inventoryItem.quantity;
-				inventoryItem.price = inventoryItem.price.toFixed(2);
+			if(inventoryItem.price && parseFloat(inventoryItem.price)) {
+				const price = parseFloat(inventoryItem.price);
+				totalRetailValue += price*inventoryItem.quantity;
+				inventoryItem.price = price.toFixed(2);
 			}
 
 			let item;
