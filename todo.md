@@ -9,7 +9,8 @@
 	- manifest
 		- actually clone this
 		- remove quantities
-- 
+- batch the upcItemDb requests when getting all the product data after lot submission
+	- getting "too fast" warnings
 
 # From Charles
 

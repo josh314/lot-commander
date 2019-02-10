@@ -155,6 +155,7 @@
 			<div class="col-xs-12"> 
 				<table class="table table-striped" ng-show="lot.manifestId">
 					<thead><tr>
+						<th>Image</th>
 						<th>Barcode</th>
 						<th>Title</th>
 						<th>Quantity</th>
@@ -162,6 +163,9 @@
 					</tr></thead>
 					<tbody>
 						<tr ng-repeat="item in lot.getInventory()">
+							<td>
+								<img class="inventory-preview-img" src="{{item.images[0]}}">
+							</td>
 							<td>{{item.barcode}}</td>
 							<td>{{item.description}}</td>
 							<td>{{item.quantity}}</td>
@@ -169,6 +173,13 @@
 						</tr>
 					</tbody>
 				</table>
+			</div>
+		</div>
+		<div class="row">
+			<h3>Product Images</h3>
+			<div ng-repeat="item in lot.getInventory()">
+				<h5>{{item.description}}</h5>
+				<img class="inventory-gallery-img" src="{{item.images[0]}}">
 			</div>
 		</div>
 	</div>

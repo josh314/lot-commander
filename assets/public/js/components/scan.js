@@ -13,6 +13,7 @@
 		$scope.saveManifest = saveManifest;
 
 		$scope.scanBarcode = function() {
+			console.log($scope.lot)
 			if ($scope.scanForm.barcode.$valid) {
 				const item = lotStore.addInventory($scope.scannedBarcode);
 				if(item) {
@@ -21,6 +22,7 @@
 							if(resp && resp.data) {
 								item.description = resp.data.title;
 								item.price = resp.data.price;
+								item.images = resp.data.images;
 							}
 						})
 					}
