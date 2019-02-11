@@ -43,7 +43,7 @@
 				}
 				return tags.join(', ');
 			})();
-			$scope.lotSizeClass = 'box lot';
+			$scope.lotPackageType = 'box lot';
 
 			const getShopifyTags = () => {
 				const tags = $scope.additionalShopifyTags ? $scope.additionalShopifyTags.split(',').map(_=>_.trim()) : [];
@@ -53,7 +53,7 @@
 				else {
 					tags.push('manifested');
 				}
-				tags.push($scope.lotSizeClass);
+				tags.push($scope.lotPackageType);
 				return tags.join(', ');
 			};
 
