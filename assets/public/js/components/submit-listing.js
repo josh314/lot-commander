@@ -75,7 +75,18 @@
 				shopifyInventory: 1,
 				shopifyTags: [],
 				refreshProductData: false,
+				estimatedRetailValue: calculateEstimatedRetailValue()
 			};
+
+			function calculateEstimatedRetailValue() {
+				let value;
+				if($scope.lot.inventory) {
+					value = $scope.lot.inventory.reduce( (total, item)=>{
+						return item.price ? total + parseFloat(item.price) : total;
+					}, 0);
+				}
+				return value || '';
+			}
 
 			function validateBstockListingOptions() {
 				$scope.invalidAuctionPrice = ($scope.listing.auctionStartPrice && $scope.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;
@@ -121,6 +132,10 @@
 
 			$scope.submitListing = function() {
 
+				Promise.resolve({}).then(_=>{
+					console.log($scope.listing);
+				})
+
 				$scope.noMarketplace = $scope.listing.marketplace ? false : true;
 				if($scope.noMarketplace) {
 					return;
@@ -134,9 +149,7 @@
 
 				$scope.waitingForResponse = true;
 
-				// Promise.resolve({}).then(_=>{
-				// 	console.log($scope.listing);
-				// })
+
 				$http.post('/api/listings/submit', { lotId: lotStore._id, listing: $scope.listing}).then(resp=>{
 					console.log(resp);
 					if(resp.data.error) {

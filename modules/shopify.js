@@ -101,13 +101,21 @@ const submitListing = Promise.method(async function (listing) {
 		listingPromises.push(addMetafieldP);
 	}
 
-	if(manifestItems && manifestItems.totalRetailValue) {
+	let estimatedRetailValue;
+	if(listing.estimatedRetailValue) {
+		estimatedRetailValue = listing.estimatedRetailValue;
+	}
+	else if (manifestItems && manifestItems.totalRetailValue) {
+		estimatedRetailValue = manifestItems.totalRetailValue;
+	}
+
+	if(estimatedRetailValue) {
 		const addMetafieldP = shopifyClient.addProductMetafield({
 			productId: newProductId,
 			metafield: {
 				namespace: 'lot',
 				key: 'estimatedRetailValue',
-				value: parseInt(manifestItems.totalRetailValue*100),//This changes it to cents so we can use Shopify money filter
+				value: parseInt(estimatedRetailValue*100),//This changes it to cents so we can use Shopify money filter
 				value_type: 'string',
 			}
 		})

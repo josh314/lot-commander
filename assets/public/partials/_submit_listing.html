@@ -111,6 +111,13 @@
 						<input class="form-control" id="shopifyPriceInput" ng-model="listing.shopifyPrice">
 						<span class="text-danger h4" ng-show="invalidShopifyPrice">Invalid Price</span>
 					</div>
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidEstimatedRetailValue }">
+						<label for="estimatedRetailValueInput">Estimated Retail Value (Total)</label>
+						<input class="form-control" id="estimatedRetailValueInput" ng-disabled="!lot.unmanifested" ng-model="listing.estimatedRetailValue">
+						<span class="text-danger h4" ng-show="invalidEstimatedRetailValue">Invalid Estimated Retail value</span>
+					</div>
+				</div>
+				<div class="row">
 					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidShopifyInventory }">
 						<label for="shopifyInventoryInput">Inventory (number of lots)</label>
 						<input class="form-control" type="number" id="shopifyInventoryInput" ng-model="listing.shopifyInventory">
