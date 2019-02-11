@@ -126,6 +126,8 @@ function formatManifestFromInventoryProductData(opts={}) {
 				inventoryItem.price = price.toFixed(2);
 			}
 
+
+
 			let item;
 			if(opts.bstock) {
 				item = {
@@ -147,6 +149,7 @@ function formatManifestFromInventoryProductData(opts={}) {
 					title: productTitle,
 					unitPrice: inventoryItem.price,
 					quantity: inventoryItem.quantity,
+					images: inventoryItem.images || []
 				}
 			}
 
@@ -197,7 +200,12 @@ function getManifestItemsForLot(lot, opts={}) {
 }
 
 async function getManifestCsv(lot, manifestOpts={}) {
-	return json2csv.parse(await getManifestItemsForLot(lot, manifestOpts));
+	const manifestItems = await getManifestItemsForLot(lot, manifestOpts);
+	return json2csv.parse(manifetsItems.map(x => { 
+		const res = Object.assign({}, x);
+		delete res.images;
+		return res;
+	}));
 }
 
 async function generateManifestFile(req, res, next){
