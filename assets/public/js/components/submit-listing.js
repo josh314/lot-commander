@@ -27,18 +27,42 @@
 			$scope.bstockShippingChargeTypes = Object.keys(bstockFormConstants.shippingChargeType);
 			$scope.bstockShippingAllowedDestinations = Object.keys(bstockFormConstants.shippingAllowedDestinations);
 
-			const conditionMapping = {
-				'shelf-pull': 'Shelf Pulls',
-				'customer returns': 'Customer Returns',
-				'salvage': 'Salvage',
-			}
+			$scope.additionalShopifyTags = (function(){
+				const tags = [];
+				const handleTags = {
+					'PC': 'personal care',
+					'GM': 'general merchandise',
+					'VT': 'vitamins',
+					'NP': 'nail polish',
+					'CS': 'cosmetics',
+				};
+
+        const match = $scope.lot.handle.match(/^([a-zA-Z]{2})/);
+				if(match && match[1] && handleTags[match[1]]) {
+					tags.push(handleTags[match[1]]);
+				}
+				return tags.join(', ');
+			})();
+			$scope.lotPackageType = 'box lot';
+
+			const getShopifyTags = () => {
+				const tags = $scope.additionalShopifyTags ? $scope.additionalShopifyTags.split(',').map(_=>_.trim()) : [];
+				if($scope.lot.unmanifested) {
+					tags.push('unmanifested');
+				}
+				else {
+					tags.push('manifested');
+				}
+				tags.push($scope.lotPackageType);
+				return tags.join(', ');
+			};
 
 			//Form default values
 			$scope.listing = {
 				marketplace: 'bstock',
 				// bstock defaults
 				auctionStartPrice: '300',
-				condition: conditionMapping[$scope.lot.type] || '',
+				condition: ({'shelf-pull': 'Shelf Pulls','customer returns': 'Customer Returns','salvage': 'Salvage'})[$scope.lot.type] || '',
 				packaging: 'Original',
 				shipping: {
 					allowedDestinations: bstockFormConstants.shippingAllowedDestinations['Continental US only (Alaska and Hawaii excluded)'],
@@ -49,29 +73,7 @@
 				},
 				//shopify defaults
 				shopifyInventory: 1,
-				shopifyTags: (function(){
-					const tags = ['liquidation', 'featured'];
-					if($scope.lot.unmanifested) {
-						tags.push('unmanifested');
-					}
-					else {
-						tags.push('manifested');
-					}
-
-					const handleTags = {
-						'PC': 'personal care',
-						'GM': 'general merchandise',
-						'VT': 'vitamins',
-						'NP': 'nail polish',
-						'CS': 'cosmetics',
-					};
-
-          const match = $scope.lot.handle.match(/^([a-zA-Z]{2})/);
-					if(match && match[1] && handleTags[match[1]]) {
-						tags.push(handleTags[match[1]]);
-					}
-					return tags.join(', ');
-				})(),
+				shopifyTags: [],
 				refreshProductData: false,
 			};
 
@@ -102,7 +104,7 @@
 				$scope.invalidShopifyPrice = ($scope.listing.shopifyPrice && $scope.listing.shopifyPrice.match(/^[0-9]+(\.[0-9]{2})?$/)) ? false : true;
 				$scope.invalidShopifyInventory = ($scope.listing.shopifyInventory && ($scope.listing.shopifyInventory >= 0)) ? false : true;
 
-				if($scope.invalidShopifyPrice || $scope.invalidShopifyTags || $scope.invalidShopifyInventory) {
+				if($scope.invalidShopifyPrice || $scope.invalidAdditionalShopifyTags || $scope.invalidShopifyInventory) {
 					return false;
 				}
 				return true;
@@ -124,12 +126,17 @@
 					return;
 				}
 
+				$scope.listing.shopifyTags = getShopifyTags();
+
 				if(!validateListingOptions()) {
 					return;
 				}
 
 				$scope.waitingForResponse = true;
 
+				// Promise.resolve({}).then(_=>{
+				// 	console.log($scope.listing);
+				// })
 				$http.post('/api/listings/submit', { lotId: lotStore._id, listing: $scope.listing}).then(resp=>{
 					console.log(resp);
 					if(resp.data.error) {
