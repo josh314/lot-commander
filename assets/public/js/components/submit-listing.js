@@ -75,14 +75,14 @@
 				shopifyInventory: 1,
 				shopifyTags: [],
 				refreshProductData: false,
-				estimatedRetailValue: calculateEstimatedRetailValue()
+				estimatedRetailValue: calculateEstimatedRetailValue().toFixed(2)
 			};
 
 			function calculateEstimatedRetailValue() {
 				let value;
 				if($scope.lot.inventory) {
 					value = $scope.lot.inventory.reduce( (total, item)=>{
-						return item.price ? total + parseFloat(item.price) : total;
+						return item.price && item.quantity ? total + parseInt(item.quantity)*parseFloat(item.price) : total;
 					}, 0);
 				}
 				return value || '';
