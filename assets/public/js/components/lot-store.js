@@ -13,7 +13,7 @@
 			this.description = undefined;
 			this.type = undefined;
 			this.totalUnits = 0;
-			this.unmanifested = undefined;
+			this.unmanifested = false;
 			this.inventory = [];
 			this._id = undefined;
 			this.manifestId = undefined;

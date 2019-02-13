@@ -69,6 +69,7 @@
 
         modalInstance.result.then(function (lot) {
           $http.post('/api/db/edit-lot/'+lotStore._id, lot).then(resp=>{
+            console.log(lot);
             $state.reload();
           });
         }, function () {
@@ -177,7 +178,6 @@
     $scope.invalidLot = lot => {
       return $scope.titleTooLong.bstock || $scope.titleTooLong.shopify;
     } 
-
   }]);
 
 })();

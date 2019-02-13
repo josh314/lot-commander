@@ -9,8 +9,11 @@
 					<b>Handle: </b>{{ lot.getHandle() }}<br>
 					<b>Description: </b>{{ lot.getDescription() }}<br>
 					<b>Type: </b>{{ lot.getType() }}<br>
+					<b>Manifested: </b>{{ lot.unmanifested ? 'No' : 'Yes' }}<br>
+					<span ng-hide="lot.unmanifested">
 					<b>Scanned SKU count: </b>{{ lot.getNumSku() }}<br>
 					<b>Scanned Inventory count: </b>{{ lot.getInventoryTotal() }}<br>
+					</span>
 					<b>Total Unit Count: </b>{{ lot.totalUnits }}<br>
 					<b>Status: </b>{{ lot.getStatus() }}<br>
 					<div class="row">

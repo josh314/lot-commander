@@ -17,7 +17,9 @@
 		$scope.categories = ['None'].concat(lotCategories.map(x=>x.name));
 		$scope.newLotCategory = 'None';
 
-		$scope.newLot = {};
+		$scope.newLot = {
+			unmanifested: true,
+		};
 
 		function buildHandleForPrefix(prefix) {
 			const today = new Date();//fix time zone to EST
