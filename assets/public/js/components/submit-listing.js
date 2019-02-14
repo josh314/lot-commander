@@ -75,7 +75,7 @@
 				shopifyInventory: 1,
 				shopifyTags: [],
 				refreshProductData: false,
-				estimatedRetailValue: calculateEstimatedRetailValue().toFixed(2)
+				estimatedRetailValue: calculateEstimatedRetailValue()
 			};
 
 			function calculateEstimatedRetailValue() {
@@ -85,7 +85,7 @@
 						return item.price && item.quantity ? total + parseInt(item.quantity)*parseFloat(item.price) : total;
 					}, 0);
 				}
-				return value || '';
+				return value ? value.toFixed(2) : ''; 
 			}
 
 			function validateBstockListingOptions() {
