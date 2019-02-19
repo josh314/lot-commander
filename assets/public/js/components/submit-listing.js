@@ -28,7 +28,7 @@
 			$scope.bstockShippingAllowedDestinations = Object.keys(bstockFormConstants.shippingAllowedDestinations);
 
 			$scope.additionalShopifyTags = (function(){
-				const tags = [];
+				const tags = [ ];
 				const handleTags = {
 					'PC': 'personal care',
 					'GM': 'general merchandise',
@@ -54,6 +54,7 @@
 					tags.push('manifested');
 				}
 				tags.push($scope.lotPackageType);
+				tags.push('review');
 				return tags.join(', ');
 			};
 
