@@ -6,7 +6,7 @@
 	var app = angular.module('myApp');
 
 	/******************* Service for saving manifsets ***********************/
-	app.factory('saveManifest', ['$http', '$state', 'lotStore', function($http, $state, lotStore){
+	app.factory('saveManifest', ['$http', '$state', 'lotStore', 'messageModal',function($http, $state, lotStore, messageModal){
 		return function() {
 
 			// This filters out completely empty lines
@@ -17,7 +17,14 @@
 			})
 
       lotStore.updateTotalUnits();
-			return $http.post('/api/db/save-manifest/', {lot: lotStore});
+			return $http.post('/api/db/save-manifest/', {lot: lotStore}).catch(e=>{
+				const m = `<p>An error has occured while saving the manifest.</p>`;
+				messageModal.launch({
+			  		header: 'Save Error',
+			  		html: m,
+			  		type: 'error'
+			  	});
+			});
 		};
 	}]);
 
