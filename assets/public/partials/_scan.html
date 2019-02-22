@@ -25,14 +25,14 @@
 					<dt>Inventory count</dt><dd>{{ lot.getInventoryTotal() }}</dd>
 				</dl>
 			</div>
-			<div class="col-xs-2 pull-right"><a class="btn btn-success btn-lg" ng-click="saveManifest()">Save</a></div>
+			<div class="col-xs-2 pull-right"><a class="btn btn-success btn-lg" ng-click="saveManifest()">Done</a></div>
 			<table class="table table-striped">
 				<thead><tr>
 					<th>Barcode</th>
 					<th>Title</th>
 					<th>Quantity</th>
 					<th>Price</th>
-					<th>Decrease Quantity</th>
+					<th>Remove</th>
 				</tr></thead>
 				<tbody>
 					<tr ng-repeat="item in lot.getInventory()">
@@ -45,11 +45,11 @@
 						<td><input type="text" size="64" ng-model="item.description"></td>
 						<td><input type="number" style="width: 4em" ng-model="item.quantity" min="0"></td>
 						<td><input type="text" size="6" ng-model="item.price"></td>
-						<td><button class="btn btn-danger btn-xs" ng-click="lot.deleteProduct(item.barcode)"><span class="glyphicon glyphicon-remove"></span></button></td>
+						<td><button class="btn btn-danger btn-xs" ng-click="deleteProduct(item.barcode)"><span class="glyphicon glyphicon-remove"></span></button></td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
-		<div class="col-xs-6"><a class="btn btn-success btn-lg" ng-click="saveManifest()">Save</a></div>
+		<div class="col-xs-6"><a class="btn btn-success btn-lg" ng-click="saveManifest()">Done</a></div>
 	</div>	
 </div>

@@ -17,11 +17,8 @@
 			})
 
       lotStore.updateTotalUnits();
-			$http.post('/api/db/save-manifest/', {lot: lotStore}).then(resp=>{
-				// $state.go('main.home');
-				$state.go('main.lots.view', {lotId: lotStore._id})
-			});
-		}
+			return $http.post('/api/db/save-manifest/', {lot: lotStore});
+		};
 	}]);
 
 })();

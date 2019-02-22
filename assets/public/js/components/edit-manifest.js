@@ -10,6 +10,9 @@
 	app.controller('EditManifestCtrl', ['$scope', 'lotStore', 'saveManifest', 'sessionTimeout', function($scope, lotStore, saveManifest, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.lot = lotStore;
-		$scope.saveManifest = saveManifest;
+		$scope.saveManifest = () => saveManifest().then(resp=>{
+			// $state.go('main.home');
+			$state.go('main.lots.view', {lotId: lotStore._id})
+		});
 	}]);
 })();

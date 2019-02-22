@@ -10,7 +10,7 @@
 		sessionTimeout.timeoutExpired();
 		focus('barcodeInput');
 		$scope.lot = lotStore;
-		$scope.saveManifest = saveManifest;
+		$scope.saveManifest = () => saveManifest().then( ()=>$state.go('main.lots.view', {lotId: lotStore._id}) );
 
 		$scope.scanBarcode = function() {
 			if ($scope.scanForm.barcode.$valid) {
@@ -25,7 +25,7 @@
 						})
 					}
 					// focus('barcodeInput');
-					$state.reload();
+					saveManifest().then(()=> $state.reload());
 				}
 			}
 		};
@@ -33,7 +33,12 @@
 		$scope.decrementInventory = function(barcode) {
 			lotStore.decrementInventory(barcode);
 			// focus('barcodeInput');
-			$state.reload();
+			saveManifest().then(()=> $state.reload());
+		};
+
+		$scope.deleteProduct = function(barcode) {
+			lotStore.deleteProduct(barcode);
+			saveManifest().then(()=> $state.reload());
 		};
 
 	}]);
