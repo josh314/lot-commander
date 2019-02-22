@@ -22,10 +22,13 @@
 								item.description = resp.data.title;
 								item.price = resp.data.price;
 							}
+							saveManifest().then(()=> $state.reload());
 						})
 					}
-					// focus('barcodeInput');
-					saveManifest().then(()=> $state.reload());
+					else {
+						// focus('barcodeInput');
+						saveManifest().then(()=> $state.reload());
+					}
 				}
 			}
 		};
