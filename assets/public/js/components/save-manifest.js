@@ -17,14 +17,7 @@
 			})
 
       lotStore.updateTotalUnits();
-			return $http.post('/api/db/save-manifest/', {lot: lotStore}).catch(e=>{
-				const m = `<p>An error has occured while saving the manifest.</p>`;
-				messageModal.launch({
-			  		header: 'Save Error',
-			  		html: m,
-			  		type: 'error'
-			  	});
-			});
+			return $http.post('/api/db/save-manifest/', {lot: lotStore});
 		};
 	}]);
 
