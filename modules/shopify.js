@@ -40,12 +40,14 @@ const submitListing = Promise.method(async function (listing) {
 				option1: listing.lot.totalUnits,
 			}
 		],
-
-		// unit count
-		// weight
-
-		//collection
+		// unit count?
+		// collection?
 	};
+
+	if(listing.shopifyTags.includes('pallets') || listing.shopifyTags.includes('Pallets')) {
+		product.variants[0].weight = 2000;
+		product.variants[0].weight_unit = 'lb';
+	}
 
 	__logger.info('Creating new Shopify product.')
 	const addProductResp = await shopifyClient.addProduct(product).then(_=>{
