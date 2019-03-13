@@ -89,6 +89,15 @@ const submitListing = Promise.method(async function (listing) {
 
 	// Schedule manifest promise if applicable
 	if(manifestItems && !listing.lot.unmanifested) {
+		manifestItems.sort(function(a, b) {
+			  if (a.barcode > b.barcode) {
+			    return 1;
+			  }
+			  if (a.barcode < b.barcode) {
+			    return -1;
+			  }
+			  return 0;
+			});
 		const manifest = JSON.stringify(manifestItems);
 
 		const addMetafieldP = shopifyClient.addProductMetafield({

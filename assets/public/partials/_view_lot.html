@@ -164,7 +164,7 @@
 						<th>Price</th>
 					</tr></thead>
 					<tbody>
-						<tr ng-repeat="item in lot.getInventory()">
+						<tr ng-repeat="item in lot.getInventorySortedByBarcode()">
 							<td>{{item.barcode}}</td>
 							<td>{{item.description}}</td>
 							<td>{{item.quantity}}</td>

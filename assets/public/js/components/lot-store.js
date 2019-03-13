@@ -92,31 +92,55 @@
 			}
 		}
 
+		// this.addInventory = function(newBarcode) {
+		// 	//search for product in this.inventory
+		// 	let item;
+		// 	if(!newBarcode) {
+		// 		item = { quantity: 0 };
+		// 		this.inventory.push(item);
+		// 	}
+		// 	else if(/[0-9]{8,15}/.test(newBarcode)) {
+		// 		item = this.getInventoryItemByBarcode(newBarcode);
+		// 		if(item) {
+		// 			item.quantity += 1;
+		// 		}
+		// 		else {
+		// 			item = {
+		// 				barcode: newBarcode,
+		// 				quantity: 1
+		// 			};
+		// 			let iidx = this.inventory.findIndex(i => i.barcode > item.barcode);
+		// 			if (iidx >= 0)
+		// 				this.inventory.splice(iidx, 0, item);
+		// 			else
+		// 				this.inventory.push(item);
+		// 		}
+		// 		this.totalUnits += 1;
+		// 	}
+		// 	return item;
+		// };
+
 		this.addInventory = function(newBarcode) {
-			//search for product in this.inventory
 			let item;
 			if(!newBarcode) {
 				item = { quantity: 0 };
-				this.inventory.push(item);
 			}
 			else if(/[0-9]{8,15}/.test(newBarcode)) {
-				item = this.getInventoryItemByBarcode(newBarcode);
-				if(item) {
+				const idx = this.inventory.findIndex(i => i.barcode == newBarcode);
+				if(idx>=0) {
+					item = this.inventory[idx];
 					item.quantity += 1;
+					this.inventory.splice(idx, 1);
 				}
 				else {
 					item = {
 						barcode: newBarcode,
 						quantity: 1
 					};
-					let iidx = this.inventory.findIndex(i => i.barcode > item.barcode);
-					if (iidx >= 0)
-						this.inventory.splice(iidx, 0, item);
-					else
-						this.inventory.push(item);
 				}
 				this.totalUnits += 1;
 			}
+			this.inventory = [item].concat(this.inventory);
 			return item;
 		};
 
@@ -129,6 +153,27 @@
 		this.getListingData = function() { return this.listingData; };
 		this.getThirdPartyManifests = function() { return this.thirdPartyManifests; };
 		this.getDestinationMarketplace = function() { return this.destinationMarketplace; };
+
+		this.getInventorySortedByBarcode = function() {
+			// Going through these gymnastics since Array.sort() is an inplace action
+
+			// get a new array composed just of the sorting values and their original array indices
+			const mapped = this.inventory.map((item,i) => { return { index: i, value: item.barcode }; });
+
+			// inplace sort new array
+			mapped.sort(function(a, b) {
+			  if (a.value > b.value) {
+			    return 1;
+			  }
+			  if (a.value < b.value) {
+			    return -1;
+			  }
+			  return 0;
+			});
+
+			// Use the new sorted array of indices to traverse the original array
+			return mapped.map(e => this.inventory[e.index]);
+		};
 
 		this.getInventoryItemByBarcode = function(barcode) {
 			return this.inventory.find(item => item.barcode == barcode);
