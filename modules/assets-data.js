@@ -8,6 +8,7 @@ module.exports = {
     scripts: {
       ext: [
         "/3rd-party/angular.1.6.3.min.js",
+        "/3rd-party/angular-cookies.1.6.9.js",
         "/3rd-party/angular-sanitize.1.6.3.min.js",
         "/3rd-party/angular-animate.1.6.3.min.js",
         "/3rd-party/angular-ui-router.0.4.2.min.js",
