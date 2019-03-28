@@ -23,6 +23,11 @@
 				<option ng-repeat="status in lotStatusEnum">{{status}}</option>
 			</select>
 		</div>
+		<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : (lot.numBoxes && lot.numBoxes < 0)}">
+			<label for="numBoxesInput">Number of Boxes</label>
+			<input type="number" class="form-control" name="numBoxes" id="numBoxesInput" required ng-model="lot.numBoxes">
+			<span class="text-danger h4" ng-show="lot.numBoxes && lot.numBoxes < 0">Invalid number of boxes</span>
+		</div>
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="manifestedInput">Manifested Lot?</label>
 			<select class="form-control" name="manifested" id="manifestedInput" ng-model="lot.unmanifested">

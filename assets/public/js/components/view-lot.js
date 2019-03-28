@@ -24,6 +24,7 @@
             });
           }
           $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title);
+          console.log(lotStore);
         });
       }
       getLot();
@@ -160,6 +161,33 @@
         return (new Date(date)).toLocaleString();
       }
 
+      $scope.printLabels = function() {
+        if(lotStore.getNumBoxes()) {
+          printJS(`/api/labels/${encodeURIComponent(lotStore.handle)}/${lotStore.getNumBoxes()}`);
+        }
+        else {
+          const modalInstance = $uibModal.open({
+            templateUrl: '/partials/_set_num_boxes_modal.html',
+            size: 'lg',
+            controller: 'SetNumBoxesModalController', 
+            resolve: {
+              lot: function () {
+                return lotStore;
+              }
+            },
+          });
+          modalInstance.result.then(function (lot) {
+            $http.post('/api/db/edit-lot/'+lotStore._id, lot).then(resp=>{
+              console.log(lot);
+              printJS(`/api/labels/${encodeURIComponent(lot.handle)}/${lot.numBoxes}`);
+              $state.reload();
+            });
+          }, function () {
+            $state.reload();
+          });
+        }
+      };
+
   }]);
 
   /***************** Modal Controllers ************************/
@@ -176,8 +204,18 @@
     $scope.verifyTitle();
 
     $scope.invalidLot = lot => {
-      return $scope.titleTooLong.bstock || $scope.titleTooLong.shopify;
+      return $scope.titleTooLong.bstock || $scope.titleTooLong.shopify || $scope.lot.numBoxes < 0;
     } 
   }]);
+
+  /***************** Modal Controllers ************************/
+  app.controller('SetNumBoxesModalController', [ '$scope', 'lot', function($scope, lot){
+    $scope.lot = JSON.parse(JSON.stringify(lot));
+
+    $scope.invalidLot = lot => {
+      return $scope.lot.numBoxes < 0;
+    } 
+  }]);
+
 
 })();

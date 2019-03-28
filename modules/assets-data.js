@@ -8,10 +8,12 @@ module.exports = {
     scripts: {
       ext: [
         "/3rd-party/angular.1.6.3.min.js",
+        "/3rd-party/angular-cookies.1.6.9.js",
         "/3rd-party/angular-sanitize.1.6.3.min.js",
         "/3rd-party/angular-animate.1.6.3.min.js",
         "/3rd-party/angular-ui-router.0.4.2.min.js",
         "/3rd-party/ui-bootstrap-tpls-2.5.0.min.js",
+        "/3rd-party/print.min.js",
       ],
       local: [
         //uglified js
@@ -31,6 +33,7 @@ module.exports = {
         "/3rd-party/angular-animate.1.6.3.js",
         "/3rd-party/angular-ui-router.0.4.2.js",
         "/3rd-party/ui-bootstrap-tpls-2.5.0.js",
+        "/3rd-party/print.min.js",
       ],
       local: [
         //Put any non-angular files first
