@@ -1,0 +1,16 @@
+<div class="modal-header">
+	<h3 class="modal-title">Submit Number of Boxes</h3>
+</div>
+<div class="modal-body">
+	<div class="row">
+		<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : (lot.numBoxes && lot.numBoxes < 0)}">
+			<label for="numBoxesInput">Number of Boxes</label>
+			<input type="number" class="form-control" name="numBoxes" id="numBoxesInput" required ng-model="lot.numBoxes">
+			<span class="text-danger h4" ng-show="lot.numBoxes && lot.numBoxes < 0">Invalid number of boxes</span>
+		</div>
+	</div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="$close(lot)">Submit</button>
+    <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+</div>

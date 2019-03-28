@@ -15,6 +15,7 @@
 					<b>Scanned Inventory count: </b>{{ lot.getInventoryTotal() }}<br>
 					</span>
 					<b>Total Unit Count: </b>{{ lot.totalUnits }}<br>
+					<b>Number of Boxes: </b>{{ lot.getNumBoxes() }}<br>
 					<b>Status: </b>{{ lot.getStatus() }}<br>
 					<div class="row">
 						<div class="col-xs-12">
@@ -32,6 +33,7 @@
 					<div class="pull-right">
 						<button class="btn btn-danger" ng-click="editLot()">Edit <span class="glyphicon glyphicon-pencil"></span></button>
 						<button class="btn btn-success" ng-click="configureListingForSubmission()">Create a Listing</button>
+						<button class="btn btn-success" ng-click="printLabels()">Print Labels</button>
 					</div>
 				</div>
 			</div>

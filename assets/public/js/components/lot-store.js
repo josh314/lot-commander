@@ -23,6 +23,7 @@
 			this.thirdPartyManifests = [];
 			this.submittedListings = [];
 			this.destinationMarketplace = undefined;
+			this.numBoxes = undefined;
 		};
 		this.reset();
 
@@ -47,6 +48,8 @@
 		this.setSubmittedListings = function(_listings) {this.submittedListings = _listings; };
 
 		this.setDestinationMarketplace = function(_destinationMarketplace) { this.destinationMarketplace = _destinationMarketplace; };
+
+		this.setNumBoxes = function(_numBoxes) { this.numBoxes = _numBoxes; };
 
 		this.updateTotalUnits = ()=>{ this.totalUnits = this.inventory ? this.inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 }
 
@@ -83,6 +86,9 @@
 			}
 			if('totalUnits' in _lot) {
 				this.setTotalUnits(_lot.totalUnits);
+			}
+			if(_lot.numBoxes) {
+				this.setNumBoxes(_lot.numBoxes);
 			}
 			if(_lot.submittedListings) {
 				this.setSubmittedListings(_lot.submittedListings);
@@ -129,6 +135,7 @@
 		this.getListingData = function() { return this.listingData; };
 		this.getThirdPartyManifests = function() { return this.thirdPartyManifests; };
 		this.getDestinationMarketplace = function() { return this.destinationMarketplace; };
+		this.getNumBoxes = function() { return this.numBoxes; };
 
 		this.getInventoryItemByBarcode = function(barcode) {
 			return this.inventory.find(item => item.barcode == barcode);

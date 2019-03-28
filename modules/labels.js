@@ -17,7 +17,7 @@ function createLabels(opts={}) {
 			fontsize: 20,
 			height: 125 
 		});
-		// doc.text();
+
 		doc
 			.image(canvas.toBuffer(), 2, 15, { width: 149 })
 			.text(`(${i+1} of ${opts.numLabels})`, 0, 5, { align: 'center', width: opts.label.width })
