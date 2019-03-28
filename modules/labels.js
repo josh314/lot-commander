@@ -2,20 +2,25 @@ const PDFDocument = require('pdfkit');
 const { createCanvas } = require('canvas');
 const JsBarcode = require('jsbarcode');
 
-const labelWidth = 200;
-const labelHeight = 200;
-
 function createLabels(opts={}) {
 
-	console.log(opts)
-
-	const doc = new PDFDocument({ autoFirstPage: false});
-	for(let i=0; i<opts.numLabels; i++) {
-		doc.addPage();
-		let canvas = createCanvas(opts.width, opts.height, 'image');
-		let barcode = JsBarcode(canvas, opts.barcode);
-		doc.text(`${i+1} of ${opts.numLabels}`);
-		doc.image(canvas.toBuffer());
+	const doc = new PDFDocument({ autoFirstPage: false });
+	doc.fontSize(8);
+	for(let i=0; i<(opts.numLabels || 1); i++) {
+		doc.addPage({ 
+			margin: 0, 
+			size: [ opts.label.width , opts.label.height ]
+		});
+		let canvas = createCanvas('image');
+		JsBarcode(canvas, opts.barcode.text, { 
+			format: 'CODE39',
+			fontsize: 20,
+			height: 125 
+		});
+		// doc.text();
+		doc
+			.image(canvas.toBuffer(), 2, 15, { width: 149 })
+			.text(`(${i+1} of ${opts.numLabels})`, 0, 5, { align: 'center', width: opts.label.width })
 	}
 
 	doc.end();
@@ -24,10 +29,14 @@ function createLabels(opts={}) {
 
 function generate(req,res) {
 	createLabels({ 
-		width: 200, 
-		height: 200,
-		barcode: decodeURIComponent(req.params.sku),
-		numLabels: req.params.numLabels
+		barcode: {
+			text: decodeURIComponent(req.params.sku),
+		},
+		numLabels: req.params.numLabels,
+		label: {
+			width: 153,
+			height: 72
+		}
 	}).pipe(res);
 };
 
