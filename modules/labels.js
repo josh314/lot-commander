@@ -14,12 +14,15 @@ function createLabels(opts={}) {
 		let canvas = createCanvas('image');
 		JsBarcode(canvas, opts.barcode.text, { 
 			format: 'CODE39',
-			fontsize: 20,
+			font: "monospace",
+			fontOptions: "bold",
+			fontsize: 50,
 			height: 125 
 		});
 
+		const margin = 5;
 		doc
-			.image(canvas.toBuffer(), 2, 15, { width: 149 })
+			.image(canvas.toBuffer(), margin, 15, { width: opts.label.width - 2*margin })
 			.text(`(${i+1} of ${opts.numLabels})`, 0, 5, { align: 'center', width: opts.label.width })
 	}
 
@@ -34,8 +37,8 @@ function generate(req,res) {
 		},
 		numLabels: req.params.numLabels,
 		label: {
-			width: 153,
-			height: 72
+			width: 162,// 72/in * 2.25 in
+			height: 90, // 72/in * 1.25 in
 		}
 	}).pipe(res);
 };
