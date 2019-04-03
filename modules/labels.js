@@ -15,8 +15,8 @@ function createLabels(opts={}) {
 		JsBarcode(canvas, opts.barcode.text, { 
 			format: 'CODE39',
 			font: "monospace",
+			fontSize: 50,
 			fontOptions: "bold",
-			fontsize: 50,
 			height: 125 
 		});
 
