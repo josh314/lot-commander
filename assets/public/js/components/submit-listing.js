@@ -15,6 +15,8 @@
 			}
 
 			$scope.lot = lotStore;
+			$scope.totalUnits = $scope.lot.totalUnits;
+
 			$scope.waitingForResponse = false;
 
 			$scope.bstockFormConstants = bstockFormConstants;
@@ -117,6 +119,9 @@
 				$scope.invalidShopifyInventory = ($scope.listing.shopifyInventory && ($scope.listing.shopifyInventory >= 0)) ? false : true;
 
 				if($scope.invalidShopifyPrice || $scope.invalidAdditionalShopifyTags || $scope.invalidShopifyInventory) {
+					return false;
+				}
+				if(!$scope.totalUnits) {
 					return false;
 				}
 				return true;
