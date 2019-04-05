@@ -20,7 +20,7 @@
 			$scope.bstockFormConstants = bstockFormConstants;
 
 			// Form dropdown values
-			$scope.marketplaces = ['bstock', 'shopify'];
+			$scope.marketplaces = ['wholesaleninjas', 'bstock'];
 			$scope.bstockCategories = Object.keys(bstockFormConstants.category);
 			$scope.bstockConditions = Object.keys(bstockFormConstants.condition);
 			$scope.bstockPackagings = Object.keys(bstockFormConstants.packaging);
@@ -60,7 +60,7 @@
 
 			//Form default values
 			$scope.listing = {
-				marketplace: 'bstock',
+				marketplace: $scope.lot.destinationMarketplace || 'wholesaleninjas',
 				// bstock defaults
 				auctionStartPrice: '300',
 				condition: ({'shelf-pull': 'Shelf Pulls','customer returns': 'Customer Returns','salvage': 'Salvage'})[$scope.lot.type] || '',
@@ -126,7 +126,7 @@
 				if($scope.listing.marketplace=='bstock') {
 					return validateBstockListingOptions();
 				}
-				else if($scope.listing.marketplace=='shopify') {
+				else if($scope.listing.marketplace=='wholesaleninjas') {
 					return validateShopifyListingOptions();
 				}
 			}

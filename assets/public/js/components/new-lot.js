@@ -17,8 +17,11 @@
 		$scope.categories = ['None'].concat(lotCategories.map(x=>x.name));
 		$scope.newLotCategory = 'None';
 
+		$scope.marketplaces = ['wholesaleninjas', 'bstock'];
+
 		$scope.newLot = {
 			unmanifested: true,
+			destinationMarketplace: 'wholesaleninjas',
 		};
 
 		function buildHandleForPrefix(prefix) {

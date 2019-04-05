@@ -195,16 +195,24 @@
     $scope.lot = JSON.parse(JSON.stringify(lot));
     $scope.lotStatusEnum = dbEnums.lotStatus;
     $scope.lotTypeEnum = dbEnums.lotType;
-    $scope.selectedListing = 'bstock';
+    // $scope.selectedListing = 'bstock';
+    $scope.marketplaces = [undefined].concat(dbEnums.marketplaces);
 
     $scope.titleTooLong = {};
     $scope.verifyTitle = () => {
       $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title);
+      if($scope.titleTooLong.bstock && $scope.lot.destinationMarketplace==='bstock') {
+        return false;
+      }
+      if($scope.titleTooLong.shopify && $scope.lot.destinationMarketplace==='wholesaleninjas') {
+        return false;
+      }
+      return true;
     };
     $scope.verifyTitle();
 
     $scope.invalidLot = lot => {
-      return $scope.titleTooLong.bstock || $scope.titleTooLong.shopify || $scope.lot.numBoxes < 0;
+      return !$scope.verifyTitle() || $scope.lot.numBoxes < 0;
     } 
   }]);
 

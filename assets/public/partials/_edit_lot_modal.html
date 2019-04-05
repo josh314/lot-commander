@@ -18,6 +18,12 @@
 			<input class="form-control" name="description" id="descriptionInput" required ng-model="lot.description">
 		</div>
 		<div class="form-group col-xs-12 col-sm-6">
+			<label for="destinationMarketplaceInput">Destination Marketplace</label>
+			<select class="form-control" name="destinationMarketplace" id="destinationMarketplaceInput" ng-model="lot.destinationMarketplace">
+				<option ng-repeat="marketplace in marketplaces">{{marketplace}}</option>
+			</select>
+		</div>
+		<div class="form-group col-xs-12 col-sm-6">
 			<label for="statusInput">Status</label>
 			<select class="form-control" name="status" id="statusInput" required ng-model="lot.status">
 				<option ng-repeat="status in lotStatusEnum">{{status}}</option>
@@ -41,10 +47,11 @@
 		</div>
 		<div class="col-xs-12">
 			<h3>Listings</h3>
-			<div class="form-group" ng-class="{ 'has-error' : (titleTooLong.bstock || titleTooLong.shopify)}">
+			<div class="form-group" ng-class="{ 'has-error' : !verifyTitle()}">
 				<label>Title</label>
 				<input class="form-control" name="listingTitle" id="listingTitleinput" ng-keyup="verifyTitle()" ng-model="lot.listingData.title">
-				<span class="text-danger h4" ng-show="titleTooLong.bstock">Title too long for a Bstock Listing</span>
+				<span class="text-danger h4" ng-show="titleTooLong.bstock && lot.destinationMarketplace ==='bstock'">Title too long for a Bstock Listing</span>
+				<span class="text-danger h4" ng-show="titleTooLong.shopify && lot.destinationMarketplace ==='wholesaleninjas'">Title too long for a Shopify Listing</span>
 			</div>
 			<div>
 				<label>Body (boilerplate omitted)</label>
