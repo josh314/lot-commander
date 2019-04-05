@@ -6,8 +6,8 @@
 	var app = angular.module('myApp');
 
 	/******************* Scanning Page Controller *************************/
-	app.controller('SubmitListingCtrl', ['$scope', '$state', '$http', 'bstockFormConstants', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout', 
-		function($scope, $state, $http, bstockFormConstants, listingTitleVerifier, lotStore, messageModal, sessionTimeout) {
+	app.controller('SubmitListingCtrl', ['$scope', '$state', '$http', 'bstockFormConstants', 'listingTitleVerifier', 'lotStore', 'messageModal', 'saveLot', 'sessionTimeout', 
+		function($scope, $state, $http, bstockFormConstants, listingTitleVerifier, lotStore, messageModal, saveLot, sessionTimeout) {
 			sessionTimeout.timeoutExpired();
 
 			if(!lotStore._id) {
@@ -136,7 +136,7 @@
 				}
 			}
 
-			$scope.submitListing = function() {
+			$scope.submitListing = async function() {
 
 				Promise.resolve({}).then(_=>{
 					console.log($scope.listing);
@@ -155,6 +155,10 @@
 
 				$scope.waitingForResponse = true;
 
+				if($scope.totalUnits!==$scope.lot.totalUnits) {
+					$scope.lot.totalUnits = $scope.totalUnits;
+					await saveLot($scope.lot);
+				}
 
 				$http.post('/api/listings/submit', { lotId: lotStore._id, listing: $scope.listing}).then(resp=>{
 					console.log(resp);

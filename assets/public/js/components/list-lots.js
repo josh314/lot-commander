@@ -6,8 +6,8 @@
 	var app = angular.module('myApp');
 
 	/******************* Lot List Page Controller *************************/
-	app.controller('ListLotsCtrl', ['$scope', '$state', '$http', 'dbEnums', 'lotStore', 'messageModal', 'requestFileModal', 'sessionTimeout', 
-		function($scope, $state, $http, dbEnums, lotStore, messageModal, requestFileModal, sessionTimeout) {
+	app.controller('ListLotsCtrl', ['$scope', '$state', '$http', 'dbEnums', 'lotStore', 'messageModal', 'requestFileModal', 'saveLot', 'sessionTimeout', 
+		function($scope, $state, $http, dbEnums, lotStore, messageModal, requestFileModal, saveLot, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 		$scope.lots = [];
 
@@ -72,11 +72,7 @@
 			}
 		};
 
-		$scope.saveLot = function(lot) {
-			$http.post('/api/db/edit-lot/'+lot._id, lot).then(resp=>{
-			   console.log(`updated lot ${lot._id}.`)
-			});
-		}
+		$scope.saveLot = saveLot;
 
 	}]);
 })();
