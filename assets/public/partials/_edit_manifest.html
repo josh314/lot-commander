@@ -12,7 +12,7 @@
 					<th>Delete</th>
 				</tr></thead>
 				<tbody>
-					<tr ng-repeat="item in lot.getInventory()">
+					<tr ng-repeat="item in lot.getInventorySortedByBarcode()">
 						<td><input type="text" size=16 ng-model="item.barcode"></td>
 						<td><input type="text" size="64" ng-model="item.description"></td>
 						<td><input type="number" style="width: 4em" ng-model="item.quantity" min="0"></td>

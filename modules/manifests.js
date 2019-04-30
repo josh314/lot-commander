@@ -92,8 +92,8 @@ function getProductData(inventory) {
 					title: retrievedProductData.title || retrievedProductData.description || manifestItem.title || manifestItem.description,
 					quantity: manifestItem.quantity,
 					price: retrievedProductData.price || manifestItem.price,
+					images: retrievedProductData.images || [],
 				}
-
 				return res;
 			})
 		);

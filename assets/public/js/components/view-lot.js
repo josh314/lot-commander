@@ -24,6 +24,7 @@
             });
           }
           $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title);
+          console.log(lotStore);
         });
       }
       getLot();
@@ -69,6 +70,7 @@
 
         modalInstance.result.then(function (lot) {
           $http.post('/api/db/edit-lot/'+lotStore._id, lot).then(resp=>{
+            console.log(lot);
             $state.reload();
           });
         }, function () {
@@ -159,6 +161,33 @@
         return (new Date(date)).toLocaleString();
       }
 
+      $scope.printLabels = function() {
+        if(lotStore.getNumBoxes()) {
+          printJS(`/api/labels/${encodeURIComponent(lotStore.handle)}/${lotStore.getNumBoxes()}`);
+        }
+        else {
+          const modalInstance = $uibModal.open({
+            templateUrl: '/partials/_set_num_boxes_modal.html',
+            size: 'lg',
+            controller: 'SetNumBoxesModalController', 
+            resolve: {
+              lot: function () {
+                return lotStore;
+              }
+            },
+          });
+          modalInstance.result.then(function (lot) {
+            $http.post('/api/db/edit-lot/'+lotStore._id, lot).then(resp=>{
+              console.log(lot);
+              printJS(`/api/labels/${encodeURIComponent(lot.handle)}/${lot.numBoxes}`);
+              $state.reload();
+            });
+          }, function () {
+            $state.reload();
+          });
+        }
+      };
+
   }]);
 
   /***************** Modal Controllers ************************/
@@ -166,18 +195,35 @@
     $scope.lot = JSON.parse(JSON.stringify(lot));
     $scope.lotStatusEnum = dbEnums.lotStatus;
     $scope.lotTypeEnum = dbEnums.lotType;
-    $scope.selectedListing = 'bstock';
+    // $scope.selectedListing = 'bstock';
+    $scope.marketplaces = [undefined].concat(dbEnums.marketplaces);
 
     $scope.titleTooLong = {};
     $scope.verifyTitle = () => {
       $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title);
+      if($scope.titleTooLong.bstock && $scope.lot.destinationMarketplace==='bstock') {
+        return false;
+      }
+      if($scope.titleTooLong.shopify && $scope.lot.destinationMarketplace==='wholesaleninjas') {
+        return false;
+      }
+      return true;
     };
     $scope.verifyTitle();
 
     $scope.invalidLot = lot => {
-      return $scope.titleTooLong.bstock || $scope.titleTooLong.shopify;
+      return !$scope.verifyTitle() || $scope.lot.numBoxes < 0;
     } 
-
   }]);
+
+  /***************** Modal Controllers ************************/
+  app.controller('SetNumBoxesModalController', [ '$scope', 'lot', function($scope, lot){
+    $scope.lot = JSON.parse(JSON.stringify(lot));
+
+    $scope.invalidLot = lot => {
+      return $scope.lot.numBoxes < 0;
+    } 
+  }]);
+
 
 })();

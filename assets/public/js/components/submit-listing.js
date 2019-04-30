@@ -6,8 +6,8 @@
 	var app = angular.module('myApp');
 
 	/******************* Scanning Page Controller *************************/
-	app.controller('SubmitListingCtrl', ['$scope', '$state', '$http', 'bstockFormConstants', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout', 
-		function($scope, $state, $http, bstockFormConstants, listingTitleVerifier, lotStore, messageModal, sessionTimeout) {
+	app.controller('SubmitListingCtrl', ['$scope', '$state', '$http', 'bstockFormConstants', 'listingTitleVerifier', 'lotStore', 'messageModal', 'saveLot', 'sessionTimeout', 
+		function($scope, $state, $http, bstockFormConstants, listingTitleVerifier, lotStore, messageModal, saveLot, sessionTimeout) {
 			sessionTimeout.timeoutExpired();
 
 			if(!lotStore._id) {
@@ -15,30 +15,57 @@
 			}
 
 			$scope.lot = lotStore;
+			$scope.totalUnits = $scope.lot.totalUnits;
+
 			$scope.waitingForResponse = false;
 
 			$scope.bstockFormConstants = bstockFormConstants;
 
 			// Form dropdown values
-			$scope.marketplaces = ['bstock', 'shopify'];
+			$scope.marketplaces = ['wholesaleninjas', 'bstock'];
 			$scope.bstockCategories = Object.keys(bstockFormConstants.category);
 			$scope.bstockConditions = Object.keys(bstockFormConstants.condition);
 			$scope.bstockPackagings = Object.keys(bstockFormConstants.packaging);
 			$scope.bstockShippingChargeTypes = Object.keys(bstockFormConstants.shippingChargeType);
 			$scope.bstockShippingAllowedDestinations = Object.keys(bstockFormConstants.shippingAllowedDestinations);
 
-			const conditionMapping = {
-				'shelf-pull': 'Shelf Pulls',
-				'customer returns': 'Customer Returns',
-				'salvage': 'Salvage',
-			}
+			$scope.additionalShopifyTags = (function(){
+				const tags = [ ];
+				const handleTags = {
+					'PC': 'personal care',
+					'GM': 'general merchandise',
+					'VT': 'vitamins',
+					'NP': 'nail polish',
+					'CS': 'cosmetics',
+				};
+
+        const match = $scope.lot.handle.match(/^([a-zA-Z]{2})/);
+				if(match && match[1] && handleTags[match[1]]) {
+					tags.push(handleTags[match[1]]);
+				}
+				return tags.join(', ');
+			})();
+			$scope.lotPackageType = 'box lot';
+
+			const getShopifyTags = () => {
+				const tags = $scope.additionalShopifyTags ? $scope.additionalShopifyTags.split(',').map(_=>_.trim()) : [];
+				if($scope.lot.unmanifested) {
+					tags.push('unmanifested');
+				}
+				else {
+					tags.push('manifested');
+				}
+				tags.push($scope.lotPackageType);
+				tags.push('review');
+				return tags.join(', ');
+			};
 
 			//Form default values
 			$scope.listing = {
-				marketplace: 'bstock',
+				marketplace: $scope.lot.destinationMarketplace || 'wholesaleninjas',
 				// bstock defaults
 				auctionStartPrice: '300',
-				condition: conditionMapping[$scope.lot.type] || '',
+				condition: ({'shelf-pull': 'Shelf Pulls','customer returns': 'Customer Returns','salvage': 'Salvage'})[$scope.lot.type] || '',
 				packaging: 'Original',
 				shipping: {
 					allowedDestinations: bstockFormConstants.shippingAllowedDestinations['Continental US only (Alaska and Hawaii excluded)'],
@@ -49,31 +76,20 @@
 				},
 				//shopify defaults
 				shopifyInventory: 1,
-				shopifyTags: (function(){
-					const tags = ['liquidation', 'featured'];
-					if($scope.lot.unmanifested) {
-						tags.push('unmanifested');
-					}
-					else {
-						tags.push('manifested');
-					}
-
-					const handleTags = {
-						'PC': 'personal care',
-						'GM': 'general merchandise',
-						'VT': 'vitamins',
-						'NP': 'nail polish',
-						'CS': 'cosmetics',
-					};
-
-          const match = $scope.lot.handle.match(/^([a-zA-Z]{2})/);
-					if(match && match[1] && handleTags[match[1]]) {
-						tags.push(handleTags[match[1]]);
-					}
-					return tags.join(', ');
-				})(),
+				shopifyTags: [],
 				refreshProductData: false,
+				estimatedRetailValue: calculateEstimatedRetailValue()
 			};
+
+			function calculateEstimatedRetailValue() {
+				let value;
+				if($scope.lot.inventory) {
+					value = $scope.lot.inventory.reduce( (total, item)=>{
+						return item.price && item.quantity ? total + parseInt(item.quantity)*parseFloat(item.price) : total;
+					}, 0);
+				}
+				return value ? value.toFixed(2) : ''; 
+			}
 
 			function validateBstockListingOptions() {
 				$scope.invalidAuctionPrice = ($scope.listing.auctionStartPrice && $scope.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;
@@ -102,7 +118,10 @@
 				$scope.invalidShopifyPrice = ($scope.listing.shopifyPrice && $scope.listing.shopifyPrice.match(/^[0-9]+(\.[0-9]{2})?$/)) ? false : true;
 				$scope.invalidShopifyInventory = ($scope.listing.shopifyInventory && ($scope.listing.shopifyInventory >= 0)) ? false : true;
 
-				if($scope.invalidShopifyPrice || $scope.invalidShopifyTags || $scope.invalidShopifyInventory) {
+				if($scope.invalidShopifyPrice || $scope.invalidAdditionalShopifyTags || $scope.invalidShopifyInventory) {
+					return false;
+				}
+				if(!$scope.totalUnits) {
 					return false;
 				}
 				return true;
@@ -112,23 +131,34 @@
 				if($scope.listing.marketplace=='bstock') {
 					return validateBstockListingOptions();
 				}
-				else if($scope.listing.marketplace=='shopify') {
+				else if($scope.listing.marketplace=='wholesaleninjas') {
 					return validateShopifyListingOptions();
 				}
 			}
 
-			$scope.submitListing = function() {
+			$scope.submitListing = async function() {
+
+				Promise.resolve({}).then(_=>{
+					console.log($scope.listing);
+				})
 
 				$scope.noMarketplace = $scope.listing.marketplace ? false : true;
 				if($scope.noMarketplace) {
 					return;
 				}
 
+				$scope.listing.shopifyTags = getShopifyTags();
+
 				if(!validateListingOptions()) {
 					return;
 				}
 
 				$scope.waitingForResponse = true;
+
+				if($scope.totalUnits!==$scope.lot.totalUnits) {
+					$scope.lot.totalUnits = $scope.totalUnits;
+					await saveLot($scope.lot);
+				}
 
 				$http.post('/api/listings/submit', { lotId: lotStore._id, listing: $scope.listing}).then(resp=>{
 					console.log(resp);

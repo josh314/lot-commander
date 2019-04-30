@@ -6,7 +6,7 @@
 	var app = angular.module('myApp');
 
 	/******************* Service for saving manifsets ***********************/
-	app.factory('saveManifest', ['$http', '$state', 'lotStore', function($http, $state, lotStore){
+	app.factory('saveManifest', ['$http', '$state', 'lotStore', 'messageModal',function($http, $state, lotStore, messageModal){
 		return function() {
 
 			// This filters out completely empty lines
@@ -17,11 +17,8 @@
 			})
 
       lotStore.updateTotalUnits();
-			$http.post('/api/db/save-manifest/', {lot: lotStore}).then(resp=>{
-				// $state.go('main.home');
-				$state.go('main.lots.view', {lotId: lotStore._id})
-			});
-		}
+			return $http.post('/api/db/save-manifest/', {lot: lotStore});
+		};
 	}]);
 
 })();

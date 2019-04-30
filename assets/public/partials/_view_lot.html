@@ -9,16 +9,21 @@
 					<b>Handle: </b>{{ lot.getHandle() }}<br>
 					<b>Description: </b>{{ lot.getDescription() }}<br>
 					<b>Type: </b>{{ lot.getType() }}<br>
+					<b>Manifested: </b>{{ lot.unmanifested ? 'No' : 'Yes' }}<br>
+					<span ng-hide="lot.unmanifested">
 					<b>Scanned SKU count: </b>{{ lot.getNumSku() }}<br>
 					<b>Scanned Inventory count: </b>{{ lot.getInventoryTotal() }}<br>
+					</span>
 					<b>Total Unit Count: </b>{{ lot.totalUnits }}<br>
+					<b>Number of Boxes: </b>{{ lot.getNumBoxes() }}<br>
 					<b>Status: </b>{{ lot.getStatus() }}<br>
 					<div class="row">
 						<div class="col-xs-12">
 							<h4>Listing Data</h4>
 						</div>
 						<div class="col-xs-12">
-							<label>Title<span class="text-danger h4" ng-show="titleTooLong.bstock"> (Title too long for a Bstock Listing)</span></label>
+							<label>Title<span class="text-danger h4" ng-show="titleTooLong.bstock && destinationMarketplace==='bstock'"> (Title too long for a Bstock Listing)</span></label>
+							<span class="text-danger h4" ng-show="titleTooLong.shopify && destinationMarketplace==='wholesaleninjas'"> (Title too long for a Shopify Listing)</span></label>
 							<div class="well well-sm">{{lot.listingData.title}}</div><br>
 						</div>
 						<div class="col-xs-12">
@@ -29,6 +34,7 @@
 					<div class="pull-right">
 						<button class="btn btn-danger" ng-click="editLot()">Edit <span class="glyphicon glyphicon-pencil"></span></button>
 						<button class="btn btn-success" ng-click="configureListingForSubmission()">Create a Listing</button>
+						<button class="btn btn-success" ng-click="printLabels()">Print Labels</button>
 					</div>
 				</div>
 			</div>
@@ -162,7 +168,7 @@
 						<th>Price</th>
 					</tr></thead>
 					<tbody>
-						<tr ng-repeat="item in lot.getInventory()">
+						<tr ng-repeat="item in lot.getInventorySortedByBarcode()">
 							<td>
 								<img class="inventory-preview-img" src="{{item.images[0]}}">
 							</td>

@@ -17,6 +17,9 @@
         if(title && title.length >= 68) {
           res.bstock = true;
         }
+        if(title && title.length >= 96) {
+          res.shopify = true;
+        }
         return res;
       },
     };

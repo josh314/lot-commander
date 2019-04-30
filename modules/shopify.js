@@ -26,13 +26,10 @@ const submitListing = Promise.method(async function (listing) {
 	const manifestP = listing.lot.unmanifested ? null : manifests.getManifestItemsForLot(listing.lot, { refreshProductData: listing.refreshProductData });
 	const manifestItems = await manifestP;
 
-	const productTitle = `${listing.lot.listingData.title} (${listing.lot.totalUnits} units)`;
-	const bodyHtml =  listing.lot.listingData.body + '<br><br>' + listing.bodyBoilerplate;
-
 	const product = {
-		title: productTitle,
-		body_html: bodyHtml,
-		template_suffix: 'featured',
+		title: listing.lot.listingData.title,
+		body_html: listing.lot.listingData.body + '<br><br>' + listing.bodyBoilerplate,
+		template_suffix: 'lot',
 		published_at: null,
 		tags: listing.shopifyTags,
 		variants: [
@@ -43,12 +40,14 @@ const submitListing = Promise.method(async function (listing) {
 				option1: listing.lot.totalUnits,
 			}
 		],
-
-		// unit count
-		// weight
-
-		//collection
+		// unit count?
+		// collection?
 	};
+
+	if(listing.shopifyTags.includes('pallets') || listing.shopifyTags.includes('Pallets')) {
+		product.variants[0].weight = 2000;
+		product.variants[0].weight_unit = 'lb';
+	}
 
 	__logger.info('Creating new Shopify product.')
 	const addProductResp = await shopifyClient.addProduct(product).then(_=>{
@@ -90,6 +89,15 @@ const submitListing = Promise.method(async function (listing) {
 
 	// Schedule manifest promise if applicable
 	if(manifestItems && !listing.lot.unmanifested) {
+		manifestItems.sort(function(a, b) {
+			  if (a.barcode > b.barcode) {
+			    return 1;
+			  }
+			  if (a.barcode < b.barcode) {
+			    return -1;
+			  }
+			  return 0;
+			});
 		const manifest = JSON.stringify(manifestItems);
 
 		const addMetafieldP = shopifyClient.addProductMetafield({
@@ -104,13 +112,21 @@ const submitListing = Promise.method(async function (listing) {
 		listingPromises.push(addMetafieldP);
 	}
 
-	if(manifestItems && manifestItems.totalRetailValue) {
+	let estimatedRetailValue;
+	if(listing.estimatedRetailValue) {
+		estimatedRetailValue = listing.estimatedRetailValue;
+	}
+	else if (manifestItems && manifestItems.totalRetailValue) {
+		estimatedRetailValue = manifestItems.totalRetailValue;
+	}
+
+	if(estimatedRetailValue) {
 		const addMetafieldP = shopifyClient.addProductMetafield({
 			productId: newProductId,
 			metafield: {
 				namespace: 'lot',
 				key: 'estimatedRetailValue',
-				value: parseInt(manifestItems.totalRetailValue*100),//This changes it to cents so we can use Shopify money filter
+				value: parseInt(estimatedRetailValue*100),//This changes it to cents so we can use Shopify money filter
 				value_type: 'string',
 			}
 		})

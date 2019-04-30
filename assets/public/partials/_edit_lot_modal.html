@@ -18,9 +18,27 @@
 			<input class="form-control" name="description" id="descriptionInput" required ng-model="lot.description">
 		</div>
 		<div class="form-group col-xs-12 col-sm-6">
+			<label for="destinationMarketplaceInput">Destination Marketplace</label>
+			<select class="form-control" name="destinationMarketplace" id="destinationMarketplaceInput" ng-model="lot.destinationMarketplace">
+				<option ng-repeat="marketplace in marketplaces">{{marketplace}}</option>
+			</select>
+		</div>
+		<div class="form-group col-xs-12 col-sm-6">
 			<label for="statusInput">Status</label>
 			<select class="form-control" name="status" id="statusInput" required ng-model="lot.status">
 				<option ng-repeat="status in lotStatusEnum">{{status}}</option>
+			</select>
+		</div>
+		<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : (lot.numBoxes && lot.numBoxes < 0)}">
+			<label for="numBoxesInput">Number of Boxes</label>
+			<input type="number" class="form-control" name="numBoxes" id="numBoxesInput" required ng-model="lot.numBoxes">
+			<span class="text-danger h4" ng-show="lot.numBoxes && lot.numBoxes < 0">Invalid number of boxes</span>
+		</div>
+		<div class="form-group col-xs-12 col-sm-6">
+			<label for="manifestedInput">Manifested Lot?</label>
+			<select class="form-control" name="manifested" id="manifestedInput" ng-model="lot.unmanifested">
+				<option ng-value="true">No</option>
+				<option ng-value="false">Yes</option>
 			</select>
 		</div>
 		<div class="form-group col-xs-12 col-sm-6" ng-show="lot.unmanifested">
@@ -29,10 +47,11 @@
 		</div>
 		<div class="col-xs-12">
 			<h3>Listings</h3>
-			<div class="form-group" ng-class="{ 'has-error' : (titleTooLong.bstock || titleTooLong.shopify)}">
+			<div class="form-group" ng-class="{ 'has-error' : !verifyTitle()}">
 				<label>Title</label>
 				<input class="form-control" name="listingTitle" id="listingTitleinput" ng-keyup="verifyTitle()" ng-model="lot.listingData.title">
-				<span class="text-danger h4" ng-show="titleTooLong.bstock">Title too long for a Bstock Listing</span>
+				<span class="text-danger h4" ng-show="titleTooLong.bstock && lot.destinationMarketplace ==='bstock'">Title too long for a Bstock Listing</span>
+				<span class="text-danger h4" ng-show="titleTooLong.shopify && lot.destinationMarketplace ==='wholesaleninjas'">Title too long for a Shopify Listing</span>
 			</div>
 			<div>
 				<label>Body (boilerplate omitted)</label>
@@ -42,6 +61,6 @@
 	</div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="$close(lot)">Save edit data</button>
+    <button class="btn btn-primary" type="button" ng-click="$close(lot)" ng-disabled="invalidLot()">Save edit data</button>
     <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
 </div>

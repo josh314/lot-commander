@@ -13,7 +13,7 @@
 			this.description = undefined;
 			this.type = undefined;
 			this.totalUnits = 0;
-			this.unmanifested = undefined;
+			this.unmanifested = false;
 			this.inventory = [];
 			this._id = undefined;
 			this.manifestId = undefined;
@@ -23,6 +23,7 @@
 			this.thirdPartyManifests = [];
 			this.submittedListings = [];
 			this.destinationMarketplace = undefined;
+			this.numBoxes = undefined;
 		};
 		this.reset();
 
@@ -47,6 +48,8 @@
 		this.setSubmittedListings = function(_listings) {this.submittedListings = _listings; };
 
 		this.setDestinationMarketplace = function(_destinationMarketplace) { this.destinationMarketplace = _destinationMarketplace; };
+
+		this.setNumBoxes = function(_numBoxes) { this.numBoxes = _numBoxes; };
 
 		this.updateTotalUnits = ()=>{ this.totalUnits = this.inventory ? this.inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 }
 
@@ -84,6 +87,9 @@
 			if('totalUnits' in _lot) {
 				this.setTotalUnits(_lot.totalUnits);
 			}
+			if(_lot.numBoxes) {
+				this.setNumBoxes(_lot.numBoxes);
+			}
 			if(_lot.submittedListings) {
 				this.setSubmittedListings(_lot.submittedListings);
 			}
@@ -92,31 +98,55 @@
 			}
 		}
 
+		// this.addInventory = function(newBarcode) {
+		// 	//search for product in this.inventory
+		// 	let item;
+		// 	if(!newBarcode) {
+		// 		item = { quantity: 0 };
+		// 		this.inventory.push(item);
+		// 	}
+		// 	else if(/[0-9]{8,15}/.test(newBarcode)) {
+		// 		item = this.getInventoryItemByBarcode(newBarcode);
+		// 		if(item) {
+		// 			item.quantity += 1;
+		// 		}
+		// 		else {
+		// 			item = {
+		// 				barcode: newBarcode,
+		// 				quantity: 1
+		// 			};
+		// 			let iidx = this.inventory.findIndex(i => i.barcode > item.barcode);
+		// 			if (iidx >= 0)
+		// 				this.inventory.splice(iidx, 0, item);
+		// 			else
+		// 				this.inventory.push(item);
+		// 		}
+		// 		this.totalUnits += 1;
+		// 	}
+		// 	return item;
+		// };
+
 		this.addInventory = function(newBarcode) {
-			//search for product in this.inventory
 			let item;
 			if(!newBarcode) {
 				item = { quantity: 0 };
-				this.inventory.push(item);
 			}
 			else if(/[0-9]{8,15}/.test(newBarcode)) {
-				item = this.getInventoryItemByBarcode(newBarcode);
-				if(item) {
+				const idx = this.inventory.findIndex(i => i.barcode == newBarcode);
+				if(idx>=0) {
+					item = this.inventory[idx];
 					item.quantity += 1;
+					this.inventory.splice(idx, 1);
 				}
 				else {
 					item = {
 						barcode: newBarcode,
 						quantity: 1
 					};
-					let iidx = this.inventory.findIndex(i => i.barcode > item.barcode);
-					if (iidx >= 0)
-						this.inventory.splice(iidx, 0, item);
-					else
-						this.inventory.push(item);
 				}
 				this.totalUnits += 1;
 			}
+			this.inventory = [item].concat(this.inventory);
 			return item;
 		};
 
@@ -129,6 +159,28 @@
 		this.getListingData = function() { return this.listingData; };
 		this.getThirdPartyManifests = function() { return this.thirdPartyManifests; };
 		this.getDestinationMarketplace = function() { return this.destinationMarketplace; };
+		this.getNumBoxes = function() { return this.numBoxes; };
+
+		this.getInventorySortedByBarcode = function() {
+			// Going through these gymnastics since Array.sort() is an inplace action
+
+			// get a new array composed just of the sorting values and their original array indices
+			const mapped = this.inventory.map((item,i) => { return { index: i, value: item.barcode }; });
+
+			// inplace sort new array
+			mapped.sort(function(a, b) {
+			  if (a.value > b.value) {
+			    return 1;
+			  }
+			  if (a.value < b.value) {
+			    return -1;
+			  }
+			  return 0;
+			});
+
+			// Use the new sorted array of indices to traverse the original array
+			return mapped.map(e => this.inventory[e.index]);
+		};
 
 		this.getInventoryItemByBarcode = function(barcode) {
 			return this.inventory.find(item => item.barcode == barcode);

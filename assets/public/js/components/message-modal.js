@@ -8,7 +8,7 @@
 	/******************* Message Modal service ******************************/
 	app.factory('messageModal', ['$uibModal', function($uibModal){
 		return {
-			launch: function(message) {
+			launch: function(message, ctrlFn, dismissFn) {
 				
 				const modalInstance = $uibModal.open({
 		      templateUrl: '/partials/_message_modal.html',
@@ -21,7 +21,7 @@
 		      },
 		    });
 
-				modalInstance.result.then(function(){},function(){});
+				modalInstance.result.then(ctrlFn || function(){}, dismissFn || function(){});
 			}
 		}
 	}]);

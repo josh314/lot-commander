@@ -56,7 +56,7 @@ function getBodyBoilerplate(format) {
 
 const submitFn = {
 	bstock: bstock.submitListing,
-	shopify: shopify.submitListing,
+	wholesaleninjas: shopify.submitListing,
 }
 
 const submit = Promise.method(async function(req, res, next) {
@@ -82,7 +82,7 @@ const submit = Promise.method(async function(req, res, next) {
 
 	const boilerplateFormat = ((mp)=>{
 		if(mp=='bstock') return 'text';
-		else if(mp=='shopify') return null;
+		else if(mp=='wholesaleninjas') return null;
 		else return '';
 	})(listing.marketplace);
 
