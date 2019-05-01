@@ -183,9 +183,13 @@
 		</div>
 		<div class="row">
 			<h3>Product Images</h3>
-			<div ng-repeat="item in lot.getInventory()">
-				<h5>{{item.description}}</h5>
-				<img class="inventory-gallery-img" src="{{item.images[0]}}">
+			<div ng-repeat="item in lot.getInventorySortedByBarcode()">
+				<h5>{{item.barcode}} - {{item.description}}</h5>
+				<div class="row">
+					<div class="col-xs-6 col-sm-4 col-md-3 col-lg-1" ng-repeat="image in item.images track by $index">
+						<a href="{{image}}"><img class="img-responsive" src="{{image}}"></a>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
