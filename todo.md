@@ -11,6 +11,7 @@
 		- remove quantities
 - batch the upcItemDb requests when getting all the product data after lot submission
 	- getting "too fast" warnings
+- image collage-building widget
 
 # From Charles
 
