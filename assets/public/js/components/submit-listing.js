@@ -37,6 +37,7 @@
 					'VT': 'vitamins',
 					'NP': 'nail polish',
 					'CS': 'cosmetics',
+					'AP': 'clothing'
 				};
 
         const match = $scope.lot.handle.match(/^([a-zA-Z]{2})/);

@@ -183,6 +183,9 @@ function defaultProductTitleForLot(lot){
 	else if(lot.handle.match(/NP/)) {
 		title = 'Nail Polish';
 	}
+	else if(lot.handle.match(/AP/)) {
+		title = 'Apparel';
+	}
 	return title;
 }
 

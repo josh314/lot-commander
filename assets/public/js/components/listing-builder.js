@@ -31,6 +31,11 @@
       title: 'Brand Name Nail Polish Variety',
       body: 'Popular Brand Name Nail Polish Variety. Leading brands, collections, colors, and styles.'
     },
+    'AP': {
+      name: 'Apparel',
+      title: 'Apparel Variety',
+      body: ''
+    },
   };
 
   const quickLotsBoilerplate = [

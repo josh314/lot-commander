@@ -90,12 +90,20 @@
 
   app.constant('lotCategories', [
     {
-      prefix: 'GM',
-      name: 'General Merchandise'
+      prefix: 'AP',
+      name: 'Apparel'
     },
     {
       prefix: 'CS',
       name: 'Cosmetics'
+    },
+    {
+      prefix: 'GM',
+      name: 'General Merchandise'
+    },
+    {
+      prefix: 'NP',
+      name: 'Nail Polish'
     },
     {
       prefix: 'PC',
@@ -104,10 +112,6 @@
     {
       prefix: 'VT',
       name: 'Vitamins & Supplements'
-    },
-    {
-      prefix: 'NP',
-      name: 'Nail Polish'
     },
   ]);
 
