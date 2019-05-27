@@ -6,8 +6,8 @@
 	var app = angular.module('myApp');
 
 	/******************* New Lot Controller *************************/
-	app.controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'listingBuilder', 'lotCategories','messageModal', 'sessionTimeout', 
-		function($http, $scope, $state, dbEnums, listingBuilder, lotCategories, messageModal, sessionTimeout) {
+	app.controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'listingBuilder', 'lotCategories', 'lotStore', 'messageModal', 'sessionTimeout', 
+		function($http, $scope, $state, dbEnums, listingBuilder, lotCategories, lotStore, messageModal, sessionTimeout) {
 		sessionTimeout.timeoutExpired();
 
 		$scope.quickLots = listingBuilder.quickLotsBoilerplate;
@@ -90,7 +90,14 @@
 					messageModal.launch({header: 'Error', body: `A lot with handle ${$scope.newLot.handle} already exists.`, type: 'error'});
 				}
 				else{
-					$state.go('main.lots.list');
+					const lot = resp.data;
+					lotStore.save(lot);
+					if(lot.unmanifested) {
+						$state.go('main.lots.view', {lotId: lotStore._id})
+					}
+					else {
+						$state.go('main.lots.scan');
+					}
 				}
 			})
 		}
