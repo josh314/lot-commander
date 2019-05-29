@@ -12,6 +12,20 @@
 - batch the upcItemDb requests when getting all the product data after lot submission
 	- getting "too fast" warnings
 - image collage-building widget
+- load dependencies from my libraries via npm
+
+# webpack migration
+- dbEnums isn't loaded (script-builder functionality -> move into webpack.common.js)
+- build CSS
+	- switch to SASS
+- move vendor code into node-modules
+- linting 
+- sort out dev/prod env variables
+- clean out grunt and less dependencies
+- move non-secret config info from config.js to webpack
+	- folder locations, etc
+- server app built from webpack?
+
 
 # From Charles
 

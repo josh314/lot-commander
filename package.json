@@ -3,19 +3,19 @@
   "version": "1.0.0",
   "private": true,
   "description": "For building manifests by storing scanned barcodes and matching with product data on export.",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "build-client-dev": "webpack --config webpack.dev.js",
     "build-client": "webpack --mode production --config webpack.prod.js",
-    "start": "DEBUG=lot-commander node index.js",
-    "debug": "DEBUG=lot-commander node inspect index.js",
-    "lint": "eslint index.js routes.js modules/"
+    "start": "DEBUG=lot-commander node server.js",
+    "debug": "DEBUG=lot-commander node inspect server.js",
+    "lint": "eslint server.js routes.js modules/"
   },
   "keywords": [
     "app"
   ],
   "author": "Jorshua \"El\" Davis",
-  "license": "ISC",
+  "license": "UNLICENSED",
   "dependencies": {
     "archiver": "^2.1.1",
     "bcrypt-nodejs": "0.0.3",
