@@ -1,12 +1,12 @@
 const path = require('path');
 
-const assetsPath = path.join(__dirname, "assets/public");
+const clientSrcPath = path.join(__dirname, "client");
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
     // js bundles
-    app: path.join(__dirname, assetsPath, 'js', 'index.js'),
+    app: path.join(clientSrcPath, 'index.js'),
   },
   output: {
     filename: '[name].js',
@@ -77,20 +77,24 @@ module.exports = {
   //   })
     new CopyPlugin([
       { 
-        from: path.join(assetsPath, '3rd-party'),
+        from: path.join(clientSrcPath, '3rd-party'),
         to: '3rd-party'
       },
       { 
-        from: path.join(assetsPath, 'favicon/database-171428/favicon.ico'),
+        from: path.join(clientSrcPath, 'favicon/database-171428/favicon.ico'),
         to: 'img'
       },
       { 
-        from: path.join(assetsPath, 'fonts'),
+        from: path.join(clientSrcPath, 'fonts'),
         to: 'fonts'
       },
       { 
-        from: path.join(assetsPath, 'partials'),
+        from: path.join(clientSrcPath, 'partials'),
         to: 'partials'
+      },
+      { 
+        from: path.join(clientSrcPath, 'css'),
+        to: 'css'
       }
     ]),
   ],

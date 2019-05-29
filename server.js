@@ -45,7 +45,7 @@
   // FAVICON ========================================
   //=================================================
   try {
-  	const favicon = path.join(__basedir, 'img/favicon.ico');
+  	const favicon = path.join(__basedir, __config.assets.root, 'img/favicon.ico');
   	app.use(require('serve-favicon')(favicon));
   }
   catch(exception) {
