@@ -6,7 +6,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = {
   entry: {
     // js bundles
-    app: path.join(__dirname, 'assets', 'public', 'js', 'index.js'),
+    app: path.join(__dirname, assetsPath, 'js', 'index.js'),
   },
   output: {
     filename: '[name].js',

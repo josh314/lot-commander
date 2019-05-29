@@ -21,14 +21,16 @@
 		- requires better architecture of the db libraries (lot-db, inmar-db). want to export enums without having to make connections to the dbs
 - build CSS
 	- switch to SASS
+	- remove LESS dependencies
 - move vendor code into node-modules
 - linting 
 - sort out dev/prod env variables
-- clean out grunt and less dependencies
+- clean out grunt dependencies
 - move non-secret config info from config.js to webpack
 	- folder locations, etc
 - server app built from webpack?
 - favicon
+- revamp folder structure into something more appropriate
 
 # From Charles
 
