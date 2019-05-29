@@ -50,7 +50,10 @@ module.exports = {
         use:  [ 
           // 'style-loader',
           MiniCssExtractPlugin.loader,
-          { loader: 'css-loader', options: { url: false } },
+          { 
+            loader: 'css-loader', 
+            // options: { url: false }
+          },
           { 
             loader: 'less-loader',
             // options: { 
@@ -59,17 +62,13 @@ module.exports = {
           }
         ]
       },
-      // {
-      //   test: /\.(svg|png|jpg|jpeg|ico)$/,
-      //   use: [
-      //     {
-      //       loader: 'file-loader',
-      //       options: {
-      //         name: '[name].[ext]',
-      //       }
-      //     }
-      //   ]
-      // },
+      {
+        test: /\.(ttf|otf|eot|svg|woff)(\?v=[0-9]\.[0-9]\.[0-9])?|(jpg|gif)$/,
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]',
+        }
+      }
     ]
   },
   plugins: [
@@ -88,10 +87,6 @@ module.exports = {
       { 
         from: path.join(clientSrcPath, 'favicon/database-171428/favicon.ico'),
         to: 'img'
-      },
-      { 
-        from: path.join(clientSrcPath, 'fonts'),
-        to: 'fonts'
       },
       { 
         from: path.join(clientSrcPath, 'partials'),

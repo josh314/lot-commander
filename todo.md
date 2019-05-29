@@ -29,7 +29,6 @@
 - move non-secret config info from config.js to webpack
 	- folder locations, etc
 - server app built from webpack?
-- glyphicon fonts aren't making it in
 
 # From Charles
 
