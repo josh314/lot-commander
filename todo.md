@@ -29,6 +29,23 @@
 - server app built from webpack?
 
 
+- load dependencies from my libraries via npm
+
+# webpack migration
+- /build/ng-app-server-data.js endpoint is clever, but inelegant
+	- would be pretty to create and bundle this logic using webpack
+		- requires better architecture of the db libraries (lot-db, inmar-db). want to export enums without having to make connections to the dbs
+- build CSS
+	- switch to SASS
+- move vendor code into node-modules
+- linting 
+- sort out dev/prod env variables
+- clean out grunt and less dependencies
+- move non-secret config info from config.js to webpack
+	- folder locations, etc
+- server app built from webpack?
+- favicon
+
 # From Charles
 
 Here are the primary use cases  needed for listing creation on lot commander
