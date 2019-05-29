@@ -15,7 +15,6 @@
 		$scope.lotStatus = 'All';
 
 		$scope.marketplaces = [undefined].concat(dbEnums.marketplaces);
-		console.log(dbEnums)
 
 		function updateLotList() {
 			//TODO: incorporate search/sort options

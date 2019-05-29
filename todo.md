@@ -15,7 +15,9 @@
 - load dependencies from my libraries via npm
 
 # webpack migration
-- dbEnums isn't loaded (script-builder functionality -> move into webpack.common.js)
+- /build/ng-app-server-data.js endpoint is clever, but inelegant
+	- would be pretty to create and bundle this logic using webpack
+		- requires better architecture of the db libraries (lot-db, inmar-db). want to export enums without having to make connections to the dbs
 - build CSS
 	- switch to SASS
 - move vendor code into node-modules
