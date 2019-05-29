@@ -1,9 +1,14 @@
 
+// Styles
+import './less/app.less';
+
+// Angular setup
 import "./js/ng-app-init.js";
 import "./js/ng-app-config.js";
 import "./js/ng-app-data.js";
 import "./js/ng-app-run.js";
 
+// Angular components
 import "./js/components/auctions.js";
 import "./js/components/edit-manifest.js";
 import "./js/components/file-request-modal.js";

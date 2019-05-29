@@ -1,7 +1,10 @@
 const path = require('path');
 
 const clientSrcPath = path.join(__dirname, "client");
+
+// webpack plugins
 const CopyPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   entry: {
@@ -42,18 +45,18 @@ module.exports = {
         //   { loader: 'eslint-loader' }
         // ]
       },
-      // {
-      //   test: /\.scss$/,
-      //   use:  [ 
-      //     // 'style-loader',
-      //     MiniCssExtractPlugin.loader,
-      //     { loader: 'css-loader', options: { url: false } },
-      //     { 
-      //       loader: 'sass-loader',
-      //       // options: { includePaths: [ 'node_modules' ] }
-      //     }
-      //   ]
-      // },
+      {
+        test: /\.less$/,
+        use:  [ 
+          // 'style-loader',
+          MiniCssExtractPlugin.loader,
+          { loader: 'css-loader', options: { url: false } },
+          { 
+            loader: 'less-loader',
+            // options: { includePaths: [ 'node_modules' ] }
+          }
+        ]
+      },
       // {
       //   test: /\.(svg|png|jpg|jpeg|ico)$/,
       //   use: [
@@ -72,9 +75,9 @@ module.exports = {
   //     template: 'src/client/index.html',
   //     minify: true
   //   }),
-  //   new MiniCssExtractPlugin({
-  //     filename: 'app.css',
-  //   })
+    new MiniCssExtractPlugin({
+      filename: 'app.css',
+    }),
     new CopyPlugin([
       { 
         from: path.join(clientSrcPath, '3rd-party'),
@@ -91,10 +94,6 @@ module.exports = {
       { 
         from: path.join(clientSrcPath, 'partials'),
         to: 'partials'
-      },
-      { 
-        from: path.join(clientSrcPath, 'css'),
-        to: 'css'
       }
     ]),
   ],
