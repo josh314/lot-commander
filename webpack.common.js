@@ -53,7 +53,9 @@ module.exports = {
           { loader: 'css-loader', options: { url: false } },
           { 
             loader: 'less-loader',
-            // options: { includePaths: [ 'node_modules' ] }
+            // options: { 
+            //   paths: [ path.resolve(__dirname, 'node_modules') ] 
+            // }
           }
         ]
       },
