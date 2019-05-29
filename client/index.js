@@ -3,10 +3,8 @@
 import './less/app.less';
 
 // Angular setup
-import "./js/ng-app-init.js";
-import "./js/ng-app-config.js";
-import "./js/ng-app-data.js";
-import "./js/ng-app-run.js";
+import "./js/ng-app";
+
 
 // Angular components
 import "./js/components/auctions.js";

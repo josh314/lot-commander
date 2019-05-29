@@ -1,8 +1,6 @@
-import angular from 'angular';
+import app from '../ng-app';
 
 import printJS from 'print-js';
-
-const app = angular.module('myApp');
 
 /******************* View Lot Controller *************************/
 app.controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'fileUpload', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout',
@@ -189,8 +187,8 @@ app.controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$ui
         });
       }
     };
-
-}]);
+  }]
+);
 
 /***************** Modal Controllers ************************/
 app.controller('EditLotModalController', [ '$scope', 'dbEnums', 'listingTitleVerifier',  'lot', function($scope, dbEnums, listingTitleVerifier, lot){

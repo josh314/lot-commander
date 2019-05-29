@@ -1,7 +1,18 @@
 import angular from 'angular';
+import "angular-cookies";
+import "angular-animate";
+import "angular-sanitize";
+import "@uirouter/angularjs";
+import "angular-ui-bootstrap";
 
-const app = angular.module("myApp");
+/************************************************************************
+************************ Angular app init *******************************
+************************************************************************/
+const app = angular.module('myApp', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'ngSanitize', 'ngCookies']);
 
+/************************************************************************
+************************ Data and constants *****************************
+************************************************************************/
 const stateData = [
   { name: "main", abstract:true, templateUrl: '/partials/_main.html'},
   { name: "main.home", url: '/', templateUrl: '/partials/_home.html'},
@@ -114,3 +125,35 @@ app.constant('lotCategories', [
     name: 'Vitamins & Supplements'
   },
 ]);
+
+
+//************************************************************************
+//********************* Config Block *************************************
+//************************************************************************
+angular.module('myApp').config(
+  ['$locationProvider', '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', 'stateConfigData',
+    function($locationProvider, $stateProvider, $urlRouterProvider, $urlMatcherFactoryProvider, stateConfigData) {
+      $locationProvider.html5Mode({enabled: true});
+      $urlRouterProvider.otherwise('/');
+      $urlMatcherFactoryProvider.strictMode(false);
+
+      // Create an array of state objects to be registered with $stateProvider
+      var states = [];
+      stateConfigData.forEach(function(state) {
+        states.push({name: state.name, abstract: state.abstract, url: state.url, templateUrl: state.templateUrl, controller:state.controller});
+      });
+      angular.forEach(states, function(state) { $stateProvider.state(state); });
+    }
+  ]
+);
+
+//************************************************************************
+//************************ Run Block *************************************
+//************************************************************************
+angular.module('myApp').run(['$rootScope', '$document', function($rootScope, $document) {
+  $rootScope.$on('$stateChangeSuccess', function() {
+    $document.prop('body').scrollTop = $document.prop('documentElement').scrollTop = 0;
+  });
+}]);
+
+export default app;
