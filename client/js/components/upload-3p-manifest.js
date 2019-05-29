@@ -3,7 +3,7 @@
 	/************************************************************************
 	************************ Angular app ************************************
 	*************************************************************************/
-	var app = angular.module('myApp');
+	const app = angular.module('myApp');
 
 	/******************* Upload 3rd Part Manifest Controller *************************/
 	app.controller('Upload3pManifestCtrl', ['$http', '$scope', '$state', 'dbEnums', 'fileUpload', 'messageModal', 'sessionTimeout',

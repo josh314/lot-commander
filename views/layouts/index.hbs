@@ -10,10 +10,7 @@
     {{! DESCRIPTION META }}
     <meta name="description" content="{{description}}">
     <title>{{{title}}}</title>
-    {{! Load Stylesheets}}
-{{!--     {{#each assets.stylesheets}}
-        <link href={{.}} rel="stylesheet">
-    {{/each}} --}}
+    {{! Load Stylesheet}}
     <link href="app.css" rel="stylesheet">
   </head>
   <body>
@@ -27,12 +24,6 @@
     ==================================================
     Placed at the end of the document so the pages load faster
     }}
-    {{#each assets.scripts.ext}}
-      <script src={{.}}></script>
-    {{/each}}
-   {{!--  {{#each assets.scripts.local}}
-      <script src={{.}}></script>
-    {{/each}} --}}
     <script type="text/javascript" src="app.js"></script>
     <script type="text/javascript" src="/build/ng-app-server-data.js"></script>
   </body>

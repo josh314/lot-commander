@@ -2,9 +2,6 @@
 // Styles
 import './less/app.less';
 
-// Vendor
-// import "angular";
-
 // Angular setup
 import "./js/ng-app-init.js";
 import "./js/ng-app-config.js";
@@ -36,3 +33,4 @@ import "./js/components/submit-listing.js";
 import "./js/components/upload-3p-manifest.js";
 import "./js/components/users.js";
 import "./js/components/view-lot.js";
+

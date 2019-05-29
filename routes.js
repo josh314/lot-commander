@@ -1,8 +1,6 @@
 const path = require('path');
 const express = require('express');
 
-const assetsData = require(path.join(__basedir, __config.modulesPath, 'assets-data'));
-
 const scriptBuilder = require(path.join(__basedir, __config.modulesPath, 'script-builder'));
 
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
@@ -15,25 +13,6 @@ const listings = require(path.join(__basedir, __config.modulesPath, 'listings'))
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
 const labels = require(path.join(__basedir, __config.modulesPath, 'labels'));
-
-function getLayoutDataByEnv(env) {
-	const res = {
-	  title: "Lot Commander",
-	  description: "App for creating and managing product lots and associated manifests.",
-	};
-
-  let assets;
-	if(env === 'prod') {
-    assets = assetsData.prod
-	}
-  else {
-    assets = assetsData.dev
-  }
-
-  res.assets = assets;
-
-  return res;
-}
 
 // middleware to stick for testing purposes
 function testLog(s) {
@@ -113,7 +92,12 @@ function routes(env) {
   });
 
   //default route. the front-end rendering will all hit this.
-  router.get('*', (req,res) => res.render('main.hbs', getLayoutDataByEnv(env)) );
+  router.get('*', 
+    (req,res) => res.render('main.hbs', {
+      title: "Lot Commander",
+      description: "App for creating and managing product lots and associated manifests.",
+    })
+  );
 
   return router;
 }
