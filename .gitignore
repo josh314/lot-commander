@@ -16,6 +16,7 @@ css/
 ng-app-precache.js
 app.css
 app.css.map
+dist/
 
 # deployment settings
 config/deploy.js

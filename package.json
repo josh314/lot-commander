@@ -1,12 +1,14 @@
 {
-  "name": "manifester",
+  "name": "lot-commander",
   "version": "1.0.0",
   "private": true,
   "description": "For building manifests by storing scanned barcodes and matching with product data on export.",
   "main": "index.js",
   "scripts": {
-    "start": "DEBUG=manifester node index.js",
-    "debug": "DEBUG=manifester node inspect index.js",
+    "build-client-dev": "webpack --config webpack.dev.js",
+    "build-client": "webpack --mode production --config webpack.prod.js",
+    "start": "DEBUG=lot-commander node index.js",
+    "debug": "DEBUG=lot-commander node inspect index.js",
     "lint": "eslint index.js routes.js modules/"
   },
   "keywords": [
@@ -22,6 +24,7 @@
     "concat-stream": "^2.0.0",
     "connect-mongodb-session": "^2.0.1",
     "cookie-parser": "^1.4.3",
+    "copy-webpack-plugin": "^5.0.3",
     "debug": "^3.1.0",
     "express": "^4.16.3",
     "express-handlebars": "^3.0.0",
@@ -36,6 +39,9 @@
     "passport-local": "^1.0.0",
     "pdfkit": "^0.9.0",
     "serve-favicon": "^2.4.5",
+    "webpack": "^4.32.2",
+    "webpack-cli": "^3.3.2",
+    "webpack-merge": "^4.2.1",
     "winston": "^2.4.1"
   },
   "devDependencies": {
