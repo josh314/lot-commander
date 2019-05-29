@@ -18,32 +18,32 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /public\/.*\.js$/,
+        test: /client\/.*\.js$/,
         exclude: /(node_modules|bower_components)/,
-        // use: [ 
-        //   { 
-        //     loader: 'babel-loader',
-        //     options: {
-        //       "presets": [
-        //         [
-        //           "@babel/preset-env",
-        //           {
-        //             "targets": ">0.1%",
-        //             "useBuiltIns": "usage",
-        //             "corejs": "3.0.0"
-        //           }
-        //         ],
-        //         [
-        //           "@babel/preset-react",
-        //           {
-        //             development: process.env.NODE_ENV !== 'production'
-        //           }
-        //         ]
-        //       ]
-        //     }
-        //   },
-        //   { loader: 'eslint-loader' }
-        // ]
+        use: [ 
+          // { 
+          //   loader: 'babel-loader',
+          //   options: {
+          //     "presets": [
+          //       [
+          //         "@babel/preset-env",
+          //         {
+          //           "targets": ">0.1%",
+          //           "useBuiltIns": "usage",
+          //           "corejs": "3.0.0"
+          //         }
+          //       ],
+          //       [
+          //         "@babel/preset-react",
+          //         {
+          //           development: process.env.NODE_ENV !== 'production'
+          //         }
+          //       ]
+          //     ]
+          //   }
+          // },
+          // { loader: 'eslint-loader' }
+        ]
       },
       {
         test: /\.less$/,
@@ -80,10 +80,6 @@ module.exports = {
       filename: 'app.css',
     }),
     new CopyPlugin([
-      { 
-        from: path.join(clientSrcPath, '3rd-party'),
-        to: '3rd-party'
-      },
       { 
         from: path.join(clientSrcPath, 'favicon/database-171428/favicon.ico'),
         to: 'img'

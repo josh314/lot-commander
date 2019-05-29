@@ -15,4 +15,6 @@ angular.module('myApp').config(
         states.push({name: state.name, abstract: state.abstract, url: state.url, templateUrl: state.templateUrl, controller:state.controller});
       });
       angular.forEach(states, function(state) { $stateProvider.state(state); });
-}]);
+    }
+  ]
+);

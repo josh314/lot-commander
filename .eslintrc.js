@@ -1,6 +1,7 @@
 module.exports = {
     "env": {
-        "node": true,
+        // "node": true,
+        "browser": true,
         "es6": true
     },
     "extends": "eslint:recommended",
@@ -40,7 +41,7 @@ module.exports = {
         //     "single"
         // ],
         "semi": [
-            "error",
+            "warn",
             "always"
         ]
     }

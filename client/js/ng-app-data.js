@@ -39,10 +39,10 @@ const navbar = {
 stateData.forEach(function(stateObj){
   stateConfigData.push({ name: stateObj.name, url: stateObj.url, templateUrl: stateObj.templateUrl, controller: stateObj.controller});
   if(stateObj.navParent) {
-    parent = navbar.navItems.find(function(elem) { return elem.title == stateObj.navParent; });//must define parent before child
-    if(parent.drops === undefined)
-      parent.drops = [];
-    parent.drops.push({ state: stateObj.name, title: stateObj.navName, userAccess: stateObj.userAccess });
+    const navParent = navbar.navItems.find(function(elem) { return elem.title == stateObj.navParent; });//must define navParent before child
+    if(navParent.drops === undefined)
+      navParent.drops = [];
+    navParent.drops.push({ state: stateObj.name, title: stateObj.navName, userAccess: stateObj.userAccess });
   }
   else if (stateObj.navName) {
     navbar.navItems.push({ state: stateObj.name, title: stateObj.navName, route: stateObj.url, userAccess: stateObj.userAccess });
