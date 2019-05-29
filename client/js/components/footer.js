@@ -1,17 +1,10 @@
-(function() {
-	'use strict';
-	/************************************************************************
-	************************ Angular app ************************************
-	*************************************************************************/
-	var app = angular.module('myApp');
+import app from '../ng-app';
 
-	/*********************** Footer Directive ***********************/
-	app.directive('footerDirective', function(){
-		return {
-			restrict: 'A',
-			replace: true,
-			templateUrl: '/partials/_footer.html',
-		};
-	});
-
-})();
+/*********************** Footer Directive ***********************/
+app.directive('footerDirective', function(){
+  return {
+    restrict: 'A',
+    replace: true,
+    templateUrl: '/partials/_footer.html',
+  };
+});

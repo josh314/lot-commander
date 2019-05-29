@@ -2,7 +2,7 @@ import app from '../ng-app';
 
 function passwordInvalid(password) {
   if(password.length < 20) {
-   return true;
+    return true;
   }
 
   return false;

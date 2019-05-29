@@ -1,24 +1,18 @@
-(function() {
-	'use strict';
-	/************************************************************************
-	************************ Angular app ************************************
-	*************************************************************************/
-	var app = angular.module('myApp');
+import app from '../ng-app';
 
-	/******************* Service for saving manifsets ***********************/
-	app.factory('saveManifest', ['$http', '$state', 'lotStore', 'messageModal',function($http, $state, lotStore, messageModal){
-		return function() {
+/******************* Service for saving manifsets ***********************/
+app.factory('saveManifest', ['$http', '$state', 'lotStore', function($http, $state, lotStore){
+  return function() {
 
-			// This filters out completely empty lines
-			lotStore.inventory = lotStore.inventory.filter(item=>{
-				if(item.barcode || item.description || item.quantity || item.price) {
-					return true;
-				}
-			})
+    // This filters out completely empty lines
+    lotStore.inventory = lotStore.inventory.filter(item=>{
+      if(item.barcode || item.description || item.quantity || item.price) {
+        return true;
+      }
+      return false;
+    });
 
-      lotStore.updateTotalUnits();
-			return $http.post('/api/db/save-manifest/', {lot: lotStore});
-		};
-	}]);
-
-})();
+    lotStore.updateTotalUnits();
+    return $http.post('/api/db/save-manifest/', {lot: lotStore});
+  };
+}]);
