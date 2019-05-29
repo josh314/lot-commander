@@ -17,7 +17,6 @@
   "author": "Jorshua \"El\" Davis",
   "license": "UNLICENSED",
   "dependencies": {
-    "angular": "^1.6.3",
     "archiver": "^2.1.1",
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "^3.5.1",
@@ -36,6 +35,7 @@
     "formidable": "^1.2.1",
     "jsbarcode": "^3.11.0",
     "json2csv": "^4.4.1",
+    "less": "^2.7.3",
     "less-loader": "^5.0.0",
     "mini-css-extract-plugin": "^0.7.0",
     "moment": "^2.21.0",
@@ -44,7 +44,6 @@
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "pdfkit": "^0.9.0",
-    "sass-loader": "^7.1.0",
     "serve-favicon": "^2.4.5",
     "url-loader": "^1.1.2",
     "webpack": "^4.32.2",

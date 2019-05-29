@@ -2,6 +2,9 @@
 // Styles
 import './less/app.less';
 
+// Vendor
+// import "angular";
+
 // Angular setup
 import "./js/ng-app-init.js";
 import "./js/ng-app-config.js";
