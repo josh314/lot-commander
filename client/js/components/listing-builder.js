@@ -168,7 +168,7 @@ app.factory('listingBuilder', [function(){
       lot.listingData = {
         title: boilerplate.title,
         body: boilerplate.body,
-      }
+      };
     }
   }
 

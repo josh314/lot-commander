@@ -46,7 +46,7 @@ function LotStore(dbEnums) {
 
   this.setNumBoxes = function(_numBoxes) { this.numBoxes = _numBoxes; };
 
-  this.updateTotalUnits = ()=>{ this.totalUnits = this.inventory ? this.inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 };
+  this.updateTotalUnits = () => this.totalUnits = this.inventory ? this.inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 ;
 
   this.save = function(_lot) {
     this.reset();
@@ -91,7 +91,7 @@ function LotStore(dbEnums) {
     if(_lot.destinationMarketplace) {
       this.setDestinationMarketplace(_lot.destinationMarketplace);
     }
-  }
+  };
 
 
   this.addInventory = function(newBarcode) {
@@ -152,7 +152,7 @@ function LotStore(dbEnums) {
 
   this.getInventoryItemByBarcode = function(barcode) {
     return this.inventory.find(item => item.barcode == barcode);
-  }
+  };
   
   this.getInventoryTotal = function() {
     return this.inventory.reduce((acc,val) => {return acc + val.quantity;}, 0);
