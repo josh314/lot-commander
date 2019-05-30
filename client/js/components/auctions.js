@@ -1,7 +1,7 @@
 import app from '../ng-app';
 
 /******************* Open Auctions Controller *************************/
-app.controller('ListAuctionsCtrl', ['sessionTimeout',
+app.controller('ListAuctionsCtrl', ['$http', '$scope', 'sessionTimeout',
   function($http, $scope, sessionTimeout) {   
     sessionTimeout.timeoutExpired();
     $scope.auctions = [];
