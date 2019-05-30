@@ -130,7 +130,7 @@ app.constant('lotCategories', [
 //************************************************************************
 //********************* Config Block *************************************
 //************************************************************************
-angular.module('myApp').config(
+app.config(
   ['$locationProvider', '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', 'stateConfigData',
     function($locationProvider, $stateProvider, $urlRouterProvider, $urlMatcherFactoryProvider, stateConfigData) {
       $locationProvider.html5Mode({enabled: true});
@@ -150,7 +150,7 @@ angular.module('myApp').config(
 //************************************************************************
 //************************ Run Block *************************************
 //************************************************************************
-angular.module('myApp').run(['$rootScope', '$document', function($rootScope, $document) {
+app.run(['$rootScope', '$document', function($rootScope, $document) {
   $rootScope.$on('$stateChangeSuccess', function() {
     $document.prop('body').scrollTop = $document.prop('documentElement').scrollTop = 0;
   });

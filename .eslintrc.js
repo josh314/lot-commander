@@ -4,7 +4,10 @@ module.exports = {
         "browser": true,
         "es6": true
     },
-    "extends": "eslint:recommended",
+    "extends": [
+        "eslint:recommended",
+        "angular"
+    ],
     "parserOptions": {
         "ecmaVersion": 2018,
         "sourceType": "module"
@@ -14,6 +17,9 @@ module.exports = {
         "__logger": false,
         "__basedir": false,
     },
+    "plugins": [
+        "angular"
+    ],
     "rules": {
         "array-callback-return": [
             "error",
@@ -43,6 +49,17 @@ module.exports = {
         "semi": [
             "warn",
             "always"
-        ]
+        ],
+        // Angular plugin rules
+        "angular/controller-as": "off",
+        "angular/controller-name": "off",
+        "angular/definedundefined": "off",
+        "angular/di": [2, "array"],
+        "angular/json-functions": "off",
+        "angular/log": "off",
+        "angular/module-getter": "off",
+        "angular/module-setter": "off",
+        "angular/no-service-method": "off",
+        "angular/on-watch": "off",
     }
 };
