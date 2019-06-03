@@ -53,12 +53,9 @@ module.exports = {
         // Angular plugin rules
         "angular/controller-as": "off",
         "angular/controller-name": "off",
-        // "angular/definedundefined": "off",
         "angular/di": [2, "array"],
         "angular/json-functions": "off",
         "angular/log": "off",
-        // "angular/module-getter": "off",
-        // "angular/module-setter": "off",
         "angular/no-service-method": "off",
         "angular/on-watch": "off",
     }
