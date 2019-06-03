@@ -26,7 +26,7 @@
     "angular-ui-router": "^0.4.2",
     "archiver": "^2.1.1",
     "bcrypt-nodejs": "0.0.3",
-    "bluebird": "^3.5.1",
+    "bluebird": "^3.5.5",
     "bootstrap": "^3.4.1",
     "bootswatch": "^3.4.1",
     "canvas": "^2.4.1",

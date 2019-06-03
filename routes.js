@@ -68,6 +68,7 @@ function routes(env) {
   router.post('/api/image/primary', lotdb.setPrimaryImage);
   router.get('/api/image/download/:lotId', images.downloadImages);
   router.post('/api/image/remove', images.removeImage);
+  router.post('/api/image/delete', images.deleteImageFile);
 
   // marketplace listings
   router.post('/api/listings/submit', listings.submit);

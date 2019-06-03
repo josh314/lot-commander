@@ -3,8 +3,8 @@ import angular from 'angular';
 import printJS from 'print-js';
 
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'fileUpload', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout',
-  function($http, $scope, $state, $stateParams, $uibModal, fileUpload, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, sessionTimeout) {   
+angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout',
+  function($http, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, sessionTimeout) {   
     sessionTimeout.timeoutExpired();
     $scope.lot = lotStore;
     $scope.listingsBoilerplate = listingsBoilerplate;
@@ -21,7 +21,6 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
           });
         }
         $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title);
-        console.log(lotStore);
       });
     }
     getLot();
@@ -30,29 +29,29 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
       return image.filename;
     };
 
-    $scope.updatePrimaryImage = function(image) {
-      $http.post('/api/image/primary', {lotId: $scope.lot._id, primaryImage: image}).then(resp=>{
-        if(!resp.error) {
-          $state.reload();
-        }
-      });
+    // Manage images
+    $scope.updatePrimaryImage = async (image) => { 
+      const resp = await ImageSvc.updateLotPrimaryImage($scope.lot, image);
+      if(!resp.error) {
+        $state.reload();
+      }
     };
-
-    $scope.uploadImages = function(){
-      if($scope.imagesToUpload && $scope.imagesToUpload.length>0) {
-        for(let i=0; i<$scope.imagesToUpload.length; i++) {
-          const image = $scope.imagesToUpload[i];
-          const uploadUrl = "/api/image/upload";
-          const metadata = { lotId: lotStore._id, primary: false };
-          fileUpload.uploadFileToUrl(image, uploadUrl, metadata).then(resp=>{
-            if(resp.error) {
-              console.log(resp);
-            }
-            if(i+1==$scope.imagesToUpload.length) {
-              $state.reload();
-            }
-          });
-        }
+    $scope.uploadImages = async () => { 
+      const resp = await ImageSvc.uploadLotImages($scope.lot, $scope.imagesToUpload);
+      if(resp.error) {
+        console.log(resp);
+      }
+      else {
+        $state.reload();
+      }
+    };
+    $scope.removeImage = async (image) => {
+      const resp = await ImageSvc.removeLotImage($scope.lot, image);
+      if(!resp.data.error) {
+        $state.reload();
+      }
+      else {
+        messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
       }
     };
 
@@ -94,21 +93,6 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
         });
       }
       $state.go('main.lots.edit-manifest');
-    };
-
-    $scope.removeImage = function(image) {
-      const data = {
-        lotId: $scope.lot._id,
-        image: image
-      };
-      $http.post('/api/image/remove', data).then(resp=>{
-        if(!resp.data.error) {
-          $state.reload();
-        }
-        else {
-          messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
-        }
-      });
     };
 
     $scope.linkManifestBlock = function() {
