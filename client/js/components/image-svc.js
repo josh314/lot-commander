@@ -26,7 +26,8 @@ angular.module('myApp').service('ImageSvc', ['$http', 'fileUpload',
     svc.removeLotImage = async (lot, image) => {      
       const data = {
         lotId: lot._id,
-        image: image
+        image: image.s3 ? image.s3 : image.filename,
+        imageSrc: image.s3 ? 's3' : 'local'
       };
       let resp;
 
@@ -39,6 +40,7 @@ angular.module('myApp').service('ImageSvc', ['$http', 'fileUpload',
 
     svc.deleteImageFile = async (image) => {
       return $http.post(urls.delete, { image: image });
-    }
+    };
+
   }
 ]);

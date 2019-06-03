@@ -37,6 +37,15 @@
 - create user
 - add user roles
 
+# S3 Image server
+- make sure the AWS credentials are on the server
+- do I need to delete the file on disk after saving to s3?
+- overwriting files in s3?
+	- check for existence before saving?
+- convert stuff to use S3
+	- images.downloadImages
+	- images.deleteImageFile
+
 # Facelift the UI
 - Remove unnecessary features
 	- quick lots

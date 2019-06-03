@@ -8,6 +8,7 @@ const formidable = require('formidable');
 const archiver = require('archiver');
 
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'))
+const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
 
 const imgPath = path.join(__basedir, __config.imgPath);
 if(!fs.existsSync(imgPath)) {
@@ -19,13 +20,18 @@ function upload(req,res) {
   form.parse(req, function (err, fields, files) {
   	const fileUploads = [];
   	for(let [_, f] of Object.entries(files)){
-			const s = save(f.path, path.join(imgPath, f.name), (err)=>{
-				if (err) {
-					__logger.error(err);
-					return;
-				}
-				if(fields.lotId) {
-					return lotdb.addImage(fields.lotId, { filename: f.name });
+			// const s = save(f.path, path.join(imgPath, f.name), (err)=>{
+			// 	if (err) {
+			// 		__logger.error(err);
+			// 		return;
+			// 	}
+			// 	if(fields.lotId) {
+			// 		return lotdb.addImage(fields.lotId, { filename: f.name });
+			// 	}
+			// });
+			const s = imageServer.store(fields.lotId, f.path, f.name).then(resp=>{
+				if(resp) {
+					return lotdb.addImage(fields.lotId, { s3: resp.Location });
 				}
 			});
 			fileUploads.push(s);
@@ -34,16 +40,24 @@ function upload(req,res) {
   });
 }
 
-function removeImage(req, res) {
-	const [lotId, imageFile] = [req.body.lotId, req.body.image];
-	lotdb.removeImage(lotId, imageFile).then(resp=>{
-		if(resp.error) {
-			__logger.error(resp.error);
-			res.json({error: 'Server error.'});
-		}
-		__logger.info(`Removed image ${imageFile} from lot ${lotId}.`);
+async function removeImage(req, res) {
+	const [lotId, image, imageSource] = [req.body.lotId, req.body.image, req.body.imageSource];
+	const removeImageFromLotResp = await lotdb.removeImage(lotId, image);
+	if(removeImageFromLotResp.error) {
+		__logger.error(removeImageFromLotResp.error);
+		res.json({error: 'Server error.'});
+	}
+	else {
+		__logger.info(`Removed image ${image} from lot ${lotId}.`);
 		res.json({ status: "success" });
-	})
+		try {
+			await imageServer.remove(lotId, image);
+			__logger.info(`Image ${imageServer.imageName(lotId, image)} deleted from bucket ${imageServer.bucketName(lotId)}.`);
+		}
+		catch(e) {
+			__logger.warn(`Image ${imageServer.imageName(lotId, image)} could not be deleted from bucket ${imageServer.bucketName(lotId)}.`);
+		}
+	}
 }
 
 async function downloadImages(req, res) {

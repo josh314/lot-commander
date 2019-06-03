@@ -2,6 +2,7 @@ import angular from 'angular';
 
 import printJS from 'print-js';
 
+
 /******************* View Lot Controller *************************/
 angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout',
   function($http, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, sessionTimeout) {   
@@ -26,7 +27,8 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
     getLot();
 
     $scope.getImageLink = function(image) {
-      return image.filename;
+      console.log(image);
+      return image.s3 || image.filename;
     };
 
     // Manage images
