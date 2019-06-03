@@ -7,9 +7,9 @@
   "scripts": {
     "build-client-dev": "webpack --config webpack.dev.js",
     "build-client": "webpack --mode production --config webpack.prod.js",
-    "start": "DEBUG=lot-commander node server.js",
     "debug": "DEBUG=lot-commander node inspect server.js",
-    "lint": "eslint server.js routes.js modules/"
+    "dev-server": "webpack-dev-server --open --config webpack.dev.js",
+    "start": "DEBUG=lot-commander node server.js"
   },
   "keywords": [
     "app"
@@ -62,5 +62,8 @@
     "webpack-cli": "^3.3.2",
     "webpack-merge": "^4.2.1",
     "winston": "^2.4.1"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^3.5.1"
   }
 }
