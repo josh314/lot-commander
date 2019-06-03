@@ -8,7 +8,7 @@ import "angular-ui-bootstrap";
 /************************************************************************
 ************************ Angular app init *******************************
 ************************************************************************/
-const app = angular.module('myApp', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'ngSanitize', 'ngCookies']);
+angular.module('myApp', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'ngSanitize', 'ngCookies']);
 
 /************************************************************************
 ************************ Data and constants *****************************
@@ -59,10 +59,10 @@ stateData.forEach(function(stateObj){
     navbar.navItems.push({ state: stateObj.name, title: stateObj.navName, route: stateObj.url, userAccess: stateObj.userAccess });
   }
 });
-app.constant('stateConfigData', stateConfigData);
-app.constant('navbarData', navbar);
+angular.module('myApp').constant('stateConfigData', stateConfigData);
+angular.module('myApp').constant('navbarData', navbar);
 
-app.constant('bstockConstants', {
+angular.module('myApp').constant('bstockConstants', {
   Category: [
     'Appliances',
     'Automotive',
@@ -99,7 +99,7 @@ app.constant('bstockConstants', {
   ],
 });
 
-app.constant('lotCategories', [
+angular.module('myApp').constant('lotCategories', [
   {
     prefix: 'AP',
     name: 'Apparel'
@@ -130,7 +130,7 @@ app.constant('lotCategories', [
 //************************************************************************
 //********************* Config Block *************************************
 //************************************************************************
-app.config(
+angular.module('myApp').config(
   ['$locationProvider', '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', 'stateConfigData',
     function($locationProvider, $stateProvider, $urlRouterProvider, $urlMatcherFactoryProvider, stateConfigData) {
       $locationProvider.html5Mode({enabled: true});
@@ -150,10 +150,8 @@ app.config(
 //************************************************************************
 //************************ Run Block *************************************
 //************************************************************************
-app.run(['$rootScope', '$document', function($rootScope, $document) {
+angular.module('myApp').run(['$rootScope', '$document', function($rootScope, $document) {
   $rootScope.$on('$stateChangeSuccess', function() {
     $document.prop('body').scrollTop = $document.prop('documentElement').scrollTop = 0;
   });
 }]);
-
-export default app;

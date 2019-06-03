@@ -1,8 +1,8 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 
 /******************* Scanning Page Controller *************************/
-app.controller('EditManifestCtrl', ['$scope', '$state', 'lotStore', 'saveManifest', 'sessionTimeout', function($scope, $state, lotStore, saveManifest, sessionTimeout) {
+angular.module('myApp').controller('EditManifestCtrl', ['$scope', '$state', 'lotStore', 'saveManifest', 'sessionTimeout', function($scope, $state, lotStore, saveManifest, sessionTimeout) {
   sessionTimeout.timeoutExpired();
   $scope.lot = lotStore;
   $scope.saveManifest = () => saveManifest().then(()=>{

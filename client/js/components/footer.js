@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /*********************** Footer Directive ***********************/
-app.directive('footerDirective', function(){
+angular.module('myApp').directive('footerDirective', function(){
   return {
     restrict: 'A',
     replace: true,

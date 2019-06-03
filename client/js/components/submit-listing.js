@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Scanning Page Controller *************************/
-app.controller('SubmitListingCtrl', ['$scope', '$state', '$http', 'bstockFormConstants', 'listingTitleVerifier', 'lotStore', 'messageModal', 'saveLot', 'sessionTimeout', 
+angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$http', 'bstockFormConstants', 'listingTitleVerifier', 'lotStore', 'messageModal', 'saveLot', 'sessionTimeout', 
   function($scope, $state, $http, bstockFormConstants, listingTitleVerifier, lotStore, messageModal, saveLot, sessionTimeout) {
     sessionTimeout.timeoutExpired();
 

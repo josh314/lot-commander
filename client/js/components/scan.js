@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Scanning Page Controller *************************/
-app.controller('ScanCtrl', ['$scope', '$http', '$interval', '$state', 'focus', 'lotStore', 'messageModal', 'saveManifest', 'sessionTimeout',
+angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', '$state', 'focus', 'lotStore', 'messageModal', 'saveManifest', 'sessionTimeout',
   function($scope, $http, $interval, $state, focus, lotStore, messageModal, saveManifest, sessionTimeout) {
     sessionTimeout.timeoutExpired();
     focus('barcodeInput');

@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Lot List Page Controller *************************/
-app.controller('ListLotsCtrl', ['$scope', '$state', '$http', 'dbEnums', 'lotStore', 'messageModal', 'requestFileModal', 'saveLot', 'sessionTimeout', 
+angular.module('myApp').controller('ListLotsCtrl', ['$scope', '$state', '$http', 'dbEnums', 'lotStore', 'messageModal', 'requestFileModal', 'saveLot', 'sessionTimeout', 
   function($scope, $state, $http, dbEnums, lotStore, messageModal, requestFileModal, saveLot, sessionTimeout) {
     sessionTimeout.timeoutExpired();
     $scope.lots = [];

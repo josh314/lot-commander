@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* New Lot Controller *************************/
-app.controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'listingBuilder', 'lotCategories', 'lotStore', 'messageModal', 'sessionTimeout', 
+angular.module('myApp').controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'listingBuilder', 'lotCategories', 'lotStore', 'messageModal', 'sessionTimeout', 
   function($http, $scope, $state, dbEnums, listingBuilder, lotCategories, lotStore, messageModal, sessionTimeout) {
     sessionTimeout.timeoutExpired();
 

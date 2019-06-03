@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Imports Controller *************************/
-app.controller('ImportsCtrl', ['$http', '$scope', '$state', 'fileUpload', 'messageModal', 'sessionTimeout',
+angular.module('myApp').controller('ImportsCtrl', ['$http', '$scope', '$state', 'fileUpload', 'messageModal', 'sessionTimeout',
   function($http, $scope, $state, fileUpload, messageModal, sessionTimeout) {
     sessionTimeout.timeoutExpired();
 

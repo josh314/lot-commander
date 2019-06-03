@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Angular App Root Controller ****************************/
-app.controller('RootCtrl', ['sessionTimeout', function(sessionTimeout) {
+angular.module('myApp').controller('RootCtrl', ['sessionTimeout', function(sessionTimeout) {
   sessionTimeout.init();
 }]);
 

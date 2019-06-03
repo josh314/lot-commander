@@ -1,8 +1,8 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 
 /******************* Message Modal service ******************************/
-app.factory('messageModal', ['$uibModal', function($uibModal){
+angular.module('myApp').factory('messageModal', ['$uibModal', function($uibModal){
   return {
     launch: function(message, ctrlFn, dismissFn) {
       
@@ -23,6 +23,6 @@ app.factory('messageModal', ['$uibModal', function($uibModal){
 }]);
 
 /***************** Modal Controller ************************/
-app.controller('MessageModalController', [ '$scope', 'message', function($scope, message){
+angular.module('myApp').controller('MessageModalController', [ '$scope', 'message', function($scope, message){
   $scope.message = JSON.parse(JSON.stringify(message));
 }]);

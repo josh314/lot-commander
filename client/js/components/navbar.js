@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Navbar Controller *************************/
-app.controller('NavbarCtrl', ['$scope', 'navbarData', function($scope, navbarData) {
+angular.module('myApp').controller('NavbarCtrl', ['$scope', 'navbarData', function($scope, navbarData) {
 
   const navItems = navbarData.navItems;
 
@@ -27,7 +27,7 @@ app.controller('NavbarCtrl', ['$scope', 'navbarData', function($scope, navbarDat
 }]);
 
 /*********************** Navbar Directive ***********************/
-app.directive('navbarDirective', function(){
+angular.module('myApp').directive('navbarDirective', function(){
   return {
     restrict: 'A',
     replace: true,

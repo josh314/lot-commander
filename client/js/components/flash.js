@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Flash Message controller *******************************/
-app.controller('FlashCtrl', ['$scope', function($scope) {
+angular.module('myApp').controller('FlashCtrl', ['$scope', function($scope) {
   $scope.isHidden = false;
   $scope.closeFlash = function () {
     $scope.isHidden = true;

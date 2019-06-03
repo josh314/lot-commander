@@ -1,4 +1,4 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 const categoryListingBodyBoilerplate = {
   'GM': {
@@ -159,7 +159,7 @@ const quickLotsBoilerplate = [
 ];
 
 /*********************** Listing Builder ****************************/
-app.factory('listingBuilder', [function(){
+angular.module('myApp').factory('listingBuilder', [function(){
 
   function buildFromCategory(lot) {
     const lotHandlePrefix = lot.handle.match('^[A-Z]{2}') ? lot.handle.match('^([A-Z]{2})')[1] : null;

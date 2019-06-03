@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Provides utility function for selecting focus on elements by id ***/
-app.factory('focus', ['$timeout', '$window', function($timeout, $window) {
+angular.module('myApp').factory('focus', ['$timeout', '$window', function($timeout, $window) {
   return function(id) {
     // timeout makes sure that it is invoked after any other event has been triggered.
     // e.g. click events that need to run before the focus or

@@ -1,4 +1,4 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 function passwordInvalid(password) {
   if(password.length < 20) {
@@ -9,7 +9,7 @@ function passwordInvalid(password) {
 }
 
 /*********************** Logout service ****************************/
-app.factory('logout', ['$http', '$window', 'sessionTimeout', function($http, $window, sessionTimeout){
+angular.module('myApp').factory('logout', ['$http', '$window', 'sessionTimeout', function($http, $window, sessionTimeout){
   return function() {
     $http.get('/logout').then(()=>{
       // userStore.logout();
@@ -21,7 +21,7 @@ app.factory('logout', ['$http', '$window', 'sessionTimeout', function($http, $wi
 }]);
 
 /*********************** Timeout session service ****************************/
-app.factory('sessionTimeout', ['$cookies', '$state', function($cookies, $state){
+angular.module('myApp').factory('sessionTimeout', ['$cookies', '$state', function($cookies, $state){
   const cookieName = 'lotCommander';
 
   function expireTime() {
@@ -84,12 +84,12 @@ app.factory('sessionTimeout', ['$cookies', '$state', function($cookies, $state){
 }]);
 
 /*************** Logout Controller **************************/
-app.controller('LogoutCtrl', ['logout', function(logout){
+angular.module('myApp').controller('LogoutCtrl', ['logout', function(logout){
   logout();
 }]);
 
 /******************* Change Password Controller ********************/
-app.controller('ChangeUserPasswordCtrl', ['$scope', '$http', 'logout', 'sessionTimeout', function($scope, $http, logout, sessionTimeout){
+angular.module('myApp').controller('ChangeUserPasswordCtrl', ['$scope', '$http', 'logout', 'sessionTimeout', function($scope, $http, logout, sessionTimeout){
   sessionTimeout.timeoutExpired();
   $scope.passwordMismatch = false;
   $scope.passwordInvalid = false;

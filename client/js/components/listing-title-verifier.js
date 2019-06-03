@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Provides utility function for verifying title length for different listing types ****/
-app.service('listingTitleVerifier', [function() {
+angular.module('myApp').service('listingTitleVerifier', [function() {
   return {
     tooLong: title => {
       const res = {

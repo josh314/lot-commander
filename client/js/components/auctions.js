@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Open Auctions Controller *************************/
-app.controller('ListAuctionsCtrl', ['$http', '$scope', 'sessionTimeout',
+angular.module('myApp').controller('ListAuctionsCtrl', ['$http', '$scope', 'sessionTimeout',
   function($http, $scope, sessionTimeout) {   
     sessionTimeout.timeoutExpired();
     $scope.auctions = [];
@@ -39,4 +39,4 @@ app.controller('ListAuctionsCtrl', ['$http', '$scope', 'sessionTimeout',
 ]);
 
 /******************* Finished Auctions Controller *************************/
-app.controller('FinishedAuctionsCtrl', ['sessionTimeout', sessionTimeout => sessionTimeout.timeoutExpired() ]);
+angular.module('myApp').controller('FinishedAuctionsCtrl', ['sessionTimeout', sessionTimeout => sessionTimeout.timeoutExpired() ]);

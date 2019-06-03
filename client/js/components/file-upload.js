@@ -1,8 +1,7 @@
 import angular from 'angular';
-import app from '../ng-app';
 
 // File model directive
-app.directive('fileModel', ['$parse', function ($parse) {
+angular.module('myApp').directive('fileModel', ['$parse', function ($parse) {
   return {
     restrict: 'A',
     link: function(scope, element, attrs) {
@@ -18,7 +17,7 @@ app.directive('fileModel', ['$parse', function ($parse) {
 }]);
 
 // File model directive
-app.directive('fileListModel', ['$parse', function ($parse) {
+angular.module('myApp').directive('fileListModel', ['$parse', function ($parse) {
   return {
     restrict: 'A',
     link: function(scope, element, attrs) {
@@ -34,7 +33,7 @@ app.directive('fileListModel', ['$parse', function ($parse) {
 }]);
 
 // File upload service
-app.service('fileUpload', ['$http', function ($http) {
+angular.module('myApp').service('fileUpload', ['$http', function ($http) {
   this.uploadFileToUrl = function(file, uploadUrl, metadata){
     const fd = new FormData();
     fd.append('file', file);

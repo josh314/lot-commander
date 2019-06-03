@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Upload 3rd Part Manifest Controller *************************/
-app.controller('Upload3pManifestCtrl', ['$http', '$scope', '$state', 'dbEnums', 'fileUpload', 'messageModal', 'sessionTimeout',
+angular.module('myApp').controller('Upload3pManifestCtrl', ['$http', '$scope', '$state', 'dbEnums', 'fileUpload', 'messageModal', 'sessionTimeout',
   function($http, $scope, $state, dbEnums, fileUpload, messageModal, sessionTimeout) {
     sessionTimeout.timeoutExpired();
 

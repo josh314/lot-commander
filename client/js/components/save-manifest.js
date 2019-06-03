@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Service for saving manifsets ***********************/
-app.factory('saveManifest', ['$http', '$state', 'lotStore', function($http, $state, lotStore){
+angular.module('myApp').factory('saveManifest', ['$http', '$state', 'lotStore', function($http, $state, lotStore){
   return function() {
 
     // This filters out completely empty lines

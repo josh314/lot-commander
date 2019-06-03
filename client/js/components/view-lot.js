@@ -1,9 +1,9 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 import printJS from 'print-js';
 
 /******************* View Lot Controller *************************/
-app.controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'fileUpload', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout',
+angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'fileUpload', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout',
   function($http, $scope, $state, $stateParams, $uibModal, fileUpload, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, sessionTimeout) {   
     sessionTimeout.timeoutExpired();
     $scope.lot = lotStore;
@@ -191,7 +191,7 @@ app.controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$ui
 );
 
 /***************** Modal Controllers ************************/
-app.controller('EditLotModalController', [ '$scope', 'dbEnums', 'listingTitleVerifier',  'lot', function($scope, dbEnums, listingTitleVerifier, lot){
+angular.module('myApp').controller('EditLotModalController', [ '$scope', 'dbEnums', 'listingTitleVerifier',  'lot', function($scope, dbEnums, listingTitleVerifier, lot){
   $scope.lot = JSON.parse(JSON.stringify(lot));
   $scope.lotStatusEnum = dbEnums.lotStatus;
   $scope.lotTypeEnum = dbEnums.lotType;
@@ -217,7 +217,7 @@ app.controller('EditLotModalController', [ '$scope', 'dbEnums', 'listingTitleVer
 }]);
 
 /***************** Modal Controllers ************************/
-app.controller('SetNumBoxesModalController', [ '$scope', 'lot', function($scope, lot){
+angular.module('myApp').controller('SetNumBoxesModalController', [ '$scope', 'lot', function($scope, lot){
   $scope.lot = JSON.parse(JSON.stringify(lot));
 
   $scope.invalidLot = () => {

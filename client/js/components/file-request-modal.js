@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Request File Modal Service *************************/
-app.factory('requestFileModal', ['$state', '$http', '$uibModal', function($state, $http, $uibModal) {
+angular.module('myApp').factory('requestFileModal', ['$state', '$http', '$uibModal', function($state, $http, $uibModal) {
   return {
     launch: function(lot) {
 
@@ -45,7 +45,7 @@ app.factory('requestFileModal', ['$state', '$http', '$uibModal', function($state
 }]);
 
 /***************** Modal Controller ************************/
-app.controller('RequestFileModalController', [ '$scope', 'lot', 'bstockConstants', function($scope, lot, bstockConstants){
+angular.module('myApp').controller('RequestFileModalController', [ '$scope', 'lot', 'bstockConstants', function($scope, lot, bstockConstants){
   $scope.lot = JSON.parse(JSON.stringify(lot));
   $scope.bstockConstants = bstockConstants;
 }]);

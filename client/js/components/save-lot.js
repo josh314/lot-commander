@@ -1,7 +1,7 @@
-import app from '../ng-app';
+import angular from 'angular';
 
 /******************* Provides utility function for saving lot ***/
-app.factory('saveLot', ['$http', function($http) {
+angular.module('myApp').factory('saveLot', ['$http', function($http) {
   return function(lot) {
     return $http.post('/api/db/edit-lot/'+lot._id, lot).then(()=>{
       console.log(`updated lot ${lot._id}.`);
