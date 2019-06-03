@@ -60,8 +60,6 @@
 	- angular/definedundefined
 	- angular/json-functions
 	- angular/log
-	- angular/module-getter
-	- angular/module-setter
 	- angular/no-service-method
 	- angular/on-watch******
 - move webpack and other deps to devDependencies

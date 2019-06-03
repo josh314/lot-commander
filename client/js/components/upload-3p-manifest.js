@@ -23,7 +23,7 @@ angular.module('myApp').controller('Upload3pManifestCtrl', ['$http', '$scope', '
         $scope.noFileSelected = false;
       }
 
-      if($scope.parseOpts.upcCol===undefined) {
+      if( angular.isUndefined( $scope.parseOpts.upcCol ) ) {
         $scope.noBarcodeColSelected = true;
         return;
       }
@@ -31,7 +31,7 @@ angular.module('myApp').controller('Upload3pManifestCtrl', ['$http', '$scope', '
         $scope.noBarcodeColSelected = false;
       }
 
-      if($scope.parseOpts.priceCol!==undefined && !$scope.priceType) {
+      if( angular.isDefined( $scope.parseOpts.priceCol ) && !$scope.priceType) {
         $scope.priceNeedsType = true;
         return;
       }
@@ -49,7 +49,7 @@ angular.module('myApp').controller('Upload3pManifestCtrl', ['$http', '$scope', '
           liquidationSource: $scope.liquidationSource,
           type: $scope.lotType,
         };
-        if($scope.parseOpts.priceCol!==undefined && $scope.priceType) {
+        if( angular.isDefined( $scope.parseOpts.priceCol ) && $scope.priceType) {
           metadata.priceType = $scope.priceType;
         }
         fileUpload.uploadFileToUrl(manifest, uploadUrl, metadata).then(resp=>{

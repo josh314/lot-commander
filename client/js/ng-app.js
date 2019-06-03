@@ -51,8 +51,9 @@ stateData.forEach(function(stateObj){
   stateConfigData.push({ name: stateObj.name, url: stateObj.url, templateUrl: stateObj.templateUrl, controller: stateObj.controller});
   if(stateObj.navParent) {
     const navParent = navbar.navItems.find(function(elem) { return elem.title == stateObj.navParent; });//must define navParent before child
-    if(navParent.drops === undefined)
+    if( angular.isUndefined (navParent.drops ) ) {
       navParent.drops = [];
+    }
     navParent.drops.push({ state: stateObj.name, title: stateObj.navName, userAccess: stateObj.userAccess });
   }
   else if (stateObj.navName) {

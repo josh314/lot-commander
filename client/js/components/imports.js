@@ -24,7 +24,7 @@ angular.module('myApp').controller('ImportsCtrl', ['$http', '$scope', '$state', 
         $scope.manifest.noFileSelected = false;
       }
 
-      if($scope.manifest.parseOpts.upcCol===undefined) {
+      if( angular.isUndefined( $scope.manifest.parseOpts.upcCol ) ) {
         $scope.manifest.noBarcodeColSelected = true;
         return;
       }
