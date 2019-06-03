@@ -9,21 +9,21 @@ const urls = {
 };
 
 //************* Images service
-angular.module('myApp').service('ImageSvc', ['$http', '$state', 'fileUpload', 
-  function($http, $state, fileUpload){
+angular.module('myApp').service('ImageSvc', ['$http', 'fileUpload', 
+  function($http, fileUpload){
     const svc = this;
 
-    svc.uploadLotImages = function(lot, images){
+    svc.uploadLotImages = (lot, images) => {
       return Promise.map(images, (image)=>{
         return fileUpload.uploadFileToUrl(image, urls.upload, { lotId: lot._id, primary: false });
       });
     };
 
-    svc.updateLotPrimaryImage = function(lot, image) {
+    svc.updateLotPrimaryImage = (lot, image) => {
       return $http.post(urls.setPrimary, {lotId: lot._id, primaryImage: image});
     };
 
-    svc.removeLotImage = async function(lot, image) {      
+    svc.removeLotImage = async (lot, image) => {      
       const data = {
         lotId: lot._id,
         image: image
@@ -37,7 +37,7 @@ angular.module('myApp').service('ImageSvc', ['$http', '$state', 'fileUpload',
       return resp;
     };
 
-    svc.deleteImageFile = async function(image) {
+    svc.deleteImageFile = async (image) => {
       return $http.post(urls.delete, { image: image });
     }
   }
