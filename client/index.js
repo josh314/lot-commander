@@ -14,6 +14,7 @@ import "./js/components/file-upload.js";
 import "./js/components/flash.js";
 import "./js/components/focus.js";
 import "./js/components/footer.js";
+import "./js/components/image-editor.js";
 import "./js/components/image-svc.js";
 import "./js/components/imports.js";
 import "./js/components/list-lots.js";

@@ -27,7 +27,6 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
     getLot();
 
     $scope.getImageLink = function(image) {
-      console.log(image);
       return image.s3 || image.filename;
     };
 
@@ -36,6 +35,9 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
       const resp = await ImageSvc.updateLotPrimaryImage($scope.lot, image);
       if(!resp.error) {
         $state.reload();
+      }
+      else {
+        messageModal.launch({header: 'Error', body: resp.error, type: 'error'});
       }
     };
     $scope.uploadImages = async () => { 
@@ -77,6 +79,11 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
       });
+    };
+
+    $scope.editImage = (image) => {
+      ImageSvc.setStore(image);
+      $state.go('main.lots.image-editor');
     };
 
     $scope.scanItems = function() {

@@ -24,6 +24,7 @@ const stateData = [
   { name: "main.lots.list", navName: 'List Lots', url: '/list', templateUrl: '/partials/_list_lots.html', controller: 'ListLotsCtrl'},
   { name: "main.lots.view", url: '/view/{lotId}', templateUrl: '/partials/_view_lot.html', controller: 'ViewLotCtrl'},
   { name: "main.lots.submit-listing", url: '/submit-listing', templateUrl: '/partials/_submit_listing.html', controller: 'SubmitListingCtrl'},
+  { name: "main.lots.image-editor", url: '/image-editor', templateUrl: '/partials/_image_editor.html' },
   // auctions
   { name: "main.auctions", abstract: true, url: '/auctions', templateUrl: '/partials/_container.html' },
   { name: "main.auctions.list", navName: 'List Auctions', url: '/list', templateUrl: '/partials/_list_auctions.html', controller: 'ListAuctionsCtrl'},

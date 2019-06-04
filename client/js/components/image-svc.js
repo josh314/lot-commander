@@ -35,5 +35,11 @@ angular.module('myApp').service('ImageSvc', ['$http', 'fileUpload',
       return resp;
     };
 
+    svc.getStore = () => svc.imageStore;
+
+    svc.setStore = (image) => svc.imageStore = image;
+
+    svc.resetStore = () => delete svc.imageStore;
+
   }
 ]);
