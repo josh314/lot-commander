@@ -8,8 +8,8 @@ const urls = {
 };
 
 //************* Images service
-angular.module('myApp').service('ImageSvc', ['$http', 'fileUpload', 
-  function($http, fileUpload){
+angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', 'fileUpload', 
+  function($http, $localStorage, fileUpload){
     const svc = this;
 
     svc.uploadLotImages = (lot, images) => {
@@ -35,11 +35,11 @@ angular.module('myApp').service('ImageSvc', ['$http', 'fileUpload',
       return resp;
     };
 
-    svc.getStore = () => svc.imageStore;
+    svc.getStore = () => $localStorage.image;
 
-    svc.setStore = (image) => svc.imageStore = image;
+    svc.setStore = (image) => $localStorage.image = image;
 
-    svc.resetStore = () => delete svc.imageStore;
+    svc.resetStore = () => delete $localStorage.image;
 
   }
 ]);

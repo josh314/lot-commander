@@ -4,11 +4,12 @@ import "angular-animate";
 import "angular-sanitize";
 import "@uirouter/angularjs";
 import "angular-ui-bootstrap";
+import "ngstorage";
 
 /************************************************************************
 ************************ Angular app init *******************************
 ************************************************************************/
-angular.module('myApp', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'ngSanitize', 'ngCookies']);
+angular.module('myApp', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'ngSanitize', 'ngCookies', 'ngStorage']);
 
 /************************************************************************
 ************************ Data and constants *****************************
