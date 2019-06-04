@@ -53,6 +53,5 @@ module.exports = {
   bucketName: bucketName,
   imageName: imageName,
   remove: remove,
-  replace: replace,
   store: store,
 };
