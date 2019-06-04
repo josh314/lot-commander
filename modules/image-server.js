@@ -36,9 +36,6 @@ const store = async function(lotId, imgPath, imgName) {
     .promise();
 };
 
-const replace = function() {
-
-}
 
 const remove = function(lotId, s3Location) {
   const bucket = bucketName(lotId);
