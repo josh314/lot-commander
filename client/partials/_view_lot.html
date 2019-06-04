@@ -80,12 +80,12 @@
 				<!-- Checkbox to make primary -->
 				<div class="row">
 					<div class="form-group col-xs-6">
-						<label for="primary-{{image.filename}}">Primary
-							<input type="checkbox" id="primary-{{image.filename}}" ng-model="image.primary" ng-click="updatePrimaryImage(image.filename)">
+						<label for="primary-{{image.s3 || image.filename}}">Primary
+							<input type="checkbox" id="primary-{{image.s3 || image.filename}}" ng-model="image.primary" ng-click="updatePrimaryImage(image)">
 						</label>
 					</div>
 					<div class="col-xs-6">
-						<button class="btn btn-danger btn-sm" ng-click="removeImage(image)">Remove Image</button>
+						<button class="btn btn-danger btn-xs" ng-click="removeImage(image)">Remove Image</button>
 					</div>
 				</div>
 			</div>
