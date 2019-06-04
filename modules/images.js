@@ -93,22 +93,8 @@ async function downloadImages(req, res) {
 	__logger.log('Image archive finalized');
 }
 
-async function deleteImageFile(req, res) {
-	const imageFilePath = path.join(imgPath, req.body.image);
-	fs.unlink(imageFilePath, (err) => {
-		if(err) {
-			console.error(err);
-		}
-		else {
-			console.log(`Successfully deleted ${imageFilePath}.`);
-		}
-	});
-	res.json({ status: "in-progress" });
-}
-
 module.exports = {
 	upload: upload,
 	removeImage: removeImage,
 	downloadImages: downloadImages,
-	deleteImageFile: deleteImageFile,
 };

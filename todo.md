@@ -44,7 +44,6 @@
 	- check for existence before saving?
 - convert stuff to use S3
 	- images.downloadImages
-	- images.deleteImageFile
 
 # Facelift the UI
 - Remove unnecessary features
