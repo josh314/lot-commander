@@ -1,28 +1,58 @@
 import angular from 'angular';
 import * as Croppie from 'croppie';
 
-/******************* Flash Message controller *******************************/
-angular.module('myApp').controller('ImageEditorCtrl', ['ImageSvc', function(ImageSvc) {
+/******************* Croppie container directive ***************************/
+angular.module('myApp').directive('editor', [function(){
 
-  const image = ImageSvc.getStore();
+}]);
 
-  const el = document.getElementById('croppie-container');
-  const editor = new Croppie(
-    document.getElementById('croppie-container'),
-    {
-      viewport: { width: 200, height: 100 },
-      boundary: { width: 300, height: 300 },
-      showZoomer: true,
-      // enableOrientation: true,
-      enableResize: true,
-      mouseWheelZoom: 'ctrl'
+/******************* Image editor controller *******************************/
+angular.module('myApp').controller('ImageEditorCtrl', [ '$document', 'fileUpload', 'ImageSvc', function($document, fileUpload, ImageSvc) {
+  const vm = this;
+
+  const imgProps = {
+    rotate: 0,
+  };
+  let editor;
+
+  const imageStore = ImageSvc.getStore();
+  const img = new Image();
+
+  img.onload = () => {
+    editor = new Croppie(
+      $document[0].getElementById('croppie-container'),
+      {
+        viewport: { width: img.width, height: img.height },
+        boundary: { width: img.width+100, height: img.height+100 },
+        showZoomer: false,
+        enableOrientation: true,
+        enableResize: true,
+        mouseWheelZoom: 'ctrl'
+      }
+    );
+    editor.bind({
+      url: imageStore.s3 || imageStore.filename,
+      // orientation: 1
+    });
+  };
+  img.src = imageStore.s3 || imageStore.filename;
+
+  vm.rotate = () => {
+    imgProps.rotate = ( imgProps.rotate + 90 ) % 360;
+    if(imgProps.rotate) {
+      editor.rotate(imgProps.rotate);
     }
-  );
-  editor.bind({
-      url: image.s3 || image.filename,
-      orientation: 1
-  });
+    else {
+      editor.bind({
+        url: imageStore.s3 || imageStore.filename,
+        oritentation: 1,
+      });
+    }
+  };
 
-
+  vm.crop = async () => {
+    const blob = await editor.result('blob', 'viewport', 'jpeg');
+    fileUpload.uploadFileToUrl(blob, '/api/image/replace', ImageSvc.getStore());
+  };
 }]);
 
