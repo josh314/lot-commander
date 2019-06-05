@@ -49,14 +49,23 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
         $state.reload();
       }
     };
-    $scope.removeImage = async (image) => {
-      const resp = await ImageSvc.removeLotImage($scope.lot, image);
-      if(!resp.data.error) {
-        $state.reload();
-      }
-      else {
-        messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
-      }
+    $scope.removeImage = (image) => {
+      const modalInstance = $uibModal.open({
+        templateUrl: '/partials/_remove_image_modal.html',
+        size: 'lg',
+      });
+
+      modalInstance.result.then(async function () {
+        const resp = await ImageSvc.removeLotImage($scope.lot, image);
+        if(!resp.data.error) {
+          $state.reload();
+        }
+        else {
+          messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
+        }
+      }, function () {
+        console.log('Modal dismissed at: ' + new Date());
+      });
     };
 
     $scope.editLot = function() {

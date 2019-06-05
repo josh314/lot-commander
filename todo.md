@@ -35,7 +35,6 @@
 - Creating Listing Page: Automatically make the lot price 20% of the retail value. This will remove decision making.
 - create user
 - add user roles
-- modal to ask if you really want to remove image after the button push
 
 # S3 Image server
 - make sure the AWS credentials are on the server
