@@ -99,8 +99,6 @@ async function downloadImages(req, res) {
 async function replaceImage(req, res) {
 	const form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
-  	console.log(fields)
-  	console.log(files)
   	const fileUploads = [];
   	for(let [_, f] of Object.entries(files)){
   		let s;
@@ -109,14 +107,12 @@ async function replaceImage(req, res) {
   		}
   		else {
   		  s = save(f.path, path.join(imgPath, fields.filename), (err)=>{
-  		  	//TODO: can this overwrite existing file?
 					if (err) {
 						__logger.error(err);
 						return;
 					}
 				});
   		}
-  		// TODO: deal with local files
 			fileUploads.push(s);
 		}
 		res.json(Promise.all(fileUploads));

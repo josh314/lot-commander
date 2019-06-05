@@ -91,8 +91,13 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
     };
 
     $scope.editImage = (image) => {
-      ImageSvc.setStore(image);
-      $state.go('main.lots.image-editor');
+      if(image.svc) {
+        ImageSvc.setStore(image);
+        $state.go('main.lots.image-editor');
+      }
+      else {
+        messageModal.launch({header: 'Error', body: 'This image cannot be edited.', type: 'error'});
+      }
     };
 
     $scope.scanItems = function() {

@@ -19,6 +19,7 @@
 		- remove quantities
 - image collage-building widget
 - image editing
+	- check size of edited images
 	- features
 		- cropping
 		- resizing 

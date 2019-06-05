@@ -14,6 +14,19 @@ const imageName = (s3Location) => {
   return match ? match[1] : null;
 };
 
+const parseS3Location = (s3Location) => {
+  const res = {};
+
+  const p = new RegExp(`https:\/\/(.*)\.s3\.amazonaws\.com\/(.*)`);
+  const match = s3Location.match(p);
+  if(match) {
+    res.bucket = match[1];
+    res.key = match[2];
+  }
+
+  return res;
+};
+
 const store = async function(lotId, imgPath, imgName) {
   const bucket = bucketName(lotId);
   try {
@@ -65,9 +78,21 @@ const remove = function(lotId, s3Location) {
   else return Promise({});
 }
 
+const replace = (s3Location, imgPath) => {
+  const { bucket , key } = parseS3Location(s3Location);
+  return s3.upload({
+    Bucket: bucket,
+    Key: key,
+    Body: fs.createReadStream(imgPath),
+    ACL: "public-read",
+  })
+    .promise();
+};
+
 module.exports = {
   bucketName: bucketName,
   imageName: imageName,
   remove: remove,
+  replace: replace,
   store: store,
 };
