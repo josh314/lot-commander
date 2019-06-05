@@ -40,5 +40,11 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', 'fileUplo
 
     svc.resetStore = () => delete $localStorage.image;
 
+    svc.getLotIdFromImageS3Location = (s3Location) => {
+      const p = /https:\/\/lot-img-(.*)\.s3\.amazonaws\.com/;
+      const match = s3Location.match(p);
+      return match ? match[1] : null;
+    };
+
   }
 ]);
