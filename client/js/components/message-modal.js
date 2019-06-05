@@ -7,7 +7,7 @@ angular.module('myApp').factory('messageModal', ['$uibModal', function($uibModal
     launch: function(message, ctrlFn, dismissFn) {
       
       const modalInstance = $uibModal.open({
-        templateUrl: '/partials/_message_modal.html',
+        templateUrl: '/partials/modals/_message_modal.html',
         size: 'lg',
         controller: 'MessageModalController',
         resolve: {

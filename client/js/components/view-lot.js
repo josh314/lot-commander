@@ -51,7 +51,7 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
     };
     $scope.removeImage = (image) => {
       const modalInstance = $uibModal.open({
-        templateUrl: '/partials/_remove_image_modal.html',
+        templateUrl: '/partials/modals/_remove_image_modal.html',
         size: 'lg',
       });
 
@@ -70,7 +70,7 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
 
     $scope.editLot = function() {
       const modalInstance = $uibModal.open({
-        templateUrl: '/partials/_edit_lot_modal.html',
+        templateUrl: '/partials/modals/_edit_lot_modal.html',
         size: 'lg',
         controller: 'EditLotModalController', 
         resolve: {
@@ -147,7 +147,7 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
 
     $scope.deleteLot = function(lotId) {
       const modalInstance = $uibModal.open({
-        templateUrl: '/partials/_delete_lot_modal.html',
+        templateUrl: '/partials/modals/_delete_lot_modal.html',
         size: 'lg',
       });
 
@@ -169,7 +169,7 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
       }
       else {
         const modalInstance = $uibModal.open({
-          templateUrl: '/partials/_set_num_boxes_modal.html',
+          templateUrl: '/partials/modals/_set_num_boxes_modal.html',
           size: 'lg',
           controller: 'SetNumBoxesModalController', 
           resolve: {

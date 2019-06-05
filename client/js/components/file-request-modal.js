@@ -6,7 +6,7 @@ angular.module('myApp').factory('requestFileModal', ['$state', '$http', '$uibMod
     launch: function(lot) {
 
       const modalInstance = $uibModal.open({
-        templateUrl: '/partials/_request_file_modal.html',
+        templateUrl: '/partials/modals/_request_file_modal.html',
         size: 'lg',
         controller: 'RequestFileModalController',
         resolve: {
