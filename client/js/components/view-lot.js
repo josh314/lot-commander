@@ -91,7 +91,7 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
     };
 
     $scope.editImage = (image) => {
-      if(image.svc) {
+      if(image.s3) {
         ImageSvc.setStore(image);
         $state.go('main.lots.image-editor');
       }

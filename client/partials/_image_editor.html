@@ -1,9 +1,18 @@
 <div class="container" ng-controller="ImageEditorCtrl as editor">
   <div class="well">
     <div id="croppie-container"></div>
-    <div class="row">
-      <button class="btn btn-primary" ng-click="editor.rotate()">Rotate</button>
-      <button class="btn btn-primary" ng-click="editor.preview()">Crop</button>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-6 col-xs-offset-3 well">
+      <div class="row">
+        <div class="col-xs-12 col-md-6 text-center">
+          <button class="btn btn-primary btn-lg" ng-click="editor.rotate()">Rotate</button>
+        </div>
+        <div class="col-xs-12 col-md-6 text-center">
+          <button class="btn btn-primary btn-lg" ng-click="editor.preview()">Save</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
