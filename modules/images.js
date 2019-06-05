@@ -41,21 +41,24 @@ function upload(req,res) {
 }
 
 async function removeImage(req, res) {
-	const [lotId, image, imageSource] = [req.body.lotId, req.body.image, req.body.imageSource];
+	const [lotId, image] = [req.body.lotId, req.body.image];
 	const removeImageFromLotResp = await lotdb.removeImage(lotId, image);
 	if(removeImageFromLotResp.error) {
 		__logger.error(removeImageFromLotResp.error);
 		res.json({error: 'Server error.'});
 	}
 	else {
-		__logger.info(`Removed image ${image} from lot ${lotId}.`);
+		__logger.info(`Removed image ${image.s3 || image.filename} from lot ${lotId}.`);
 		res.json({ status: "success" });
-		try {
-			await imageServer.remove(lotId, image);
-			__logger.info(`Image ${imageServer.imageName(lotId, image)} deleted from bucket ${imageServer.bucketName(lotId)}.`);
-		}
-		catch(e) {
-			__logger.warn(`Image ${imageServer.imageName(lotId, image)} could not be deleted from bucket ${imageServer.bucketName(lotId)}.`);
+		if(image.s3) {
+			try {
+				await imageServer.remove(lotId, image.s3);
+				__logger.info(`Image ${imageServer.imageName(image.s3)} deleted from bucket ${imageServer.bucketName(lotId)}.`);
+			}
+			catch(e) {
+				__logger.warn(`Image ${imageServer.imageName(image.s3)} could not be deleted from bucket ${imageServer.bucketName(lotId)}.`);
+				__logger.error(e);
+			}
 		}
 	}
 }
