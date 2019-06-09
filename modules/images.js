@@ -17,7 +17,8 @@ if(!fs.existsSync(imgPath)) {
 
 async function get(req, res) {
 	const s3Location = decodeURIComponent(req.query.s3);
-	res.send(imageServer.get( { s3Location: s3Location } ));
+	const imgResp = await imageServer.get( { s3Location: s3Location } );
+	res.send(imgResp.Body);
 }
 
 function upload(req,res) {

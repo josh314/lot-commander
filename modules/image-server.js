@@ -33,12 +33,10 @@ const get = async function(opts = {}) {
     return null;
   }
 
-  const awsReq = s3.getObject({
+  return s3.getObject({
     Bucket: bucket,
     Key: key,
-  });
-
-  return opts.promise ? awsReq.promise() : awsReq.createReadStream();
+  }).promise();
 }
 
 const store = async function(lotId, imgPath, imgName) {
