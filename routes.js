@@ -69,6 +69,7 @@ function routes(env) {
   router.get('/api/image/download/:lotId', images.downloadImages);
   router.post('/api/image/remove', images.removeImage);
   router.post('/api/image/replace', images.replaceImage);
+  router.get('/api/image', images.get);
 
   // marketplace listings
   router.post('/api/listings/submit', listings.submit);

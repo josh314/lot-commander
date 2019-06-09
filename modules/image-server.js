@@ -27,6 +27,20 @@ const parseS3Location = (s3Location) => {
   return res;
 };
 
+const get = async function(opts = {}) {
+  let { bucket, key } = opts.s3Location ? parseS3Location(opts.s3Location) : opts;
+  if(!bucket || !key) {
+    return null;
+  }
+
+  const awsReq = s3.getObject({
+    Bucket: bucket,
+    Key: key,
+  });
+
+  return opts.promise ? awsReq.promise() : awsReq.createReadStream();
+}
+
 const store = async function(lotId, imgPath, imgName) {
   const bucket = bucketName(lotId);
   try {
@@ -91,6 +105,7 @@ const replace = (s3Location, imgPath) => {
 
 module.exports = {
   bucketName: bucketName,
+  get: get,
   imageName: imageName,
   remove: remove,
   replace: replace,

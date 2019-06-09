@@ -40,5 +40,14 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', 'fileUplo
 
     svc.resetStore = () => delete $localStorage.image;
 
+    svc.getFromImageServer = (s3Location) => {
+      try {
+        return $http.get(`/api/image/?s3=${encodeURIComponent(s3Location)}`);
+      }
+      catch(e) {
+        throw Error(`Problem obtaining image at ${s3Location}`);
+      }
+    };
+
   }
 ]);

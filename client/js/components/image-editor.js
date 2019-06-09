@@ -16,26 +16,32 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal'
   let editor;
 
   const imageStore = ImageSvc.getStore();
-  const img = new Image();
 
-  img.onload = () => {
-    editor = new Croppie(
-      $document[0].getElementById('croppie-container'),
-      {
-        viewport: { width: img.width, height: img.height },
-        boundary: { width: img.width+100, height: img.height+100 },
-        showZoomer: false,
-        enableOrientation: true,
-        enableResize: true,
-        mouseWheelZoom: 'ctrl'
-      }
-    );
-    editor.bind({
-      url: imageStore.s3 || imageStore.filename,
-      // orientation: 1
-    });
+  const initImg = async () => {
+    const img = new Image();
+
+    img.onload = () => {
+      editor = new Croppie(
+        $document[0].getElementById('croppie-container'),
+        {
+          viewport: { width: img.width, height: img.height },
+          boundary: { width: img.width+100, height: img.height+100 },
+          showZoomer: false,
+          enableOrientation: true,
+          enableResize: true,
+          mouseWheelZoom: 'ctrl'
+        }
+      );
+      editor.bind({
+        url: `/api/image/?s3=${encodeURIComponent(imageStore.s3)}` || imageStore.filename,
+        // orientation: 1
+      });
+    };
+    img.src = `/api/image/?s3=${encodeURIComponent(imageStore.s3)}` || imageStore.filename;
+    return img;
   };
-  img.src = imageStore.s3 || imageStore.filename;
+  initImg();
+
 
   vm.rotate = () => {
     imgProps.rotate = ( imgProps.rotate + 90 ) % 360;

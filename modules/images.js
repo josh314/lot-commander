@@ -15,6 +15,11 @@ if(!fs.existsSync(imgPath)) {
 	fs.mkdirSync(imgPath);
 }
 
+async function get(req, res) {
+	const s3Location = decodeURIComponent(req.query.s3);
+	res.send(imageServer.get( { s3Location: s3Location } ));
+}
+
 function upload(req,res) {
 	const form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
@@ -120,6 +125,7 @@ async function replaceImage(req, res) {
 }
 
 module.exports = {
+	get: get,
 	upload: upload,
 	removeImage: removeImage,
 	replaceImage: replaceImage,
