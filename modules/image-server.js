@@ -49,23 +49,6 @@ const store = async function(lotId, imgPath, imgName) {
       Bucket: bucket,
       ACL: 'public-read',
     }).promise();
-
-    await s3.putBucketCors({
-      Bucket: bucket,
-      CORSConfiguration: {
-        CORSRules: [
-          {
-            AllowedMethods: [
-              "GET"
-            ],
-            AllowedOrigins: [ 
-              "*"
-            ],
-            MaxAgeSeconds: 3000
-          }
-        ]
-      }
-    }).promise();
   }
 
   return s3.upload({
