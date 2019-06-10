@@ -1,13 +1,11 @@
 const path = require('path');
 const fs = require('fs');
 
-const moment = require('moment');
 const json2csv = require('json2csv');
 const formidable = require('formidable');
 
 const Promise = require('bluebird');
 const readDir = Promise.promisify(fs.readdir);
-const readFile = Promise.promisify(fs.readFile);
 const writeFile = Promise.promisify(fs.writeFile);
 const fileStats = Promise.promisify(fs.stat);
 
@@ -56,33 +54,33 @@ function listManifestFiles(req, res) {
         f.updatedAt = stats.mtime;
         f.size = humanReadableSize(stats.size);
         return f;
-      }))
+      }));
     }
     return Promise.all(fileData);
   })
-  .then(files=>{
-    return files.sort((a,b) => (new Date(a.updatedAt)) < (new Date(b.updatedAt)))
-  })
-  .then(files=>{
-    return files.slice(0, limit);
-  })
-  .then(files=>{
-    res.json({
-      status: 'success',
-      files: files,
+    .then(files=>{
+      return files.sort((a,b) => (new Date(a.updatedAt)) < (new Date(b.updatedAt)));
+    })
+    .then(files=>{
+      return files.slice(0, limit);
+    })
+    .then(files=>{
+      res.json({
+        status: 'success',
+        files: files,
+      });
+    }).
+    catch(err=>{
+      __logger.error(err);
+      res.json({
+        status: 'error',
+        error: err.toString()
+      });
     });
-  }).
-  catch(err=>{
-    __logger.error(err);
-    res.json({
-      status: 'error',
-      error: err.toString()
-    });
-  })
 }
 
 function getProductData(inventory) {
-  console.log(`Retreiving API product data for ${inventory.length} products`)
+  console.log(`Retreiving API product data for ${inventory.length} products`);
   const productDataReqs = [];
   for(let manifestItem of inventory) {
     productDataReqs.push(
@@ -93,12 +91,12 @@ function getProductData(inventory) {
           quantity: manifestItem.quantity,
           price: retrievedProductData.price || manifestItem.price,
           images: retrievedProductData.images || [],
-        }
+        };
         return res;
       })
     );
   }
-  return Promise.all(productDataReqs)
+  return Promise.all(productDataReqs);
 }
 
 function formatManifestFromInventoryProductData(opts={}) {
@@ -141,7 +139,7 @@ function formatManifestFromInventoryProductData(opts={}) {
           Manufacturer: '',
           Model: '',
           'Expiration Date': '',
-        }
+        };
       }
       else {
         item = {
@@ -150,7 +148,7 @@ function formatManifestFromInventoryProductData(opts={}) {
           unitPrice: inventoryItem.price,
           quantity: inventoryItem.quantity,
           images: inventoryItem.images || []
-        }
+        };
       }
 
       return item;
@@ -159,7 +157,7 @@ function formatManifestFromInventoryProductData(opts={}) {
     manifestItems.totalRetailValue = totalRetailValue;
 
     return manifestItems;
-  }
+  };
 }
 
 function buildManifestItems(inventory, opts={}) {
@@ -197,14 +195,14 @@ function getManifestItemsForLot(lot, opts={}) {
   const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.toObject().inventory) : Promise.resolve([]);
   const thirdPartyManifestP = lot.thirdPartyManifests.length ? inmarDb.getBlockByBlockId(lot.thirdPartyManifests[0].blockId).then(b => b.contents) : Promise.resolve([]);
   return Promise.join(scannedManifestP, thirdPartyManifestP).spread(async (scannedInventory, thirdPartyInventory)=>{
-    const inventory = scannedInventory.concat(thirdPartyInventory)
+    const inventory = scannedInventory.concat(thirdPartyInventory);
     return buildManifestItems(inventory, opts);
   });
 }
 
 async function getManifestCsv(lot, manifestOpts={}) {
   const manifestItems = await getManifestItemsForLot(lot, manifestOpts);
-  return json2csv.parse(manifetsItems.map(x => { 
+  return json2csv.parse(manifestItems.map(x => { 
     const res = Object.assign({}, x);
     delete res.images;
     return res;
@@ -226,7 +224,7 @@ async function generateManifestFile(req, res, next){
 
   const manifestCsv = await getManifestCsv(lot, manifestOpts);
   const filename = path.join(manifestFilesPath, `${lot.handle}${req.body.bstock? '-bstock': ''}-${lot._id}.csv`);
-  writeFile(filename, manifestCsv).then(()=>{__logger.info(`Manifest written to ${filename}`)});
+  writeFile(filename, manifestCsv).then(()=>{__logger.info(`Manifest written to ${filename}`);});
 }
 
 function downloadManifestFile(req, res) {
@@ -235,7 +233,7 @@ function downloadManifestFile(req, res) {
     res.download(path.join(manifestFilesPath, req.params.file));
   }
   catch (err) {
-    __logger.error(err)
+    __logger.error(err);
     res.json({
       status: 'error',
       error: err.toString()
@@ -247,37 +245,37 @@ function submit3pManifest(req,res,next) {
   const form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
     manParse.parse(files.file.path, JSON.parse(fields.parseOpts))
-    .catch(e=>{
-      e.clientMessage = 'Error parsing uploaded file. Check if all settings are correct.';
-      throw e;
-    }).
-    then(blocks=>{
-      const manifest = {};
-      if(fields.liquidationSource) {
-        manifest.liquidationSource = fields.liquidationSource;
-      }
-      if(fields.purchasingSource) {
-        manifest.purchasingSource = fields.purchasingSource;
-      }
-      if(fields.type) {
-        manifest.type = fields.type;
-      }
-      if(fields.priceType) {
-        manifest.priceType = fields.priceType;
-      }
-      manifest.blocks = Object.entries(blocks).map( item => {
-        return { blockId: item[0], contents: item[1] }
-      });
-      //TODO: handle other purchasing sources besides inmar
-      inmarDb.newManifest(manifest).then(newManifest=>{
-        res.json(newManifest);        
+      .catch(e=>{
+        e.clientMessage = 'Error parsing uploaded file. Check if all settings are correct.';
+        throw e;
+      }).
+      then(blocks=>{
+        const manifest = {};
+        if(fields.liquidationSource) {
+          manifest.liquidationSource = fields.liquidationSource;
+        }
+        if(fields.purchasingSource) {
+          manifest.purchasingSource = fields.purchasingSource;
+        }
+        if(fields.type) {
+          manifest.type = fields.type;
+        }
+        if(fields.priceType) {
+          manifest.priceType = fields.priceType;
+        }
+        manifest.blocks = Object.entries(blocks).map( item => {
+          return { blockId: item[0], contents: item[1] };
+        });
+        //TODO: handle other purchasing sources besides inmar
+        inmarDb.newManifest(manifest).then(newManifest=>{
+          res.json(newManifest);        
+        });
       })
-    })
-    .catch(e=>{
+      .catch(e=>{
       // Customize server error messages
-      next(e);
-    })
-  })
+        next(e);
+      });
+  });
 }
 
 function boilerplateManifestItems(lot, manifestOptions) {
@@ -304,4 +302,4 @@ module.exports = {
   downloadManifestFile: downloadManifestFile,
   submit3pManifest: submit3pManifest,
   boilerplateManifestItems: boilerplateManifestItems,
-}
+};
