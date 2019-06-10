@@ -126,25 +126,25 @@ async function getAsinsFromMwsApiForBarcode(barcode) {
 //*****************************************************
 
 async function getProductDataFromUpcItemDb(barcode) {
-	let productData = {};
+  let productData = {};
 
-	let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
-	if(!normalizedBarcode) {
-		normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
-	}
+  let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
+  if(!normalizedBarcode) {
+    normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
+  }
 
-	if(normalizedBarcode) {
-		const apiResp = await upcItemDbClient.lookup(barcode);
-		if(apiResp && apiResp.items && apiResp.items[0]) {
-			__logger.info(`Product data obtained from UpcItemDb for barcode ${normalizedBarcode}.`);
-			productData = Object.assign(productData, dataModule.collateApiRespItems(apiResp.items));
-		}
-		else {
-			__logger.info(`No product data found in UpcItemDb for barcode ${normalizedBarcode}.`);
-		}
-		productData.normalizedBarcode = normalizedBarcode;
-	}
-	return productData;
+  if(normalizedBarcode) {
+    const apiResp = await upcItemDbClient.lookup(barcode);
+    if(apiResp && apiResp.items && apiResp.items[0]) {
+      __logger.info(`Product data obtained from UpcItemDb for barcode ${normalizedBarcode}.`);
+      productData = Object.assign(productData, dataModule.collateApiRespItems(apiResp.items));
+    }
+    else {
+      __logger.info(`No product data found in UpcItemDb for barcode ${normalizedBarcode}.`);
+    }
+    productData.normalizedBarcode = normalizedBarcode;
+  }
+  return productData;
 }
 
 //***************************************************
