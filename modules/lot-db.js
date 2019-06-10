@@ -19,7 +19,7 @@ function getLotById(lotId) {
 
 function getLotByIdApi(req, res) {
   getLotById(req.params.lotId).then(resp=>{
-    res.json(resp)
+    res.json(resp);
   });
 }
 
@@ -43,7 +43,7 @@ function getLots(req, res) {
     query.status = req.body.status;
   }
   if(req.body.handle) {
-    let regExpStr = ';'
+    let regExpStr = ';';
     if(req.body.handle.prefix) {
       regExpStr = '^'+req.body.handle.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
@@ -54,7 +54,7 @@ function getLots(req, res) {
   }
   lotdbClient.getLots(query, opts).then(resp=>{
     res.json(resp);
-  })
+  });
 }
 
 function newLot(req, res) {
@@ -65,12 +65,12 @@ function newLot(req, res) {
     if(!resp || !resp[0]) {
       lotdbClient.submitNewLot(newLot).then(resp=>{
         res.json(resp);
-      })
+      });
     }
     else {
       res.json({lotExists: true});
     }
-  })
+  });
 }
 
 function editLotMetadata(req, res) {
@@ -78,7 +78,7 @@ function editLotMetadata(req, res) {
   lotData._id = req.params.lotId;
   lotdbClient.updateLot(lotData).then(resp=>{
     res.json(resp);
-  })
+  });
 }
 
 function saveManifest(req, res) {
@@ -89,22 +89,22 @@ function saveManifest(req, res) {
     _id: lot.manifestId,
     handle: lot.handle,
     inventory: lot.inventory,
-  }
+  };
   mandb.submitManifest(manifest)
-  .then(mandbResp=>{
-    if(mandbResp) {
-      const lotUpdate = {
-        _id: lot._id,
-        // totalUnits: lot.inventory.reduce( (sum, item) => { return sum + item.quantity; }, 0),
-        totalUnits: lot.totalUnits ? lot.totalUnits : 0,
-        manifestId: mandbResp._id,
+    .then(mandbResp=>{
+      if(mandbResp) {
+        const lotUpdate = {
+          _id: lot._id,
+          // totalUnits: lot.inventory.reduce( (sum, item) => { return sum + item.quantity; }, 0),
+          totalUnits: lot.totalUnits ? lot.totalUnits : 0,
+          manifestId: mandbResp._id,
+        };
+        return Promise.join(mandbResp, lotdbClient.updateLot(lotUpdate));
       }
-      return Promise.join(mandbResp, lotdbClient.updateLot(lotUpdate))
-    }
-  })
-  .then(resp=>{
-    res.json(resp);
-  })
+    })
+    .then(resp=>{
+      res.json(resp);
+    });
 }
 
 function getManifest(req, res) {
@@ -116,13 +116,13 @@ function getManifest(req, res) {
 function setPrimaryImage(req, res) {
   lotdbClient.setPrimaryImage(req.body.lotId, req.body.primaryImage).then(resp=>{
     if(resp.error) {
-      __logger.error(resp.error)
+      __logger.error(resp.error);
       res.json({error: 'server error.'});
     }
     else {
       res.json(resp);
     }
-  })
+  });
 }
 
 function addImage(lotId, imageMetadata) {
@@ -137,7 +137,7 @@ function link3pManifestBlock(req, res, next){
   const blockId = req.body.blockId;
   inmarDb.getManifestByBlockId(blockId).then(manifest=>{
     if(!manifest) {
-      const msg = 'Block Id not found.'
+      const msg = 'Block Id not found.';
       const e = new Error(msg);
       e.clientMessage = msg;
       next(e);
@@ -157,7 +157,7 @@ function import3pManifestBlock(req, res, next){
   const blockId = req.body.blockId;
   inmarDb.getManifestByBlockId(blockId).then(thirdPartyManifest=>{
     if(!thirdPartyManifest) {
-      const msg = 'Block Id not found.'
+      const msg = 'Block Id not found.';
       const e = new Error(msg);
       e.clientMessage = msg;
       next(e);
@@ -170,19 +170,19 @@ function import3pManifestBlock(req, res, next){
         handle: lot.handle,
         inventory: block.contents,
       })
-      .then(mandbResp=>{
-        if(mandbResp) {
-          const lotUpdate = {
-            _id: lot._id,
-            totalUnits: block.contents.reduce((units, item) => units + item.quantity, 0),
-            manifestId: mandbResp._id,
+        .then(mandbResp=>{
+          if(mandbResp) {
+            const lotUpdate = {
+              _id: lot._id,
+              totalUnits: block.contents.reduce((units, item) => units + item.quantity, 0),
+              manifestId: mandbResp._id,
+            };
+            return Promise.join(mandbResp, lotdbClient.updateLot(lotUpdate));
           }
-          return Promise.join(mandbResp, lotdbClient.updateLot(lotUpdate))
-        }
-      })
-      .then(resp=>{
-        res.json(resp);
-      })
+        })
+        .then(resp=>{
+          res.json(resp);
+        });
     }
   });
 }
