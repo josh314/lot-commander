@@ -20,41 +20,41 @@ mongoose.Promise = require('bluebird');
 //======================================
 
 const userRolesEnum = [
-    'disabled',
-    'n00b',
-    'basic',
-    'captain',
-    'manager',
-    'admin',
-    'owner',
-  ];
+  'disabled',
+  'n00b',
+  'basic',
+  'captain',
+  'manager',
+  'admin',
+  'owner',
+];
 
 const userSchema = mongoose.Schema({
-	name: String,
+  name: String,
   role: { type: String, enum: userRolesEnum },
-	local: {
-		username: String,
-		password: String,
-	},
+  local: {
+    username: String,
+    password: String,
+  },
 }, {collection: 'users', timestamps: true});
 
 // methods ======================
 // generating a hash
 userSchema.methods.generateHash = function(password) {
-	return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+  return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 };
 
 // checking if password is valid
 userSchema.methods.validPassword = function(password) {
-	return bcrypt.compareSync(password, this.local.password);
+  return bcrypt.compareSync(password, this.local.password);
 };
 
 userSchema.methods.getPublicInfo = function() {
-	return {
-		id: this.id,
-		name: this.name,
-		username: this.local.username,
-	};
+  return {
+    id: this.id,
+    name: this.name,
+    username: this.local.username,
+  };
 };
 
 const User = __connections.users.model('User', userSchema);
@@ -77,14 +77,14 @@ const passport = require('passport');
 
 // used to serialize the user for the session
 passport.serializeUser(function(user, done) {
-    done(null, user.id);
+  done(null, user.id);
 });
 
 // used to deserialize the user
 passport.deserializeUser(function(id, done) {
-    User.findById(id, function(err, user) {
-        done(err, user);
-    });
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
 });
 
 // =========================================================================
@@ -94,36 +94,36 @@ passport.deserializeUser(function(id, done) {
 // by default, if there was no name, it would just be called 'local'
 
 passport.use('local-login', new LocalStrategy({
-    // // by default, local strategy uses username and password, we will override with name
-    // usernameField : 'name',
-    // passwordField : 'password',
-    passReqToCallback : true // allows us to pass back the entire request to the callback
+  // // by default, local strategy uses username and password, we will override with name
+  // usernameField : 'name',
+  // passwordField : 'password',
+  passReqToCallback : true // allows us to pass back the entire request to the callback
 },
 function(req, username, password, done) { // callback with name and password from our form
 
-    // find a user whose name is the same as the forms name
-    // we are checking to see if the user trying to login already exists
-    User.findOne({ 'local.username' :  username }, function(err, user) {
-        // if there are any errors, return the error before anything else
-        if (err)
-            return done(err);
+  // find a user whose name is the same as the forms name
+  // we are checking to see if the user trying to login already exists
+  User.findOne({ 'local.username' :  username }, function(err, user) {
+    // if there are any errors, return the error before anything else
+    if (err)
+      return done(err);
 
-        // if no valid user is found, return the message
-        // if (!user || user.isDisabled()) {
-        if(!user) {
-            req.session.flash = flashMessages.userNotFound;
-            return done(null, false);
-        }
+    // if no valid user is found, return the message
+    // if (!user || user.isDisabled()) {
+    if(!user) {
+      req.session.flash = flashMessages.userNotFound;
+      return done(null, false);
+    }
 
-        // if the user is found but the password is wrong
-        if (!user.validPassword(password)) {
-            req.session.flash = flashMessages.wrongPassword;
-            return done(null, false);
-        }
+    // if the user is found but the password is wrong
+    if (!user.validPassword(password)) {
+      req.session.flash = flashMessages.wrongPassword;
+      return done(null, false);
+    }
 
-        // all is well, return successful user
-        return done(null, user);
-    });
+    // all is well, return successful user
+    return done(null, user);
+  });
 
 }));
 
