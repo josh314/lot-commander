@@ -1,7 +1,5 @@
 const path = require('path');
 
-const Promise = require('bluebird');
-
 const libMandb = require(path.join(__config.libDir.mandb, 'mandb'));
 
 const mandbClient = new libMandb.Client(__config.db.mandb); 
@@ -19,11 +17,11 @@ function getManifests(req, res) {
     limit: 100
   };
   if(req.body.handle) {
-    query.handle = handle;
+    query.handle = req.body.handle;
   }
   mandbClient.getManifests(query).then(resp=>{
     res.json(resp);
-  })
+  });
 }
 
 function submitManifest(manifest) {
