@@ -103,7 +103,6 @@ async function getAsinsFromMwsApiForBarcode(barcode) {
   }
 
   if(normalizedBarcode) {
-    let asinData;
 
     __logger.info(`Requesting data from MWS API for barcode ${normalizedBarcode}.`);
     const refreshResp = await mwsdbClient.refreshBarcodeFromMws(normalizedBarcode);
@@ -181,13 +180,6 @@ async function getProductDataFromWalmartOpenApi(barcode){
 
 /////////////////////////////////////////////////////
 
-function titleCheck(productData) {
-  if(!productData.title) {
-    productData.title = 'UNKNOWN';
-  }
-  return productData;
-}
-
 function randomPrice() {
   const max = 16;
   const min = 11;
@@ -198,20 +190,16 @@ function priceCheck(productData) {
   if(!productData.price) {
     productData.price = randomPrice();
   }
-  // else {
-  //  productData.price = 2*productData.price;
-  // }
   return productData;
 }
 
 function getProductDataByBarcode(barcode) {
   return getProductDataFromSrc(barcode)
-            // .then(titleCheck)
-            .then(priceCheck);
+    .then(priceCheck);
 }
 
 
 module.exports = {
   getProductDataByBarcode: getProductDataByBarcode,
   getAsinsFromMwsApiForBarcode: getAsinsFromMwsApiForBarcode
-}
+};
