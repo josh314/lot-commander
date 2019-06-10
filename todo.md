@@ -42,6 +42,7 @@
 - do I need to delete the file on disk after saving to s3?
 - convert stuff to use S3
 	- images.downloadImages
+- delete s3 bucket when lot is deleted
 
 # Facelift the UI
 - Remove unnecessary features

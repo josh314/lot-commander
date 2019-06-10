@@ -17,7 +17,7 @@ const imageName = (s3Location) => {
 const parseS3Location = (s3Location) => {
   const res = {};
 
-  const p = new RegExp(`https:\/\/(.*)\.s3\.amazonaws\.com\/(.*)`);
+  const p = new RegExp(`https:\\/\\/(.*)\\.s3\\.amazonaws\\.com\\/(.*)`);
   const match = s3Location.match(p);
   if(match) {
     res.bucket = match[1];

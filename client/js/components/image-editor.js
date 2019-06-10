@@ -7,7 +7,7 @@ angular.module('myApp').directive('editor', [function(){
 }]);
 
 /******************* Image editor controller *******************************/
-angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal', 'fileUpload', 'ImageSvc', function($document, $uibModal, fileUpload, ImageSvc) {
+angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$state', '$uibModal', 'fileUpload', 'ImageSvc', function($document, $state, $uibModal, fileUpload, ImageSvc) {
   const vm = this;
 
   const imgProps = {
@@ -16,6 +16,7 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal'
   let editor;
 
   const imageStore = ImageSvc.getStore();
+  console.log(ImageSvc.parseS3Location(imageStore.s3));
 
   const initImg = async () => {
     const img = new Image();
@@ -73,6 +74,7 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal'
     modalInstance.result.then(async function () {
       const blob = await editor.result('blob', 'viewport', 'jpeg');
       fileUpload.uploadFileToUrl(blob, '/api/image/replace', ImageSvc.getStore());
+      $state.go('main.lots.view', { lotId: ImageSvc.parseS3Location(imageStore.s3) });
     }, function () {
       console.log('Modal dismissed at: ' + new Date());
     });

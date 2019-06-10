@@ -26,15 +26,6 @@ function upload(req,res) {
   form.parse(req, function (err, fields, files) {
   	const fileUploads = [];
   	for(let [_, f] of Object.entries(files)){
-			// const s = save(f.path, path.join(imgPath, f.name), (err)=>{
-			// 	if (err) {
-			// 		__logger.error(err);
-			// 		return;
-			// 	}
-			// 	if(fields.lotId) {
-			// 		return lotdb.addImage(fields.lotId, { filename: f.name });
-			// 	}
-			// });
 			const s = imageServer.store(fields.lotId, f.path, f.name).then(resp=>{
 				if(resp) {
 					return lotdb.addImage(fields.lotId, { s3: resp.Location });
