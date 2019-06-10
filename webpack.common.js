@@ -42,7 +42,12 @@ module.exports = {
           //     ]
           //   }
           // },
-          { loader: 'eslint-loader' }
+          { 
+            loader: 'eslint-loader',
+            options: {
+              configFile: '.eslintrc.client.js'
+            }
+          }
         ]
       },
       {
