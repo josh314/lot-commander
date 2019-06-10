@@ -5,15 +5,22 @@ const fs = require('fs');
 const readFile = Promise.promisify(fs.readFile);
 
 const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
-
+const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
 const shopifyApi = require(path.join(__config.libDir.shopify, 'api'));
 
 const shopifyClient = new shopifyApi.Client(__config.shopify.store);
 
 const addImage = Promise.method(async function(productId, imageObj){
+  let imgBuffer;
+  if(imageObj.s3) {
+    imgBuffer = ( await imageServer.get({ s3Location: imageObj.s3 }) ).Body;
+  }
+  else {
+    imgBuffer = await readFile( path.join(__basedir, __config.imgPath, imageObj.filename) );
+  }
   const imageReqOptions = {
     productId: productId,
-    image: await readFile(path.join(__basedir, __config.imgPath, imageObj.filename)).then(buffer=>buffer.toString('base64')),
+    image: imgBuffer.toString('base64'),
     primary: imageObj.primary,
   };
   return shopifyClient.addProductImage(imageReqOptions);

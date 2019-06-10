@@ -30,3 +30,5 @@ logs/
 
 # assorted
 notes
+
+.DS_Store
