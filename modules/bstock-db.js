@@ -4,7 +4,7 @@ const db = require(path.join(__config.libDir.bstock, 'bstock-db'));
 const client = new db.Client({ db: __config.db.bstockdb, logger: __logger});
 
 
-function getAuctions(req, res, next) {
+function getAuctions(req, res) {
   const findQuery = {};
   if(req.body.auction_status) {
     findQuery.auction_status = req.body.auction_status;
@@ -18,7 +18,7 @@ function getAuctions(req, res, next) {
 
   client.getAuctions(findQuery, { sort: sortOpts, limit: 50 }).then(resp=>{
     res.json(resp);
-  })
+  });
 }
 
 module.exports = {

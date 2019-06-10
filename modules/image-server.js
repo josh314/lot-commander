@@ -9,7 +9,7 @@ const S3_LOT_IMG_BUCKET_PREFIX = 'lot-img';
 const bucketName = (lotId) => `${S3_LOT_IMG_BUCKET_PREFIX}-${lotId}`;
 
 const imageName = (s3Location) => {
-  const p = new RegExp(`https:\/\/.*\.s3\.amazonaws\.com\/(.*)`);
+  const p = new RegExp(`https:\\/\\/(.*)\\.s3\\.amazonaws\\.com\\/(.*)`);
   const match = s3Location.match(p);
   return match ? match[1] : null;
 };
@@ -37,18 +37,19 @@ const get = async function(opts = {}) {
     Bucket: bucket,
     Key: key,
   }).promise();
-}
+};
 
 const store = async function(lotId, imgPath, imgName) {
   const bucket = bucketName(lotId);
   try {
     await s3.headBucket({ Bucket: bucket }).promise();
   }
-  catch (e) {
+  catch (error) {
     const newBucket = await s3.createBucket({ 
       Bucket: bucket,
       ACL: 'public-read',
     }).promise();
+    __logger.debug(newBucket);
   }
 
   return s3.upload({
@@ -71,7 +72,7 @@ const remove = function(lotId, s3Location) {
     }).promise();
   }
   else return Promise({});
-}
+};
 
 const replace = (s3Location, imgPath) => {
   const { bucket , key } = parseS3Location(s3Location);

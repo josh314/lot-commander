@@ -2,11 +2,6 @@ const path = require('path');
 
 const bstockWeb = require(path.join(__config.libDir.bstock, 'bstock-web'));
 const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
-const lotDb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
-
-function getManifestItems(lot) {
-  // return [];
-}
 
 async function submitListing(data) {
   const lot = data.lot;
@@ -39,7 +34,7 @@ async function submitListing(data) {
     startPrice: data.auctionStartPrice,
   };
 
-  return client.submitListing(submissionData, {debug:true})
+  return client.submitListing(submissionData, {debug:true});
 }
 
 
@@ -48,4 +43,4 @@ module.exports = {
   constants: bstockWeb.codeMaps,
   // functions
   submitListing: submitListing,
-}
+};
