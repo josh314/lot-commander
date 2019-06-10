@@ -125,4 +125,4 @@ const boilerplate = [
 
 module.exports = {
   boilerplate: boilerplate,
-}
+};
