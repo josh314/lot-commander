@@ -84,8 +84,38 @@ const replace = (s3Location, imgPath) => {
     .promise();
 };
 
+const deleteLotBucket = async (lotId) => {
+  try {
+    const bucket = bucketName(lotId);
+
+    //1.) get list of all objects
+    // 2.) delete each object s3.deleteObjects
+    // 3.) await all deletions then delete bucket
+    const list = await s3.listObjects({ Bucket: bucket }).promise();
+    
+    if(list.Contents && list.Contents.length) {
+      await s3.deleteObjects({
+        Bucket: bucket,
+        Delete: {
+          Objects: list.Contents.map(object => { 
+            return {
+              Key: object.Key
+            };
+          })
+        }
+      }).promise();
+    }
+
+    return s3.deleteBucket({ Bucket: bucket }).promise();
+  }
+  catch (e) {
+    throw new Error(e);
+  }
+};
+
 module.exports = {
   bucketName: bucketName,
+  deleteLotBucket: deleteLotBucket,
   get: get,
   imageName: imageName,
   remove: remove,

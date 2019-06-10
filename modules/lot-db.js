@@ -3,6 +3,8 @@ const path = require('path');
 const Promise = require('bluebird');
 const moment = require('moment');
 
+const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
+
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
 
@@ -193,10 +195,16 @@ function markAsListed(lotId) {
 	return lotdbClient.updateLot(data);
 }
 
-function deleteLot(req,res) {
-	return lotdbClient.deleteLot(req.body.lotId).then(response=>{
-		res.json({response: response});
-	})
+async function deleteLot(req,res) {
+	const lotId = req.body.lotId;
+	try {
+		await lotdbClient.deleteLot(lotId);
+		await imageServer.deleteLotBucket(lotId);
+		res.json({ success: true });
+	}
+	catch (e) {
+		throw new Error(e);
+	}
 }
 
 function updateLot(lot) {
