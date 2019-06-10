@@ -14,10 +14,10 @@ const dbEnums = {
 }
 
 const ngConstants = [
-	{ name: 'dbEnums', data: dbEnums },
-	{ name: 'listingsBoilerplate', data: listings.boilerplate },
-	{ name: 'bstockFormConstants', data: bstock.constants },
-	{ name: 'quickLotsBoilerplate', data: quickLots.boilerplate },
+  { name: 'dbEnums', data: dbEnums },
+  { name: 'listingsBoilerplate', data: listings.boilerplate },
+  { name: 'bstockFormConstants', data: bstock.constants },
+  { name: 'quickLotsBoilerplate', data: quickLots.boilerplate },
 ].reduce((s, item) => { return s + `app.constant('${item.name}', ${JSON.stringify(item.data)});`}, '')
 
 
@@ -26,5 +26,5 @@ function ngAppServerData() {
 }
 
 module.exports = {
-	ngAppServerData: ngAppServerData,
+  ngAppServerData: ngAppServerData,
 } 

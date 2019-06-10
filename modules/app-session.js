@@ -15,10 +15,10 @@ const sessionStore = new MongoStore({
 });
 
 module.exports = function(app) {
-	app.use(session({
-	  resave: true,
-	  saveUninitialized: true,
-	  secret: credentials.cookieSecret,
-	  store: sessionStore
-	}));
+  app.use(session({
+    resave: true,
+    saveUninitialized: true,
+    secret: credentials.cookieSecret,
+    store: sessionStore
+  }));
 };

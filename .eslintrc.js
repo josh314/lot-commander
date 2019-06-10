@@ -12,11 +12,6 @@ module.exports = {
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
-    "globals": {
-        "__config": false,
-        "__logger": false,
-        "__basedir": false,
-    },
     "plugins": [
         "angular"
     ],

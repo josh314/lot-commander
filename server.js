@@ -45,11 +45,11 @@
   // FAVICON ========================================
   //=================================================
   try {
-  	const favicon = path.join(__basedir, __config.assets.root, 'img/favicon.ico');
-  	app.use(require('serve-favicon')(favicon));
+    const favicon = path.join(__basedir, __config.assets.root, 'img/favicon.ico');
+    app.use(require('serve-favicon')(favicon));
   }
   catch(exception) {
-  	debug('No favicon found.');
+    debug('No favicon found.');
   }
 
   //=================================================
@@ -186,7 +186,7 @@
   //=================================================
   const port = __config.port;
   if(!port) {
-  	throw new Error('No port specified.');
+    throw new Error('No port specified.');
   }
   app.set('port', process.env.PORT || port);
 
