@@ -138,7 +138,7 @@ async function getProductDataFromUpcItemDb(barcode) {
 		const apiResp = await upcItemDbClient.lookup(barcode);
 		if(apiResp && apiResp.items && apiResp.items[0]) {
 			__logger.info(`Product data obtained from UpcItemDb for barcode ${normalizedBarcode}.`);
-			productData = Object.assign(productData, dataModule.collateApiRespItems(apiResp.items, { markup: .2 }));
+			productData = Object.assign(productData, dataModule.collateApiRespItems(apiResp.items));
 		}
 		else {
 			__logger.info(`No product data found in UpcItemDb for barcode ${normalizedBarcode}.`);
