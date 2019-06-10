@@ -38,7 +38,13 @@ module.exports = {
         "no-template-curly-in-string": "warn",
         "no-throw-literal": "error",
         // "no-undef": "off",
-        "no-unused-vars": [ "warn", { "caughtErrors": "all" }],
+        "no-unused-vars": [ 
+            "warn", 
+            { 
+                "caughtErrors": "all",
+                varsIgnorePattern: "^_$",
+            }
+        ],
         // "quotes": [
         //     "error",
         //     "single"

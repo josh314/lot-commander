@@ -7,7 +7,7 @@ const save = Promise.promisify(fs.rename);
 const formidable = require('formidable');
 const archiver = require('archiver');
 
-const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'))
+const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
 
 const imgPath = path.join(__basedir, __config.imgPath);
@@ -67,8 +67,8 @@ async function downloadImages(req, res) {
   __logger.info(`Requesting image download for lotId ${req.params.lotId}...`);
   const archiveType = 'zip';
   const archive = archiver(archiveType, {
-      gzip: true,
-      zlib: { level: 9 } // Sets the compression level.
+    gzip: true,
+    zlib: { level: 9 } // Sets the compression level.
   });
 
   archive.on('error', function(err) {

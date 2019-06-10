@@ -23,7 +23,7 @@ function createLabels(opts={}) {
     const margin = 5;
     doc
       .image(canvas.toBuffer(), margin, 15, { width: opts.label.width - 2*margin })
-      .text(`(${i+1} of ${opts.numLabels})`, 0, 5, { align: 'center', width: opts.label.width })
+      .text(`(${i+1} of ${opts.numLabels})`, 0, 5, { align: 'center', width: opts.label.width });
   }
 
   doc.end();
@@ -41,8 +41,8 @@ function generate(req,res) {
       height: 90, // 72/in * 1.25 in
     }
   }).pipe(res);
-};
+}
 
 module.exports = {
   generate: generate
-}
+};

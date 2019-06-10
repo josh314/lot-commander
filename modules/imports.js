@@ -25,7 +25,7 @@ async function getDataForNewProducts(barcode) {
     return null;
   }
   else {
-    return productData.getAsinsFromMwsApiForBarcode(barcode)//TODO: logging resp;
+    return productData.getAsinsFromMwsApiForBarcode(barcode);//TODO: logging resp;
   }
 }
 
@@ -49,31 +49,31 @@ async function importBarcodes(barcodes) {
     }
   }
 
-  fs.appendFile(path.join( importsFilePath, 'imported-barcode-asins.txt'), barcodeAsinPairs.reduce((out, pair) => `${out}${pair.join(',')}\n`, ""), function(){__logger.info('Imported ASINs file written to file.')})
-  fs.appendFile(path.join( importsFilePath, 'barcodes-without-asins.txt'), barcodesWithoutAsins.reduce((out, barcode) => `${out}${barcode}\n`, ""), function(){__logger.info('Barcodes missing from MWS written to file.')})
+  fs.appendFile(path.join( importsFilePath, 'imported-barcode-asins.txt'), barcodeAsinPairs.reduce((out, pair) => `${out}${pair.join(',')}\n`, ""), function(){__logger.info('Imported ASINs file written to file.');});
+  fs.appendFile(path.join( importsFilePath, 'barcodes-without-asins.txt'), barcodesWithoutAsins.reduce((out, barcode) => `${out}${barcode}\n`, ""), function(){__logger.info('Barcodes missing from MWS written to file.');});
 }
 
 function importManifestApi(req,res,next) {
   const form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
     manParse.parse(files.file.path, JSON.parse(fields.parseOpts))
-    .catch(e=>{
-      e.clientMessage = 'Error parsing uploaded file. Check if all settings are correct.';
-      next(e);
-    }).
-    then(blocks=>{
-      const barcodes = new Set();
-      for (let block of Object.values(blocks)) {
-        block.forEach(elem => barcodes.add(elem.barcode) ); 
-      }
-      const barcodeList = [...barcodes];
-      res.json({ numBarcodesSubmitted: barcodeList.length});
-      importBarcodes(barcodeList);
-    });
-  })
+      .catch(e=>{
+        e.clientMessage = 'Error parsing uploaded file. Check if all settings are correct.';
+        next(e);
+      }).
+      then(blocks=>{
+        const barcodes = new Set();
+        for (let block of Object.values(blocks)) {
+          block.forEach(elem => barcodes.add(elem.barcode) ); 
+        }
+        const barcodeList = [...barcodes];
+        res.json({ numBarcodesSubmitted: barcodeList.length});
+        importBarcodes(barcodeList);
+      });
+  });
 }
 
-function importBarcodesApi(req, res, next) {
+function importBarcodesApi(req, res) {
   const barcodeList = req.body.barcodes;
   res.json({ numBarcodesSubmitted: barcodeList.length});
   importBarcodes(barcodeList);

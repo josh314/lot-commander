@@ -1,6 +1,5 @@
 const path = require('path');
 
-const libBarcode = require(path.join(__config.libDir.barcodes, 'lib'));
 const libInmarDb = require(path.join(__config.libDir.inmardb, 'inmar-db'));
 
 const inmarDbClient = new libInmarDb.Client(__config.db.inmardb);
