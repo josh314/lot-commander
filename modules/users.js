@@ -174,75 +174,76 @@ function createUser(req,res) {
       });
     }
   })
-  .catch(err=>{
-    req.session.flash = flashMessages.errorNewUser;
-  })
-  .finally(()=>{
-    res.redirect('/users/new');
-  });
+    .catch(err=>{
+      __logger.error(err);
+      req.session.flash = flashMessages.errorNewUser;
+    })
+    .finally(()=>{
+      res.redirect('/users/new');
+    });
 }
 
 
 function changeUserPassword(req,res) {
   let status;
   User.findOneAndUpdate({ 'local.username': req.user.local.username }, { $set: { 'local.password': req.user.generateHash(req.body.password) }})
-  .then(user=>{
-    req.session.flash = flashMessages.successfulPasswordChange;
-    status = 'success';
-  })
-  .catch(err=>{
-    req.session.flash = flashMessages.serverError;
-    status = 'failed';
-    __logger.error(err);
-  })
-  .finally(()=>{
-    res.json({status: status});
-  });
+    .then(user=>{
+      __logger.debug(user);
+      req.session.flash = flashMessages.successfulPasswordChange;
+      status = 'success';
+    })
+    .catch(err=>{
+      req.session.flash = flashMessages.serverError;
+      status = 'failed';
+      __logger.error(err);
+    })
+    .finally(()=>{
+      res.json({status: status});
+    });
 }
 
 
 function editUserRole(req,res) {
-  let isSuccessful = false;
   User.findOneAndUpdate({ 'local.username': req.body.username }, { $set: { 'role': req.body.role }})
-  .then(user=>{
-    req.session.flash = flashMessages.successfulUserEdit;
-    isSuccessful = true;
-  })
-  .catch(err=>{
-    req.session.flash = flashMessages.serverError;
-    __logger.error(err);
-  })
-  .finally(()=>{
-//    res.json({success: isSuccessful});
-    res.redirect('/');
-  });
+    .then(user=>{
+      __logger.debug(user);
+      req.session.flash = flashMessages.successfulUserEdit;
+    })
+    .catch(err=>{
+      req.session.flash = flashMessages.serverError;
+      __logger.error(err);
+    })
+    .finally(()=>{
+      res.redirect('/');
+    });
 }
 
 function getUserInfo(req,res) {
+  let username;
   if(req.user.isManager()) //Managers get who they ask for
     username = req.params.username;
   else //everybody else gets themselves
     username = req.user.local.username;
   User.findOne({ 'local.username' :  username })
-  .then(user=>{
-    if(user)
-      res.json(user.getPublicInfo());
-    else
-      res.json({});
-  })
-  .catch(e=>{
-    __logger.error(e);
-    res.json({error: e});
-  });
+    .then(user=>{
+      if(user)
+        res.json(user.getPublicInfo());
+      else
+        res.json({});
+    })
+    .catch(e=>{
+      __logger.error(e);
+      res.json({error: e});
+    });
 }
 
 function getAllUsers(req, res) {
   User.find({})
-  .sort({name:1})
-  .then(users=>{
-    users = users.map(user => user.getPublicInfo());
-    res.json(users);
-  });
+    .sort({name:1})
+    .then(users=>{
+      users = users.map(user => user.getPublicInfo());
+      res.json(users);
+    });
 }
 
 function consoleLogUser(req,res,next) {
@@ -264,4 +265,4 @@ module.exports = {
     getAllUsers: getAllUsers,
   },
   consoleLogUser: consoleLogUser,
-}
+};
