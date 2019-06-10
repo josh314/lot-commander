@@ -49,7 +49,7 @@ const submitListing = Promise.method(async function (listing) {
     product.variants[0].weight_unit = 'lb';
   }
 
-  __logger.info('Creating new Shopify product.')
+  __logger.info('Creating new Shopify product.');
   const addProductResp = await shopifyClient.addProduct(product).then(_=>{
     __logger.info(`New Shopify product created with id ${_.product.id}`);
     return _;
@@ -77,7 +77,7 @@ const submitListing = Promise.method(async function (listing) {
         inventoryItemId: inventoryItemId,
         locationId: resp.inventory_levels[0].location_id
       });
-    })
+    });
   }
 
   //The set of promises for this listing
@@ -85,19 +85,19 @@ const submitListing = Promise.method(async function (listing) {
     Promise.all(addImageReqs),
     updateInventoryItemP,
     updateInventoryLevelP,
-  ]
+  ];
 
   // Schedule manifest promise if applicable
   if(manifestItems && !listing.lot.unmanifested) {
     manifestItems.sort(function(a, b) {
-        if (a.barcode > b.barcode) {
-          return 1;
-        }
-        if (a.barcode < b.barcode) {
-          return -1;
-        }
-        return 0;
-      });
+      if (a.barcode > b.barcode) {
+        return 1;
+      }
+      if (a.barcode < b.barcode) {
+        return -1;
+      }
+      return 0;
+    });
     const manifest = JSON.stringify(manifestItems);
 
     const addMetafieldP = shopifyClient.addProductMetafield({
@@ -108,7 +108,7 @@ const submitListing = Promise.method(async function (listing) {
         value: manifest,
         value_type: 'string',
       }
-    })
+    });
     listingPromises.push(addMetafieldP);
   }
 
@@ -129,7 +129,7 @@ const submitListing = Promise.method(async function (listing) {
         value: parseInt(estimatedRetailValue*100),//This changes it to cents so we can use Shopify money filter
         value_type: 'string',
       }
-    })
+    });
     listingPromises.push(addMetafieldP);
   }
 
@@ -143,7 +143,7 @@ const submitListing = Promise.method(async function (listing) {
         value: parseInt(listing.lot.totalUnits),
         value_type: 'integer',
       }
-    })
+    });
     listingPromises.push(addMetafieldP);
   }
 
@@ -154,4 +154,4 @@ const submitListing = Promise.method(async function (listing) {
 
 module.exports = {
   submitListing: submitListing,
-}
+};
