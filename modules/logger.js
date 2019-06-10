@@ -5,7 +5,7 @@ const moment = require('moment');
 
 const loggingPath = path.join(__basedir, __config.logging.path);
 if(!fs.existsSync(loggingPath)) {
-  fs.mkdirSync(loggingPath)
+  fs.mkdirSync(loggingPath);
 }
 
 let consoleLevel;
