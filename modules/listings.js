@@ -7,8 +7,8 @@ const bstock = require(path.join(__basedir, __config.modulesPath, 'bstock'));
 const shopify = require(path.join(__basedir, __config.modulesPath, 'shopify'));
 
 const conditionBoilerplateListItems = [
-    'Have retail stickers such as price tags or discount/store labels.', 
-    'Items may be out of box or in open boxes.',
+  'Have retail stickers such as price tags or discount/store labels.', 
+  'Items may be out of box or in open boxes.',
   'Items expired or short-dated.',
 ];
 
@@ -39,7 +39,7 @@ function getBodyBoilerplate(format) {
 
   const boilerplateList = 'Our items are in good condition, but may have some or all of the following properties:' + bp.newline + (format=='html'? '<ul>' : '') +
               conditionBoilerplateListItems.reduce((list, line) => list + bp.prefix + line + bp.terminator, '') + (format=='html'? '</ul>' : '') +
-              'Lot is not inspected and there is no guarantee on the variety of items or expiration dates. The total number of units is guaranteed.'
+              'Lot is not inspected and there is no guarantee on the variety of items or expiration dates. The total number of units is guaranteed.';
 
   const boilerplateByLotType = {
     'shelf-pull': 'What are shelf-pulls? This is an industry term similar to overstock, clearance or close-outs. ' + 
@@ -57,7 +57,7 @@ function getBodyBoilerplate(format) {
 const submitFn = {
   bstock: bstock.submitListing,
   wholesaleninjas: shopify.submitListing,
-}
+};
 
 const submit = Promise.method(async function(req, res, next) {
   const listing = req.body.listing;
@@ -95,21 +95,21 @@ const submit = Promise.method(async function(req, res, next) {
   const newSubmittedListing = {
     marketplace: listing.marketplace,
     dateSubmitted: new Date()
-  }
+  };
   try {
     await submitFn[listing.marketplace](listing);
     Object.assign(newSubmittedListing, {
       success: true,
       message: 'Submission successful.'
     });
-    listing.lot.status = 'Listed'
+    listing.lot.status = 'Listed';
   }
   catch (e) {
     Object.assign(newSubmittedListing, {
       success: false,
       message: e.name + ': ' + e.message,
     });
-    listing.lot.status = 'Error'
+    listing.lot.status = 'Error';
     __logger.error(e);
   }
   if(listing.lot.submittedListings && listing.lot.submittedListings.length>0) {
@@ -131,4 +131,4 @@ module.exports = {
   //functions
   submit: submit, // data
   boilerplate: getBodyBoilerplate('text'),
-}
+};
