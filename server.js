@@ -5,7 +5,7 @@
   //================================================
 
   // App-wide variable refrencing project root 
-  global.__basedir = __dirname
+  global.__basedir = __dirname;
 
   //================================================
   // Basic module requires =========================
@@ -76,15 +76,15 @@
 
   //stderr logging skips successful requests
   app.use(morgan(requestLoggingMode, {
-      skip: function (req, res) {
-          return res.statusCode < 400
-      }, stream: process.stderr
+    skip: function (req, res) {
+      return res.statusCode < 400;
+    }, stream: process.stderr
   }));
   //stdout logging skips failed requests
   app.use(morgan(requestLoggingMode, {
-      skip: function (req, res) {
-          return res.statusCode >= 400
-      }, stream: process.stdout
+    skip: function (req, res) {
+      return res.statusCode >= 400;
+    }, stream: process.stdout
   }));
 
 
@@ -169,11 +169,11 @@
   //   res.render('404', layout);
   // });
 
-  app.use(function(err, req, res, next){
+  app.use(function(err, req, res){
     
     // __logger.error(`404: path does not exist -- ${req.originalUrl}`);
     // res.status(404).render('404', {});
-    console.log('Logging error to file.')
+    console.log('Logging error to file.');
     __logger.error(err);
     res.json({
       status: 'error',
@@ -200,7 +200,7 @@
   //==========================================
   module.exports = app;
 })()
-.catch(e=>{
-  console.log(e);
-  process.exit(1);
-});
+  .catch(e=>{
+    console.log(e);
+    process.exit(1);
+  });
