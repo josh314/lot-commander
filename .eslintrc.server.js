@@ -11,9 +11,10 @@ module.exports = {
         "sourceType": "module"
     },
     "globals": {
-        "__config": false,
-        "__logger": false,
-        "__basedir": false,
+        "__basedir": "readable",
+        "__connections": "readable",
+        "__config": "readable",
+        "__logger": "readable",
     },
     "rules": {
         "array-callback-return": [
