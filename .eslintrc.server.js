@@ -36,8 +36,9 @@ module.exports = {
         // "no-empty-function": "warn",
         // "no-eq-null": "error",
         "no-template-curly-in-string": "warn",
+        "no-throw-literal": "error",
         // "no-undef": "off",
-        // "no-unused-vars": "off",
+        "no-unused-vars": [ "warn", { "caughtErrors": "all" }],
         // "quotes": [
         //     "error",
         //     "single"
