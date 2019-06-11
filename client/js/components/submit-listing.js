@@ -56,11 +56,22 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
       return tags.join(', ');
     };
 
+    function calculateEstimatedRetailValue() {
+      let value;
+      if($scope.lot.inventory) {
+        value = $scope.lot.inventory.reduce( (total, item)=>{
+          return item.price && item.quantity ? total + parseInt(item.quantity)*parseFloat(item.price) : total;
+        }, 0);
+      }
+      return value ? value.toFixed(2) : ''; 
+    }
+    const estimatedRetailValue = calculateEstimatedRetailValue();
     //Form default values
     $scope.listing = {
       marketplace: $scope.lot.destinationMarketplace || 'wholesaleninjas',
       // bstock defaults
       auctionStartPrice: '300',
+      shopifyPrice: estimatedRetailValue ? (.2*parseFloat(estimatedRetailValue)).toFixed(2) : '',
       condition: ({'shelf-pull': 'Shelf Pulls','customer returns': 'Customer Returns','salvage': 'Salvage'})[$scope.lot.type] || '',
       packaging: 'Original',
       shipping: {
@@ -74,18 +85,8 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
       shopifyInventory: 1,
       shopifyTags: [],
       refreshProductData: false,
-      estimatedRetailValue: calculateEstimatedRetailValue()
+      estimatedRetailValue: estimatedRetailValue,
     };
-
-    function calculateEstimatedRetailValue() {
-      let value;
-      if($scope.lot.inventory) {
-        value = $scope.lot.inventory.reduce( (total, item)=>{
-          return item.price && item.quantity ? total + parseInt(item.quantity)*parseFloat(item.price) : total;
-        }, 0);
-      }
-      return value ? value.toFixed(2) : ''; 
-    }
 
     function validateBstockListingOptions() {
       $scope.invalidAuctionPrice = ($scope.listing.auctionStartPrice && $scope.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;

@@ -11,14 +11,14 @@ const dbEnums = {
   lotType: lotdb.lotTypeEnum,
   marketplaces: lotdb.marketplaceEnum,
   priceType: inmardb.priceTypeEnum,
-}
+};
 
 const ngConstants = [
-	{ name: 'dbEnums', data: dbEnums },
-	{ name: 'listingsBoilerplate', data: listings.boilerplate },
-	{ name: 'bstockFormConstants', data: bstock.constants },
-	{ name: 'quickLotsBoilerplate', data: quickLots.boilerplate },
-].reduce((s, item) => { return s + `app.constant('${item.name}', ${JSON.stringify(item.data)});`}, '')
+  { name: 'dbEnums', data: dbEnums },
+  { name: 'listingsBoilerplate', data: listings.boilerplate },
+  { name: 'bstockFormConstants', data: bstock.constants },
+  { name: 'quickLotsBoilerplate', data: quickLots.boilerplate },
+].reduce((s, item) => { return s + `app.constant('${item.name}', ${JSON.stringify(item.data)});`;}, '');
 
 
 function ngAppServerData() {
@@ -26,5 +26,5 @@ function ngAppServerData() {
 }
 
 module.exports = {
-	ngAppServerData: ngAppServerData,
-} 
+  ngAppServerData: ngAppServerData,
+}; 

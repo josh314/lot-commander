@@ -15,15 +15,15 @@ const productData = require(path.join(__basedir, __config.modulesPath, 'product-
 const labels = require(path.join(__basedir, __config.modulesPath, 'labels'));
 
 // middleware to stick for testing purposes
-function testLog(s) {
-  return function testLog(req, res, next) {
-    console.log(s);
-    next();
-  }
-}
+// function testLog(s) {
+//   return function testLog(req, res, next) {
+//     console.log(s);
+//     next();
+//   };
+// }
 
 //routes
-function routes(env) {
+function routes() {
 
   const router = new express.Router();
 
@@ -43,7 +43,7 @@ function routes(env) {
   router.get('/api/db/get/:lotId', lotdb.getLotByIdApi);
   router.post('/api/db/new-lot', lotdb.newLot);
   router.post('/api/db/edit-lot/:lotId', lotdb.editLotMetadata);
-  router.post('/api/db/delete-lot', lotdb.deleteLot)
+  router.post('/api/db/delete-lot', lotdb.deleteLot);
   router.post('/api/db/save-manifest', lotdb.saveManifest);
   router.get('/api/db/manifest/:manifestId', lotdb.getManifest);
   router.post('/api/db/link-3p-manifest-block', lotdb.link3pManifestBlock);
@@ -69,6 +69,7 @@ function routes(env) {
   router.get('/api/image/download/:lotId', images.downloadImages);
   router.post('/api/image/remove', images.removeImage);
   router.post('/api/image/replace', images.replaceImage);
+  router.get('/api/image', images.get);
 
   // marketplace listings
   router.post('/api/listings/submit', listings.submit);

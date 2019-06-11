@@ -9,7 +9,7 @@ const S3_LOT_IMG_BUCKET_PREFIX = 'lot-img';
 const bucketName = (lotId) => `${S3_LOT_IMG_BUCKET_PREFIX}-${lotId}`;
 
 const imageName = (s3Location) => {
-  const p = new RegExp(`https:\/\/.*\.s3\.amazonaws\.com\/(.*)`);
+  const p = new RegExp(`https:\\/\\/(.*)\\.s3\\.amazonaws\\.com\\/(.*)`);
   const match = s3Location.match(p);
   return match ? match[1] : null;
 };
@@ -17,7 +17,7 @@ const imageName = (s3Location) => {
 const parseS3Location = (s3Location) => {
   const res = {};
 
-  const p = new RegExp(`https:\/\/(.*)\.s3\.amazonaws\.com\/(.*)`);
+  const p = new RegExp(`https:\\/\\/(.*)\\.s3\\.amazonaws\\.com\\/(.*)`);
   const match = s3Location.match(p);
   if(match) {
     res.bucket = match[1];
@@ -27,33 +27,29 @@ const parseS3Location = (s3Location) => {
   return res;
 };
 
+const get = async function(opts = {}) {
+  let { bucket, key } = opts.s3Location ? parseS3Location(opts.s3Location) : opts;
+  if(!bucket || !key) {
+    return null;
+  }
+
+  return s3.getObject({
+    Bucket: bucket,
+    Key: key,
+  }).promise();
+};
+
 const store = async function(lotId, imgPath, imgName) {
   const bucket = bucketName(lotId);
   try {
     await s3.headBucket({ Bucket: bucket }).promise();
   }
-  catch (e) {
+  catch (error) {
     const newBucket = await s3.createBucket({ 
       Bucket: bucket,
       ACL: 'public-read',
     }).promise();
-
-    await s3.putBucketCors({
-      Bucket: bucket,
-      CORSConfiguration: {
-        CORSRules: [
-          {
-            AllowedMethods: [
-              "GET"
-            ],
-            AllowedOrigins: [ 
-              "*"
-            ],
-            MaxAgeSeconds: 3000
-          }
-        ]
-      }
-    }).promise();
+    __logger.debug(newBucket);
   }
 
   return s3.upload({
@@ -76,7 +72,7 @@ const remove = function(lotId, s3Location) {
     }).promise();
   }
   else return Promise({});
-}
+};
 
 const replace = (s3Location, imgPath) => {
   const { bucket , key } = parseS3Location(s3Location);
@@ -89,8 +85,39 @@ const replace = (s3Location, imgPath) => {
     .promise();
 };
 
+const deleteLotBucket = async (lotId) => {
+  try {
+    const bucket = bucketName(lotId);
+
+    //1.) get list of all objects
+    // 2.) delete each object s3.deleteObjects
+    // 3.) await all deletions then delete bucket
+    const list = await s3.listObjects({ Bucket: bucket }).promise();
+    
+    if(list.Contents && list.Contents.length) {
+      await s3.deleteObjects({
+        Bucket: bucket,
+        Delete: {
+          Objects: list.Contents.map(object => { 
+            return {
+              Key: object.Key
+            };
+          })
+        }
+      }).promise();
+    }
+
+    return s3.deleteBucket({ Bucket: bucket }).promise();
+  }
+  catch (e) {
+    throw new Error(e);
+  }
+};
+
 module.exports = {
   bucketName: bucketName,
+  deleteLotBucket: deleteLotBucket,
+  get: get,
   imageName: imageName,
   remove: remove,
   replace: replace,

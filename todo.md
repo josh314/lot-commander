@@ -19,6 +19,9 @@
 		- remove quantities
 - image collage-building widget
 - image editing
+	- clean up UI
+		- spacing between buttons
+		- window sizes
 	- check size of edited images
 	- features
 		- cropping
@@ -42,6 +45,15 @@
 - do I need to delete the file on disk after saving to s3?
 - convert stuff to use S3
 	- images.downloadImages
+- permissions
+	- public read access to the objects
+	- no public access to bucket itself
+- key policy
+	- file name is maybe not good
+	- some kind of hash
+	- how to handle dupes
+- make sure s3 images get into bstock
+- convert everything to jpeg before uploading to s3
 
 # Facelift the UI
 - Remove unnecessary features

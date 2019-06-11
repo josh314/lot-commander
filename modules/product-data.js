@@ -5,7 +5,7 @@ const path = require('path');
 const libBarcodes = require(path.join(__config.libDir.barcodes, 'lib'));
 
 if(!__config.productDataSrc) {
-	throw new Error('No product data source!');
+  throw new Error('No product data source!');
 }
 
 let mwsdbClient;
@@ -17,23 +17,23 @@ let getProductDataFromSrc;
 let dataModule;
 
 if( __config.productDataSrc.match(/mws/i) ) {
-	const mwsdb = require(path.join(__config.libDir.mws, 'mwsdb'));
-	mwsdbClient = new mwsdb.Client(__config.db.mwsdb);
-	getProductDataFromSrc = getProductDataFromMwsdb;
+  const mwsdb = require(path.join(__config.libDir.mws, 'mwsdb'));
+  mwsdbClient = new mwsdb.Client(__config.db.mwsdb);
+  getProductDataFromSrc = getProductDataFromMwsdb;
 }
 else if( __config.productDataSrc.match(/upcitemdb/i) ) {
-	const upcItemDbApi = require(path.join(__config.libDir.upcItemDb, 'lib/api'));
-	upcItemDbClient = new upcItemDbApi.Client(__config.upcItemDb);
-	getProductDataFromSrc = getProductDataFromUpcItemDb;
-	dataModule = require(path.join(__config.libDir.upcItemDb, 'lib/data'));
+  const upcItemDbApi = require(path.join(__config.libDir.upcItemDb, 'lib/api'));
+  upcItemDbClient = new upcItemDbApi.Client(__config.upcItemDb);
+  getProductDataFromSrc = getProductDataFromUpcItemDb;
+  dataModule = require(path.join(__config.libDir.upcItemDb, 'lib/data'));
 }
 else if( __config.productDataSrc.match(/walmart/i) ) {
-	const walmartOpenApi = require(path.join(__config.libDir.walmart, 'open-api'));
-	walmartOpenApiClient = new walmartOpenApi.Client(__config.walmartOpenApi);
-	getProductDataFromSrc = getProductDataFromWalmartOpenApi;
+  const walmartOpenApi = require(path.join(__config.libDir.walmart, 'open-api'));
+  walmartOpenApiClient = new walmartOpenApi.Client(__config.walmartOpenApi);
+  getProductDataFromSrc = getProductDataFromWalmartOpenApi;
 }
 else {
-	throw new Error('No product data source!');
+  throw new Error('No product data source!');
 }
 
 //==========================================================
@@ -48,78 +48,77 @@ const MAX_UNIT_PRICE = 100;
 //**********************************************************
 
 function getProductDataFromAsinData(asinData) {
-	if(!asinData) return {};
-	
-	const productData = {
-		title: asinData.productTitle,
-		price: ''
-	};
-	if(asinData.price) {
-		productData.price = parseFloat(asinData.price) / parseInt(asinData.packQuantity ? asinData.packQuantity : 1);
-	}
+  if(!asinData) return {};
+  
+  const productData = {
+    title: asinData.productTitle,
+    price: ''
+  };
+  if(asinData.price) {
+    productData.price = parseFloat(asinData.price) / parseInt(asinData.packQuantity ? asinData.packQuantity : 1);
+  }
 
-	return productData;
+  return productData;
 }
 
 async function getProductDataFromMwsdb(barcode) {
-	let productData = {};
+  let productData = {};
 
-	let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
-	if(!normalizedBarcode) {
-		normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
-	}
+  let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
+  if(!normalizedBarcode) {
+    normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
+  }
 
-	if(normalizedBarcode) {
-		let asinData = await mwsdbClient.getBestAsinDataForUpcNoFilter(normalizedBarcode);
-		if(asinData && asinData.price) {
-			__logger.info(`Product data found in MWSDB for barcode ${normalizedBarcode}.`);
-			__logger.debug(JSON.stringify(asinData));
-			productData = getProductDataFromAsinData(asinData);
-		}
-		else {
-			__logger.info(`Requesting data from MWS API for barcode ${normalizedBarcode}.`);
-			const refreshResp = await mwsdbClient.refreshBarcodeFromMws(normalizedBarcode);
-			__logger.debug(JSON.stringify(refreshResp));
-			if(!refreshResp.error) {
-				__logger.info(`Product data refreshed from MWS API for barcode ${normalizedBarcode}.`);
-				asinData = await mwsdbClient.getBestAsinDataForUpcNoFilter(normalizedBarcode);
-				productData = getProductDataFromAsinData(asinData);
-			}
-			else {
-				__logger.info(`No product data found in MWS API for barcode ${normalizedBarcode}`);
-			}
-		}
-		productData.normalizedBarcode = normalizedBarcode;
-	}
-	return productData;
+  if(normalizedBarcode) {
+    let asinData = await mwsdbClient.getBestAsinDataForUpcNoFilter(normalizedBarcode);
+    if(asinData && asinData.price) {
+      __logger.info(`Product data found in MWSDB for barcode ${normalizedBarcode}.`);
+      __logger.debug(JSON.stringify(asinData));
+      productData = getProductDataFromAsinData(asinData);
+    }
+    else {
+      __logger.info(`Requesting data from MWS API for barcode ${normalizedBarcode}.`);
+      const refreshResp = await mwsdbClient.refreshBarcodeFromMws(normalizedBarcode);
+      __logger.debug(JSON.stringify(refreshResp));
+      if(!refreshResp.error) {
+        __logger.info(`Product data refreshed from MWS API for barcode ${normalizedBarcode}.`);
+        asinData = await mwsdbClient.getBestAsinDataForUpcNoFilter(normalizedBarcode);
+        productData = getProductDataFromAsinData(asinData);
+      }
+      else {
+        __logger.info(`No product data found in MWS API for barcode ${normalizedBarcode}`);
+      }
+    }
+    productData.normalizedBarcode = normalizedBarcode;
+  }
+  return productData;
 }
 
 async function getAsinsFromMwsApiForBarcode(barcode) {
-	const asins = [];
+  const asins = [];
 
-	let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
-	if(!normalizedBarcode) {
-		normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
-	}
+  let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
+  if(!normalizedBarcode) {
+    normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
+  }
 
-	if(normalizedBarcode) {
-		let asinData;
+  if(normalizedBarcode) {
 
-		__logger.info(`Requesting data from MWS API for barcode ${normalizedBarcode}.`);
-		const refreshResp = await mwsdbClient.refreshBarcodeFromMws(normalizedBarcode);
-		if(!refreshResp.error) {
-			__logger.info(`Product data refreshed from MWS API for barcode ${normalizedBarcode}.`);
-			for( let elem of refreshResp ) {
-				if(elem.asin) {
-					asins.push(elem.asin);
-				}
-			}
-		}
-		else {
-			__logger.info(`No product data found in MWS API for barcode ${normalizedBarcode}`);
-		}
-	}
-	return asins;
+    __logger.info(`Requesting data from MWS API for barcode ${normalizedBarcode}.`);
+    const refreshResp = await mwsdbClient.refreshBarcodeFromMws(normalizedBarcode);
+    if(!refreshResp.error) {
+      __logger.info(`Product data refreshed from MWS API for barcode ${normalizedBarcode}.`);
+      for( let elem of refreshResp ) {
+        if(elem.asin) {
+          asins.push(elem.asin);
+        }
+      }
+    }
+    else {
+      __logger.info(`No product data found in MWS API for barcode ${normalizedBarcode}`);
+    }
+  }
+  return asins;
 }
 
 //*****************************************************
@@ -127,25 +126,25 @@ async function getAsinsFromMwsApiForBarcode(barcode) {
 //*****************************************************
 
 async function getProductDataFromUpcItemDb(barcode) {
-	let productData = {};
+  let productData = {};
 
-	let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
-	if(!normalizedBarcode) {
-		normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
-	}
+  let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
+  if(!normalizedBarcode) {
+    normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
+  }
 
-	if(normalizedBarcode) {
-		const apiResp = await upcItemDbClient.lookup(barcode);
-		if(apiResp && apiResp.items && apiResp.items[0]) {
-			__logger.info(`Product data obtained from UpcItemDb for barcode ${normalizedBarcode}.`);
-			productData = Object.assign(productData, dataModule.collateApiRespItems(apiResp.items, { markup: .2 }));
-		}
-		else {
-			__logger.info(`No product data found in UpcItemDb for barcode ${normalizedBarcode}.`);
-		}
-		productData.normalizedBarcode = normalizedBarcode;
-	}
-	return productData;
+  if(normalizedBarcode) {
+    const apiResp = await upcItemDbClient.lookup(barcode);
+    if(apiResp && apiResp.items && apiResp.items[0]) {
+      __logger.info(`Product data obtained from UpcItemDb for barcode ${normalizedBarcode}.`);
+      productData = Object.assign(productData, dataModule.collateApiRespItems(apiResp.items));
+    }
+    else {
+      __logger.info(`No product data found in UpcItemDb for barcode ${normalizedBarcode}.`);
+    }
+    productData.normalizedBarcode = normalizedBarcode;
+  }
+  return productData;
 }
 
 //***************************************************
@@ -153,65 +152,54 @@ async function getProductDataFromUpcItemDb(barcode) {
 //***************************************************
 
 async function getProductDataFromWalmartOpenApi(barcode){
-	let productData = {};
+  let productData = {};
 
-	let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
-	if(!normalizedBarcode) {
-		normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
-	}
+  let normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'upca');
+  if(!normalizedBarcode) {
+    normalizedBarcode = libBarcodes.normalizeBarcodeByType(barcode, 'ean');
+  }
 
-	if(normalizedBarcode) {
-		const apiResp = await walmartOpenApiClient.lookup(barcode);
-		if(apiResp && apiResp.items && apiResp.items[0]) {
-			__logger.info(`Product data obtained from Walmart Open API for barcode ${normalizedBarcode}.`);
-			const item = apiResp.items[0];
-			productData.title = item.name;
-			productData.price = item.msrp ? item.msrp : (item.salePrice ? item.salePrice : 0);
-			if( parseFloat(productData.price) > MAX_UNIT_PRICE ) {
-				productData.price = 0;
-			}
-		}
-		else {
-			__logger.info(`No product data found in Walmart Open API for barcode ${normalizedBarcode}.`);
-		}
-		productData.normalizedBarcode = normalizedBarcode;
-	}
-	return productData;
+  if(normalizedBarcode) {
+    const apiResp = await walmartOpenApiClient.lookup(barcode);
+    if(apiResp && apiResp.items && apiResp.items[0]) {
+      __logger.info(`Product data obtained from Walmart Open API for barcode ${normalizedBarcode}.`);
+      const item = apiResp.items[0];
+      productData.title = item.name;
+      productData.price = item.msrp ? item.msrp : (item.salePrice ? item.salePrice : 0);
+      if( parseFloat(productData.price) > MAX_UNIT_PRICE ) {
+        productData.price = 0;
+      }
+    }
+    else {
+      __logger.info(`No product data found in Walmart Open API for barcode ${normalizedBarcode}.`);
+    }
+    productData.normalizedBarcode = normalizedBarcode;
+  }
+  return productData;
 }
 
 /////////////////////////////////////////////////////
 
-function titleCheck(productData) {
-	if(!productData.title) {
-		productData.title = 'UNKNOWN';
-	}
-	return productData;
-}
-
 function randomPrice() {
-	const max = 16;
-	const min = 11;
-	return Math.floor(Math.random() * (max - min) ) + min + 0.99;
+  const max = 16;
+  const min = 11;
+  return Math.floor(Math.random() * (max - min) ) + min + 0.99;
 }
 
 function priceCheck(productData) {
-	if(!productData.price) {
-		productData.price = randomPrice();
-	}
-	// else {
-	// 	productData.price = 2*productData.price;
-	// }
-	return productData;
+  if(!productData.price) {
+    productData.price = randomPrice();
+  }
+  return productData;
 }
 
 function getProductDataByBarcode(barcode) {
-	return getProductDataFromSrc(barcode)
-						// .then(titleCheck)
-						.then(priceCheck);
+  return getProductDataFromSrc(barcode)
+    .then(priceCheck);
 }
 
 
 module.exports = {
-	getProductDataByBarcode: getProductDataByBarcode,
-	getAsinsFromMwsApiForBarcode: getAsinsFromMwsApiForBarcode
-}
+  getProductDataByBarcode: getProductDataByBarcode,
+  getAsinsFromMwsApiForBarcode: getAsinsFromMwsApiForBarcode
+};
