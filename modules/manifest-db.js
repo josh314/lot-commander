@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 
 const libMandb = require(path.join(__config.libDir.mandb, 'mandb'));
 
-const mandbClient = new libMandb.Client(__config.db.mandb); 
+const mandbClient = new libMandb.Client({ connection: __connections.manifests }); 
 
 
 function getManifestById(manifestId) {

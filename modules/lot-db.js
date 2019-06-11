@@ -9,7 +9,7 @@ const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
 const libLotDb = require(path.join(__config.libDir.lotdb, 'lotdb'));
 
 
-const lotdbClient = new libLotDb.Client(__config.db.lotdb); 
+const lotdbClient = new libLotDb.Client({ connection: __connections.lots }); 
 
 function getLotById(lotId) {
 	return lotdbClient.getLotById(lotId);
