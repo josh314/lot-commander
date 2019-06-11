@@ -52,7 +52,8 @@
 	- file name is maybe not good
 	- some kind of hash
 	- how to handle dupes
-- make sure s3 images get into shopify and bstock
+- make sure s3 images get into bstock
+- convert everything to jpeg before uploading to s3
 
 # Facelift the UI
 - Remove unnecessary features
