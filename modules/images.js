@@ -49,7 +49,7 @@ async function removeImage(req, res) {
     res.json({ status: "success" });
     if(image.s3) {
       try {
-        await imageServer.remove(lotId, image.s3);
+        await imageServer.remove(image.s3);
         __logger.info(`Image ${imageServer.imageName(image.s3)} deleted from bucket ${imageServer.bucketName(lotId)}.`);
       }
       catch(e) {

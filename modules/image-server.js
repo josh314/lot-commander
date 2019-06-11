@@ -11,7 +11,7 @@ const bucketName = (lotId) => `${S3_LOT_IMG_BUCKET_PREFIX}-${lotId}`;
 const imageName = (s3Location) => {
   const p = new RegExp(`https:\\/\\/(.*)\\.s3\\.amazonaws\\.com\\/(.*)`);
   const match = s3Location.match(p);
-  return match ? match[1] : null;
+  return match ? match[2] : null;
 };
 
 const parseS3Location = (s3Location) => {
@@ -62,9 +62,8 @@ const store = async function(lotId, imgPath, imgName) {
 };
 
 
-const remove = function(lotId, s3Location) {
-  const bucket = bucketName(lotId);
-  const key = imageName(s3Location);
+const remove = function(s3Location) {
+  const { bucket, key } = parseS3Location(s3Location);
   if(key) {
     return s3.deleteObject({
       Bucket: bucket,
