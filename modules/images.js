@@ -3,6 +3,7 @@ const fs = require('fs');
 
 const Promise = require('bluebird');
 const save = Promise.promisify(fs.rename);
+const unlink = Promise.promisify(fs.unlink);
 
 const formidable = require('formidable');
 const archiver = require('archiver');
@@ -30,6 +31,11 @@ function upload(req,res) {
         if(resp) {
           return lotdb.addImage(fields.lotId, { s3: resp.Location });
         }
+      })
+      .then(_=>{
+        console.log(`Unlinking temp file ${f.path}`);
+        unlink(f.path);
+        return _;
       });
       fileUploads.push(s);
     }
