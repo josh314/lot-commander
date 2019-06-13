@@ -113,13 +113,15 @@ const submit = Promise.method(async function(req, res, next) {
     __logger.error(e);
   }
   if(listing.lot.submittedListings && listing.lot.submittedListings.length>0) {
-    const idx = listing.lot.submittedListings.findIndex(x => x.marketplace === listing.marketplace);
+    const submittedListings = [].concat(listing.lot.submittedListings);
+    const idx = submittedListings.findIndex(x => x.marketplace === listing.marketplace);
     if(idx===-1){
-      listing.lot.submittedListings.push(newSubmittedListing);
+      submittedListings.push(newSubmittedListing);
     } 
     else {
-      listing.lot.submittedListings.splice(idx, 1, newSubmittedListing);
+      submittedListings.splice(idx, 1, newSubmittedListing);
     }
+    listing.lot.submittedListings = submittedListings;
   }
   else {
     listing.lot.submittedListings = [newSubmittedListing];

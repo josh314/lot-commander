@@ -21,7 +21,7 @@ const parseS3Location = (s3Location) => {
   const match = s3Location.match(p);
   if(match) {
     res.bucket = match[1];
-    res.key = match[2];
+    res.key = match[2] && decodeURIComponent(match[2]);
   }
 
   return res;
@@ -32,7 +32,6 @@ const get = async function(opts = {}) {
   if(!bucket || !key) {
     return null;
   }
-
   return s3.getObject({
     Bucket: bucket,
     Key: key,
