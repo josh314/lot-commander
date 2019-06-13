@@ -173,7 +173,7 @@
 					<tbody>
 						<tr ng-repeat="item in lot.getInventorySortedByBarcode()">
 							<td>
-								<img class="inventory-preview-img" src="{{item.images[0]}}">
+								<img class="inventory-preview-img" ng-src="{{item.images[0]}}">
 							</td>
 							<td>{{item.barcode}}</td>
 							<td>{{item.description}}</td>
@@ -190,7 +190,7 @@
 				<h5>{{item.barcode}} - {{item.description}}</h5>
 				<div class="row">
 					<div class="col-xs-6 col-sm-4 col-md-3 col-lg-1" ng-repeat="image in item.images track by $index">
-						<a href="{{image}}"><img class="img-responsive" src="{{image}}"></a>
+						<a ng-href="{{image}}"><img class="img-responsive" ng-src="{{image}}"></a>
 					</div>
 				</div>
 			</div>
