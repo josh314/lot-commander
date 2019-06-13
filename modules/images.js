@@ -32,11 +32,11 @@ function upload(req,res) {
           return lotdb.addImage(fields.lotId, { s3: resp.Location });
         }
       })
-      .then(_=>{
-        console.log(`Unlinking temp file ${f.path}`);
-        unlink(f.path);
-        return _;
-      });
+        .then(_=>{
+          console.log(`Unlinking temp file ${f.path}`);
+          unlink(f.path);
+          return _;
+        });
       fileUploads.push(s);
     }
     res.json(Promise.all(fileUploads));
