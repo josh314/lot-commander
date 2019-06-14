@@ -17,12 +17,29 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$state', '
     const initImg = async () => {
       const img = new Image();
 
+      const maxWidth = 640;
+      const maxHeight = 640;
+
       img.onload = () => {
+
+        let width = img.width;
+        let height = img.height;
+
+        if(width > maxWidth) {
+          height = height*(maxWidth/width);
+          width = maxWidth;
+        }
+        
+        if(height > maxHeight) {
+          width = width*(maxHeight/height);
+          height = maxHeight;
+        }
+
         editor = new Croppie(
           $document[0].getElementById('croppie-container'),
           {
-            viewport: { width: .8*img.width, height: .8*img.height },
-            boundary: { width: img.width, height: img.height },
+            viewport: { width: .8*width, height: .8*height },
+            boundary: { width: width, height: height },
             showZoomer: false,
             enableOrientation: true,
             enableResize: true,
@@ -66,7 +83,7 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$state', '
       });
 
       modalInstance.result.then(async function () {
-        const blob = await editor.result({type: 'blob', size: 'viewport', format: 'jpeg', quality: .99});
+        const blob = await editor.result({type: 'blob', size: 'original', format: 'jpeg', quality: .99});
         fileUpload.uploadFileToUrl(blob, '/api/image/replace', ImageSvc.getStore());
         $state.go('main.lots.view', { lotId: ImageSvc.parseS3Location(imageStore.s3).lotId });
       }, function () {
