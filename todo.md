@@ -8,6 +8,21 @@
 - login page is calling for stylesheet app.css but is just getting login page back since not yet logged in
 	- no real damage but does throw an annoying error in browser console
 - [?] no auctions were being listed in production at /auctions/list
+- (node:47412) UnhandledPromiseRejectionWarning: Error: Error: InvalidBucketName: The specified bucket is not valid.
+    at deleteLot (/Users/josh/dev/apps/lot-commander/modules/lot-db.js:206:11)
+    at <anonymous>
+    at process._tickDomainCallback (internal/process/next_tick.js:229:7)
+- (node:47412) DeprecationWarning: collection.remove is deprecated. Use deleteOne, deleteMany, or bulkWrite instead.
+	- was this from delete Lot function?
+
+# Warnings
+-  on startup
+	- (node:47477) DeprecationWarning: current URL string parser is deprecated, and will be removed in a future version. To use the new parser, pass option { useNewUrlParser: true } to MongoClient.connect.
+- on startup
+	- objc[47477]: Class GNotificationCenterDelegate is implemented in both /Users/josh/dev/apps/lot-commander/node_modules/sharp/vendor/lib/libgio-2.0.0.dylib (0x1119db578) and /Users/josh/dev/apps/lot-commander/node_modules/canvas/build/Release/libgio-2.0.0.dylib (0x116b50578). One of the two will be used. Which one is undefined.
+- uploading image on lot page (before unlinking temp file)
+	- (node:47610) DeprecationWarning: Mongoose: `findOneAndUpdate()` and `findOneAndDelete()` without the `useFindAndModify` option set to false are deprecated. See: https://mongoosejs.com/docs/deprecations.html#-findandmodify-
+
 
 # Feature requests
 - there is no estimated retail value (ERV) without a manifest.
@@ -22,9 +37,7 @@
 	- clean up UI
 		- spacing between buttons
 		- window sizes
-	- check size of edited images
 	- features
-		- cropping
 		- resizing 
 		- orientation
 - Scanning page: Increase the size for the fonts for “Inventory count 00” and make this obvious to users. We are still having issues of knowing if the item in hand was scanned. I will try to enforce reading but can’t make promises on projected success.
@@ -39,6 +52,8 @@
 - Creating Listing Page: Automatically make the lot price 20% of the retail value. This will remove decision making.
 - create user
 - add user roles
+- on view-lots page, watch for changes to images (new images or edits to existing images) and updsate display accordingly
+- dedup image-server images
 
 # S3 Image server
 - make sure the AWS credentials are on the server
