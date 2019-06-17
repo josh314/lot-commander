@@ -66,7 +66,8 @@ const get = async function(opts = {}) {
 };
 
 const store = async function(lotId, imgPath, imgName, opts={}) {
-  const compress = 'compress' in opts ? opts.compress : true; 
+  const compress = 'compress' in opts ? opts.compress : true;
+  const dedup = 'dedup' in opts ? opts.dedup : true;
 
   let readStream;
   let key;
@@ -84,10 +85,10 @@ const store = async function(lotId, imgPath, imgName, opts={}) {
     key = imgName;
   }
 
-  return storeStream(bucketName(lotId), readStream, key);
+  return storeStream(bucketName(lotId), readStream, key, dedup);
 };
 
-const storeStream = async function(bucket, readStream, key) {
+const storeStream = async function(bucket, readStream, key, dedup) {
   try {
     await s3.headBucket({ Bucket: bucket }).promise();
   }
@@ -97,6 +98,19 @@ const storeStream = async function(bucket, readStream, key) {
       ACL: 'public-read',
     }).promise();
     __logger.debug(newBucket);
+  }
+
+  if(dedup) {
+    const list = await s3.listObjects({ Bucket: bucket }).promise();
+    const imageObjects = list.Contents;
+    if(imageObjects && imageObjects.length) {
+      const found = imageObjects.find(_ => _.Key === key);
+      if(found) {
+        const keyProps = path.parse(key);
+        const dupes = imageObjects.filter(_ => path.parse(_.Key).name.match(new RegExp(`${keyProps.name}(-[0-9]+)?`) ) );
+        key = `${keyProps.name}-${dupes.length}${keyProps.ext}`;
+      }
+    }
   }
 
   return s3.upload({
@@ -122,7 +136,7 @@ const remove = function(s3Location) {
 
 const replace = (s3Location, imgPath) => {
   const { bucket , key } = parseS3Location(s3Location);
-  return store(getLotId(bucket), imgPath, key);
+  return store(getLotId(bucket), imgPath, key, { dedup: false });
 };
 
 const deleteLotBucket = async (lotId) => {
