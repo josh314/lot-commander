@@ -15,7 +15,8 @@ async function init(){
       keepAlive: 300000,
       connectTimeoutMS: 30000,
       socketTimeoutMS: 300000,
-      autoIndex: false
+      autoIndex: false,
+      useNewUrlParser: true,
     };
     connections[label] = await mongoose.createConnection(dbUrl, mongooseConnOpts);
   }

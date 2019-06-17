@@ -16,8 +16,6 @@
 	- was this from delete Lot function?
 
 # Warnings
--  on startup
-	- (node:47477) DeprecationWarning: current URL string parser is deprecated, and will be removed in a future version. To use the new parser, pass option { useNewUrlParser: true } to MongoClient.connect.
 - on startup
 	- objc[47477]: Class GNotificationCenterDelegate is implemented in both /Users/josh/dev/apps/lot-commander/node_modules/sharp/vendor/lib/libgio-2.0.0.dylib (0x1119db578) and /Users/josh/dev/apps/lot-commander/node_modules/canvas/build/Release/libgio-2.0.0.dylib (0x116b50578). One of the two will be used. Which one is undefined.
 - uploading image on lot page (before unlinking temp file)
@@ -26,7 +24,7 @@
 	- (node:49351) DeprecationWarning: Mongoose: `findOneAndUpdate()` and `findOneAndDelete()` without the `useFindAndModify` option set to false are deprecated. See: https://mongoosejs.com/docs/deprecations.html#-findandmodify-
 
 
-# Feature requests
+# Features
 - there is no estimated retail value (ERV) without a manifest.
 	- option for user to set ERV on a total or per unit basis
 - clone listing function. Include:
@@ -46,7 +44,6 @@
 - Scanning page: Please add audible feedback for scanning. Good sound for UPC accepted bad sound for errors. This will help keep user attention on the screen or identify run away problems sooner.
 - Scanning page: Please enhance the size of the item Quantity toggle button. You may want to consider making it +/- .  This will help people that are less familiar with computers and working with the software.
 - pricing
-	- remove +20% markup
 	- come up with something more sophisticated
 		- suppress/remove outliers
 - "case packed" option for condition
@@ -55,7 +52,6 @@
 - create user
 - add user roles
 - on view-lots page, watch for changes to images (new images or edits to existing images) and updsate display accordingly
-- dedup image-server images
 
 # S3 Image server
 - deploy
