@@ -61,6 +61,7 @@
     "pdfkit": "^0.9.0",
     "print-js": "^1.0.61",
     "serve-favicon": "^2.4.5",
+    "sharp": "^0.22.1",
     "url-loader": "^1.1.2",
     "webpack": "^4.32.2",
     "webpack-cli": "^3.3.2",

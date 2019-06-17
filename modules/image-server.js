@@ -1,12 +1,19 @@
 const fs = require('fs');
+const path = require('path');
+const stream = require('stream');
 
 const aws = require('aws-sdk');
 const s3 = new aws.S3({apiVersion: '2006-03-01'});
 
-const S3_LOT_IMG_BUCKET_PREFIX = 'lot-img';
+const sharp = require('sharp');
+const MAX_IMAGE_WIDTH = 640;
 
-
-const bucketName = (lotId) => `${S3_LOT_IMG_BUCKET_PREFIX}-${lotId}`;
+const bucketName = (lotId) => `lot-img-${lotId}`;
+const getLotId = (bucket) => {
+  const p = /lot-img-([a-fA-F0-9]+)/;
+  const match = bucket.match(p);
+  return match ? match[1] : null;
+};
 
 const imageName = (s3Location) => {
   const p = new RegExp(`https:\\/\\/(.*)\\.s3\\.amazonaws\\.com\\/(.*)`);
@@ -27,6 +34,26 @@ const parseS3Location = (s3Location) => {
   return res;
 };
 
+const formatAsCompressedJpeg = async function(imgPath, opts={}) {
+
+  const img = sharp(imgPath);
+
+  const meta = await img.metadata();
+
+  if(!meta.width || meta.width > MAX_IMAGE_WIDTH) {
+    img.resize(MAX_IMAGE_WIDTH);
+  }
+
+  return img
+    .jpeg({
+      quality: opts.quality || 80,
+      progressive: true,
+      chromaSubsampling: '4:2:0',
+      force: true
+    })
+    .toBuffer();
+};
+
 const get = async function(opts = {}) {
   let { bucket, key } = opts.s3Location ? parseS3Location(opts.s3Location) : opts;
   if(!bucket || !key) {
@@ -38,8 +65,29 @@ const get = async function(opts = {}) {
   }).promise();
 };
 
-const store = async function(lotId, imgPath, imgName) {
-  const bucket = bucketName(lotId);
+const store = async function(lotId, imgPath, imgName, opts={}) {
+  const compress = 'compress' in opts ? opts.compress : true; 
+
+  let readStream;
+  let key;
+
+  if(compress) {
+    const imgBuffer = await formatAsCompressedJpeg(imgPath);
+
+    readStream = new stream.PassThrough();
+    readStream.end(imgBuffer);
+
+    key = `${path.parse(imgName).name}.jpg`;
+  }
+  else {
+    readStream = fs.createReadStream(imgPath);
+    key = imgName;
+  }
+
+  return storeStream(bucketName(lotId), readStream, key);
+};
+
+const storeStream = async function(bucket, readStream, key) {
   try {
     await s3.headBucket({ Bucket: bucket }).promise();
   }
@@ -53,8 +101,8 @@ const store = async function(lotId, imgPath, imgName) {
 
   return s3.upload({
     Bucket: bucket,
-    Key: imgName,
-    Body: fs.createReadStream(imgPath),
+    Key: key,
+    Body: readStream,
     ACL: "public-read",
   })
     .promise();
@@ -75,13 +123,7 @@ const remove = function(lotId, s3Location) {
 
 const replace = (s3Location, imgPath) => {
   const { bucket , key } = parseS3Location(s3Location);
-  return s3.upload({
-    Bucket: bucket,
-    Key: key,
-    Body: fs.createReadStream(imgPath),
-    ACL: "public-read",
-  })
-    .promise();
+  return store(getLotId(bucket), imgPath, key);
 };
 
 const deleteLotBucket = async (lotId) => {
