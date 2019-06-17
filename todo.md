@@ -22,6 +22,8 @@
 	- objc[47477]: Class GNotificationCenterDelegate is implemented in both /Users/josh/dev/apps/lot-commander/node_modules/sharp/vendor/lib/libgio-2.0.0.dylib (0x1119db578) and /Users/josh/dev/apps/lot-commander/node_modules/canvas/build/Release/libgio-2.0.0.dylib (0x116b50578). One of the two will be used. Which one is undefined.
 - uploading image on lot page (before unlinking temp file)
 	- (node:47610) DeprecationWarning: Mongoose: `findOneAndUpdate()` and `findOneAndDelete()` without the `useFindAndModify` option set to false are deprecated. See: https://mongoosejs.com/docs/deprecations.html#-findandmodify-
+- removing image from view lot page
+	- (node:49351) DeprecationWarning: Mongoose: `findOneAndUpdate()` and `findOneAndDelete()` without the `useFindAndModify` option set to false are deprecated. See: https://mongoosejs.com/docs/deprecations.html#-findandmodify-
 
 
 # Feature requests
