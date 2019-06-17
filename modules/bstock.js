@@ -1,11 +1,31 @@
 const path = require('path');
+const fs = require('fs');
+const Promise = require('bluebird');
 
 const bstockWeb = require(path.join(__config.libDir.bstock, 'bstock-web'));
+
 const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
+const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
 
 async function submitListing(data) {
   const lot = data.lot;
   const client = new bstockWeb.Client({auth:__config.bstock.auth, logger: __logger});
+
+  const images = await Promise.map(lot.images, async (_)=>{
+    let imgContents;
+    if(_.s3) {
+      imgContents = ( await imageServer.get({ s3Location: _.s3 }) ).Body;
+    }
+    else {
+      imgContents = await Promise.promisify(fs.readFile)( path.join(__basedir, __config.imgPath, _.filename) );
+    }
+
+    return {
+      primary: _.primary ? true : false,
+      filename: _.s3 ? imageServer.imageName(_.s3) : _.filename,
+      buffer: new Buffer(imgContents, 'binary'),
+    };
+  });
 
   const manifestOptions = {
     bstock: {
@@ -25,12 +45,7 @@ async function submitListing(data) {
     category: data.category,
     condition: data.condition,
     palletIds: lot.handle,
-    images: lot.images.map(x=>{
-      return {
-        primary: x.primary ? true : false,
-        filename: path.join(__basedir, __config.imgPath, x.filename),
-      };
-    }),
+    images: images,
     startPrice: data.auctionStartPrice,
   };
 

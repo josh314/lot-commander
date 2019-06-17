@@ -109,9 +109,8 @@ const storeStream = async function(bucket, readStream, key) {
 };
 
 
-const remove = function(lotId, s3Location) {
-  const bucket = bucketName(lotId);
-  const key = imageName(s3Location);
+const remove = function(s3Location) {
+  const { bucket, key } = parseS3Location(s3Location);
   if(key) {
     return s3.deleteObject({
       Bucket: bucket,

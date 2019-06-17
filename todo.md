@@ -56,7 +56,9 @@
 - dedup image-server images
 
 # S3 Image server
-- make sure the AWS credentials are on the server
+- deploy
+	- make sure the AWS credentials are on the server
+	- update all dependencies
 - do I need to delete the file on disk after saving to s3?
 - convert stuff to use S3
 	- images.downloadImages
@@ -67,7 +69,6 @@
 	- file name is maybe not good
 	- some kind of hash
 	- how to handle dupes
-- make sure s3 images get into bstock
 - convert everything to jpeg before uploading to s3
 
 # Facelift the UI
