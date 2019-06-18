@@ -7,11 +7,19 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
     focus('barcodeInput');
     $scope.lot = lotStore;
 
+    const save = () => {
+      return saveManifest().then(resp=>{
+        if(resp && resp.data && resp.data[0]) {
+          lotStore.manifestId = resp.data[0]._id;
+        }
+      });
+    };
+
     let autoSaveTimer;
     const autoSaveInterval = 30*1000;
     const autosaveFn = ()=>{
       console.log(`Auto-saving lot: ${lotStore.handle}`);
-      return saveManifest().catch(e=>{
+      return save().catch(e=>{
         $interval.cancel(autoSaveTimer);
         const m = `
           <p>An error has occured while scanning.</p>
@@ -37,7 +45,7 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
     $scope.saveManifest = function() {
       console.log(`Auto-saving lot: ${lotStore.handle}`);
       $interval.cancel(autoSaveTimer);
-      saveManifest().then(()=>{
+      save().then(()=>{
         $state.go('main.lots.view', {lotId: lotStore._id});
       });
     };
@@ -64,18 +72,18 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
     $scope.decrementInventory = function(barcode) {
       lotStore.decrementInventory(barcode);
       // focus('barcodeInput');
-      saveManifest().then(()=> $state.reload());
+      save().then(()=> $state.reload());
     };
 
     $scope.deleteProduct = function(barcode) {
       lotStore.deleteProduct(barcode);
-      saveManifest().then(()=> $state.reload());
+      save().then(()=> $state.reload());
     };
 
     $scope.$on('$stateChangeStart', () => {
       console.log(`Auto-saving lot: ${lotStore.handle}`);
       $interval.cancel(autoSaveTimer);
-      saveManifest();
+      save();
     });
   }
 ]);
