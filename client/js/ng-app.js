@@ -30,9 +30,9 @@ const stateData = [
   { name: "main.auctions", abstract: true, url: '/auctions', templateUrl: '/partials/_container.html' },
   { name: "main.auctions.list", navName: 'List Auctions', url: '/list', templateUrl: '/partials/_list_auctions.html', controller: 'ListAuctionsCtrl'},
   // manifest files
-  { name: "main.manifests", abstract: true, navName: 'Manifests', url: '/manifests', templateUrl: '/partials/_container.html' },
-  { name: "main.manifests.list", navName: 'List', navParent: 'Manifests', url: '/list', templateUrl: '/partials/_manifest_files_list.html', controller: 'ManifestFilesListCtrl'},
-  { name: "main.manifests.upload", navName: 'Upload', navParent: 'Manifests', url: '/3rd-party-manifest-upload', templateUrl: '/partials/_3rd_party_manifest_upload.html', controller: 'Upload3pManifestCtrl'},
+  // { name: "main.manifests", abstract: true, navName: 'Manifests', url: '/manifests', templateUrl: '/partials/_container.html' },
+  // { name: "main.manifests.list", navName: 'List', navParent: 'Manifests', url: '/list', templateUrl: '/partials/_manifest_files_list.html', controller: 'ManifestFilesListCtrl'},
+  // { name: "main.manifests.upload", navName: 'Upload', navParent: 'Manifests', url: '/3rd-party-manifest-upload', templateUrl: '/partials/_3rd_party_manifest_upload.html', controller: 'Upload3pManifestCtrl'},
   // users
   { name: "main.users", abstract:true, navName: "Users", url: "/users", templateUrl: 'partials/_container.html'},
   { name: "main.users.change-password", navName: "Change Password", navParent: 'Users', url: "/change-password", templateUrl: 'partials/users/_change_password.html', controller:'ChangeUserPasswordCtrl'},

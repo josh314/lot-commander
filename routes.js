@@ -62,8 +62,8 @@ function routes() {
   router.get('/api/manifest-files/list', manifests.listManifestFiles);
   router.post('/api/manifest-files/generate', manifests.generateManifestFile);
   router.get('/api/manifest-files/download/:file', manifests.downloadManifestFile);
-  router.post('/api/manifest-files/upload', manifests.submit3pManifest);
-  // router.get('/api/files/delete/:manifestId', files.deleteManifestFile);
+  // router.post('/api/manifest-files/upload', manifests.submit3pManifest);
+
   router.post('/api/image/upload', images.upload);
   router.post('/api/image/primary', lotdb.setPrimaryImage);
   router.get('/api/image/download/:lotId', images.downloadImages);
