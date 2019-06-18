@@ -1,7 +1,7 @@
 const path = require('path');
 
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
-const inmardb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
+// const inmardb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
 const bstock = require(path.join(__basedir, __config.modulesPath, 'bstock'));
 const quickLots = require(path.join(__basedir, __config.modulesPath, 'quick-lots'));
@@ -10,7 +10,7 @@ const dbEnums = {
   lotStatus: lotdb.lotStatusEnum,
   lotType: lotdb.lotTypeEnum,
   marketplaces: lotdb.marketplaceEnum,
-  priceType: inmardb.priceTypeEnum,
+  // priceType: inmardb.priceTypeEnum,
 };
 
 const ngConstants = [

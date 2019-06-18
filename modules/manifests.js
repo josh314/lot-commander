@@ -13,7 +13,7 @@ const fileStats = Promise.promisify(fs.stat);
 
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
-const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
+// const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
 const manifestFilesPath = path.join(__basedir, __config.manifestFilesPath);
@@ -193,7 +193,8 @@ function getManifestItemsForLot(lot, opts={}) {
   }
 
   const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.toObject().inventory) : Promise.resolve([]);
-  const thirdPartyManifestP = lot.thirdPartyManifests.length ? inmarDb.getBlockByBlockId(lot.thirdPartyManifests[0].blockId).then(b => b.contents) : Promise.resolve([]);
+  // const thirdPartyManifestP = lot.thirdPartyManifests.length ? inmarDb.getBlockByBlockId(lot.thirdPartyManifests[0].blockId).then(b => b.contents) : Promise.resolve([]);
+  const thirdPartyManifestP = Promise.resolve([]); // placeholder
   return Promise.join(scannedManifestP, thirdPartyManifestP).spread(async (scannedInventory, thirdPartyInventory)=>{
     const inventory = scannedInventory.concat(thirdPartyInventory);
     return buildManifestItems(inventory, opts);

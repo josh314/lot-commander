@@ -12,8 +12,7 @@
     at deleteLot (/Users/josh/dev/apps/lot-commander/modules/lot-db.js:206:11)
     at <anonymous>
     at process._tickDomainCallback (internal/process/next_tick.js:229:7)
-- (node:47412) DeprecationWarning: collection.remove is deprecated. Use deleteOne, deleteMany, or bulkWrite instead.
-	- was this from delete Lot function?
+- not exactly a bug but should hide or disable scan button on list lots page for unmanifested lots
 
 # Warnings
 - on startup
@@ -22,7 +21,8 @@
 	- (node:47610) DeprecationWarning: Mongoose: `findOneAndUpdate()` and `findOneAndDelete()` without the `useFindAndModify` option set to false are deprecated. See: https://mongoosejs.com/docs/deprecations.html#-findandmodify-
 - removing image from view lot page
 	- (node:49351) DeprecationWarning: Mongoose: `findOneAndUpdate()` and `findOneAndDelete()` without the `useFindAndModify` option set to false are deprecated. See: https://mongoosejs.com/docs/deprecations.html#-findandmodify-
-
+- (node:47412) DeprecationWarning: collection.remove is deprecated. Use deleteOne, deleteMany, or bulkWrite instead.
+	- was this from delete Lot function?
 
 # Features
 - there is no estimated retail value (ERV) without a manifest.
@@ -52,6 +52,7 @@
 - create user
 - add user roles
 - on view-lots page, watch for changes to images (new images or edits to existing images) and updsate display accordingly
+- prevent submission of lot without images
 
 # S3 Image server
 - deploy
