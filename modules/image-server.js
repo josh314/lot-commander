@@ -3,6 +3,7 @@ const path = require('path');
 const stream = require('stream');
 
 const aws = require('aws-sdk');
+aws.config.credentials = new aws.SharedIniFileCredentials({profile: 'lot-commander'});
 const s3 = new aws.S3({apiVersion: '2006-03-01'});
 
 const sharp = require('sharp');
