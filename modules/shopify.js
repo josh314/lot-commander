@@ -6,7 +6,7 @@ const readFile = Promise.promisify(fs.readFile);
 
 const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
 const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
-const shopifyApi = require(path.join(__config.libDir.shopify, 'api'));
+const shopifyApi = require('shopify/lib/api');
 
 const shopifyClient = new shopifyApi.Client(__config.shopify.store);
 

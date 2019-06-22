@@ -66,6 +66,7 @@
     "print-js": "^1.0.61",
     "serve-favicon": "^2.4.5",
     "sharp": "^0.22.1",
+    "shopify": "git+ssh://git@gitlab.com/josh314/shopify.git",
     "upcitemdb": "git+ssh://git@gitlab.com/josh314/lib-upcitemdb.git",
     "url-loader": "^1.1.2",
     "webpack": "^4.32.2",

@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const Promise = require('bluebird');
 
-const bstockWeb = require(path.join(__config.libDir.bstock, 'bstock-web'));
+const bstockWeb = require('bstock/bstock-web');
 
 const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
 const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));

@@ -8,7 +8,7 @@ const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-se
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 // const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
 
-const libLotDb = require(path.join(__config.libDir.lotdb, 'lotdb'));
+const libLotDb = require('lot-db/lotdb');
 
 
 const lotdbClient = new libLotDb.Client({ connection: __connections.lots }); 
