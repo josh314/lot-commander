@@ -25,8 +25,6 @@
 	- was this from delete Lot function?
 
 # Features
-- there is no estimated retail value (ERV) without a manifest.
-	- option for user to set ERV on a total or per unit basis
 - clone listing function. Include:
 	- images (don't copy image, just clone the filename)
 	- manifest
@@ -48,10 +46,11 @@
 		- suppress/remove outliers
 - "case packed" option for condition
 	- need a lot-type indicator on wholesale ninjas
-- Creating Listing Page: Automatically make the lot price 20% of the retail value. This will remove decision making.
+
 - create user
 - add user roles
 - on view-lots page, watch for changes to images (new images or edits to existing images) and updsate display accordingly
+
 - prevent submission of lot without images
 
 # S3 Image server
