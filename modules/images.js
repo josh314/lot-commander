@@ -56,10 +56,10 @@ async function removeImage(req, res) {
     if(image.s3) {
       try {
         await imageServer.remove(image.s3);
-        __logger.info(`Image ${imageServer.imageName(image.s3)} deleted from bucket ${imageServer.bucketName(lotId)}.`);
+        __logger.info(`Image ${imageServer.imageName(image.s3)} deleted from lot ${lotId}.`);
       }
       catch(e) {
-        __logger.warn(`Image ${imageServer.imageName(image.s3)} could not be deleted from bucket ${imageServer.bucketName(lotId)}.`);
+        __logger.warn(`Image ${imageServer.imageName(image.s3)} could not be deleted from lot ${lotId}.`);
         __logger.error(e);
       }
     }
