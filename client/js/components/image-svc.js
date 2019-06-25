@@ -52,12 +52,15 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', 'fileUplo
     svc.parseS3Location = (s3Location) => {
       const res = {};
 
-      const p = new RegExp(`https:\\/\\/lot-img-(.*)\\.s3\\.amazonaws\\.com\\/(.*)`);
+      const p = /https:\/\/(.*)\.s3\.amazonaws\.com\/(.*)\/(.*)/;
       const match = s3Location.match(p);
       if(match) {
-        res.lotId = match[1];
-        res.key = match[2];
+        res.bucket = match[1];
+        res.lotId = match[2];
+        res.imgName = match[3] && decodeURIComponent(match[3]);
+        res.key = `${res.lotId}/${res.imgName}`;
       }
+
       return res;
     };
   }
