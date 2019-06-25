@@ -20,11 +20,13 @@ const imageName = (s3Location) => {
 const parseS3Location = (s3Location) => {
   const res = {};
 
-  const p = /https:\/\/(.*)\.s3\.amazonaws\.com\/(.*)/;
+  const p = /https:\/\/(.*)\.s3\.amazonaws\.com\/(.*)\/(.*)/;
   const match = s3Location.match(p);
   if(match) {
     res.bucket = match[1];
-    res.key = match[2] && decodeURIComponent(match[2]);
+    res.lotId = match[2];
+    res.imgName = match[3] && decodeURIComponent(match[3]);
+    res.key = `${res.lotId}/${res.imgName}`;
   }
 
   return res;
@@ -129,9 +131,15 @@ const remove = function(s3Location) {
   else return Promise({});
 };
 
+const replace = (s3Location, imgPath) => {
+  const { bucket , lotId, imgName } = parseS3Location(s3Location);
+  return store(lotId, imgPath, imgName, { dedup: false });
+};
+
 module.exports = {
   get: get,
   imageName: imageName,
   remove: remove,
+  replace: replace,
   store: store,
 };
