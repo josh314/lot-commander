@@ -1,3 +1,11 @@
+# Dev
+
+- Do static-checking on server-side code
+	- Use webpack
+		- replace requires/module.exports with import/export
+		- requires changes to deployment to run the bundled file
+	- will allow more useful linting and checking for functions
+
 # Bugs
 - complaints about image uploading
 	- multiple images (works in Chrome on Mac, though)
