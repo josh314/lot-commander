@@ -42,7 +42,11 @@
 						</td>
 						<td><input type="text" size=16 ng-model="item.barcode"></td>
 						<td><input type="text" size="64" ng-model="item.description"></td>
-						<td><input type="number" style="width: 4em" ng-model="item.quantity" min="0"></td>
+						<td>
+							<input type="number" class="hide-controls" style="width: 4em" ng-model="item.quantity" min="0">
+							<button class="btn btn-success btn-xs" ng-click=" item.quantity = item.quantity + 1 "><span class="glyphicon glyphicon-plus"></span></button>
+							<button class="btn btn-warning btn-xs" ng-click=" item.quantity = item.quantity>0 ? item.quantity - 1 : 0"><span class="glyphicon glyphicon-minus"></span></button>
+						</td>
 						<td><input type="text" size="6" ng-model="item.price"></td>
 						<td><button class="btn btn-danger btn-xs" ng-click="deleteProduct(item.barcode)"><span class="glyphicon glyphicon-remove"></span></button></td>
 					</tr>
