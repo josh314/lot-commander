@@ -140,23 +140,19 @@ const deleteLotImages = async (lotId) => {
   try {
     //1.) get list of all objects
     // 2.) delete each object s3.deleteObjects
-    const list = await s3.listObjects({ Bucket: BUCKET }).promise();
-    
-    if(list.Contents) {
-      const p = new RegExp(`${lotId}\/.*`);
-      const keysToDelete = list.Contents.filter( object => object.Key.match(p) ).map(object => { 
+    const list = await s3.listObjectsV2({ Bucket: BUCKET, Prefix: lotId }).promise();
+    if(list.Contents && list.Contents.length) {
+      const keysToDelete = list.Contents.map(object => { 
         return {
           Key: object.Key
         };
       });
-      if(keysToDelete.length) {
-        await s3.deleteObjects({
-          Bucket: BUCKET,
-          Delete: {
-            Objects: keysToDelete,
-          }
-        }).promise();
-      }
+      await s3.deleteObjects({
+        Bucket: BUCKET,
+        Delete: {
+          Objects: keysToDelete,
+        }
+      }).promise();
     }
 
   }
