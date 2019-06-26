@@ -47,11 +47,11 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$state', '
           }
         );
         editor.bind({
-          url: `/api/image/?s3=${encodeURIComponent(imageStore.s3)}` || imageStore.filename,
+          url: imageStore.s3 ? `/api/image/?s3=${encodeURIComponent(imageStore.s3)}` : imageStore.filename,
           // orientation: 1
         });
       };
-      img.src = `/api/image/?s3=${encodeURIComponent(imageStore.s3)}` || imageStore.filename;
+      img.src = imageStore.s3 ? `/api/image/?s3=${encodeURIComponent(imageStore.s3)}` : imageStore.filename;
       return img;
     };
     initImg();
@@ -63,7 +63,7 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$state', '
       }
       else {
         editor.bind({
-          url: imageStore.s3 || imageStore.filename,
+          url: imageStore.s3 ? `/api/image/?s3=${encodeURIComponent(imageStore.s3)}` : imageStore.filename,
           oritentation: 1,
         });
       }
