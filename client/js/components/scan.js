@@ -1,7 +1,8 @@
 import angular from 'angular';
 
 import successBeepWav from '../../audio/success.wav';
-import failBeepWav from '../../audio/fail.wav';
+// import failBeepWav from '../../audio/fail-1.wav';
+import failBeepWav from '../../audio/fail-2.wav';
 
 /******************* Scanning Page Controller *************************/
 angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', '$state', 'focus', 'lotStore', 'messageModal', 'saveManifest', 'sessionTimeout',
@@ -55,32 +56,24 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
 
     const successBeep = new Audio(successBeepWav);
     const failBeep = new Audio(failBeepWav);
-    $scope.scanBarcode = function() {
+    $scope.scanBarcode = async function() {
       console.log($scope.lot);
       if ($scope.scanForm.barcode.$valid) {
         const item = lotStore.addInventory($scope.scannedBarcode);
         if(item) {
           if(item.quantity==1) {
-            $http.get(`/api/product-data/${item.barcode}`).then(resp=>{
-              if(resp && resp.data) {
-                item.description = resp.data.title;
-                item.price = resp.data.price;
-                item.images = resp.data.images;
-                if(item.description) {
-                  successBeep.play();
-                }
-                else {
-                  failBeep.play();
-                }
-              }
-              else {
-                failBeep.play();
-              }
-            });
-          } else {
-            successBeep.play();
+            const resp = await $http.get(`/api/product-data/${item.barcode}`);
+            if(resp && resp.data) {
+              item.description = resp.data.title;
+              item.price = resp.data.price;
+              item.images = resp.data.images;
+            }
           }
+          successBeep.play();
           $state.reload();
+        }
+        else {
+          failBeep.play();
         }
       }
       else {

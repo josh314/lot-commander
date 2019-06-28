@@ -15,7 +15,7 @@ angular.module('myApp').controller('NewLotCtrl', ['$http', '$scope', '$state', '
     $scope.marketplaces = ['wholesaleninjas', 'bstock'];
 
     $scope.newLot = {
-      unmanifested: true,
+      unmanifested: false,
       destinationMarketplace: 'wholesaleninjas',
     };
 
