@@ -1,6 +1,8 @@
 import angular from "angular";
 import * as Promise from "bluebird";
 
+import errorImg from '../../030-warning.svg';
+
 const urls = {
   upload: '/api/image/upload',
   setPrimary: '/api/image/primary',
@@ -8,8 +10,8 @@ const urls = {
 };
 
 //************* Images service
-angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$timeout', 'fileUpload', 
-  function($http, $localStorage, $timeout, fileUpload){
+angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$timeout', '$window', 'fileUpload', 
+  function($http, $localStorage, $timeout, $window, fileUpload){
     const svc = this;
 
     /**
@@ -51,6 +53,28 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$timeout
 
           img.src = imageUrl;
         });
+      };
+    };
+
+    svc.loadRepresentativeImage = async (opts={}) => {
+      const { images, containerId, className} = opts;
+
+      let img;
+      if(!images || !images.length) {
+        img = new Image();
+        img.src = errorImg; 
+      }
+      else {
+        img = await Promise.any( images.map( this.loadImageWithTimeoutAndPlaceholder(1000, errorImg) ) );
+        img.className = className || '';
+      }
+
+      if(containerId) {
+        const parent = $window.document.getElementById(containerId);
+        parent.appendChild(img);
+      }
+      else {
+        return img;
       }
     };
 
