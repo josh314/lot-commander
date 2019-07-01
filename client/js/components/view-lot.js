@@ -2,7 +2,6 @@ import angular from 'angular';
 
 import printJS from 'print-js';
 
-
 /******************* View Lot Controller *************************/
 angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout',
   function($http, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, sessionTimeout) {   
@@ -11,20 +10,29 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
     $scope.listingsBoilerplate = listingsBoilerplate;
     $scope.waitingForResponse = false;
 
+    const initializeAllThumbnailImages = () => {
+      for(let i=0; i<lotStore.inventory.length; i++) {
+        const item = lotStore.inventory[i];
+        ImageSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
+      }
+    };
+
     function getLot() {
-      $http.get('/api/db/get/' + $stateParams.lotId).then(resp=>{
+      return $http.get('/api/db/get/' + $stateParams.lotId).then(async (resp)=>{
         const lot = resp.data;
         lotStore.save(lot);
         $scope.images = lot.images;
         if(lot.manifestId) {
-          $http.get('/api/db/manifest/'+lot.manifestId).then(resp=>{
+          await $http.get('/api/db/manifest/'+lot.manifestId).then(resp=>{
             lotStore.setInventory(resp.data.manifest.inventory);
           });
         }
         $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title);
       });
     }
-    getLot();
+    getLot().then(_=>{
+      initializeAllThumbnailImages(_);
+    });
 
     $scope.getImageLink = function(image) {
       return image.s3 || image.filename;
