@@ -58,7 +58,6 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$timeout
 
     svc.loadRepresentativeImage = async (opts={}) => {
       const { images, containerId, className} = opts;
-
       let img;
       if(!images || !images.length) {
         img = new Image();
@@ -66,8 +65,9 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$timeout
       }
       else {
         img = await Promise.any( images.map( this.loadImageWithTimeoutAndPlaceholder(1000, errorImg) ) );
-        img.className = className || '';
       }
+
+      img.className = className || '';
 
       if(containerId) {
         const parent = $window.document.getElementById(containerId);
