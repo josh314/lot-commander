@@ -8,9 +8,51 @@ const urls = {
 };
 
 //************* Images service
-angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', 'fileUpload', 
-  function($http, $localStorage, fileUpload){
+angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$timeout', 'fileUpload', 
+  function($http, $localStorage, $timeout, fileUpload){
     const svc = this;
+
+    /**
+    * Returns a function which loads an image.
+    * 
+    * @param {number} timeout - how long to wait for image to load before giving up (in milliseconds)
+    * @param {string} [placeholderImg] - an image to use as a placeholder if the requested image is not found
+    */
+    svc.loadImageWithTimeoutAndPlaceholder = (timeout, placeholderImg) => {
+      /**
+      * Returns an image object or null.
+      * @function
+      * @param {number} imageUrl - link to image
+      */
+      return (imageUrl) => {
+        return new Promise( resolve => {
+          // create img container
+          const img = new Image();
+
+          // create a timeout in case image ain't found quickly
+          const killImg = $timeout(() => {
+            img.removeAttribute('src');
+
+            if(placeholderImg) {
+              img.src = placeholderImg;
+              resolve(img);
+            }
+            else { 
+              resolve(null);
+            }
+            // reject(new Error('fuck'));
+          }, timeout || 1000);
+
+          img.onload = () => {
+            // cancel the timeout if loaded
+            $timeout.cancel(killImg);
+            resolve(img);
+          };
+
+          img.src = imageUrl;
+        });
+      }
+    };
 
     svc.uploadLotImages = (lot, images) => {
       return Promise.map(images, (image)=>{
