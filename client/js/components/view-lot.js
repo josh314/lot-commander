@@ -72,7 +72,8 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_edit_lot_modal.html',
         size: 'lg',
-        controller: 'EditLotModalController', 
+        controller: 'EditLotModalController',
+        backdrop: 'static',
         resolve: {
           lot: function () {
             return lotStore;
@@ -176,7 +177,8 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
         const modalInstance = $uibModal.open({
           templateUrl: '/partials/modals/_set_num_boxes_modal.html',
           size: 'lg',
-          controller: 'SetNumBoxesModalController', 
+          controller: 'SetNumBoxesModalController',
+          backdrop: 'static',
           resolve: {
             lot: function () {
               return lotStore;
