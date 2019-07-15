@@ -66,7 +66,7 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
     const failBeep = new Audio(failBeepWav);
     $scope.scanBarcode = async function() {
       console.log($scope.lot);
-      if ($scope.scanForm.barcode.$valid) {
+      if ($scope.scannedBarcode && $scope.scanForm.barcode.$valid) {
         const item = lotStore.addInventory($scope.scannedBarcode);
         if(item) {
           if(item.quantity==1) {
