@@ -68,3 +68,10 @@ p {
 //.progress { text-align:center; height:50px; }
 // .progress-value { position:absolute; right:0; left:0; font-size: 30px; line-height:50px; }
 
+
+///// Hides increment controls on number inputs with the specified class
+input.hide-controls[type=number]::-webkit-inner-spin-button, 
+input.hide-controls[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}

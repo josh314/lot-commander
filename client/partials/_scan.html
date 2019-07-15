@@ -16,16 +16,70 @@
 	
 	<div class="row">
 		<div class="well">
-			<h3> Manifest Details</h3>
-			<div class="col-xs-6">
+<!-- 			<div class="col-xs-12">
 				<dl class="dl-horizontal pull-left">
 					<dt>Handle</dt><dd>{{ lot.getHandle() }}</dd>
-					<dt>Description</dt><dd>{{ lot.getDescription() }}</dd>
 					<dt>SKU count</dt><dd>{{ lot.getNumSku() }}</dd>
 					<dt>Inventory count</dt><dd>{{ lot.getInventoryTotal() }}</dd>
 				</dl>
 			</div>
-			<div class="col-xs-2 pull-right"><a class="btn btn-success btn-lg" ng-click="saveManifest()">Done</a></div>
+			<div class="col-xs-12">
+				<table>
+					<tbody>
+						<tr>
+							<td>Handle</td>
+							<td></td>
+							<td>{{ lot.getHandle() }}</td>
+						</tr>
+						<tr>
+							<td>SKU count</td>
+							<td></td>
+							<td>{{ lot.getNumSku() }}</td>
+						</tr>
+						<tr>
+							<td>Inventory count</td>
+							<td></td>
+							<td>{{ lot.getInventoryTotal() }}</td>
+						</tr>						
+					</tbody>
+				</table>
+			</div> -->
+<!-- 			<div class="col-xs-12">
+				<ul class="pull-left list-inline">
+					<li><span class="">Handle</span><span>{{ lot.getHandle() }}</span></li>
+					<li><span class="">SKU count</span><span>{{ lot.getNumSku() }}</span></li>
+					<li><span class="">Inventory count</span><span>{{ lot.getInventoryTotal() }}</span></li>
+				</ul>
+			</div> -->
+			<div class="col-xs-12 row" style="margin-bottom: 40px">
+				<div class="col-xs-3 row">
+					<div class="col-xs-12 text-center">
+						<h3>Handle</h3>
+					</div>
+					<div class="col-xs-12 text-center">
+						<h4 class="text-danger">{{ lot.getHandle() }}</h4>
+					</div>
+				</div>
+				<div class="col-xs-3 row">
+					<div class="col-xs-12 text-center">
+						<h3>SKU Count</h3>
+					</div>
+					<div class="col-xs-12 text-center">
+						<h4 class="text-danger">{{ lot.getNumSku() }}</h4>
+					</div>
+				</div>
+				<div class="col-xs-3 row">
+					<div class="col-xs-12 text-center">
+						<h3>Inventory Count</h3>
+					</div>
+					<div class="col-xs-12 text-center">
+						<h4 class="text-danger">{{ lot.getInventoryTotal() }}</h4>
+					</div>
+				</div>
+				<div class="col-xs-3 pull-right">
+					<a class="btn btn-success btn-lg pull-right" ng-click="saveManifest()">Done</a>
+				</div>
+			</div>
 			<table class="table table-striped">
 				<thead><tr>
 					<th>Image</th>
@@ -42,7 +96,11 @@
 						</td>
 						<td><input type="text" size=16 ng-model="item.barcode"></td>
 						<td><input type="text" size="64" ng-model="item.description"></td>
-						<td><input type="number" style="width: 4em" ng-model="item.quantity" min="0"></td>
+						<td>
+							<input type="number" class="hide-controls" style="width: 4em" ng-model="item.quantity" min="0">
+							<button class="btn btn-success btn-xs" ng-click=" item.quantity = item.quantity + 1 "><span class="glyphicon glyphicon-plus"></span></button>
+							<button class="btn btn-warning btn-xs" ng-click=" item.quantity = item.quantity>0 ? item.quantity - 1 : 0" ng-disabled="item.quantity<=0"><span class="glyphicon glyphicon-minus"></span></button>
+						</td>
 						<td><input type="text" size="6" ng-model="item.price"></td>
 						<td><button class="btn btn-danger btn-xs" ng-click="deleteProduct(item.barcode)"><span class="glyphicon glyphicon-remove"></span></button></td>
 					</tr>

@@ -1,5 +1,8 @@
 import angular from 'angular';
 
+import successBeepWav from '../../audio/success.wav';
+import failBeepWav from '../../audio/fail.wav';
+
 /******************* Scanning Page Controller *************************/
 angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', '$state', 'focus', 'lotStore', 'messageModal', 'saveManifest', 'sessionTimeout',
   function($scope, $http, $interval, $state, focus, lotStore, messageModal, saveManifest, sessionTimeout) {
@@ -50,6 +53,8 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
       });
     };
 
+    const successBeep = new Audio(successBeepWav);
+    const failBeep = new Audio(failBeepWav);
     $scope.scanBarcode = function() {
       console.log($scope.lot);
       if ($scope.scanForm.barcode.$valid) {
@@ -61,11 +66,25 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
                 item.description = resp.data.title;
                 item.price = resp.data.price;
                 item.images = resp.data.images;
+                if(item.description) {
+                  successBeep.play();
+                }
+                else {
+                  failBeep.play();
+                }
+              }
+              else {
+                failBeep.play();
               }
             });
+          } else {
+            successBeep.play();
           }
           $state.reload();
         }
+      }
+      else {
+        failBeep.play();
       }
     };
 

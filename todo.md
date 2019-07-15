@@ -43,14 +43,15 @@
 	- was this from delete Lot function?
 
 # Features
-- there is no estimated retail value (ERV) without a manifest.
-	- option for user to set ERV on a total or per unit basis
+
 - clone listing function. Include:
 	- images (don't copy image, just clone the filename)
 	- manifest
 		- actually clone this
 		- remove quantities
+
 - image collage-building widget
+
 - image editing
 	- clean up UI
 		- spacing between buttons
@@ -58,19 +59,21 @@
 	- features
 		- resizing 
 		- orientation
-- Scanning page: Increase the size for the fonts for “Inventory count 00” and make this obvious to users. We are still having issues of knowing if the item in hand was scanned. I will try to enforce reading but can’t make promises on projected success.
-- Scanning page: Please add audible feedback for scanning. Good sound for UPC accepted bad sound for errors. This will help keep user attention on the screen or identify run away problems sooner.
-- Scanning page: Please enhance the size of the item Quantity toggle button. You may want to consider making it +/- .  This will help people that are less familiar with computers and working with the software.
+
 - pricing
 	- come up with something more sophisticated
 		- suppress/remove outliers
-- "case packed" option for condition
-	- need a lot-type indicator on wholesale ninjas
-- Creating Listing Page: Automatically make the lot price 20% of the retail value. This will remove decision making.
+
 - create user
+
 - add user roles
+
 - on view-lots page, watch for changes to images (new images or edits to existing images) and updsate display accordingly
+
 - prevent submission of lot without images
+
+- lots/list: 
+	- remove create manifest file button if it's not being used (move to view-lot page if still in use)
 
 # S3 Image server
 - deploy
