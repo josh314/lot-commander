@@ -204,6 +204,11 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
         });
       }
     };
+
+    $scope.openGallery = function() {
+      $state.go('main.lots.gallery', { lotId: lotStore._id });
+    };
+
   }]
 );
 
@@ -233,7 +238,6 @@ angular.module('myApp').controller('EditLotModalController', [ '$scope', 'dbEnum
   };
 }]);
 
-/***************** Modal Controllers ************************/
 angular.module('myApp').controller('SetNumBoxesModalController', [ '$scope', 'lot', function($scope, lot){
   $scope.lot = JSON.parse(JSON.stringify(lot));
 

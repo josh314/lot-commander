@@ -92,7 +92,8 @@
 				<tbody>
 					<tr ng-repeat="item in lot.getInventory()">
 						<td>
-							<img class="inventory-preview-img" ng-src="{{item.images[0]}}">
+							<!-- <img class="inventory-preview-img" ng-src="{{item.images[0]}}"> -->
+							<div id="item-thumbnail-container-{{item.barcode}}"></div>
 						</td>
 						<td><input type="text" size=16 ng-model="item.barcode"></td>
 						<td><input type="text" size="64" ng-model="item.description"></td>

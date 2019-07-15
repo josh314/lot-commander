@@ -5,8 +5,8 @@ import successBeepWav from '../../audio/success.wav';
 import failBeepWav from '../../audio/fail-2.wav';
 
 /******************* Scanning Page Controller *************************/
-angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', '$state', 'focus', 'lotStore', 'messageModal', 'saveManifest', 'sessionTimeout',
-  function($scope, $http, $interval, $state, focus, lotStore, messageModal, saveManifest, sessionTimeout) {
+angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', '$state', 'focus', 'ImageSvc', 'lotStore', 'messageModal', 'saveManifest', 'sessionTimeout',
+  function($scope, $http, $interval, $state, focus, ImageSvc, lotStore, messageModal, saveManifest, sessionTimeout) {
     sessionTimeout.timeoutExpired();
     focus('barcodeInput');
     $scope.lot = lotStore;
@@ -19,36 +19,44 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
       });
     };
 
-    let autoSaveTimer;
-    const autoSaveInterval = 30*1000;
-    const autosaveFn = ()=>{
-      console.log(`Auto-saving lot: ${lotStore.handle}`);
-      return save().catch(e=>{
-        $interval.cancel(autoSaveTimer);
-        const m = `
-          <p>An error has occured while scanning.</p>
-          <details>
-            <summary>Details</summary>
-            <p>${e.message}</p>
-          </details>
-        `;
-        console.log(m);
-        messageModal.launch(
-          {
-            header: 'Error',
-            html: m,
-            type: 'error'
-          },
-          null,
-          ()=>{ autoSaveTimer = $interval(autosaveFn, autoSaveInterval); }
-        );
-      });
-    };
-    autoSaveTimer = $interval(autosaveFn, autoSaveInterval);
+    // let autoSaveTimer;
+    // const autoSaveInterval = 30*1000;
+    // const autosaveFn = ()=>{
+    //   console.log(`Auto-saving lot: ${lotStore.handle}`);
+    //   return save().catch(e=>{
+    //     $interval.cancel(autoSaveTimer);
+    //     const m = `
+    //       <p>An error has occured while scanning.</p>
+    //       <details>
+    //         <summary>Details</summary>
+    //         <p>${e.message}</p>
+    //       </details>
+    //     `;
+    //     console.log(m);
+    //     messageModal.launch(
+    //       {
+    //         header: 'Error',
+    //         html: m,
+    //         type: 'error'
+    //       },
+    //       null,
+    //       ()=>{ autoSaveTimer = $interval(autosaveFn, autoSaveInterval); }
+    //     );
+    //   });
+    // };
+    // autoSaveTimer = $interval(autosaveFn, autoSaveInterval);
       
+    const initializeAllThumbnailImages = () => {
+      for(let i=0; i<lotStore.inventory.length; i++) {
+        const item = lotStore.inventory[i];
+        ImageSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
+      }
+    };
+    initializeAllThumbnailImages();
+
     $scope.saveManifest = function() {
       console.log(`Auto-saving lot: ${lotStore.handle}`);
-      $interval.cancel(autoSaveTimer);
+      // $interval.cancel(autoSaveTimer);
       save().then(()=>{
         $state.go('main.lots.view', {lotId: lotStore._id});
       });
@@ -94,7 +102,7 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
 
     $scope.$on('$stateChangeStart', () => {
       console.log(`Auto-saving lot: ${lotStore.handle}`);
-      $interval.cancel(autoSaveTimer);
+      // $interval.cancel(autoSaveTimer);
       save();
     });
   }

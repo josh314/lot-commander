@@ -31,6 +31,9 @@
 							<div class="well" style="white-space: pre-wrap;">{{lot.listingData.body + '\n\n' + listingsBoilerplate[lot.getType()]}}</div><br>
 						</div>
 					</div>
+					<div class="pull-left" ng-hide="lot.unmanifested">
+						<button class="btn btn-success" ng-click="openGallery()">Image Gallery</button>
+					</div>
 					<div class="pull-right">
 						<button class="btn btn-danger" ng-click="editLot()">Edit <span class="glyphicon glyphicon-pencil"></span></button>
 						<button class="btn btn-success" ng-click="configureListingForSubmission()">Create a Listing</button>
@@ -185,7 +188,7 @@
 				</table>
 			</div>
 		</div>
-		<div class="row">
+		<!-- <div class="row">
 			<h3>Product Images</h3>
 			<div ng-show="item.images.length" ng-repeat="item in lot.getInventorySortedByBarcode()">
 				<h5>{{item.barcode}} - {{item.description}}</h5>
@@ -195,7 +198,7 @@
 					</div>
 				</div>
 			</div>
-		</div>
+		</div> -->
 	</div>
 	<div class="well">
 		<div class="row">
