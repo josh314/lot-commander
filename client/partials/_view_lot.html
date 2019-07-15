@@ -173,7 +173,8 @@
 					<tbody>
 						<tr ng-repeat="item in lot.getInventorySortedByBarcode()">
 							<td>
-								<img class="inventory-preview-img" ng-src="{{item.images[0]}}">
+								<div id="item-thumbnail-container-{{item.barcode}}">
+								</div>
 							</td>
 							<td>{{item.barcode}}</td>
 							<td>{{item.description}}</td>

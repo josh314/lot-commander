@@ -75,7 +75,7 @@ module.exports = {
         }
       },
       {
-        test: /\.(wav|png)$/,
+        test: /\.(wav)$/,
         loader: 'file-loader',
         options: {
           name: '[path][name].[ext]',
