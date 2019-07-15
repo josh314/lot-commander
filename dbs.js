@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const qs = require('querystring');
 const Promise = require('bluebird');
 mongoose.Promise = Promise;
 
@@ -8,8 +9,17 @@ async function init(){
   const connectionMapping = {};
   for(let [label, hostData] of Object.entries(__config.dbHosts)) {
     const mongoUserStr = hostData.auth && hostData.auth.user && hostData.auth.pwd ? `${hostData.auth.user}:${hostData.auth.pwd}@` : '';
-    const dbUrl = `mongodb://${mongoUserStr}${hostData.host}:${hostData.port}/${hostData.db}`;
-    __logger.info(`Connecting to ${label}: ${dbUrl}`);
+    const optionsStr = hostData.options ? `?${qs.stringify(hostData.options)}` : '';
+
+    let connectionStr;
+    if(hostData.atlas) {
+      connectionStr = `mongodb+srv://${mongoUserStr}${hostData.host}/${hostData.db}${optionsStr}`;
+    }
+    else {
+      connectionStr = `mongodb://${mongoUserStr}${hostData.host}:${hostData.port}/${hostData.db}${optionsStr}`;
+    } 
+
+    __logger.info(`Connecting to ${label}: ${connectionStr}`);
     const mongooseConnOpts = {
       // useMongoClient: true,
       keepAlive: 300000,
@@ -18,7 +28,7 @@ async function init(){
       autoIndex: false,
       useNewUrlParser: true,
     };
-    connections[label] = await mongoose.createConnection(dbUrl, mongooseConnOpts);
+    connections[label] = await mongoose.createConnection(connectionStr, mongooseConnOpts);
   }
 
   for(let [db, conn] of Object.entries(__config.dbConnMapping)) {
