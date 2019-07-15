@@ -199,7 +199,7 @@ async function deleteLot(req,res) {
   const lotId = req.body.lotId;
   try {
     await lotdbClient.deleteLot(lotId);
-    await imageServer.deleteLotBucket(lotId);
+    await imageServer.deleteLotImages(lotId);
     res.json({ success: true });
   }
   catch (e) {

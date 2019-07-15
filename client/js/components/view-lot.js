@@ -27,7 +27,7 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
     getLot();
 
     $scope.getImageLink = function(image) {
-      return image.s3 || image.filename;
+      return image.s3 ? `/api/image/?s3=${encodeURIComponent(image.s3)}` : image.filename;
     };
 
     // Manage images
