@@ -11,6 +11,8 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
     focus('barcodeInput');
     $scope.lot = lotStore;
 
+    $scope.loadedImages = {};
+
     const save = () => {
       return saveManifest().then(resp=>{
         if(resp && resp.data && resp.data[0]) {
@@ -49,7 +51,7 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
     const initializeAllThumbnailImages = () => {
       for(let i=0; i<lotStore.inventory.length; i++) {
         const item = lotStore.inventory[i];
-        ImageSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
+        ImageSvc.loadRepresentativeImage( { images: item.images, className: "inventory-preview-img" } ).then(img => $scope.loadedImages[item.barcode] = img);
       }
     };
     initializeAllThumbnailImages();
