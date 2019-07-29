@@ -93,7 +93,7 @@
   //================================================
   require(path.join(__basedir, __config.modulesPath, 'app-session'))(app);
 
-  app.use(express.json());//parse json bodies
+  app.use(express.json({ limit: '50mb' }));//parse json bodies
   app.use(bodyParser.urlencoded({ extended: true }));
 
   //=================================================
