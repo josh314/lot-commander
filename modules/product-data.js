@@ -2,7 +2,7 @@
 
 const path = require('path');
 
-const libBarcodes = require(path.join(__config.libDir.barcodes, 'lib'));
+const libBarcodes = require('barcodes/lib');
 
 if(!__config.productDataSrc) {
   throw new Error('No product data source!');
@@ -22,10 +22,10 @@ if( __config.productDataSrc.match(/mws/i) ) {
   getProductDataFromSrc = getProductDataFromMwsdb;
 }
 else if( __config.productDataSrc.match(/upcitemdb/i) ) {
-  const upcItemDbApi = require(path.join(__config.libDir.upcItemDb, 'lib/api'));
+  const upcItemDbApi = require('upcitemdb/lib/api');
   upcItemDbClient = new upcItemDbApi.Client(__config.upcItemDb);
   getProductDataFromSrc = getProductDataFromUpcItemDb;
-  dataModule = require(path.join(__config.libDir.upcItemDb, 'lib/data'));
+  dataModule = require('upcitemdb/lib/data');
 }
 else if( __config.productDataSrc.match(/walmart/i) ) {
   const walmartOpenApi = require(path.join(__config.libDir.walmart, 'open-api'));

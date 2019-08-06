@@ -1,6 +1,6 @@
 const path = require('path');
 
-const db = require(path.join(__config.libDir.bstock, 'bstock-db'));
+const db = require('bstock/bstock-db');
 const client = new db.Client({ db: { connection: __connections.bstock }, logger: __logger});
 
 

@@ -1,6 +1,6 @@
 const path = require('path');
 
-const libInmarDb = require(path.join(__config.libDir.inmardb, 'inmar-db'));
+const libInmarDb = require('inmar/inmar-db');
 
 const inmarDbClient = new libInmarDb.Client( { connection: __connections.inmar } );
 
