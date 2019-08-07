@@ -1,3 +1,6 @@
+# usability and user-error mitigation
+- prevent submitting lot without images
+
 # Dev
 
 - Do static-checking on server-side code
@@ -75,21 +78,9 @@
 - lots/list: 
 	- remove create manifest file button if it's not being used (move to view-lot page if still in use)
 
-# S3 Image server
-- deploy
-	- update all dependencies
-- convert stuff to use S3
-	- images.downloadImages
-- permissions
-	- public read access to the objects
-	- no public access to bucket itself
-- key policy
-	- file name is maybe not good
-	- some kind of hash
 
 # Facelift the UI
 - Remove unnecessary features
-	- quick lots
 	- auctions(?)
 	- manifests pages
 

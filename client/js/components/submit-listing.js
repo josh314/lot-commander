@@ -41,7 +41,7 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
       }
       return tags.join(', ');
     })();
-    $scope.lotPackageType = 'box lot';
+    $scope.lotPackageType = '';
 
     const getShopifyTags = () => {
       const tags = $scope.additionalShopifyTags ? $scope.additionalShopifyTags.split(',').map(_=>_.trim()) : [];
@@ -115,12 +115,18 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
       $scope.invalidShopifyPrice = ($scope.listing.shopifyPrice && $scope.listing.shopifyPrice.match(/^[0-9]+(\.[0-9]{2})?$/)) ? false : true;
       $scope.invalidShopifyInventory = ($scope.listing.shopifyInventory && ($scope.listing.shopifyInventory >= 0)) ? false : true;
 
+      $scope.noPackageType = !$scope.lotPackageType;
+
       if($scope.invalidShopifyPrice || $scope.invalidAdditionalShopifyTags || $scope.invalidShopifyInventory) {
         return false;
       }
       if(!$scope.totalUnits) {
         return false;
       }
+      if($scope.noPackageType) {
+        return false;
+      }      
+
       return true;
     }
 
