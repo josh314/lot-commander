@@ -27,6 +27,7 @@ const stateData = [
   { name: "main.lots.submit-listing", url: '/submit-listing', templateUrl: '/partials/_submit_listing.html', controller: 'SubmitListingCtrl'},
   { name: "main.lots.image-editor", url: '/image-editor', templateUrl: '/partials/_image_editor.html' },
   { name: "main.lots.gallery", url: '/gallery/{lotId}', templateUrl: '/partials/_gallery.html', controller: 'GalleryCtrl as gallery' },
+  { name: "main.lots.upload-manifest", url: '/upload-manifest/{lotId}', templateUrl: '/partials/_upload_lot_manifest.html' },
   // auctions
   { name: "main.auctions", abstract: true, url: '/auctions', templateUrl: '/partials/_container.html' },
   { name: "main.auctions.list", navName: 'List Auctions', url: '/list', templateUrl: '/partials/_list_auctions.html', controller: 'ListAuctionsCtrl'},

@@ -1,15 +1,21 @@
 const path = require('path');
+const fs = require('fs');
 
 const Promise = require('bluebird');
 const moment = require('moment');
 
+const unlink = Promise.promisify(fs.unlink);
+
+const formidable = require('formidable');
+
 const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
+const manifestServer = require(path.join(__basedir, __config.modulesPath, 'manifest-server'));
 
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 // const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
 
-const libLotDb = require('lot-db/lotdb');
-
+// const libLotDb = require('lot-db');
+const libLotDb = require(path.resolve('/Users/josh/dev/lib/node/', 'lot-db'));
 
 const lotdbClient = new libLotDb.Client({ connection: __connections.lots }); 
 
@@ -211,6 +217,37 @@ function updateLot(lot) {
   return lotdbClient.updateLot(lot);
 }
 
+function uploadManifest(req, res, next) {
+  const lotId = req.params.lotId;
+  const form = new formidable.IncomingForm();
+  form.parse(req, function (err, fields, files) {
+    try {
+      const fileUploads = [];
+      for(let [_, f] of Object.entries(files)){
+        const s = manifestServer.store(lotId, f.path, f.name).then(resp=>{
+          if(resp) {
+            return updateLot({
+              _id: lotId,
+              manifestFileLocation: resp.Location
+            });
+          }
+        })
+          .then(_=>{
+            console.log(`Unlinking temp file ${f.path}`);
+            unlink(f.path);
+            return _;
+          });
+        fileUploads.push(s);
+      }
+      res.json(Promise.all(fileUploads));
+    }
+    catch (e) {
+      next(e);
+    }
+  });
+}
+
+
 module.exports = {
   //middleware
   getLotByIdApi: getLotByIdApi,
@@ -221,6 +258,7 @@ module.exports = {
   getManifest: getManifest,
   setPrimaryImage: setPrimaryImage,
   deleteLot: deleteLot,
+  uploadManifest: uploadManifest,
   // other functionality
   getLotById: getLotById,
   addImage: addImage,

@@ -42,6 +42,13 @@
 					<option ng-value="false">Yes</option>
 					<option ng-value="true">No</option>
 				</select>
+      </div>
+      <div class="form-group" ng-hide="newLot.unmanifested">
+				<label for="willUploadManifestInput">Are you uploading a manifest file?</label>
+				<select class="form-control" name="willUploadManifest" id="willUploadManifestInput" ng-model="willUploadManifest">
+					<option ng-value="false">No</option>
+					<option ng-value="true">Yes</option>
+				</select>
 			</div>
 			<div class="form-group">
 				<label for="descInput">Description (optional)</label>

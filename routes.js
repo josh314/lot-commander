@@ -46,6 +46,7 @@ function routes() {
   router.post('/api/db/delete-lot', lotdb.deleteLot);
   router.post('/api/db/save-manifest', lotdb.saveManifest);
   router.get('/api/db/manifest/:manifestId', lotdb.getManifest);
+  router.post('/api/db/upload-lot-manifest/:lotId', lotdb.uploadManifest);
   // router.post('/api/db/link-3p-manifest-block', lotdb.link3pManifestBlock);
   // router.post('/api/db/import-3p-manifest-block', lotdb.import3pManifestBlock);
 

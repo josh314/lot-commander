@@ -1,0 +1,14 @@
+<div class="container" ng-controller="UploadLotManifestController as uploader">
+    <div class="well" ng-hide="uploader.waitingForResponse">
+      <div class="row">
+        <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : uploader.noFileSelected }">
+          <label for="fileInput">Manifest File</label>
+          <input type="file" class="form-control" id="fileInput" required file-model="uploader.manifestToUpload">
+          <span class="text-danger h4" ng-show="uploader.noFileSelected">Please select a file.</span>
+        </div>
+        <div class="col-xs-12">
+          <button class="btn btn-primary" type="button" ng-click="uploader.uploadManifest()">Upload</button>
+        </div>
+      </div>
+    </div>
+</div>

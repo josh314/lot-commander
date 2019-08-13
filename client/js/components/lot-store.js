@@ -20,6 +20,7 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       this.submittedListings = [];
       this.destinationMarketplace = undefined;
       this.numBoxes = undefined;
+      this.manifestFileLocation = undefined;
     };
     this.reset();
 
@@ -46,6 +47,8 @@ angular.module('myApp').service('lotStore', ['dbEnums',
     this.setDestinationMarketplace = function(_destinationMarketplace) { this.destinationMarketplace = _destinationMarketplace; };
 
     this.setNumBoxes = function(_numBoxes) { this.numBoxes = _numBoxes; };
+
+    this.setManifestFileLocation = function(_manifestFileLocation) { this.manifestFileLocation = _manifestFileLocation; };
 
     this.updateTotalUnits = () => this.totalUnits = this.inventory ? this.inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 ;
 
@@ -92,6 +95,9 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       if(_lot.destinationMarketplace) {
         this.setDestinationMarketplace(_lot.destinationMarketplace);
       }
+      if(_lot.manifestFileLocation) {
+        this.setManifestFileLocation(_lot.manifestFileLocation);
+      }
     };
 
 
@@ -129,6 +135,7 @@ angular.module('myApp').service('lotStore', ['dbEnums',
     this.getThirdPartyManifests = function() { return this.thirdPartyManifests; };
     this.getDestinationMarketplace = function() { return this.destinationMarketplace; };
     this.getNumBoxes = function() { return this.numBoxes; };
+    this.getManifestFileLocation = function() { return this.manifestFileLocation; };
 
     this.getInventorySortedByBarcode = function() {
       // Going through these gymnastics since Array.sort() is an inplace action

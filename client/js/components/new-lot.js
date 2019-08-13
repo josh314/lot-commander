@@ -19,6 +19,8 @@ angular.module('myApp').controller('NewLotCtrl', ['$http', '$scope', '$state', '
       destinationMarketplace: 'wholesaleninjas',
     };
 
+    $scope.willUploadManifest = false;
+
     function buildHandleForPrefix(prefix) {
       const today = new Date();//fix time zone to EST
 
@@ -91,11 +93,15 @@ angular.module('myApp').controller('NewLotCtrl', ['$http', '$scope', '$state', '
             $state.go('main.lots.view', {lotId: lotStore._id});
           }
           else {
-            $state.go('main.lots.scan');
+            if($scope.willUploadManifest) {
+              $state.go('main.lots.upload-manifest', { lotId: lotStore._id });
+            }
+            else {
+              $state.go('main.lots.scan');
+            }
           }
         }
       });
     };
-
   }
 ]);

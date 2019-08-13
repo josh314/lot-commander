@@ -34,7 +34,7 @@ angular.module('myApp').directive('fileListModel', ['$parse', function ($parse) 
 
 // File upload service
 angular.module('myApp').service('fileUpload', ['$http', function ($http) {
-  this.uploadFileToUrl = function(file, uploadUrl, metadata){
+  this.uploadFileToUrl = function(file, uploadUrl, metadata={}){
     const fd = new FormData();
     fd.append('file', file);
     for( let [key, val] of Object.entries(metadata)) {
