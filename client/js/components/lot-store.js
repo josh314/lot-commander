@@ -21,6 +21,7 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       this.destinationMarketplace = undefined;
       this.numBoxes = undefined;
       this.manifestFileLocation = undefined;
+      this.packagingType = undefined;
     };
     this.reset();
 
@@ -42,6 +43,8 @@ angular.module('myApp').service('lotStore', ['dbEnums',
 
     this.setTotalUnits = function(_totalUnits) { this.totalUnits = _totalUnits; };
 
+    this.setEstimatedRetailValue = function(_estimatedRetailValue) { this.estimatedRetailValue = _estimatedRetailValue; };
+
     this.setSubmittedListings = function(_listings) {this.submittedListings = _listings; };
 
     this.setDestinationMarketplace = function(_destinationMarketplace) { this.destinationMarketplace = _destinationMarketplace; };
@@ -49,6 +52,8 @@ angular.module('myApp').service('lotStore', ['dbEnums',
     this.setNumBoxes = function(_numBoxes) { this.numBoxes = _numBoxes; };
 
     this.setManifestFileLocation = function(_manifestFileLocation) { this.manifestFileLocation = _manifestFileLocation; };
+
+    this.setPackagingType = function(_packagingType) { this.packagingType = _packagingType; };
 
     this.updateTotalUnits = () => this.totalUnits = this.inventory ? this.inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 ;
 
@@ -89,6 +94,9 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       if(_lot.numBoxes) {
         this.setNumBoxes(_lot.numBoxes);
       }
+      if(_lot.estimatedRetailValue) {
+        this.setEstimatedRetailValue(_lot.estimatedRetailValue);
+      }
       if(_lot.submittedListings) {
         this.setSubmittedListings(_lot.submittedListings);
       }
@@ -97,6 +105,9 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       }
       if(_lot.manifestFileLocation) {
         this.setManifestFileLocation(_lot.manifestFileLocation);
+      }
+      if(_lot.packagingType) {
+        this.setPackagingType(_lot.packagingType);
       }
     };
 
@@ -167,6 +178,19 @@ angular.module('myApp').service('lotStore', ['dbEnums',
     };
 
     this.getNumSku = function() { return this.inventory.length; };
+
+    this.getEstimatedRetailValue = function() {
+      let value;
+      if(this.estimatedRetailValue) {
+        value = this.estimatedRetailValue;
+      }
+      else if(this.inventory) {
+        value = this.inventory.reduce( (total, item)=>{
+          return item.price && item.quantity ? total + parseInt(item.quantity)*parseFloat(item.price) : total;
+        }, 0);
+      }
+      return value ? value.toFixed(2) : ''; 
+    };
 
     this.decrementInventory = function(barcode) {
       var idx = this.inventory.findIndex(item => item.barcode == barcode);

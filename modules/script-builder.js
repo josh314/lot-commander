@@ -10,6 +10,7 @@ const dbEnums = {
   lotStatus: lotdb.lotStatusEnum,
   lotType: lotdb.lotTypeEnum,
   marketplaces: lotdb.marketplaceEnum,
+  packagingType: lotdb.packagingTypeEnum,
   // priceType: inmardb.priceTypeEnum,
 };
 

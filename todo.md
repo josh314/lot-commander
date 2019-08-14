@@ -6,6 +6,8 @@
   - truckload package type
 - need to be able to set unit count and estimated retail value on manifested lots
   - simply turn off the ng-disabled attribute?
+- delete manifest file from s3 with lot
+- can't submit listing without estimated retail value and unit count
 
 # usability and user-error mitigation
 - prevent submitting lot without images

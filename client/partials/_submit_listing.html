@@ -94,14 +94,12 @@
 			</div>
 			<div class="row" ng-show="listing.marketplace==='wholesaleninjas'">
 				<div class="row">
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': !lotPackageType && noPackageType }">
-						<label for="lotPackageTypeInput">Package Type</label>
-						<select class="form-control" id="lotPackageTypeInput" ng-model="lotPackageType">
-              <option value=""></option>
-							<option value="box lot">Box Lot</option>
-							<option value="pallets">Pallet</option>
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': !lotPackagingType && noPackagingType }" ng-show="!lot.packagingType">
+            <label for="packagingTypeInput">Packaging Type (required)</label>
+            <select class="form-control" name="packagingType" id="packagingTypeInput" ng-model="lotPackagingType">
+              <option ng-repeat="packagingType in packagingTypes">{{packagingType}}</option>
             </select>
-            <span class="text-danger h4" ng-show="!lotPackageType && noPackageType">Please select a package type</span>
+            <span class="text-danger h4" ng-show="!lotPackagingType && noPackagingType">Please select a packaging type</span>
 					</div>
 					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidAdditionalShopifyTags }">
 						<label for="additionalShopifyTagsInput">Tags</label>

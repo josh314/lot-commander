@@ -4,10 +4,11 @@ import angular from 'angular';
 angular.module('myApp').controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'listingBuilder', 'lotCategories', 'lotStore', 'messageModal', 'sessionTimeout', 
   function($http, $scope, $state, dbEnums, listingBuilder, lotCategories, lotStore, messageModal, sessionTimeout) {
     sessionTimeout.timeoutExpired();
-
+    console.log(dbEnums);
     $scope.quickLots = listingBuilder.quickLotsBoilerplate;
 
     $scope.lotTypes = dbEnums.lotType;
+    $scope.packagingTypes = dbEnums.packagingType;
 
     $scope.categories = ['None'].concat(lotCategories.map(x=>x.name));
     $scope.newLotCategory = 'None';
@@ -66,13 +67,15 @@ angular.module('myApp').controller('NewLotCtrl', ['$http', '$scope', '$state', '
     };
 
     $scope.startCustomLot = function() {
-      if(!$scope.newLot.handle) {
-        $scope.noHandleSubmitted = true;
+      $scope.noHandleSubmitted = !$scope.newLot.handle;
+      $scope.noLotTypeSubmitted = !$scope.newLot.type;
+      $scope.noPackagingTypeSubmitted = !$scope.newLot.packagingType;
+
+      if ($scope.noHandleSubmitted || $scope.noLotTypeSubmitted || $scope.noPackagingTypeSubmitted ) {
+        return;
       }
-      else {
-        $scope.noHandleSubmitted = false;
-        $scope.startLot();
-      }
+
+      $scope.startLot();
     };
 
     $scope.startLot = function() {

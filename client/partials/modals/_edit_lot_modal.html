@@ -12,6 +12,12 @@
 			<select class="form-control" name="type" id="typeInput" required ng-model="lot.type">
 				<option ng-repeat="type in lotTypeEnum">{{type}}</option>
 			</select>
+    </div>
+    <div class="form-group col-xs-12 col-sm-6">
+			<label for="packingTypeInput">Packaging Type</label>
+			<select class="form-control" name="packagingType" id="packingTypeInput" required ng-model="lot.packagingType">
+				<option ng-repeat="packagingType in packagingTypeEnum">{{packagingType}}</option>
+			</select>
 		</div>
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="descriptionInput">Description</label>
@@ -41,9 +47,13 @@
 				<option ng-value="false">Yes</option>
 			</select>
 		</div>
-		<div class="form-group col-xs-12 col-sm-6" ng-show="lot.unmanifested">
+		<div class="form-group col-xs-12 col-sm-6" ng-show="lot.unmanifested || lot.manifestFileLocation">
 			<label for="totalUnitsInput">Total Units</label>
 			<input class="form-control" id="totalUnitsInput" required ng-model="lot.totalUnits">
+    </div>
+    <div class="form-group col-xs-12 col-sm-6" ng-show="lot.unmanifested || lot.manifestFileLocation">
+			<label for="estimatedRetailValueInput">Estimated Retail Value</label>
+			<input class="form-control" id="estimatedRetailValueInput" required ng-model="lot.estimatedRetailValue">
 		</div>
 		<div class="col-xs-12">
 			<h3>Listings</h3>

@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* Scanning Page Controller *************************/
-angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$http', 'bstockFormConstants', 'listingTitleVerifier', 'lotStore', 'messageModal', 'saveLot', 'sessionTimeout', 
-  function($scope, $state, $http, bstockFormConstants, listingTitleVerifier, lotStore, messageModal, saveLot, sessionTimeout) {
+angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$http', 'bstockFormConstants', 'dbEnums', 'listingTitleVerifier', 'lotStore', 'messageModal', 'saveLot', 'sessionTimeout', 
+  function($scope, $state, $http, bstockFormConstants, dbEnums, listingTitleVerifier, lotStore, messageModal, saveLot, sessionTimeout) {
     sessionTimeout.timeoutExpired();
 
     if(!lotStore._id) {
@@ -24,6 +24,9 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
     $scope.bstockShippingChargeTypes = Object.keys(bstockFormConstants.shippingChargeType);
     $scope.bstockShippingAllowedDestinations = Object.keys(bstockFormConstants.shippingAllowedDestinations);
 
+    $scope.packagingTypes = dbEnums.packagingType;
+    $scope.lotPackagingType = lotStore.packagingType;
+
     $scope.additionalShopifyTags = (function(){
       const tags = [ ];
       const handleTags = {
@@ -41,8 +44,7 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
       }
       return tags.join(', ');
     })();
-    $scope.lotPackageType = '';
-
+    
     const getShopifyTags = () => {
       const tags = $scope.additionalShopifyTags ? $scope.additionalShopifyTags.split(',').map(_=>_.trim()) : [];
       if($scope.lot.unmanifested) {
@@ -51,21 +53,26 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
       else {
         tags.push('manifested');
       }
-      tags.push($scope.lotPackageType);
+      tags.push(lotStore.packagingType || $scope.lotPackagingType);
       tags.push('review');
       return tags.join(', ');
     };
 
-    function calculateEstimatedRetailValue() {
-      let value;
-      if($scope.lot.inventory) {
-        value = $scope.lot.inventory.reduce( (total, item)=>{
-          return item.price && item.quantity ? total + parseInt(item.quantity)*parseFloat(item.price) : total;
-        }, 0);
-      }
-      return value ? value.toFixed(2) : ''; 
-    }
-    const estimatedRetailValue = calculateEstimatedRetailValue();
+    // function calculateEstimatedRetailValue() {
+    //   let value;
+    //   if($scope.lot.estimatedRetailValue) {
+    //     value = $scope.lot.estimatedRetailValue;
+    //   }
+    //   else if($scope.lot.inventory) {
+    //     value = $scope.lot.inventory.reduce( (total, item)=>{
+    //       return item.price && item.quantity ? total + parseInt(item.quantity)*parseFloat(item.price) : total;
+    //     }, 0);
+    //   }
+    //   return value ? value.toFixed(2) : ''; 
+    // }
+    // const estimatedRetailValue = calculateEstimatedRetailValue();
+
+    const estimatedRetailValue = lotStore.getEstimatedRetailValue();
     //Form default values
     $scope.listing = {
       marketplace: $scope.lot.destinationMarketplace || 'wholesaleninjas',
@@ -115,7 +122,7 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
       $scope.invalidShopifyPrice = ($scope.listing.shopifyPrice && $scope.listing.shopifyPrice.match(/^[0-9]+(\.[0-9]{2})?$/)) ? false : true;
       $scope.invalidShopifyInventory = ($scope.listing.shopifyInventory && ($scope.listing.shopifyInventory >= 0)) ? false : true;
 
-      $scope.noPackageType = !$scope.lotPackageType;
+      $scope.noPackagingType = !$scope.lotPackagingType;
 
       if($scope.invalidShopifyPrice || $scope.invalidAdditionalShopifyTags || $scope.invalidShopifyInventory) {
         return false;
@@ -123,7 +130,7 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
       if(!$scope.totalUnits) {
         return false;
       }
-      if($scope.noPackageType) {
+      if($scope.noPackagingType) {
         return false;
       }      
 

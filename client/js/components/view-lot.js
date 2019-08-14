@@ -217,6 +217,7 @@ angular.module('myApp').controller('EditLotModalController', [ '$scope', 'dbEnum
   $scope.lot = JSON.parse(JSON.stringify(lot));
   $scope.lotStatusEnum = dbEnums.lotStatus;
   $scope.lotTypeEnum = dbEnums.lotType;
+  $scope.packagingTypeEnum = dbEnums.packagingType;
   // $scope.selectedListing = 'bstock';
   $scope.marketplaces = [undefined].concat(dbEnums.marketplaces);
 
