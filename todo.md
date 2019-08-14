@@ -1,3 +1,12 @@
+# truckloads
+- package type 
+  - move the package type into lot-db entry
+  - set package type at creation page (required)
+  - display prominently on view lot page 
+  - truckload package type
+- need to be able to set unit count and estimated retail value on manifested lots
+  - simply turn off the ng-disabled attribute?
+
 # usability and user-error mitigation
 - prevent submitting lot without images
 

@@ -95,7 +95,7 @@ const submitListing = Promise.method(async function (listing) {
   ];
 
   // Schedule manifest promise if applicable
-  if(manifestItems && !listing.lot.unmanifested) {
+  if(!listing.lot.unmanifested && manifestItems && manifestItems.length) {
     manifestItems.sort(function(a, b) {
       if (a.barcode > b.barcode) {
         return 1;
@@ -154,6 +154,20 @@ const submitListing = Promise.method(async function (listing) {
     listingPromises.push(addMetafieldP);
   }
 
+  // Adding metafield for lot manifest file location. nOte added directly to product, not the variant
+  if(listing.lot.manifestFileLocation) {
+    const addMetafieldP = shopifyClient.addProductMetafield({
+      productId: newProductId,
+      metafield: {
+        namespace: 'manifest',
+        key: 'file',
+        value: listing.lot.manifestFileLocation,
+        value_type: 'string',
+      }
+    });
+    listingPromises.push(addMetafieldP);
+  }
+  
   await listingPromises;
   //publish after all requests come back and return the response
   return shopifyClient.publishProduct(newProductId);
