@@ -14,8 +14,7 @@ const manifestServer = require(path.join(__basedir, __config.modulesPath, 'manif
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 // const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
 
-// const libLotDb = require('lot-db');
-const libLotDb = require(path.resolve('/Users/josh/dev/lib/node/', 'lot-db'));
+const libLotDb = require('lot-db');
 
 const lotdbClient = new libLotDb.Client({ connection: __connections.lots }); 
 
