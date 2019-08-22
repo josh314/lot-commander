@@ -22,6 +22,7 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       this.numBoxes = undefined;
       this.manifestFileLocation = undefined;
       this.packagingType = undefined;
+      this.estimatedRetailValue = undefined;
     };
     this.reset();
 
