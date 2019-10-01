@@ -190,7 +190,7 @@ angular.module('myApp').service('lotStore', ['dbEnums',
           return item.price && item.quantity ? total + parseInt(item.quantity)*parseFloat(item.price) : total;
         }, 0);
       }
-      return value ? value.toFixed(2) : ''; 
+      return value ? value.toFixed(2) : '';
     };
 
     this.decrementInventory = function(barcode) {

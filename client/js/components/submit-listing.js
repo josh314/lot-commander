@@ -1,7 +1,7 @@
 import angular from 'angular';
 
 /******************* Scanning Page Controller *************************/
-angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$http', 'bstockFormConstants', 'dbEnums', 'listingTitleVerifier', 'lotStore', 'messageModal', 'saveLot', 'sessionTimeout', 
+angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$http', 'bstockFormConstants', 'dbEnums', 'listingTitleVerifier', 'lotStore', 'messageModal', 'saveLot', 'sessionTimeout',
   function($scope, $state, $http, bstockFormConstants, dbEnums, listingTitleVerifier, lotStore, messageModal, saveLot, sessionTimeout) {
     sessionTimeout.timeoutExpired();
 
@@ -44,7 +44,7 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
       }
       return tags.join(', ');
     })();
-    
+
     const getShopifyTags = () => {
       const tags = $scope.additionalShopifyTags ? $scope.additionalShopifyTags.split(',').map(_=>_.trim()) : [];
       if($scope.lot.unmanifested) {
@@ -57,20 +57,6 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
       tags.push('review');
       return tags.join(', ');
     };
-
-    // function calculateEstimatedRetailValue() {
-    //   let value;
-    //   if($scope.lot.estimatedRetailValue) {
-    //     value = $scope.lot.estimatedRetailValue;
-    //   }
-    //   else if($scope.lot.inventory) {
-    //     value = $scope.lot.inventory.reduce( (total, item)=>{
-    //       return item.price && item.quantity ? total + parseInt(item.quantity)*parseFloat(item.price) : total;
-    //     }, 0);
-    //   }
-    //   return value ? value.toFixed(2) : ''; 
-    // }
-    // const estimatedRetailValue = calculateEstimatedRetailValue();
 
     const estimatedRetailValue = lotStore.getEstimatedRetailValue();
     //Form default values

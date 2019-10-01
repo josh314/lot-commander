@@ -4,7 +4,7 @@ import angular from 'angular';
 angular.module('myApp').controller('UploadLotManifestController', ['$state', '$stateParams', 'fileUpload', 'messageModal', 'sessionTimeout', 
   function($state, $stateParams, fileUpload, messageModal, sessionTimeout) {
     sessionTimeout.timeoutExpired();
-    
+
     const vm = this;
 
     vm.noFileSelected = false;
