@@ -23,7 +23,14 @@ if( __config.productDataSrc.match(/mws/i) ) {
 }
 else if( __config.productDataSrc.match(/upcitemdb/i) ) {
   const upcItemDbApi = require('upcitemdb/lib/api');
-  upcItemDbClient = new upcItemDbApi.Client(__config.upcItemDb);
+  const upcItemDbSettings = __config.upcItemDb;
+  const connection = __connections['upcitemdb-cache'];
+  if(connection) {
+    upcItemDbSettings.cache = {
+      connection: connection
+    };
+  }
+  upcItemDbClient = new upcItemDbApi.Client(upcItemDbSettings);
   getProductDataFromSrc = getProductDataFromUpcItemDb;
   dataModule = require('upcitemdb/lib/data');
 }
@@ -134,10 +141,10 @@ async function getProductDataFromUpcItemDb(barcode) {
   }
 
   if(normalizedBarcode) {
-    const apiResp = await upcItemDbClient.lookup(normalizedBarcode);
-    if(apiResp && apiResp.items && apiResp.items[0]) {
+    const resp = await upcItemDbClient.lookup(normalizedBarcode);
+    if(resp && resp.item) {
       __logger.info(`Product data obtained from UpcItemDb for barcode ${normalizedBarcode}.`);
-      productData = Object.assign(productData, dataModule.collateApiRespItems(apiResp.items));
+      productData = Object.assign(productData, dataModule.processItem(resp.item));
     }
     else {
       __logger.info(`No product data found in UpcItemDb for barcode ${normalizedBarcode}.`);

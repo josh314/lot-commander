@@ -20,7 +20,8 @@ dist/
 
 # deployment settings
 config/deploy.js
-config.js
+config.*
+config-*.js
 settings.js
 
 # data and generated files
