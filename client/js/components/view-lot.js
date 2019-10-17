@@ -213,33 +213,35 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
 );
 
 /***************** Modal Controllers ************************/
-angular.module('myApp').controller('EditLotModalController', [ '$scope', 'dbEnums', 'listingTitleVerifier', 'lot', 'packagingTypeInfoModal', function($scope, dbEnums, listingTitleVerifier, lot, packagingTypeInfoModal){
-  $scope.lot = JSON.parse(JSON.stringify(lot));
-  $scope.lotStatusEnum = dbEnums.lotStatus;
-  $scope.lotTypeEnum = dbEnums.lotType;
-  $scope.packagingTypeEnum = dbEnums.packagingType;
-  // $scope.selectedListing = 'bstock';
-  $scope.marketplaces = [undefined].concat(dbEnums.marketplaces);
+angular.module('myApp').controller('EditLotModalController', [ '$scope', 'dbEnums', 'listingTitleVerifier', 'lot', 'packagingTypeInfoModal',
+  function($scope, dbEnums, listingTitleVerifier, lot, packagingTypeInfoModal){
+    $scope.lot = JSON.parse(JSON.stringify(lot));
+    $scope.lotStatusEnum = dbEnums.lotStatus;
+    $scope.lotTypeEnum = dbEnums.lotType;
+    $scope.packagingTypeEnum = dbEnums.packagingType;
+    // $scope.selectedListing = 'bstock';
+    $scope.marketplaces = [undefined].concat(dbEnums.marketplaces);
 
-  $scope.titleTooLong = {};
-  $scope.verifyTitle = () => {
-    $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title);
-    if($scope.titleTooLong.bstock && $scope.lot.destinationMarketplace==='bstock') {
-      return false;
-    }
-    if($scope.titleTooLong.shopify && $scope.lot.destinationMarketplace==='wholesaleninjas') {
-      return false;
-    }
-    return true;
-  };
-  $scope.verifyTitle();
+    $scope.titleTooLong = {};
+    $scope.verifyTitle = () => {
+      $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title);
+      if($scope.titleTooLong.bstock && $scope.lot.destinationMarketplace==='bstock') {
+        return false;
+      }
+      if($scope.titleTooLong.shopify && $scope.lot.destinationMarketplace==='wholesaleninjas') {
+        return false;
+      }
+      return true;
+    };
+    $scope.verifyTitle();
 
-  $scope.invalidLot = () => {
-    return !$scope.verifyTitle() || $scope.lot.numBoxes < 0;
-  };
+    $scope.invalidLot = () => {
+      return !$scope.verifyTitle() || $scope.lot.numBoxes < 0;
+    };
 
-  $scope.openPackagingTypeInfo = packagingTypeInfoModal;
-}]);
+    $scope.openPackagingTypeInfo = packagingTypeInfoModal;
+  }
+]);
 
 angular.module('myApp').controller('SetNumBoxesModalController', [ '$scope', 'lot', function($scope, lot){
   $scope.lot = JSON.parse(JSON.stringify(lot));

@@ -18,5 +18,5 @@ angular.module('myApp').factory('packagingTypeInfoModal', ['messageModal', funct
       </dl>
     `;
     messageModal.launch({header: 'Packaging Types', html: packagingInfoHtml, type: 'info'});
-  }
+  };
 }]);

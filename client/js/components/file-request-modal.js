@@ -45,7 +45,9 @@ angular.module('myApp').factory('requestFileModal', ['$state', '$http', '$uibMod
 }]);
 
 /***************** Modal Controller ************************/
-angular.module('myApp').controller('RequestFileModalController', [ '$scope', 'lot', 'bstockConstants', function($scope, lot, bstockConstants){
-  $scope.lot = JSON.parse(JSON.stringify(lot));
-  $scope.bstockConstants = bstockConstants;
-}]);
+angular.module('myApp').controller('RequestFileModalController', [ '$scope', 'lot', 'bstockConstants',
+  function($scope, lot, bstockConstants){
+    $scope.lot = JSON.parse(JSON.stringify(lot));
+    $scope.bstockConstants = bstockConstants;
+  }
+]);
