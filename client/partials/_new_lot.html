@@ -39,7 +39,7 @@
         <span class="text-danger h4" ng-show="noLotTypeSubmitted">No Lot Type selected.</span>
       </div>
       <div class="form-group" ng-class="{ 'has-error' : noPackagingTypeSubmitted }">
-				<label for="packagingTypeInput">Packaging Type (required)</label>
+				<label for="packagingTypeInput">Packaging Type (required) <span class="glyphicon glyphicon-question-sign" ng-click="openPackagingTypeInfo()"></span></label>
 				<select class="form-control" name="packagingType" id="packagingTypeInput" ng-model="newLot.packagingType">
 					<option ng-repeat="packagingType in packagingTypes">{{packagingType}}</option>
         </select>

@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* New Lot Controller *************************/
-angular.module('myApp').controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'listingBuilder', 'lotCategories', 'lotStore', 'messageModal', 'sessionTimeout', 
-  function($http, $scope, $state, dbEnums, listingBuilder, lotCategories, lotStore, messageModal, sessionTimeout) {
+angular.module('myApp').controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'listingBuilder', 'lotCategories', 'lotStore', 'messageModal', 'packagingTypeInfoModal', 'sessionTimeout',
+  function($http, $scope, $state, dbEnums, listingBuilder, lotCategories, lotStore, messageModal, packagingTypeInfoModal, sessionTimeout) {
     sessionTimeout.timeoutExpired();
     console.log(dbEnums);
     $scope.quickLots = listingBuilder.quickLotsBoilerplate;
@@ -21,6 +21,8 @@ angular.module('myApp').controller('NewLotCtrl', ['$http', '$scope', '$state', '
     };
 
     $scope.willUploadManifest = false;
+
+    $scope.openPackagingTypeInfo = packagingTypeInfoModal;
 
     function buildHandleForPrefix(prefix) {
       const today = new Date();//fix time zone to EST
