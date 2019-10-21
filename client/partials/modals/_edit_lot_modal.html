@@ -35,18 +35,44 @@
 				<option ng-repeat="status in lotStatusEnum">{{status}}</option>
 			</select>
 		</div>
-		<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : (lot.numBoxes && lot.numBoxes < 0)}">
+		<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : (lot.numBoxes && lot.numBoxes < 0)}" ng-show="lot.numBoxes">
 			<label for="numBoxesInput">Number of Boxes</label>
 			<input type="number" class="form-control" name="numBoxes" id="numBoxesInput" required ng-model="lot.numBoxes">
 			<span class="text-danger h4" ng-show="lot.numBoxes && lot.numBoxes < 0">Invalid number of boxes</span>
-		</div>
+    </div>
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="manifestedInput">Manifested Lot?</label>
 			<select class="form-control" name="manifested" id="manifestedInput" ng-model="lot.unmanifested">
 				<option ng-value="true">No</option>
 				<option ng-value="false">Yes</option>
 			</select>
-		</div>
+    </div>
+    <div class="form-group col-xs-12" ng-hide="lot.numBoxes">
+        <label for="shippingItems">Shipping Items</label>
+        <div class="well" id="shippingItems">
+          <table class="table table-striped">
+            <thead><tr>
+              <th>Item No.</th>
+              <th>Weight</th>
+              <th>Height</th>
+              <th>Length</th>
+              <th>Width</th>
+            </tr></thead>
+            <tbody>
+              <tr ng-repeat="item in lot.shippingItems">
+                <td>{{ $index + 1 }}</td>
+                <td>{{ item.weight ? item.weight + " " + item.weightUnits : ''}}</td>
+                <td>{{ item.height ? item.height + " " + item.heightUnits : ''}}</td>
+                <td>{{ item.length ? item.length + " " + item.lengthUnits : ''}}</td>
+                <td>{{ item.width ? item.width + " " + item.widthUnits : ''}}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="text-center">
+            <button class="btn btn-primary btn-sm" ng-click="editShippingItems()">Edit Shipping Items</button>
+          </div>
+        </div>
+      </div>
 		<div class="form-group col-xs-12 col-sm-6" ng-show="lot.unmanifested || lot.manifestFileLocation">
 			<label for="totalUnitsInput">Total Units</label>
 			<input class="form-control" id="totalUnitsInput" required ng-model="lot.totalUnits">

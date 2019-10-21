@@ -230,8 +230,8 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
 );
 
 /***************** Modal Controllers ************************/
-angular.module('myApp').controller('EditLotModalController', [ '$scope', 'dbEnums', 'listingTitleVerifier', 'lot', 'packagingTypeInfoModal',
-  function($scope, dbEnums, listingTitleVerifier, lot, packagingTypeInfoModal){
+angular.module('myApp').controller('EditLotModalController', [ '$scope', 'dbEnums', 'listingTitleVerifier', 'lot', 'packagingTypeInfoModal', 'shippingItemsModal',
+  function($scope, dbEnums, listingTitleVerifier, lot, packagingTypeInfoModal, shippingItemsModal){
     $scope.lot = JSON.parse(JSON.stringify(lot));
     $scope.lotStatusEnum = dbEnums.lotStatus;
     $scope.lotTypeEnum = dbEnums.lotType;
@@ -258,6 +258,15 @@ angular.module('myApp').controller('EditLotModalController', [ '$scope', 'dbEnum
 
     $scope.openPackagingTypeInfo = packagingTypeInfoModal;
 
+    $scope.editShippingItems = function() {
+      shippingItemsModal
+        .launch()
+        .then(shippingItems => {
+          if(shippingItems) {
+            $scope.lot.shippingItems = shippingItems;
+          }
+        });
+    };
   }
 ]);
 
