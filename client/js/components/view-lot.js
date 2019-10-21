@@ -10,6 +10,9 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
     $scope.listingsBoilerplate = listingsBoilerplate;
     $scope.waitingForResponse = false;
 
+    $scope.showShippingItems = false;
+    $scope.toggleShowShippingItems = () => $scope.showShippingItems = !$scope.showShippingItems;
+
     const initializeAllThumbnailImages = () => {
       for(let i=0; i<lotStore.inventory.length; i++) {
         const item = lotStore.inventory[i];
