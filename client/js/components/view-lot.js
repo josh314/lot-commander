@@ -215,8 +215,9 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
     $scope.editShippingItems = function() {
       shippingItemsModal
         .launch()
-        .then(isEdited => {
-          if(isEdited) {
+        .then(shippingItems => {
+          if(shippingItems) {
+            lotStore.shippingItems = shippingItems;
             saveLot(lotStore).then( resp => {
               console.log(resp);
               $state.reload();

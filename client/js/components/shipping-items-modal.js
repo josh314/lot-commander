@@ -20,16 +20,12 @@ angular.module('myApp').factory('shippingItemsModal', ['$uibModal', 'lotStore',
 
         return modalInstance.result.then(
 
-          // Close cb function
-          shippingItems=>{
-            // Save the edited copy
-            lotStore.shippingItems = shippingItems;
-            return true;
-          },
+          // close modal cb returns edited shippingItems to the caller
+          shippingItems => shippingItems,
 
           // Cancel cb function
           () => {
-            return false;
+            return null;
           }
 
         );
