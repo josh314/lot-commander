@@ -38,6 +38,7 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       // shipping properties
       this.numBoxes = undefined;
       this.packagingType = undefined;
+      this.shippingItems = [];
 
     };
     this.reset();
@@ -71,6 +72,9 @@ angular.module('myApp').service('lotStore', ['dbEnums',
     // Shipping properties
     this.setNumBoxes = function(_numBoxes) { this.numBoxes = _numBoxes; };
     this.setPackagingType = function(_packagingType) { this.packagingType = _packagingType; };
+    this.setShippingItems =  function(_shippingItems) { this.shippingItems = _shippingItems; };
+    this.addShippingItem = function(item) { this.shippingItems.push(item); };
+    this.removeShippingItem = function(itemIndex) { this.shippingItems.splice(itemIndex, 1); };
 
     // main save function
     this.save = function(_lot) {
@@ -124,6 +128,9 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       }
       if(_lot.packagingType) {
         this.setPackagingType(_lot.packagingType);
+      }
+      if(_lot.shippingItems) {
+        this.setShippingItems(_lot.shippingItems);
       }
     };
 
@@ -237,6 +244,8 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       }
       return value ? value.toFixed(2) : '';
     };
+
+    this.getShippingItems = function() { return this.shippingItems; };
 
   }
 ]);
