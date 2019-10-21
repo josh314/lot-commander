@@ -3,8 +3,8 @@ import angular from 'angular';
 import printJS from 'print-js';
 
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout',
-  function($http, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, sessionTimeout) {   
+angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout', 'shippingItemsModal',
+  function($http, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, sessionTimeout, shippingItemsModal) {
     sessionTimeout.timeoutExpired();
     $scope.lot = lotStore;
     $scope.listingsBoilerplate = listingsBoilerplate;
@@ -210,6 +210,16 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
 
     $scope.openGallery = function() {
       $state.go('main.lots.gallery', { lotId: lotStore._id });
+    };
+
+    $scope.editShippingItems = function() {
+      shippingItemsModal
+        .launch()
+        .then(isEdited => {
+          if(isEdited) {
+            $state.reload();
+          }
+        });
     };
 
   }]
