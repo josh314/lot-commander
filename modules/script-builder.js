@@ -11,6 +11,8 @@ const dbEnums = {
   lotType: lotdb.lotTypeEnum,
   marketplaces: lotdb.marketplaceEnum,
   packagingType: lotdb.packagingTypeEnum,
+  weightUnits: lotdb.weightUnitsEnum,
+  lengthUnits: lotdb.lengthUnitsEnum,
   // priceType: inmardb.priceTypeEnum,
 };
 

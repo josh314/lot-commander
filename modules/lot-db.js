@@ -266,6 +266,8 @@ module.exports = {
   lotTypeEnum: lotdbClient.LotModel.typeEnum,
   marketplaceEnum: lotdbClient.LotModel.marketplaceEnum,
   packagingTypeEnum: lotdbClient.LotModel.packagingTypeEnum,
+  weightUnitsEnum: lotdbClient.LotModel.weightUnitsEnum,
+  lengthUnitsEnum: lotdbClient.LotModel.lengthUnitsEnum,
   // link3pManifestBlock: link3pManifestBlock,
   // import3pManifestBlock: import3pManifestBlock,
   markAsListed: markAsListed,
