@@ -93,7 +93,7 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
       });
 
       modalInstance.result.then(function (lot) {
-        $http.post('/api/db/edit-lot/'+lotStore._id, lot).then(resp=>{
+        saveLot(lot).then(resp=>{
           console.log(resp);
           $state.reload();
         });
