@@ -1,0 +1,34 @@
+<div class="modal-header">
+	<h3 class="modal-title">Edit Shipping Items</h3>
+</div>
+<div class="modal-body">
+	<div class="row">
+    <table class="table table-striped">
+      <thead><tr>
+        <th>Item No.</th>
+        <th>Weight</th>
+        <th>Height</th>
+        <th>Length</th>
+        <th>Width</th>
+        <th></th>
+      </tr></thead>
+      <tbody>
+        <tr ng-repeat="item in shippingItems">
+          <td>{{ $index + 1 }}</td>
+          <td><input size=6 ng-model="item.weight"><select ng-model="item.weightUnits"><option ng-repeat="unit in weightUnitsEnum">{{unit}}</option></select></td>
+          <td><input size=6 ng-model="item.height"><select ng-model="item.heightUnits"><option ng-repeat="unit in lengthUnitsEnum">{{unit}}</option></select></td>
+          <td><input size=6 ng-model="item.length"><select ng-model="item.lengthUnits"><option ng-repeat="unit in lengthUnitsEnum">{{unit}}</option></select></td>
+          <td><input size=6 ng-model="item.width"><select ng-model="item.widthUnits"><option ng-repeat="unit in lengthUnitsEnum">{{unit}}</option></select></td>
+          <td><button class="btn btn-danger btn-xs" ng-click="removeItem($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="text-center">
+      <button class="btn btn-primary btn-sm text-center" ng-click="addItem()">Add Shipping Item</button>
+    </div>
+	</div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-danger" type="button" ng-click="$close(shippingItems)">Save</button>
+  <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+</div>
