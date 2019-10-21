@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* Shipping Items Modal service ******************************/
-angular.module('myApp').factory('shippingItemsModal', ['$uibModal', 'lotStore', 'saveLot',
-  function($uibModal, lotStore, saveLot){
+angular.module('myApp').factory('shippingItemsModal', ['$uibModal', 'lotStore',
+  function($uibModal, lotStore){
 
     return {
       launch: function() {
@@ -24,7 +24,7 @@ angular.module('myApp').factory('shippingItemsModal', ['$uibModal', 'lotStore', 
           shippingItems=>{
             // Save the edited copy
             lotStore.shippingItems = shippingItems;
-            return saveLot(lotStore).then( resp => !!resp /* casts to boolean */ );
+            return true;
           },
 
           // Cancel cb function

@@ -3,8 +3,8 @@ import angular from 'angular';
 import printJS from 'print-js';
 
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'sessionTimeout', 'shippingItemsModal',
-  function($http, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, sessionTimeout, shippingItemsModal) {
+angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'saveLot', 'sessionTimeout', 'shippingItemsModal',
+  function($http, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, saveLot, sessionTimeout, shippingItemsModal) {
     sessionTimeout.timeoutExpired();
     $scope.lot = lotStore;
     $scope.listingsBoilerplate = listingsBoilerplate;
@@ -217,7 +217,9 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
         .launch()
         .then(isEdited => {
           if(isEdited) {
-            $state.reload();
+            saveLot(lotStore).then( resp => {
+              $state.reload();
+            });
           }
         });
     };
@@ -253,6 +255,7 @@ angular.module('myApp').controller('EditLotModalController', [ '$scope', 'dbEnum
     };
 
     $scope.openPackagingTypeInfo = packagingTypeInfoModal;
+
   }
 ]);
 
