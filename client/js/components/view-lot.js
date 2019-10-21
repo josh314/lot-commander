@@ -218,6 +218,7 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
         .then(isEdited => {
           if(isEdited) {
             saveLot(lotStore).then( resp => {
+              console.log(resp);
               $state.reload();
             });
           }
