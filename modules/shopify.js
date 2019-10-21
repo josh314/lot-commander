@@ -168,6 +168,40 @@ const submitListing = Promise.method(async function (listing) {
     listingPromises.push(addMetafieldP);
   }
   
+  // Adding metafield for numBoxes. NOTE THIS FIELD IS DEPRECATED BUT EXISTS ON OLD DAT
+  if(listing.lot.numBoxes) {
+    const addMetafieldP = shopifyClient.addProductMetafield({
+      productId: newProductId,
+      metafield: {
+        namespace: 'shipping',
+        key: 'numBoxes',
+        value: listing.lot.numBoxes,
+        value_type: 'integer',
+      }
+    });
+    listingPromises.push(addMetafieldP);
+  }
+
+  // Adding metafield for shippingItems. PREFERRED OVER THE DEPRECATED `numBoxes` FIELD
+  if(listing.lot.shippingItems) {
+    try {
+      const shippingItemsJson = JSON.stringify(listing.lot.shippingItems);
+      const addMetafieldP = shopifyClient.addProductMetafield({
+        productId: newProductId,
+        metafield: {
+          namespace: 'shipping',
+          key: 'shippingItems',
+          value: shippingItemsJson,
+          value_type: 'string',
+        }
+      });
+      listingPromises.push(addMetafieldP);
+    }
+    catch (e) {
+      'no-op';
+    }
+  }
+
   await listingPromises;
   //publish after all requests come back and return the response
   return shopifyClient.publishProduct(newProductId);
