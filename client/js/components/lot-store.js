@@ -73,8 +73,6 @@ angular.module('myApp').service('lotStore', ['dbEnums',
     this.setNumBoxes = function(_numBoxes) { this.numBoxes = _numBoxes; };
     this.setPackagingType = function(_packagingType) { this.packagingType = _packagingType; };
     this.setShippingItems =  function(_shippingItems) { this.shippingItems = _shippingItems; };
-    this.addShippingItem = function(item) { this.shippingItems.push(item); };
-    this.removeShippingItem = function(itemIndex) { this.shippingItems.splice(itemIndex, 1); };
 
     // main save function
     this.save = function(_lot) {
