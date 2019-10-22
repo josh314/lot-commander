@@ -1,10 +1,8 @@
 import angular from 'angular';
 
-import printJS from 'print-js';
-
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'saveLot', 'sessionTimeout', 'shippingItemsModal',
-  function($http, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, saveLot, sessionTimeout, shippingItemsModal) {
+angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal',
+  function($http, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, PrintSvc, saveLot, sessionTimeout, shippingItemsModal) {
     sessionTimeout.timeoutExpired();
     $scope.lot = lotStore;
     $scope.listingsBoilerplate = listingsBoilerplate;
@@ -180,34 +178,6 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
       return (new Date(date)).toLocaleString();
     };
 
-    $scope.printLabels = function() {
-      if(lotStore.getNumBoxes()) {
-        printJS(`/api/labels/${encodeURIComponent(lotStore.handle)}/${lotStore.getNumBoxes()}`);
-      }
-      else {
-        const modalInstance = $uibModal.open({
-          templateUrl: '/partials/modals/_set_num_boxes_modal.html',
-          size: 'lg',
-          controller: 'SetNumBoxesModalController',
-          backdrop: 'static',
-          resolve: {
-            lot: function () {
-              return lotStore;
-            }
-          },
-        });
-        modalInstance.result.then(function (lot) {
-          $http.post('/api/db/edit-lot/'+lotStore._id, lot).then(resp=>{
-            console.log(resp);
-            printJS(`/api/labels/${encodeURIComponent(lot.handle)}/${lot.numBoxes}`);
-            $state.reload();
-          });
-        }, function () {
-          $state.reload();
-        });
-      }
-    };
-
     $scope.openGallery = function() {
       $state.go('main.lots.gallery', { lotId: lotStore._id });
     };
@@ -229,6 +199,17 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
     };
     $scope.editShippingItems = editShippingItems;
 
+    $scope.printLabels = function() {
+      const isPrinting = PrintSvc.printLabels();
+      if(!isPrinting) {
+        editShippingItems().then(isEdited=>{
+          console.log(isEdited)
+          if(isEdited) {
+            PrintSvc.printLabels();
+          }
+        });
+      }
+    };
   }]
 );
 
