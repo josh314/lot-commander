@@ -34,11 +34,35 @@ function createNumBoxesLabels(opts={}) {
   return doc;
 }
 
+const unitAbbreviations = {
+  'pounds': 'lbs',
+  'ounces': 'oz',
+  'feet': 'ft',
+  'inches': 'in',
+}
+
+const getShippingItemDimString = (item) => {
+  const dims = [];
+  if(item.weight) {
+    dims.push(`${item.weight} ${unitAbbreviations[item.weightUnits]}`);
+  }
+  if(item.height) {
+    dims.push(`${item.height} ${unitAbbreviations[item.heightUnits]}`);
+  }
+  if(item.length) {
+    dims.push(`${item.length} ${unitAbbreviations[item.lengthUnits]}`);
+  }
+  if(item.width ) {
+    dims.push(`${item.width} ${unitAbbreviations[item.widthUnits]}`);
+  }
+  return dims.join(' / ');
+};
+
 function createShippingItemsLabels(opts={}) {
 
   const doc = new PDFDocument({ autoFirstPage: false });
   doc.fontSize(8);
-  for(let i=0; i<(opts.numLabels || 1); i++) {
+  for(let i=0; i<(opts.shippingItems.length || 1); i++) {
     doc.addPage({ 
       margin: 0, 
       size: [ opts.label.width , opts.label.height ]
@@ -55,7 +79,8 @@ function createShippingItemsLabels(opts={}) {
     const margin = 5;
     doc
       .image(canvas.toBuffer(), margin, 15, { width: opts.label.width - 2*margin })
-      .text(`(${i+1} of ${opts.numLabels})`, 0, 5, { align: 'center', width: opts.label.width });
+      .text(`(${i+1} of ${opts.shippingItems.length})`, 0, 5, { align: 'center', width: opts.label.width })
+      .text(`[${getShippingItemDimString(opts.shippingItems[i])}]`, 0, 62, { align: 'center', width: opts.label.width });
   }
 
   doc.end();
@@ -77,7 +102,7 @@ function createLabels(lot) {
     return createNumBoxesLabels(Object.assign(labelProps, { numLabels: lot.numBoxes}));
   }
   else if (lot.shippingItems && lot.shippingItems.length > 0 ) {
-    return createShippingItemsLabels(Object.assign(labelProps, { numLabels: lot.shippingItems.length }));
+    return createShippingItemsLabels(Object.assign(labelProps, { shippingItems: lot.shippingItems }));
   }
   else {
     throw new Error(`Lot ${lot._id} has no shipping packages data.`);
