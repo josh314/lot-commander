@@ -11,7 +11,7 @@ angular.module('myApp').factory('PrintSvc', ['lotStore',
         return true;
       }
 
-      if(lotStore.shippingItems && lotStore.shippingItems.every( _ => _.weight && _.height && _.length && _.width )) {
+      if(lotStore.shippingItems && lotStore.shippingItems.length && lotStore.shippingItems.every( _ => _.weight && _.height && _.length && _.width )) {
         return true;
       }
 
