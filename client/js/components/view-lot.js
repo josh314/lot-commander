@@ -213,12 +213,12 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
     };
 
     const editShippingItems = function() {
-      shippingItemsModal
+      return shippingItemsModal
         .launch()
         .then(shippingItems => {
           if(shippingItems) {
             lotStore.shippingItems = shippingItems;
-            saveLot(lotStore).then( resp => {
+            return saveLot(lotStore).then( resp => {
               return true;
             })
           }
