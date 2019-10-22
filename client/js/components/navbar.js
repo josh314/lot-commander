@@ -5,13 +5,6 @@ angular.module('myApp').controller('NavbarCtrl', ['$scope', 'navbarData', functi
 
   const navItems = navbarData.navItems;
 
-  // what the fuck was the point of the loop below?
-  // for(let i=0; i<navItems.length; i++) {
-  //   if(navItems[i].drops) {
-  //     navItems[i].drops = navItems[i].drops;
-  //   }
-  // }
-
   $scope.navbar = {
     brand: navbarData.brand,
     navItems: navItems,
