@@ -38,6 +38,7 @@ import "./js/components/message-modal.js";
 import "./js/components/navbar.js";
 import "./js/components/new-lot.js";
 import "./js/components/packaging-type-info-modal.js";
+import "./js/components/print-svc.js";
 import "./js/components/root.js";
 import "./js/components/save-lot.js";
 import "./js/components/save-manifest.js";
