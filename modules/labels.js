@@ -37,8 +37,11 @@ function createNumBoxesLabels(opts={}) {
 const unitAbbreviations = {
   'pounds': 'lbs',
   'ounces': 'oz',
+  'grams': 'g',
+  'kilograms': 'kg',
   'feet': 'ft',
   'inches': 'in',
+  'centimeters': 'cm'
 }
 
 const getShippingItemDimString = (item) => {
@@ -79,8 +82,13 @@ function createShippingItemsLabels(opts={}) {
     const margin = 5;
     doc
       .image(canvas.toBuffer(), margin, 15, { width: opts.label.width - 2*margin })
-      .text(`(${i+1} of ${opts.shippingItems.length})`, 0, 5, { align: 'center', width: opts.label.width })
-      .text(`[${getShippingItemDimString(opts.shippingItems[i])}]`, 0, 62, { align: 'center', width: opts.label.width });
+      .text(
+        `(${i+1} of ${opts.shippingItems.length}) [ ${getShippingItemDimString(opts.shippingItems[i])} ]`,
+        0,
+        5,
+        { align: 'center', width: opts.label.width }
+      );
+
   }
 
   doc.end();
