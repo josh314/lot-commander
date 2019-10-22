@@ -212,19 +212,22 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
       $state.go('main.lots.gallery', { lotId: lotStore._id });
     };
 
-    $scope.editShippingItems = function() {
+    const editShippingItems = function() {
       shippingItemsModal
         .launch()
         .then(shippingItems => {
           if(shippingItems) {
             lotStore.shippingItems = shippingItems;
             saveLot(lotStore).then( resp => {
-              console.log(resp);
-              $state.reload();
-            });
+              return true;
+            })
+          }
+          else {
+            return false;
           }
         });
     };
+    $scope.editShippingItems = editShippingItems;
 
   }]
 );
