@@ -16,10 +16,9 @@ angular.module('myApp').factory('PrintSvc', ['lotStore',
       }
 
       return false;
-    }
+    };
 
     const printLabels = () => {
-      console.log(verifyShippingData())
       if(verifyShippingData()) {
         printJS(`/api/labels/${lotStore._id}`);
         return true;
@@ -27,7 +26,7 @@ angular.module('myApp').factory('PrintSvc', ['lotStore',
       else {
         return false;
       }
-    }
+    };
 
     return {
       printLabels: printLabels
