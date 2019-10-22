@@ -190,7 +190,7 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
             lotStore.shippingItems = shippingItems;
             return saveLot(lotStore).then( resp => {
               return true;
-            })
+            });
           }
           else {
             return false;
@@ -203,7 +203,6 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
       const isPrinting = PrintSvc.printLabels();
       if(!isPrinting) {
         editShippingItems().then(isEdited=>{
-          console.log(isEdited)
           if(isEdited) {
             PrintSvc.printLabels();
           }
