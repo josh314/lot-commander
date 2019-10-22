@@ -150,12 +150,19 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
       if(!$scope.lot.getHandle()) {
         missingFields.push('handle');
       }
+      if(!$scope.lot.numBoxes && (!$scope.lot.shippingItems || $scope.lot.shippingItems.length <= 0 ) ) {
+        missingFields.push('shipping items');
+      }
+      if($scope.images.length <= 0) {
+        missingFields.push('images');
+      }
+
 
       if(!missingFields.length) {
         $state.go('main.lots.submit-listing');
       }
       else {
-        const msg = `Must complete the following fields before submission: ${missingFields}`;
+        const msg = `Must input the following data before submission: ${missingFields}`;
         messageModal.launch({Header: 'Incomplete Lot', body: msg , type: 'error'});
       }
     };
