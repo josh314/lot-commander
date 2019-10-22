@@ -252,11 +252,3 @@ angular.module('myApp').controller('EditLotModalController', [ '$scope', 'dbEnum
     };
   }
 ]);
-
-angular.module('myApp').controller('SetNumBoxesModalController', [ '$scope', 'lot', function($scope, lot){
-  $scope.lot = JSON.parse(JSON.stringify(lot));
-
-  $scope.invalidLot = () => {
-    return $scope.lot.numBoxes < 0;
-  };
-}]);
