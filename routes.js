@@ -79,7 +79,7 @@ function routes() {
   // router.post('/api/imports/manifest', imports.importManifestApi);
   // router.post('/api/imports/barcodes', express.json(), imports.importBarcodesApi);
 
-  router.get('/api/labels/:sku/:numLabels', labels.generate);
+  router.get('/api/labels/:lotId', labels.generate);
 
   // product data
   router.get('/api/product-data/:barcode', (req,res)=>{
