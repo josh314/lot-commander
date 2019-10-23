@@ -16,10 +16,16 @@ if(!fs.existsSync(imgPath)) {
   fs.mkdirSync(imgPath);
 }
 
+const notFoundImage = fs.readFileSync(path.join(__basedir, 'assets', 'missing-image.jpg'));
 async function get(req, res) {
   const s3Location = decodeURIComponent(req.query.s3);
   const imgResp = await imageServer.get( { s3Location: s3Location } );
-  res.send(imgResp.Body);
+  if(imgResp && imgResp.Body) {
+    res.send(imgResp.Body);
+  }
+  else {
+    res.send(notFoundImage);
+  }
 }
 
 function upload(req,res) {
