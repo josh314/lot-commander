@@ -117,7 +117,10 @@ const get = async function(opts = {}) {
   return s3.getObject({
     Bucket: bucket,
     Key: key,
-  }).promise();
+  }).promise().catch(e=> {
+    __logger.error(`No image for key ${key}.`)
+    return null;
+  });
 };
 
 const remove = function(s3Location) {

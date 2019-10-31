@@ -11,19 +11,24 @@ const shopifyApi = require('shopify/lib/api');
 const shopifyClient = new shopifyApi.Client(__config.shopify.store);
 
 const addImage = Promise.method(async function(productId, imageObj){
-  let imgBuffer;
-  if(imageObj.s3) {
-    imgBuffer = ( await imageServer.get({ s3Location: imageObj.s3 }) ).Body;
+  try {
+    let imgBuffer;
+    if(imageObj.s3) {
+      imgBuffer = ( await imageServer.get({ s3Location: imageObj.s3 }) ).Body;
+    }
+    else {
+      imgBuffer = await readFile( path.join(__basedir, __config.imgPath, imageObj.filename) );
+    }
+    const imageReqOptions = {
+      productId: productId,
+      image: imgBuffer.toString('base64'),
+      primary: imageObj.primary,
+    };
+    return shopifyClient.addProductImage(imageReqOptions);
   }
-  else {
-    imgBuffer = await readFile( path.join(__basedir, __config.imgPath, imageObj.filename) );
+  catch(e) {
+    return null; // return null if something goes wromng with image submission, including missing images
   }
-  const imageReqOptions = {
-    productId: productId,
-    image: imgBuffer.toString('base64'),
-    primary: imageObj.primary,
-  };
-  return shopifyClient.addProductImage(imageReqOptions);
 });
 
 //TODO: This function might be real slow. Return right away? 
