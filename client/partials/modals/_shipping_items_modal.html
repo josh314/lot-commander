@@ -13,7 +13,7 @@
         <th></th>
       </tr></thead>
       <tbody>
-        <tr ng-repeat="item in shippingItems">
+        <tr ng-repeat="item in shippingItems track by $index">
           <td>{{ $index + 1 }}</td>
           <td><input size=6 ng-model="item.weight"><select ng-model="item.weightUnits"><option ng-repeat="unit in weightUnitsEnum">{{unit}}</option></select></td>
           <td><input size=6 ng-model="item.height"><select ng-model="item.heightUnits"><option ng-repeat="unit in lengthUnitsEnum">{{unit}}</option></select></td>

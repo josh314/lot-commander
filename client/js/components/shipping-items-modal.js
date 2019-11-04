@@ -88,7 +88,8 @@ angular.module('myApp').controller('ShippingItemsModalController', [ '$scope', '
     ];
 
     $scope.addPresetItem = (index) => {
-      $scope.shippingItems.push($scope.presets[index]);
+      const newItem = JSON.parse( JSON.stringify($scope.presets[index]) ); 
+      $scope.shippingItems.push(newItem);
     };
   }
 ]);

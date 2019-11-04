@@ -59,7 +59,7 @@
               <th>Width</th>
             </tr></thead>
             <tbody>
-              <tr ng-repeat="item in lot.shippingItems">
+              <tr ng-repeat="item in lot.shippingItems track by $index">
                 <td>{{ $index + 1 }}</td>
                 <td>{{ item.weight ? item.weight + " " + item.weightUnits : ''}}</td>
                 <td>{{ item.height ? item.height + " " + item.heightUnits : ''}}</td>
