@@ -5,8 +5,8 @@ import successBeepWav from '../../audio/success.wav';
 import failBeepWav from '../../audio/fail-2.wav';
 
 /******************* Scanning Page Controller *************************/
-angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', '$state', 'focus', 'ImageSvc', 'lotStore', 'messageModal', 'saveManifest', 'sessionTimeout',
-  function($scope, $http, $interval, $state, focus, ImageSvc, lotStore, messageModal, saveManifest, sessionTimeout) {
+angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', '$state', 'focus', 'ImageSvc', 'lotStore', 'messageModal', 'saveLot', 'saveManifest', 'sessionTimeout', 'shippingItemsModal',
+  function($scope, $http, $interval, $state, focus, ImageSvc, lotStore, messageModal, saveLot, saveManifest, sessionTimeout, shippingItemsModal) {
     sessionTimeout.timeoutExpired();
     focus('barcodeInput');
     $scope.lot = lotStore;
@@ -107,5 +107,22 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
       // $interval.cancel(autoSaveTimer);
       save();
     });
+
+    const editShippingItems = function() {
+      return shippingItemsModal
+        .launch()
+        .then(shippingItems => {
+          if(shippingItems) {
+            lotStore.shippingItems = shippingItems;
+            return saveLot(lotStore).then( _resp => {
+              return true;
+            });
+          }
+          else {
+            return false;
+          }
+        });
+    };
+    $scope.editShippingItems = editShippingItems;
   }
 ]);
