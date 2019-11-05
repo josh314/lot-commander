@@ -42,7 +42,8 @@ module.exports = {
             "warn", 
             { 
                 "caughtErrors": "none",
-                varsIgnorePattern: "^_$",
+                varsIgnorePattern: "^_",
+                argsIgnorePattern: "^_",
             }
         ],
         // "quotes": [
