@@ -67,6 +67,7 @@ const submitListing = Promise.method(async function (listing) {
     return _;
   });
   const newProductId = addProductResp.product.id;
+  const newProductVariant = addProductResp.product.variants[0];
 
   // add images
   const addImageReqs = [];
@@ -175,8 +176,9 @@ const submitListing = Promise.method(async function (listing) {
   
   // Adding metafield for numBoxes. NOTE THIS FIELD IS DEPRECATED BUT EXISTS ON OLD DAT
   if(listing.lot.numBoxes) {
-    const addMetafieldP = shopifyClient.addProductMetafield({
+    const addMetafieldP = shopifyClient.addProductVariantMetafield({
       productId: newProductId,
+      productVariantId: newProductVariant.id,
       metafield: {
         namespace: 'shipping',
         key: 'numBoxes',
@@ -191,8 +193,9 @@ const submitListing = Promise.method(async function (listing) {
   if(listing.lot.shippingItems) {
     try {
       const shippingItemsJson = JSON.stringify(listing.lot.shippingItems);
-      const addMetafieldP = shopifyClient.addProductMetafield({
+      const addMetafieldP = shopifyClient.addProductVariantMetafield({
         productId: newProductId,
+        productVariantId: newProductVariant.id,
         metafield: {
           namespace: 'shipping',
           key: 'shippingItems',
