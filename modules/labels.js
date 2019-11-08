@@ -27,7 +27,10 @@ function createNumBoxesLabels(opts={}) {
     const margin = 5;
     doc
       .image(canvas.toBuffer(), margin, 15, { width: opts.label.width - 2*margin })
-      .text(`(${i+1} of ${opts.numLabels})`, 0, 5, { align: 'center', width: opts.label.width });
+      .font('Helvetica').text(`(${i+1} of  `, 0, 5, { align: 'center', width: opts.label.width, continued: true })
+      .font('Helvetica-Bold').text(`${opts.numLabels}`, { continued: true, underline: true })
+      .font('Helvetica').text(`  )`, { continued: false, underline: false, stroke: false });
+
   }
 
   doc.end();
@@ -82,12 +85,15 @@ function createShippingItemsLabels(opts={}) {
     const margin = 5;
     doc
       .image(canvas.toBuffer(), margin, 15, { width: opts.label.width - 2*margin })
-      .text(
-        `(${i+1} of ${opts.shippingItems.length}) [ ${getShippingItemDimString(opts.shippingItems[i])} ]`,
-        0,
-        5,
-        { align: 'center', width: opts.label.width }
-      );
+      // .text(
+      //   `(${i+1} of ${opts.shippingItems.length}) [ ${getShippingItemDimString(opts.shippingItems[i])} ]`,
+      //   0,
+      //   5,
+      //   { align: 'center', width: opts.label.width }
+      // )
+      .font('Helvetica').text(`( ${i+1} of `, 10, 5, { width: opts.label.width, continued: true })
+      .font('Helvetica-Bold').text(`${opts.shippingItems.length}`, { continued: true, underline: true })
+      .font('Helvetica').text(` ) [ ${getShippingItemDimString(opts.shippingItems[i])} ]`, { continued: false, underline: false });
 
   }
 
