@@ -210,6 +210,19 @@ const submitListing = Promise.method(async function (listing) {
     }
   }
 
+  if(listing.lot.type) {
+    const addMetafieldP = shopifyClient.addProductMetafield({
+      productId: newProductId,
+      metafield: {
+        namespace: 'lot',
+        key: 'condition',
+        value: listing.lot.type,
+        value_type: 'string',
+      }
+    });
+    listingPromises.push(addMetafieldP);
+  }
+
   await listingPromises;
   //publish after all requests come back and return the response
   return shopifyClient.publishProduct(newProductId);
