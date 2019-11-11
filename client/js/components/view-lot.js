@@ -139,6 +139,19 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
       });
     };
 
+    const validateShippingItems = () => {
+      if(!$scope.lot.shippingItems || $scope.lot.shippingItems.length <=0 ) {
+        return false;
+      }
+
+      return $scope.lot.shippingItems.every(item => {
+        return parseInt(item.weight) && item.weightUnits &&
+          parseInt(item.height) && item.heightUnits &&
+          parseInt(item.length) && item.lengthUnits &&
+          parseInt(item.width) && item.widthUnits;
+      });
+    };
+
     $scope.configureListingForSubmission = function() {
       const missingFields = [];
       if(!$scope.lot.listingData.title) {
@@ -150,7 +163,7 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
       if(!$scope.lot.getHandle()) {
         missingFields.push('handle');
       }
-      if(!$scope.lot.numBoxes && (!$scope.lot.shippingItems || $scope.lot.shippingItems.length <= 0 ) ) {
+      if(!$scope.lot.numBoxes && !validateShippingItems() ) {
         missingFields.push('shipping items');
       }
       if($scope.images.length <= 0) {
