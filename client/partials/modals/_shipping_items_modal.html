@@ -16,19 +16,19 @@
         <tr ng-repeat="item in shippingItems track by $index">
           <td>{{ $index + 1 }}</td>
           <td>
-            <input size=6 ng-model="item.weight">
+            <input type="number" min="0" class="hide-controls" ng-style='errorStyles[{{$index}}].weight' style="width: 4em" ng-model="item.weight">
             <select ng-model="item.weightUnits"><option ng-repeat="unit in weightUnitsEnum">{{unit}}</option></select>
           </td>
           <td>
-            <input size=6 ng-model="item.height">
+            <input type="number" min="0" class="hide-controls" ng-style='errorStyles[{{$index}}].height' style="width: 4em" ng-model="item.height">
             <select ng-model="item.heightUnits"><option ng-repeat="unit in lengthUnitsEnum">{{unit}}</option></select>
           </td>
           <td>
-            <input size=6 ng-model="item.length">
+            <input type="number" min="0" class="hide-controls" ng-style='errorStyles[{{$index}}].length' style="width: 4em" ng-model="item.length">
             <select ng-model="item.lengthUnits"><option ng-repeat="unit in lengthUnitsEnum">{{unit}}</option></select>
           </td>
           <td>
-            <input size=6 ng-model="item.width">
+            <input type="number" min="0" class="hide-controls" ng-style='errorStyles[{{$index}}].width' style="width: 4em" ng-model="item.width">
             <select ng-model="item.widthUnits"><option ng-repeat="unit in lengthUnitsEnum">{{unit}}</option></select>
           </td>
           <td><button class="btn btn-danger btn-xs" ng-click="removeItem($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
@@ -44,6 +44,6 @@
 	</div>
 </div>
 <div class="modal-footer">
-  <button class="btn btn-danger" type="button" ng-click="$close(shippingItems)">Save</button>
+  <button class="btn btn-danger" type="button" ng-click="validateAndClose()">Save</button>
   <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
 </div>

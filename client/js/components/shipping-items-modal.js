@@ -44,6 +44,7 @@ angular.module('myApp').controller('ShippingItemsModalController', [ '$scope', '
     $scope.lengthUnitsEnum = dbEnums.lengthUnits;
 
     $scope.shippingItems = _shippingItems;
+    $scope.errorStyles = $scope.shippingItems.map( _ => ({}) );
 
     $scope.addItem = () => { 
       const newItem = {
@@ -55,7 +56,10 @@ angular.module('myApp').controller('ShippingItemsModalController', [ '$scope', '
       _shippingItems.push(newItem);
     };
 
-    $scope.removeItem = (itemIndex) => _shippingItems.splice(itemIndex, 1);
+    $scope.removeItem = (itemIndex) => {
+      _shippingItems.splice(itemIndex, 1);
+      $scope.errorStyles.splice(itemIndex, 1);
+    };
 
     $scope.presets = [
       {
@@ -91,5 +95,36 @@ angular.module('myApp').controller('ShippingItemsModalController', [ '$scope', '
       const newItem = JSON.parse( JSON.stringify($scope.presets[index]) ); 
       $scope.shippingItems.push(newItem);
     };
+
+    function validateDimensions() {
+      let valid = true;
+
+      $scope.errorStyles = $scope.shippingItems.map( item => {
+
+        const itemErrorStyles = {};
+
+        [ 'weight', 'height', 'length', 'width'].forEach( dim => {
+          if( typeof item[dim] !== 'number' || item[dim] <= 0) {
+            itemErrorStyles[dim] = {
+              'border':'3px solid red'
+            };
+            valid = false;
+          }
+        });
+
+        return itemErrorStyles;
+
+      });
+
+
+      return valid;
+    }
+
+    $scope.validateAndClose = () => {
+      if(validateDimensions()) {
+        $scope.$close($scope.shippingItems);
+      }
+    };
+
   }
 ]);
