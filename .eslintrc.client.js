@@ -60,5 +60,6 @@ module.exports = {
         "angular/log": "off",
         "angular/no-service-method": "off",
         "angular/on-watch": "off",
+        "angular/typecheck-number": "off"
     }
 };
