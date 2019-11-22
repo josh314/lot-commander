@@ -64,6 +64,15 @@ angular.module('myApp').controller('ShippingItemsModalController', [ '$scope', '
     $scope.presets = [
       {
         weightUnits: dbEnums.weightUnits[0],
+        height: 24,
+        heightUnits: 'inches',
+        length: 18,
+        lengthUnits: 'inches',
+        width: 12,
+        widthUnits: 'inches',
+      },
+      {
+        weightUnits: dbEnums.weightUnits[0],
         height: 22,
         heightUnits: 'inches',
         length: 22,
