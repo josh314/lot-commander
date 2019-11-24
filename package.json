@@ -19,7 +19,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@uirouter/angularjs": "^0.4.2",
-    "angular": "^1.6.3",
+    "angular": "^1.7.9",
     "angular-animate": "^1.6.3",
     "angular-cookies": "^1.6.9",
     "angular-sanitize": "^1.6.3",
@@ -66,6 +66,7 @@
     "print-js": "^1.0.61",
     "serve-favicon": "^2.4.5",
     "sharp": "^0.22.1",
+    "shipstation-api-node": "git+ssh://git@gitlab.com/wazue/shipstation-api-node.git#1.0.0",
     "shopify": "git+ssh://git@gitlab.com/josh314/shopify.git#1.2.0",
     "upcitemdb": "git+ssh://git@gitlab.com/josh314/lib-upcitemdb.git#2.0.0",
     "url-loader": "^1.1.2",
