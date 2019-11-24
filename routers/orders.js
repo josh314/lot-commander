@@ -11,8 +11,6 @@ const shopifyGqlClient = new Shopify({
 
 const shipstationClient = new Shipstation.Client({ auth: __config.shipstation });
 
-shipstationClient.listOrders({})
-
 const listPendingOrders = async (req, res) => {
 
   const shipstationListOrdersQuery = {
@@ -43,7 +41,7 @@ const getOrderPickList = async (req, res) => {
 
 const router = new express.Router();
 // Lots endpoints
-router.post('/list', express.json(), listOrders);
+router.post('/list', express.json(), listPendingOrders);
 router.get('/pick-list/:orderid', getOrderPickList)
 
 module.exports = router;
