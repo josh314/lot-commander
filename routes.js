@@ -89,6 +89,8 @@ function routes() {
     // why doesn't .then(res.json) work?
   });
 
+  router.use('/api/orders', require('./routers/orders'));
+
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{
     res.send(scriptBuilder.ngAppServerData());
