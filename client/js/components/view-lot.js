@@ -208,7 +208,7 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
         .then(shippingItems => {
           if(shippingItems) {
             lotStore.shippingItems = shippingItems;
-            return saveLot(lotStore).then( resp => {
+            return saveLot(lotStore).then( _resp => {
               return true;
             });
           }
