@@ -1,17 +1,16 @@
 const express = require('express');
 
-const Shopify = require('../modules/shopify-gql');
+const router = new express.Router();
+// Orders endpoints
+router.post('/list', express.json(), listPendingOrders);
+router.get('/details/:orderId', getOrder)
+
+module.exports = router;
+
 const Shipstation = require('shipstation-api-node');
-
-const storeSettings = __config.shopify.store;
-const shopifyGqlClient = new Shopify({
-  url: storeSettings.url,
-  token: storeSettings.auth.password
-});
-
 const shipstationClient = new Shipstation.Client({ auth: __config.shipstation });
 
-const listPendingOrders = async (req, res) => {
+async function listPendingOrders(req, res) {
 
   const shipstationListOrdersQuery = {
     orderStatus: 'awaiting_shipment', // or 'pending_fulfillment'?
@@ -30,18 +29,16 @@ const listPendingOrders = async (req, res) => {
   res.json(ordersPage);
 }
 
-const getOrderPickList = async (req, res) => {
 
-  const orderPickList = await shopifyGqlClient.getOrderPickList({
-    orderId: RegExp.params.orderId
-  });
+async function getOrder(req, res, next) {
+  const orderId = req.params.orderId;
+  if(orderId) {
+    const order = await shipstationClient.getOrder(orderId)
 
-  res.json(orderPickList);
-};
+    res.json(order);
+  }
+  else {
+    res.json({ error: 'No orderId submitted.' });
+  }
+}
 
-const router = new express.Router();
-// Lots endpoints
-router.post('/list', express.json(), listPendingOrders);
-router.get('/pick-list/:orderid', getOrderPickList)
-
-module.exports = router;
