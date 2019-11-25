@@ -16,7 +16,8 @@ angular.module('myApp').factory('api', ['$http', function($http){
   ************/
 
   return {
-    getOrders: getOrders
+    getOrders: getOrders,
+    getOrderById: getOrderById,
   };
 
   /*************************************************
@@ -36,5 +37,12 @@ angular.module('myApp').factory('api', ['$http', function($http){
 
   }
 
+  function getOrderById(orderId) {
+
+    return $http.get(`/api/orders/details/${orderId}`).then(resp=>{
+      return resp.data;
+    });
+
+  }
 
 }]);

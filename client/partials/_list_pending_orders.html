@@ -1,0 +1,20 @@
+<div class="container" ng-controller="ListPendingOrdersController as ctrl">
+  <h1>Pending Orders</h1>
+	<div class="row well">
+    <table class="table table-striped">
+			<thead><tr>
+				<th>Order #</th>
+        <th>Date</th>
+        <th>Status</th>
+				<th>Marketplace</th>
+      </tr></thead>
+      <tbody>	
+				<tr ng-repeat="order in ctrl.orders">
+					<td><a ng-href="/orders/pick/{{order.id}}">{{order.number}}</a></td>
+          <td>{{order.date}}</td>
+          <td>{{order.status}}</td>
+          <td>{{order.marketplace}}</td>
+				</tr>
+			</tbody>
+  </div>
+</div>

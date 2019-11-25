@@ -31,6 +31,10 @@ const stateData = [
   // auctions
   { name: "main.auctions", abstract: true, url: '/auctions', templateUrl: '/partials/_container.html' },
   { name: "main.auctions.list", navName: 'List Auctions', url: '/list', templateUrl: '/partials/_list_auctions.html', controller: 'ListAuctionsCtrl'},
+  // orders
+  { name: "main.orders", abstract: true, url: '/orders', templateUrl: '/partials/_container.html' },
+  { name: "main.orders.pending", navName: 'Orders', url: '/pending', templateUrl: '/partials/_list_pending_orders.html' },
+  { name: "main.orders.pick", url: '/pick/{orderId}', templateUrl: '/partials/_order_pick_list.html' },
   // manifest files
   // { name: "main.manifests", abstract: true, navName: 'Manifests', url: '/manifests', templateUrl: '/partials/_container.html' },
   // { name: "main.manifests.list", navName: 'List', navParent: 'Manifests', url: '/list', templateUrl: '/partials/_manifest_files_list.html', controller: 'ManifestFilesListCtrl'},
