@@ -1,4 +1,4 @@
-<div class="container" ng-controller="OrderPicklistController as picklist">
+<div class="container" ng-controller="OrderPicklistController as ctrl">
 	<div class="row">
 		<div class="col-xs-12">
 			<div class="panel panel-default">
@@ -6,8 +6,42 @@
 					<h3 class="panel-title">Order Details</h3> 
         </div>
         <div class="panel-body">
-          {{ picklist.orderNumber }}
+          <b>Order Number: </b>{{ ctrl.order.number }}<br>
+					<b>Channel: </b>{{ ctrl.order.channel }}<br>
+          <b>Date: </b>{{ ctrl.order.date }}<br>
+          <b>Pick Status: </b>{{ ctrl.order.picklist.status }}<br>
         </div>
+      </div>
+      <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Picklist</h3>
+            <b>Pick Status: </b>{{ ctrl.order.picklist.status }}<br>
+            <input ng-model="ctrl.barcode"/>
+            <button class="btn btn-primary" ng-click="ctrl.refreshPicklist()">Refresh</button>
+          </div>
+          <div class="panel-body">
+            <table class="table table-striped">
+                <thead><tr>
+                  <th>Barcode</th>
+                  <th>Title</th>
+                  <th>Total</th>
+                  <th>Scanned</th>
+                  <th>Status</th>
+                  <th>Override</th>
+                </tr></thead>
+                <tbody>	
+                  <tr ng-repeat="item in ctrl.order.picklist.items">
+                    <td>{{item.barcode}}</td>
+                    <td>{{item.title}}</td>
+                    <td>{{item.quantity}}</td>
+                    <td>{{item.scanned}}</td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+          </div>
+      </div>
       </div>
     </div>
   </div>

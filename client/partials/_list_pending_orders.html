@@ -5,16 +5,17 @@
 			<thead><tr>
 				<th>Order #</th>
         <th>Date</th>
+        <th>Channel</th>
         <th>Status</th>
-				<th>Marketplace</th>
       </tr></thead>
       <tbody>	
 				<tr ng-repeat="order in ctrl.orders">
 					<td><a ng-href="/orders/pick/{{order.id}}">{{order.number}}</a></td>
           <td>{{order.date}}</td>
+          <td>{{order.channel}}</td>
           <td>{{order.status}}</td>
-          <td>{{order.marketplace}}</td>
 				</tr>
-			</tbody>
+      </tbody>
+    </table>
   </div>
 </div>
