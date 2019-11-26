@@ -41,6 +41,7 @@ function routes() {
   // lot database api
   router.post('/api/db/get', express.json(), lotdb.getLots);
   router.get('/api/db/get/:lotId', lotdb.getLotByIdApi);
+  router.post('/api/db/get-by-handle', lotdb.getLotByHandleApi);
   router.post('/api/db/new-lot', lotdb.newLot);
   router.post('/api/db/edit-lot/:lotId', lotdb.editLotMetadata);
   router.post('/api/db/delete-lot', lotdb.deleteLot);

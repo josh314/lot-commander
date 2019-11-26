@@ -16,9 +16,27 @@ angular.module('myApp').factory('api', ['$http', function($http){
   ************/
 
   return {
+    // lots
+    getLotByHandle: getLotByHandle,
+    //orders
     getOrders: getOrders,
     getOrderById: getOrderById,
   };
+
+  /*************************************************
+  * Lots
+  *
+  ************/
+
+
+  function getLotByHandle(handle) {
+
+    return $http.post('/api/db/get-by-handle', { handle: handle }).then(resp=>{
+      const lot = resp.data;
+      return lot;
+    });
+
+  }
 
   /*************************************************
   * Orders

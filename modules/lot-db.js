@@ -28,6 +28,23 @@ function getLotByIdApi(req, res) {
   });
 }
 
+function getLotByHandle(handle) {
+  return lotdbClient.getLotByHandle(handle);
+}
+
+async function getLotByHandleApi(req, res) {
+  const handle = req.body.handle;
+  let response;
+  if(handle) {
+    const lot = await getLotByHandle(handle);
+    response = lot;
+  }
+  else {
+    response = { error: 'No lot handle submitted.' };
+  }
+  res.json(response);
+}
+
 function getLots(req, res) {
   //todo: start and end dates, other search filters, sort options
   __logger.info('Lot list requested.');
@@ -250,6 +267,7 @@ function uploadManifest(req, res, next) {
 module.exports = {
   //middleware
   getLotByIdApi: getLotByIdApi,
+  getLotByHandleApi: getLotByHandleApi,
   getLots: getLots,
   newLot: newLot,
   editLotMetadata: editLotMetadata,
