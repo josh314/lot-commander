@@ -1,67 +1,112 @@
 import 'angular';
+import * as Promise from "bluebird";
+
+import { Order } from '../order';
 
 
-const stores = {
-  374627: "Wholesale Ninjas",
-  374389: "Bstock"
-};
-const getChannelName = (id) => stores[id];
-
-const readableDate = (date) => (new Date(date)).toLocaleString();
-
-
-angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'PicklistSvc',
-  function( $stateParams , api , PicklistSvc ) { 
+angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache',
+  function( $stateParams , api, OrderCache ) { 
 
     return {
       getOrder: getOrder,
-      getPendingOrdersList: getPendingOrdersList,
-      refreshPicklist: refreshPicklist,
+      getPendingOrdersList: getPendingOrdersList
     };
 
-    function getOrder(orderId, refreshPicklist=false) {
+    function getPendingOrdersList(page) {
+      return api.getOrders(page).then(ordersResponse => {
+        if(ordersResponse) {
+          const ordersP = ordersResponse.map( o => getOrder( { orderId: o.orderId, buildPicklist: false } ) );
+          return Promise.all(ordersP);
+        }
+      });
+    }
+
+
+    function getOrder( params = {} ) {
+
+      let orderId = params.orderId;
 
       if(!orderId) {
         orderId = $stateParams.orderId;
       }
 
-      return api.getOrderById(orderId).then(order => {
-        if(!order) {
-          throw new Error(`Can't find Shipstation Order for id ${orderId}.`);
-        }
-        return PicklistSvc.getOrderPicklist(order, refreshPicklist).then( picklist => {
-          return {
-            id: order.orderId,
-            number: order.orderNumber,
-            channel: getChannelName(order.advancedOptions.storeId),
-            date: readableDate(order.orderDate),
-            picklist: picklist,
-          };
+      const cachedOrder = OrderCache.get(orderId);
 
+      let orderP;
+      if(cachedOrder) {
+        orderP = Promise.resolve(new Order( { data: cachedOrder, fromCache: true } ) );
+      }
+      else {
+        orderP = api.getOrderById(orderId).then(apiOrderResp => {
+          if(!apiOrderResp) {
+            throw new Error(`Can't find Shipstation Order for id ${orderId}.`);
+          }
+
+          const order = new Order( { data: apiOrderResp } );
+
+          OrderCache.store(orderId, order);
+
+          return order;
         });
+      }
+
+      return orderP
+        .then( order => params.buildPicklist ? buildPicklist(order) : Promise.resolve(order) )
+        .then( order => OrderCache.store(orderId, order) /* store */ )
+    }
+
+
+    // Note: something about the Promise.all in this function requires a manual $digest cycle downstream. 
+    function buildPicklist(order) { 
+
+      const lotReqs = order.lineItems.map(getOrderItemLot);
+  
+      return Promise.all(lotReqs).then(lots => {
+        // TODO: handle rejected lot requests?
+  
+        const picklist = lots.filter( _ => _).map( lot => {
+
+          if(lot.error) {
+            throw new Error('fuck');
+          }
+          let num;
+    
+          if( lot.shippingItems && lot.shippingItems.length ) {
+            num = lot.shippingItems.length;
+          }
+          else if ( lot.numBoxes ) {
+            num = lot.numBoxes;
+          }
+          else {
+            num = null;
+          }
+    
+          return {
+            handle: lot.handle,
+            title: lot.listingData.title,
+            total: num,
+            scanned: 0,
+            picked: false
+          };
+        });
+
+        return order.setPicklist(picklist);
+        // return order;
       });
-
+    }
+  
+    function getOrderItemLot(linItem) {
+      if( linItem.lineItemKey === 'discount' ) {
+        return null;
+      }
+      //TODO: Everday bargains won't be in lot-db
+      const lotHandle = linItem.sku;
+      return api.getLotByHandle(lotHandle);
     }
 
-    function getPendingOrdersList(page) {
-      return api.getOrders(page).then(orders => {
-        if(orders) {
-          return orders.map( o => {
-            return {
-              id: o.orderId,
-              number: o.orderNumber,
-              date: readableDate(o.orderDate),
-              status: PicklistSvc.getPickStatus(o.orderId),
-              channel: getChannelName(o.advancedOptions.storeId)
-            };
-          });
-        }
-      });
-    }
-
-    function refreshPicklist(orderId) {
-      return getOrder(orderId, true);
-    }
+    // function refreshPicklist(orderId) {
+    //   return getOrder(orderId, true);
+    // }
 
   }
 ]);

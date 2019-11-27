@@ -8,7 +8,7 @@
         <div class="panel-body">
           <b>Order Number: </b>{{ ctrl.order.number }}<br>
 					<b>Channel: </b>{{ ctrl.order.channel }}<br>
-          <b>Date: </b>{{ ctrl.order.date }}<br>
+          <b>Date: </b>{{ ctrl.order.displayDate }}<br>
           <b>Pick Status: </b>{{ ctrl.order.picklist.status }}<br>
         </div>
       </div>
@@ -22,7 +22,7 @@
           <div class="panel-body">
             <table class="table table-striped">
                 <thead><tr>
-                  <th>Barcode</th>
+                  <th>Handle</th>
                   <th>Title</th>
                   <th>Total</th>
                   <th>Scanned</th>
@@ -30,11 +30,11 @@
                   <th>Override</th>
                 </tr></thead>
                 <tbody>	
-                  <tr ng-repeat="item in ctrl.order.picklist.items">
-                    <td>{{item.barcode}}</td>
-                    <td>{{item.title}}</td>
-                    <td>{{item.quantity}}</td>
-                    <td>{{item.scanned}}</td>
+                  <tr ng-repeat="lot in ctrl.order.picklist.lots">
+                    <td>{{ lot.handle }}</td>
+                    <td>{{ lot.title }}</td>
+                    <td>{{ lot.total ? lot.total : 'unknown' }}</td>
+                    <td>{{ lot.scanned }}</td>
                     <td></td>
                     <td></td>
                   </tr>

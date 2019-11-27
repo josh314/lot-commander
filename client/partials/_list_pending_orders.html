@@ -11,7 +11,7 @@
       <tbody>	
 				<tr ng-repeat="order in ctrl.orders">
 					<td><a ng-href="/orders/pick/{{order.id}}">{{order.number}}</a></td>
-          <td>{{order.date}}</td>
+          <td>{{ order.displayDate }}</td>
           <td>{{order.channel}}</td>
           <td>{{order.status}}</td>
 				</tr>

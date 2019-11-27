@@ -1,20 +1,15 @@
 import 'angular';
 
-angular.module('myApp').factory('PicklistSvc', [ '$localStorage', 'api', function($localStorage, api) {
+import { Picklist } from '../picklist';
 
-  const statusEnum = {
-    READY: 'ready',
-    PICKING: 'picking',
-    DONE: 'done'
-  };
+angular.module('myApp').factory('PicklistSvc', [ '$localStorage', 'api', function($localStorage, api) {
 
   const key = orderId => `picklist-${orderId}`;
 
   const svc = {
-    statuses: statusEnum,
     getOrderPicklist: getOrderPicklist,
     getPickStatus: getPickStatus,
-    updatePickStatus: updatePickStatus,
+    // updatePickStatus: updatePickStatus,
     refresh: refresh,
   };
   return svc;
@@ -34,44 +29,19 @@ angular.module('myApp').factory('PicklistSvc', [ '$localStorage', 'api', functio
   function getOrderPicklist(order, refreshPicklist=false) {
     const cached = refreshPicklist ? undefined : getCache(order.orderId);
     if(cached) {
-      return Promise.resolve(cached);
+      return Promise.resolve( new Picklist(cached) );
     }
     return newPicklist(order);
   }
 
   function newPicklist(order) {
-    const picklist = {
-      status: statusEnum.READY
-    };
+
     const lotReqs = order.items.map(getOrderItemLot);
 
     return Promise.all(lotReqs).then(lots => {
       // TODO: handle rejected lot requests?
 
-
-      // TODO: Make separate barcodes for each shipping item and create individual pick item for each:
-      // picklist.items = lots.filter( _ => _ ).reduce( (items, lot) => items.concat(buildPickItemsFromLot(lot)) , []);
-
-      // For now, we just use a single pick item for each lot
-      picklist.items = lots.filter( _ => _).map( lot => {
-        let num;
-
-        if( lot.shippingItems && lot.shippingItems.length ) {
-          num = lot.shippingItems.length;
-        }
-        else if ( lot.numBoxes ) {
-          num = lot.numBoxes;
-        }
-        else {
-          num = null;
-        }
-
-        return {
-          handle: lot.handle,
-          title: lot.listingData.title,
-          quantity: num
-        };
-      });
+      const picklist = new Picklist( { lots: lots } );
 
       store(order.orderId, picklist);
       return picklist;
@@ -93,28 +63,28 @@ angular.module('myApp').factory('PicklistSvc', [ '$localStorage', 'api', functio
       return cached.status;
     }
     else {
-      return statusEnum.READY;
+      return Picklist.status.READY;
     }
   }
 
-  function updatePickStatus(orderId) {
-    const cached = getCache(orderId);
-    if(cached) {
+  // function updatePickStatus(orderId) {
+  //   const cached = getCache(orderId);
+  //   if(cached) {
 
-      const currentStatus = cached.status;
-      const newStatus = cached.items.every( item => item.picked ) ? statusEnum.DONE : ( cached.items.some( item => item.picked ) ? statusEnum.PICKING : statusEnum.READY );
+  //     const currentStatus = cached.status;
+  //     const newStatus = cached.items.every( item => item.picked ) ? statusEnum.DONE : ( cached.items.some( item => item.picked ) ? statusEnum.PICKING : statusEnum.READY );
 
-      if( currentStatus !== newStatus ) {
-        cached.status = newStatus;
-        store(orderId, cached);
-      }
+  //     if( currentStatus !== newStatus ) {
+  //       cached.status = newStatus;
+  //       store(orderId, cached);
+  //     }
 
-    }
-  }
+  //   }
+  // }
 
-  function scanBarcode(barcode) {
+  // function scanBarcode(barcode) {
 
-  }
+  // }
 
   // Pick items functions. Not really useful unless we have specific barcodes for each shipping item. 
   //
