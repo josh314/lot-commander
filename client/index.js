@@ -38,6 +38,7 @@ import "./js/components/lot-store.js";
 import "./js/components/manifest-files-list.js";
 import "./js/components/message-modal.js";
 import "./js/components/navbar.js";
+import "./js/components/navigate.js";
 import "./js/components/new-lot.js";
 import "./js/components/order-cache.js";
 import "./js/components/order-picklist-ctrl.js";
