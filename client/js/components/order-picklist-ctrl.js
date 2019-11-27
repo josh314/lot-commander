@@ -11,6 +11,7 @@ angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'Order
 
   const vm = this;
   vm.scanBarcode = scanBarcode;
+  vm.markAsPicked = markAsPicked;
   vm.order = {};
 
   (function init(){
@@ -24,15 +25,31 @@ angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'Order
         vm.order = order;
 
         // Note: We seem to have to manually do a $digest cycle here but I don't quite get why
-        $scope.$digest(); 
+        // TODO: getting error about $digest already in progress (only when not getting order from cache?)
+        $scope.$digest();
 
         return order;
       })
       .then(console.log);
   }
 
-  function scanBarcode(barcode) {
+  function scanBarcode() {
+    const barcode = vm.barcode
+    if(barcode) {
+      if(vm.order.pickItem(barcode)) {
+        // TODO: store in cache
+        successBeep.play();
+        OrderSvc.cache.store(barcode, vm.order); 
+      }
+      else {
+        failBeep.play();
+      }
+      vm.barcode = '';
+    }
+  }
 
+  function markAsPicked(pickItemIndex) {
+    vm.order.markItemAsPicked(pickItemIndex);
   }
 
 }]);

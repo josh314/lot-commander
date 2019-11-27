@@ -14,6 +14,32 @@ const getChannelName = (id) => stores[id];
 
 const displayDate = (date) => (new Date(date)).toLocaleString();
 
+const buildPickItemFromLot = (lot) => {
+
+  if(lot.error) {
+    throw new Error('fuck');
+  }
+  let num;
+
+  if( lot.shippingItems && lot.shippingItems.length ) {
+    num = lot.shippingItems.length;
+  }
+  else if ( lot.numBoxes ) {
+    num = lot.numBoxes;
+  }
+  else {
+    num = null;
+  }
+
+  return {
+    handle: lot.handle,
+    title: lot.listingData.title,
+    total: num,
+    scanned: 0,
+    picked: false
+  };
+};
+
 
 export class Order {
 
@@ -28,8 +54,15 @@ export class Order {
       this.displayDate = displayDate(params.data.orderDate);
       this.channel = getChannelName(params.data.advancedOptions.storeId);
       this.lineItems = params.data.items;
+      this.status = statusEnum.READY;
       this.picklist = null;
     }
+  }
+
+
+  buildPicklist(lots) {
+    const picklist = lots.filter( _ => _).map( buildPickItemFromLot );
+    return this.setPicklist(picklist);
   }
 
   setPicklist(picklist) {
@@ -39,11 +72,27 @@ export class Order {
     return this;
   }
 
-  scanBarcode(barcode) {
-    
+  pickItem(barcode) {
+    const found = this.picklist.find( pickItem => pickItem.handle === barcode );
+    if(found) {
+      if(found.total > found.scanned) {
+        found.scanned += 1;
+        if( found.total === found.scanned ) {
+          found.picked = true;
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
+  markItemAsPicked(index) {
+    const item = this.picklist[index];
+    console.log(`Manually marking item as picked: ${item.title}`);
+    item.picked = true; 
   }
 
 }
 
-
 Order.status = statusEnum;
+

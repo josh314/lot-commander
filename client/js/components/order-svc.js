@@ -8,8 +8,9 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
   function( $stateParams , api, OrderCache ) { 
 
     return {
+      cache: OrderCache,
       getOrder: getOrder,
-      getPendingOrdersList: getPendingOrdersList
+      getPendingOrdersList: getPendingOrdersList,
     };
 
     function getPendingOrdersList(page) {
@@ -34,6 +35,7 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
 
       let orderP;
       if(cachedOrder) {
+        console.log(`retrieving orderId ${orderId} from cache`)
         orderP = Promise.resolve(new Order( { data: cachedOrder, fromCache: true } ) );
       }
       else {
@@ -50,8 +52,9 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
         });
       }
 
+      // TODO: the below sequesnce is overwriting active cash on every page reload
       return orderP
-        .then( order => params.buildPicklist ? buildPicklist(order) : Promise.resolve(order) )
+        .then( order => !order.picklist && params.buildPicklist ? buildPicklist(order) : Promise.resolve(order) )
         .then( order => OrderCache.store(orderId, order) /* store */ )
     }
 
@@ -63,44 +66,16 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
   
       return Promise.all(lotReqs).then(lots => {
         // TODO: handle rejected lot requests?
-  
-        const picklist = lots.filter( _ => _).map( lot => {
-
-          if(lot.error) {
-            throw new Error('fuck');
-          }
-          let num;
-    
-          if( lot.shippingItems && lot.shippingItems.length ) {
-            num = lot.shippingItems.length;
-          }
-          else if ( lot.numBoxes ) {
-            num = lot.numBoxes;
-          }
-          else {
-            num = null;
-          }
-    
-          return {
-            handle: lot.handle,
-            title: lot.listingData.title,
-            total: num,
-            scanned: 0,
-            picked: false
-          };
-        });
-
-        return order.setPicklist(picklist);
-        // return order;
+        return order.buildPicklist(lots);
       });
     }
   
-    function getOrderItemLot(linItem) {
-      if( linItem.lineItemKey === 'discount' ) {
+    function getOrderItemLot(lineItem) {
+      if( lineItem.lineItemKey === 'discount' ) {
         return null;
       }
       //TODO: Everday bargains won't be in lot-db
-      const lotHandle = linItem.sku;
+      const lotHandle = lineItem.sku;
       return api.getLotByHandle(lotHandle);
     }
 

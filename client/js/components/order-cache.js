@@ -27,12 +27,10 @@ angular.module('myApp').factory('OrderCache', [ '$localStorage', function($local
   }
 
   function reset(orderId) {
-    //TODO
     delete $localStorage[key(orderId)];
   }
 
   function resetAll() {
-    //TODO ???
     for(let [ key, _ ] of getAll() ) {
       delete $localStorage[key];
     }

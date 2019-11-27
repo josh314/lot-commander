@@ -9,14 +9,14 @@
           <b>Order Number: </b>{{ ctrl.order.number }}<br>
 					<b>Channel: </b>{{ ctrl.order.channel }}<br>
           <b>Date: </b>{{ ctrl.order.displayDate }}<br>
-          <b>Pick Status: </b>{{ ctrl.order.picklist.status }}<br>
+          <b>Pick Status: </b>{{ ctrl.order.status }}<br>
         </div>
       </div>
       <div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">Picklist</h3>
             <b>Pick Status: </b>{{ ctrl.order.picklist.status }}<br>
-            <input ng-model="ctrl.barcode"/>
+            <input ng-model="ctrl.barcode" ng-keyup="$event.keyCode == 13 && ctrl.scanBarcode()" autocomplete="off" />
             <button class="btn btn-primary" ng-click="ctrl.refreshPicklist()">Refresh</button>
           </div>
           <div class="panel-body">
@@ -27,16 +27,16 @@
                   <th>Total</th>
                   <th>Scanned</th>
                   <th>Status</th>
-                  <th>Override</th>
+                  <th></th>
                 </tr></thead>
                 <tbody>	
-                  <tr ng-repeat="lot in ctrl.order.picklist.lots">
+                  <tr ng-repeat="lot in ctrl.order.picklist">
                     <td>{{ lot.handle }}</td>
                     <td>{{ lot.title }}</td>
                     <td>{{ lot.total ? lot.total : 'unknown' }}</td>
                     <td>{{ lot.scanned }}</td>
-                    <td></td>
-                    <td></td>
+                    <td><span class="glyphicon glyphicon-ok" ng-show="lot.picked"></span></td>
+                    <td><button class="btn btn-xs btn-warning" ng-click="ctrl.markAsPicked($index)">Mark as picked</button></td>
                   </tr>
                 </tbody>
               </table>
