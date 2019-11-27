@@ -5,11 +5,16 @@
 				<div class="panel-heading">
 					<h3 class="panel-title">Order Details</h3> 
         </div>
-        <div class="panel-body">
-          <b>Order Number: </b>{{ ctrl.order.number }}<br>
-					<b>Channel: </b>{{ ctrl.order.channel }}<br>
-          <b>Date: </b>{{ ctrl.order.displayDate }}<br>
-          <b>Pick Status: </b>{{ ctrl.order.status }}<br>
+        <div class="panel-body row">
+          <div class="xs-col-12 md-col-6">
+            <b>Order Number: </b>{{ ctrl.order.number }}<br>
+            <b>Channel: </b>{{ ctrl.order.channel }}<br>
+            <b>Date: </b>{{ ctrl.order.displayDate }}<br>
+            <b>Pick Status: </b>{{ ctrl.order.status }}<br>
+          </div>
+          <div class="xs-col-12 md-col-6">
+            <button class="btn btn-primary" ng-click="ctrl.printPickReceipt()">Print Pick Receipt</button>
+          </div>
         </div>
       </div>
       <div class="panel panel-default">

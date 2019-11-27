@@ -12,7 +12,7 @@ angular.module('myApp').controller('ListPendingOrdersController', [ 'OrderSvc', 
   vm.updateOrderList = () => {
     OrderSvc.getPendingOrdersList(vm.page).then(orders => {
       if(orders) {
-        console.log(orders)
+        console.log(orders);
         vm.orders = orders;
       }
     });

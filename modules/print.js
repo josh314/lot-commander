@@ -1,10 +1,6 @@
-const path = require('path');
-
 const PDFDocument = require('pdfkit');
 const { createCanvas } = require('canvas');
 const JsBarcode = require('jsbarcode');
-
-const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 
 function createNumBoxesLabels(opts={}) {
 
@@ -123,22 +119,39 @@ function createLabels(lot) {
   }
 }
 
-function generate(req, res, next) {
-  const lotId = req.params.lotId;
-  lotdb.getLotById(lotId)
-    .then(lot=>{
-      if(lot) {
-        createLabels(lot).pipe(res);
-      }
-      else {
-        throw new Error(`No lot found with id ${lotId}`);
-      }
-    })
-    .catch(e=>{
-      next(e)
-    });
+function createPickReceipt(orderNumber) {
+  const text = decodeURIComponent(orderNumber);
+  const dims = {
+    width: 162,// 72/in * 2.25 in
+    height: 90, // 72/in * 1.25 in
+  };
+
+
+  const doc = new PDFDocument({ autoFirstPage: false });
+  doc.fontSize(8);
+  doc.addPage({ 
+    margin: 0, 
+    size: [ dims.width , dims.height ]
+  });
+  let canvas = createCanvas('image');
+  JsBarcode(canvas, text, { 
+    format: 'CODE39',
+    font: "monospace",
+    fontSize: 25,
+    fontOptions: "bold",
+    height: 65
+  });
+
+  const margin = 5;
+  doc
+    .image(canvas.toBuffer(), margin, 5, { width: dims.width - 2*margin })
+    // .font('Helvetica').text(text, { continued: false, underline: false, stroke: false });
+
+  doc.end();
+  return doc;
 }
 
 module.exports = {
-  generate: generate
+  createLabels: createLabels,
+  createPickReceipt: createPickReceipt
 };

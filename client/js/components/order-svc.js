@@ -1,3 +1,10 @@
+// TODO: handle all cases:
+//  [] everyday bargains
+//  [] cancelled orders
+//  [] draft orders (no line items)
+//  [] modified orders
+//  [] bstock orders
+
 import 'angular';
 import * as Promise from "bluebird";
 
@@ -46,7 +53,7 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
 
           const order = new Order( { data: apiOrderResp } );
 
-          OrderCache.store(orderId, order);
+          OrderCache.store(order);
 
           return order;
         });
@@ -55,7 +62,7 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
       // TODO: the below sequesnce is overwriting active cash on every page reload
       return orderP
         .then( order => !order.picklist && params.buildPicklist ? buildPicklist(order) : Promise.resolve(order) )
-        .then( order => OrderCache.store(orderId, order) /* store */ )
+        .then( order => OrderCache.store(order) )
     }
 
 
@@ -71,12 +78,18 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
     }
   
     function getOrderItemLot(lineItem) {
+
       if( lineItem.lineItemKey === 'discount' ) {
         return null;
       }
       //TODO: Everday bargains won't be in lot-db
       const lotHandle = lineItem.sku;
-      return api.getLotByHandle(lotHandle);
+      if(lotHandle) {
+        return api.getLotByHandle(lotHandle);
+      }
+      else {
+        return Promise.resolve({ listingData: { title: lineItem.name } });
+      }
     }
 
     // function refreshPicklist(orderId) {

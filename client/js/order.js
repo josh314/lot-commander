@@ -80,6 +80,7 @@ export class Order {
         if( found.total === found.scanned ) {
           found.picked = true;
         }
+        this.updatePickStatus();
         return true;
       }
     }
@@ -88,8 +89,26 @@ export class Order {
 
   markItemAsPicked(index) {
     const item = this.picklist[index];
-    console.log(`Manually marking item as picked: ${item.title}`);
-    item.picked = true; 
+    if(item) {
+      console.log(`Manually marking item as picked: ${item.title}`);
+      item.picked = true;
+      this.updatePickStatus();
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  updatePickStatus() {
+    if(this.picklist) {
+      const currentStatus = this.status;
+      const newStatus = this.picklist.every( item => item.picked ) ? statusEnum.DONE : ( this.picklist.some( item => item.picked ) ? statusEnum.PICKING : statusEnum.READY );
+      if( currentStatus !== newStatus ) {
+        this.status = newStatus;
+      }
+    }
+    return this.status;
   }
 
 }

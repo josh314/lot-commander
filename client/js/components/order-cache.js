@@ -17,8 +17,8 @@ angular.module('myApp').factory('OrderCache', [ '$localStorage', function($local
     return $localStorage[key(orderId)];
   }
 
-  function store(orderId, order) {
-    $localStorage[key(orderId)] = order;
+  function store(order) {
+    $localStorage[key(order.id)] = order;
     return order;
   }
 

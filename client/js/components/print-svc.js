@@ -20,7 +20,7 @@ angular.module('myApp').factory('PrintSvc', ['lotStore',
 
     const printLabels = () => {
       if(verifyShippingData()) {
-        printJS(`/api/labels/${lotStore._id}`);
+        printJS(`/api/print/labels/${lotStore._id}`);
         return true;
       }
       else {
@@ -28,8 +28,13 @@ angular.module('myApp').factory('PrintSvc', ['lotStore',
       }
     };
 
+    const printPickReceipt = (orderNumber) => {
+      printJS(`/api/print/pick-receipt/${orderNumber}`);
+    }
+
     return {
-      printLabels: printLabels
+      printLabels: printLabels,
+      printPickReceipt: printPickReceipt,
     };
   }
 ]);

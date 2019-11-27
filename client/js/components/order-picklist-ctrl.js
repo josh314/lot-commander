@@ -6,13 +6,19 @@ const successBeep = new Audio(successBeepWav);
 const failBeep = new Audio(failBeepWav);
 
 /******************* Lot List Page Controller *************************/
-angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'OrderSvc', 'sessionTimeout', function($scope, OrderSvc, sessionTimeout) {
+angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'OrderSvc', 'PrintSvc', 'sessionTimeout', function($scope, OrderSvc, PrintSvc, sessionTimeout) {
   sessionTimeout.timeoutExpired();
 
   const vm = this;
-  vm.scanBarcode = scanBarcode;
-  vm.markAsPicked = markAsPicked;
   vm.order = {};
+
+  const methods = {
+    scanBarcode: scanBarcode,
+    markAsPicked: markAsPicked,
+    printPickReceipt: printPickReceipt,
+  }
+  Object.assign(vm, methods);
+
 
   (function init(){
     loadOrder()
@@ -39,7 +45,7 @@ angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'Order
       if(vm.order.pickItem(barcode)) {
         // TODO: store in cache
         successBeep.play();
-        OrderSvc.cache.store(barcode, vm.order); 
+        OrderSvc.cache.store(vm.order); 
       }
       else {
         failBeep.play();
@@ -50,6 +56,11 @@ angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'Order
 
   function markAsPicked(pickItemIndex) {
     vm.order.markItemAsPicked(pickItemIndex);
+    OrderSvc.cache.store(vm.order); 
+  }
+
+  function printPickReceipt() {
+    PrintSvc.printPickReceipt(vm.order.number);
   }
 
 }]);

@@ -12,8 +12,6 @@ const listings = require(path.join(__basedir, __config.modulesPath, 'listings'))
 // const imports = require(path.join(__basedir, __config.modulesPath, 'imports'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
-const labels = require(path.join(__basedir, __config.modulesPath, 'labels'));
-
 // middleware to stick for testing purposes
 // function testLog(s) {
 //   return function testLog(req, res, next) {
@@ -80,7 +78,8 @@ function routes() {
   // router.post('/api/imports/manifest', imports.importManifestApi);
   // router.post('/api/imports/barcodes', express.json(), imports.importBarcodesApi);
 
-  router.get('/api/labels/:lotId', labels.generate);
+  router.use('/api/print', require('./routers/print'));
+
 
   // product data
   router.get('/api/product-data/:barcode', (req,res)=>{
