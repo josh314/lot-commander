@@ -30,7 +30,7 @@ angular.module('myApp').factory('PrintSvc', ['lotStore',
 
     const printPickReceipt = (orderNumber) => {
       printJS(`/api/print/pick-receipt/${orderNumber}`);
-    }
+    };
 
     return {
       printLabels: printLabels,

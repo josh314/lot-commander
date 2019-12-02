@@ -18,6 +18,7 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
       cache: OrderCache,
       getOrder: getOrder,
       getPendingOrdersList: getPendingOrdersList,
+      refreshOrder: refreshOrder,
     };
 
     function getPendingOrdersList(page) {
@@ -29,7 +30,7 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
       });
     }
 
-
+    //
     function getOrder( params = {} ) {
 
       let orderId = params.orderId;
@@ -38,11 +39,11 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
         orderId = $stateParams.orderId;
       }
 
-      const cachedOrder = OrderCache.get(orderId);
+      const cachedOrder = params.ignoreCache ? null : OrderCache.get(orderId) ;
 
       let orderP;
       if(cachedOrder) {
-        console.log(`retrieving orderId ${orderId} from cache`)
+        console.log(`retrieving orderId ${orderId} from cache`);
         orderP = Promise.resolve(new Order( { data: cachedOrder, fromCache: true } ) );
       }
       else {
@@ -59,10 +60,9 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
         });
       }
 
-      // TODO: the below sequesnce is overwriting active cash on every page reload
       return orderP
         .then( order => !order.picklist && params.buildPicklist ? buildPicklist(order) : Promise.resolve(order) )
-        .then( order => OrderCache.store(order) )
+        .then( order => OrderCache.store(order) );
     }
 
 
@@ -92,9 +92,13 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
       }
     }
 
-    // function refreshPicklist(orderId) {
-    //   return getOrder(orderId, true);
-    // }
+    function refreshOrder(orderId) {
+      return getOrder({
+        orderId: orderId,
+        ignoreCache: true,
+        buildPicklist: true,
+      });
+    }
 
   }
 ]);

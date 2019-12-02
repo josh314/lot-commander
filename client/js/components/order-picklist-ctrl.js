@@ -16,7 +16,8 @@ angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'Order
     scanBarcode: scanBarcode,
     markAsPicked: markAsPicked,
     printPickReceipt: printPickReceipt,
-  }
+    refreshOrder: refreshOrder,
+  };
   Object.assign(vm, methods);
 
 
@@ -40,7 +41,7 @@ angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'Order
   }
 
   function scanBarcode() {
-    const barcode = vm.barcode
+    const barcode = vm.barcode;
     if(barcode) {
       if(vm.order.pickItem(barcode)) {
         // TODO: store in cache
@@ -61,6 +62,12 @@ angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'Order
 
   function printPickReceipt() {
     PrintSvc.printPickReceipt(vm.order.number);
+  }
+
+  function refreshOrder() {
+    OrderSvc.refreshOrder(vm.order.id).then(order=>{
+      vm.order = order;
+    });
   }
 
 }]);
