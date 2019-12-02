@@ -5,24 +5,29 @@
 				<div class="panel-heading">
 					<h3 class="panel-title">Order Details</h3> 
         </div>
-        <div class="panel-body row">
-          <div class="xs-col-12 md-col-6">
+        <div class="panel-body flex-row">
+          <div class="flex-row-item">
             <b>Order Number: </b>{{ ctrl.order.number }}<br>
             <b>Channel: </b>{{ ctrl.order.channel }}<br>
             <b>Date: </b>{{ ctrl.order.displayDate }}<br>
             <b>Pick Status: </b>{{ ctrl.order.status }}<br>
           </div>
-          <div class="xs-col-12 md-col-6">
-            <button class="btn btn-primary" ng-click="ctrl.printPickReceipt()">Print Pick Receipt</button>
+          <div class="flex-row-divider"></div>
+          <div class="flex-row-item">
+            <button class="btn btn-sm btn-primary" ng-click="ctrl.printPickReceipt()" ng-disabled="ctrl.order.status !== 'done'">Print Pick Receipt</button>
           </div>
         </div>
       </div>
       <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">Picklist</h3>
-            <b>Pick Status: </b>{{ ctrl.order.picklist.status }}<br>
-            <input ng-model="ctrl.barcode" ng-keyup="$event.keyCode == 13 && ctrl.scanBarcode()" autocomplete="off" />
-            <button class="btn btn-primary" ng-click="ctrl.refreshPicklist()">Refresh</button>
+          <div class="panel-heading flex-row">
+            <div class="form-group flex-row-item">
+              <label for="PickItemScanInput">Scan Pick Item</label>
+              <input name="PickItemScanInput" class="form-control" ng-model="ctrl.barcode" ng-keyup="$event.keyCode == 13 && ctrl.scanBarcode()" autocomplete="off" />
+            </div>
+            <div class="flex-row-divider"></div>
+            <div class="flex-row-item">
+              <button class="btn btn-danger btn-sm" ng-click="ctrl.refreshPicklist()">Force Refresh</button>
+            </div>
           </div>
           <div class="panel-body">
             <table class="table table-striped">
