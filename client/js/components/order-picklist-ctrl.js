@@ -6,68 +6,77 @@ const successBeep = new Audio(successBeepWav);
 const failBeep = new Audio(failBeepWav);
 
 /******************* Lot List Page Controller *************************/
-angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'OrderSvc', 'PrintSvc', 'sessionTimeout', function($scope, OrderSvc, PrintSvc, sessionTimeout) {
-  sessionTimeout.timeoutExpired();
+angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'focus', 'OrderSvc', 'PrintSvc', 'sessionTimeout',
+  function($scope, focus, OrderSvc, PrintSvc, sessionTimeout) {
+    sessionTimeout.timeoutExpired();
+    focus('PickItemScanInput');
 
-  const vm = this;
-  vm.order = {};
+    const vm = this;
+    vm.order = {};
+    vm.showInstructions = false;
 
-  const methods = {
-    scanBarcode: scanBarcode,
-    markAsPicked: markAsPicked,
-    printPickReceipt: printPickReceipt,
-    refreshOrder: refreshOrder,
-  };
-  Object.assign(vm, methods);
+    const methods = {
+      scanBarcode: scanBarcode,
+      markAsPicked: markAsPicked,
+      printPickReceipt: printPickReceipt,
+      refreshOrder: refreshOrder,
+      toggleShowInstructions: toggleShowInstructions,
+    };
+    Object.assign(vm, methods);
 
 
-  (function init(){
-    loadOrder()
-      .catch(console.log);
-  })();
+    (function init(){
+      loadOrder()
+        .catch(console.log);
+    })();
 
-  function loadOrder() {
-    return OrderSvc.getOrder({ buildPicklist: true })
-      .then(order => {
-        vm.order = order;
+    function loadOrder() {
+      return OrderSvc.getOrder({ buildPicklist: true })
+        .then(order => {
+          vm.order = order;
 
-        // Note: We seem to have to manually do a $digest cycle here but I don't quite get why
-        // TODO: getting error about $digest already in progress (only when not getting order from cache?)
-        $scope.$digest();
+          // Note: We seem to have to manually do a $digest cycle here but I don't quite get why
+          // TODO: getting error about $digest already in progress (only when not getting order from cache?)
+          $scope.$digest();
 
-        return order;
-      })
-      .then(console.log);
-  }
-
-  function scanBarcode() {
-    const barcode = vm.barcode;
-    if(barcode) {
-      if(vm.order.pickItem(barcode)) {
-        // TODO: store in cache
-        successBeep.play();
-        OrderSvc.cache.store(vm.order); 
-      }
-      else {
-        failBeep.play();
-      }
-      vm.barcode = '';
+          return order;
+        })
+        .then(console.log);
     }
-  }
 
-  function markAsPicked(pickItemIndex) {
-    vm.order.markItemAsPicked(pickItemIndex);
-    OrderSvc.cache.store(vm.order); 
-  }
+    function scanBarcode() {
+      const barcode = vm.barcode;
+      if(barcode) {
+        if(vm.order.pickItem(barcode)) {
+          // TODO: store in cache
+          successBeep.play();
+          OrderSvc.cache.store(vm.order); 
+        }
+        else {
+          failBeep.play();
+        }
+        vm.barcode = '';
+      }
+    }
 
-  function printPickReceipt() {
-    PrintSvc.printPickReceipt(vm.order.number);
-  }
+    function markAsPicked(pickItemIndex) {
+      vm.order.markItemAsPicked(pickItemIndex);
+      OrderSvc.cache.store(vm.order); 
+    }
 
-  function refreshOrder() {
-    OrderSvc.refreshOrder(vm.order.id).then(order=>{
-      vm.order = order;
-    });
-  }
+    function printPickReceipt() {
+      PrintSvc.printPickReceipt(vm.order.number);
+    }
 
-}]);
+    function refreshOrder() {
+      OrderSvc.refreshOrder(vm.order.id).then(order=>{
+        vm.order = order;
+      });
+    }
+
+    function toggleShowInstructions() {
+      vm.showInstructions = !vm.showInstructions;
+    }
+
+  }
+]);

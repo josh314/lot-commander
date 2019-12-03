@@ -34,6 +34,7 @@ const buildPickItemFromLot = (lot) => {
   return {
     handle: lot.handle,
     title: lot.listingData.title,
+    packagingType: lot.packagingType,
     total: num,
     scanned: 0,
     picked: false
