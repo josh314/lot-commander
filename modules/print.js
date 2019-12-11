@@ -122,8 +122,8 @@ function createLabels(lot) {
 function createPickReceipt(orderNumber) {
   const text = decodeURIComponent(orderNumber);
   const dims = {
-    width: 162,// 72/in * 2.25 in
-    height: 90, // 72/in * 1.25 in
+    width: 288,// 72/in * 4 in
+    height: 432, // 72/in * 6 in
   };
 
 

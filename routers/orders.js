@@ -7,24 +7,14 @@ router.get('/details/:orderId', getOrder)
 
 module.exports = router;
 
-const Shipstation = require('shipstation-api-node');
-const shipstationClient = new Shipstation.Client({ auth: __config.shipstation });
+const orders = require('../modules/orders');
 
 async function listPendingOrders(req, res) {
 
-  const shipstationListOrdersQuery = {
-    orderStatus: 'awaiting_shipment', // or 'pending_fulfillment'?
-    sortBy: 'CreateDate',
-    sortDir: 'DESC', // 'ASC'/'DESC'
+  const ordersPage = await orders.listPendingOrders({ 
     page: req.params.page || 1,
     pageSize: 20,
-  };
-
-  const ordersPage = await shipstationClient.listOrders({
-    query: shipstationListOrdersQuery
   });
-
-  //TODO: strip down data to ease network traffic
 
   res.json(ordersPage);
 }
@@ -33,8 +23,7 @@ async function listPendingOrders(req, res) {
 async function getOrder(req, res, next) {
   const orderId = req.params.orderId;
   if(orderId) {
-    const order = await shipstationClient.getOrder(orderId)
-
+    const order = await orders.getOrder(orderId)
     res.json(order);
   }
   else {
