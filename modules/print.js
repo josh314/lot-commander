@@ -119,34 +119,93 @@ function createLabels(lot) {
   }
 }
 
-function createPickReceipt(orderNumber) {
-  const text = decodeURIComponent(orderNumber);
-  const dims = {
+function createPickReceipt(order) {
+  // Layout dimensions
+
+  const label = {
     width: 288,// 72/in * 4 in
     height: 432, // 72/in * 6 in
   };
 
+  const margin = 16;
+
+  const sections = {
+    barcode: {
+      width: label.width - 2 * margin,
+      height: label.height/4
+    }
+  }
+
+
+  // Initialize PDF document
 
   const doc = new PDFDocument({ autoFirstPage: false });
   doc.fontSize(8);
   doc.addPage({ 
-    margin: 0, 
-    size: [ dims.width , dims.height ]
+    margin: margin, 
+    size: [ label.width , label.height ]
   });
+
+  doc
+    .fontSize(24)
+    .text(
+      `Order ${order.orderNumber}`,
+      {
+        align: 'center',
+        underline: true
+      }
+    )
+    .fontSize(11)
+    .moveDown();
+
+  if(order.orderDate) {
+    doc.text(`Order date: ${order.orderDate}`);
+  }
+    // .moveDown()
+  doc
+    .text(`Pick date: ${order.pickDate}`)
+    .moveDown()
+
+    // .path(`M ${margin}, ${sections.barcode.height + margin} h ${sections.barcode.width} Z`).stroke()
+  for(let i=0; i<order.items.length; i++) {
+    const item = order.items[i];
+    doc.fontSize(12).text(`${i+1}`, { underline: true })
+    doc.fontSize(8).text(`${item.sku ? item.sku : '[ NO SKU ]'}`);
+    doc.text(`${item.title}`, { 
+      // ellipsis: true,
+      // lineBreak: false
+    });
+    if( item.numBoxes ) {
+      doc.text(`Packages: ${item.numBoxes}`);
+    }
+    if( item.shippingItems && item.shippingItems.length ) {
+      doc.text(`Packages:`);
+      doc.list( itemshippingItems.map( getShippingItemDimString ) );
+    }
+    doc.moveDown();
+  };
+
+  // Create and add barcode
+  const barcodeText = order.orderNumber;
   let canvas = createCanvas('image');
-  JsBarcode(canvas, text, { 
+  JsBarcode(canvas, barcodeText, { 
     format: 'CODE39',
-    font: "monospace",
-    fontSize: 25,
-    fontOptions: "bold",
+    displayValue: false,
+    // font: "monospace",
+    // fontSize: 25,
+    // fontOptions: "bold",
     height: 65
   });
 
-  const margin = 5;
   doc
-    .image(canvas.toBuffer(), margin, 5, { width: dims.width - 2*margin })
-    // .font('Helvetica').text(text, { continued: false, underline: false, stroke: false });
+    .image(canvas.toBuffer(), {
+      fit: [ sections.barcode.width, sections.barcode.height ],
+      align: 'center',
+      valign: 'center'
+    })
 
+
+  // close doc and return
   doc.end();
   return doc;
 }

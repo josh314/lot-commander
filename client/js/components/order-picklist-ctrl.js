@@ -65,7 +65,7 @@ angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'focus
     }
 
     function printPickReceipt() {
-      PrintSvc.printPickReceipt(vm.order.number);
+      PrintSvc.printPickReceipt(vm.order.id);
     }
 
     function refreshOrder() {

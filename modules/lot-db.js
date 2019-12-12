@@ -278,6 +278,7 @@ module.exports = {
   uploadManifest: uploadManifest,
   // other functionality
   getLotById: getLotById,
+  getLotByHandle: getLotByHandle,
   addImage: addImage,
   removeImage: removeImage,
   lotStatusEnum: lotdbClient.LotModel.statusEnum,
