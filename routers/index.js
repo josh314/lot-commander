@@ -78,7 +78,7 @@ function routes() {
   // router.post('/api/imports/manifest', imports.importManifestApi);
   // router.post('/api/imports/barcodes', express.json(), imports.importBarcodesApi);
 
-  router.use('/api/print', require('./routers/print'));
+  router.use('/api/print', require('./print'));
 
 
   // product data
@@ -89,7 +89,7 @@ function routes() {
     // why doesn't .then(res.json) work?
   });
 
-  router.use('/api/orders', require('./routers/orders'));
+  router.use('/api/orders', require('./orders'));
 
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{

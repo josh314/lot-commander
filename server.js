@@ -155,10 +155,10 @@
   // Main app routes =====================================
   //======================================================
   // Load routes based on layout
-  const routes = require(path.join(__basedir,'routes'))(app.get('env'));
+  const router = require(path.join(__basedir,'routers'))(app.get('env'));
 
   // Login users on all main routes
-  app.use('/', users.api.isLoggedIn, routes);
+  app.use('/', users.api.isLoggedIn, router);
 
   //===============================================
   // Error Handling  and Logging ==================
