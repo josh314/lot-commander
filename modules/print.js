@@ -169,18 +169,21 @@ function createPickReceipt(order) {
     // .path(`M ${margin}, ${sections.barcode.height + margin} h ${sections.barcode.width} Z`).stroke()
   for(let i=0; i<order.items.length; i++) {
     const item = order.items[i];
-    doc.fontSize(12).text(`${i+1}`, { underline: true })
+    doc.fontSize(12).text(`${i+1}`, { underline: true });
+    doc.moveDown(.25);
     doc.fontSize(8).text(`${item.sku ? item.sku : '[ NO SKU ]'}`);
+    doc.moveDown(.25);
     doc.text(`${item.title}`, { 
       // ellipsis: true,
       // lineBreak: false
     });
+    doc.moveDown(.25);
     if( item.numBoxes ) {
       doc.text(`Packages: ${item.numBoxes}`);
     }
-    if( item.shippingItems && item.shippingItems.length ) {
+    else if( item.shippingItems && item.shippingItems.length ) {
       doc.text(`Packages:`);
-      doc.list( itemshippingItems.map( getShippingItemDimString ) );
+      doc.list( item.shippingItems.map( getShippingItemDimString ) );
     }
     doc.moveDown();
   };
