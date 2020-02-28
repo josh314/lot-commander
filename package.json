@@ -10,7 +10,7 @@
     "debug": "DEBUG=lot-commander node inspect server.js",
     "dev-server": "webpack-dev-server --open --config webpack.dev.js",
     "lint": "eslint --config .eslintrc.server.js server.js routes.js dbs.js modules/",
-    "start": "DEBUG=lot-commander node server.js"
+    "start": "SESSION_SECRET=foobar DEBUG=lot-commander node server.js"
   },
   "keywords": [
     "app"
