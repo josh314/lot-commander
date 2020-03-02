@@ -1,5 +1,5 @@
 <div class="container" ng-controller="CleanManifestCtrl as cleaner">	
-	<div class="row">
+	<div class="row well">
     <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : cleaner.noFileSelected }">
       <label for="fileInput">Manifest File</label>
       <input type="file" class="form-control" id="fileInput" required file-model="cleaner.manifestFile">
@@ -10,20 +10,37 @@
     </div>
   </div>
   <div class="row" ng-show="cleaner.manifest">
+    <div class="row form-inline pull-right">
+      <div class="form-group">
+        <label for="barcodeColumnInput">Barcode column</label>
+        <select class="form-control" id="barcodeColumnInput" ng-model="cleaner.getActiveSheet().barcodeColumnName" ng-change="cleaner.getActiveSheet().setBarcodeColumn()">
+          <option></option>
+          <option ng-repeat="column in cleaner.getActiveSheet().columns">{{ column.name }}</option>
+        </select>
+        <div class="checkbox">
+          <label for="barcodeColumnAllSheetsInput">
+            <input type="checkbox" id="barcodeColumnAllSheetsInput" ng-model="cleaner.manifest.barcodeColumnAllSheets" ng-change="cleaner.setBarcodeColumnAllSheets()">
+            Use for all sheets
+          </label>
+        </div>
+      </div>
+    </div>
     <div class="row">
       <ul class="nav nav-tabs">
-        <li ng-repeat="sheet in cleaner.manifest" ng-class="{ 'active': cleaner.selectedSheet == sheet.name }">
-          <a href ng-click="cleaner.selectedSheet = sheet.name">{{ sheet.name }}</a>
+        <li ng-repeat="sheet in cleaner.manifest.sheets" ng-class="{ 'active': cleaner.getActiveSheet() == sheet }">
+          <a href ng-click="cleaner.setActiveSheet(sheet.name)">{{ sheet.name }}</a>
         </li>
       </ul>
     </div>
-    <div class="row" ng-repeat="sheet in cleaner.manifest" ng-show="cleaner.selectedSheet == sheet.name" >
-      <div class="row">
-        <select class="form-control" id="barcodeColumnInput" ng-model="sheet.barcodeColumn">
-          <option ng-repeat="column in sheet.columns">{{ column.name }}</option>
-        </select>
-      </div>
-      {{ sheet.barcodeColumn }}
+    <div class="row" ng-repeat="sheet in cleaner.manifest.sheets" ng-show="cleaner.getActiveSheet() == sheet" >
+      <!-- <div class="row form-inline">
+        <div class="form-group">
+          <label for="barcodeColumnInput">Barcode column</label>
+          <select class="form-control" id="barcodeColumnInput" ng-model="sheet.barcodeColumn">
+            <option ng-repeat="column in sheet.columns">{{ column.name }}</option>
+          </select>
+        </div>
+      </div> -->
       <div class="row">
         <table class="table table-striped table-bordered">
           <thead>
@@ -31,7 +48,7 @@
           </thead>
           <tbody>
             <tr ng-repeat="row in sheet.rows">
-              <td ng-repeat="column in sheet.columns" ng-class="{ 'warning': column.selected }">{{ row[column.name] }}</td>
+              <td ng-repeat="column in sheet.columns" ng-class="{ 'danger': column.isBarcodeColumn, 'warning': column.selected && !column.isBarcodeColumn }">{{ row[column.name] }}</td>
             </tr>
           </tbody>
         </table>
