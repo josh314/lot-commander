@@ -1,0 +1,41 @@
+<div class="container" ng-controller="CleanManifestCtrl as cleaner">	
+	<div class="row">
+    <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : cleaner.noFileSelected }">
+      <label for="fileInput">Manifest File</label>
+      <input type="file" class="form-control" id="fileInput" required file-model="cleaner.manifestFile">
+      <span class="text-danger h4" ng-show="cleaner.noFileSelected">Please select a file.</span>
+    </div>
+    <div class="col-xs-12">
+      <button class="btn btn-primary" type="button" ng-click="cleaner.loadManifest()">Load Manifest</button>
+    </div>
+  </div>
+  <div class="row" ng-show="cleaner.manifest">
+    <div class="row">
+      <ul class="nav nav-tabs">
+        <li ng-repeat="sheet in cleaner.manifest" ng-class="{ 'active': cleaner.selectedSheet == sheet.name }">
+          <a href ng-click="cleaner.selectedSheet = sheet.name">{{ sheet.name }}</a>
+        </li>
+      </ul>
+    </div>
+    <div class="row" ng-repeat="sheet in cleaner.manifest" ng-show="cleaner.selectedSheet == sheet.name" >
+      <div class="row">
+        <select class="form-control" id="barcodeColumnInput" ng-model="sheet.barcodeColumn">
+          <option ng-repeat="column in sheet.columns">{{ column.name }}</option>
+        </select>
+      </div>
+      {{ sheet.barcodeColumn }}
+      <div class="row">
+        <table class="table table-striped table-bordered">
+          <thead>
+            <th ng-repeat="column in sheet.columns" ng-click="column.toggleSelect()">{{ column.name }}</th>
+          </thead>
+          <tbody>
+            <tr ng-repeat="row in sheet.rows">
+              <td ng-repeat="column in sheet.columns" ng-class="{ 'warning': column.selected }">{{ row[column.name] }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

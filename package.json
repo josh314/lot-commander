@@ -73,7 +73,8 @@
     "webpack": "^4.32.2",
     "webpack-cli": "^3.3.2",
     "webpack-merge": "^4.2.1",
-    "winston": "^2.4.1"
+    "winston": "^2.4.1",
+    "xlsx": "^0.15.5"
   },
   "devDependencies": {
     "webpack-dev-server": "^3.5.1"

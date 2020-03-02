@@ -102,4 +102,12 @@ module.exports = {
       }
     ]),
   ],
+  /* suppress node shims */
+	node: {
+		process: false,
+		Buffer: false
+  },
+  resolve: {
+		alias: { "./dist/cpexcel.js": "" }
+	},
 };
