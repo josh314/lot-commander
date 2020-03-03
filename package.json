@@ -27,7 +27,7 @@
     "angular-ui-router": "^0.4.2",
     "archiver": "^2.1.1",
     "aws-sdk": "^2.467.0",
-    "barcodes": "git+ssh://git@gitlab.com/josh314/barcodes.git#1.0.0",
+    "barcodes": "git+ssh://git@gitlab.com/josh314/barcodes.git#1.2.0",
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "^3.5.5",
     "bootstrap": "^3.4.1",

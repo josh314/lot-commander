@@ -2,6 +2,8 @@ import angular from 'angular';
 
 import * as xlsx from 'xlsx';
 
+import * as libBarcodes from 'barcodes';
+
 class Manifest {
   constructor() {
     this.sheets = [];
@@ -29,6 +31,34 @@ class Manifest {
   getActiveSheet() {
     return this.activeSheet;
   }
+
+  addCheckDigits() {
+    for( const s of this.sheets ) {
+      s.addCheckDigits();
+    }
+  }
+
+
+
+  createExcelWorkbook() {
+    const wb = xlsx.utils.book_new();
+    for( const displaySheet of this.sheets ) {
+      const ws = xlsx.utils.json_to_sheet(
+        displaySheet.getOutput(),
+        {}
+      );
+      xlsx.utils.book_append_sheet(wb, ws, displaySheet.name);
+    }
+    return wb;
+  }
+
+  deleteSheet(sheet) {
+    const idx = this.sheets.findIndex( s => s == sheet );
+    if(idx >= 0) {
+      this.sheets.splice(idx, 1);
+      this.activeSheet = this.sheets[0];
+    }
+  }
 }
 
 class DisplaySheet {
@@ -37,12 +67,22 @@ class DisplaySheet {
     this.manifest = opts.manifest;
     this.name = opts.name;
 
-    const rows = xlsx.utils.sheet_to_json(opts.rows);
-    this.rows = rows.slice(0,50);
+    const sheetParseOpts = {
+      blankRows: true,
+      defVal: '',
+    };
+    if(opts.noHeaderRow) {
+      sheetParseOpts.header = "A";
+    }
 
-    this.columns = Object.entries(rows[0]).map( _ => {
+    this.rows = xlsx.utils.sheet_to_json(opts.rows, sheetParseOpts).map( ( r, idx ) => {
+      r.idx = idx;
+      return r;
+    });
+
+    this.columns = Object.entries(this.rows[0]).filter( kv => kv[0] !== 'idx' ).map( kv => {
       return {
-        name: _[0],
+        name: kv[0],
         selected: false,
         isBarcodeColumn: false,
         toggleSelect: function() {
@@ -59,16 +99,22 @@ class DisplaySheet {
 
   setSheetBarcodeColumn() {
 
-    const currentColumn = this.columns.find( c => c.isBarcodeColumn );
-    if(currentColumn) {
-      currentColumn.isBarcodeColumn = false;
-      currentColumn.selected = false;
+    const currentBarcodeColumn = this.columns.find( c => c.isBarcodeColumn );
+    if(currentBarcodeColumn) {
+      currentBarcodeColumn.isBarcodeColumn = false;
+      currentBarcodeColumn.selected = false;
     }
 
     const newBarcodeColumn = this.columns.find( c => c.name == this.barcodeColumnName );
     if(newBarcodeColumn) {
       newBarcodeColumn.isBarcodeColumn = true;
       newBarcodeColumn.selected = true;
+      for( const r of this.rows ) {
+        const barcode = r[newBarcodeColumn.name];
+        if( typeof barcode == 'number' ) {
+          r[newBarcodeColumn.name] = barcode.toString();
+        }
+      }
     }
 
   }
@@ -81,6 +127,58 @@ class DisplaySheet {
       this.setSheetBarcodeColumn();
     }
   }
+
+  getCellClass(row, column) {
+    const _class = {};
+    try {
+      if(column.isBarcodeColumn) {
+        const barcode = row[this.barcodeColumnName];
+        if(barcode) {
+          if(libBarcodes.validateCheckDigit(barcode)) {
+            _class.success = true;
+          }
+          else {
+            _class.danger = true;
+          }
+        }
+      }
+      else if (column.selected) {
+        _class.warning = true;
+      }
+    } catch(e) {
+      console.log(row);
+      console.log(column);
+    }
+    return _class;
+  }
+
+  addCheckDigits() {
+    const barcodeColumn = this.columns.find( c => c.isBarcodeColumn );
+    if(barcodeColumn) {
+      for(const r of this.rows) {
+        r[barcodeColumn.name] = libBarcodes.addCheckDigit(r[barcodeColumn.name]);
+      }
+    }
+  }
+
+  filterRowColumns(row) {
+    const out = {};
+
+    const outputColumnNames = this.columns.filter( c => c.selected ).map( c => c.name );
+
+    for( const [ columnName , value ] of Object.entries(row) ) {
+      if( outputColumnNames.includes( columnName ) ) {
+        out[columnName] = value;
+      }
+    }
+
+    return out;
+  }
+
+  getOutput() {
+    const filter = this.filterRowColumns.bind(this)
+    return this.rows.map( filter );
+  }
 }
 
 /******************* Imports Controller *************************/
@@ -92,6 +190,8 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', 'sessionTimeo
 
     vm.manifest = null;
     vm.noFileSelected = false;
+    vm.manifestFile = null;
+    vm.noHeaderRow = false;
 
     vm.loadManifest = function() {
       if(!vm.manifestFile) {
@@ -108,18 +208,17 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', 'sessionTimeo
         console.log(wb);
 
         $scope.$apply(function(){
-          // vm.workbook = wb;
           vm.manifest = new Manifest();
           for( const [name, rows] of Object.entries(wb.Sheets) ) {
             const sheetOpts = {
               manifest: vm.manifest,
               name: name,
-              rows: rows
+              rows: rows,
+              noHeaderRow: vm.noHeaderRow
             };
             vm.manifest.addSheet( new DisplaySheet(sheetOpts) );
           }
-          
-          console.log(vm.manifest);
+
         });
       };
       reader.readAsArrayBuffer(vm.manifestFile);
@@ -142,6 +241,25 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', 'sessionTimeo
 
     vm.setActiveSheet = function(sheetName) {
       return vm.manifest ? vm.manifest.setActiveSheet(sheetName): null;
+    };
+
+    vm.addCheckDigits = function() {
+      vm.manifest.addCheckDigits();
+    };
+
+    vm.createExcelOutput = function() {
+      const wb = vm.manifest.createExcelWorkbook();
+ 
+      const fileNameParts = vm.manifestFile.name.split('.');
+      fileNameParts.pop();
+      
+      let filename = fileNameParts.concat( [ 'cleaned', 'xlsx' ] ).join('.');
+
+      xlsx.writeFile(wb, filename);
+    };
+
+    vm.deleteSheet = function(sheet) {
+      vm.manifest.deleteSheet(sheet);
     };
   }
 ]);
