@@ -38,7 +38,12 @@ class Manifest {
     }
   }
 
-
+  renameSheet(oldName, newName) {
+    const sheet = this.sheets.find( s => s.name == oldName);
+    if(sheet) {
+      sheet.name = newName;
+    }
+  }
 
   createExcelWorkbook() {
     const wb = xlsx.utils.book_new();
@@ -128,6 +133,10 @@ class DisplaySheet {
     }
   }
 
+  getBarcodeColumn() {
+    return this.columns.find( c => c.isBarcodeColumn );
+  }
+
   getCellClass(row, column) {
     const _class = {};
     try {
@@ -181,9 +190,9 @@ class DisplaySheet {
   }
 }
 
-/******************* Imports Controller *************************/
-angular.module('myApp').controller('CleanManifestCtrl', ['$scope', 'sessionTimeout',
-  function($scope, sessionTimeout) {
+/******************* Manifest Cleaner Controller *************************/
+angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', 'sessionTimeout',
+  function($scope, $uibModal, sessionTimeout) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -207,6 +216,10 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', 'sessionTimeo
         const wb = xlsx.read(data, {type: 'array'});
         console.log(wb);
 
+        const fileNameParts = vm.manifestFile.name.split('.');
+        fileNameParts.pop();
+        vm.outputFilename = fileNameParts.concat( [ 'cleaned', 'xlsx' ] ).join('.');
+  
         $scope.$apply(function(){
           vm.manifest = new Manifest();
           for( const [name, rows] of Object.entries(wb.Sheets) ) {
@@ -249,17 +262,49 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', 'sessionTimeo
 
     vm.createExcelOutput = function() {
       const wb = vm.manifest.createExcelWorkbook();
- 
-      const fileNameParts = vm.manifestFile.name.split('.');
-      fileNameParts.pop();
-      
-      let filename = fileNameParts.concat( [ 'cleaned', 'xlsx' ] ).join('.');
-
-      xlsx.writeFile(wb, filename);
+      xlsx.writeFile(wb, vm.outputFilename);
     };
 
     vm.deleteSheet = function(sheet) {
       vm.manifest.deleteSheet(sheet);
     };
+
+    vm.launchManifestFileOptionsModal = function() {
+      const modalInstance = $uibModal.open({
+        templateUrl: '/partials/modals/_manifest_file_options_modal.html',
+        size: 'lg',
+        controller: 'ManifestFileOptionsModalController',
+        backdrop: 'static',
+        resolve: {
+          options: function () {
+            return {
+              filename: vm.outputFilename,
+              sheetNames: vm.manifest.sheets.map( s => ( { old: s.name, new: s.name } ) )
+            };
+          }
+        },
+      });
+
+      modalInstance.result.then(function(manifestOptions) {
+        if(!manifestOptions) {
+          return;
+        }
+        console.log(manifestOptions);
+        for(const sheetName of manifestOptions.sheetNames) {
+          if(sheetName.old!=sheetName.new) {
+            vm.manifest.renameSheet(sheetName.old, sheetName.new);
+          }
+        }
+        // vm.outputFilename = manifestOptions.filename;
+        vm.createExcelOutput();
+      }, function () {
+        console.log('Modal dismissed at: ' + new Date());
+      });
+    }
   }
 ]);
+
+/***************** Modal Controllers ************************/
+angular.module('myApp').controller('ManifestFileOptionsModalController', ['$scope', 'options', function($scope, options){
+  $scope.manifestOptions = options;
+}]);

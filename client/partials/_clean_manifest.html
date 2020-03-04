@@ -1,16 +1,18 @@
-<div class="container" ng-controller="CleanManifestCtrl as cleaner">	
+<div class="container manifest-cleaner" ng-controller="CleanManifestCtrl as cleaner">
 	<div class="row well">
-    <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : cleaner.noFileSelected }">
-      <label for="fileInput">Manifest File</label>
-      <input type="file" class="form-control" id="fileInput" required file-model="cleaner.manifestFile">
-      <span class="text-danger h4" ng-show="cleaner.noFileSelected">Please select a file.</span>
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-3">
-      <div class="checkbox">
-        <label for="noHeaderRowInput">
-          <input type="checkbox" id="noHeaderRowInput" ng-model="cleaner.noHeaderRow">
-          No header row
-        </label>
+    <div class="col-xs-6 row">
+      <div class="form-group col-xs-12" ng-class="{ 'has-error' : cleaner.noFileSelected }">
+        <label for="fileInput">Manifest File</label>
+        <input type="file" class="form-control" id="fileInput" required file-model="cleaner.manifestFile">
+        <span class="text-danger h4" ng-show="cleaner.noFileSelected">Please select a file.</span>
+      </div>
+      <div class="form-group col-xs-12">
+        <div class="checkbox">
+          <label for="noHeaderRowInput">
+            <input type="checkbox" id="noHeaderRowInput" ng-model="cleaner.noHeaderRow">
+            This manifest has no header row
+          </label>
+        </div>
       </div>
     </div>
     <div class="col-xs-12">
@@ -18,51 +20,53 @@
     </div>
   </div>
   <div class="row" ng-show="cleaner.manifest">
-    <div class="well">
+    <div class="well col-xs-12">
       <h2>Sheet Controls</h2>
-      <div class="row form-group">
-        <div class="col-xs-12 col-sm-6 col-md-3">
+      <div class="row col-xs-12 col-sm-6">
+        <div class="form-group col-xs-12">
           <label for="selectSheetInput">Select Sheet</label>
           <select class="form-control" id="selectSheetInput" ng-model="cleaner.manifest.activeSheet" ng-options="sheet.name for sheet in cleaner.manifest.sheets">
           </select>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-3">
-          <button class="btn btn-danger" ng-click="cleaner.deleteSheet(cleaner.getActiveSheet())">Delete this sheet</button>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3">
+        <div class="form-group col-xs-12">
           <label for="barcodeColumnInput">Barcode column</label>
           <select class="form-control" id="barcodeColumnInput" ng-model="cleaner.getActiveSheet().barcodeColumnName" ng-change="cleaner.getActiveSheet().setBarcodeColumn()">
             <option></option>
             <option ng-repeat="column in cleaner.getActiveSheet().columns">{{ column.name }}</option>
           </select>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-3">
+        <div class="form-group col-xs-12">
           <div class="checkbox">
             <label for="barcodeColumnAllSheetsInput">
               <input type="checkbox" id="barcodeColumnAllSheetsInput" ng-model="cleaner.manifest.barcodeColumnAllSheets" ng-change="cleaner.setBarcodeColumnAllSheets()">
-              Use for all sheets
+              Use same barcode column for all sheets
             </label>
           </div>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-3">
-          <button class="btn btn-primary" ng-click="cleaner.addCheckDigits()">Add Check Digits</button>
-          <button class="btn btn-primary" ng-click="cleaner.createExcelOutput()">Download</button>
-        </div>
+      </div>
+      <div class="col-xs-12 col-sm-6">
+        <p class="text-center">
+          <button class="btn btn-danger" ng-click="cleaner.deleteSheet(cleaner.getActiveSheet())" ng-disabled="!cleaner.getActiveSheet()">Delete this sheet</button>
+        </p>
+        <p class="text-center">
+          <button class="btn btn-primary" ng-click="cleaner.addCheckDigits()" ng-disabled="!cleaner.getActiveSheet().getBarcodeColumn()">Add Check Digits</button>
+        </p>
+        <p class="text-center">
+          <button class="btn btn-primary" ng-click="cleaner.launchManifestFileOptionsModal()">Download</button>
+        </p>
       </div>
     </div>
-    <div class="row" ng-repeat="sheet in cleaner.manifest.sheets" ng-show="cleaner.getActiveSheet() == sheet" >
-      <div class="row">
-        <table class="table table-striped table-bordered">
-          <thead>
-            <th ng-repeat="column in sheet.columns" ng-click="column.toggleSelect()">{{ column.name }}</th>
-          </thead>
-          <tbody>
-            <tr ng-repeat="row in sheet.rows | limitTo: 50 track by row.idx">
-              <td ng-repeat="column in sheet.columns" ng-if="column.name!=='idx'" ng-class="sheet.getCellClass(row, column)">{{ row[column.name] }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="manifest-table-container col-xs-12 well" ng-repeat="sheet in cleaner.manifest.sheets" ng-show="cleaner.getActiveSheet() == sheet" >
+      <table class="table table-striped table-bordered">
+        <thead>
+          <th ng-repeat="column in sheet.columns" ng-click="column.toggleSelect()">{{ column.name }}</th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="row in sheet.rows | limitTo: 50 track by row.idx">
+            <td ng-repeat="column in sheet.columns" ng-if="column.name!=='idx'" ng-class="sheet.getCellClass(row, column)">{{ row[column.name] }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
