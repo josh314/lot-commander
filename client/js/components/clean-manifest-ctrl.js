@@ -53,6 +53,12 @@ class Manifest {
         {}
       );
       xlsx.utils.book_append_sheet(wb, ws, displaySheet.name);
+
+      ws['!cols'] = displaySheet.columns.filter( c => c.selected ).map( c => {
+        return {
+          width: displaySheet.getColumnWidth(c.name)
+        }
+      });
     }
     return wb;
   }
@@ -165,9 +171,29 @@ class DisplaySheet {
     const barcodeColumn = this.columns.find( c => c.isBarcodeColumn );
     if(barcodeColumn) {
       for(const r of this.rows) {
-        r[barcodeColumn.name] = libBarcodes.addCheckDigit(r[barcodeColumn.name]);
+        try {
+          r[barcodeColumn.name] = libBarcodes.addCheckDigit(r[barcodeColumn.name]);
+        }
+        catch(e) {
+          console.log(e);
+          console.log(r);
+        }
       }
     }
+  }
+
+  getColumnWidth(columnName) {
+    let columnWidth = Math.max( columnName.length + 3, 10);
+    for( const r of this.rows ) {
+      const data = r[columnName];
+      try {
+        columnWidth = Math.max( columnWidth, data.toString().length + 3 )
+      }
+      catch (e) {
+        'no-op';
+      }
+    }
+    return columnWidth;
   }
 
   filterRowColumns(row) {
