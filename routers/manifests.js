@@ -7,8 +7,7 @@ module.exports = router;
 const manifestSvc = require(path.join(__basedir, __config.modulesPath, 'manifest-svc'));
 
 // Manifests endpoints
-router.get('/get', manifestSvc.get);
-
+router.get('/get', manifestSvc.api.get);
 
 
 
