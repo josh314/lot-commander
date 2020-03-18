@@ -91,6 +91,9 @@ function routes() {
 
   router.use('/api/orders', require('./orders'));
 
+  router.use('/api/manifests', require('./manifests'));
+
+
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{
     res.send(scriptBuilder.ngAppServerData());
