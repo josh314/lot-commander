@@ -57,7 +57,7 @@ class Manifest {
       ws['!cols'] = displaySheet.columns.filter( c => c.selected ).map( c => {
         return {
           width: displaySheet.getColumnWidth(c.name)
-        }
+        };
       });
     }
     return wb;
@@ -187,7 +187,7 @@ class DisplaySheet {
     for( const r of this.rows ) {
       const data = r[columnName];
       try {
-        columnWidth = Math.max( columnWidth, data.toString().length + 3 )
+        columnWidth = Math.max( columnWidth, data.toString().length + 3 );
       }
       catch (e) {
         'no-op';
@@ -338,7 +338,7 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', 
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
       });
-    }
+    };
   }
 ]);
 
