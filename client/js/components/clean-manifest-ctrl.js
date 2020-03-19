@@ -210,9 +210,21 @@ class DisplaySheet {
     return out;
   }
 
+
+  // TODO: remove this bullshit
+  upcColumnHack(row) {
+
+    if( this.barcodeColumnName && row[this.barcodeColumnName] ) {
+      row[this.barcodeColumnName] = `'${row[this.barcodeColumnName]}`;
+    }
+
+    return row;
+  }
+
   getOutput() {
-    const filter = this.filterRowColumns.bind(this)
-    return this.rows.map( filter );
+    const filter = this.filterRowColumns.bind(this);
+    const hack = this.upcColumnHack.bind(this);
+    return this.rows.map( filter ).map( hack );
   }
 }
 
