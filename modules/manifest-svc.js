@@ -7,8 +7,8 @@ const getUrl = path => `http://${__config.services.manifests}${path}`;
 module.exports = {
   api: {
     get: get,
-    put: put
-  }
+  },
+  putToSvc: putToSvc
 };
 
 function getFromSvc(key) {
@@ -24,13 +24,14 @@ function getFromSvc(key) {
 }
 
 function putToSvc( readStream, key, isPublic = false ) {
-  console.log(key)
+
   const uri = `${getUrl( '/put' )}/${ isPublic ? 'public/' : '/'}${key}`;
 
-  axios({
+  return axios({
     method: 'post',
-    url: uri,
-    data: readStream
+    url: encodeURI(uri),
+    data: readStream,
+    timeout: 10*1000
   });
 
 }

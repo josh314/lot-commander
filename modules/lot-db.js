@@ -9,7 +9,7 @@ const unlink = Promise.promisify(fs.unlink);
 const formidable = require('formidable');
 
 const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
-const manifestServer = require(path.join(__basedir, __config.modulesPath, 'manifest-server'));
+const manifestSvc = require(path.join(__basedir, __config.modulesPath, 'manifest-svc'));
 
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 // const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
@@ -236,15 +236,23 @@ function updateLot(lot) {
 function uploadManifest(req, res, next) {
   const lotId = req.params.lotId;
   const form = new formidable.IncomingForm();
-  form.parse(req, function (err, fields, files) {
+  form.parse(req, async function (err, fields, files) {
     try {
       const fileUploads = [];
       for(let [_, f] of Object.entries(files)){
-        const s = manifestServer.store(lotId, f.path, f.name).then(resp=>{
-          if(resp) {
+        const readStream = fs.createReadStream(f.path);
+
+        const lot = await getLotById(lotId);
+
+        const s3Key = `${ lotId }/${ lot.handle }${ path.extname(f.name)  }`;
+
+        const storePromise = manifestSvc.putToSvc( readStream, s3Key , true).then(resp=>{
+          console.log("Here's where you'd update the lot...");
+          console.log(resp);
+          if(resp && resp.data) {
             return updateLot({
               _id: lotId,
-              manifestFileLocation: resp.Location
+              manifestFileLocation: resp.data.Location
             });
           }
         })
@@ -253,7 +261,7 @@ function uploadManifest(req, res, next) {
             unlink(f.path);
             return _;
           });
-        fileUploads.push(s);
+        fileUploads.push(storePromise);
       }
       res.json(Promise.all(fileUploads));
     }

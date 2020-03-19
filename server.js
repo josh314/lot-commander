@@ -169,7 +169,7 @@
   //   res.render('404', layout);
   // });
 
-  app.use(function(err, req, res){
+  app.use(function(err, req, res, next){
     
     // __logger.error(`404: path does not exist -- ${req.originalUrl}`);
     // res.status(404).render('404', {});

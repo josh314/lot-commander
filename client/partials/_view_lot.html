@@ -138,9 +138,9 @@
         <h4>Manifest File</h4>
       </div>
       <div class="col-xs-12" ng-show="lot.manifestFileLocation">
-        <a href="{{lot.manifestFileLocation}}">{{lot.manifestFileLocation}}</a>
+        <a class="btn btn-primary" href="{{lot.manifestFileLocation}}">View Manifest</a>
       </div>
-      <div class="col-xs-12">
+      <div class="col-xs-12" ng-hide="lot.manifestFileLocation">
         <a class="btn btn-primary" href="/lots/upload-manifest/{{lot._id}}">Upload Manifest</a>
       </div>
     </div>
