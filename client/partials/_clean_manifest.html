@@ -59,7 +59,12 @@
     <div class="manifest-table-container col-xs-12 well" ng-repeat="sheet in cleaner.manifest.sheets" ng-show="cleaner.getActiveSheet() == sheet" >
       <table class="table table-striped table-bordered">
         <thead>
-          <th ng-repeat="column in sheet.columns" ng-click="column.toggleSelect()">{{ column.name }}</th>
+          <th ng-repeat="column in sheet.columns" ng-click="column.toggleSelect()">
+            <select ng-model="column.selectedColumnName" ng-change="sheet.updateColumnTitleOptions()">
+              <option >{{ column.name }}</option>
+              <option ng-repeat="opt in column.nameOptions">{{ opt }}</option>
+            </select>
+          </th>
         </thead>
         <tbody>
           <tr ng-repeat="row in sheet.rows | limitTo: 50 track by row.idx">

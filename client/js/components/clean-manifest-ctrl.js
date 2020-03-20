@@ -4,6 +4,13 @@ import * as xlsx from 'xlsx';
 
 import * as libBarcodes from 'barcodes';
 
+const __STANDARD_COLUMNS__ = [
+  'UPC/EAN/GTIN',
+  'Description',
+  'Quantity',
+  'Price'
+];
+
 class Manifest {
   constructor() {
     this.sheets = [];
@@ -91,20 +98,51 @@ class DisplaySheet {
       return r;
     });
 
-    this.columns = Object.entries(this.rows[0]).filter( kv => kv[0] !== 'idx' ).map( kv => {
-      return {
-        name: kv[0],
-        selected: false,
-        isBarcodeColumn: false,
-        toggleSelect: function() {
-          if(!this.isBarcodeColumn) {
-            this.selected = !this.selected;
-          }
-        },
-      };
-    });
+    if( this.rows && this.rows[0] ) {
+      this.columns = Object.entries(this.rows[0]).filter( kv => kv[0] !== 'idx' ).map( kv => {
+        return {
+          name: kv[0],
+          selectedColumnName: kv[0],
+          selected: false,
+          isBarcodeColumn: false,
+          toggleSelect: function() {
+            if(!this.isBarcodeColumn) {
+              this.selected = !this.selected;
+            }
+          },
+        };
+      });
+    }
+    else {
+      this.columns = [];
+    }
 
     this.barcodeColumnName = null;
+    
+    this.updateColumnTitleOptions();
+  }
+
+  updateColumnTitleOptions() {
+    const standardColumnAssignments = this.columns.reduce( (acc, column) => {
+      if(column.selectedColumnName && column.selectedColumnName !== column.name) {
+        acc[column.name] = column.selectedColumnName;
+      }
+      return acc;
+    }, {});
+
+    this.columns.forEach( currentColumn => {
+      currentColumn.nameOptions = Object.assign( [ ], __STANDARD_COLUMNS__ ) ;
+
+      for( let [columnName, selectedColumnName] of Object.entries(standardColumnAssignments) ) {
+        if( columnName !== currentColumn.name ) {
+          const foundIndex = currentColumn.nameOptions.findIndex( option => option === selectedColumnName );
+          if( foundIndex >= 0 ) {
+            currentColumn.nameOptions.splice( foundIndex, 1 );
+          }
+        }
+      }
+
+    });
 
   }
 
@@ -203,7 +241,9 @@ class DisplaySheet {
 
     for( const [ columnName , value ] of Object.entries(row) ) {
       if( outputColumnNames.includes( columnName ) ) {
-        out[columnName] = value;
+        const standardColumnMapping = this.standardColumnMappings.find( mapping => mapping.column === columnName );
+        const outputColumnName = standardColumnMapping ? standardColumnMapping.standardColumn : columnName;
+        out[outputColumnName] = value;
       }
     }
 
