@@ -59,7 +59,7 @@
     <div class="manifest-table-container col-xs-12 well" ng-repeat="sheet in cleaner.manifest.sheets" ng-show="cleaner.getActiveSheet() == sheet" >
       <table class="table table-striped table-bordered">
         <thead>
-          <th ng-repeat="column in sheet.columns" ng-click="column.toggleSelect()">
+          <th ng-repeat="column in sheet.columns">
             <select ng-model="column.selectedColumnName" ng-change="sheet.updateColumnTitleOptions()">
               <option >{{ column.name }}</option>
               <option ng-repeat="opt in column.nameOptions">{{ opt }}</option>
@@ -68,7 +68,7 @@
         </thead>
         <tbody>
           <tr ng-repeat="row in sheet.rows | limitTo: 50 track by row.idx">
-            <td ng-repeat="column in sheet.columns" ng-if="column.name!=='idx'" ng-class="sheet.getCellClass(row, column)">{{ row[column.name] }}</td>
+            <td ng-repeat="column in sheet.columns" ng-if="column.name!=='idx'" ng-class="sheet.getCellClass(row, column)" ng-click="column.toggleSelect()">{{ row[column.name] }}</td>
           </tr>
         </tbody>
       </table>
