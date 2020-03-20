@@ -9,6 +9,8 @@ const __STANDARD_COLUMNS__ = [
   'Price'
 ];
 
+const __BARCODE_COLUMN__ = __STANDARD_COLUMNS__[0];
+
 export class Sheet {
   constructor(opts) {
 
@@ -34,9 +36,12 @@ export class Sheet {
           name: kv[0],
           selectedColumnName: kv[0],
           selected: false,
-          isBarcodeColumn: false,
+          // isBarcodeColumn: false,
+          isStandardColumn: function() {
+            return this.selectedColumnName !== this.name;
+          },
           toggleSelect: function() {
-            if(!this.isBarcodeColumn) {
+            if( !this.isStandardColumn() ) {
               this.selected = !this.selected;
             }
           },
@@ -108,21 +113,26 @@ export class Sheet {
   }
 
   getBarcodeColumn() {
-    return this.columns.find( c => c.isBarcodeColumn );
+    return this.columns.find( c => c.selectedColumnName === __BARCODE_COLUMN__ );
   }
 
   getCellClass(row, column) {
     const _class = {};
     try {
-      if(column.isBarcodeColumn) {
-        const barcode = row[this.barcodeColumnName];
-        if(barcode) {
-          if(libBarcodes.validateCheckDigit(barcode)) {
-            _class.success = true;
+      if( column.isStandardColumn() ) {
+        if( column.selectedColumnName === __BARCODE_COLUMN__ ) {
+          const barcode = row[column.name];
+          if(barcode) {
+            if(libBarcodes.validateCheckDigit(barcode)) {
+              _class.success = true;
+            }
+            else {
+              _class.danger = true;
+            }
           }
-          else {
-            _class.danger = true;
-          }
+        }
+        else {
+          _class.warning = true;
         }
       }
       else if (column.selected) {
@@ -136,7 +146,7 @@ export class Sheet {
   }
 
   addCheckDigits() {
-    const barcodeColumn = this.columns.find( c => c.isBarcodeColumn );
+    const barcodeColumn = this.columns.find( c => c.selectedColumnName === __BARCODE_COLUMN__ );
     if(barcodeColumn) {
       for(const r of this.rows) {
         try {
@@ -164,21 +174,21 @@ export class Sheet {
     return columnWidth;
   }
 
-  filterRowColumns(row) {
-    const out = {};
+  // filterRowColumns(row) {
+  //   const out = {};
 
-    const outputColumnNames = this.columns.filter( c => c.selected ).map( c => c.name );
+  //   const outputColumns = this.columns.filter( c => c.selected || c.isStandardColumn() ).map( c => c.selectedColumnName );
 
-    for( const [ columnName , value ] of Object.entries(row) ) {
-      if( outputColumnNames.includes( columnName ) ) {
-        const standardColumnMapping = this.standardColumnMappings.find( mapping => mapping.column === columnName );
-        const outputColumnName = standardColumnMapping ? standardColumnMapping.standardColumn : columnName;
-        out[outputColumnName] = value;
-      }
-    }
+  //   for( const [ columnName , value ] of Object.entries(row) ) {
+  //     if( outputColumnNames.includes( columnName ) ) {
+  //       const standardColumnMapping = this.standardColumnMappings.find( mapping => mapping.column === columnName );
+  //       const outputColumnName = standardColumnMapping ? standardColumnMapping.standardColumn : columnName;
+  //       out[outputColumnName] = value;
+  //     }
+  //   }
 
-    return out;
-  }
+  //   return out;
+  // }
 
 
   // TODO: remove this bullshit
@@ -193,7 +203,7 @@ export class Sheet {
 
   getOutput() {
     const filter = this.filterRowColumns.bind(this);
-    const hack = this.upcColumnHack.bind(this);
-    return this.rows.map( filter ).map( hack );
+    // const hack = this.upcColumnHack.bind(this);
+    return this.rows.map( filter )//.map( hack );
   }
 }

@@ -28,13 +28,13 @@
           <select class="form-control" id="selectSheetInput" ng-model="cleaner.manifest.activeSheet" ng-options="sheet.name for sheet in cleaner.manifest.sheets">
           </select>
         </div>
-        <div class="form-group col-xs-12">
+        <!-- <div class="form-group col-xs-12">
           <label for="barcodeColumnInput">Barcode column</label>
           <select class="form-control" id="barcodeColumnInput" ng-model="cleaner.getActiveSheet().barcodeColumnName" ng-change="cleaner.getActiveSheet().setBarcodeColumn()">
             <option></option>
             <option ng-repeat="column in cleaner.getActiveSheet().columns">{{ column.name }}</option>
           </select>
-        </div>
+        </div> -->
         <div class="form-group col-xs-12">
           <div class="checkbox">
             <label for="barcodeColumnAllSheetsInput">
