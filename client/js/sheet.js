@@ -17,6 +17,10 @@ export class Sheet {
     this.manifest = opts.manifest;
     this.name = opts.name;
 
+    this.getBarcodeColumn = function() {
+      return this.columns.find( column => column.isBarcodeColumn() );
+    };
+
     const sheetParseOpts = {
       blankRows: true,
       defVal: '',
@@ -140,7 +144,7 @@ export class Sheet {
   }
 
   addCheckDigits() {
-    const barcodeColumn = this.columns.find( c => c.isBarcodeColumn() );
+    const barcodeColumn = this.getBarcodeColumn();
     if(barcodeColumn) {
       for(const r of this.rows) {
         try {
@@ -168,19 +172,33 @@ export class Sheet {
     return columnWidth;
   }
 
-  // TODO: remove this bullshit
-  upcColumnHack(row) {
+  filterRowDataForOutput(row) {
 
-    if( this.barcodeColumnName && row[this.barcodeColumnName] ) {
-      row[this.barcodeColumnName] = `'${row[this.barcodeColumnName]}`;
+    const columnNameMapping = this.columns.reduce( (mapping, column) => {
+      mapping[ column.displayName ] = column.name;
+      return mapping;
+    }, {});
+
+    const out = {};
+    const outputColumnNames = this.columns.filter( c => c.isSelected() ).map( c => c.displayName );
+    for( let displayName of outputColumnNames ) {
+      out[ displayName ] = row[ columnNameMapping[ displayName ] ];
     }
 
+    return out;
+  }
+
+  // TODO: remove this bullshit
+  upcColumnHack(row) {
+    if( row[ __BARCODE_COLUMN__ ] ) {
+      row[ __BARCODE_COLUMN__ ] = `'${row[ __BARCODE_COLUMN__ ]}`;
+    }
     return row;
   }
 
   getOutput() {
-    const filter = this.filterRowColumns.bind(this);
-    // const hack = this.upcColumnHack.bind(this);
-    return this.rows.map( filter )//.map( hack );
+    const filter = this.filterRowDataForOutput.bind(this);
+    const hack = this.upcColumnHack.bind(this);
+    return this.rows.map( filter ).map( hack );
   }
 }
