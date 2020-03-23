@@ -1,13 +1,8 @@
 const path = require('path');
 
 //Set up mongo store for flash messages
-const credentials = require(path.join(__basedir, __config.modulesPath, 'credentials'));
 const session = require('express-session');
 const MongoStore = require('connect-mongodb-session')(session);
-
-// const sessionDbSettings = __config.sessions;
-// const sessionDbAuth = sessionDbSettings.auth ? `${sessionDbSettings.auth.user}:${sessionDbSettings.auth.pwd}@` : ''; 
-// const sessionDbUrl = `mongodb://${sessionDbAuth}${sessionDbSettings.host}:${sessionDbSettings.port}/${sessionDbSettings.db}`;
 
 const hostData = __config.dbHosts[__config.dbConnMapping.sessions];
 
@@ -27,11 +22,15 @@ const sessionStore = new MongoStore({
   collection: 'sessions',
 });
 
+if(!process.env.SESSION_SECRET) {
+  throw new Error('No secret set for session cookies!');
+}
+
 module.exports = function(app) {
   app.use(session({
     resave: true,
     saveUninitialized: true,
-    secret: credentials.cookieSecret,
+    secret: process.env.SESSION_SECRET,
     store: sessionStore
   }));
 };

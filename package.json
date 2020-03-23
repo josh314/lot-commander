@@ -10,7 +10,7 @@
     "debug": "DEBUG=lot-commander node inspect server.js",
     "dev-server": "webpack-dev-server --open --config webpack.dev.js",
     "lint": "eslint --config .eslintrc.server.js server.js routes.js dbs.js modules/",
-    "start": "DEBUG=lot-commander node server.js"
+    "start": "SESSION_SECRET=foobar DEBUG=lot-commander node server.js"
   },
   "keywords": [
     "app"
@@ -28,7 +28,7 @@
     "archiver": "^2.1.1",
     "aws-sdk": "^2.467.0",
     "axios": "^0.19.2",
-    "barcodes": "git+ssh://git@gitlab.com/josh314/barcodes.git#1.0.0",
+    "barcodes": "git+ssh://git@gitlab.com/josh314/barcodes.git#1.2.1",
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "^3.5.5",
     "bootstrap": "^3.4.1",
@@ -74,7 +74,8 @@
     "webpack": "^4.32.2",
     "webpack-cli": "^3.3.2",
     "webpack-merge": "^4.2.1",
-    "winston": "^2.4.1"
+    "winston": "^2.4.1",
+    "xlsx": "^0.15.5"
   },
   "devDependencies": {
     "webpack-dev-server": "^3.5.1"

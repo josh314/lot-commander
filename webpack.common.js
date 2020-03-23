@@ -3,6 +3,7 @@ const path = require('path');
 const clientSrcPath = path.join(__dirname, "client");
 
 // webpack plugins
+const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
@@ -101,5 +102,16 @@ module.exports = {
         to: 'partials'
       }
     ]),
+    new webpack.ProvidePlugin({
+      'cptable': 'codepage'
+    })
   ],
+  /* suppress node shims */
+	node: {
+		process: false,
+		Buffer: false
+  },
+  resolve: {
+		alias: { "./dist/cpexcel.js": "" }
+	},
 };
