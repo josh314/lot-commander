@@ -46,13 +46,13 @@ export class Sheet {
 
         return {
           name: name,
-          selectedColumnName: name,
+          displayName: name,
           selected: false,
           isStandardColumn: function() {
-            return this.selectedColumnName !== this.name;
+            return this.displayName !== this.name;
           },
           isBarcodeColumn: function() {
-            return this.selectedColumnName === __BARCODE_COLUMN__;
+            return this.displayName === __BARCODE_COLUMN__;
           },
           isSelected: function() {
             return this.selected || this.isStandardColumn();
@@ -84,8 +84,8 @@ export class Sheet {
 
   updateColumnTitleOptions() {
     const standardColumnAssignments = this.columns.reduce( (acc, column) => {
-      if(column.selectedColumnName && column.selectedColumnName !== column.name) {
-        acc[column.name] = column.selectedColumnName;
+      if(column.displayName && column.displayName !== column.name) {
+        acc[column.name] = column.displayName;
       }
       return acc;
     }, {});
@@ -93,9 +93,9 @@ export class Sheet {
     this.columns.forEach( currentColumn => {
       currentColumn.nameOptions = Object.assign( [ ], __STANDARD_COLUMNS__ ) ;
 
-      for( let [columnName, selectedColumnName] of Object.entries(standardColumnAssignments) ) {
+      for( let [columnName, displayName] of Object.entries(standardColumnAssignments) ) {
         if( columnName !== currentColumn.name ) {
-          const foundIndex = currentColumn.nameOptions.findIndex( option => option === selectedColumnName );
+          const foundIndex = currentColumn.nameOptions.findIndex( option => option === displayName );
           if( foundIndex >= 0 ) {
             currentColumn.nameOptions.splice( foundIndex, 1 );
           }
@@ -109,7 +109,7 @@ export class Sheet {
   setStandardColumn( columnName, standardColumnName ) {
     const column = this.columns.find( c => c.name === columnName );
     if( column ) {
-      column.selectedColumnName = standardColumnName;
+      column.displayName = standardColumnName;
     }
   }
 

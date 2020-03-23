@@ -49,9 +49,9 @@
               <button class="btn btn-xs btn-primary" ng-click="cleaner.getActiveSheet().addCheckDigits()">Add check digits</button>
             </div>
             <div class="text-center" style="margin-bottom: 3px;" ng-show="column.isStandardColumn()">
-              <button class="btn btn-xs btn-primary" ng-click="cleaner.manifest.setStandardColumnAllSheets(column.name, column.selectedColumnName)">Use for all sheets</button>
+              <button class="btn btn-xs btn-primary" ng-click="cleaner.manifest.setStandardColumnAllSheets(column.name, column.displayName)">Use for all sheets</button>
             </div>
-            <select ng-model="column.selectedColumnName" ng-change="sheet.updateColumnTitleOptions()">
+            <select ng-model="column.displayName" ng-change="sheet.updateColumnTitleOptions()">
               <option >{{ column.name }}</option>
               <option ng-repeat="opt in column.nameOptions">{{ opt }}</option>
             </select>
