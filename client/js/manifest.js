@@ -27,7 +27,7 @@ export class Manifest {
     return this.activeSheet;
   }
 
-  addCheckDigits() {
+  addCheckDigitsAllSheets() {
     for( const s of this.sheets ) {
       s.addCheckDigits();
     }

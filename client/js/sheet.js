@@ -140,7 +140,7 @@ export class Sheet {
   }
 
   addCheckDigits() {
-    const barcodeColumn = this.columns.find( c => c.selectedColumnName === __BARCODE_COLUMN__ );
+    const barcodeColumn = this.columns.find( c => c.isBarcodeColumn() );
     if(barcodeColumn) {
       for(const r of this.rows) {
         try {

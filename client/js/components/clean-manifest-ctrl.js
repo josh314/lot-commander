@@ -63,8 +63,8 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', 
       return vm.manifest ? vm.manifest.setActiveSheet(sheetName): null;
     };
 
-    vm.addCheckDigits = function() {
-      vm.manifest.addCheckDigits();
+    vm.addCheckDigitsAllSheets = function() {
+      vm.manifest.addCheckDigitsAllSheets();
     };
 
     vm.createExcelOutput = function() {

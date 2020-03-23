@@ -33,11 +33,11 @@
         <p class="text-center">
           <button class="btn btn-danger" ng-click="cleaner.deleteSheet(cleaner.getActiveSheet())" ng-disabled="!cleaner.getActiveSheet()">Delete this sheet</button>
         </p>
-        <!-- <p class="text-center">
-          <button class="btn btn-primary" ng-click="cleaner.addCheckDigits()" ng-disabled="!cleaner.getActiveSheet().getBarcodeColumn()">Add Check Digits</button>
-        </p> -->
         <p class="text-center">
-          <button class="btn btn-primary" ng-click="cleaner.launchManifestFileOptionsModal()">Download</button>
+          <button class="btn btn-primary" ng-click="cleaner.addCheckDigitsAllSheets()">Add Check Digits For All Sheets</button>
+        </p>
+        <p class="text-center">
+          <button class="btn btn-primary" ng-click="cleaner.launchManifestFileOptionsModal()">Download Manifest File</button>
         </p>
       </div>
     </div>
@@ -46,7 +46,7 @@
         <thead>
           <th ng-repeat="column in sheet.columns">
             <div class="text-center" style="margin-bottom: 3px;" ng-show="column.isBarcodeColumn()">
-              <button class="btn btn-xs btn-primary" ng-click="cleaner.addCheckDigits()">Add check digits</button>
+              <button class="btn btn-xs btn-primary" ng-click="cleaner.getActiveSheet().addCheckDigits()">Add check digits</button>
             </div>
             <div class="text-center" style="margin-bottom: 3px;" ng-show="column.isStandardColumn()">
               <button class="btn btn-xs btn-primary" ng-click="cleaner.manifest.setStandardColumnAllSheets(column.name, column.selectedColumnName)">Use for all sheets</button>
