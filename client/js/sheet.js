@@ -181,7 +181,25 @@ export class Sheet {
     }, {});
 
     const out = {};
+    
     const outputColumnNames = this.columns.filter( c => c.isSelected() ).map( c => c.displayName );
+    outputColumnNames.sort((a, b) => {
+      const aIndex = __STANDARD_COLUMNS__.indexOf(a);
+      const bIndex = __STANDARD_COLUMNS__.indexOf(b);
+      if( aIndex < 0 && bIndex < 0 ) {
+        return 0;
+      }
+      else if( aIndex < 0 ) {
+        return 1;
+      }
+      else if( bIndex < 0 ) {
+        return -1;
+      }
+      else {
+        return aIndex - bIndex;
+      }
+    });
+
     for( let displayName of outputColumnNames ) {
       out[ displayName ] = row[ columnNameMapping[ displayName ] ];
     }
