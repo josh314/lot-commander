@@ -54,6 +54,9 @@ export class Sheet {
           isBarcodeColumn: function() {
             return this.selectedColumnName === __BARCODE_COLUMN__;
           },
+          isSelected: function() {
+            return this.selected || this.isStandardColumn();
+          },
           toggleSelect: function() {
             if( !this.isStandardColumn() ) {
               this.selected = !this.selected;
@@ -113,8 +116,8 @@ export class Sheet {
   getCellClass(row, column) {
     const _class = {};
     try {
-      if( column.isStandardColumn() ) {
-        if( column.selectedColumnName === __BARCODE_COLUMN__ ) {
+      if( column.isSelected() ) {
+        if( column.isBarcodeColumn() ) {
           const barcode = row[column.name];
           if(barcode) {
             if(libBarcodes.validateCheckDigit(barcode)) {
@@ -128,9 +131,6 @@ export class Sheet {
         else {
           _class.warning = true;
         }
-      }
-      else if (column.selected) {
-        _class.warning = true;
       }
     } catch(e) {
       console.log(row);
