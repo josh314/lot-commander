@@ -24,12 +24,13 @@ export class Sheet {
     const sheetParseOpts = {
       blankRows: true,
       defVal: '',
+      range: opts.skipFirstRows || 0,
     };
     if(opts.noHeaderRow) {
       sheetParseOpts.header = "A";
     }
 
-    this.rows = xlsx.utils.sheet_to_json(opts.rows, sheetParseOpts).map( ( r, idx ) => {
+    this.rows = xlsx.utils.sheet_to_json(opts.data, sheetParseOpts).map( ( r, idx ) => {
       r.idx = idx;
       return r;
     });

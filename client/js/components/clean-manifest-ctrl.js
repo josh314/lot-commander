@@ -15,6 +15,7 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', 
     vm.noFileSelected = false;
     vm.manifestFile = null;
     vm.noHeaderRow = false;
+    vm.skipFirstRows = 0;
 
     vm.loadManifest = function() {
       if(!vm.manifestFile) {
@@ -36,12 +37,13 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', 
   
         $scope.$apply(function(){
           vm.manifest = new Manifest();
-          for( const [name, rows] of Object.entries(wb.Sheets) ) {
+          for( const [name, data] of Object.entries(wb.Sheets) ) {
             const sheetOpts = {
               manifest: vm.manifest,
               name: name,
-              rows: rows,
-              noHeaderRow: vm.noHeaderRow
+              data: data,
+              noHeaderRow: vm.noHeaderRow,
+              skipFirstRows: vm.skipFirstRows
             };
             vm.manifest.addSheet( new Sheet(sheetOpts) );
           }
