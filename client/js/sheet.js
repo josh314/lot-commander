@@ -31,14 +31,28 @@ export class Sheet {
     });
 
     if( this.rows && this.rows[0] ) {
+      const columnRenameMapping = {};
+
       this.columns = Object.entries(this.rows[0]).filter( kv => kv[0] !== 'idx' ).map( kv => {
+        let [ name, _ ] = kv;
+
+        // Rename column if it matches a standard column name
+        const matchedStandardColumn = __STANDARD_COLUMNS__.find( column => column === name );
+        if( matchedStandardColumn ) {
+          const newName = '__' + matchedStandardColumn;
+          columnRenameMapping[name] = newName;
+          name = newName;
+        }
+
         return {
-          name: kv[0],
-          selectedColumnName: kv[0],
+          name: name,
+          selectedColumnName: name,
           selected: false,
-          // isBarcodeColumn: false,
           isStandardColumn: function() {
             return this.selectedColumnName !== this.name;
+          },
+          isBarcodeColumn: function() {
+            return this.selectedColumnName === __BARCODE_COLUMN__;
           },
           toggleSelect: function() {
             if( !this.isStandardColumn() ) {
@@ -47,13 +61,21 @@ export class Sheet {
           },
         };
       });
+
+      if( Object.keys(columnRenameMapping).length ) {
+        this.rows.forEach( row => {
+          for( let [ oldName, newName ] of Object.entries(columnRenameMapping) ) {
+            row[newName] = row[oldName];
+            delete row[oldName];
+          }
+        });
+      }
+
     }
     else {
       this.columns = [];
     }
 
-    this.barcodeColumnName = null;
-    
     this.updateColumnTitleOptions();
   }
 
@@ -81,39 +103,11 @@ export class Sheet {
 
   }
 
-  setSheetBarcodeColumn() {
-
-    const currentBarcodeColumn = this.columns.find( c => c.isBarcodeColumn );
-    if(currentBarcodeColumn) {
-      currentBarcodeColumn.isBarcodeColumn = false;
-      currentBarcodeColumn.selected = false;
+  setStandardColumn( columnName, standardColumnName ) {
+    const column = this.columns.find( c => c.name === columnName );
+    if( column ) {
+      column.selectedColumnName = standardColumnName;
     }
-
-    const newBarcodeColumn = this.columns.find( c => c.name == this.barcodeColumnName );
-    if(newBarcodeColumn) {
-      newBarcodeColumn.isBarcodeColumn = true;
-      newBarcodeColumn.selected = true;
-      for( const r of this.rows ) {
-        const barcode = r[newBarcodeColumn.name];
-        if( typeof barcode == 'number' ) {
-          r[newBarcodeColumn.name] = barcode.toString();
-        }
-      }
-    }
-
-  }
-
-  setBarcodeColumn() {
-    if( this.manifest.barcodeColumnAllSheets ) {
-      this.manifest.setBarcodeColumnAllSheets(this.barcodeColumnName);
-    }
-    else {
-      this.setSheetBarcodeColumn();
-    }
-  }
-
-  getBarcodeColumn() {
-    return this.columns.find( c => c.selectedColumnName === __BARCODE_COLUMN__ );
   }
 
   getCellClass(row, column) {
@@ -173,23 +167,6 @@ export class Sheet {
     }
     return columnWidth;
   }
-
-  // filterRowColumns(row) {
-  //   const out = {};
-
-  //   const outputColumns = this.columns.filter( c => c.selected || c.isStandardColumn() ).map( c => c.selectedColumnName );
-
-  //   for( const [ columnName , value ] of Object.entries(row) ) {
-  //     if( outputColumnNames.includes( columnName ) ) {
-  //       const standardColumnMapping = this.standardColumnMappings.find( mapping => mapping.column === columnName );
-  //       const outputColumnName = standardColumnMapping ? standardColumnMapping.standardColumn : columnName;
-  //       out[outputColumnName] = value;
-  //     }
-  //   }
-
-  //   return out;
-  // }
-
 
   // TODO: remove this bullshit
   upcColumnHack(row) {

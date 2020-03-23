@@ -55,13 +55,6 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', 
       column.toggleSelect();
     };
 
-    vm.setBarcodeColumnAllSheets = function() {
-      if(vm.manifest.barcodeColumnAllSheets) {
-        const activeSheet = vm.getActiveSheet();
-        activeSheet.setBarcodeColumn();
-      }
-    };
-
     vm.getActiveSheet = function() {
       return vm.manifest ? vm.manifest.getActiveSheet(): null;
     };

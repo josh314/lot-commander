@@ -4,7 +4,6 @@ export class Manifest {
   constructor() {
     this.sheets = [];
     this.activeSheet = null;
-    this.barcodeColumnAllSheets = false;
   }
   addSheet(sheet) {
     this.sheets.push(sheet);
@@ -13,10 +12,10 @@ export class Manifest {
     }
   }
 
-  setBarcodeColumnAllSheets(barcodeColumnName) {
+  setStandardColumnAllSheets(columnName, standardColumnName) {
+    console.log(`Setting standard column on all sheets: ${columnName} => ${standardColumnName}`);
     for( const s of this.sheets ) {
-      s.barcodeColumnName = barcodeColumnName;
-      s.setSheetBarcodeColumn();
+      s.setStandardColumn(columnName, standardColumnName);
     }
   }
 
