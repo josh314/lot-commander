@@ -246,9 +246,8 @@ function uploadManifest(req, res, next) {
 
         const s3Key = `${ lotId }/${ lot.handle }${ path.extname(f.name)  }`;
 
-        const storePromise = manifestSvc.putToSvc( readStream, s3Key , true).then(resp=>{
+        const storePromise = manifestSvc.put( readStream, s3Key , true).then(resp=>{
           console.log("Here's where you'd update the lot...");
-          console.log(resp);
           if(resp && resp.data) {
             return updateLot({
               _id: lotId,
