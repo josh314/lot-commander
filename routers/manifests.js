@@ -9,7 +9,7 @@ const manifestSvc = require(path.join(__basedir, __config.modulesPath, 'manifest
 // Manifests endpoints
 router.get('/get', function get( req, res ) {
 
-  const file = `${ req.query.internal ? 'internal' : 'public' }/${req.query.file}`;
+  const file = `${ req.query.private ? 'private' : 'public' }/${req.query.file}`;
 
   manifestSvc.get(file)
     .then( resp => {
@@ -29,6 +29,31 @@ router.get('/get', function get( req, res ) {
       res.json({
         "status": "failed",
         "message": `Unable to get object: '${file}'`
+      });
+    });
+});
+
+router.get('/list', ( req, res ) => {
+
+  const qp = {};
+  if( req.query.num ) {
+    qp.num = req.query.num;
+  }
+  if( req.query.continuation_token ) {
+    qp.continuation_token = req.query.continuation_token;
+  }
+
+  qp.prefix = req.query.lot_id ? `public/${req.query.lot_id}` : 'private';
+
+  manifestSvc.list(qp)
+    .then( resp => {
+      resp.data.pipe(res);
+    })
+    .catch(e => {
+      console.log(e)
+      res.json({
+        "status": "failed",
+        "message": `Unable to get manifets list`
       });
     });
 });

@@ -6,6 +6,7 @@ const getUrl = path => `http://${__config.services.manifests}${path}`;
 
 module.exports = {
   get: get,
+  list: list,
   put: put
 };
 
@@ -31,5 +32,22 @@ function put( readStream, key, isPublic = false ) {
     data: readStream,
     timeout: 10*1000
   });
+
+}
+
+function list( queryParams = {} ) {
+
+  const qs = querystring.stringify(queryParams);
+
+  const uri = `${getUrl( '/list' )}${ qs ? '?' + qs : ''}`;
+
+  return axios({
+    method: 'get',
+    url: uri,
+    responseType: 'stream',
+  });
+}
+
+function build( readStream, sheets, name) {
 
 }
