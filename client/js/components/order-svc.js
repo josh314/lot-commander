@@ -10,9 +10,11 @@ import * as Promise from "bluebird";
 
 import { Order } from '../order';
 
+import * as api from '../api';
 
-angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache',
-  function( $stateParams , api, OrderCache ) { 
+
+angular.module('myApp').factory('OrderSvc', [ '$q', '$stateParams', 'OrderCache',
+  function( $q, $stateParams , OrderCache ) { 
 
     return {
       cache: OrderCache,
@@ -22,7 +24,7 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
     };
 
     function getPendingOrdersList(page) {
-      return api.getOrders(page).then(ordersResponse => {
+      return $q.when( api.getOrders(page) ).then(ordersResponse => {
         if(ordersResponse) {
           const ordersP = ordersResponse.map( o => getOrder( { orderId: o.orderId, buildPicklist: false } ) );
           return Promise.all(ordersP);
@@ -47,7 +49,7 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
         orderP = Promise.resolve(new Order( { data: cachedOrder, fromCache: true } ) );
       }
       else {
-        orderP = api.getOrderById(orderId).then(apiOrderResp => {
+        orderP = $q.when( api.getOrderById(orderId) ).then(apiOrderResp => {
           if(!apiOrderResp) {
             throw new Error(`Can't find Shipstation Order for id ${orderId}.`);
           }
@@ -55,7 +57,6 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
           const order = new Order( { data: apiOrderResp } );
 
           OrderCache.store(order);
-
           return order;
         });
       }
@@ -85,7 +86,7 @@ angular.module('myApp').factory('OrderSvc', [ '$stateParams', 'api', 'OrderCache
       //TODO: Everday bargains won't be in lot-db
       const lotHandle = lineItem.sku;
       if(lotHandle) {
-        return api.getLotByHandle(lotHandle);
+        return $q.when( api.getLotByHandle(lotHandle) );
       }
       else {
         return Promise.resolve({ listingData: { title: lineItem.name } });
