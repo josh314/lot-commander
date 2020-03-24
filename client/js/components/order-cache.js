@@ -1,39 +1,35 @@
-import 'angular';
+import angular from 'angular';
 
 const key = orderId => `order-${orderId}`;
 const keyPattern = /^order-([0-9]*|undefined|null)$/;
 
-angular.module('myApp').factory('OrderCache', [ '$localStorage', function($localStorage) {
-
-  return {
-    get: get,
-    getAll: getAll,
-    reset: reset,
-    resetAll: resetAll,
-    store: store,
-  };
-
-  function get(orderId) {
-    return $localStorage[key(orderId)];
+class OrderCache {
+  constructor($localStorage) {
+    this.$localStorage = $localStorage;
   }
 
-  function store(order) {
-    $localStorage[key(order.id)] = order;
+  get(orderId) {
+    return this.$localStorage[key(orderId)];
+  }
+
+  store(order) {
+    this.$localStorage[key(order.id)] = order;
     return order;
   }
 
-  function getAll() {
-    return Object.entries($localStorage).filter( x => x[0].match(keyPattern) );
+  getAll() {
+    return Object.entries(this.$localStorage).filter( x => x[0].match(keyPattern) );
   }
 
-  function reset(orderId) {
-    delete $localStorage[key(orderId)];
+  reset(orderId) {
+    delete this.$localStorage[key(orderId)];
   }
 
-  function resetAll() {
-    for(let [ key, _ ] of getAll() ) {
-      delete $localStorage[key];
+  resetAll() {
+    for(let [ key, _ ] of this.getAll() ) {
+      delete this.$localStorage[key];
     }
   }
+}
 
-}]);
+angular.module('myApp').factory('OrderCache', [ '$localStorage', OrderCache ]);
