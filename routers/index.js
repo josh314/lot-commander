@@ -61,7 +61,6 @@ function routes() {
 
   // marketplace listings
   router.post('/api/listings/submit', listings.submit);
-  router.use('/api/print', require('./print'));
 
 
   // product data
@@ -69,11 +68,11 @@ function routes() {
     productData.getProductDataByBarcode(req.params.barcode).then(resp=>{
       res.json(resp);
     });
-    // why doesn't .then(res.json) work?
   });
 
+  // import & register routers
   router.use('/api/orders', require('./orders'));
-
+  router.use('/api/print', require('./print'));
   router.use('/api/manifests', require('./manifests'));
 
 
