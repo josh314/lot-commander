@@ -30,6 +30,7 @@ import "./js/components/image-editor.js";
 import "./js/components/image-svc.js";
 // import "./js/components/imports.js";
 import "./js/components/list-lots.js";
+import "./js/components/list-manifests-ctrl.js";
 import "./js/components/list-pending-orders.js";
 import "./js/components/listing-builder.js";
 import "./js/components/listing-title-verifier.js";

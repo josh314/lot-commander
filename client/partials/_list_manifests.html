@@ -1,0 +1,19 @@
+<div class="container" ng-controller="ListManifestsCtrl as ctrl">
+	<div class="row well">
+		<h2>Manifests {{ ctrl.foo}}</h2>
+		<table class="table table-striped">
+			<thead><tr>
+        <th>File</th>
+				<th>Size</th>
+				<th>Last Updated</th>
+			</tr></thead>
+			<tbody>	
+				<tr ng-repeat="manifest in ctrl.manifests">
+					<td><a href="{{manifest.link}}" download="{{manifest.displayName}}" target="_self">{{manifest.displayName}}</a></td>
+          <td>{{manifest.size}}</td>
+          <td>{{manifest.lastModified}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

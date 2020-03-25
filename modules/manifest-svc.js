@@ -43,9 +43,21 @@ function list( queryParams = {} ) {
 
   return axios({
     method: 'get',
-    url: uri,
-    responseType: 'stream',
-  });
+    url: uri
+  })
+    .then(resp => resp.data )
+    .then( data => {
+      return {
+        baseUrl: `https://${data.Name}.s3.amazonaws.com/`,
+        continuationToken: data.NextContinuationToken,
+        manifests: data.Contents.map( item => ({
+            name: item.Key,
+            size: item.Size,
+            lastModified: item.LastModified
+          })
+        )
+      }
+    });
 }
 
 function build( readStream, sheets, name) {

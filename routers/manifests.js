@@ -46,8 +46,8 @@ router.get('/list', ( req, res ) => {
   qp.prefix = req.query.lot_id ? `public/${req.query.lot_id}` : 'private';
 
   manifestSvc.list(qp)
-    .then( resp => {
-      resp.data.pipe(res);
+    .then( manifests => {
+      res.json(manifests);
     })
     .catch(e => {
       console.log(e)
