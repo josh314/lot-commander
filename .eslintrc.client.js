@@ -6,6 +6,7 @@ module.exports = {
     },
     "extends": [
         "eslint:recommended",
+        "plugin:import/errors",
         "angular"
     ],
     "parserOptions": {
@@ -18,7 +19,7 @@ module.exports = {
     "rules": {
         "array-callback-return": [
             "error",
-            { "allowImplicit": true } 
+            { "allowImplicit": true }
         ],
         "block-scoped-var": "error",
         // "default-case": "error",
@@ -35,7 +36,7 @@ module.exports = {
         // "no-empty-function": "warn",
         // "no-eq-null": "error",
         "no-template-curly-in-string": "warn",
-        // "no-undef": "off",
+        "no-undef": "error",
         "no-unused-vars": [
           "warn",
           { 
