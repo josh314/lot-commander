@@ -39,14 +39,11 @@ const stateData = [
   { name: "main.manifests", abstract: true, navName: 'Manifests', url: '/manifests', templateUrl: '/partials/_container.html' },
   { name: "main.manifests.clean", navName: 'Clean', navParent: 'Manifests', url: '/clean', templateUrl: '/partials/_clean_manifest.html', controller: 'CleanManifestCtrl'},
   { name: "main.manifests.list", navName: 'List', navParent: 'Manifests', url: '/list', templateUrl: '/partials/_list_manifests.html' },
-  // { name: "main.manifests.upload", navName: 'Upload', navParent: 'Manifests', url: '/3rd-party-manifest-upload', templateUrl: '/partials/_3rd_party_manifest_upload.html', controller: 'Upload3pManifestCtrl'},
   // users
   { name: "main.users", abstract:true, navName: "Users", url: "/users", templateUrl: 'partials/_container.html'},
   { name: "main.users.change-password", navName: "Change Password", navParent: 'Users', url: "/change-password", templateUrl: 'partials/users/_change_password.html', controller:'ChangeUserPasswordCtrl'},
   { name: "main.users.logout", url: "/logout", navName: 'Logout', navParent: 'Users', controller:'LogoutCtrl' },
-  // imports
-  // { name: "main.imports", abstract: true, url: '/imports', templateUrl: '/partials/_container.html' },
-  // { name: "main.imports.submit", navName: 'Imports', url: '/submit', templateUrl: '/partials/_imports.html', controller: 'ImportsCtrl'},
+
 ];
 
 const stateConfigData = [];
