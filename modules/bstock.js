@@ -4,8 +4,24 @@ const Promise = require('bluebird');
 
 const bstockWeb = require('bstock/bstock-web');
 
-const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
 const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
+
+function boilerplateManifestItems(lot, manifestOptions) {
+  let item;
+  item = {
+    Category: manifestOptions.Category,
+    'Item Description': lot.listingData.title,
+    Qty: lot.totalUnits,
+    'Retail Per Unit': '13.99',
+    Condition: manifestOptions.Condition,
+    Packaging: manifestOptions.Packaging,
+    UPC: '',
+    Manufacturer: '',
+    Model: '',
+    'Expiration Date': '',
+  };
+  return [item];
+}
 
 async function submitListing(data) {
   const lot = data.lot;
@@ -38,17 +54,15 @@ async function submitListing(data) {
   }).filter( _ => _ ); // filter out the nulls that come from missing images
 
   const manifestOptions = {
-    bstock: {
-      Category: data.category,
-      Condition: data.condition,
-      Packaging: data.packaging,
-    },
+    Category: data.category,
+    Condition: data.condition,
+    Packaging: data.packaging,
   };
 
   const submissionData = {
     shipping: data.shipping,
     // manifestItems: lot.unmanifested ? manifests.boilerplateManifestItems(lot, manifestOptions) : await manifests.getManifestItemsForLot(lot, manifestOptions),
-    manifestItems: manifests.boilerplateManifestItems(lot, manifestOptions),
+    manifestItems: boilerplateManifestItems(lot, manifestOptions),
     totalUnits: lot.totalUnits,
     title: lot.listingData.title,
     description: data.bodyBoilerplate ? (lot.listingData.body + '\n\n' + data.bodyBoilerplate) : lot.listingData.body,

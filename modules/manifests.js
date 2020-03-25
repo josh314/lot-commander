@@ -164,25 +164,7 @@ async function generateManifestFile(req, res, next){
   writeFile(filename, manifestCsv).then(()=>{__logger.info(`Manifest written to ${filename}`);});
 }
 
-function boilerplateManifestItems(lot, manifestOptions) {
-  let item;
-  item = {
-    Category: manifestOptions.bstock.Category,
-    'Item Description': lot.listingData.title,
-    Qty: lot.totalUnits,
-    'Retail Per Unit': '13.99',
-    Condition: manifestOptions.bstock.Condition,
-    Packaging: manifestOptions.bstock.Packaging,
-    UPC: '',
-    Manufacturer: '',
-    Model: '',
-    'Expiration Date': '',
-  };
-  return [item];
-}
-
 module.exports = {
   getManifestItemsForLot: getManifestItemsForLot,
   generateManifestFile: generateManifestFile,
-  boilerplateManifestItems: boilerplateManifestItems,
 };
