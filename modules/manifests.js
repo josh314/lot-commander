@@ -2,18 +2,14 @@ const path = require('path');
 const fs = require('fs');
 
 const json2csv = require('json2csv');
-// const formidable = require('formidable');
 
 const Promise = require('bluebird');
 const readDir = Promise.promisify(fs.readdir);
 const writeFile = Promise.promisify(fs.writeFile);
 const fileStats = Promise.promisify(fs.stat);
 
-// const manParse = require(path.join(__config.libDir.manifestParse, 'lib'));
-
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
-// const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
 const manifestFilesPath = path.join(__basedir, __config.manifestFilesPath);
@@ -193,7 +189,6 @@ function getManifestItemsForLot(lot, opts={}) {
   }
 
   const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.toObject().inventory) : Promise.resolve([]);
-  // const thirdPartyManifestP = lot.thirdPartyManifests.length ? inmarDb.getBlockByBlockId(lot.thirdPartyManifests[0].blockId).then(b => b.contents) : Promise.resolve([]);
   const thirdPartyManifestP = Promise.resolve([]); // placeholder
   return Promise.join(scannedManifestP, thirdPartyManifestP).spread(async (scannedInventory, thirdPartyInventory)=>{
     const inventory = scannedInventory.concat(thirdPartyInventory);
@@ -242,43 +237,6 @@ function downloadManifestFile(req, res) {
   }
 }
 
-// function submit3pManifest(req,res,next) {
-//   const form = new formidable.IncomingForm();
-//   form.parse(req, function (err, fields, files) {
-//     manParse.parse(files.file.path, JSON.parse(fields.parseOpts))
-//       .catch(e=>{
-//         e.clientMessage = 'Error parsing uploaded file. Check if all settings are correct.';
-//         throw e;
-//       }).
-//       then(blocks=>{
-//         const manifest = {};
-//         if(fields.liquidationSource) {
-//           manifest.liquidationSource = fields.liquidationSource;
-//         }
-//         if(fields.purchasingSource) {
-//           manifest.purchasingSource = fields.purchasingSource;
-//         }
-//         if(fields.type) {
-//           manifest.type = fields.type;
-//         }
-//         if(fields.priceType) {
-//           manifest.priceType = fields.priceType;
-//         }
-//         manifest.blocks = Object.entries(blocks).map( item => {
-//           return { blockId: item[0], contents: item[1] };
-//         });
-//         //TODO: handle other purchasing sources besides inmar
-//         inmarDb.newManifest(manifest).then(newManifest=>{
-//           res.json(newManifest);        
-//         });
-//       })
-//       .catch(e=>{
-//       // Customize server error messages
-//         next(e);
-//       });
-//   });
-// }
-
 function boilerplateManifestItems(lot, manifestOptions) {
   let item;
   item = {
@@ -301,6 +259,5 @@ module.exports = {
   listManifestFiles: listManifestFiles,
   generateManifestFile: generateManifestFile,
   downloadManifestFile: downloadManifestFile,
-  // submit3pManifest: submit3pManifest,
   boilerplateManifestItems: boilerplateManifestItems,
 };

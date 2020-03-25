@@ -12,7 +12,6 @@ const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-se
 const manifestSvc = require(path.join(__basedir, __config.modulesPath, 'manifest-svc'));
 
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
-// const inmarDb = require(path.join(__basedir, __config.modulesPath, 'inmar-db'));
 
 const libLotDb = require('lot-db');
 
@@ -155,60 +154,6 @@ function removeImage(lotId, image) {
   return lotdbClient.removeImage(lotId, image);
 }
 
-// function link3pManifestBlock(req, res, next){
-//   const blockId = req.body.blockId;
-//   inmarDb.getManifestByBlockId(blockId).then(manifest=>{
-//     if(!manifest) {
-//       const msg = 'Block Id not found.';
-//       const e = new Error(msg);
-//       e.clientMessage = msg;
-//       next(e);
-//     }
-//     else {
-//       const block = manifest.blocks.find(b => b.blockId===blockId);
-//       const totalUnits = block.contents.reduce((units, item) => units + item.quantity, 0);
-//       const linkManifestData = { dbId: manifest._id, blockId: blockId, totalUnits };
-//       lotdbClient.add3pManifest(req.body.lotId, linkManifestData).then(resp=>{
-//         res.json(resp);
-//       });
-//     }
-//   });
-// }
-
-// function import3pManifestBlock(req, res, next){
-//   const blockId = req.body.blockId;
-//   inmarDb.getManifestByBlockId(blockId).then(thirdPartyManifest=>{
-//     if(!thirdPartyManifest) {
-//       const msg = 'Block Id not found.';
-//       const e = new Error(msg);
-//       e.clientMessage = msg;
-//       next(e);
-//     }
-//     else {
-//       const lot = req.body.lot;
-//       const block = thirdPartyManifest.blocks.find(b => b.blockId===blockId);
-
-//       mandb.submitManifest({
-//         handle: lot.handle,
-//         inventory: block.contents,
-//       })
-//         .then(mandbResp=>{
-//           if(mandbResp) {
-//             const lotUpdate = {
-//               _id: lot._id,
-//               totalUnits: block.contents.reduce((units, item) => units + item.quantity, 0),
-//               manifestId: mandbResp._id,
-//             };
-//             return Promise.join(mandbResp, lotdbClient.updateLot(lotUpdate));
-//           }
-//         })
-//         .then(resp=>{
-//           res.json(resp);
-//         });
-//     }
-//   });
-// }
-
 function markAsListed(lotId) {
   const data = {
     _id: lotId,
@@ -294,8 +239,6 @@ module.exports = {
   packagingTypeEnum: lotdbClient.LotModel.packagingTypeEnum,
   weightUnitsEnum: lotdbClient.LotModel.weightUnitsEnum,
   lengthUnitsEnum: lotdbClient.LotModel.lengthUnitsEnum,
-  // link3pManifestBlock: link3pManifestBlock,
-  // import3pManifestBlock: import3pManifestBlock,
   markAsListed: markAsListed,
   updateLot: updateLot,
 };
