@@ -50,9 +50,7 @@ function routes() {
   router.post('/api/bstock-db/auctions/get', express.json(), bstockDb.getAuctions);
 
   // deal with files
-  router.get('/api/manifest-files/list', manifests.listManifestFiles);
   router.post('/api/manifest-files/generate', manifests.generateManifestFile);
-  router.get('/api/manifest-files/download/:file', manifests.downloadManifestFile);
 
   router.post('/api/image/upload', images.upload);
   router.post('/api/image/primary', lotdb.setPrimaryImage);

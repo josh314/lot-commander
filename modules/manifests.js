@@ -4,9 +4,7 @@ const fs = require('fs');
 const json2csv = require('json2csv');
 
 const Promise = require('bluebird');
-const readDir = Promise.promisify(fs.readdir);
 const writeFile = Promise.promisify(fs.writeFile);
-const fileStats = Promise.promisify(fs.stat);
 
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
@@ -17,63 +15,6 @@ if(!fs.existsSync(manifestFilesPath)) {
   fs.mkdirSync(manifestFilesPath);
 }
 
-const manifestFilenamePattern = /^(.*?)-?(bstock)?-([0-9a-fA-F]{24}).csv$/;
-function parseManifestFilename(filename) {
-  const match = filename.match(manifestFilenamePattern);
-  return match ? { filename: filename, handle: match[1], format: match[2] ? match[2] : 'default', _id: match[3] } : null;
-}
-
-function humanReadableSize(size) {
-  let units;
-  if (size >= 1000 * 1000) {
-    size = size /1000 /1000;
-    units = 'MB';
-  }
-  else if (size >= 1000) {
-    size = size /1000;
-    units = 'KB';
-  }
-  else {
-    units = 'B';
-  }
-  return `${size}${units}`;
-}
-
-function listManifestFiles(req, res) {
-  //TODO: set from request
-  const limit = 25;
-
-  readDir(manifestFilesPath).then(files=>{
-    const fileData = [];
-    for(let f of files.map(parseManifestFilename).filter(x=>x)) {
-      fileData.push(fileStats(path.join(manifestFilesPath, f.filename)).then(stats=>{
-        f.updatedAt = stats.mtime;
-        f.size = humanReadableSize(stats.size);
-        return f;
-      }));
-    }
-    return Promise.all(fileData);
-  })
-    .then(files=>{
-      return files.sort((a,b) => (new Date(a.updatedAt)) < (new Date(b.updatedAt)));
-    })
-    .then(files=>{
-      return files.slice(0, limit);
-    })
-    .then(files=>{
-      res.json({
-        status: 'success',
-        files: files,
-      });
-    }).
-    catch(err=>{
-      __logger.error(err);
-      res.json({
-        status: 'error',
-        error: err.toString()
-      });
-    });
-}
 
 function getProductData(inventory) {
   console.log(`Retreiving API product data for ${inventory.length} products`);
@@ -223,20 +164,6 @@ async function generateManifestFile(req, res, next){
   writeFile(filename, manifestCsv).then(()=>{__logger.info(`Manifest written to ${filename}`);});
 }
 
-function downloadManifestFile(req, res) {
-  //TODO: test file existence then download
-  try {
-    res.download(path.join(manifestFilesPath, req.params.file));
-  }
-  catch (err) {
-    __logger.error(err);
-    res.json({
-      status: 'error',
-      error: err.toString()
-    });
-  }
-}
-
 function boilerplateManifestItems(lot, manifestOptions) {
   let item;
   item = {
@@ -256,8 +183,6 @@ function boilerplateManifestItems(lot, manifestOptions) {
 
 module.exports = {
   getManifestItemsForLot: getManifestItemsForLot,
-  listManifestFiles: listManifestFiles,
   generateManifestFile: generateManifestFile,
-  downloadManifestFile: downloadManifestFile,
   boilerplateManifestItems: boilerplateManifestItems,
 };
