@@ -1,20 +1,9 @@
 const path = require('path');
-const fs = require('fs');
-
-const json2csv = require('json2csv');
 
 const Promise = require('bluebird');
-const writeFile = Promise.promisify(fs.writeFile);
 
-const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
-
-const manifestFilesPath = path.join(__basedir, __config.manifestFilesPath);
-if(!fs.existsSync(manifestFilesPath)) {
-  fs.mkdirSync(manifestFilesPath);
-}
-
 
 function getProductData(inventory) {
   console.log(`Retreiving API product data for ${inventory.length} products`);
@@ -137,34 +126,6 @@ function getManifestItemsForLot(lot, opts={}) {
   });
 }
 
-async function getManifestCsv(lot, manifestOpts={}) {
-  const manifestItems = await getManifestItemsForLot(lot, manifestOpts);
-  return json2csv.parse(manifestItems.map(x => { 
-    const res = Object.assign({}, x);
-    delete res.images;
-    return res;
-  }));
-}
-
-async function generateManifestFile(req, res, next){
-  const lotId = req.body.lotId;
-  const manifestOpts = {};
-  if(req.body.bstock) {
-    manifestOpts.bstock = req.body.bstock;
-  }
-
-  const lot = await lotdb.getLotById(lotId);
-  if(!lot) {
-    next(new Error(`No lot for id ${lotId}`));
-  }
-  res.json({ status: 'submitted' });
-
-  const manifestCsv = await getManifestCsv(lot, manifestOpts);
-  const filename = path.join(manifestFilesPath, `${lot.handle}${req.body.bstock? '-bstock': ''}-${lot._id}.csv`);
-  writeFile(filename, manifestCsv).then(()=>{__logger.info(`Manifest written to ${filename}`);});
-}
-
 module.exports = {
   getManifestItemsForLot: getManifestItemsForLot,
-  generateManifestFile: generateManifestFile,
 };

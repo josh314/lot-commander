@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* Lot List Page Controller *************************/
-angular.module('myApp').controller('ListLotsCtrl', ['$scope', '$state', '$http', 'dbEnums', 'lotStore', 'messageModal', 'requestFileModal', 'saveLot', 'sessionTimeout', 
-  function($scope, $state, $http, dbEnums, lotStore, messageModal, requestFileModal, saveLot, sessionTimeout) {
+angular.module('myApp').controller('ListLotsCtrl', ['$scope', '$state', '$http', 'dbEnums', 'lotStore', 'saveLot', 'sessionTimeout', 
+  function($scope, $state, $http, dbEnums, lotStore, saveLot, sessionTimeout) {
     sessionTimeout.timeoutExpired();
     $scope.lots = [];
 
@@ -54,15 +54,6 @@ angular.module('myApp').controller('ListLotsCtrl', ['$scope', '$state', '$http',
           });
         }
         $state.go('main.lots.view');
-      }
-    };
-
-    $scope.requestFile = function(lot) {
-      if(!lot.manifestId && !lot.thirdPartyManifests.length) {
-        messageModal.launch({header: 'Error', body: 'No manifested items for this lot.', type: 'error'});
-      } 
-      else {
-        requestFileModal.launch(lot);
       }
     };
 

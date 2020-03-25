@@ -37,16 +37,11 @@
 			    			<option ng-repeat="marketplace in marketplaces">{{marketplace}}</option>
 				    	</select>
 				    </td>
-	                <td>
-	                	<span>
-		                	<button class="btn btn-success btn-xs" ng-click="scanItems(lot._id)" ng-disabled="lot.unmanifested">Scan Items</button>
-		                </span>
-		            </td>
-	                <td>
-	                	<span>
-		                	<button class="btn btn-success btn-xs" ng-click="requestFile(lot)" ng-disabled="lot.unmanifested">Create Manifest File</button>
-		                </span>
-		            </td>
+            <td>
+              <span>
+                <button class="btn btn-success btn-xs" ng-click="scanItems(lot._id)" ng-disabled="lot.unmanifested">Scan Items</button>
+              </span>
+            </td>
 				</tr>
 			</tbody>
 		</table>
