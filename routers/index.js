@@ -9,7 +9,6 @@ const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'
 const images = require(path.join(__basedir, __config.modulesPath, 'images'));
 const users = require(path.join(__basedir, __config.modulesPath, 'users'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
-// const imports = require(path.join(__basedir, __config.modulesPath, 'imports'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
 // middleware to stick for testing purposes
@@ -46,23 +45,14 @@ function routes() {
   router.post('/api/db/save-manifest', lotdb.saveManifest);
   router.get('/api/db/manifest/:manifestId', lotdb.getManifest);
   router.post('/api/db/upload-lot-manifest/:lotId', lotdb.uploadManifest);
-  // router.post('/api/db/link-3p-manifest-block', lotdb.link3pManifestBlock);
-  // router.post('/api/db/import-3p-manifest-block', lotdb.import3pManifestBlock);
 
   // bstock db api
   router.post('/api/bstock-db/auctions/get', express.json(), bstockDb.getAuctions);
-
-  // interact with manifest database
-  // router.post('/api/db/get', mandb.getManifests);
-  // router.post('/api/db/submit/:manifestId', mandb.submitManifest);
-  // router.post('/api/db/submit', mandb.submitManifest);
-  // router.get('/api/db/delete/:manifestId', mandb.deleteManifest);
 
   // deal with files
   router.get('/api/manifest-files/list', manifests.listManifestFiles);
   router.post('/api/manifest-files/generate', manifests.generateManifestFile);
   router.get('/api/manifest-files/download/:file', manifests.downloadManifestFile);
-  // router.post('/api/manifest-files/upload', manifests.submit3pManifest);
 
   router.post('/api/image/upload', images.upload);
   router.post('/api/image/primary', lotdb.setPrimaryImage);
@@ -73,11 +63,6 @@ function routes() {
 
   // marketplace listings
   router.post('/api/listings/submit', listings.submit);
-
-  // //import functionality
-  // router.post('/api/imports/manifest', imports.importManifestApi);
-  // router.post('/api/imports/barcodes', express.json(), imports.importBarcodesApi);
-
   router.use('/api/print', require('./print'));
 
 
