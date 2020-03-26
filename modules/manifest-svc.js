@@ -5,10 +5,34 @@ const axios = require('axios');
 const getUrl = path => `http://${__config.services.manifests}${path}`;
 
 module.exports = {
+  build: build,
   get: get,
   list: list,
-  put: put
+  put: put,
 };
+
+function build( sheets, saveAs = '', isPublic = false) {
+
+  const data = {
+    sheets: sheets,
+  };
+
+  if(saveAs) {
+    data.s3 = {
+      key: saveAs,
+      public: isPublic
+    }
+  }
+
+  return axios({
+    method: 'post',
+    url: `${getUrl( '/build' )}`,
+    data: data,
+    responseType: 'stream',
+    timeout: 10*1000
+  });
+
+}
 
 function get(key) {
 
@@ -58,8 +82,4 @@ function list( queryParams = {} ) {
         )
       }
     });
-}
-
-function build( readStream, sheets, name) {
-
 }

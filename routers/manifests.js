@@ -57,3 +57,12 @@ router.get('/list', ( req, res ) => {
       });
     });
 });
+
+router.post('/build', ( req, res ) => {
+  const { saveAs, isPublic, sheets } = req.body;
+  manifestSvc.build( sheets, saveAs, isPublic )
+  .then( resp => {
+    console.log('Streaming response...');
+    resp.data.pipe(res);
+  });
+});
