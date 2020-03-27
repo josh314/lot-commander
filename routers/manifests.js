@@ -6,17 +6,49 @@ module.exports = router;
 
 const manifestSvc = require(path.join(__basedir, __config.modulesPath, 'manifest-svc'));
 
-// Manifests endpoints
-router.get('/get', function get( req, res ) {
+/**************************************
+ * List
+ * ====
+ *
+ * This endpoint gets all manifests.
+ * params:
+ *   - num
+ *   - continuation_token : for paging results
+ *   - prefix : to narrow list to keys with a given prefix
+ *
+ ********************/
+router.get('/', ( req, res ) => {
 
-  const file = `${ req.query.private ? 'private' : 'public' }/${req.query.file}`;
+  manifestSvc.list( req.query )
+    .then( manifests => {
+      res.json(manifests);
+    })
+    .catch(e => {
+      console.log(e)
+      res.json({
+        "status": "failed",
+        "message": `Unable to get manifest list`
+      });
+    });
+});
 
-  manifestSvc.get(file)
+/**************************************
+ * Get
+ * ====
+ *
+ * Get an individual manifest. The URI path parameter(s) is the full S3 key
+ *
+ ********************/
+router.get('/*', function get( req, res ) {
+
+  const key = req.params[0];
+
+  manifestSvc.get(key)
     .then( resp => {
       if( resp.data.error === 'NoSuchKey') {
         res.json({
           status: "failed",
-          message: `File does not exist: ${file}`
+          message: `File does not exist: ${key}`
         })
       }
       else {
@@ -28,32 +60,7 @@ router.get('/get', function get( req, res ) {
       console.log(e)
       res.json({
         "status": "failed",
-        "message": `Unable to get object: '${file}'`
-      });
-    });
-});
-
-router.get('/list', ( req, res ) => {
-
-  const qp = {};
-  if( req.query.num ) {
-    qp.num = req.query.num;
-  }
-  if( req.query.continuation_token ) {
-    qp.continuation_token = req.query.continuation_token;
-  }
-
-  qp.prefix = req.query.lot_id ? `public/${req.query.lot_id}` : 'private';
-
-  manifestSvc.list(qp)
-    .then( manifests => {
-      res.json(manifests);
-    })
-    .catch(e => {
-      console.log(e)
-      res.json({
-        "status": "failed",
-        "message": `Unable to get manifets list`
+        "message": `Unable to get object: '${key}'`
       });
     });
 });

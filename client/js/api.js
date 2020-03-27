@@ -47,23 +47,20 @@ export function getOrderById(orderId) {
 *
 ************/
 
-export function listManifests() {
+export function listManifests( isPublic = false ) {
   const qp = {
-    num: 25
+    num: 25,
+    prefix: isPublic ? 'public' : 'private'
   };
 
-  const uri = `/api/manifests/list?${querystring.stringify(qp)}`;
+  const uri = `/api/manifests/?${querystring.stringify(qp)}`;
 
   return axios.get(uri).then( resp => resp.data );
 }
 
 export function getManifest( fileName, isPrivate = false ) {
-  const qp = {
-    file: fileName,
-    private: isPrivate ? 1 : 0
-  };
 
-  const uri = `/api/manifests/get?${querystring.stringify(qp)}`;
+  const uri = `/api/manifests/${ isPrivate ? 'private' : 'public' }/${encodeURIComponent(fileName)}`;
 
   return axios({
     method: 'get',

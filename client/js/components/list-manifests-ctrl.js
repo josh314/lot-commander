@@ -15,7 +15,7 @@ angular.module('myApp').controller('ListManifestsCtrl', ['$q', 'sessionTimeout',
       return api.listManifests().then( resp => {
         return resp.manifests.map( item => {
           item.displayName = path.basename(item.name);
-          item.link = `/api/manifests/get?file=${item.displayName}&private=1`;
+          item.link = `/api/manifests/${item.name}`;
           return item;
         });
       });
