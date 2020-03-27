@@ -62,7 +62,13 @@ router.post('/build', ( req, res ) => {
   const { saveAs, isPublic, sheets } = req.body;
   manifestSvc.build( sheets, saveAs, isPublic )
   .then( resp => {
-    console.log('Streaming response...');
-    resp.data.pipe(res);
+    if(saveAs) {
+      console.log('JSON response...');
+      res.json(resp.data);
+    }
+    else {
+      console.log('Streaming response...');
+      resp.data.pipe(res);
+    }
   });
 });

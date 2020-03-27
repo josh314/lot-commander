@@ -28,7 +28,7 @@ function build( sheets, saveAs = '', isPublic = false) {
     method: 'post',
     url: `${getUrl( '/build' )}`,
     data: data,
-    responseType: 'stream',
+    responseType: saveAs ? 'json' : 'stream',
     timeout: 10*1000
   });
 

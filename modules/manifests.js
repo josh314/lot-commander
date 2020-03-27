@@ -2,8 +2,19 @@ const path = require('path');
 
 const Promise = require('bluebird');
 
+const lotDb = require('./lot-db');
+const manifestSvc = require('./manifest-svc');
+
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
+
+const __STANDARD_COLUMNS__ =[
+  'UPC/EAN/GTIN',
+  'Description',
+  'Quantity',
+  'Price'
+];
+const __STANDARD_BARCODE_COLUMN__ = __STANDARD_COLUMNS__[0];
 
 function getProductData(inventory) {
   console.log(`Retreiving API product data for ${inventory.length} products`);
@@ -90,24 +101,24 @@ function buildManifestItems(inventory, opts={}) {
   return (opts.refreshProductData ? getProductData(inventory) : Promise.resolve(inventory) ).then(formatManifestFromInventoryProductData(opts));
 }
 
-function defaultProductTitleForLot(lot){
+function defaultProductTitleForLot(lotHandle){
   let title;
-  if(lot.handle.match(/PC/)) {
+  if(lotHandle.match(/PC/)) {
     title = 'Personal Care Product';
   }
-  else if(lot.handle.match(/GM/)) {
+  else if(lotHandle.match(/GM/)) {
     title = 'General Merchandise';
   }
-  else if(lot.handle.match(/VT/)) {
+  else if(lotHandle.match(/VT/)) {
     title = 'Vitamins & Supplements';
   }
-  else if(lot.handle.match(/CS/)) {
+  else if(lotHandle.match(/CS/)) {
     title = 'Cosmetics';
   }
-  else if(lot.handle.match(/NP/)) {
+  else if(lotHandle.match(/NP/)) {
     title = 'Nail Polish';
   }
-  else if(lot.handle.match(/AP/)) {
+  else if(lotHandle.match(/AP/)) {
     title = 'Apparel';
   }
   return title;
@@ -115,7 +126,7 @@ function defaultProductTitleForLot(lot){
 
 function getManifestItemsForLot(lot, opts={}) {
   if(!opts.defaultProductTitle) {
-    opts.defaultProductTitle = defaultProductTitleForLot(lot);
+    opts.defaultProductTitle = defaultProductTitleForLot(lot.handle);
   }
 
   const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.toObject().inventory) : Promise.resolve([]);
@@ -126,6 +137,69 @@ function getManifestItemsForLot(lot, opts={}) {
   });
 }
 
+/*****************************************************
+ * opts = {
+ *   save: Boolean ( save to S3 and update lot with S3 location if true, otherwise return generated manifest )
+ *   bstock: Boolean ( use bstock manifest columns, otherwise use the canonical Wholesale Ninjas format )
+ *   columns: styles for columns
+ * }
+ * 
+ * Return type depends on `opts.save`:
+ *   - false: returns a readStream with the contents of the created manifest 
+ *   - true: a simple JSON object with details about the lot and the link to the S3 Object where the manifest file is stored
+ **********************/
+async function generateLotManifest( lotId, opts = {} ) {
+  const lot = await lotDb.getLotById( lotId );
+
+  const manifestItems = await getManifestItemsForLot( lot, { bstock: opts.bstock } );
+
+  const sheets = [
+    {
+      name: 'Manifest',
+      protected: true,
+      columnStyles: columns,
+      rows: manifestItems
+    }
+  ];
+
+  if(opts.save) {
+    const saveAs = `${lotId}/${ lot.handle }.xlsx`;
+    const isPublic = true;
+
+    const buildManifestResponse = await manifestSvc.build( sheets, saveAs, isPublic );
+
+    if( buildManifestResponse.data.success ) {
+
+      lotDb.updateLot({ lotId: lotId, manifestFileLocation: buildManifestResponse.data.link });
+
+      return {
+        lotId: lotId,
+        handle: lot.handle,
+        manifest: buildManifestResponse.data.link
+      };
+
+    }
+    else {
+
+      throw new Error(`Failure during generation or saving of manifest for lot ${lot.handle} (lotId: ${lotId})`);
+
+    }
+  }
+  else {
+
+    const resp = manifestSvc.build( sheets );
+
+    const readStream = resp.data;
+
+    return readStream;
+
+  }
+}
+
 module.exports = {
   getManifestItemsForLot: getManifestItemsForLot,
+  generateLotManifest: generateLotManifest,
+  // CONSTANTS
+  __STANDARD_BARCODE_COLUMN__: __STANDARD_BARCODE_COLUMN__,
+  __STANDARD_COLUMNS__: __STANDARD_COLUMNS__
 };
