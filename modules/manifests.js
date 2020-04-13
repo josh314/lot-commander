@@ -169,9 +169,9 @@ async function generateLotManifest( lotId, opts = {} ) {
 
     const buildManifestResponse = await manifestSvc.build( sheets, saveAs, isPublic );
 
-    if( buildManifestResponse.data.success ) {
+    if( buildManifestResponse.data.submitted ) {
 
-      lotDb.updateLot({ lotId: lotId, manifestFileLocation: buildManifestResponse.data.link });
+      lotDb.updateLot({ _id: lotId, manifestFileLocation: buildManifestResponse.data.link });
 
       return {
         lotId: lotId,

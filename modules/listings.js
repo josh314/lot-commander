@@ -5,6 +5,7 @@ const Promise = require('bluebird');
 const lotDb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const bstock = require(path.join(__basedir, __config.modulesPath, 'bstock'));
 const shopify = require(path.join(__basedir, __config.modulesPath, 'shopify'));
+const manifests = require('./manifests');
 
 const conditionBoilerplateListItems = [
   'Have retail stickers such as price tags or discount/store labels.', 
@@ -97,6 +98,12 @@ const submit = Promise.method(async function(req, res, next) {
     dateSubmitted: new Date()
   };
   try {
+
+    if(!listing.lot.manifestFileLocation) {
+      const generatedManifestResponse = await manifests.generateLotManifest( req.body.lotId , { save: true } );
+      listing.lot.manifestFileLocation = generatedManifestResponse.manifest;
+    }
+
     await submitFn[listing.marketplace](listing);
     Object.assign(newSubmittedListing, {
       success: true,
