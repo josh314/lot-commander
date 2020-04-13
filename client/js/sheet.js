@@ -2,20 +2,13 @@ import * as xlsx from 'xlsx';
 
 import * as libBarcodes from 'barcodes';
 
-const __STANDARD_COLUMNS__ = [
-  'UPC/EAN/GTIN',
-  'Description',
-  'Quantity',
-  'Price'
-];
-
-const __BARCODE_COLUMN__ = __STANDARD_COLUMNS__[0];
-
 export class Sheet {
   constructor(opts) {
 
     this.manifest = opts.manifest;
     this.name = opts.name;
+    this.__STANDARD_BARCODE_COLUMN__ = opts.standardBarcodeColumnName;
+    this.__STANDARD_COLUMNS__ = opts.standardColumnNames;
 
     this.getBarcodeColumn = function() {
       return this.columns.find( column => column.isBarcodeColumn() );
@@ -37,12 +30,13 @@ export class Sheet {
 
     if( this.rows && this.rows[0] ) {
       const columnRenameMapping = {};
+      const __BARCODE_COLUMN__ = this.__STANDARD_BARCODE_COLUMN__;
 
       this.columns = Object.entries(this.rows[0]).filter( kv => kv[0] !== 'idx' ).map( kv => {
         let [ name, _ ] = kv;
 
         // Rename column if it matches a standard column name
-        const matchedStandardColumn = __STANDARD_COLUMNS__.find( column => column === name );
+        const matchedStandardColumn = this.__STANDARD_COLUMNS__.find( column => column === name );
         if( matchedStandardColumn ) {
           const newName = '__' + matchedStandardColumn;
           columnRenameMapping[name] = newName;
@@ -96,7 +90,7 @@ export class Sheet {
     }, {});
 
     this.columns.forEach( currentColumn => {
-      currentColumn.nameOptions = Object.assign( [ ], __STANDARD_COLUMNS__ ) ;
+      currentColumn.nameOptions = Object.assign( [ ], this.__STANDARD_COLUMNS__ ) ;
 
       for( let [columnName, displayName] of Object.entries(standardColumnAssignments) ) {
         if( columnName !== currentColumn.name ) {
@@ -184,8 +178,8 @@ export class Sheet {
     
     const outputColumnNames = this.columns.filter( c => c.isSelected() ).map( c => c.displayName );
     outputColumnNames.sort((a, b) => {
-      const aIndex = __STANDARD_COLUMNS__.indexOf(a);
-      const bIndex = __STANDARD_COLUMNS__.indexOf(b);
+      const aIndex = this.__STANDARD_COLUMNS__.indexOf(a);
+      const bIndex = this.__STANDARD_COLUMNS__.indexOf(b);
       if( aIndex < 0 && bIndex < 0 ) {
         return 0;
       }
@@ -209,8 +203,8 @@ export class Sheet {
 
   // TODO: remove this bullshit
   upcColumnHack(row) {
-    if( row[ __BARCODE_COLUMN__ ] ) {
-      row[ __BARCODE_COLUMN__ ] = `'${row[ __BARCODE_COLUMN__ ]}`;
+    if( row[ this.__STANDARD_BARCODE_COLUMN__ ] ) {
+      row[ this.__STANDARD_BARCODE_COLUMN__ ] = `'${row[ this.__STANDARD_BARCODE_COLUMN__ ]}`;
     }
     return row;
   }

@@ -8,13 +8,14 @@ const manifestSvc = require('./manifest-svc');
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
-const __STANDARD_COLUMNS__ =[
-  'UPC/EAN/GTIN',
-  'Description',
-  'Quantity',
-  'Price'
-];
-const __STANDARD_BARCODE_COLUMN__ = __STANDARD_COLUMNS__[0];
+const __STANDARD_COLUMN_NAMES__ = {
+  barcode: 'UPC/EAN/GTIN',
+  description: 'Description',
+  quantity: 'Quantity',
+  price: 'Unit Price',
+  image: 'Image'
+};
+const __STANDARD_COLUMNS__ = Object.values(__STANDARD_COLUMN_NAMES__);
 
 function getProductData(inventory) {
   console.log(`Retreiving API product data for ${inventory.length} products`);
@@ -80,11 +81,11 @@ function formatManifestFromInventoryProductData(opts={}) {
       }
       else {
         item = {
-          barcode: inventoryItem.barcode,
-          title: productTitle,
-          unitPrice: inventoryItem.price,
-          quantity: inventoryItem.quantity,
-          images: inventoryItem.images || []
+          [ __STANDARD_COLUMN_NAMES__.barcode ]: inventoryItem.barcode,
+          [ __STANDARD_COLUMN_NAMES__.description ]: productTitle,
+          [ __STANDARD_COLUMN_NAMES__.price ]: inventoryItem.price,
+          [ __STANDARD_COLUMN_NAMES__.quantity ]: inventoryItem.quantity,
+          [ __STANDARD_COLUMN_NAMES__.image ]: inventoryItem.images || []
         };
       }
 
@@ -157,7 +158,7 @@ async function generateLotManifest( lotId, opts = {} ) {
     {
       name: 'Manifest',
       protected: true,
-      columnStyles: columns,
+      columnStyles: opts.bstock ? undefined : { [ __STANDARD_COLUMN_NAMES__.price ]: 'currency' },
       rows: manifestItems
     }
   ];
@@ -200,6 +201,6 @@ module.exports = {
   getManifestItemsForLot: getManifestItemsForLot,
   generateLotManifest: generateLotManifest,
   // CONSTANTS
-  __STANDARD_BARCODE_COLUMN__: __STANDARD_BARCODE_COLUMN__,
+  __STANDARD_BARCODE_COLUMN__: __STANDARD_COLUMN_NAMES__.barcode,
   __STANDARD_COLUMNS__: __STANDARD_COLUMNS__
 };

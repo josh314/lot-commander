@@ -5,8 +5,8 @@ import { Sheet } from '../sheet';
 import { Manifest } from '../manifest';
 
 /******************* Manifest Cleaner Controller *************************/
-angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', 'sessionTimeout',
-  function($scope, $uibModal, sessionTimeout) {
+angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', '__STANDARD_MANIFEST_COLUMNS__', '__STANDARD_MANIFEST_BARCODE_COLUMN__', 'sessionTimeout',
+  function($scope, $uibModal, __STANDARD_MANIFEST_COLUMNS__, __STANDARD_MANIFEST_BARCODE_COLUMN__, sessionTimeout) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -43,7 +43,9 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', 
               name: name,
               data: data,
               noHeaderRow: vm.noHeaderRow,
-              skipFirstRows: vm.skipFirstRows
+              skipFirstRows: vm.skipFirstRows,
+              standardColumnNames: __STANDARD_MANIFEST_COLUMNS__,
+              standardBarcodeColumnName: __STANDARD_MANIFEST_BARCODE_COLUMN__,
             };
             vm.manifest.addSheet( new Sheet(sheetOpts) );
           }
