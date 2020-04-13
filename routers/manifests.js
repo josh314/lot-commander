@@ -65,17 +65,52 @@ router.get('/*', function get( req, res ) {
     });
 });
 
-router.post('/build', ( req, res ) => {
-  const { saveAs, isPublic, sheets } = req.body;
+/**************************************
+ * Put
+ * ====
+ *
+ * Upserts an individual manifest to S3.
+ * If the URL path begins with public/private, the S3 is exactly given by the URL path.
+ * If not, 'private' will end up being prepended to create the final S3 key (therefore somewhat violating RESTful principles)
+ *
+ ********************/
+router.put('/*', ( req, res ) => {
+  const paths = req.params[0].split('/');
+
+  let isPublic, saveAs;
+  if( paths[0] === 'public' || paths[0] === 'private' ) {
+    isPublic = ( paths[0] === 'public' );
+    saveAs = paths.slice(1).join('/');
+  }
+  else {
+    isPublic = false;
+    saveAs = paths.join('/');
+  }
+
+  const { sheets } = req.body;
+
   manifestSvc.build( sheets, saveAs, isPublic )
   .then( resp => {
-    if(saveAs) {
-      console.log('JSON response...');
-      res.json(resp.data);
-    }
-    else {
-      console.log('Streaming response...');
-      resp.data.pipe(res);
-    }
+    // 
+    console.log('JSON response...');
+    res.json(resp.data);
+  });
+});
+
+
+/**************************************
+ * Post
+ * ====
+ *
+ * Builds a manifest from posted data and immediately returns it as a stream.
+ *
+ ********************/
+router.post('/', ( req, res ) => {
+  const { sheets } = req.body;
+
+  manifestSvc.build( sheets )
+  .then( resp => {
+    console.log('Streaming response...');
+    resp.data.pipe(res);
   });
 });
