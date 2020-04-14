@@ -48,6 +48,7 @@ export function getOrderById(orderId) {
 ************/
 
 export function listManifests( isPublic = false ) {
+
   const qp = {
     num: 25,
     prefix: isPublic ? 'public' : 'private'
@@ -55,7 +56,10 @@ export function listManifests( isPublic = false ) {
 
   const uri = `/api/manifests/?${querystring.stringify(qp)}`;
 
-  return axios.get(uri).then( resp => resp.data );
+  return axios.get(uri).then( resp => {
+    const manifests = resp.data.manifests;
+    return manifests.filter( x => !x.name.match(/\/$/) ); // filter out directories
+  });
 }
 
 export function getManifest( fileName, isPrivate = false ) {

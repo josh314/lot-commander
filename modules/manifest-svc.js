@@ -36,7 +36,7 @@ function build( sheets, saveAs = '', isPublic = false) {
 
 function get(key) {
 
-  const uri = `${getUrl( '/get' )}?${querystring.stringify( { key: key } )}`;
+  const uri = `${getUrl( `/manifests/${key}` )}`;
 
   return axios({
     method: 'get',
@@ -48,10 +48,10 @@ function get(key) {
 
 function put( readStream, key, isPublic = false ) {
 
-  const uri = `${getUrl( '/put' )}/${ isPublic ? 'public/' : '/'}${key}`;
+  const uri = `${getUrl( '/manifests' )}/${ isPublic ? 'public/' : '/'}${key}`;
 
   return axios({
-    method: 'post',
+    method: 'put',
     url: encodeURI(uri),
     data: readStream,
     timeout: 10*1000
@@ -63,7 +63,7 @@ function list( queryParams = {} ) {
 
   const qs = querystring.stringify(queryParams);
 
-  const uri = `${getUrl( '/list' )}${ qs ? '?' + qs : ''}`;
+  const uri = `${getUrl( '/manifests' )}${ qs ? '?' + qs : ''}`;
 
   return axios({
     method: 'get',

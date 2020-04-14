@@ -12,8 +12,8 @@ angular.module('myApp').controller('ListManifestsCtrl', ['$q', 'sessionTimeout',
 
 
     function getManifestList() {
-      return api.listManifests().then( resp => {
-        return resp.manifests.map( item => {
+      return api.listManifests().then( manifests => {
+        return manifests.map( item => {
           item.displayName = path.basename(item.name);
           item.link = `/api/manifests/${item.name}`;
           return item;
