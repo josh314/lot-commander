@@ -69,7 +69,7 @@ function routes() {
   });
 
   // import & register routers
-  router.use('/api/orders', require('./orders'));
+  router.use('/api/fulfillment', require('./fulfillment'));
   router.use('/api/print', require('./print'));
   router.use('/api/manifests', require('./manifests'));
 

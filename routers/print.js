@@ -6,7 +6,7 @@ const Promise = require('bluebird');
 
 const print = require(path.join(__basedir, __config.modulesPath, 'print'));
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
-const orders = require('../modules/orders');
+const fulfillment = require('../modules/fulfillment');
 
 const router = new express.Router();
 
@@ -53,7 +53,7 @@ const getPickItemFromOrderItem = async (orderItem) => {
 async function pickReceipt(req, res, next) {
   const orderId = req.params.orderId;
   try {
-    const order = await orders.getOrder(orderId);
+    const order = await fulfillment.getOrder(orderId);
 
     const pickItems = ( await Promise.map( order.items, getPickItemFromOrderItem ) ).filter( _ => _ !== null );
 

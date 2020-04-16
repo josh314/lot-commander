@@ -24,7 +24,7 @@ angular.module('myApp').factory('OrderSvc', [ '$q', '$stateParams', 'OrderCache'
     };
 
     function getPendingOrdersList(page) {
-      return $q.when( api.getOrders(page) ).then(ordersResponse => {
+      return $q.when( api.getFulfillmentOrders(page) ).then(ordersResponse => {
         if(ordersResponse) {
           const ordersP = ordersResponse.map( o => getOrder( { orderId: o.orderId, buildPicklist: false } ) );
           return Promise.all(ordersP);
@@ -49,7 +49,7 @@ angular.module('myApp').factory('OrderSvc', [ '$q', '$stateParams', 'OrderCache'
         orderP = Promise.resolve(new Order( { data: cachedOrder, fromCache: true } ) );
       }
       else {
-        orderP = $q.when( api.getOrderById(orderId) ).then(apiOrderResp => {
+        orderP = $q.when( api.getFulfillmentOrderById(orderId) ).then(apiOrderResp => {
           if(!apiOrderResp) {
             throw new Error(`Can't find Shipstation Order for id ${orderId}.`);
           }

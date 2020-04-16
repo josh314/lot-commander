@@ -7,11 +7,11 @@ router.get('/details/:orderId', getOrder)
 
 module.exports = router;
 
-const orders = require('../modules/orders');
+const fulfillment = require('../modules/fulfillment');
 
 async function listPendingOrders(req, res) {
 
-  const ordersPage = await orders.listPendingOrders({ 
+  const ordersPage = await fulfillment.listPendingOrders({ 
     page: req.params.page || 1,
     pageSize: 20,
   });
@@ -23,7 +23,7 @@ async function listPendingOrders(req, res) {
 async function getOrder(req, res, next) {
   const orderId = req.params.orderId;
   if(orderId) {
-    const order = await orders.getOrder(orderId)
+    const order = await fulfillment.getOrder(orderId)
     res.json(order);
   }
   else {

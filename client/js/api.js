@@ -16,11 +16,11 @@ export function getLotByHandle(handle) {
 }
 
 /*************************************************
-* Orders
+* Fulfillment
 *
 ************/
 
-export function getOrders(page) {
+export function getFulfillmentOrders(page) {
 
   const query = {
     page: page,
@@ -28,16 +28,16 @@ export function getOrders(page) {
 
   return axios({
     method: 'post',
-    url: '/api/orders/list',
+    url: '/api/fulfillment/list',
     data: query
   })
     .then( resp => resp.data );
 
 }
 
-export function getOrderById(orderId) {
+export function getFulfillmentOrderById(orderId) {
 
-  return axios.get(`/api/orders/details/${orderId}`).then( resp => resp.data );
+  return axios.get(`/api/fulfillment/details/${orderId}`).then( resp => resp.data );
 
 }
 
