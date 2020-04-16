@@ -8,10 +8,10 @@
     "build-client-dev": "webpack --config webpack.dev.js",
     "build-client": "webpack --mode production --config webpack.prod.js",
     "debug": "DEBUG=lot-commander node inspect server.js",
-    "demon": "SESSION_SECRET=foobar DEBUG=lot-commander nodemon server.js",
+    "demon": "SESSION_SECRET=foobar DEBUG=lot-commander nodemon index.js",
     "dev-server": "webpack-dev-server --open --config webpack.dev.js",
-    "lint": "eslint --config .eslintrc.server.js server.js routes.js dbs.js modules/",
-    "start": "SESSION_SECRET=foobar DEBUG=lot-commander node server.js"
+    "lint": "eslint --config .eslintrc.server.js index.js server.js routes.js dbs.js modules/",
+    "start": "SESSION_SECRET=foobar DEBUG=lot-commander node index.js"
   },
   "keywords": [
     "app"
