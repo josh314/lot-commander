@@ -22,11 +22,11 @@ compressGqlQuery = q => q.split('\n').map( s => s.trim() ).join(' ')
 const gqlNodeQueries = {
   order: `
     {
+      name
       createdAt
       lineItems(first:10) {
         edges {
           node {
-            name
             quantity
             product {
               tags
@@ -43,6 +43,7 @@ const gqlNodeQueries = {
 
 const gqlNodeProcessFn = {
   order: n => ({
+    name: n.name,
     date: n.createdAt,
     items: n.lineItems.edges.map( li => {
       if(!li.node.variant || !li.node.product) {
@@ -184,6 +185,8 @@ class Client {
         hasNextPage: getNextPage,
         cursor: cursor,
         searchQuery: searchQuery,
+        queryCost: queryCost,
+        availableCost: availableCost,
       };
 
       result[queryType] = items.map( elem => {

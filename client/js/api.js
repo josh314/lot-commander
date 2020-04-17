@@ -74,3 +74,29 @@ export function getManifest( fileName, isPrivate = false ) {
     .then( resp => resp.data );
 
 }
+
+
+/*************************************************
+* Reports
+* =======
+*
+************/
+
+// startdate and endDate should be ISO 8601 strings
+export function getOrderReport( startDate, endDate, cursor ) {
+  const qp = {};
+  if(startDate) {
+    qp.start_date = startDate;
+  }
+  if(endDate) {
+    qp.end_date = endDate;
+  }
+  if(cursor) {
+    qp.cursor = cursor;
+  }
+
+  const uri = `/api/reports/orders?${querystring.stringify(qp)}`;
+
+  return axios.get(uri).then( resp => resp.data );
+
+}

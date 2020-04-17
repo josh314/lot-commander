@@ -104,7 +104,9 @@ module.exports = {
     ]),
     new webpack.ProvidePlugin({
       'cptable': 'codepage'
-    })
+    }),
+    // Ignore all locale files of moment.js
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
   ],
   /* suppress node shims */
 	node: {

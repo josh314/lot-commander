@@ -44,6 +44,10 @@ const stateData = [
   { name: "main.users.change-password", navName: "Change Password", navParent: 'Users', url: "/change-password", templateUrl: 'partials/users/_change_password.html', controller:'ChangeUserPasswordCtrl'},
   { name: "main.users.logout", url: "/logout", navName: 'Logout', navParent: 'Users', controller:'LogoutCtrl' },
 
+  // reports
+  { name: "main.reports", abstract: true, navName: 'Reports', url: '/reports', templateUrl: '/partials/_container.html' },
+  { name: "main.reports.orders", navName: 'Orders', navParent: 'Reports', url: '/orders', templateUrl: '/partials/_orders_report.html', controller: 'OrdersReportCtrl'},
+
 ];
 
 const stateConfigData = [];
