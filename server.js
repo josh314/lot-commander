@@ -10,6 +10,11 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const express = require('express');
 
+//====================================================
+// Modules
+//====================================================
+const ShopifyGql = require('./modules/shopify-gql');
+
 class Server {
   constructor(config) {
 
@@ -161,7 +166,17 @@ class Server {
     // Main app routes =====================================
     //======================================================
     // Load routes based on layout
-    const router = require(path.join(__basedir,'routers'))(this.app.get('env'));
+
+    const shopifyGqlClient = new ShopifyGql({
+      store: this.config.shopify.store.name,
+      accessToken: this.config.shopify.store.auth.password
+    });
+
+    const routerOpts = {
+      shopifyGqlClient: shopifyGqlClient
+    };
+
+    const router = require(path.join(__basedir,'routers'))(routerOpts);
 
     // Login users on all main routes
     this.app.use('/', users.api.isLoggedIn, router);

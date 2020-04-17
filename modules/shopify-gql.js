@@ -26,6 +26,7 @@ const gqlNodeQueries = {
       lineItems(first:10) {
         edges {
           node {
+            name
             quantity
             product {
               tags
@@ -43,7 +44,12 @@ const gqlNodeQueries = {
 const gqlNodeProcessFn = {
   order: n => ({
     date: n.createdAt,
-    items: n.lineItems.edges.map( li => ({ numUnits: li.node.quantity*li.node.variant.numUnits, tags: li.node.product.tags }) )
+    items: n.lineItems.edges.map( li => {
+      if(!li.node.variant || !li.node.product) {
+        return null;
+      }
+      return { numUnits: li.node.quantity*li.node.variant.numUnits, tags: li.node.product.tags } 
+    })
   })
 }
 
@@ -176,7 +182,7 @@ class Client {
 
       const result = {
         hasNextPage: getNextPage,
-        continue: cursor,
+        cursor: cursor,
         searchQuery: searchQuery,
       };
 
@@ -191,10 +197,10 @@ class Client {
     }
   }
 
-  getOrderHistory({ start, end, debug }) {
+  getOrderHistory({ start, end, cursor, debug }) {
     start = start || moment().subtract(7, 'days').format();
     const dateQuery = `created_at:>'${start}'${ end ? ` AND created_at:<'${end}'` : ''}`;
-    return this.getAll( 'orders', gqlNodeQueries.order, { searchQuery: dateQuery, debug: debug }, gqlNodeProcessFn.order )
+    return this.getAll( 'orders', gqlNodeQueries.order, { searchQuery: dateQuery, debug: debug, cursor: cursor }, gqlNodeProcessFn.order )
   }
 
 }
