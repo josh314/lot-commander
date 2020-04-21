@@ -3,9 +3,19 @@ import * as d3 from "d3";
 
 export class Graph {
   constructor( { selector, width, height } ) {
+    this.selector = selector;
     this.width = width;
     this.height = height;
     this.root = d3.select(selector);
+    this.tooltip = this.root
+      .append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip")
+      .style("background-color", "white")
+      .style("border", "solid")
+      .style("border-width", "2px")
+      .style("border-radius", "5px")
+      .style("padding", "5px");
   }
 
   loadData(data) {
@@ -42,7 +52,28 @@ export class Graph {
       .domain([ 0, d3.max( this.data, d => d.value ) ]).nice()
       .range([ this.height - margin.bottom, margin.top]);
     
-    
+    // Three function that change the tooltip when user hover / move / leave a cell
+    const thisTooltip = this.tooltip;
+    const thisSelector = this.selector;
+    const mouseover = function(_d) {
+      thisTooltip.style("opacity", 1);
+      d3.select(this)
+        .style("stroke", "black")
+        .style("opacity", 1);
+    };
+    const mousemove = function(d) {
+      thisTooltip
+        .html(`${d.label}: ${d.value} units`)
+        .style("left", (d3.mouse(this)[0]) + "px")
+        .style("top", thisSelector.offsetTop + (d3.mouse(this)[1]) + "px");
+    };
+    const mouseleave = function(_d) {
+      thisTooltip.style("opacity", 0);
+      d3.select(this)
+        .style("stroke", "none")
+        .style("opacity", 0.8);
+    };
+
     const _bar = this.svg.append("g")
       .attr("fill", "steelblue")
       .selectAll("rect")
@@ -52,9 +83,12 @@ export class Graph {
       .attr("x", d => x(d.label))
       .attr("y", d => y(d.value))
       .attr("height", d => y(0) - y(d.value))
-      .attr("width", x.bandwidth());
+      .attr("width", x.bandwidth())
+      .on("mouseover", mouseover)
+      .on("mousemove", mousemove)
+      .on("mouseleave", mouseleave);
     
-    const _gx = this.svg.append("g")
+    const _gx = this.svg.append("g").attr("id", "xaxis")
       .call(xAxis);
     
     const _gy = this.svg.append("g")

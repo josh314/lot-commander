@@ -18,7 +18,8 @@ angular.module('myApp').controller('OrdersReportCtrl', [ 'RangedOrderList', 'ses
     vm.orderList = {};
 
     vm.graph = new Graph({
-      selector: 'figure.chart-container',
+      // eslint-disable-next-line angular/document-service
+      selector: document.querySelector('figure.chart-container'),
       height: 500,
       width: 1000
     });
@@ -88,6 +89,6 @@ angular.module('myApp').controller('OrdersReportCtrl', [ 'RangedOrderList', 'ses
       vm.graph.loadData( graphData );
     }
     vm.loadGraph = loadGraph;
-    
+
   }]
 );
