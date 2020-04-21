@@ -13,6 +13,8 @@ angular.module('myApp').controller('OrdersReportCtrl', [ 'RangedOrderList', 'ses
 
     const vm = this;
 
+    vm.waitingToLoadOrders = false;
+
     vm.orderList = {};
 
     vm.graph = new Graph({
@@ -50,9 +52,11 @@ angular.module('myApp').controller('OrdersReportCtrl', [ 'RangedOrderList', 'ses
 
 
     function loadOrdersForInputDateRange() {
-      console.log(vm.inputs.endDate);
+      vm.waitingToLoadOrders = true;
       RangedOrderList.loadOrdersForDateRange( vm.inputs.startDate, vm.inputs.endDate ).then( _ => {
         vm.orderList = RangedOrderList.get();
+        loadGraph();
+        vm.waitingToLoadOrders = false;
       });
     }
     vm.loadOrdersForInputDateRange = loadOrdersForInputDateRange;
@@ -84,11 +88,6 @@ angular.module('myApp').controller('OrdersReportCtrl', [ 'RangedOrderList', 'ses
       vm.graph.loadData( graphData );
     }
     vm.loadGraph = loadGraph;
-
-    function clearGraph() {
-      vm.graph.clearGraph();
-    }
-    vm.clearGraph = clearGraph;
-
+    
   }]
 );

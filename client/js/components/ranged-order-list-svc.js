@@ -89,6 +89,8 @@ angular.module('myApp').service('RangedOrderList', [ '$q', '$timeout',
 
       return $q.when( orderPromise ).then( _ => { 
         orderList.orders.sort( (a,b) => a.date > b.date ? 1 : -1 );
+        orderList.startDateDisplayString = orderList.startDate.toDateString();
+        orderList.endDateDisplayString = orderList.endDate.toDateString();
         console.log(orderList);
       });
     };
