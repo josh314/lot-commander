@@ -26,7 +26,7 @@ const stateData = [
   { name: "main.lots.view", url: '/view/{lotId}', templateUrl: '/partials/_view_lot.html', controller: 'ViewLotCtrl'},
   { name: "main.lots.submit-listing", url: '/submit-listing', templateUrl: '/partials/_submit_listing.html', controller: 'SubmitListingCtrl'},
   { name: "main.lots.image-editor", url: '/image-editor', templateUrl: '/partials/_image_editor.html' },
-  { name: "main.lots.gallery", url: '/gallery/{lotId}', templateUrl: '/partials/_gallery.html', controller: 'GalleryCtrl as gallery' },
+  { name: "main.lots.gallery", url: '/gallery/{lotId}', templateUrl: '/partials/_gallery.html' },
   { name: "main.lots.upload-manifest", url: '/upload-manifest/{lotId}', templateUrl: '/partials/_upload_lot_manifest.html' },
   // auctions
   { name: "main.auctions", abstract: true, url: '/auctions', templateUrl: '/partials/_container.html' },
@@ -37,7 +37,7 @@ const stateData = [
   { name: "main.orders.pick", url: '/pick/{orderId}', templateUrl: '/partials/_order_pick_list.html' },
   // manifest files
   { name: "main.manifests", abstract: true, navName: 'Manifests', url: '/manifests', templateUrl: '/partials/_container.html' },
-  { name: "main.manifests.clean", navName: 'Clean', navParent: 'Manifests', url: '/clean', templateUrl: '/partials/_clean_manifest.html', controller: 'CleanManifestCtrl'},
+  { name: "main.manifests.clean", navName: 'Clean', navParent: 'Manifests', url: '/clean', templateUrl: '/partials/_clean_manifest.html' },
   { name: "main.manifests.list", navName: 'List', navParent: 'Manifests', url: '/list', templateUrl: '/partials/_list_manifests.html' },
   // users
   { name: "main.users", abstract:true, navName: "Users", url: "/users", templateUrl: 'partials/_container.html'},
@@ -46,7 +46,7 @@ const stateData = [
 
   // reports
   { name: "main.reports", abstract: true, navName: 'Reports', url: '/reports', templateUrl: '/partials/_container.html' },
-  { name: "main.reports.orders", navName: 'Orders', navParent: 'Reports', url: '/orders', templateUrl: '/partials/_orders_report.html', controller: 'OrdersReportCtrl'},
+  { name: "main.reports.orders", navName: 'Orders', navParent: 'Reports', url: '/orders', templateUrl: '/partials/_orders_report.html'},
 
 ];
 

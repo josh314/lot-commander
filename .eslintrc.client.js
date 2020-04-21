@@ -24,7 +24,7 @@ module.exports = {
         "block-scoped-var": "error",
         // "default-case": "error",
         "indent": [
-            "error",
+            "warn",
             2
         ],
         "linebreak-style": [
@@ -35,6 +35,7 @@ module.exports = {
         "no-caller": "error",
         // "no-empty-function": "warn",
         // "no-eq-null": "error",
+        "no-extra-semi": "warn",
         "no-template-curly-in-string": "warn",
         "no-undef": "error",
         "no-unused-vars": [

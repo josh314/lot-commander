@@ -41,6 +41,7 @@
     "copy-webpack-plugin": "^5.0.3",
     "croppie": "^2.6.4",
     "css-loader": "^2.1.1",
+    "d3": "^5.16.0",
     "debug": "^3.1.0",
     "eslint": "^5.16.0",
     "eslint-config-angular": "^0.5.0",

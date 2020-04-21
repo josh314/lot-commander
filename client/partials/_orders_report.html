@@ -1,5 +1,5 @@
-<div class="container" ng-controller="OrdersReportCtrl as ctrl">
-	<div class="row well">
+<main class="container" ng-controller="OrdersReportCtrl as ctrl">
+	<section class="row well">
     <div class="form-group col-xs-6 col-sm-4">
       <label for="startDateInput">Start Date</label>
       <input type="date" class="form-control" name="startDate" id="startDateInput" ng-model="ctrl.inputs.startDate" min="{{ ctrl.inputs.minDate }}"/>
@@ -11,8 +11,8 @@
     <div class="col-xs-12 col-sm-4 text-center">
       <button class="btn btn-primary" ng-click="ctrl.loadOrdersForInputDateRange()">Load Orders</button>
     </div>
-  </div>
-  <div class="row well" ng-show="ctrl.orderList.startDate && ctrl.orderList.endDate">
+  </section>
+  <section class="row well" ng-show="ctrl.orderList.startDate && ctrl.orderList.endDate">
     <h4>Data loaded for interval:</h4>
     <div class="form-group col-xs-12">
       <label for="startDateInput">Start Date</label>
@@ -22,5 +22,22 @@
       <label for="endDateInput">End Date</label>
       <input type="datetime" class="form-control" name="endDate" id="endDateInput" ng-model="ctrl.orderList.endDate" min="{{ ctrl.inputs.minDate }}" disabled/>
     </div>
+  </section>
+  <button class="btn btn-primary" ng-click="ctrl.loadGraph()">Load graph</button>
+  <button class="btn btn-primary" ng-click="ctrl.clearGraph()">Clear graph</button>
+  <div class="row col-xs-12 col-sm-6">
+    <div class="form-group col-xs-12">
+      <label for="tagFilterInput">Tag Filter</label>
+      <select class="form-control" id="tagFilterInput" ng-model="ctrl.inputs.tagFilter" ng-options="tag for tag in ctrl.inputs.tagFilterOptions">
+      </select>
+    </div>
   </div>
-</div>
+  <div class="row col-xs-12 col-sm-6">
+    <div class="form-group col-xs-12">
+      <label for="timeUnitsInput">Time Units</label>
+      <select class="form-control" id="timeUnitsInput" ng-model="ctrl.inputs.timeUnits" ng-options="opt.displayName for opt in ctrl.inputs.timeUnitsOptions">
+      </select>
+    </div>
+  </div>
+  <figure class="chart-container"></figure>
+</main>
