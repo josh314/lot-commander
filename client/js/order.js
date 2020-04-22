@@ -1,6 +1,6 @@
 
 
-const statusEnum = {
+export const statusEnum = {
   READY: 'ready',
   PICKING: 'picking',
   DONE: 'done'
@@ -10,9 +10,9 @@ const stores = {
   374627: "Wholesale Ninjas",
   374389: "Bstock"
 };
-const getChannelName = (id) => stores[id];
+export const getChannelName = (id) => stores[id];
 
-const displayDate = (date) => (new Date(date)).toLocaleString();
+export const displayDate = (date) => (new Date(date)).toLocaleString();
 
 const buildPickItemFromLot = (lot) => {
 

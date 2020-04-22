@@ -8,10 +8,18 @@
 import 'angular';
 import * as Promise from "bluebird";
 
-import { Order } from '../order';
+import { displayDate, getChannelName, statusEnum, Order } from '../order';
 
 import * as api from '../api';
 
+const dressOrder = order => {
+  const newProps = {
+    displayDate: displayDate(order.orderDate),
+    channel: getChannelName(order.advancedOptions.storeId),
+    status: statusEnum.READY,
+  };
+  return Object.assign( newProps, order );
+};
 
 angular.module('myApp').factory('OrderSvc', [ '$q', '$stateParams', 'OrderCache',
   function( $q, $stateParams , OrderCache ) { 
@@ -24,12 +32,13 @@ angular.module('myApp').factory('OrderSvc', [ '$q', '$stateParams', 'OrderCache'
     };
 
     function getPendingOrdersList(page) {
-      return $q.when( api.getFulfillmentOrders(page) ).then(ordersResponse => {
-        if(ordersResponse) {
-          const ordersP = ordersResponse.map( o => getOrder( { orderId: o.orderId, buildPicklist: false } ) );
-          return Promise.all(ordersP);
-        }
-      });
+      return $q.when( api.getFulfillmentOrders(page) )
+        .then( ordersResponse => ordersResponse.map( dressOrder ) );
+      //   if(ordersResponse) {
+      //     const ordersP = ordersResponse.map( o => getOrder( { orderId: o.orderId, buildPicklist: false } ) );
+      //     return Promise.all(ordersP);
+      //   }
+      // });
     }
 
     //

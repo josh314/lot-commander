@@ -37,7 +37,7 @@ angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'focus
 
           // Note: We seem to have to manually do a $digest cycle here but I don't quite get why
           // TODO: getting error about $digest already in progress (only when not getting order from cache?)
-          $scope.$digest();
+          // $scope.$digest();
 
           return order;
         })

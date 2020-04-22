@@ -10,10 +10,10 @@
       </tr></thead>
       <tbody>	
 				<tr ng-repeat="order in ctrl.orders">
-					<td><a ng-href="/orders/pick/{{order.id}}">{{order.number}}</a></td>
+					<td><a ng-href="/orders/pick/{{order.orderId}}">{{order.orderNumber}}</a></td>
           <td>{{ order.displayDate }}</td>
-          <td>{{order.channel}}</td>
-          <td>{{order.status}}</td>
+          <td>{{ order.channel }}</td>
+          <td>{{ order.status }}</td>
 				</tr>
       </tbody>
     </table>
