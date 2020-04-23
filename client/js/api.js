@@ -22,14 +22,9 @@ export function getLotByHandle(handle) {
 
 export function getFulfillmentOrders(page) {
 
-  const query = {
-    page: page,
-  };
-
   return axios({
-    method: 'post',
-    url: '/api/fulfillment/list',
-    data: query
+    method: 'get',
+    url: `/api/fulfillment/list/${page}`,
   })
     .then( resp => resp.data );
 

@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = new express.Router();
 // Orders endpoints
-router.post('/list', listPendingOrders);
+router.get('/list/:page', listPendingOrders);
 router.get('/details/:orderId', getOrder)
 
 module.exports = router;
