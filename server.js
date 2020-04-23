@@ -36,7 +36,7 @@ class Server {
 
     this.app = express();
 
-    this.app.set('env', this.config.env);
+    this.app.set('env', this.config.env || 'production' );
 
     const port = this.config.port;
     if(!port) {
@@ -83,7 +83,7 @@ class Server {
     //================================================
     // Request Logging ===============================
     //================================================
-    const requestLoggingMode = this.app.get('env') === 'prod' ? 'combined': 'dev';
+    const requestLoggingMode = this.app.get('env') === 'production' ? 'combined': 'dev';
 
     //stderr logging skips successful requests
     this.app.use(morgan(requestLoggingMode, {
@@ -120,10 +120,12 @@ class Server {
     // =====================================
     // TODO: COMMENT OUT IN PRODUCTION!!!!!!!!!!!
     // show the signup form
-    // this.app.get('/sonic', function(req, res) {
-    //     res.render('signup.hbs', { authFlash: req.session.flash });
-    // });
-    // this.app.post('/sonic/users/new', bodyParser.urlencoded({ extended: true }), users.api.createUser);
+    if( this.app.get('env') === 'development' ) {
+      this.app.get('/sonic', function(req, res) {
+          res.render('signup.hbs', { authFlash: req.session.flash });
+      });
+      this.app.post('/sonic/users/new', bodyParser.urlencoded({ extended: true }), users.api.createUser);
+    }
 
     // =====================================
     // LOGIN & LOGOUT ======================
