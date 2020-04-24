@@ -1,6 +1,12 @@
 import angular from 'angular';
 
+import * as api from '../api';
+
 function passwordInvalid(password) {
+  if( !password ) {
+    return true;
+  }
+
   if(password.length < 20) {
     return true;
   }
@@ -12,7 +18,6 @@ function passwordInvalid(password) {
 angular.module('myApp').factory('logout', ['$http', '$window', 'sessionTimeout', function($http, $window, sessionTimeout){
   return function() {
     $http.get('/logout').then(()=>{
-      // userStore.logout();
       console.log("destroying 'lotCommander' cookie");
       sessionTimeout.destroy();
       $window.location.reload();
@@ -110,3 +115,63 @@ angular.module('myApp').controller('ChangeUserPasswordCtrl', ['$scope', '$http',
   };
 }]);
 
+/******************* Create User Controller ********************/
+angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageModal', 'sessionTimeout', function( $q, $state, messageModal, sessionTimeout ){
+  sessionTimeout.timeoutExpired();
+
+  const vm = this;
+
+  vm.form = {};
+
+  function navigateToHome() {
+    $state.load('main.home');
+  }
+
+  vm.submit = function() {
+
+    vm.noName = !vm.form.name;
+    vm.noRole = !vm.form.role;
+    vm.noUsername = !vm.form.username;
+    vm.passwordInvalid = passwordInvalid(vm.form.password);
+    vm.passwordMismatch = (vm.form.password !== vm.form.confirmPassword);
+
+    if(
+      vm.passwordInvalid || 
+      vm.passwordMismatch ||
+      vm.noName ||
+      vm.noUsername ||
+      vm.noRole 
+    ) {
+      return;
+    }
+
+    const newUserData = Object.assign( {}, vm.form );
+    delete newUserData.confirmPassword;
+
+    return $q.when( api.createNewUser( newUserData ) ).then( resp => {
+
+      if(resp.success) {
+        return messageModal.launch(
+          {header: 'Success', body: `User "${vm.form.username}" successfully created`, type: 'info'},
+          navigateToHome,
+          navigateToHome
+        );
+      }
+
+
+      if( resp.message === 'USER_EXISTS' ) {
+        vm.userExists = true;
+        return;
+      }
+      else {
+        return messageModal.launch(
+          {header: 'Failure', body: `An error occured. Please try again later.`, type: 'error'},
+          navigateToHome,
+          navigateToHome
+        );
+      }
+
+    });
+
+  };
+}]);

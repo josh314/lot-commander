@@ -3,10 +3,16 @@ const express = require('express');
 const router = new express.Router();
 module.exports = router;
 
+const auth = require('../auth');
 const users = require('../modules/users');
 const flashMessages = require('../modules/flash-messages');
 
 router.post('/change-password', changeUserPassword);
+router.put(
+  '/create', 
+  auth.isAuthorized( 'CREATE_USER' ),
+  createUser
+);
 
 function changeUserPassword( req, res ) {
   let status;
@@ -27,4 +33,37 @@ function changeUserPassword( req, res ) {
     .finally(()=>{
       res.json({status: status});
     });
+}
+
+function createUser(req,res) {
+  // find a user whose name is the same as the forms name
+  // we are checking to see if the user trying to login already exists
+  users.getUserByUsername( req.body.username )
+  .then( user => {
+
+    if (user) {
+      throw new Error('USER_EXISTS');
+    }
+
+    return users.createUser({
+      username: req.body.username,
+      password: req.body.password,
+      name: req.body.name,
+      role: req.body.role,
+    });
+
+  })
+    .then( user => {
+      console.log(user);
+      res.json({ success: true });
+    })
+    .catch(err=>{
+      if( err.message === 'USER_EXISTS') {
+        res.json({ success: false, message: err.message });
+      }
+      else {
+        throw err;
+      }
+    })
+
 }

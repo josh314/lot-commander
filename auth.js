@@ -85,15 +85,25 @@ function authenticate( { success, failure } ) {
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {
   // if user is authenticated in the session, carry on 
-  if (__config.skipAuth || req.isAuthenticated())
+  if ( __config.skipAuth || req.isAuthenticated() )
     return next();
 
   // if they aren't redirect them to the login page
   res.redirect('/login');
 }
 
+function isAuthorized( permission ) {
+  return ( req, _res, next ) => {
+    if( req.user.isAuthorized( permission ) ) {
+      return next();
+    }
+    res.redirect('/')
+  };
+}
+
 module.exports = {
   init: init,
   authenticate: authenticate,
   isLoggedIn: isLoggedIn,
+  isAuthorized: isAuthorized,
 };

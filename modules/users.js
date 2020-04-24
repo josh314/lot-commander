@@ -45,9 +45,11 @@ userSchema.methods.validPassword = function(password) {
   return bcrypt.compareSync(password, this.local.password);
 };
 
+userSchema.methods.isAuthorized = function( permission ) {
+  return true;
+};
+
 const User = __connections.users.model('User', userSchema);
-
-
 
 //======================================================
 // Exports
@@ -71,9 +73,22 @@ const changeUserPassword = ( { user, password } ) => {
   )
 };
 
+const createUser = ( { username, password, name, role } ) => {
+  const newUser = new User();
+  // set the user's local credentials
+  newUser.local.username = username;
+  newUser.local.password = newUser.generateHash(password);
+  newUser.name = name;
+  newUser.role = role;
+
+  // save the user
+  return newUser.save();
+};
+
 // Export and we out
 module.exports = {
   changeUserPassword: changeUserPassword,
+  createUser: createUser,
   getUserByUsername: getUserByUsername,
   getUserById: getUserById,
 };

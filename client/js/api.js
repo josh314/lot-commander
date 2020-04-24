@@ -74,3 +74,21 @@ export function getManifest( fileName, isPrivate = false ) {
     .then( resp => resp.data );
 
 }
+
+
+/*************************************************
+* Users
+* =====
+*
+************/
+
+export function createNewUser( newUserData ) {
+  const uri = `/api/users/create`;
+
+  return axios({
+    method: 'put',
+    url: uri,
+    data: newUserData
+  })
+    .then( resp => resp.data );
+}
