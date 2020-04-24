@@ -131,12 +131,6 @@ class Server {
       res.redirect('/');
     });
 
-    //=================================================
-    // Static server ==================================
-    //=================================================
-    this.app.use(auth.isLoggedIn, express.static(path.join(__basedir, this.config.assets.root)));
-    this.app.use(auth.isLoggedIn, express.static(path.join(__basedir, this.config.imgPath)));
-
     // //===================================================
     // // FLASH MESSAGE MIDDLEWARE =========================
     // //===================================================
@@ -155,7 +149,11 @@ class Server {
     const router = require(path.join(__basedir,'routers'))(this.app.get('env'));
 
     // Login users on all main routes
-    this.app.use('/', auth.isLoggedIn, router);
+    this.app.use(
+      '/',
+      auth.isLoggedIn,
+      router
+    );
 
     //===============================================
     // Error Handling  and Logging ==================
