@@ -7,7 +7,6 @@ const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
 const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
 const images = require(path.join(__basedir, __config.modulesPath, 'images'));
-const users = require(path.join(__basedir, __config.modulesPath, 'users'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
@@ -27,11 +26,12 @@ function routes() {
   // =====================================
   // USERS SECTION =======================
   // =====================================
+  router.use('/api/users', require('./users') );
   // we will want this protected so you have to be logged in to visit
   // we will use route middleware to verify this (the isLoggedIn function)
   // router.get('/api/users/all', users.api.isManager, users.api.getAllUsers);
   // router.post('/api/users/new', users.api.canCreateNewUsers, users.api.createUser);
-  router.post('/api/users/change-password', users.api.isLoggedIn, users.api.changeUserPassword);
+  // router.post('/api/users/change-password', auth.isLoggedIn, users.api.changeUserPassword);
   // router.get('/api/users/get/:username', users.api.isLoggedIn , users.api.getUserInfo );
   // router.post('/api/users/edit-role', users.api.isManager, users.api.editUserRole);
 

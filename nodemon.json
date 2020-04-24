@@ -1,7 +1,9 @@
 {
   "verbose": true,
   "watch": [
+    "index.js",
     "server.js",
+    "auth.js",
     "dbs.js",
     "config.js",
     "routers/*",

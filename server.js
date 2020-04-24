@@ -102,14 +102,6 @@ class Server {
     this.app.use(express.json({ limit: '50mb' }));//parse json bodies
     this.app.use(bodyParser.urlencoded({ extended: true }));
 
-    //=================================================
-    // Initialize passport module =====================
-    //=================================================
-    const users = require(path.join(__basedir, this.config.modulesPath, 'users'));
-    this.app.use(users.passport.initialize());
-    this.app.use(users.passport.session());//initializes req.user field
-
-
     // =====================================
     // BACKDOOR USER SIGNUP ==============
     // =====================================
@@ -121,19 +113,18 @@ class Server {
     // this.app.post('/sonic/users/new', bodyParser.urlencoded({ extended: true }), users.api.createUser);
 
     // =====================================
-    // LOGIN & LOGOUT ======================
+    // Authentication ======================
     // =====================================
+
+    const auth = require('./auth');
+    this.app.use( auth.init() );
+
     // show the login form
     this.app.get('/login', function(req, res) {
       res.render('login.hbs', { authFlash: req.session.flash }); 
     });
 
-    // process the login form
-    this.app.post('/login', users.passport.authenticate('local-login', {
-      successRedirect : '/', // redirect to main
-      failureRedirect : '/login', // redirect back to the login page if there is an error
-      failureFlash : false // allow flash messages
-    }));
+    this.app.post('/login', auth.authenticate({ success: '/', failure: '/login' }) );
 
     this.app.get('/logout', function(req, res) {
       req.logout();
@@ -143,8 +134,8 @@ class Server {
     //=================================================
     // Static server ==================================
     //=================================================
-    this.app.use(users.api.isLoggedIn, express.static(path.join(__basedir, this.config.assets.root)));
-    this.app.use(users.api.isLoggedIn, express.static(path.join(__basedir, this.config.imgPath)));
+    this.app.use(auth.isLoggedIn, express.static(path.join(__basedir, this.config.assets.root)));
+    this.app.use(auth.isLoggedIn, express.static(path.join(__basedir, this.config.imgPath)));
 
     // //===================================================
     // // FLASH MESSAGE MIDDLEWARE =========================
@@ -164,7 +155,7 @@ class Server {
     const router = require(path.join(__basedir,'routers'))(this.app.get('env'));
 
     // Login users on all main routes
-    this.app.use('/', users.api.isLoggedIn, router);
+    this.app.use('/', auth.isLoggedIn, router);
 
     //===============================================
     // Error Handling  and Logging ==================
