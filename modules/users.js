@@ -15,19 +15,17 @@ mongoose.Promise = require('bluebird');
 //======================================
 //======================================
 
-const userRolesEnum = [
-  'disabled',
-  'n00b',
-  'basic',
-  'captain',
-  'manager',
-  'admin',
-  'owner',
-];
+const __USER_ROLES__ = {
+  DISABLED: 'disabled',
+  REGULAR: 'regular',
+  MANAGER: 'manager',
+  ADMIN: 'admin',
+  SUPERUSER: 'superuser'
+};
 
 const userSchema = mongoose.Schema({
   name: String,
-  role: { type: String, enum: userRolesEnum },
+  role: { type: String, enum: Object.values( __USER_ROLES__ ) },
   local: {
     username: String,
     password: String,
@@ -46,7 +44,11 @@ userSchema.methods.validPassword = function(password) {
 };
 
 userSchema.methods.isAuthorized = function( permission ) {
-  return true;
+  if( this.role === __USER_ROLES__.SUPERUSER ) {
+    return true;
+  }
+
+  return false;
 };
 
 const User = __connections.users.model('User', userSchema);

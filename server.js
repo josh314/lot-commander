@@ -170,10 +170,19 @@ class Server {
       // res.status(404).render('404', {});
       console.log('Logging error to file.');
       __logger.error(err);
-      res.json({
-        status: 'error',
-        error: err.clientMessage ? err.clientMessage : 'Server Error.',
-      });
+
+      const response = {
+        status: 'error'
+      }
+
+      if( err.message === 'UNAUTHORIZED' ) {
+        response.error = 'UNAUTHORIZED';
+      }
+      else {
+        response.error = err.clientMessage ? err.clientMessage : 'Server Error.';
+      }
+
+      res.json( response );
     });
 
     return this;

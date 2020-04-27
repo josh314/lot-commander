@@ -119,12 +119,21 @@ angular.module('myApp').controller('ChangeUserPasswordCtrl', ['$scope', '$http',
 angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageModal', 'sessionTimeout', function( $q, $state, messageModal, sessionTimeout ){
   sessionTimeout.timeoutExpired();
 
+  const __ROLES__ = [
+    'regular',
+    'manager',
+    'admin'
+  ];
+
   const vm = this;
 
-  vm.form = {};
+  vm.roles = __ROLES__;
+  vm.form = {
+    role: __ROLES__[0]
+  };
 
   function navigateToHome() {
-    $state.load('main.home');
+    $state.go('main.home');
   }
 
   vm.submit = function() {
@@ -149,6 +158,8 @@ angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageM
     delete newUserData.confirmPassword;
 
     return $q.when( api.createNewUser( newUserData ) ).then( resp => {
+      console.log(resp)
+
 
       if(resp.success) {
         return messageModal.launch(
@@ -163,9 +174,16 @@ angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageM
         vm.userExists = true;
         return;
       }
-      else {
+      else if ( resp.message === 'UNAUTHORIZED' ) {
         return messageModal.launch(
           {header: 'Failure', body: `An error occured. Please try again later.`, type: 'error'},
+          navigateToHome,
+          navigateToHome
+        );
+      }
+      else {
+        return messageModal.launch(
+          {header: 'Failure', body: `Unauthorized to create user.`, type: 'error'},
           navigateToHome,
           navigateToHome
         );

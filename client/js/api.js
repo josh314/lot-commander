@@ -90,5 +90,5 @@ export function createNewUser( newUserData ) {
     url: uri,
     data: newUserData
   })
-    .then( resp => resp.data );
+    .then( resp => resp.data )
 }

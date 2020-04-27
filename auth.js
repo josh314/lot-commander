@@ -93,11 +93,11 @@ function isLoggedIn(req, res, next) {
 }
 
 function isAuthorized( permission ) {
-  return ( req, _res, next ) => {
+  return ( req, res, next ) => {
     if( req.user.isAuthorized( permission ) ) {
       return next();
     }
-    res.redirect('/')
+    return next( new Error('UNAUTHORIZED') );
   };
 }
 
