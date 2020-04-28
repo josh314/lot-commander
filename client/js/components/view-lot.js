@@ -1,8 +1,10 @@
 import angular from 'angular';
 
+import * as api from '../api';
+
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal',
-  function($http, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, PrintSvc, saveLot, sessionTimeout, shippingItemsModal) {
+angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal',
+  function($http, $q, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, PrintSvc, saveLot, sessionTimeout, shippingItemsModal) {
     sessionTimeout.timeoutExpired();
     $scope.lot = lotStore;
     $scope.listingsBoilerplate = listingsBoilerplate;
@@ -229,6 +231,12 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$scope', '$state', 
         });
       }
     };
+
+    $scope.generateManifestFileForScannedInventory =  function() {
+      $q.when( api.generateLotManifest( $scope.lot._id, true, false) ).then( () => {
+        $state.reload();
+      });
+    }
   }]
 );
 

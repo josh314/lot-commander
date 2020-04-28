@@ -74,3 +74,27 @@ export function getManifest( fileName, isPrivate = false ) {
     .then( resp => resp.data );
 
 }
+
+export function generateLotManifest( lotId, save = true, bstock = false ) {
+
+  if(!lotId) {
+    throw new Error('Must supply lot ID.');
+  }
+
+  const uri = `/api/manifests/generate`;
+
+  const body = {
+    lotId: lotId,
+    save: save,
+    bstock: bstock
+  };
+
+  return axios({
+    method: 'post',
+    url: uri,
+    data: body,
+    responseType: save ? 'json' : 'stream'
+  })
+    .then( resp => resp.data );
+
+}
