@@ -31,7 +31,7 @@ export class Graph {
 
     this.svg = this.root.append('svg').attr("viewBox", [0, 0, this.width, this.height]);
 
-    const margin = ({top: 20, right: 0, bottom: 30, left: 40});
+    const margin = ({top: 20, right: 0, bottom: 30, left: 50});
 
     const xAxis = g => g
       .attr("transform", `translate(0,${ this.height - margin.bottom})`)
