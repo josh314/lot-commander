@@ -70,6 +70,29 @@ export function getManifest( fileName, isPrivate = false ) {
 
 }
 
+export function generateLotManifest( lotId, save = true, bstock = false ) {
+
+  if(!lotId) {
+    throw new Error('Must supply lot ID.');
+  }
+
+  const uri = `/api/manifests/generate`;
+
+  const body = {
+    lotId: lotId,
+    save: save,
+    bstock: bstock
+  };
+
+  return axios({
+    method: 'post',
+    url: uri,
+    data: body,
+    responseType: save ? 'json' : 'stream'
+  })
+    .then( resp => resp.data );
+
+}
 
 /*************************************************
 * Reports
@@ -93,5 +116,4 @@ export function getOrderReport( startDate, endDate, cursor ) {
   const uri = `/api/reports/orders?${querystring.stringify(qp)}`;
 
   return axios.get(uri).then( resp => resp.data );
-
 }

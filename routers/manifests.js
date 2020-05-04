@@ -5,6 +5,7 @@ const router = new express.Router();
 module.exports = router;
 
 const manifestSvc = require(path.join(__basedir, __config.modulesPath, 'manifest-svc'));
+const manifests = require('../modules/manifests');
 
 /**************************************
  * List
@@ -113,4 +114,32 @@ router.post('/', ( req, res ) => {
     console.log('Streaming response...');
     resp.data.pipe(res);
   });
+});
+
+/*****************************************
+ * Generate
+ * ======== 
+ *
+ * Generates a manifest and saves to S3
+ * 
+ * ****************************************/
+router.post('/generate', async ( req, res ) => {
+  if( !req.body || !req.body.lotId ) {
+    res.json({ error: '__LOT_ID_REQUIRED__' });
+  }
+
+  const generateManifestOptions = {
+    save: 'save' in req.body ? req.body.save : true,
+    bstock: 'bstock' in req.body ? req.body.bstock : false,
+  };
+
+  const generatedManifest = await manifests.generateLotManifest( req.body.lotId, generateManifestOptions );
+
+  if( generateManifestOptions.save ) {
+    res.json( generatedManifest );
+  }
+  else {
+    res.pipe( generatedManifest );
+  }
+
 });
