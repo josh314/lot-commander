@@ -14,6 +14,7 @@ const express = require('express');
 // Modules
 //====================================================
 const ShopifyGql = require('./modules/shopify-gql');
+const ShopifyDumpDbClient = require('./modules/shopify-dump-db');
 
 class Server {
   constructor(config) {
@@ -174,8 +175,20 @@ class Server {
       accessToken: this.config.shopify.store.auth.password
     });
 
+    const shopifyDumpDb = this.config.dbHosts[ this.config.dbConnMapping.shopifyDump ];
+
+    const shopifyDumpDbClient = new ShopifyDumpDbClient({
+      host: shopifyDumpDb.host,
+      port: shopifyDumpDb.port,
+      dbName: shopifyDumpDb.db,
+      user: shopifyDumpDb.auth && shopifyDumpDb.auth.user,
+      password: shopifyDumpDb.auth && shopifyDumpDb.auth.pwd,
+    });
+    await shopifyDumpDbClient.connect();
+
     const routerOpts = {
-      shopifyGqlClient: shopifyGqlClient
+      shopifyGqlClient: shopifyGqlClient,
+      shopifyDumpDb: shopifyDumpDbClient
     };
 
     const router = require(path.join(__basedir,'routers'))(routerOpts);

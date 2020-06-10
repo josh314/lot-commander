@@ -2,7 +2,7 @@ const express = require('express');
 const moment = require('moment');
 
 
-function routes( shopifyGqlClient ) {
+function routes( { shopifyGqlClient, shopifyDumpDb } ) {
   const router = new express.Router();
 
   router.get('/orders', ( req, res ) => {
@@ -19,6 +19,26 @@ function routes( shopifyGqlClient ) {
     }
 
     shopifyGqlClient.getOrderHistory( orderHistoryRequestParams )
+      .then( resp => res.json(resp) );
+
+  });
+
+  router.get('/units-sold', async ( req, res ) => {
+
+    const unitsSoldRequestParams = {
+      dateBinSize: (req.query.bin_size == 'day'  || req.query.bin_size == 'week') ? req.query.bin_size : 'month'
+    };
+    if( req.query.start_date ) {
+      unitsSoldRequestParams.start = moment(req.query.start_date).startOf('day').format();
+    }
+    if( req.query.end_date ) {
+      unitsSoldRequestParams.end = moment(req.query.end_date).endOf('day').format();
+    }
+    if( req.query.tag ) {
+      unitsSoldRequestParams.tag = req.query.tag;
+    }
+
+    shopifyDumpDb.unitsSold( unitsSoldRequestParams )
       .then( resp => res.json(resp) );
 
   });

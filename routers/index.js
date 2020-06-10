@@ -20,7 +20,7 @@ const productData = require(path.join(__basedir, __config.modulesPath, 'product-
 // }
 
 //routes
-function routes({ shopifyGqlClient }) {
+function routes({ shopifyGqlClient, shopifyDumpDb }) {
 
   const router = new express.Router();
 
@@ -72,7 +72,7 @@ function routes({ shopifyGqlClient }) {
   router.use('/api/fulfillment', require('./fulfillment'));
   router.use('/api/print', require('./print'));
   router.use('/api/manifests', require('./manifests'));
-  router.use('/api/reports', require('./reports')( shopifyGqlClient ))
+  router.use('/api/reports', require('./reports')( { shopifyGqlClient, shopifyDumpDb }))
 
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{
