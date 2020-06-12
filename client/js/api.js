@@ -101,7 +101,7 @@ export function generateLotManifest( lotId, save = true, bstock = false ) {
 ************/
 
 // startdate and endDate should be ISO 8601 strings
-export function getOrderReport( startDate, endDate, cursor ) {
+export function unitsSoldReport( { startDate, endDate, tag, binSize } ) {
   const qp = {};
   if(startDate) {
     qp.start_date = startDate;
@@ -109,11 +109,14 @@ export function getOrderReport( startDate, endDate, cursor ) {
   if(endDate) {
     qp.end_date = endDate;
   }
-  if(cursor) {
-    qp.cursor = cursor;
+  if(tag) {
+    qp.tag = tag;
+  }
+  if(binSize) {
+    qp.bin_size = binSize;
   }
 
-  const uri = `/api/reports/orders?${querystring.stringify(qp)}`;
+  const uri = `/api/reports/units-sold?${querystring.stringify(qp)}`;
 
   return axios.get(uri).then( resp => resp.data );
 }

@@ -115,7 +115,9 @@ class DbClient {
           return o;
         },
         () =>  {
-          const o = {};
+          const o = {
+            timezone: 'America/New_York'
+          };
           if( binSize == 'month' || binSize == 'day' ) {
             o.year = "$year";
             o.month = "$month";

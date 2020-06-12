@@ -45,8 +45,7 @@ const stateData = [
   { name: "main.users.logout", url: "/logout", navName: 'Logout', navParent: 'Users', controller:'LogoutCtrl' },
 
   // reports
-  { name: "main.reports", abstract: true, navName: 'Reports', url: '/reports', templateUrl: '/partials/_container.html' },
-  { name: "main.reports.orders", navName: 'Orders', navParent: 'Reports', url: '/orders', templateUrl: '/partials/_orders_report.html'},
+  { name: "main.reports", navName: 'Reports',  url: '/reports', templateUrl: '/partials/_reports.html' },
 
 ];
 
