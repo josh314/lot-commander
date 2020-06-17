@@ -65,7 +65,7 @@ angular.module('myApp').controller('ReportsCtrl', [ '$q', 'sessionTimeout',
 
       // fill in zeros for missing data
       const labelPeriod = vm.inputs.timeUnits.units === 'week' ? 'isoWeek' : vm.inputs.timeUnits.units;
-      for( let m = moment.utc(vm.inputs.startDate).startOf( labelPeriod ) ; m < vm.inputs.endDate ; m.add( 1, vm.inputs.timeUnits.units ) ) {
+      for( let m = moment.utc(vm.inputs.startDate).startOf( labelPeriod ) ; m < moment.utc(vm.inputs.endDate).startOf( labelPeriod ) ; m.add( 1, vm.inputs.timeUnits.units ) ) {
         const label = labelFormat(m);
         const found = graphData.find( _ => _.label === label );
         if( !found ) {
