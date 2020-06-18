@@ -61,6 +61,7 @@
     "manifests-db": "git+ssh://git@gitlab.com/josh314/manifests-db.git#1.0.0",
     "mini-css-extract-plugin": "^0.7.0",
     "moment": "^2.21.0",
+    "moment-timezone": "^0.5.31",
     "mongoose": "^5.5.14",
     "morgan": "^1.9.1",
     "ngstorage": "^0.3.11",

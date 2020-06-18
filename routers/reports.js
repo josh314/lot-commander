@@ -1,5 +1,6 @@
 const express = require('express');
-const moment = require('moment');
+const moment = require('moment-timezone');
+moment.tz.setDefault('America/New_York');
 
 
 function routes( { shopifyGqlClient, shopifyDumpDb } ) {
