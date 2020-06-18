@@ -166,11 +166,12 @@ class DbClient {
           _id: false,
           product_id: "$data.line_items.product_id",
           units: "$data.line_items.variant_title",
-          date: { 
-            $dateFromString: {
-              dateString: "$data.created_at"
-            }
-          }
+          // date: { 
+          //   $dateFromString: {
+          //     dateString: "$data.created_at"
+          //   }
+          // }
+          date: "$data.created_at"
         }
       },
       // add product data from the products collection
@@ -206,7 +207,7 @@ class DbClient {
               }
             },
           }, 
-          dateProject("$date")
+          dateProject( { date: "$date", timezone: 'America/New_York' } )
         )
       },
       {

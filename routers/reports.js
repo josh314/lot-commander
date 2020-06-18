@@ -29,10 +29,10 @@ function routes( { shopifyGqlClient, shopifyDumpDb } ) {
       dateBinSize: (req.query.bin_size == 'day'  || req.query.bin_size == 'week') ? req.query.bin_size : 'month'
     };
     if( req.query.start_date ) {
-      unitsSoldRequestParams.start = moment(req.query.start_date).startOf('day').format();
+      unitsSoldRequestParams.start = moment(req.query.start_date).startOf('day').toDate();
     }
     if( req.query.end_date ) {
-      unitsSoldRequestParams.end = moment(req.query.end_date).endOf('day').format();
+      unitsSoldRequestParams.end = moment(req.query.end_date).endOf('day').toDate();
     }
     if( req.query.tag ) {
       unitsSoldRequestParams.tag = req.query.tag;
