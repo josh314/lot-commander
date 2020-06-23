@@ -17,52 +17,62 @@ Stringer.prototype._transform = function(chunk, encoding, cb) {
   cb(); // callback tells the incoming stream we're done processing 
 };
 
-  // Pipeline functions for date parsing and assembling
-  const dateProject = ( dateExpression, binSize ) => {
-    const o = {};
-    if( binSize == 'month' || binSize == 'day' ) {
-      o.year = {
-        $year: dateExpression
-      };
-      o.month = {
-        $month: dateExpression
-      };
-    }
-    else if( binSize == 'week' ) {
-      o.isoWeekYear = {
-        $isoWeekYear: dateExpression
-      };
-      o.isoWeek = {
-        $isoWeek: dateExpression
-      }
-    }
-
-    if( binSize == 'day' ) {
-      o.day = {
-        $dayOfMonth: dateExpression
-      };
-    }
-    return o;
-  };
-
-  const dateFromParts = ( binSize ) =>  {
-    const o = {
-      timezone: 'America/New_York'
+// Pipeline functions for date parsing and assembling
+const dateProject = ( dateExpression, binSize ) => {
+  const o = {};
+  if( binSize == 'month' || binSize == 'day' ) {
+    o.year = {
+      $year: dateExpression
     };
-    if( binSize == 'month' || binSize == 'day' ) {
-      o.year = "$year";
-      o.month = "$month";
+    o.month = {
+      $month: dateExpression
+    };
+  }
+  else if( binSize == 'week' ) {
+    o.isoWeekYear = {
+      $isoWeekYear: dateExpression
+    };
+    o.isoWeek = {
+      $isoWeek: dateExpression
     }
-    else if( binSize == 'week' ) {
-      o.isoWeekYear = "$isoWeekYear";
-      o.isoWeek = "$isoWeek";
-    }
+  }
 
-    if( binSize == 'day' ) {
-      o.day = "$day"
-    }
-    return o;
+  if( binSize == 'day' ) {
+    o.day = {
+      $dayOfMonth: dateExpression
+    };
+  }
+  return o;
+};
+
+const dateFromParts = ( binSize ) =>  {
+  const o = {
+    timezone: 'America/New_York'
   };
+  if( binSize == 'month' || binSize == 'day' ) {
+    o.year = "$year";
+    o.month = "$month";
+  }
+  else if( binSize == 'week' ) {
+    o.isoWeekYear = "$isoWeekYear";
+    o.isoWeek = "$isoWeek";
+  }
+
+  if( binSize == 'day' ) {
+    o.day = "$day"
+  }
+  return o;
+};
+
+const tagParseObject = ( tagField ) => ({
+  tags: { // Splits the csv tag string and trims whitespace
+    $map: { 
+      input: { $split: [ "$product.data.tags", ',' ]  },
+      as: "tag",
+      in: { $trim: { input: "$$tag" } }
+    }            
+  }
+});
 
 class DbClient {
   constructor( { host, port, dbName, user, password } ) {
@@ -149,6 +159,14 @@ class DbClient {
     return pipeline;
   }
 
+  addPipelineTagFilter( pipeline, tag ) {
+    if( tag ) {
+      pipeline.push({
+        $match: { tags: new RegExp(`${tag}`, 'i')  }
+      });
+    }
+  }
+
   unitsSold( { start, end, tag, dateBinSize } ) {
 
     // Start a pipeline with a date range search
@@ -166,6 +184,7 @@ class DbClient {
           _id: false,
           product_id: "$data.line_items.product_id",
           units: "$data.line_items.variant_title",
+          quantity: "$data.line_items.quantity",
           date: "$data.created_at"
         }
       },
@@ -180,30 +199,30 @@ class DbClient {
       },
       // it comes as an array so flatten that
       {
-        $unwind: "$product"
+        $unwind: {
+          path: "$product",
+          preserveNullAndEmptyArrays: true
+        }
       },
       // project down to just the data we need in the report, doing some data transformations along the way
       {
-        $project: Object.assign(
-          {
-            tags: { // Splits the csv tag string and trims whitespace
-              $map: { 
-                input: { $split: [ "$product.data.tags", ',' ]  },
-                as: "tag",
-                in: { $trim: { input: "$$tag" } }
-              }            
-            },
-            units: { 
-              $convert: { 
-                input: "$units",
-                to: "int",
-                onError: 0,
-                onNull: 0
-              }
-            },
-          }, 
-          dateProject( { date: "$date", timezone: 'America/New_York' }, dateBinSize )
-        )
+        $project: {
+          ...tagParseObject("$product.data.tags"),
+          units: { 
+            $multiply: [
+              {
+                $convert: { 
+                  input: "$units",
+                  to: "int",
+                  onError: 0,
+                  onNull: 0
+                },
+              },
+              "$quantity"
+            ]
+          },
+          ...dateProject( { date: "$date", timezone: 'America/New_York' }, dateBinSize )
+        }
       },
       {
         $project: {
@@ -217,11 +236,7 @@ class DbClient {
     ]);
 
     // add step to filter by tag if applicable
-    if( tag ) {
-      pipeline.push({
-        $match: { tags: new RegExp(`${tag}`, 'i')  }
-      });
-    }
+    this.addPipelineTagFilter( pipeline, tag );
 
     // finally add the step for summing the units
     pipeline = pipeline.concat([
