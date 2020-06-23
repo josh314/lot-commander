@@ -17,6 +17,53 @@ Stringer.prototype._transform = function(chunk, encoding, cb) {
   cb(); // callback tells the incoming stream we're done processing 
 };
 
+  // Pipeline functions for date parsing and assembling
+  const dateProject = ( dateExpression, binSize ) => {
+    const o = {};
+    if( binSize == 'month' || binSize == 'day' ) {
+      o.year = {
+        $year: dateExpression
+      };
+      o.month = {
+        $month: dateExpression
+      };
+    }
+    else if( binSize == 'week' ) {
+      o.isoWeekYear = {
+        $isoWeekYear: dateExpression
+      };
+      o.isoWeek = {
+        $isoWeek: dateExpression
+      }
+    }
+
+    if( binSize == 'day' ) {
+      o.day = {
+        $dayOfMonth: dateExpression
+      };
+    }
+    return o;
+  };
+
+  const dateFromParts = ( binSize ) =>  {
+    const o = {
+      timezone: 'America/New_York'
+    };
+    if( binSize == 'month' || binSize == 'day' ) {
+      o.year = "$year";
+      o.month = "$month";
+    }
+    else if( binSize == 'week' ) {
+      o.isoWeekYear = "$isoWeekYear";
+      o.isoWeek = "$isoWeek";
+    }
+
+    if( binSize == 'day' ) {
+      o.day = "$day"
+    }
+    return o;
+  };
+
 class DbClient {
   constructor( { host, port, dbName, user, password } ) {
 
@@ -81,78 +128,31 @@ class DbClient {
 
   }
 
-  unitsSold( { start, end, tag, dateBinSize } ) {
-
-    // build some functions for returning components for the pipeline
-    const [
-      dateProject,
-      dateFromParts
-    ] = (binSize => [
-        dateExpression => {
-          const o = {};
-          if( binSize == 'month' || binSize == 'day' ) {
-            o.year = {
-              $year: dateExpression
-            };
-            o.month = {
-              $month: dateExpression
-            };
-          }
-          else if( binSize == 'week' ) {
-            o.isoWeekYear = {
-              $isoWeekYear: dateExpression
-            };
-            o.isoWeek = {
-              $isoWeek: dateExpression
-            }
-          }
-
-          if( binSize == 'day' ) {
-            o.day = {
-              $dayOfMonth: dateExpression
-            };
-          }
-          return o;
-        },
-        () =>  {
-          const o = {
-            timezone: 'America/New_York'
-          };
-          if( binSize == 'month' || binSize == 'day' ) {
-            o.year = "$year";
-            o.month = "$month";
-          }
-          else if( binSize == 'week' ) {
-            o.isoWeekYear = "$isoWeekYear";
-            o.isoWeek = "$isoWeek";
-          }
-
-          if( binSize == 'day' ) {
-            o.day = "$day"
-          }
-          return o;
-        }
-    ])(dateBinSize);
-    
-    // Build the pipeline 
-
-    // Start with an empty pipeline
-    let pipeline = [];
+  initRangedPipeline( field, start, end ) {
+    const pipeline = [];
 
     // add a match step to filter orders by date
     if( start || end ) {
       const dateLimits = [];
       if( start ) {
-        dateLimits.push({ "data.created_at": { $gt: start } });
+        dateLimits.push({ [field]: { $gt: start } });
       }
       if( end ) {
-        dateLimits.push({ "data.created_at": { $lt: end } });
+        dateLimits.push({ [field]: { $lt: end } });
       }
 
       pipeline.push({
         $match: { $and: dateLimits }
       });
     }
+
+    return pipeline;
+  }
+
+  unitsSold( { start, end, tag, dateBinSize } ) {
+
+    // Start a pipeline with a date range search
+    let pipeline = this.initRangedPipeline( "data.created_at", start, end )
 
     // Add more pipeline steps
     pipeline = pipeline.concat([
@@ -202,13 +202,13 @@ class DbClient {
               }
             },
           }, 
-          dateProject( { date: "$date", timezone: 'America/New_York' } )
+          dateProject( { date: "$date", timezone: 'America/New_York' }, dateBinSize )
         )
       },
       {
         $project: {
           date: {
-            $dateFromParts: dateFromParts()
+            $dateFromParts: dateFromParts( dateBinSize )
           },
           units: "$units",
           tags: "$tags",
