@@ -232,11 +232,11 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$st
       }
     };
 
-    $scope.generateManifestFileForScannedInventory =  function() {
+    $scope.generateManifestFileForScannedInventory = function() {
       $q.when( api.generateLotManifest( $scope.lot._id, true, false) ).then( () => {
         $state.reload();
       });
-    }
+    };
   }]
 );
 

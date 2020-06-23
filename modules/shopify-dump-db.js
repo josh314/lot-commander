@@ -166,11 +166,6 @@ class DbClient {
           _id: false,
           product_id: "$data.line_items.product_id",
           units: "$data.line_items.variant_title",
-          // date: { 
-          //   $dateFromString: {
-          //     dateString: "$data.created_at"
-          //   }
-          // }
           date: "$data.created_at"
         }
       },

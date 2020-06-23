@@ -53,7 +53,7 @@ angular.module('myApp').controller('ReportsCtrl', [ '$q', 'sessionTimeout',
 
       const labelFormat = ( ( units, dateDuration ) => {
         if( units === 'month' ) {
-          const format = dateDuration > moment.duration( 1, 'year' ) ? 'MMM YYYY' : 'MMM' 
+          const format = dateDuration > moment.duration( 1, 'year' ) ? 'MMM YYYY' : 'MMM';
           return m => m.format( format );
         }
         else {
@@ -72,7 +72,7 @@ angular.module('myApp').controller('ReportsCtrl', [ '$q', 'sessionTimeout',
           graphData.push( { date: m.format(), label: label, value: 0 } );
         }
       }
-      console.log(graphData)
+
       graphData.sort( (a,b) => a.date < b.date ? -1 : 1 );
 
       vm.graph.loadData( graphData );
