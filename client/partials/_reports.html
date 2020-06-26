@@ -1,17 +1,15 @@
 <main class="container" ng-controller="ReportsCtrl as ctrl">
-	<!-- <section class="row well">
-    <div class="form-group col-xs-6 col-sm-4">
-      <label for="startDateInput">Start Date</label>
-      <input type="date" class="form-control" id="startDateInput" ng-model="ctrl.inputs.startDate" min="{{ ctrl.inputs.minDate }}"/>
+
+  <section class="row well" style="display: flex; justify-content: center; align-items: flex-end; flex-wrap:wrap">
+    <div class="row col-xs-12 col-sm-6">
+      <div class="form-group col-xs-12">
+        <label for="reportTypeInput">Report Type</label>
+        <select class="form-control" id="reportTypeInput" ng-model="ctrl.inputs.reportType">
+          <option ng-repeat="opt in ctrl.inputs.reportTypeOptions" >{{ opt }}</option>
+        </select>
+      </div>
     </div>
-    <div class="form-group col-xs-6 col-sm-4">
-      <label for="endDateInput">End Date</label>
-      <input type="date" class="form-control" id="endDateInput" ng-model="ctrl.inputs.endDate" min="{{ ctrl.inputs.minDate }}"/>
-    </div>
-    <div class="form-group col-xs-12 col-sm-4 text-center">
-      <button class="btn btn-primary" ng-click="ctrl.loadOrdersForInputDateRange()">Load Orders</button>
-    </div>
-  </section> -->
+  </section>
   <section class="row well" style="display: flex; justify-content: center; align-items: flex-end; flex-wrap:wrap">
     <div class="row col-xs-12 col-sm-6">
       <div class="form-group col-xs-12" style="margin-right: 8px;">

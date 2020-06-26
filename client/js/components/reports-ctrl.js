@@ -5,6 +5,15 @@ import moment from 'moment';
 import { Graph } from '../graph';
 import * as api from '../api';
 
+const reportApiFn = (reportType) => {
+  if( reportType == 'units sold' ) {
+    return api.unitsSoldReport;
+  }
+  else if( reportType == 'pallets sold' ) {
+    return api.palletsSoldReport;
+  }
+};
+
 /******************* Orders Report Page Controller *************************/
 angular.module('myApp').controller('ReportsCtrl', [ '$q', 'sessionTimeout',
   function( $q, sessionTimeout ) {
@@ -36,8 +45,11 @@ angular.module('myApp').controller('ReportsCtrl', [ '$q', 'sessionTimeout',
         units: 'month'
       },
     ];
+    const reportTypeOptions = [ 'units sold', 'pallets sold' ];
 
     vm.inputs = {
+      reportTypeOptions: reportTypeOptions,
+      reportType: reportTypeOptions[0],
       startDate: moment().startOf('day').toDate(),
       endDate: moment().endOf('day').toDate(),
       minDate: moment('2017-12-01').format('YYYY-MM-DD'),// Wholesale Ninjas first actual orders start in this month
@@ -61,7 +73,12 @@ angular.module('myApp').controller('ReportsCtrl', [ '$q', 'sessionTimeout',
         }
       } )( vm.inputs.timeUnits.units, moment.duration( moment(vm.inputs.endDate).diff( moment(vm.inputs.startDate) )  ) );
 
-      let graphData = data.map( x => ({ date: moment.utc(x.date).format(), label: labelFormat( moment(x.date) ), value: x.units }) );
+      const reportValues = {
+        'units sold': 'units',
+        'pallets sold': 'pallets'
+      };
+
+      let graphData = data.map( x => ({ date: moment.utc(x.date).format(), label: labelFormat( moment(x.date) ), value: x[ reportValues[ vm.inputs.reportType ] ] }) );
 
       // fill in zeros for missing data
       const labelPeriod = vm.inputs.timeUnits.units === 'week' ? 'isoWeek' : vm.inputs.timeUnits.units;
@@ -88,7 +105,7 @@ angular.module('myApp').controller('ReportsCtrl', [ '$q', 'sessionTimeout',
         binSize: vm.inputs.timeUnits.units
       };
 
-      $q.when( api.unitsSoldReport( reportOptions ) ).then( reportItems => {
+      $q.when( reportApiFn( vm.inputs.reportType )( reportOptions ) ).then( reportItems => {
         loadGraph( reportItems );
         vm.waitingForData = false;
         vm.isGraphLoaded = true;
