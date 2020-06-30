@@ -81,6 +81,31 @@ class Server {
     //=================================================
     global.__connections = await require('./dbs').init();
 
+    const mongoSettings = this.config.dbHosts.mongo;
+    this.mongoClient = await (async ( { host, port, dbName, user, password } ) => {
+    
+      const location = `${host}:${ port || 27017 }/${dbName}`;
+      
+      const MongoClient = require('mongodb').MongoClient;
+      const client = new MongoClient(
+        `mongodb://${ user && password ? `${user}:${password}@` : ''}${location}`,
+        {
+          useNewUrlParser: true,
+          useUnifiedTopology: true
+        }
+      );
+
+      console.log(`Connecting to MongoDb at ${location}`);
+      await client.connect();
+      return client.db( dbName )
+    })({
+      host: mongoSettings.host,
+      port: mongoSettings.port,
+      dbName: mongoSettings.db,
+      user: mongoSettings.auth && mongoSettings.auth.user,
+      password: mongoSettings.auth && mongoSettings.auth.pwd,
+    })
+
     //================================================
     // Request Logging ===============================
     //================================================
@@ -175,16 +200,7 @@ class Server {
       accessToken: this.config.shopify.store.auth.password
     });
 
-    const shopifyDumpDb = this.config.dbHosts[ this.config.dbConnMapping.shopifyDump ];
-
-    const shopifyDumpDbClient = new ShopifyDumpDbClient({
-      host: shopifyDumpDb.host,
-      port: shopifyDumpDb.port,
-      dbName: shopifyDumpDb.db,
-      user: shopifyDumpDb.auth && shopifyDumpDb.auth.user,
-      password: shopifyDumpDb.auth && shopifyDumpDb.auth.pwd,
-    });
-    await shopifyDumpDbClient.connect();
+    const shopifyDumpDbClient = new ShopifyDumpDbClient( this.mongoClient );
 
     const routerOpts = {
       shopifyGqlClient: shopifyGqlClient,

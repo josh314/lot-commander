@@ -1,5 +1,3 @@
-const MongoClient = require('mongodb').MongoClient;
-
 const util = require('util')
 const stream = require('stream')
 const Transform = stream.Transform
@@ -94,8 +92,8 @@ const tagFilterObject = tag => ({
 });
 
 class DbClient {
-  constructor( { host, port, dbName, user, password } ) {
-
+  
+  constructor( mongoClient ) {
     this.collections = {
       checkouts: 'shopify-checkouts',
       customers: 'shopify-customers',
@@ -103,32 +101,7 @@ class DbClient {
       products: 'shopify-products',
     };
 
-    this.location = `${host}:${ port || 27017 }/${dbName}`;
-    this.url = this.connectionString( this.location , user, password );
-
-    this.client = new MongoClient(
-      this.url,
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-      }
-    );
-
-    this.dbName = dbName;
-  }
-
-  connectionString( location, user, password ) {
-    return `mongodb://${ user && password ? `${user}:${password}@` : ''}${location}`
-  }
-
-  async connect( ) {
-    console.log(`Connecting to shopify dump DB at ${this.location}`);
-    await this.client.connect();
-    this.db = this.client.db( this.dbName );
-  }
-
-  close() {
-    return this.client.close();
+    this.db = mongoClient;
   }
 
   getOrderHistory({ start, end, query, limit, skip }) {
