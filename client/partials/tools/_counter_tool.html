@@ -1,0 +1,65 @@
+<div class="container" ng-controller="CounterToolCtrl as ctrl">
+  <h1>Counter Tool</h1>
+
+  <div class="row well">
+
+    <!-- Start counter controls -->
+    <div ng-hide="ctrl.counter.isStarted()">
+      <div class="col-xs-12 col-sm-6">
+        <div class="form-group">
+          <label for="counterUnitsInput">Unit Count</label>
+          <input class="form-control" id="counterUnitsInput" ng-model="ctrl.counterUnitsInput" type="number" min="1">
+        </div>
+      </div>
+      <div class="col-xs-12 text-center"><a class="btn btn-success" ng-click="ctrl.startCounter()">Start</a></div>
+    </div>
+
+    <!-- Scanner -->
+    <div ng-show="ctrl.counter.isStarted()">
+
+      <!-- Scan controls-->
+      <div class="col-xs-12">
+        <div class="form-group" ng-class="{ 'has-error' : ctrl.invalidBarcode }">
+          <label for="barcodeInput">Scan Barcode here</label>
+          <input
+            type="text"
+            class="form-control"
+            id="barcodeInput"
+            ng-model="ctrl.scannedBarcode"
+            ng-keyup="$event.keyCode == 13 && ctrl.scanBarcode()"
+            autocomplete="off">
+          <span class="text-danger h4" ng-show="ctrl.invalidBarcode">Invalid Barcode Format</span>
+        </div>
+      </div>
+
+      <!--  -->
+      <div class="col-xs-6">
+        <div  style="display: flex; flex-direction: column;">
+          <strong>Total Scanned: {{ctrl.counter.getBarcodes().length}}</strong>
+          <div><a class="btn btn-xs btn-success pull-left" ng-click="ctrl.manualAddItem()">Manual Add Item</a></div>
+        </div>
+      </div>
+      <div class="col-xs-6"><a class="btn btn-success pull-right" ng-click="ctrl.finishCounting()">Done</a></div>
+
+      <!-- spacer -->
+      <div class="col-xs-12" style="margin-bottom: 8px;"></div>
+
+      <!-- Scan list-->
+      <div class="col-xs-12">
+        <table class="table table-striped">
+          <tbody>
+            <tr ng-repeat="barcode in ctrl.counter.getBarcodes() track by $index">
+              <td>{{barcode}}</td>
+              <td><button class="btn btn-danger btn-xs pull-right" ng-click="ctrl.deleteBarcode($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- reset button -->
+      <div class="col-xs-12 text-center"><a class="btn btn-danger" ng-click="ctrl.reset()">Reset</a></div>
+
+    </div>
+
+  </div>
+</div>
