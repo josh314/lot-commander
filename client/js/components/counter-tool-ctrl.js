@@ -26,6 +26,8 @@ function Counter($localStorage) {
 
   this.destroy = () => delete $localStorage['tools__scan_counter'];
 
+  this.getTarget = () => counter ? counter.units : '';
+
   this.getBarcodes = () => counter ? counter.barcodes : [];
 
   this.addBarcode = barcode => this.isDone() ? null : counter.barcodes = [barcode].concat(counter.barcodes);

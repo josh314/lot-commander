@@ -33,13 +33,27 @@
       </div>
 
       <!--  -->
-      <div class="col-xs-6">
-        <div  style="display: flex; flex-direction: column;">
+      <div class="col-xs-12">
+        <!-- <div  style="display: flex; flex-direction: column;">
           <strong>Total Scanned: {{ctrl.counter.getBarcodes().length}}</strong>
+          <strong>Target: {{ctrl.counter.getTarget()}}</strong>
           <div><a class="btn btn-xs btn-success pull-left" ng-click="ctrl.manualAddItem()">Manual Add Item</a></div>
+        </div> -->
+        <div style="display:flex; justify-content:space-around; align-items:center">
+          <div style="display:flex; flex-direction:column; align-items:center">
+            <h3>Scanned</h3>
+            <h4 class="text-danger">{{ ctrl.counter.getBarcodes().length }}</h4>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center">
+            <h3>Target</h3>
+            <h4 class="text-danger">{{ ctrl.counter.getTarget() }}</h4>
+          </div>
+          <a class="btn btn-sm btn-success" ng-click="ctrl.manualAddItem()">Manual Add Item</a>
+          <a class="btn btn-sm btn-danger" ng-click="ctrl.reset()">Reset</a>
         </div>
       </div>
-      <div class="col-xs-6"><a class="btn btn-success pull-right" ng-click="ctrl.finishCounting()">Done</a></div>
+
+      <!-- <div class="col-xs-6"><a class="btn btn-success pull-right" ng-click="ctrl.finishCounting()">Done</a></div> -->
 
       <!-- spacer -->
       <div class="col-xs-12" style="margin-bottom: 8px;"></div>
@@ -57,7 +71,7 @@
       </div>
 
       <!-- reset button -->
-      <div class="col-xs-12 text-center"><a class="btn btn-danger" ng-click="ctrl.reset()">Reset</a></div>
+      <!-- <div class="col-xs-12 text-center"><a class="btn btn-danger" ng-click="ctrl.reset()">Reset</a></div> -->
 
     </div>
 
