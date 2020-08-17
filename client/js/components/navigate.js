@@ -7,6 +7,8 @@ import angular from 'angular';
 ************/
 angular.module('myApp').factory('navigate', [ '$state', function($state){
 
+  const home = () => $state.go('main.home');
+
   const viewLot = (lotId) => {
     $state.go('main.lots.view', {lotId: lotId});
   };
@@ -24,6 +26,7 @@ angular.module('myApp').factory('navigate', [ '$state', function($state){
   };
 
   return {
+    home: home,
     listLots: listLots,
     reload: reload,
     scanLot: scanLot,
