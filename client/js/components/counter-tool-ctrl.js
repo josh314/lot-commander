@@ -66,11 +66,14 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counter
       resetCounterUnitsInput();
     }
 
+    const startCounter = ( units ) => {
+      vm.counter.start( units );
+      resetScanner();
+    };
 
     vm.startCounter = () => {
       if( vm.counterUnitsInput ) {
-        vm.counter.start( vm.counterUnitsInput );
-        resetScanner();
+        startCounter( vm.counterUnitsInput );
       }
       else {
         failBeep.play();
@@ -88,13 +91,33 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counter
       }
     };
 
+    vm.repeatCount = () => {
+      const target = vm.counter.getTarget();
+      vm.counter.destroy();
+      startCounter( target );
+    }
+
     const notifyIfDone = () => {
       if( vm.counter.isDone() ) { // If done scanning, launch modal
         counterToolModal.launch(
           {header: 'Complete', body: `All items scanned! Click the finish button now to proceed.`, type: 'success'},
-          () => vm.finishCounting(),
-          'Finish'
-        );
+          [
+            {
+              style: 'danger',
+              text: 'Finish',
+              result: 'finish',
+              cb: () => vm.finishCounting()
+            },
+            {
+              style: 'primary',
+              text: 'Repeat',
+              result: 'repeat',
+              cb: () => {
+                vm.repeatCount()
+              }
+            },
+          ],
+        )
       }
     };
 
@@ -126,11 +149,17 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counter
     vm.reset = () => {
       counterToolModal.launch(
         {header: 'Reset?', body: `Reset this counter?`, type: 'success'},
-        () => {
-          vm.counter.destroy();
-          navigate.reload();
-        },
-        'Reset'
+        [
+          {
+            style: 'danger',
+            text: 'Reset',
+            result: 'reset',
+            cb: () => {
+              vm.counter.destroy();
+              navigate.reload();
+            },
+          }
+        ]
       );
 
     };
@@ -138,48 +167,53 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counter
   }
 ]);
 
+
 /*******************  Modal service ******************************/
 angular.module('myApp').factory('counterToolModal', ['$uibModal', function($uibModal){
   return {
-    launch: function(message, commandBtnFn, commandBtnText) {
+    /******************************************
+     * @param {Object} message
+     * @param {string} message.header
+     * @param {string} message.body
+     * @param {string} message.html
+     * @param {Object[]} buttons
+     * @param {string} buttons[].text
+     * @param {string} buttons[].style
+     * @param {string} buttons[].result
+     * @param {function} buttons[].cb
+     */
+    launch: function(message, buttons) {
 
       const modalInstance = $uibModal.open({
         template: `
           <div class="modal-header">
-            <h3 class="modal-title" ng-class="messageSeverity">{{message.header}}</h3>
+            <h3 class="modal-title" ng-class="messageSeverity">${message.header}</h3>
           </div>
           <div class="modal-body">
             <div class="row">
               <div class="col-xs-12">
-                <p ng-show="message.body">{{message.body}}</p>
-                <div ng-show="message.html" ng-bind-html="message.html"></div>
+                ${message.body ? `<p>${message.body}</p>` : ''}
+                ${message.html ? message.html : ''}
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-danger" type="button" ng-click="$close()" ng-show="commandBtnText">{{commandBtnText}}</button>
-            <button class="btn btn-success" type="button" ng-click="$dismiss()">Dismiss</button>
+            ${ buttons.reduce( (acc, btn) => `${acc}<button class="btn btn-${btn.style ? btn.style : 'success'}" type="button" ng-click="$close('${btn.result}')">${btn.text}</button>`, '' ) }
+            <button class="btn btn-success" type="button" ng-click="$dismiss()">Back</button>
           </div>
           `,
         size: 'lg',
-        controller: 'counterToolModalController',
-        resolve: {
-          message: function () {
-            return message;
-          },
-          commandBtnText: function () {
-            return commandBtnText;
-          }
-        },
       });
 
-      modalInstance.result.then(commandBtnFn || function(){}, function(){});
+      modalInstance.result.then(
+        result => {
+          const cb = buttons.find( btn => btn.result === result ).cb;
+          if( cb ) {
+            cb();
+          }
+        },
+        function(){}
+      );
     }
   };
-}]);
-
-/***************** Modal Controller ************************/
-angular.module('myApp').controller('counterToolModalController', [ '$scope', 'message', 'commandBtnText', function($scope, message, commandBtnText){
-  $scope.message = JSON.parse(JSON.stringify(message));
-  $scope.commandBtnText = commandBtnText;
 }]);
