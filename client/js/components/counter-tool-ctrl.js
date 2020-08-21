@@ -48,6 +48,8 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counter
     const vm = this;
 
     vm.counter = new Counter($localStorage);
+    vm.displayBarcodeFilter = '';
+    vm.displayBarcodesList = [];
 
     const resetScanner = () => {
       vm.scannedBarcode = '';
@@ -57,10 +59,20 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counter
     const resetCounterUnitsInput = () => {
       vm.counterUnitsInput = '';
       focus('counterUnitsInput');
-    }
+    };
+
+    vm.setDisplayBarcodesList = () =>{
+      const filterPattern = new RegExp(vm.displayBarcodeFilter);
+      vm.displayBarcodesList = vm.counter.getBarcodes().map( (_barcode, _idx) => ({ barcode: _barcode, idx: _idx}) ).filter( _ => filterPattern.test(_.barcode) );
+    };
+
+    const refreshDisplay = () => {
+      vm.setDisplayBarcodesList();
+      resetScanner();
+    };
 
     if( vm.counter.isStarted() ) {
-      resetScanner();
+      refreshDisplay();
     }
     else {
       resetCounterUnitsInput();
@@ -71,6 +83,11 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counter
       resetScanner();
     };
 
+    const clearDisplayBarcodeFilter = () => {
+      vm.displayBarcodeFilter = '';
+      refreshDisplay();
+    };
+
     vm.startCounter = () => {
       if( vm.counterUnitsInput ) {
         startCounter( vm.counterUnitsInput );
@@ -79,7 +96,7 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counter
         failBeep.play();
         resetCounterUnitsInput();
       }
-    }
+    };
 
     vm.finishCounting = () => {
       if( vm.counter.isDone() ) {
@@ -95,29 +112,37 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counter
       const target = vm.counter.getTarget();
       vm.counter.destroy();
       startCounter( target );
-    }
+      refreshDisplay();
+    };
 
     const notifyIfDone = () => {
       if( vm.counter.isDone() ) { // If done scanning, launch modal
         counterToolModal.launch(
-          {header: 'Complete', body: `All items scanned! Click the finish button now to proceed.`, type: 'success'},
+          {
+            header: 'Complete',
+            html: `<p>All items scanned! Click:</p>
+                    <ul>
+                      <li><b>Repeat</b> to perform another count of the same amount</li>
+                      <li><b>Finish</b> to reset the counter</li>
+                      <li><b>Back</b> to continue working on the current count</li>
+                    </ul>`,
+            type: 'success'
+          },
           [
+            {
+              style: 'primary',
+              text: 'Repeat',
+              result: 'repeat',
+              cb: () => vm.repeatCount()
+            },
             {
               style: 'danger',
               text: 'Finish',
               result: 'finish',
               cb: () => vm.finishCounting()
             },
-            {
-              style: 'primary',
-              text: 'Repeat',
-              result: 'repeat',
-              cb: () => {
-                vm.repeatCount()
-              }
-            },
           ],
-        )
+        );
       }
     };
 
@@ -132,18 +157,18 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counter
       else {
         failBeep.play();
       }
-      resetScanner();
+      refreshDisplay();
     };
 
     vm.manualAddItem = () => {
       vm.counter.addBarcode('xxxxxxxxxxxx');
+      refreshDisplay();
       notifyIfDone();
-      resetScanner();
     };
 
     vm.deleteBarcode = index => {
       vm.counter.deleteBarcodeByIndex(index);
-      resetScanner();
+      clearDisplayBarcodeFilter();
     };
 
     vm.reset = () => {

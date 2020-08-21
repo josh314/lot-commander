@@ -57,14 +57,24 @@
 
       <!-- spacer -->
       <div class="col-xs-12" style="margin-bottom: 8px;"></div>
+      <!-- <input ng-model="ctrl.displayBarcodeFilter" ng-change="ctrl.setDisplayBarcodesList()"> -->
+      <div class="col-xs-12 form-inline">
+        <div class="form-group pull-right">
+          <label for="displayBarcodeFilter">Filter:</label>
+          <input type="search" id="displayBarcodeFilter" ng-model="ctrl.displayBarcodeFilter" ng-change="ctrl.setDisplayBarcodesList()">
+        </div>
+      </div>
+
+      <div class="col-xs-12" style="margin-bottom: 8px;"></div>
 
       <!-- Scan list-->
       <div class="col-xs-12">
+
         <table class="table table-striped">
           <tbody>
-            <tr ng-repeat="barcode in ctrl.counter.getBarcodes() track by $index">
-              <td>{{barcode}}</td>
-              <td><button class="btn btn-danger btn-xs pull-right" ng-click="ctrl.deleteBarcode($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
+            <tr ng-repeat="item in ctrl.displayBarcodesList">
+              <td>{{item.barcode}}</td>
+              <td><button class="btn btn-danger btn-xs pull-right" ng-click="ctrl.deleteBarcode(item.idx)"><span class="glyphicon glyphicon-remove"></span></button></td>
             </tr>
           </tbody>
         </table>
