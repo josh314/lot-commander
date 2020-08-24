@@ -131,6 +131,19 @@ class Server {
       res.redirect('/');
     });
 
+    const cookieParser = require('cookie-parser');
+    this.app.use(cookieParser());
+    
+    // set a cookie
+    this.app.use(function (req, res, next) {
+      // check if client sent cookie
+      const cookie = req.cookies.user;
+      if ( cookie === undefined && req.user  ) {
+        res.cookie('user',JSON.stringify(req.user.getPublicInfo()), { maxAge: 900000, httpOnly: false });
+      }
+      next();
+    });
+  
     // //===================================================
     // // FLASH MESSAGE MIDDLEWARE =========================
     // //===================================================

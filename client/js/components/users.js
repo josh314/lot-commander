@@ -15,13 +15,23 @@ function passwordInvalid(password) {
 }
 
 /*********************** Logout service ****************************/
-angular.module('myApp').factory('logout', ['$http', '$window', 'sessionTimeout', function($http, $window, sessionTimeout){
+angular.module('myApp').factory('logout', ['$http', '$window', 'sessionTimeout', 'user', function($http, $window, sessionTimeout, user){
   return function() {
     $http.get('/logout').then(()=>{
       console.log("destroying 'lotCommander' cookie");
       sessionTimeout.destroy();
+      user.destroy();
       $window.location.reload();
     });
+  };
+}]);
+
+
+/*********************** User service ****************************/
+angular.module('myApp').factory('user', ['$cookies', function($cookies){
+  return {
+    destroy: () => $cookies.remove('user'),
+    get: () => $cookies.getObject('user'),
   };
 }]);
 
