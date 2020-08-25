@@ -2,6 +2,31 @@ const bcrypt   = require('bcrypt-nodejs');
 
 //=======================================
 //=======================================
+// Constants & helpers ==================
+//=======================================
+//=======================================
+
+const __USER_ROLE__ = {
+  __REGULAR__: '__REGULAR__',
+  __SHOPIFY_LISTINGS__: '__SHOPIFY_LISTINGS__',
+  __TOOLS__: '__TOOLS__',
+  __FULFILLMENT__: '__FULFILLMENT__',
+  __RECEIVING__: '__RECEIVING__',
+  __REPORTS__: '__REPORTS__',
+  __USERS__: '__USERS__',
+  __AUCTIONS__: '__AUCTIONS__',
+};
+
+const __USER_ROLE_PERMISSIONS__ = {
+  __USERS__: [ 'CREATE_USER', 'DISABLE_USER' ],
+};
+
+const superuserRoles = () => Object.values( __USER_ROLE__ );
+
+const userRoleHasPermission = permission => role => __USER_ROLE_PERMISSIONS__[ role ].includes( permission );
+
+//=======================================
+//=======================================
 // Initialize mongoose and connection ===
 //=======================================
 //=======================================
@@ -15,21 +40,15 @@ mongoose.Promise = require('bluebird');
 //======================================
 //======================================
 
-const __USER_ROLES__ = {
-  DISABLED: 'disabled',
-  REGULAR: 'regular',
-  MANAGER: 'manager',
-  ADMIN: 'admin',
-  SUPERUSER: 'superuser'
-};
-
 const userSchema = mongoose.Schema({
   name: String,
-  role: { type: String, enum: Object.values( __USER_ROLES__ ) },
+  roles: [{ type: String, enum: Object.values( __USER_ROLE__ ) }],
   local: {
     username: String,
     password: String,
   },
+  isSuperuser: Boolean,
+  isDisabled: Boolean,
 }, {collection: 'users', timestamps: true});
 
 // methods ======================
@@ -44,11 +63,28 @@ userSchema.methods.validPassword = function(password) {
 };
 
 userSchema.methods.isAuthorized = function( permission ) {
-  if( this.role === __USER_ROLES__.SUPERUSER ) {
+  console.log(this)
+  if ( this.isDisabled ) {
+    return false;
+  }
+  else if( this.isSuperuser ) {
     return true;
   }
+  else if ( this.roles ) {
+    return this.roles.some( userRoleHasPermission( permission ) );
+  }
+  else {
+    return false;
+  }
+}
 
-  return false;
+userSchema.methods.getPublicInfo = function() {
+  return {
+    id: this.id,
+    name: this.name,
+    username: this.local.username,
+    roles: this.isSuperuser ? superuserRoles() : this.roles,
+  };
 };
 
 const User = __connections.users.model('User', userSchema);
@@ -75,13 +111,13 @@ const changeUserPassword = ( { user, password } ) => {
   )
 };
 
-const createUser = ( { username, password, name, role } ) => {
+const createUser = ( { username, password, name, roles } ) => {
   const newUser = new User();
   // set the user's local credentials
   newUser.local.username = username;
   newUser.local.password = newUser.generateHash(password);
   newUser.name = name;
-  newUser.role = role;
+  newUser.roles = roles;
 
   // save the user
   return newUser.save();

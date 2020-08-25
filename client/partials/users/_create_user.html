@@ -15,16 +15,16 @@
         <input type="text" class="form-control" autofocus ng-model="ctrl.form.name">
         <span class="text-danger h4" ng-show="ctrl.noName">Missing name</span>
       </div>
-      <div class="form-group col-xs-12" ng-class="{ 'has-error': ctrl.noRole }">
-        <label>Role</label>
-        <select class="form-control" ng-model="ctrl.form.role" ng-options="role for role in ctrl.roles">
-          <option>n00b</option>
-          <option>basic</option>
-          <option>manager</option>
-        </select>
-        <span class="text-danger h4" ng-show="ctrl.noRole">Please select a role</span>
+      <div class="form-group col-xs-12" ng-class="{ 'has-error': ctrl.noRoles }">
+        <label>Roles (select all that apply):</label>
+        <div class="checkbox" ng-repeat="role in ctrl.roles">
+          <label>
+            <input type="checkbox" ng-model="ctrl.form.roles[role]"> {{ role }}
+          </label>
+        </div>
+        <span class="text-danger h4" ng-show="ctrl.noRoles">No roles chosen</span>
       </div>
-      <div class="form-group col-xs-12" ng-class="{ 'has-error': ctrl.noRole || ctrl.userExists }">
+      <div class="form-group col-xs-12" ng-class="{ 'has-error': ctrl.noUsername || ctrl.userExists }">
         <label>Username</label>
         <input type="text" class="form-control" ng-model="ctrl.form.username">
         <span class="text-danger h4" ng-show="ctrl.noUsername">Missing username</span>

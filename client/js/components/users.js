@@ -126,20 +126,18 @@ angular.module('myApp').controller('ChangeUserPasswordCtrl', ['$scope', '$http',
 }]);
 
 /******************* Create User Controller ********************/
-angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageModal', 'sessionTimeout', function( $q, $state, messageModal, sessionTimeout ){
+angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageModal', 'sessionTimeout', 'user', function( $q, $state, messageModal, sessionTimeout, user ){
   sessionTimeout.timeoutExpired();
 
-  const __ROLES__ = [
-    'regular',
-    'manager',
-    'admin'
-  ];
+  const cleanRoleString = str => str.replace(/__/g, '').replace(/_/g, ' ').toLowerCase();
+  const canonicalRoleString = str => `__${str.replace(/ /g, '_')}__`.toUpperCase();
+  const __ROLES__ = user.get().roles.map( cleanRoleString );
 
   const vm = this;
 
   vm.roles = __ROLES__;
   vm.form = {
-    role: __ROLES__[0]
+    roles: {}
   };
 
   function navigateToHome() {
@@ -149,7 +147,7 @@ angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageM
   vm.submit = function() {
 
     vm.noName = !vm.form.name;
-    vm.noRole = !vm.form.role;
+    vm.noRoles = !Object.keys(vm.form.roles).length;
     vm.noUsername = !vm.form.username;
     vm.passwordInvalid = passwordInvalid(vm.form.password);
     vm.passwordMismatch = (vm.form.password !== vm.form.confirmPassword);
@@ -159,13 +157,17 @@ angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageM
       vm.passwordMismatch ||
       vm.noName ||
       vm.noUsername ||
-      vm.noRole 
+      vm.noRoles
     ) {
       return;
     }
 
-    const newUserData = Object.assign( {}, vm.form );
-    delete newUserData.confirmPassword;
+    const newUserData = {
+      name: vm.form.name,
+      username: vm.form.username,
+      password: vm.form.password,
+      roles: Object.keys(vm.form.roles).map( canonicalRoleString )
+    };
 
     return $q.when( api.createNewUser( newUserData ) ).then( resp => {
       console.log(resp)

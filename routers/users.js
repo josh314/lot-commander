@@ -49,7 +49,7 @@ function createUser(req,res) {
       username: req.body.username,
       password: req.body.password,
       name: req.body.name,
-      role: req.body.role,
+      roles: req.body.roles,
     });
 
   })
