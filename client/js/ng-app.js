@@ -30,10 +30,10 @@ const stateData = [
   { name: "main.lots.upload-manifest", url: '/upload-manifest/{lotId}', templateUrl: '/partials/_upload_lot_manifest.html' },
   // auctions
   { name: "main.auctions", abstract: true, url: '/auctions', templateUrl: '/partials/_container.html' },
-  { name: "main.auctions.list", navName: 'List Auctions', url: '/list', templateUrl: '/partials/_list_auctions.html', controller: 'ListAuctionsCtrl'},
+  { name: "main.auctions.list", navName: 'List Auctions', url: '/list', templateUrl: '/partials/_list_auctions.html', controller: 'ListAuctionsCtrl', roleAccess: '__AUCTIONS__' },
   // orders
-  { name: "main.orders", abstract: true, url: '/orders', templateUrl: '/partials/_container.html' },
-  { name: "main.orders.pending", navName: 'Orders', url: '/pending', templateUrl: '/partials/_list_pending_orders.html' },
+  { name: "main.orders", abstract: true, url: '/orders', templateUrl: '/partials/_container.html'},
+  { name: "main.orders.pending", navName: 'Orders', url: '/pending', templateUrl: '/partials/_list_pending_orders.html', roleAccess: '__FULFILLMENT__' },
   { name: "main.orders.pick", url: '/pick/{orderId}', templateUrl: '/partials/_order_pick_list.html' },
   // manifest files
   { name: "main.manifests", abstract: true, navName: 'Manifests', url: '/manifests', templateUrl: '/partials/_container.html' },
@@ -42,7 +42,7 @@ const stateData = [
   // users
   { name: "main.users", abstract:true, navName: "Users", url: "/users", templateUrl: 'partials/_container.html'},
   { name: "main.users.change-password", navName: "Change Password", navParent: 'Users', url: "/change-password", templateUrl: 'partials/users/_change_password.html', controller:'ChangeUserPasswordCtrl'},
-  { name: "main.users.create", navName: "New User", navParent: "Users", url: "/create", templateUrl: 'partials/users/_create_user.html' },
+  { name: "main.users.create", navName: "New User", navParent: "Users", url: "/create", templateUrl: 'partials/users/_create_user.html', roleAccess: '__USERS__' },
   { name: "main.users.logout", url: "/logout", navName: 'Logout', navParent: 'Users', controller:'LogoutCtrl' },
 
 ];
@@ -61,10 +61,10 @@ stateData.forEach(function(stateObj){
     if( angular.isUndefined (navParent.drops ) ) {
       navParent.drops = [];
     }
-    navParent.drops.push({ state: stateObj.name, title: stateObj.navName, userAccess: stateObj.userAccess });
+    navParent.drops.push({ state: stateObj.name, title: stateObj.navName, permission: stateObj.permission, roleAccess: stateObj.roleAccess });
   }
   else if (stateObj.navName) {
-    navbar.navItems.push({ state: stateObj.name, title: stateObj.navName, route: stateObj.url, userAccess: stateObj.userAccess });
+    navbar.navItems.push({ state: stateObj.name, title: stateObj.navName, route: stateObj.url, permission: stateObj.permission, roleAccess: stateObj.roleAccess });
   }
 });
 angular.module('myApp').constant('stateConfigData', stateConfigData);

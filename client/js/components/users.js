@@ -170,8 +170,6 @@ angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageM
     };
 
     return $q.when( api.createNewUser( newUserData ) ).then( resp => {
-      console.log(resp)
-
 
       if(resp.success) {
         return messageModal.launch(

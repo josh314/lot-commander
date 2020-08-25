@@ -63,7 +63,6 @@ userSchema.methods.validPassword = function(password) {
 };
 
 userSchema.methods.isAuthorized = function( permission ) {
-  console.log(this)
   if ( this.isDisabled ) {
     return false;
   }

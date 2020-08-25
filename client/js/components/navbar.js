@@ -1,9 +1,26 @@
 import angular from 'angular';
 
-/******************* Navbar Controller *************************/
-angular.module('myApp').controller('NavbarCtrl', ['$scope', 'navbarData', function($scope, navbarData) {
+const roleAccessFilter = roles => _ => _.roleAccess ? roles.includes( _.roleAccess ) : true;
 
-  const navItems = navbarData.navItems;
+const suppressUnauthorizedNavigation = ( navItems, roles ) => {
+  const firstPass = navItems.filter( roleAccessFilter(roles) );
+  
+  const secondPass = firstPass.map( item => {
+    if( item.drops && item.drops.length ) {
+      return Object.assign( item , { drops: item.drops.filter( roleAccessFilter(roles) ) });
+    }
+    else {
+      return item;
+    }
+  });
+
+  return secondPass.filter( item => item.drops ? item.drops.length > 0 : true );
+};
+
+/******************* Navbar Controller *************************/
+angular.module('myApp').controller('NavbarCtrl', ['$scope', 'navbarData', 'user', function($scope, navbarData, user) {
+
+  const navItems = suppressUnauthorizedNavigation( navbarData.navItems, user.get().roles );
 
   $scope.navbar = {
     brand: navbarData.brand,
