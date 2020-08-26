@@ -1,6 +1,9 @@
 const path = require('path');
 const express = require('express');
 
+const auth= require('../auth');
+const { nextTick } = require('process');
+
 const scriptBuilder = require(path.join(__basedir, __config.modulesPath, 'script-builder'));
 
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
@@ -47,7 +50,7 @@ function routes() {
   router.post('/api/db/upload-lot-manifest/:lotId', lotdb.uploadManifest);
 
   // bstock db api
-  router.post('/api/bstock-db/auctions/get', express.json(), bstockDb.getAuctions);
+  router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);
 
   // images
   router.post('/api/image/upload', images.upload);
@@ -58,7 +61,23 @@ function routes() {
   router.get('/api/image', images.get);
 
   // marketplace listings
-  router.post('/api/listings/submit', listings.submit);
+  router.post(
+    '/api/listings/submit',
+    express.json(),
+    ( req, res, next ) => {
+      const marketplace = req.body.listing.marketplace;
+      if( marketplace === 'wholesaleninjas' ) {
+        auth.isAuthorized('SUBMIT_SHOPIFY_LISTING')(req,res,next);
+      }
+      else if ( marketplace === 'bstock' ) {
+        auth.isAuthorized('SUBMIT_AUCTION')(req,res,next);
+      }
+      else {
+        throw new Error(`Marketplace '${marketplace}' not recognized.`);
+      }
+    },
+    listings.submit
+  );
 
 
   // product data

@@ -6,27 +6,17 @@ const bcrypt   = require('bcrypt-nodejs');
 //=======================================
 //=======================================
 
-const __USER_ROLE__ = {
-  __SHOPIFY_LISTINGS__: '__SHOPIFY_LISTINGS__',
-  __TOOLS__: '__TOOLS__',
-  __FULFILLMENT__: '__FULFILLMENT__',
-  __RECEIVING__: '__RECEIVING__',
-  __REPORTS__: '__REPORTS__',
-  __USERS__: '__USERS__',
-  __AUCTIONS__: '__AUCTIONS__',
-};
-
 const __USER_ROLE_PERMISSIONS__ = {
   __AUCTIONS__: [ 'LIST_AUCTIONS', 'SUBMIT_AUCTION'],
   __FULFILLMENT__: [ 'LIST_ORDERS', 'VIEW_ORDER'],
   __RECEIVING__: [],
   __REPORTS__: [ 'VIEW_REPORT' ],
-  __SHOPIFY_LISTINGS__: [],
-  __TOOLS__: [],
+  __SHOPIFY__: [ 'SUBMIT_SHOPIFY_LISTING' ],
+  __TOOLS__: [ 'COUNTER_TOOL' ],
   __USERS__: [ 'CREATE_USER', 'DISABLE_USER' ],
 };
 
-const superuserRoles = () => Object.values( __USER_ROLE__ );
+const superuserRoles = () => Object.keys( __USER_ROLE_PERMISSIONS__ );
 
 const userRoleHasPermission = permission => role => __USER_ROLE_PERMISSIONS__[ role ].includes( permission );
 
@@ -47,7 +37,7 @@ mongoose.Promise = require('bluebird');
 
 const userSchema = mongoose.Schema({
   name: String,
-  roles: [{ type: String, enum: Object.values( __USER_ROLE__ ) }],
+  roles: [{ type: String, enum: Object.keys( __USER_ROLE_PERMISSIONS__ ) }],
   local: {
     username: String,
     password: String,
@@ -82,12 +72,23 @@ userSchema.methods.isAuthorized = function( permission ) {
   }
 }
 
+userSchema.methods.getPermissionSet = function() {
+  const roles = this.isSuperuser ? superuserRoles() : this.roles;
+  return roles.reduce( (permissions, role) => {
+    for( let p of __USER_ROLE_PERMISSIONS__[ role ] ) {
+      permissions.add(p);
+    }
+    return permissions;
+  }, new Set());
+}
+
 userSchema.methods.getPublicInfo = function() {
   return {
     id: this.id,
     name: this.name,
     username: this.local.username,
     roles: this.isSuperuser ? superuserRoles() : this.roles,
+    permissions: [...this.getPermissionSet()]
   };
 };
 

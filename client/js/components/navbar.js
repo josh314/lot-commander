@@ -1,13 +1,13 @@
 import angular from 'angular';
 
-const roleAccessFilter = roles => _ => _.roleAccess ? roles.includes( _.roleAccess ) : true;
+const userPermissionFilter = permissions => _ => _.userPermission ? permissions.includes( _.userPermission ) : true;
 
-const suppressUnauthorizedNavigation = ( navItems, roles ) => {
-  const firstPass = navItems.filter( roleAccessFilter(roles) );
+const suppressUnauthorizedNavigation = ( navItems, permissions ) => {
+  const firstPass = navItems.filter( userPermissionFilter(permissions) );
   
   const secondPass = firstPass.map( item => {
     if( item.drops && item.drops.length ) {
-      return Object.assign( item , { drops: item.drops.filter( roleAccessFilter(roles) ) });
+      return Object.assign( item , { drops: item.drops.filter( userPermissionFilter(permissions) ) });
     }
     else {
       return item;
@@ -20,7 +20,7 @@ const suppressUnauthorizedNavigation = ( navItems, roles ) => {
 /******************* Navbar Controller *************************/
 angular.module('myApp').controller('NavbarCtrl', ['$scope', 'navbarData', 'user', function($scope, navbarData, user) {
 
-  const navItems = suppressUnauthorizedNavigation( navbarData.navItems, user.get().roles );
+  const navItems = suppressUnauthorizedNavigation( navbarData.navItems, user.get().permissions );
 
   $scope.navbar = {
     brand: navbarData.brand,
