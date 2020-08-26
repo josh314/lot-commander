@@ -133,52 +133,50 @@ class Server {
     this.app.use(express.json({ limit: '50mb' }));//parse json bodies
     this.app.use(bodyParser.urlencoded({ extended: true }));
 
-    //=================================================
-    // Initialize passport module =====================
-    //=================================================
-    const users = require(path.join(__basedir, this.config.modulesPath, 'users'));
-    this.app.use(users.passport.initialize());
-    this.app.use(users.passport.session());//initializes req.user field
-
-
     // =====================================
     // BACKDOOR USER SIGNUP ==============
     // =====================================
     // TODO: COMMENT OUT IN PRODUCTION!!!!!!!!!!!
     // show the signup form
-    if( this.app.get('env') === 'development' ) {
-      this.app.get('/sonic', function(req, res) {
-          res.render('signup.hbs', { authFlash: req.session.flash });
-      });
-      this.app.post('/sonic/users/new', bodyParser.urlencoded({ extended: true }), users.api.createUser);
-    }
+    // if( this.app.get('env') === 'development' ) {
+    //   this.app.get('/sonic', function(req, res) {
+    //       res.render('signup.hbs', { authFlash: req.session.flash });
+    //   });
+    //   this.app.post('/sonic/users/new', bodyParser.urlencoded({ extended: true }), users.api.createUser);
+    // }
 
     // =====================================
-    // LOGIN & LOGOUT ======================
+    // Authentication ======================
     // =====================================
+
+    const auth = require('./auth');
+    this.app.use( auth.init() );
+
     // show the login form
     this.app.get('/login', function(req, res) {
       res.render('login.hbs', { authFlash: req.session.flash }); 
     });
 
-    // process the login form
-    this.app.post('/login', users.passport.authenticate('local-login', {
-      successRedirect : '/', // redirect to main
-      failureRedirect : '/login', // redirect back to the login page if there is an error
-      failureFlash : false // allow flash messages
-    }));
+    this.app.post('/login', auth.authenticate({ success: '/', failure: '/login' }) );
 
     this.app.get('/logout', function(req, res) {
       req.logout();
       res.redirect('/');
     });
 
-    //=================================================
-    // Static server ==================================
-    //=================================================
-    this.app.use(users.api.isLoggedIn, express.static(path.join(__basedir, this.config.assets.root)));
-    this.app.use(users.api.isLoggedIn, express.static(path.join(__basedir, this.config.imgPath)));
-
+    const cookieParser = require('cookie-parser');
+    this.app.use(cookieParser());
+    
+    // set a cookie
+    this.app.use(function (req, res, next) {
+      // check if client sent cookie
+      const cookie = req.cookies.user;
+      if ( cookie === undefined && req.user  ) {
+        res.cookie('user',JSON.stringify(req.user.getPublicInfo()), { maxAge: 900000, httpOnly: false });
+      }
+      next();
+    });
+  
     // //===================================================
     // // FLASH MESSAGE MIDDLEWARE =========================
     // //===================================================
@@ -210,7 +208,11 @@ class Server {
     const router = require(path.join(__basedir,'routers'))(routerOpts);
 
     // Login users on all main routes
-    this.app.use('/', users.api.isLoggedIn, router);
+    this.app.use(
+      '/',
+      auth.isLoggedIn,
+      router
+    );
 
     //===============================================
     // Error Handling  and Logging ==================
@@ -227,10 +229,19 @@ class Server {
       // res.status(404).render('404', {});
       console.log('Logging error to file.');
       __logger.error(err);
-      res.json({
-        status: 'error',
-        error: err.clientMessage ? err.clientMessage : 'Server Error.',
-      });
+
+      const response = {
+        status: 'error'
+      }
+
+      if( err.message === 'UNAUTHORIZED' ) {
+        response.error = 'UNAUTHORIZED';
+      }
+      else {
+        response.error = err.clientMessage ? err.clientMessage : 'Server Error.';
+      }
+
+      res.json( response );
     });
 
     return this;

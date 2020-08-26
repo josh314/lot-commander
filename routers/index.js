@@ -1,13 +1,15 @@
 const path = require('path');
 const express = require('express');
 
+const auth= require('../auth');
+const { nextTick } = require('process');
+
 const scriptBuilder = require(path.join(__basedir, __config.modulesPath, 'script-builder'));
 
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
 const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
 const images = require(path.join(__basedir, __config.modulesPath, 'images'));
-const users = require(path.join(__basedir, __config.modulesPath, 'users'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
@@ -27,11 +29,12 @@ function routes({ shopifyGqlClient, shopifyDumpDb }) {
   // =====================================
   // USERS SECTION =======================
   // =====================================
+  router.use('/api/users', require('./users') );
   // we will want this protected so you have to be logged in to visit
   // we will use route middleware to verify this (the isLoggedIn function)
   // router.get('/api/users/all', users.api.isManager, users.api.getAllUsers);
   // router.post('/api/users/new', users.api.canCreateNewUsers, users.api.createUser);
-  router.post('/api/users/change-password', users.api.isLoggedIn, users.api.changeUserPassword);
+  // router.post('/api/users/change-password', auth.isLoggedIn, users.api.changeUserPassword);
   // router.get('/api/users/get/:username', users.api.isLoggedIn , users.api.getUserInfo );
   // router.post('/api/users/edit-role', users.api.isManager, users.api.editUserRole);
 
@@ -47,7 +50,7 @@ function routes({ shopifyGqlClient, shopifyDumpDb }) {
   router.post('/api/db/upload-lot-manifest/:lotId', lotdb.uploadManifest);
 
   // bstock db api
-  router.post('/api/bstock-db/auctions/get', express.json(), bstockDb.getAuctions);
+  router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);
 
   // images
   router.post('/api/image/upload', images.upload);
@@ -58,7 +61,23 @@ function routes({ shopifyGqlClient, shopifyDumpDb }) {
   router.get('/api/image', images.get);
 
   // marketplace listings
-  router.post('/api/listings/submit', listings.submit);
+  router.post(
+    '/api/listings/submit',
+    express.json(),
+    ( req, res, next ) => {
+      const marketplace = req.body.listing.marketplace;
+      if( marketplace === 'wholesaleninjas' ) {
+        auth.isAuthorized('SUBMIT_SHOPIFY_LISTING')(req,res,next);
+      }
+      else if ( marketplace === 'bstock' ) {
+        auth.isAuthorized('SUBMIT_AUCTION')(req,res,next);
+      }
+      else {
+        throw new Error(`Marketplace '${marketplace}' not recognized.`);
+      }
+    },
+    listings.submit
+  );
 
 
   // product data
@@ -78,6 +97,9 @@ function routes({ shopifyGqlClient, shopifyDumpDb }) {
   router.get('/build/ng-app-server-data.js', (req,res)=>{
     res.send(scriptBuilder.ngAppServerData());
   });
+
+  router.use( express.static(path.join(__basedir, __config.assets.root)) );
+  router.use( express.static(path.join(__basedir, __config.imgPath)) );
 
   //default route. the front-end rendering will all hit this.
   router.get('*', 

@@ -1,0 +1,48 @@
+<div class="container" ng-controller="CreateUserCtrl as ctrl">
+
+	<div class="col-xs-12 col-sm-6 col-sm-offset-3">
+		<h1><span class="fa fa-sign-in"></span>New User</h1>
+		<div class="well">
+			<h4>Password Guidlines</h4>
+			<ul>
+				<li>Passwords must be at least 20 characters long</li>
+				<li>You may use letters, punctuation or numbers</li>
+			</ul>
+		</div>
+		<form>
+      <div class="form-group col-xs-12" ng-class="{ 'has-error': ctrl.noName }">
+        <label>Name</label>
+        <input type="text" class="form-control" autofocus ng-model="ctrl.form.name">
+        <span class="text-danger h4" ng-show="ctrl.noName">Missing name</span>
+      </div>
+      <div class="form-group col-xs-12" ng-class="{ 'has-error': ctrl.noRoles }">
+        <label>Roles (select all that apply):</label>
+        <div class="checkbox" ng-repeat="role in ctrl.roles">
+          <label>
+            <input type="checkbox" ng-model="ctrl.form.roles[role]"> {{ role }}
+          </label>
+        </div>
+        <span class="text-danger h4" ng-show="ctrl.noRoles">No roles chosen</span>
+      </div>
+      <div class="form-group col-xs-12" ng-class="{ 'has-error': ctrl.noUsername || ctrl.userExists }">
+        <label>Username</label>
+        <input type="text" class="form-control" ng-model="ctrl.form.username">
+        <span class="text-danger h4" ng-show="ctrl.noUsername">Missing username</span>
+        <span class="text-danger h4" ng-show="ctrl.userExists">This username exists already</span>
+      </div>
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': ctrl.passwordInvalid }">
+				<label>Password</label>
+				<input type="password" class="form-control" ng-model="ctrl.form.password">
+        <span class="text-danger h4" ng-show="ctrl.passwordInvalid">Password not valid!</span>
+			</div>
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': ctrl.passwordMismatch }">
+        <label>Confirm Password</label>
+        <input type="password" class="form-control" ng-model="ctrl.form.confirmPassword">
+        <span class="text-danger h4" ng-show="ctrl.passwordMismatch">Password fields do not match!</span>
+      </div>
+      <div class="text-center">
+        <button type="submit" class="btn btn-warning" ng-click="ctrl.submit()">Submit</button>
+      </div>
+		</form>
+	</div>
+</div>

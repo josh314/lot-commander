@@ -1,9 +1,18 @@
 const express = require('express');
+const auth = require('../auth');
 
 const router = new express.Router();
 // Orders endpoints
-router.get('/list/:page', listPendingOrders);
-router.get('/details/:orderId', getOrder)
+router.post(
+  '/list',
+  auth.isAuthorized('LIST_ORDERS'),
+  listPendingOrders
+);
+router.get(
+  '/details/:orderId',
+  auth.isAuthorized('VIEW_ORDER'),
+  getOrder
+);
 
 module.exports = router;
 

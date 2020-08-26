@@ -1,6 +1,12 @@
 import angular from 'angular';
 
+import * as api from '../api';
+
 function passwordInvalid(password) {
+  if( !password ) {
+    return true;
+  }
+
   if(password.length < 20) {
     return true;
   }
@@ -9,14 +15,23 @@ function passwordInvalid(password) {
 }
 
 /*********************** Logout service ****************************/
-angular.module('myApp').factory('logout', ['$http', '$window', 'sessionTimeout', function($http, $window, sessionTimeout){
+angular.module('myApp').factory('logout', ['$http', '$window', 'sessionTimeout', 'user', function($http, $window, sessionTimeout, user){
   return function() {
     $http.get('/logout').then(()=>{
-      // userStore.logout();
       console.log("destroying 'lotCommander' cookie");
       sessionTimeout.destroy();
+      user.destroy();
       $window.location.reload();
     });
+  };
+}]);
+
+
+/*********************** User service ****************************/
+angular.module('myApp').factory('user', ['$cookies', function($cookies){
+  return {
+    destroy: () => $cookies.remove('user'),
+    get: () => $cookies.getObject('user'),
   };
 }]);
 
@@ -110,3 +125,81 @@ angular.module('myApp').controller('ChangeUserPasswordCtrl', ['$scope', '$http',
   };
 }]);
 
+/******************* Create User Controller ********************/
+angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageModal', 'sessionTimeout', 'user', function( $q, $state, messageModal, sessionTimeout, user ){
+  sessionTimeout.timeoutExpired();
+
+  const cleanRoleString = str => str.replace(/__/g, '').replace(/_/g, ' ').toLowerCase();
+  const canonicalRoleString = str => `__${str.replace(/ /g, '_')}__`.toUpperCase();
+  const __ROLES__ = user.get().roles.map( cleanRoleString );
+
+  const vm = this;
+
+  vm.roles = __ROLES__;
+  vm.form = {
+    roles: {}
+  };
+
+  function navigateToHome() {
+    $state.go('main.home');
+  }
+
+  vm.submit = function() {
+
+    vm.noName = !vm.form.name;
+    vm.noRoles = !Object.keys(vm.form.roles).length;
+    vm.noUsername = !vm.form.username;
+    vm.passwordInvalid = passwordInvalid(vm.form.password);
+    vm.passwordMismatch = (vm.form.password !== vm.form.confirmPassword);
+
+    if(
+      vm.passwordInvalid || 
+      vm.passwordMismatch ||
+      vm.noName ||
+      vm.noUsername ||
+      vm.noRoles
+    ) {
+      return;
+    }
+
+    const newUserData = {
+      name: vm.form.name,
+      username: vm.form.username,
+      password: vm.form.password,
+      roles: Object.keys(vm.form.roles).map( canonicalRoleString )
+    };
+
+    return $q.when( api.createNewUser( newUserData ) ).then( resp => {
+
+      if(resp.success) {
+        return messageModal.launch(
+          {header: 'Success', body: `User "${vm.form.username}" successfully created`, type: 'info'},
+          navigateToHome,
+          navigateToHome
+        );
+      }
+
+
+      if( resp.message === 'USER_EXISTS' ) {
+        vm.userExists = true;
+        return;
+      }
+      else if ( resp.message === 'UNAUTHORIZED' ) {
+        return messageModal.launch(
+          {header: 'Failure', body: `An error occured. Please try again later.`, type: 'error'},
+          navigateToHome,
+          navigateToHome
+        );
+      }
+      else {
+        return messageModal.launch(
+          {header: 'Failure', body: `Unauthorized to create user.`, type: 'error'},
+          navigateToHome,
+          navigateToHome
+        );
+      }
+
+    });
+
+  };
+}]);
