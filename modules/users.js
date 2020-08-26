@@ -7,7 +7,6 @@ const bcrypt   = require('bcrypt-nodejs');
 //=======================================
 
 const __USER_ROLE__ = {
-  __REGULAR__: '__REGULAR__',
   __SHOPIFY_LISTINGS__: '__SHOPIFY_LISTINGS__',
   __TOOLS__: '__TOOLS__',
   __FULFILLMENT__: '__FULFILLMENT__',
@@ -18,6 +17,12 @@ const __USER_ROLE__ = {
 };
 
 const __USER_ROLE_PERMISSIONS__ = {
+  __AUCTIONS__: [ 'LIST_AUCTIONS', 'SUBMIT_AUCTION'],
+  __FULFILLMENT__: [ 'LIST_ORDERS', 'VIEW_ORDER'],
+  __RECEIVING__: [],
+  __REPORTS__: [ 'VIEW_REPORT' ],
+  __SHOPIFY_LISTINGS__: [],
+  __TOOLS__: [],
   __USERS__: [ 'CREATE_USER', 'DISABLE_USER' ],
 };
 
