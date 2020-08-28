@@ -3,9 +3,13 @@ import angular from 'angular';
 import * as api from '../api';
 
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal',
-  function($http, $q, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, PrintSvc, saveLot, sessionTimeout, shippingItemsModal) {
+angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal', 'user',
+  function($http, $q, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, PrintSvc, saveLot, sessionTimeout, shippingItemsModal, user) {
     sessionTimeout.timeoutExpired();
+
+    const userPermissions = user.get() ? user.get().permissions : [];
+    $scope.showCreateListingButton = userPermissions ? userPermissions.includes('SUBMIT_AUCTION') || userPermissions.includes('SUBMIT_SHOPIFY_LISTING') : true;
+
     $scope.lot = lotStore;
     $scope.listingsBoilerplate = listingsBoilerplate;
     $scope.waitingForResponse = false;

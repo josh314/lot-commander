@@ -91,7 +91,11 @@ function routes({ shopifyGqlClient, shopifyDumpDb }) {
   router.use('/api/fulfillment', require('./fulfillment'));
   router.use('/api/print', require('./print'));
   router.use('/api/manifests', require('./manifests'));
-  router.use('/api/reports', require('./reports')( { shopifyGqlClient, shopifyDumpDb }))
+  router.use(
+    '/api/reports',
+    auth.isAuthorized('VIEW_REPORT'),
+    require('./reports')( { shopifyGqlClient, shopifyDumpDb })
+  );
 
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{

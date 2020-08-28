@@ -41,7 +41,7 @@ const stateData = [
   { name: "main.manifests.list", navName: 'List', navParent: 'Manifests', url: '/list', templateUrl: '/partials/_list_manifests.html' },
 
   // reports
-  { name: "main.reports", navName: 'Reports',  url: '/reports', templateUrl: '/partials/_reports.html' },
+  { name: "main.reports", navName: 'Reports',  url: '/reports', templateUrl: '/partials/_reports.html', userPermission: 'VIEW_REPORT' },
 
   // tools
   { name: "main.tools", abstract:true, navName: "Tools", url: "/tools", templateUrl: 'partials/_container.html'},
