@@ -41,8 +41,7 @@ passport.use('local-login',
       users.getUserByUsername( username ).then( user => {
     
         // if no valid user is found, return the message
-        // if (!user || user.isDisabled()) {
-        if(!user) {
+        if( !user || user.isDisabled ) {
           req.session.flash = flashMessages.userNotFound;
           return done(null, false);
         }
