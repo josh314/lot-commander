@@ -13,7 +13,7 @@ const __USER_ROLE_PERMISSIONS__ = {
   __REPORTS__: [ 'VIEW_REPORT' ],
   __SHOPIFY__: [ 'SUBMIT_SHOPIFY_LISTING' ],
   __TOOLS__: [ 'COUNTER_TOOL' ],
-  __USERS__: [ 'CREATE_USER', 'DISABLE_USER' ],
+  __USERS__: [ 'CREATE_USER', 'EDIT_USER_ROLES', 'ENABLE_USER' ],
 };
 
 const superuserRoles = () => Object.keys( __USER_ROLE_PERMISSIONS__ );
@@ -92,6 +92,16 @@ userSchema.methods.getPublicInfo = function() {
   };
 };
 
+userSchema.methods.editRoles = function( _roles ) {
+  this.roles = _roles;
+  return this.save();
+};
+
+userSchema.methods.editDisabledStatus = function( _isDisabled ) {
+  this.isDisabled = _isDisabled;
+  return this.save();
+};
+
 const User = __connections.users.model('User', userSchema);
 
 //======================================================
@@ -116,6 +126,11 @@ const changeUserPassword = ( { user, password } ) => {
   )
 };
 
+const editRoles = ( { user, newRoles } ) => {
+  user.roles = newRoles;
+  return user.save();
+}
+
 const createUser = ( { username, password, name, roles } ) => {
   const newUser = new User();
   // set the user's local credentials
@@ -132,6 +147,7 @@ const createUser = ( { username, password, name, roles } ) => {
 module.exports = {
   changeUserPassword: changeUserPassword,
   createUser: createUser,
+  editRoles: editRoles,
   getUserByUsername: getUserByUsername,
   getUserById: getUserById,
 };

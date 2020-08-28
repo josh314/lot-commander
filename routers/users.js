@@ -13,6 +13,37 @@ router.put(
   auth.isAuthorized( 'CREATE_USER' ),
   createUser
 );
+router.put(
+  '/:userId/roles',
+  auth.isAuthorized('EDIT_USER_ROLES'),
+  editUserRoles,
+);
+router.put(
+  '/:userId/disabled',
+  auth.isAuthorized('ENABLE_USER'),
+  editUserDisabledStatus,
+);
+
+function changeUserPassword( req, res ) {
+  let status;
+  users.changeUserPassword( {
+    user: req.user,
+    password: req.body.password
+  } )
+    .then(user=>{
+      __logger.debug(user);
+      req.session.flash = flashMessages.successfulPasswordChange;
+      status = 'success';
+    })
+    .catch(err=>{
+      req.session.flash = flashMessages.serverError;
+      status = 'failed';
+      __logger.error(err);
+    })
+    .finally(()=>{
+      res.json({status: status});
+    });
+}
 
 function changeUserPassword( req, res ) {
   let status;
@@ -65,5 +96,57 @@ function createUser(req,res) {
         throw err;
       }
     })
+
+}
+
+function editUserRoles (req, res) {
+  const userId = req.params.userId;
+  users.getUserById( userId ).then( user => {
+
+    if (!user) {
+      throw new Error('NO_SUCH_USER');
+    }
+
+    return user.editRoles( req.body.roles );
+
+  })
+  .then( user => {
+    console.log(user);
+    res.json({ success: true });
+  })
+  .catch(err=>{
+    if( err.message === 'NO_SUCH_USER') {
+      res.json({ success: false, message: `No user with ID ${userId}` });
+    }
+    else {
+      throw err;
+    }
+  })
+
+}
+
+function editUserDisabledStatus (req, res) {
+  const userId = req.params.userId;
+  users.getUserById( userId ).then( user => {
+
+    if (!user) {
+      throw new Error('NO_SUCH_USER');
+    }
+
+    return user.editDisabledStatus( req.body.isDisabled );
+
+  })
+  .then( user => {
+    console.log(user);
+    res.json({ success: true });
+  })
+  .catch(err=>{
+    if( err.message === 'NO_SUCH_USER') {
+      res.json({ success: false, message: `No user with ID ${userId}` });
+    }
+    else {
+      throw err;
+    }
+  })
 
 }
