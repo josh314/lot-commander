@@ -13,6 +13,11 @@ router.put(
   auth.isAuthorized( 'CREATE_USER' ),
   createUser
 );
+router.get(
+  '/', 
+  auth.isAuthorized( 'VIEW_USER' ),
+  listUsers
+);
 router.put(
   '/:userId/roles',
   auth.isAuthorized('EDIT_USER_ROLES'),
@@ -79,8 +84,9 @@ function createUser(req,res) {
     return users.createUser({
       username: req.body.username,
       password: req.body.password,
-      name: req.body.name,
-      roles: req.body.roles,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      roles: req.body.roles
     });
 
   })
@@ -97,6 +103,27 @@ function createUser(req,res) {
       }
     })
 
+}
+
+function listUsers( req, res ) {
+
+  const query = {
+    num: parseInt(req.query.num),
+    sort: req.query.sort,
+    sortDir: parseInt(req.query.sort_dir),
+  };
+
+  if( req.query.disabled ) {
+    query.isDisabled = !!parseInt( req.query.disabled )
+  }
+
+  if( req.query.superuser ) {
+    query.isSuperuser = !!parseInt( req.query.superuser )
+  }
+
+  users.list( query ).then( users => {
+    res.json(users);
+  })
 }
 
 function editUserRoles (req, res) {

@@ -10,10 +10,15 @@
 			</ul>
 		</div>
 		<form>
-      <div class="form-group col-xs-12" ng-class="{ 'has-error': ctrl.noName }">
-        <label>Name</label>
-        <input type="text" class="form-control" autofocus ng-model="ctrl.form.name">
-        <span class="text-danger h4" ng-show="ctrl.noName">Missing name</span>
+      <div class="form-group col-xs-12" ng-class="{ 'has-error': ctrl.noFirstName }">
+        <label>First Name</label>
+        <input type="text" class="form-control" autofocus ng-model="ctrl.form.firstName">
+        <span class="text-danger h4" ng-show="ctrl.noFirstName">Missing name</span>
+      </div>
+      <div class="form-group col-xs-12" ng-class="{ 'has-error': ctrl.noLastName }">
+        <label>Last Name</label>
+        <input type="text" class="form-control" autofocus ng-model="ctrl.form.lastName">
+        <span class="text-danger h4" ng-show="ctrl.noLastName">Missing name</span>
       </div>
       <div class="form-group col-xs-12" ng-class="{ 'has-error': ctrl.noRoles }">
         <label>Roles (select all that apply):</label>

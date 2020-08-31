@@ -36,7 +36,8 @@ mongoose.Promise = require('bluebird');
 //======================================
 
 const userSchema = mongoose.Schema({
-  name: String,
+  firstName: String,
+  lastName: String,
   roles: [{ type: String, enum: Object.keys( __USER_ROLE_PERMISSIONS__ ) }],
   local: {
     username: String,
@@ -85,10 +86,12 @@ userSchema.methods.getPermissionSet = function() {
 userSchema.methods.getPublicInfo = function() {
   return {
     id: this.id,
-    name: this.name,
+    firstName: this.firstName,
+    lastName: this.lastName,
     username: this.local.username,
     roles: this.isSuperuser ? superuserRoles() : this.roles,
-    permissions: [...this.getPermissionSet()]
+    permissions: [...this.getPermissionSet()],
+    isDisabled: this.isDisabled
   };
 };
 
@@ -126,28 +129,55 @@ const changeUserPassword = ( { user, password } ) => {
   )
 };
 
-const editRoles = ( { user, newRoles } ) => {
-  user.roles = newRoles;
-  return user.save();
-}
-
-const createUser = ( { username, password, name, roles } ) => {
+const createUser = ( { username, password, firstName, lastName, roles } ) => {
   const newUser = new User();
   // set the user's local credentials
   newUser.local.username = username;
   newUser.local.password = newUser.generateHash(password);
-  newUser.name = name;
+  newUser.firstName = firstName;
+  newUser.lastName = lastName;
   newUser.roles = roles;
+  newUser.isSuperuser = false;
+  newUser.isDisabled = false;
 
   // save the user
   return newUser.save();
+};
+
+const list = ( { num, sort, sortDir, isDisabled, isSuperuser } ) => {
+
+  const query = {};
+
+  if( isDisabled !== undefined ) {
+    query.isDisabled = isDisabled;
+  }
+
+  if( isSuperuser !== undefined ) {
+    query.isSuperuser = isSuperuser;
+  }
+
+  let sortField;
+  if ( sort == 'username' ) {
+    sortField = 'local.username';
+  }
+  else {
+    sortField = 'lastName';
+  } 
+
+  const sortParams = {
+    [ sortField ] : sortDir || 1
+  };
+
+  const q = User.find( query ).limit( num || 20 ).sort( sortParams );
+
+  return q.then( users => users.map( user => user.getPublicInfo() ) );
 };
 
 // Export and we out
 module.exports = {
   changeUserPassword: changeUserPassword,
   createUser: createUser,
-  editRoles: editRoles,
   getUserByUsername: getUserByUsername,
   getUserById: getUserById,
+  list: list,
 };

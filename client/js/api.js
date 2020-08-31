@@ -158,3 +158,37 @@ export function createNewUser( newUserData ) {
   })
     .then( resp => resp.data );
 }
+
+
+export function listUsers( queryParams ) {
+  const uri = `/api/users/?${ queryParams ? querystring.stringify( queryParams ) : ''}`;
+
+  return axios({
+    method: 'get',
+    url: uri,
+  })
+    .then( resp => resp.data );
+
+}
+
+export function editUserRoles( userId, _roles ) {
+  const uri = `/api/users/${userId}/roles`;
+
+  return axios({
+    method: 'put',
+    url: uri,
+    data: { roles: _roles }
+  })
+    .then( resp => resp.data );
+}
+
+export function editUserDisabledStatus( userId, _isDisabled ) {
+  const uri = `/api/users/${userId}/disabled`;
+
+  return axios({
+    method: 'put',
+    url: uri,
+    data: { isDisabled: _isDisabled }
+  })
+    .then( resp => resp.data );
+}

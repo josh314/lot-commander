@@ -146,7 +146,8 @@ angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageM
 
   vm.submit = function() {
 
-    vm.noName = !vm.form.name;
+    vm.noFirstName = !vm.form.firstName;
+    vm.noLastName = !vm.form.lastName;
     vm.noRoles = !Object.keys(vm.form.roles).length;
     vm.noUsername = !vm.form.username;
     vm.passwordInvalid = passwordInvalid(vm.form.password);
@@ -155,7 +156,8 @@ angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageM
     if(
       vm.passwordInvalid || 
       vm.passwordMismatch ||
-      vm.noName ||
+      vm.noFirstName ||
+      vm.noLastName ||
       vm.noUsername ||
       vm.noRoles
     ) {
@@ -163,7 +165,8 @@ angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageM
     }
 
     const newUserData = {
-      name: vm.form.name,
+      firstName: vm.form.firstName,
+      lastName: vm.form.lastName,
       username: vm.form.username,
       password: vm.form.password,
       roles: Object.keys(vm.form.roles).map( canonicalRoleString )
