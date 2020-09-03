@@ -1,0 +1,73 @@
+<div class="container" ng-controller="ListUsersCtrl as ctrl">
+  <h3>Users</h3>
+  <!-- <table class="table table-striped">
+    <thead><tr>
+      <th>Name</th>
+      <th>Username</th>
+      <th>Status</th>
+      <th></th>
+    </tr></thead>
+    <tbody>
+      <tr ng-repeat="user in ctrl.users">
+        <td>{{ user.displayName }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.isDiabled ? 'disabled' : 'active' }}</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table> -->
+  <div class="row">
+    <div class="col-xs-12 col-sm-6" ng-repeat="user in ctrl.users"> 
+      <div class="panel" ng-class="{ 'panel-primary': !user.isDisabled, 'panel-danger': user.isDisabled }">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{ user.displayName }}</h3>
+        </div>
+        <div class="panel-body">
+          <dl>
+            <dt>Username</dt>
+            <dd>{{ user.username }}</dd>
+            <div ng-hide="user.editingStatus">
+              <dt>Status<span ng-hide="user.loggedIn || !ctrl.canDisableUser"> (<a href ng-click="user.openStatusEdit()">edit</a>)</span></dt>
+              <dd ng-hide="user.editingStatus">
+                {{ user.isDisabled ? 'disabled' : 'active' }}
+              </dd>
+            </div>
+            <div ng-show="user.editingStatus">
+              <dt>Status (<a href ng-click="user.saveStatusEdit()" style="color: red">save</a> or <a href ng-click="user.closeStatusEdit()" style="color: red">cancel edit</a>)</dt>
+              <dd>
+                <div class="radio">
+                  <label>
+                    <input type="radio" ng-model="user.isDisabledEdit" ng-value="false">
+                    active
+                  </label>
+                </div>
+                <div class="radio">
+                  <label>
+                    <input type="radio" ng-model="user.isDisabledEdit" ng-value="true">
+                    disabled
+                  </label>
+                </div>
+              </dd>
+            </div>
+            <div ng-hide="user.editingRoles">
+              <dt>Roles<span ng-hide="user.loggedIn || !ctrl.canEditUserRoles"> (<a href ng-click="user.openRolesEdit()">edit</a>)</span></dt>
+              <dd ng-hide="user.editingRoles">
+                {{ user.displayRoles.join(', ') }}
+              </dd>
+            </div>
+            <div ng-show="user.editingRoles">
+              <dt>Roles (<a href ng-click="user.saveRolesEdit()" style="color: red">save</a> or <a href ng-click="user.closeRolesEdit()" style="color: red">cancel edit</a>)</dt>
+              <dd>
+                <div class="checkbox" ng-repeat="role in ctrl.availableRoles">
+                  <label>
+                    <input type="checkbox" ng-model="user.rolesEdit[role]"> {{ role }}
+                  </label>
+                </div>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

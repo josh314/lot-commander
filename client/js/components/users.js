@@ -2,6 +2,7 @@ import angular from 'angular';
 
 import * as api from '../api';
 
+// Helpers
 function passwordInvalid(password) {
   if( !password ) {
     return true;
@@ -14,13 +15,27 @@ function passwordInvalid(password) {
   return false;
 }
 
+const canonicalRoleString = str => `__${str.replace(/ /g, '_')}__`.toUpperCase();
+const cleanRoleString = str => str.replace(/__/g, '').replace(/_/g, ' ').toLowerCase();
+
+const __DISPLAY_ROLES__ = LoggedInUser => LoggedInUser.get().roles.map( cleanRoleString );
+
+const prettifyUser = user => {
+  const prettyUser = Object.assign( {}, user );
+
+  prettyUser.displayName = `${ user.firstName } ${ user.lastName }`.trim();
+  prettyUser.displayRoles = user.roles.map( cleanRoleString );
+
+  return prettyUser;
+};
+
 /*********************** Logout service ****************************/
-angular.module('myApp').factory('logout', ['$http', '$window', 'sessionTimeout', 'user', function($http, $window, sessionTimeout, user){
+angular.module('myApp').factory('logout', ['$http', '$window', 'sessionTimeout', 'LoggedInUser', function($http, $window, sessionTimeout, LoggedInUser){
   return function() {
     $http.get('/logout').then(()=>{
       console.log("destroying 'lotCommander' cookie");
       sessionTimeout.destroy();
-      user.destroy();
+      LoggedInUser.destroy();
       $window.location.reload();
     });
   };
@@ -28,10 +43,17 @@ angular.module('myApp').factory('logout', ['$http', '$window', 'sessionTimeout',
 
 
 /*********************** User service ****************************/
-angular.module('myApp').factory('user', ['$cookies', function($cookies){
+angular.module('myApp').factory('LoggedInUser', ['$cookies', function($cookies){
+
+  const get = () => $cookies.getObject('user');
+
   return {
     destroy: () => $cookies.remove('user'),
-    get: () => $cookies.getObject('user'),
+    get: get,
+    hasPermission: ( permission ) => {
+      const user = get();
+      return user ? user.permissions.includes( permission ) : false;
+    }
   };
 }]);
 
@@ -126,16 +148,12 @@ angular.module('myApp').controller('ChangeUserPasswordCtrl', ['$scope', '$http',
 }]);
 
 /******************* Create User Controller ********************/
-angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageModal', 'sessionTimeout', 'user', function( $q, $state, messageModal, sessionTimeout, user ){
+angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageModal', 'sessionTimeout', 'LoggedInUser', function( $q, $state, messageModal, sessionTimeout, LoggedInUser ){
   sessionTimeout.timeoutExpired();
-
-  const cleanRoleString = str => str.replace(/__/g, '').replace(/_/g, ' ').toLowerCase();
-  const canonicalRoleString = str => `__${str.replace(/ /g, '_')}__`.toUpperCase();
-  const __ROLES__ = user.get().roles.map( cleanRoleString );
 
   const vm = this;
 
-  vm.roles = __ROLES__;
+  vm.roles = __DISPLAY_ROLES__( LoggedInUser );
   vm.form = {
     roles: {}
   };
@@ -205,4 +223,110 @@ angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageM
     });
 
   };
+}]);
+
+/******************* List Users Controller **********************/
+angular.module('myApp').controller('ListUsersCtrl', [ '$q', 'messageModal', 'sessionTimeout', 'LoggedInUser', function( $q, messageModal, sessionTimeout, LoggedInUser){
+  sessionTimeout.timeoutExpired();
+
+  const vm = this;
+  vm.users = {};
+  vm.availableRoles = __DISPLAY_ROLES__( LoggedInUser );
+  vm.canDisableUser = LoggedInUser.hasPermission( 'ENABLE_USER' );
+  vm.canEditUserRoles = LoggedInUser.hasPermission( 'EDIT_USER_ROLES' );
+
+
+  $q.when( api.listUsers( { superuser: 0} ) ).then( users => {
+    vm.users = users.map( prettifyUser ).map( addHandlers ).map( tagLoggedInUser );
+  });
+
+  function tagLoggedInUser( user ) {
+    if( user.id === LoggedInUser.get().id ) {
+      user.loggedIn = true;
+    }
+    return user;
+  }
+
+  // Turn off the rule or eslint will complain about the usage of `this`
+  /* eslint-disable angular/controller-as-vm */
+  function addHandlers( user ) {
+    user.openStatusEdit = function () {
+      this.editingStatus = true;
+      this.isDisabledEdit = this.isDisabled;
+    };
+    user.closeStatusEdit = function () {
+      this.editingStatus = false;
+      delete this.isDisabledEdit;
+    };
+    user.saveStatusEdit = function () {
+      this.editingStatus = false;
+      let p; // will be set to a promise
+
+      if( this.isDisabledEdit !== this.isDisabled ) {
+        // TODO: check user permission before submitting edit
+        p = $q.when( api.editUserDisabledStatus( this.id, this.isDisabledEdit ) )
+          .then( resp => {
+            if( resp.success ) {
+              return this.isDisabled = this.isDisabledEdit;
+            }
+            else {
+              throw new Error(resp.error);
+            }
+          })
+          .catch( e => {
+            return messageModal.launch({header: 'Failure', body: e.message, type: 'error'});
+          });
+      }
+      else {
+        p = Promise.resolve( true );
+      }
+      p.then( _ => this.closeStatusEdit() ); // close edit when done
+    };
+    user.openRolesEdit = function () {
+      this.editingRoles = true;
+      this.rolesEdit = this.roles.reduce( ( roles, r ) => {
+        roles[ cleanRoleString(r) ] = true;
+        return roles;
+      }, {});
+    };
+    user.closeRolesEdit = function () {
+      this.editingRoles = false;
+      delete this.rolesEdit;
+    };
+    user.saveRolesEdit = function () {
+      this.editingRoles = false;
+
+      // filter down to the checked roles and then map to canonical names and sort
+      const rolesEditCanonical = Object.entries( this.rolesEdit ).filter( kv => kv[1] ).map( kv => kv[0] ).map( canonicalRoleString ).sort();
+      let p; // will be set to a promise
+
+      if( JSON.stringify(rolesEditCanonical) !== JSON.stringify(this.roles)  ) {
+        // TODO: check user permission before submitting edit
+        p = $q.when( api.editUserRoles( this.id, rolesEditCanonical ) )
+          .then( resp => {
+            if( resp.success ) {
+              this.roles = rolesEditCanonical;
+              this.displayRoles = this.roles.map( cleanRoleString );
+            }
+            else {
+              throw new Error(resp.error);
+            }
+          })
+          .then( _ => {
+            delete this.rolesEdit;
+          })
+          .catch( e => {
+            console.log(e);
+            return messageModal.launch({header: 'Failure', body: e.message, type: 'error'});
+          });
+      }
+      else {
+        p = Promise.resolve( true );
+      }
+      p.then( _ => this.closeRolesEdit() ); // close edit when done
+    };
+    return user;
+  }
+  /* eslint-enable */
+
 }]);

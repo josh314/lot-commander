@@ -50,27 +50,6 @@ function changeUserPassword( req, res ) {
     });
 }
 
-function changeUserPassword( req, res ) {
-  let status;
-  users.changeUserPassword( {
-    user: req.user,
-    password: req.body.password
-  } )
-    .then(user=>{
-      __logger.debug(user);
-      req.session.flash = flashMessages.successfulPasswordChange;
-      status = 'success';
-    })
-    .catch(err=>{
-      req.session.flash = flashMessages.serverError;
-      status = 'failed';
-      __logger.error(err);
-    })
-    .finally(()=>{
-      res.json({status: status});
-    });
-}
-
 function createUser(req,res) {
   // find a user whose name is the same as the forms name
   // we are checking to see if the user trying to login already exists
@@ -126,6 +105,18 @@ function listUsers( req, res ) {
   })
 }
 
+const handleEditUserError = res => err => {
+  if( err.message === 'NO_SUCH_USER' ) {
+    res.json({ success: false, error: `No user with ID ${userId}.` });
+  }
+  else if ( err.message === 'NO_EDIT_SELF' ) {
+    res.json({ success: false, error: `User can't edit self.` });
+  }
+  else {
+    throw err;
+  }
+};
+
 function editUserRoles (req, res) {
   const userId = req.params.userId;
   users.getUserById( userId ).then( user => {
@@ -134,21 +125,21 @@ function editUserRoles (req, res) {
       throw new Error('NO_SUCH_USER');
     }
 
-    return user.editRoles( req.body.roles );
+    if( req.user.id === user.id ) {
+      throw new Error('NO_EDIT_SELF');
+    }
+
+    // filter to only the roles the logged in user has permission for
+    const newRoles = req.body.roles.filter( role => req.user.isSuperuser || req.user.roles.includes( role ) );
+
+    return user.editRoles( newRoles );
 
   })
   .then( user => {
     console.log(user);
     res.json({ success: true });
   })
-  .catch(err=>{
-    if( err.message === 'NO_SUCH_USER') {
-      res.json({ success: false, message: `No user with ID ${userId}` });
-    }
-    else {
-      throw err;
-    }
-  })
+  .catch( handleEditUserError(res) )
 
 }
 
@@ -160,6 +151,10 @@ function editUserDisabledStatus (req, res) {
       throw new Error('NO_SUCH_USER');
     }
 
+    if( req.user.id === user.id ) {
+      throw new Error('NO_EDIT_SELF');
+    }
+
     return user.editDisabledStatus( req.body.isDisabled );
 
   })
@@ -167,13 +162,6 @@ function editUserDisabledStatus (req, res) {
     console.log(user);
     res.json({ success: true });
   })
-  .catch(err=>{
-    if( err.message === 'NO_SUCH_USER') {
-      res.json({ success: false, message: `No user with ID ${userId}` });
-    }
-    else {
-      throw err;
-    }
-  })
+  .catch( handleEditUserError(res) );
 
 }

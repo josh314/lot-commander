@@ -13,7 +13,7 @@ const __USER_ROLE_PERMISSIONS__ = {
   __REPORTS__: [ 'VIEW_REPORT' ],
   __SHOPIFY__: [ 'SUBMIT_SHOPIFY_LISTING' ],
   __TOOLS__: [ 'COUNTER_TOOL' ],
-  __USERS__: [ 'CREATE_USER', 'EDIT_USER_ROLES', 'ENABLE_USER' ],
+  __USERS__: [ 'CREATE_USER', 'EDIT_USER_ROLES', 'ENABLE_USER', 'VIEW_USER' ],
 };
 
 const superuserRoles = () => Object.keys( __USER_ROLE_PERMISSIONS__ );

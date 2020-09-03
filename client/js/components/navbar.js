@@ -1,30 +1,27 @@
 import angular from 'angular';
 
-const userPermissionFilter = permissions => _ => _.userPermission ? permissions.includes( _.userPermission ) : true;
-
-const suppressUnauthorizedNavigation = ( navItems, permissions ) => {
-  const firstPass = navItems.filter( userPermissionFilter(permissions) );
-  
-  const secondPass = firstPass.map( item => {
-    if( item.drops && item.drops.length ) {
-      return Object.assign( item , { drops: item.drops.filter( userPermissionFilter(permissions) ) });
-    }
-    else {
-      return item;
-    }
-  });
-
-  return secondPass.filter( item => item.drops ? item.drops.length > 0 : true );
-};
 
 /******************* Navbar Controller *************************/
-angular.module('myApp').controller('NavbarCtrl', ['$scope', 'navbarData', 'user', function($scope, navbarData, user) {
+angular.module('myApp').controller('NavbarCtrl', ['$scope', 'LoggedInUser', 'navbarData', function($scope, LoggedInUser, navbarData) {
 
-  const navItems = suppressUnauthorizedNavigation( navbarData.navItems, user.get().permissions );
+  const userPermissionFilter =  _ => _.userPermission ?  LoggedInUser.hasPermission( _.userPermission ) : true;
+
+  const userPermittedNavItems =
+    navbarData.navItems
+      .filter( userPermissionFilter )
+      .map(item => {
+        if( item.drops && item.drops.length ) {
+          return Object.assign( item , { drops: item.drops.filter( userPermissionFilter ) });
+        }
+        else {
+          return item;
+        }
+      })
+      .filter( item => item.drops ? item.drops.length > 0 : true );
 
   $scope.navbar = {
     brand: navbarData.brand,
-    navItems: navItems,
+    navItems: userPermittedNavItems,
   };
 
   $scope.isCollapsed = true;
