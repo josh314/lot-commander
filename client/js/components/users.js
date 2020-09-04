@@ -229,16 +229,50 @@ angular.module('myApp').controller('CreateUserCtrl', [ '$q', '$state', 'messageM
 angular.module('myApp').controller('ListUsersCtrl', [ '$q', 'messageModal', 'sessionTimeout', 'LoggedInUser', function( $q, messageModal, sessionTimeout, LoggedInUser){
   sessionTimeout.timeoutExpired();
 
+  const __PAGE_SIZE__ = 10;
+
   const vm = this;
-  vm.users = {};
+  vm.users = [];
+  vm.hideDisabled = true;
   vm.availableRoles = __DISPLAY_ROLES__( LoggedInUser );
   vm.canDisableUser = LoggedInUser.hasPermission( 'ENABLE_USER' );
   vm.canEditUserRoles = LoggedInUser.hasPermission( 'EDIT_USER_ROLES' );
 
+  vm.pagination = {
+    current: 1,
+    totalItems: 0,
+    pageSize: __PAGE_SIZE__,
+    pageChange: refreshUserList
+  };
 
-  $q.when( api.listUsers( { superuser: 0} ) ).then( users => {
-    vm.users = users.map( prettifyUser ).map( addHandlers ).map( tagLoggedInUser );
-  });
+  refreshUserList( {
+    page: 1
+  } );
+
+  function refreshUserList(  ) {
+    const baseUserQuery = {
+      superuser: 0
+    };
+    if( vm.hideDisabled ) {
+      baseUserQuery.disabled = 0;
+    }
+
+    $q.when( api.countUsers( baseUserQuery ) ).then( resp => {
+      vm.pagination.totalItems = resp.count;
+
+      const pagedUserQuery = Object.assign( 
+        baseUserQuery,
+        {
+          num: __PAGE_SIZE__,
+          page: vm.pagination.current,
+        }
+      );
+
+      $q.when( api.listUsers( pagedUserQuery ) ).then( users => {
+        vm.users = users.map( prettifyUser ).map( addHandlers ).map( tagLoggedInUser );
+      });
+    });
+  }
 
   function tagLoggedInUser( user ) {
     if( user.id === LoggedInUser.get().id ) {

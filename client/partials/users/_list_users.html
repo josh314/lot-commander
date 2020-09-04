@@ -1,21 +1,19 @@
 <div class="container" ng-controller="ListUsersCtrl as ctrl">
   <h3>Users</h3>
-  <!-- <table class="table table-striped">
-    <thead><tr>
-      <th>Name</th>
-      <th>Username</th>
-      <th>Status</th>
-      <th></th>
-    </tr></thead>
-    <tbody>
-      <tr ng-repeat="user in ctrl.users">
-        <td>{{ user.displayName }}</td>
-        <td>{{ user.username }}</td>
-        <td>{{ user.isDiabled ? 'disabled' : 'active' }}</td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table> -->
+  <div class="row">
+    <div class="col-xs-12 col-sm-4 pull-right">
+      <select class="form-control" ng-model="ctrl.hideDisabled" ng-change="ctrl.pagination.pageChange()">
+        <option ng-value="true">Hide disabled users</option>
+        <option ng-value="false">Show disabled users</option>
+      </select>
+      <ul uib-pagination
+        total-items="ctrl.pagination.totalItems"
+        items-per-page="ctrl.pagination.pageSize"
+        ng-model="ctrl.pagination.current"
+        ng-change="ctrl.pagination.pageChange()"
+        class="pagination-sm pull-right"></ul>
+    </div>
+  </div>
   <div class="row">
     <div class="col-xs-12 col-sm-6" ng-repeat="user in ctrl.users"> 
       <div class="panel" ng-class="{ 'panel-primary': !user.isDisabled, 'panel-danger': user.isDisabled }">

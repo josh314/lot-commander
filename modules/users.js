@@ -167,7 +167,7 @@ const list = ( { num, skip, sort, sortDir, isDisabled, isSuperuser } ) => {
   const sortParams = {
     [ sortField ] : sortDir || 1
   };
-
+  
   const q = User.find( query ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
 
   return q.then( users => users.map( user => user.getPublicInfo() ) );

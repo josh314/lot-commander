@@ -159,6 +159,16 @@ export function createNewUser( newUserData ) {
     .then( resp => resp.data );
 }
 
+export function countUsers( queryParams ) {
+  const uri = `/api/users/count/?${ queryParams ? querystring.stringify( queryParams ) : ''}`;
+
+  return axios({
+    method: 'get',
+    url: uri,
+  })
+    .then( resp => resp.data );
+
+}
 
 export function listUsers( queryParams ) {
   const uri = `/api/users/?${ queryParams ? querystring.stringify( queryParams ) : ''}`;

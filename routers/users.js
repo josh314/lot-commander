@@ -75,7 +75,6 @@ function createUser(req,res) {
 
   })
     .then( user => {
-      console.log(user);
       res.json({ success: true });
     })
     .catch(err=>{
@@ -162,7 +161,6 @@ function editUserRoles (req, res) {
 
   })
   .then( user => {
-    console.log(user);
     res.json({ success: true });
   })
   .catch( handleEditUserError(res) )
@@ -185,7 +183,6 @@ function editUserDisabledStatus (req, res) {
 
   })
   .then( user => {
-    console.log(user);
     res.json({ success: true });
   })
   .catch( handleEditUserError(res) );
