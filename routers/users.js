@@ -18,6 +18,11 @@ router.get(
   auth.isAuthorized( 'VIEW_USER' ),
   listUsers
 );
+router.get(
+  '/count', 
+  auth.isAuthorized( 'VIEW_USER' ),
+  countUsers
+);
 router.put(
   '/:userId/roles',
   auth.isAuthorized('EDIT_USER_ROLES'),
@@ -86,8 +91,12 @@ function createUser(req,res) {
 
 function listUsers( req, res ) {
 
+  const numPage = parseInt( req.query.num ) || 10;
+  const page = parseInt( req.query.page ) || 1;
+
   const query = {
-    num: parseInt(req.query.num),
+    skip: ( page - 1 ) * numPage,
+    num: numPage,
     sort: req.query.sort,
     sortDir: parseInt(req.query.sort_dir),
   };
@@ -102,6 +111,23 @@ function listUsers( req, res ) {
 
   users.list( query ).then( users => {
     res.json(users);
+  })
+}
+
+function countUsers( req, res ) {
+
+  const query = {};
+
+  if( req.query.disabled ) {
+    query.isDisabled = !!parseInt( req.query.disabled )
+  }
+
+  if( req.query.superuser ) {
+    query.isSuperuser = !!parseInt( req.query.superuser )
+  }
+
+  users.count( query ).then( _count => {
+    res.json({ count: _count});
   })
 }
 

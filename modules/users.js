@@ -144,7 +144,7 @@ const createUser = ( { username, password, firstName, lastName, roles } ) => {
   return newUser.save();
 };
 
-const list = ( { num, sort, sortDir, isDisabled, isSuperuser } ) => {
+const list = ( { num, skip, sort, sortDir, isDisabled, isSuperuser } ) => {
 
   const query = {};
 
@@ -168,15 +168,33 @@ const list = ( { num, sort, sortDir, isDisabled, isSuperuser } ) => {
     [ sortField ] : sortDir || 1
   };
 
-  const q = User.find( query ).limit( num || 20 ).sort( sortParams );
+  const q = User.find( query ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
 
   return q.then( users => users.map( user => user.getPublicInfo() ) );
+};
+
+const count = ( { isDisabled, isSuperuser } ) => {
+
+  const query = {};
+
+  if( isDisabled !== undefined ) {
+    query.isDisabled = isDisabled;
+  }
+
+  if( isSuperuser !== undefined ) {
+    query.isSuperuser = isSuperuser;
+  }
+
+  const q = User.countDocuments( query );
+
+  return q;//.then( users => console.log(users) );
 };
 
 // Export and we out
 module.exports = {
   changeUserPassword: changeUserPassword,
   createUser: createUser,
+  count: count,
   getUserByUsername: getUserByUsername,
   getUserById: getUserById,
   list: list,
