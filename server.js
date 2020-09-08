@@ -152,8 +152,11 @@ class Server {
     // Authentication ======================
     // =====================================
 
+    const UserDbClient = require('./modules/user-db').Client
+    this.users = new UserDbClient( this.mongooseConnection );
+
     const auth = require('./auth');
-    this.app.use( auth.init() );
+    this.app.use( auth.init( this.users ) );
 
     // show the login form
     this.app.get('/login', function(req, res) {
@@ -204,6 +207,7 @@ class Server {
     const shopifyDumpDbClient = new ShopifyDumpDbClient( this.mongoClient.db('ehdb') );
 
     const routerOpts = {
+      userDbClient: this.users,
       shopifyGqlClient: shopifyGqlClient,
       shopifyDumpDb: shopifyDumpDbClient
     };

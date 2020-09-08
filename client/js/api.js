@@ -152,7 +152,7 @@ export function createNewUser( newUserData ) {
   const uri = `/api/users/create`;
 
   return axios({
-    method: 'put',
+    method: 'post',
     url: uri,
     data: newUserData
   })

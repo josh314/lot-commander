@@ -105,97 +105,99 @@ userSchema.methods.editDisabledStatus = function( _isDisabled ) {
   return this.save();
 };
 
-const User = __mongooseConnection.model('User', userSchema);
-
 //======================================================
-// Exports
+// Client class
 //======================================================
 
-const getUserByUsername = username => User.findOne( { 'local.username' :  username } );
-
-const getUserById = userId => User.findById(userId);
-
-const changeUserPassword = ( { user, password } ) => {
-  // Note that we are passing in a user instance
-  return User.findOneAndUpdate(
-    // search users by username
-    {
-      'local.username': user.local.username
-    },
-    // update the found user's password
-    {
-      $set: { 'local.password': user.generateHash(password) }
-    }
-  )
-};
-
-const createUser = ( { username, password, firstName, lastName, roles } ) => {
-  const newUser = new User();
-  // set the user's local credentials
-  newUser.local.username = username;
-  newUser.local.password = newUser.generateHash(password);
-  newUser.firstName = firstName;
-  newUser.lastName = lastName;
-  newUser.roles = roles;
-  newUser.isSuperuser = false;
-  newUser.isDisabled = false;
-
-  // save the user
-  return newUser.save();
-};
-
-const list = ( { num, skip, sort, sortDir, isDisabled, isSuperuser } ) => {
-
-  const query = {};
-
-  if( isDisabled !== undefined ) {
-    query.isDisabled = isDisabled;
+class Client {
+  constructor( mongooseConnection ) {
+    this.User = mongooseConnection.model('User', userSchema);
   }
 
-  if( isSuperuser !== undefined ) {
-    query.isSuperuser = isSuperuser;
+  changeUserPassword( { user, password } ) {
+    // Note that we are passing in a user instance
+    return this.User.findOneAndUpdate(
+      // search users by username
+      {
+        'local.username': user.local.username
+      },
+      // update the found user's password
+      {
+        $set: { 'local.password': user.generateHash(password) }
+      }
+    )
   }
 
-  let sortField;
-  if ( sort == 'username' ) {
-    sortField = 'local.username';
-  }
-  else {
-    sortField = 'lastName';
-  } 
-
-  const sortParams = {
-    [ sortField ] : sortDir || 1
-  };
+  createUser( { username, password, firstName, lastName, roles } ) {
+    const newUser = new this.User();
+    // set the user's local credentials
+    newUser.local.username = username;
+    newUser.local.password = newUser.generateHash(password);
+    newUser.firstName = firstName;
+    newUser.lastName = lastName;
+    newUser.roles = roles;
+    newUser.isSuperuser = false;
+    newUser.isDisabled = false;
   
-  const q = User.find( query ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
-
-  return q.then( users => users.map( user => user.getPublicInfo() ) );
-};
-
-const count = ( { isDisabled, isSuperuser } ) => {
-
-  const query = {};
-
-  if( isDisabled !== undefined ) {
-    query.isDisabled = isDisabled;
+    // save the user
+    return newUser.save();
   }
 
-  if( isSuperuser !== undefined ) {
-    query.isSuperuser = isSuperuser;
+  count( { isDisabled, isSuperuser } ) {
+
+    const query = {};
+  
+    if( isDisabled !== undefined ) {
+      query.isDisabled = isDisabled;
+    }
+  
+    if( isSuperuser !== undefined ) {
+      query.isSuperuser = isSuperuser;
+    }
+  
+    const q = this.User.countDocuments( query );
+  
+    return q;
   }
 
-  const q = User.countDocuments( query );
+  getUserByUsername(username) {
+    return this.User.findOne( { 'local.username' :  username } );
+  }
 
-  return q;//.then( users => console.log(users) );
-};
+  getUserById( userId ) {
+    return this.User.findById(userId);
+  }
 
-// Export and we out
+  list( { num, skip, sort, sortDir, isDisabled, isSuperuser } ) {
+
+    const query = {};
+  
+    if( isDisabled !== undefined ) {
+      query.isDisabled = isDisabled;
+    }
+  
+    if( isSuperuser !== undefined ) {
+      query.isSuperuser = isSuperuser;
+    }
+  
+    let sortField;
+    if ( sort == 'username' ) {
+      sortField = 'local.username';
+    }
+    else {
+      sortField = 'lastName';
+    } 
+  
+    const sortParams = {
+      [ sortField ] : sortDir || 1
+    };
+    
+    const q = this.User.find( query ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
+  
+    return q.then( users => users.map( user => user.getPublicInfo() ) );
+  };
+}
+
 module.exports = {
-  changeUserPassword: changeUserPassword,
-  createUser: createUser,
-  count: count,
-  getUserByUsername: getUserByUsername,
-  getUserById: getUserById,
-  list: list,
+  Client: Client
 };

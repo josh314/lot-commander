@@ -1,7 +1,7 @@
 const path = require('path');
 const express = require('express');
 
-const auth= require('../auth');
+const auth = require('../auth');
 const { nextTick } = require('process');
 
 const scriptBuilder = require(path.join(__basedir, __config.modulesPath, 'script-builder'));
@@ -22,14 +22,14 @@ const productData = require(path.join(__basedir, __config.modulesPath, 'product-
 // }
 
 //routes
-function routes({ shopifyGqlClient, shopifyDumpDb }) {
+function routes({ shopifyGqlClient, shopifyDumpDb, userDbClient }) {
 
   const router = new express.Router();
 
   // =====================================
   // USERS SECTION =======================
   // =====================================
-  router.use('/api/users', require('./users') );
+  router.use('/api/users', require('./users')( { users: userDbClient } ) );
   // we will want this protected so you have to be logged in to visit
   // we will use route middleware to verify this (the isLoggedIn function)
   // router.get('/api/users/all', users.api.isManager, users.api.getAllUsers);

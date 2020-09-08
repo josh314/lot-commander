@@ -2,7 +2,9 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 
 const flashMessages = require('./modules/flash-messages');
-const users = require('./modules/users');
+// const users = require('./modules/users');
+
+let users;
 
 // =========================================================================
 // passport session setup ==================================================
@@ -66,7 +68,8 @@ passport.use('local-login',
  * 
  *****************************************************/
 
-function init() {
+function init( userDbClient ) {
+  users = userDbClient;
   return [ 
     passport.initialize(),
     passport.session()
