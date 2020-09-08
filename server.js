@@ -79,7 +79,6 @@ class Server {
     //=================================================
     // Database connections
     //=================================================
-    global.__connections = await require('./dbs').init();
 
     const mongoSettings = this.config.dbHosts.mongo;
     this.mongoClient = await (async ( { host, port, dbName, user, password } ) => {
@@ -97,14 +96,18 @@ class Server {
 
       console.log(`Connecting to MongoDb at ${location}`);
       await client.connect();
-      return client.db( dbName )
+      return client;
     })({
       host: mongoSettings.host,
       port: mongoSettings.port,
       dbName: mongoSettings.db,
       user: mongoSettings.auth && mongoSettings.auth.user,
       password: mongoSettings.auth && mongoSettings.auth.pwd,
-    })
+    });
+
+    const mongoose = require('mongoose');
+    this.mongooseConnection = mongoose.createConnection().setClient( this.mongoClient );
+    global.__mongooseConnection = this.mongooseConnection;
 
     //================================================
     // Request Logging ===============================
@@ -198,7 +201,7 @@ class Server {
       accessToken: this.config.shopify.store.auth.password
     });
 
-    const shopifyDumpDbClient = new ShopifyDumpDbClient( this.mongoClient );
+    const shopifyDumpDbClient = new ShopifyDumpDbClient( this.mongoClient.db('ehdb') );
 
     const routerOpts = {
       shopifyGqlClient: shopifyGqlClient,

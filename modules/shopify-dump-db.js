@@ -93,7 +93,7 @@ const tagFilterObject = tag => ({
 
 class DbClient {
   
-  constructor( mongoClient ) {
+  constructor( mongoDb ) {
     this.collections = {
       checkouts: 'shopify-checkouts',
       customers: 'shopify-customers',
@@ -101,7 +101,7 @@ class DbClient {
       products: 'shopify-products',
     };
 
-    this.db = mongoClient;
+    this.db = mongoDb;
   }
 
   getOrderHistory({ start, end, query, limit, skip }) {

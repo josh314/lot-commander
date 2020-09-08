@@ -105,7 +105,7 @@ userSchema.methods.editDisabledStatus = function( _isDisabled ) {
   return this.save();
 };
 
-const User = __connections.users.model('User', userSchema);
+const User = __mongooseConnection.model('User', userSchema);
 
 //======================================================
 // Exports

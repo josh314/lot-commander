@@ -24,7 +24,7 @@ if( __config.productDataSrc.match(/mws/i) ) {
 else if( __config.productDataSrc.match(/upcitemdb/i) ) {
   const upcItemDbApi = require('upcitemdb/lib/api');
   const upcItemDbSettings = __config.upcItemDb;
-  const connection = __connections['upcitemdb-cache'];
+  const connection = __mongooseConnection;
   if(connection) {
     upcItemDbSettings.cache = {
       connection: connection

@@ -1,7 +1,7 @@
 const path = require('path');
 
 const db = require('bstock/bstock-db');
-const client = new db.Client({ db: { connection: __connections.bstock }, logger: __logger});
+const client = new db.Client({ db: { connection: __mongooseConnection }, logger: __logger});
 
 
 function getAuctions(req, res) {

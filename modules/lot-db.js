@@ -15,7 +15,7 @@ const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'))
 
 const libLotDb = require('lot-db');
 
-const lotdbClient = new libLotDb.Client({ connection: __connections.lots }); 
+const lotdbClient = new libLotDb.Client({ connection: __mongooseConnection }); 
 
 function getLotById(lotId) {
   return lotdbClient.getLotById(lotId);
