@@ -96,7 +96,7 @@ function isLoggedIn(req, res, next) {
 
 function isAuthorized( permission ) {
   return ( req, res, next ) => {
-    if( req.user.isAuthorized( permission ) ) {
+    if( __config.skipAuth || req.user.isAuthorized( permission ) ) {
       return next();
     }
     return next( new Error('UNAUTHORIZED') );
