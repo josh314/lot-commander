@@ -16,23 +16,65 @@ const incomingShipmentSchema = mongoose.Schema({
   arrivalDate: Date,
   isReceived: Boolean,
   pallets: [ {
-    _id: false,
-    id: String,
+    handle: String,
     units: Number,
     category: String,
     isReceived: Boolean 
   } ],
-  // TODO: BOL & other shipping docs, invoice, manifests,
+  // TODO: manifests, costs, total units, category
 }, { collection: 'incoming-shipments', timestamps: true });
+
+
+incomingShipmentSchema.methods.edit = function( data ) {
+  Object.assign( this, data );
+  return this.save();
+}
+
+incomingShipmentSchema.methods.addPallet = function( pallet ) {
+  pallet.isReceived = false;
+  this.pallets.push( pallet );
+  return this.save();
+}
+
+incomingShipmentSchema.methods.removePallet = async function( palletId ) {
+  await this.pallets.pull( palletId );
+  return this.save();
+}
+
+incomingShipmentSchema.methods.editPallet = async function( palletId, data ) {
+  const pallet = this.pallets.id( palletId );
+  if( pallet ) {
+    Object.assign( pallet, data );
+    await this.save();
+  }
+  return this;
+}
 
 incomingShipmentSchema.methods.receive = function() {
   this.isReceived = true;
+  this.arrivalDate = new Date();
+  return this.save();
+}
+
+incomingShipmentSchema.methods.unreceive = function() {
+  this.isReceived = false;
+  this.arrivalDate = undefined;
+  return this.save();
 }
 
 incomingShipmentSchema.methods.receivePallet = async function( palletId ) {
-  const pallet = this.pallets.find( p => p.id === palletId );
+  const pallet = this.pallets.id( palletId );
   if( pallet ) {
     pallet.isReceived = true;
+    await this.save();
+  }
+  return this;
+}
+
+incomingShipmentSchema.methods.unreceivePallet = async function( palletId ) {
+  const pallet = this.pallets.id( palletId );
+  if( pallet ) {
+    pallet.isReceived = false;
     await this.save();
   }
   return this;
@@ -76,9 +118,8 @@ class InventoryDbClient {
       [ sortField ] : sortDir || 1
     };
     
-    const q = this.IncomingShipment.find( query ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
+    return this.IncomingShipment.find( query ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
   
-    return q.then( users => users.map( user => user.getPublicInfo() ) );
   }
 
   countIncomingShipments( { isReceived } ) {
@@ -89,9 +130,8 @@ class InventoryDbClient {
       query.isReceived = isReceived;
     }
   
-    const q = this.IncomingShipment.countDocuments( query );
-  
-    return q;
+    return this.IncomingShipment.countDocuments( query );
+
   }
 
   createIncomingShipment( { handle, vendor, carrier, arrivalDateExpected, pallets = [] } ) {
@@ -102,6 +142,7 @@ class InventoryDbClient {
       carrier,
       arrivalDateExpected,
       pallets: pallets.map( _ => Object.assign( _, { isReceived: false } ) ),
+      isReceived: false
     };
 
     const newShipment = new this.IncomingShipment(data);
@@ -110,6 +151,10 @@ class InventoryDbClient {
 
   getIncomingShipmentById( shipmentId ) {
     return this.IncomingShipment.findOne( { _id: shipmentId } );
+  }
+
+  removeIncomingShipment( shipmentId ) {
+    return this.IncomingShipment.deleteOne( { _id: shipmentId } );
   }
 
 }
