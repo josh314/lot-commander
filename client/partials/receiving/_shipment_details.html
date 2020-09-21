@@ -1,0 +1,48 @@
+<div class="container" ng-controller="ShipmentDetailsCtrl as ctrl">
+  <h2>Shipment Details</h2>
+	<div class="row well">
+    <dl>
+      <dt>Handle</dt>
+      <dd>{{ ctrl.shipment.handle }}</dd>
+      <div ng-show="ctrl.shipment.category">
+        <dt>Category</dt>
+        <dd>{{ ctrl.shipment.category }}</dd>
+      </div>
+      <div ng-show="ctrl.shipment.vendor">
+        <dt>Vendor</dt>
+        <dd>{{ ctrl.shipment.vendor }}</dd>
+      </div>
+      <div ng-show="ctrl.shipment.carrier">
+        <dt>Carrier</dt>
+        <dd>{{ ctrl.shipment.carrier }}</dd>
+      </div>
+      <div ng-hide="ctrl.shipment.arrivalDate">
+        <dt>Expected arrival date</dt>
+        <dd>{{ ctrl.shipment.arrivalDateExpected.toLocaleDateString() }}</dd>
+      </div>
+      <div ng-show="ctrl.shipment.arrivalDate">
+        <dt>Arrived On</dt>
+        <dd>{{ ctrl.shipment.arrivalDate.toLocaleDateString() }}</dd>
+      </div>
+    </dl>
+  </div>
+  <div class="row well">
+    <table class="table table-striped">
+      <thead><tr>
+        <th>Handle</th>
+        <th>Units</th>
+        <th>Category</th>
+        <th>Received?</th>
+        <th>Remove</th>
+      </tr></thead>
+      <tbody>	
+        <tr ng-repeat="pallet in ctrl.shipment.pallets track by $index">
+          <td>{{pallet.handle}}</td>
+          <td>{{pallet.units}}</td>
+          <td>{{pallet.category}}</td>
+          <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isReceived"></span></td>
+          <td><button class="btn btn-danger btn-xs" ng-click="ctrl.removePallet($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
+        </tr>
+      </tbody>
+    </table>
+</div>

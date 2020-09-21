@@ -202,3 +202,40 @@ export function editUserDisabledStatus( userId, _isDisabled ) {
   })
     .then( resp => resp.data );
 }
+
+
+/*************************************************
+* Receiving
+* =========
+*
+************/
+
+export function listIncomingShipments( qp ) {
+  return axios({
+    method: 'get',
+    url: `/api/receiving/?${querystring.stringify(qp)}`,
+  })
+    .then( resp => resp.data );
+}
+export function countIncomingShipments() {
+  return axios({
+    method: 'get',
+    url: `/api/receiving/count`,
+  })
+    .then( resp => resp.data );
+}
+export function createIncomingShipment( shipment ) {
+  return axios({
+    method: 'post',
+    url: `/api/receiving/create`,
+    data: shipment 
+  })
+    .then( resp => resp.data );
+}
+export function getIncomingShipmentById( shipmentId ) {
+  return axios({
+    method: 'get',
+    url: `/api/receiving/${ shipmentId }`,
+  })
+    .then( resp => resp.data );
+}

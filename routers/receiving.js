@@ -117,13 +117,23 @@ function routes({ inventoryDb }) {
     const page = parseInt( req.query.page ) || 1;
   
     const query = {
+      // paging
       skip: ( page - 1 ) * numPage,
       num: numPage,
+
+      // sorting
       sort: req.query.sort,
       sortDir: parseInt(req.query.sort_dir),
+
+      // filters
+      vendor: req.query.vendor,
     };
 
-    if( req.query.received ) {
+    if( req.query.handle ) {
+      query.handle = new RegExp(req.query.handle, 'i');
+    }
+
+    if( 'received' in req.query ) {
       query.isReceived = !!parseInt( req.query.received );
     }
 
@@ -150,11 +160,15 @@ function routes({ inventoryDb }) {
 
     const data = {
       handle: req.body.handle,
+      category: req.body.category,
       vendor: req.body.vendor,
       carrier: req.body.carrier,
-      arrivalDateExpected: new Date( req.body.arrivalDate ),
       pallets: req.body.pallets || []
     };
+
+    if( req.body.arrivalDate ) {
+      data.arrivalDateExpected = new Date( req.body.arrivalDate );
+    }
 
     const shipment = await inventoryDb.createIncomingShipment( data );
 

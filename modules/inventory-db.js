@@ -96,14 +96,15 @@ class InventoryDbClient {
     this.IncomingShipment = mongooseConnection.model('IncomingShipment', incomingShipmentSchema);
   }
 
-  listIncomingShipments( { num, skip, sort, sortDir, isReceived  } ) {
+  listIncomingShipments( { num, skip, sort, sortDir, isReceived, handle } ) {
     const query = {};
+
+    if ( handle ) {
+      query.handle = handle;
+    }
 
     if( isReceived !== undefined ) {
       query.isReceived = isReceived;
-    }
-    else {
-      query.isReceived = false;
     }
 
     let sortField;
@@ -111,7 +112,7 @@ class InventoryDbClient {
       sortField = sort;
     }
     else {
-      sortField = 'arrivalDateExpected';
+      sortField = 'createdAt';
     }
   
     const sortParams = {
@@ -134,10 +135,11 @@ class InventoryDbClient {
 
   }
 
-  createIncomingShipment( { handle, vendor, carrier, arrivalDateExpected, pallets = [] } ) {
+  createIncomingShipment( { handle, vendor, carrier, category, arrivalDateExpected, pallets = [] } ) {
 
     const data = {
       handle,
+      category,
       vendor,
       carrier,
       arrivalDateExpected,
