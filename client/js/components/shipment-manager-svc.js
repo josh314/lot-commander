@@ -41,6 +41,10 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams',
         if( filter.handle ) {
           query.handle = filter.handle;
         }
+
+        if( filter.vendor ) {
+          query.vendor = filter.vendor;
+        }
   
         if( filter.status === 'awaiting' ) {
           query.received = 0;
@@ -59,7 +63,7 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams',
           if( !resp || !resp.shipments ) {
             return [];
           }
-console.log(resp)
+
           return resp.shipments.map( prettify );
 
         });

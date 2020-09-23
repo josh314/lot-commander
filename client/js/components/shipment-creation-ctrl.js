@@ -1,13 +1,37 @@
 import angular from 'angular';
 
+
+class ShipmentValidator {
+  constructor( inputs ) {
+    if( inputs ) {
+      this.invalidHandle = !inputs.handle;
+      this.pallets = inputs.pallets.map( p => ({ invalidHandle: !p.handle }) );
+    }
+    else {
+      this.clean = true;
+    }
+  }
+
+  arePalletsValid() {
+    const isPalletValid = p => !p.invalidHandle;
+
+    return this.pallets.every( isPalletValid );
+  }
+
+  isValid() {
+    return this.clean || ( !this.invalidHandle && this.arePalletsValid() );
+  }
+}
+
 /******************* Shipment Creation Page Controller *************************/
-angular.module('myApp').controller('ShipmentCreationCtrl', [ 'navigate', 'sessionTimeout', 'ShipmentManagerSvc',
-  function(navigate, sessionTimeout, ShipmentManagerSvc) {
+angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'navigate', 'sessionTimeout', 'ShipmentManagerSvc',
+  function(messageModal, navigate, sessionTimeout, ShipmentManagerSvc) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
     vm.inputs = {
       categoryOptions: [
+        "",
         "general merchandise",
         "cosmetics",
         "personal care",
@@ -15,33 +39,52 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'navigate', 'sessio
       ],
       pallets: [],
     };
+    vm.validator = new ShipmentValidator();
+    const refreshValidator = () => vm.validator = new ShipmentValidator( vm.inputs );
 
-    vm.addPallet = () => vm.inputs.pallets.push({});
-    vm.removePallet = ( idx ) => vm.inputs.pallets.splice( idx, 1 );
+    vm.setPalletCategories = ( ) => vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
+
+    vm.addPallet = () => vm.inputs.pallets.push({ category: vm.inputs.category });
+
+    vm.removePallet = ( idx ) => {
+      vm.inputs.pallets.splice( idx, 1 );
+      if( vm.validator.pallets ) {
+        vm.validator.pallets.splice( idx, 1 );
+      }
+    };
+
     vm.createShipment = () => {
-      ShipmentManagerSvc.createShipment( shipmentRequest() ).then( result => {
-        if( result && result.shipment ) {
-          navigate.shipmentDetails( result.shipment._id );
-        }
-        else {
-          //TODO: warning modal
-        }
-      });
+
+      refreshValidator();
+
+      if( vm.validator.isValid() ) {
+        ShipmentManagerSvc.createShipment( shipmentRequest() ).then( result => {
+
+          if( result && result.shipment ) {
+            navigate.shipmentDetails( result.shipment._id );
+          }
+          else {
+            throw new Error('Server error.');
+          }
+        })
+          .catch( e => {
+            messageModal.launch({header: 'Error', body: e.message, type: 'error'});
+          });
+
+      }
+
     };
 
     function shipmentRequest() {
 
-      const shipment = {
-        handle: vm.inputs.handle,
-        vendor: vm.inputs.vendor,
-        category: vm.inputs.category,
-        carrier: vm.inputs.carrier,
-        arrivalDate: vm.inputs.arrivalDate, // TODO: time zone BS
-        pallets: vm.inputs.pallets
-      };
-    
+      const shipment = Object.assign( {}, vm.inputs );
+      
+      // TODO: date transformations? timezone stuff?
+
+      delete shipment.categoryOptions;
+
       return shipment;
-    };
+    }
 
   }
 ]);

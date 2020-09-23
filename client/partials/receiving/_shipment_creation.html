@@ -4,63 +4,86 @@
 
   <div class="row well">
     <div class="col-xs-12 col-sm-6">
-      <div class="form-group" ng-class="{ 'has-error' : ctrl.errors.noHandle }">
-        <label for="handleInput">Handle</label>
+      <div class="form-group" ng-class="{ 'has-error' : ctrl.validator.invalidHandle }">
+        <label for="handleInput">Shipment ID</label>
         <input type="text" class="form-control" id="handleInput" ng-model="ctrl.inputs.handle" autocomplete="off">
-        <span class="text-danger h4" ng-show="ctrl.errors.noHandle">No handle submitted.</span>
+        <span class="text-danger h4" ng-show="ctrl.validator.invalidHandle">No shipment ID submitted.</span>
       </div>
     </div>
     <div class="col-xs-12 col-sm-6">
-      <div class="form-group" ng-class="{ 'has-error' : ctrl.errors.noCategory }">
-        <label for="categoryInput">Category</label>
-        <select class="form-control" id="categoryInput" ng-model="ctrl.inputs.category">
-          <option ng-repeat="cat in ctrl.inputs.categoryOptions">{{cat}}</option>
-        </select>
-        <span class="text-danger h4" ng-show="ctrl.errors.noCategory">No category submitted.</span>
-      </div>
+  
     </div>
-    <div class="col-xs-12 col-sm-6">
-      <div class="form-group" ng-class="{ 'has-error' : ctrl.errors.noVendor }">
+    <fieldset class="col-xs-12 box-border">
+      <legend class="box-border">Purchase</legend>
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : ctrl.validator.invalidVendor }">
         <label for="vendorInput">Vendor</label>
         <input type="text" class="form-control" id="vendorInput" ng-model="ctrl.inputs.vendor" autocomplete="off">
-        <span class="text-danger h4" ng-show="ctrl.errors.noVendor">No vendor submitted.</span>
+        <span class="text-danger h4" ng-show="ctrl.validator.invalidVendor">No vendor submitted.</span>
       </div>
-    </div>
-    <div class="col-xs-12 col-sm-6">
-      <div class="form-group">
-        <label for="carrierInput">Carrier</label>
-        <input type="text" class="form-control" id="carrierInput" ng-model="ctrl.inputs.carrier" autocomplete="off">
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : ctrl.validator.invalidInvoiceId }">
+        <label for="invoiceIdInput">Invoice ID</label>
+        <input type="text" class="form-control" id="invoiceIdInput" ng-model="ctrl.inputs.invoiceId" autocomplete="off">
+        <span class="text-danger h4" ng-show="ctrl.validator.invalidInvoiceId">No invoice ID submitted.</span>
       </div>
-    </div>
-    <div class="col-xs-12 col-sm-6">
-      <div class="form-group">
-        <label for="arrivalDateInput">Arrival Date</label>
-        <input type="date" class="form-control" id="arrivalDateInput" ng-model="ctrl.inputs.arrivalDate"/>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label for="costInput">Cost</label>
+        <input type="number" class="form-control" id="costInput" ng-model="ctrl.inputs.cost" min="0">
       </div>
-    </div>
-  </div>
-  <div class="row well">
-    <table class="table table-striped">
-      <thead><tr>
-        <th>Handle</th>
-        <th>Units</th>
-        <th>Category</th>
-        <th>Remove</th>
-      </tr></thead>
-      <tbody>	
-        <tr ng-repeat="pallet in ctrl.inputs.pallets track by $index">
-          <td><input ng-model="pallet.handle"/></td>
-          <td><input type="number" min="0" ng-model="pallet.units"/></td>
-          <td>
-            <select ng-model="pallet.category">
-              <option ng-repeat="cat in ctrl.inputs.categoryOptions">{{cat}}</option>
-            </select>
-          </td>
-          <td><button class="btn btn-danger btn-xs" ng-click="ctrl.removePallet($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
-        </tr>
-      </tbody>
-    </table>
-    <button class="btn btn-primary" ng-click="ctrl.addPallet()">Add Pallet</button>
+    </fieldset>
+    <fieldset class="col-xs-12 box-border">
+      <legend class="box-border">Inventory</legend>
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : ctrl.validator.invalidSource }">
+        <label for="sourceInput">Source</label>
+        <input type="text" class="form-control" id="sourceInput" ng-model="ctrl.inputs.source" autocomplete="off">
+        <span class="text-danger h4" ng-show="ctrl.validator.invalidSource">No source submitted.</span>
+      </div>
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : ctrl.validator.invalidCategory }">
+        <label for="categoryInput">Category</label>
+        <select class="form-control" id="categoryInput" ng-model="ctrl.inputs.category" ng-change="ctrl.setPalletCategories()">
+          <option ng-repeat="cat in ctrl.inputs.categoryOptions">{{cat}}</option>
+        </select>
+        <span class="text-danger h4" ng-show="ctrl.validator.invalidCategory">No category submitted.</span>
+      </div>
+      <table class="table table-striped" ng-if="ctrl.inputs.pallets.length">
+        <thead><tr>
+          <th>Pallet ID</th>
+          <th>Units</th>
+          <th>Category</th>
+          <th class="text-center">Remove</th>
+        </tr></thead>
+        <tbody>	
+          <tr ng-repeat="pallet in ctrl.inputs.pallets track by $index">
+            <td ng-class="{ 'has-error' : ctrl.validator.pallets[$index].invalidHandle }"><input class="form-control" ng-model="pallet.handle"/></td>
+            <td><input class="form-control" type="number" min="0" ng-model="pallet.units"/></td>
+            <td>
+              <select class="form-control" ng-model="pallet.category" ng-disabled="ctrl.inputs.category">
+                <option ng-repeat="cat in ctrl.inputs.categoryOptions">{{cat}}</option>
+              </select>
+            </td>
+            <td class="text-center" style="vertical-align: middle;"><button type="submit" class="btn btn-danger btn-xs" ng-click="ctrl.removePallet($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="text-center">
+        <button class="btn btn-primary" ng-click="ctrl.addPallet()">Add Pallet</button>
+      </div>
+    </fieldset>
+    <fieldset class="col-xs-12 box-border">
+      <legend class="box-border">Shipping</legend>
+      <div class="col-xs-12 col-sm-6">
+        <div class="form-group">
+          <label for="carrierInput">Carrier</label>
+          <input type="text" class="form-control" id="carrierInput" ng-model="ctrl.inputs.carrier" autocomplete="off">
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-6">
+        <div class="form-group">
+          <label for="arrivalDateInput">Arrival Date</label>
+          <input type="date" class="form-control" id="arrivalDateInput" ng-model="ctrl.inputs.arrivalDate"/>
+        </div>
+      </div>
+    </fieldset>
   </div>
   <button class="btn btn-success" ng-click="ctrl.createShipment()">Create</button>
+  <span class="text-danger h4" ng-hide="ctrl.validator.isValid()">Check for input errors.</span>
 </div>

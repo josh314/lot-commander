@@ -1,5 +1,7 @@
 import angular from 'angular';
 
+const prettifyDate = dt => dt && dt.toLocaleDateString();
+
 /******************* Shipment List Page Controller *************************/
 angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTimeout', 'ShipmentManagerSvc', 'LoggedInUser',
   function(navigate, sessionTimeout, ShipmentManagerSvc, LoggedInUser) {
@@ -18,18 +20,30 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTim
 
     vm.columns = {
       handle: {
-        displayName: 'Handle',
+        displayName: 'Shipment ID',
         defaultSortAscending: true,
       },
       createdAt: {
         displayName: 'Created',
         defaultSortAscending: false,
+        transform: prettifyDate
       },
       arrivalDateExpected: {
         displayName: 'Expected',
         defaultSortAscending: false,
+        transform: prettifyDate
+      },
+      invoiceId: {
+        displayName: 'Invoice ID',
+        defaultSortAscending: true
+      },
+      vendor: {
+        displayName: 'Vendor',
+        defaultSortAscending: true
       },
     };
+
+    vm.showCreateIncomingShipmentButton = LoggedInUser.hasPermission('CREATE_INCOMING_SHIPMENT');
 
     vm.refreshShipmentsList = refreshShipmentsList;
 
@@ -40,7 +54,7 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTim
       else {
         vm.sortOpts = {
           key: sortKey,
-          ascending: vm.columns[ sortKey ].defaultSortAscending
+          ascending: !!vm.columns[ sortKey ].defaultSortAscending
         };
       }
       refreshShipmentsList();

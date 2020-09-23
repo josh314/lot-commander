@@ -133,6 +133,10 @@ function routes({ inventoryDb }) {
       query.handle = new RegExp(req.query.handle, 'i');
     }
 
+    if( req.query.vendor ) {
+      query.vendor = new RegExp(req.query.vendor, 'i');
+    }
+
     if( 'received' in req.query ) {
       query.isReceived = !!parseInt( req.query.received );
     }
@@ -158,16 +162,14 @@ function routes({ inventoryDb }) {
 
   async function createIncomingShipment( req, res ) {
 
-    const data = {
-      handle: req.body.handle,
-      category: req.body.category,
-      vendor: req.body.vendor,
-      carrier: req.body.carrier,
-      pallets: req.body.pallets || []
-    };
+    const data = Object.assign(
+      {},
+      req.body
+    );
 
     if( req.body.arrivalDate ) {
       data.arrivalDateExpected = new Date( req.body.arrivalDate );
+      delete data.arrivalDate;
     }
 
     const shipment = await inventoryDb.createIncomingShipment( data );

@@ -11,6 +11,9 @@ mongoose.Promise = require('bluebird');
 const incomingShipmentSchema = mongoose.Schema({
   handle: String,
   vendor: String,
+  invoiceId: String,
+  cost: Number,
+  source: String,
   carrier: String,
   arrivalDateExpected: Date,
   arrivalDate: Date,
@@ -96,11 +99,14 @@ class InventoryDbClient {
     this.IncomingShipment = mongooseConnection.model('IncomingShipment', incomingShipmentSchema);
   }
 
-  listIncomingShipments( { num, skip, sort, sortDir, isReceived, handle } ) {
+  listIncomingShipments( { num, skip, sort, sortDir, isReceived, handle, vendor } ) {
     const query = {};
 
     if ( handle ) {
       query.handle = handle;
+    }
+    if ( vendor ) {
+      query.vendor = vendor;
     }
 
     if( isReceived !== undefined ) {
@@ -135,19 +141,19 @@ class InventoryDbClient {
 
   }
 
-  createIncomingShipment( { handle, vendor, carrier, category, arrivalDateExpected, pallets = [] } ) {
+  createIncomingShipment( _data ) {
 
-    const data = {
-      handle,
-      category,
-      vendor,
-      carrier,
-      arrivalDateExpected,
-      pallets: pallets.map( _ => Object.assign( _, { isReceived: false } ) ),
-      isReceived: false
-    };
+    const data = Object.assign(
+      {
+        isReceived: false,
+      },
+      _data,
+      {
+        pallets: ( _data.pallets || [] ).map( _ => Object.assign( _, { isReceived: false } ) ),
+      }
+    );
 
-    const newShipment = new this.IncomingShipment(data);
+    const newShipment = new this.IncomingShipment( data );
     return newShipment.save();
   }
 

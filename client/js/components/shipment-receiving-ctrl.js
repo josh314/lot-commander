@@ -11,7 +11,7 @@ angular.module('myApp').controller('ShipmentReceivingCtrl', [ 'sessionTimeout', 
 
       ShipmentManagerSvc.loadShipment().then( resp => vm.shipment = resp.shipment );
 
-    }
+    };
 
     // init the page
     init();
