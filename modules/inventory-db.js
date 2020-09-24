@@ -2,6 +2,108 @@ const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 
 /************************************************
+ * Helpers
+ * =======
+ * 
+ *********/
+
+const incompleteShipmentFilter = {
+  isReceived: true,
+  "pallets.isReceived": false
+};
+
+const awaitingShipmentFilter = { isReceived: false };
+
+const receivedShipmentFilter = { isReceived: true };
+
+const awaitingAndIncompleteShipmentFilter = ( isIncompleteDateArrived ) => ({
+  $or: [
+    awaitingShipmentFilter,
+    isIncompleteDateArrived ? Object.assign( incompleteShipmentFilter, { arrivalDate: { $gt: new Date(isIncompleteDateArrived) } } ) : incompleteShipmentFilter
+  ]
+})
+
+const completeShipmentFilter = {
+  $and: [
+    receivedShipmentFilter,
+    { // all pallets are received
+      $where: function(){ return this.pallets.every( function(p) { return p.isReceived } ) }
+    }
+  ]
+};
+
+const withoutIncompleteShipmentFilter = {
+  $or: [
+    awaitingShipmentFilter,
+    completeShipmentFilter
+  ]
+}
+
+const shipmentQueryFilter = ( { isReceived, handle, vendor, isIncomplete, isIncompleteDateArrived } ) => {
+  const filter = {};
+
+  if ( handle ) {
+    filter.handle = handle;
+  }
+  if ( vendor ) {
+    filter.vendor = vendor;
+  }
+
+
+  let shipmentReceivedStatusFilter;
+  if( isReceived === true ) {
+
+    if( isIncomplete === false ) {
+
+      shipmentReceivedStatusFilter = completeShipmentFilter;
+
+    }
+    else {
+
+      shipmentReceivedStatusFilter = receivedShipmentFilter;
+
+    }
+
+  }
+  else if ( isReceived === false ) {
+
+    if( isIncomplete === true ) {
+
+      shipmentReceivedStatusFilter = awaitingAndIncompleteShipmentFilter( isIncompleteDateArrived );
+
+    }
+    else {
+
+      shipmentReceivedStatusFilter = awaitingShipmentFilter;
+
+    }
+
+  }
+  else {
+
+    if( isIncomplete === true ) {
+
+      shipmentReceivedStatusFilter = incompleteShipmentFilter;
+
+    }
+    else if( isIncomplete === false ) {
+
+      shipmentReceivedStatusFilter = withoutIncompleteShipmentFilter;
+
+    }
+
+  }
+
+  if( shipmentReceivedStatusFilter ) {
+
+    Object.assign( filter, shipmentReceivedStatusFilter );
+
+  }
+
+  return filter;
+}
+
+/************************************************
  * 
  * Mongoose data models
  * ====================
@@ -11,7 +113,6 @@ mongoose.Promise = require('bluebird');
 const incomingShipmentSchema = mongoose.Schema({
   handle: String,
   vendor: String,
-  invoiceId: String,
   cost: Number,
   source: String,
   carrier: String,
@@ -22,7 +123,7 @@ const incomingShipmentSchema = mongoose.Schema({
     handle: String,
     units: Number,
     category: String,
-    isReceived: Boolean 
+    isReceived: Boolean,
   } ],
   // TODO: manifests, costs, total units, category
 }, { collection: 'incoming-shipments', timestamps: true });
@@ -99,19 +200,9 @@ class InventoryDbClient {
     this.IncomingShipment = mongooseConnection.model('IncomingShipment', incomingShipmentSchema);
   }
 
-  listIncomingShipments( { num, skip, sort, sortDir, isReceived, handle, vendor } ) {
-    const query = {};
+  listIncomingShipments( { num, skip, sort, sortDir, filterParams } ) {
 
-    if ( handle ) {
-      query.handle = handle;
-    }
-    if ( vendor ) {
-      query.vendor = vendor;
-    }
-
-    if( isReceived !== undefined ) {
-      query.isReceived = isReceived;
-    }
+    const filter = shipmentQueryFilter(filterParams);
 
     let sortField;
     if ( sort ) {
@@ -125,19 +216,15 @@ class InventoryDbClient {
       [ sortField ] : sortDir || 1
     };
     
-    return this.IncomingShipment.find( query ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
+    return this.IncomingShipment.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
   
   }
 
-  countIncomingShipments( { isReceived } ) {
+  countIncomingShipments( filterParams ) {
 
-    const query = {};
-  
-    if( isReceived !== undefined ) {
-      query.isReceived = isReceived;
-    }
-  
-    return this.IncomingShipment.countDocuments( query );
+    const filter = shipmentQueryFilter(filterParams);
+
+    return this.IncomingShipment.countDocuments( filter );
 
   }
 

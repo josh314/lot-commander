@@ -9,6 +9,35 @@ const formidable = require('formidable');
 module.exports = routes;
 
 /**********************************************
+ * Helpers
+ * =======
+ * 
+ *********/
+
+const filterParamsFromQueryParams = ( qp ) => {
+
+  const fp = {};
+
+  if( qp.handle ) {
+    fp.handle = new RegExp( qp.handle, 'i');
+  }
+
+  if( qp.vendor ) {
+    fp.vendor = new RegExp( qp.vendor, 'i');
+  }
+
+  if( 'received' in qp ) {
+    fp.isReceived = !!parseInt( qp.received );
+  }
+
+  if( 'incomplete' in qp ) {
+    fp.isIncomplete = !!parseInt( qp.incomplete );
+  }
+
+  return fp;
+};
+
+/**********************************************
  * Routes function for export
  * ==========================
  * 
@@ -126,20 +155,8 @@ function routes({ inventoryDb }) {
       sortDir: parseInt(req.query.sort_dir),
 
       // filters
-      vendor: req.query.vendor,
+      filterParams: filterParamsFromQueryParams( req.query ),
     };
-
-    if( req.query.handle ) {
-      query.handle = new RegExp(req.query.handle, 'i');
-    }
-
-    if( req.query.vendor ) {
-      query.vendor = new RegExp(req.query.vendor, 'i');
-    }
-
-    if( 'received' in req.query ) {
-      query.isReceived = !!parseInt( req.query.received );
-    }
 
     const shipments = await inventoryDb.listIncomingShipments(query);
 
@@ -148,13 +165,7 @@ function routes({ inventoryDb }) {
 
   async function countIncomingShipments( req, res ) {
   
-    const query = {};
-  
-    if( req.query.received ) {
-      query.isReceived = !!parseInt( req.query.received );
-    }
-
-    const count = await inventoryDb.countIncomingShipments( query );
+    const count = await inventoryDb.countIncomingShipments( filterParamsFromQueryParams( req.query ) );
 
     res.json({ count: count });
     

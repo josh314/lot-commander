@@ -33,10 +33,6 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTim
         defaultSortAscending: false,
         transform: prettifyDate
       },
-      invoiceId: {
-        displayName: 'Invoice ID',
-        defaultSortAscending: true
-      },
       vendor: {
         displayName: 'Vendor',
         defaultSortAscending: true

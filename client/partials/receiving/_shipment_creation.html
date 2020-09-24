@@ -20,11 +20,6 @@
         <input type="text" class="form-control" id="vendorInput" ng-model="ctrl.inputs.vendor" autocomplete="off">
         <span class="text-danger h4" ng-show="ctrl.validator.invalidVendor">No vendor submitted.</span>
       </div>
-      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : ctrl.validator.invalidInvoiceId }">
-        <label for="invoiceIdInput">Invoice ID</label>
-        <input type="text" class="form-control" id="invoiceIdInput" ng-model="ctrl.inputs.invoiceId" autocomplete="off">
-        <span class="text-danger h4" ng-show="ctrl.validator.invalidInvoiceId">No invoice ID submitted.</span>
-      </div>
       <div class="form-group col-xs-12 col-sm-6">
         <label for="costInput">Cost</label>
         <input type="number" class="form-control" id="costInput" ng-model="ctrl.inputs.cost" min="0">
