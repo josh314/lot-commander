@@ -7,39 +7,90 @@ mongoose.Promise = require('bluebird');
  * 
  *********/
 
-const incompleteShipmentFilter = {
-  isReceived: true,
-  "pallets.isReceived": false
-};
-
 const awaitingShipmentFilter = { isReceived: false };
 
 const receivedShipmentFilter = { isReceived: true };
 
-const awaitingAndIncompleteShipmentFilter = ( isIncompleteDateArrived ) => ({
+const hasProblemShipmentFilter = {
+  $where: function(){
+
+    if( this.isReceived === false ) {
+      return false;
+    }
+
+    const received = this.palletsReceived;
+    const expected = this.palletsExpected;
+
+    if( !received || !expected ) {
+      return true;
+    }
+
+    if( received.length !== expected.length ) {
+      return true;
+    }
+
+    if( received.some( p => p.hasProblem ) ) {
+      return true;
+    }
+
+    return expected.some( pe => { 
+      return !received.find( pr => pr.handle === pe.handle );
+    } );
+  }
+};
+
+const noProblemShipmentFilter = {
+  $where: function(){
+
+    if( this.isReceived === false ) {
+      return true;
+    }
+
+    const received = this.palletsReceived;
+    const expected = this.palletsExpected;
+
+    if( !received || !expected ) {
+      return false;
+    }
+
+    if( received.length !== expected.length ) {
+      return false;
+    }
+
+    if( received.some( p => p.hasProblem ) ) {
+      return false;
+    }
+
+    return expected.every( pe => { 
+      return !!received.find( pr => pr.handle === pe.handle );
+    } );
+  }
+};
+
+const awaitingOrHasProblemShipmentFilter = ( hasProblemDateArrivedStart ) => ({
   $or: [
     awaitingShipmentFilter,
-    isIncompleteDateArrived ? Object.assign( incompleteShipmentFilter, { arrivalDate: { $gt: new Date(isIncompleteDateArrived) } } ) : incompleteShipmentFilter
+    hasProblemDateArrivedStart ? 
+      Object.assign( hasProblemShipmentFilter, { arrivalDate: { $gt: new Date(hasProblemDateArrivedStart) } } ) : 
+      hasProblemShipmentFilter
   ]
 })
 
-const completeShipmentFilter = {
+const flawlessShipmentFilter = {
   $and: [
     receivedShipmentFilter,
-    { // all pallets are received
-      $where: function(){ return this.pallets.every( function(p) { return p.isReceived } ) }
-    }
+    noProblemShipmentFilter
   ]
 };
 
-const withoutIncompleteShipmentFilter = {
+const withoutProblemShipmentFilter = {
   $or: [
     awaitingShipmentFilter,
-    completeShipmentFilter
+    noProblemShipmentFilter
   ]
 }
 
-const shipmentQueryFilter = ( { isReceived, handle, vendor, isIncomplete, isIncompleteDateArrived } ) => {
+const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProblemDateArrivedStart } ) => {
   const filter = {};
 
   if ( handle ) {
@@ -53,9 +104,9 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, isIncomplete, isInco
   let shipmentReceivedStatusFilter;
   if( isReceived === true ) {
 
-    if( isIncomplete === false ) {
+    if( hasProblem === false ) {
 
-      shipmentReceivedStatusFilter = completeShipmentFilter;
+      shipmentReceivedStatusFilter = flawlessShipmentFilter;
 
     }
     else {
@@ -67,9 +118,9 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, isIncomplete, isInco
   }
   else if ( isReceived === false ) {
 
-    if( isIncomplete === true ) {
+    if( hasProblem === true ) {
 
-      shipmentReceivedStatusFilter = awaitingAndIncompleteShipmentFilter( isIncompleteDateArrived );
+      shipmentReceivedStatusFilter = awaitingOrHasProblemShipmentFilter( hasProblemDateArrivedStart );
 
     }
     else {
@@ -81,14 +132,14 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, isIncomplete, isInco
   }
   else {
 
-    if( isIncomplete === true ) {
+    if( hasProblem === true ) {
 
-      shipmentReceivedStatusFilter = incompleteShipmentFilter;
+      shipmentReceivedStatusFilter = hasProblemShipmentFilter;
 
     }
-    else if( isIncomplete === false ) {
+    else if( hasProblem === false ) {
 
-      shipmentReceivedStatusFilter = withoutIncompleteShipmentFilter;
+      shipmentReceivedStatusFilter = withoutProblemShipmentFilter;
 
     }
 
@@ -119,12 +170,16 @@ const incomingShipmentSchema = mongoose.Schema({
   arrivalDateExpected: Date,
   arrivalDate: Date,
   isReceived: Boolean,
-  pallets: [ {
+  palletsExpected: [ {
     handle: String,
     units: Number,
     category: String,
-    isReceived: Boolean,
   } ],
+  palletsReceived: [ {
+    handle: String,
+    hasProblem: Boolean,
+    note: String
+  } ]
   // TODO: manifests, costs, total units, category
 }, { collection: 'incoming-shipments', timestamps: true });
 
@@ -134,19 +189,18 @@ incomingShipmentSchema.methods.edit = function( data ) {
   return this.save();
 }
 
-incomingShipmentSchema.methods.addPallet = function( pallet ) {
-  pallet.isReceived = false;
-  this.pallets.push( pallet );
+incomingShipmentSchema.methods.addPalletExpected = function( pallet ) {
+  this.palletsExpected.push( pallet );
   return this.save();
 }
 
-incomingShipmentSchema.methods.removePallet = async function( palletId ) {
-  await this.pallets.pull( palletId );
+incomingShipmentSchema.methods.removePalletExpected = async function( palletId ) {
+  await this.palletsExpected.pull( palletId );
   return this.save();
 }
 
-incomingShipmentSchema.methods.editPallet = async function( palletId, data ) {
-  const pallet = this.pallets.id( palletId );
+incomingShipmentSchema.methods.editPalletExpected = async function( palletId, data ) {
+  const pallet = this.palletsExpected.id( palletId );
   if( pallet ) {
     Object.assign( pallet, data );
     await this.save();
@@ -166,19 +220,22 @@ incomingShipmentSchema.methods.unreceive = function() {
   return this.save();
 }
 
-incomingShipmentSchema.methods.receivePallet = async function( palletId ) {
-  const pallet = this.pallets.id( palletId );
-  if( pallet ) {
-    pallet.isReceived = true;
-    await this.save();
-  }
-  return this;
+incomingShipmentSchema.methods.addPalletReceived = function( pallet ) {
+  this.palletsReceived.push( pallet );
+  return this.save();
 }
 
-incomingShipmentSchema.methods.unreceivePallet = async function( palletId ) {
-  const pallet = this.pallets.id( palletId );
+incomingShipmentSchema.methods.receivePallet = incomingShipmentSchema.methods.addPalletReceived;
+
+incomingShipmentSchema.methods.removePalletReceived = async function( palletId ) {
+  await this.palletsReceived.pull( palletId );
+  return this.save();
+}
+
+incomingShipmentSchema.methods.editPalletReceived = async function( palletId, data ) {
+  const pallet = this.palletsReceived.id( palletId );
   if( pallet ) {
-    pallet.isReceived = false;
+    Object.assign( pallet, data );
     await this.save();
   }
   return this;
@@ -234,10 +291,7 @@ class InventoryDbClient {
       {
         isReceived: false,
       },
-      _data,
-      {
-        pallets: ( _data.pallets || [] ).map( _ => Object.assign( _, { isReceived: false } ) ),
-      }
+      _data
     );
 
     const newShipment = new this.IncomingShipment( data );

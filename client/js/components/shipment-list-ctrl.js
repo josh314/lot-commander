@@ -10,7 +10,7 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTim
     const vm = this;
     vm.filter = {
       handle: '',
-      status: 'awaiting'
+      status: 'all'
     };
     vm.shipments = [];
     vm.sortOpts = {

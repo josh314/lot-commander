@@ -2,8 +2,18 @@
   <h2>Shipment Details</h2>
 	<div class="row well">
     <dl>
-      <dt>Shipment ID</dt>
-      <dd>{{ ctrl.shipment.handle }}</dd>
+      <div ng-hide="ctrl.isEditing[ 'handle' ]">
+        <dt>Shipment ID<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'handle' )">edit</a>)</span></dt>
+        <dd ng-hide="ctrl.isEditing[ 'handle' ]">
+          {{ ctrl.shipment.handle }}
+        </dd>
+      </div>
+      <div ng-show="ctrl.isEditing[ 'handle' ]">
+        <dt>Shipment ID (<a href ng-click="ctrl.saveEdit( 'handle' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'handle' )" style="color: red">cancel edit</a>)</dt>
+        <dd ng-show="ctrl.isEditing[ 'handle' ]">
+          <input ng-model="ctrl.editValue[ 'handle' ]" />
+        </dd>
+      </div>
       <div ng-show="ctrl.shipment.category">
         <dt>Category</dt>
         <dd>{{ ctrl.shipment.category }}</dd>
@@ -35,15 +45,34 @@
         <th>Units</th>
         <th>Category</th>
         <th>Received?</th>
-        <th>Remove</th>
+        <th ng-show="ctrl.showReceiveControls">Unreceive</th>
+        <th ng-show="ctrl.showEditControls || ctrl.showReceiveControls">Remove</th>
+        <th>Note</th>
       </tr></thead>
       <tbody>	
-        <tr ng-repeat="pallet in ctrl.shipment.pallets track by $index">
+        <tr ng-repeat="pallet in ctrl.shipment.palletAudit track by $index">
           <td>{{pallet.handle}}</td>
           <td>{{pallet.units}}</td>
           <td>{{pallet.category}}</td>
-          <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isReceived"></span></td>
-          <td><button class="btn btn-danger btn-xs" ng-click="ctrl.removePallet($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
+          <td>
+            <span class="glyphicon glyphicon-alert" ng-show="!pallet.isExpected"></span>
+            <span class="glyphicon glyphicon-ok" ng-show="pallet.isReceived && !pallet.hasProblem"></span>
+            <span class="glyphicon glyphicon-remove" ng-show="pallet.hasProblem"></span>
+          </td>
+          <td ng-show="ctrl.showReceiveControls">
+            <button class="btn btn-danger btn-xs" ng-click="ctrl.unreceivePallet($index)" ng-show="pallet.isExpected && pallet.isReceived">
+              <span class="glyphicon glyphicon-remove"></span>
+            </button>
+          </td>
+          <td ng-show="ctrl.showEditControls || ctrl.showReceiveControls">
+            <button class="btn btn-danger btn-xs" ng-click="ctrl.removePallet($index)" ng-show="ctrl.showEditControls || (ctrl.showReceiveControls && !pallet.isExpected)">
+              <span class="glyphicon glyphicon-remove"></span>
+            </button>
+          </td>
+          <td>
+            <span ng-show="pallet.showNote">{{pallet.note}}</span>
+            <span ng-show="pallet.note">[<a href ng-hide="pallet.showNote" ng-click="pallet.toggleShowNote()">Show</a><a href ng-show="pallet.showNote" ng-click="pallet.toggleShowNote()">Hide</a>]</span>
+          </td>
         </tr>
       </tbody>
     </table>

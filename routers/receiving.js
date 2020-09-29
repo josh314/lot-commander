@@ -30,8 +30,8 @@ const filterParamsFromQueryParams = ( qp ) => {
     fp.isReceived = !!parseInt( qp.received );
   }
 
-  if( 'incomplete' in qp ) {
-    fp.isIncomplete = !!parseInt( qp.incomplete );
+  if( 'problem' in qp ) {
+    fp.hasProblem = !!parseInt( qp.problem );
   }
 
   return fp;
@@ -128,11 +128,23 @@ function routes({ inventoryDb }) {
     auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
     receiveIncomingShipment
   );
-  router.put(
-    '/:shipmentId/pallets/:palletId/is-received', 
+  router.post(
+    '/:shipmentId/pallets-received', 
     auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
     receiveIncomingShipmentPallet
   );
+  router.delete(
+    '/:shipmentId/pallets-received/:palletId',
+    auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
+    removeIncomingShipmentPalletReceived
+  );
+  router.patch(
+    '/:shipmentId/pallets-received/:palletId',
+    auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
+    editIncomingShipmentPalletReceived
+  );
+  
+  //TODO: unreceivePallet endpoint
   
   /*******************************************
    * Define Handlers
@@ -178,6 +190,9 @@ function routes({ inventoryDb }) {
       req.body
     );
 
+    data.palletsExpected = data.pallets;
+    delete data.pallets;
+
     if( req.body.arrivalDate ) {
       data.arrivalDateExpected = new Date( req.body.arrivalDate );
       delete data.arrivalDate;
@@ -185,13 +200,15 @@ function routes({ inventoryDb }) {
 
     const shipment = await inventoryDb.createIncomingShipment( data );
 
-    res.json({ shipment });
+    res.json( { shipment } );
 
   }
 
   async function getIncomingShipmentById( req, res ) {
 
-    const shipment = await inventoryDb.getIncomingShipmentById( req.params.shipmentId );
+    const shipmentId = req.params.shipmentId;
+
+    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
     if( shipment ) {
       res.json( { shipment } );
     }
@@ -202,10 +219,12 @@ function routes({ inventoryDb }) {
 
   async function editIncomingShipment( req, res ) {
 
-    const shipment = await inventoryDb.getIncomingShipmentById( req.params.shipmentId );
+    const shipmentId = req.params.shipmentId;
+
+    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
     if( shipment ) {
       const result = await shipment.edit( req.body );
-      res.json( result );
+      res.json( { success: true } );
     }
     else {
       res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
@@ -219,13 +238,16 @@ function routes({ inventoryDb }) {
   }
 
   //==========================
-  // Pallet modifying handlers
+  // Expected Pallets modifying handlers
 
   async function addIncomingShipmentPallet( req, res ) {
-    const shipment = await inventoryDb.getIncomingShipmentById( req.params.shipmentId );
+
+    const shipmentId = req.params.shipmentId;
+
+    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
     if( shipment ) {
-      const result = await shipment.addPallet( req.body );
-      res.json( result );
+      const result = await shipment.addPalletExpected( req.body );
+      res.json( { success: true } );
     }
     else {
       res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
@@ -233,10 +255,13 @@ function routes({ inventoryDb }) {
   }
 
   async function removeIncomingShipmentPallet( req, res ) {
-    const shipment = await inventoryDb.getIncomingShipmentById( req.params.shipmentId );
+
+    const shipmentId = req.params.shipmentId;
+
+    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
     if( shipment ) {
-      const result = await shipment.removePallet( req.params.palletId );
-      res.json( result );
+      const result = await shipment.removePalletExpected( req.params.palletId );
+      res.json( { success: true } );
     }
     else {
       res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
@@ -244,10 +269,13 @@ function routes({ inventoryDb }) {
   }
 
   async function editIncomingShipmentPallet( req, res ) {
-    const shipment = await inventoryDb.getIncomingShipmentById( req.params.shipmentId );
+
+    const shipmentId = req.params.shipmentId;
+
+    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
     if( shipment ) {
-      const result = await shipment.editPallet( req.params.palletId, req.body );
-      res.json( result );
+      const result = await shipment.editPalletExpected( req.params.palletId, req.body );
+      res.json( { success: true } );
     }
     else {
       res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
@@ -329,10 +357,11 @@ function routes({ inventoryDb }) {
 
           console.log(`Unlinking temp file ${f.path}`);
           fs.promises.unlink(f.path);
-          res.json( await storePromise );
+          await storePromise
+          res.json( { success: true } );
         }
         else {
-          res.json( { erro: true, message: 'No file uploaded.' } );
+          res.json( { error: true, message: 'No file uploaded.' } );
         }
 
 
@@ -342,13 +371,6 @@ function routes({ inventoryDb }) {
       }
     });
 
-    // const readStream = req;
-    // documentSvc.store( {
-    //   readStream: readStream,
-    //   folder: documentSvc.folder('incoming-shipment')( req.params.shipmentId ),
-    //   name: documentName,
-    //   isPublic: false,
-    // });
   }
 
   //===================
@@ -358,10 +380,13 @@ function routes({ inventoryDb }) {
 
     if( 'isReceived' in req.body && typeof req.body.isReceived === 'boolean' ) {
       const isReceived = req.body.isReceived;
-      const shipment = await inventoryDb.getIncomingShipmentById( req.params.shipmentId );
+
+      const shipmentId = req.params.shipmentId;
+
+      const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
       if( shipment ) {
         const result = isReceived ? await shipment.receive() : await shipment.unreceive();
-        res.json( result );
+        res.json( { success: true } );
       }
       else {
         res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
@@ -373,21 +398,54 @@ function routes({ inventoryDb }) {
 
   }
 
-  async function receiveIncomingShipmentPallet( req, res ) {
+  async function receiveIncomingShipmentPallet( req, res, next ) {
 
-    if( 'isReceived' in req.body && typeof req.body.isReceived === 'boolean' ) {
-      const isReceived = req.body.isReceived;
-      const shipment = await inventoryDb.getIncomingShipmentById( req.params.shipmentId );
+    try {
+
+      const shipmentId = req.params.shipmentId;
+
+      const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+
       if( shipment ) {
-        const result = isReceived ? await shipment.receivePallet( req.params.palletId ) : await shipment.unreceivePallet( req.params.palletId );
-        res.json( result );
+        const result = await shipment.receivePallet( req.body );
+        res.json( { success: true } );
       }
       else {
         res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
       }
     }
-    else {
+    catch(e) {
       res.json( { error: true, message: `Invalid request.` } );
+      next(e);
+    }
+
+  }
+
+  async function removeIncomingShipmentPalletReceived( req, res ) {
+
+    const shipmentId = req.params.shipmentId;
+
+    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+    if( shipment ) {
+      const result = await shipment.removePalletReceived( req.params.palletId );
+      res.json( { success: true } );
+    }
+    else {
+      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+    }
+  }
+
+  async function editIncomingShipmentPalletReceived( req, res ) {
+
+    const shipmentId = req.params.shipmentId;
+
+    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+    if( shipment ) {
+      const result = await shipment.editPalletReceived( req.params.palletId, req.body );
+      res.json( { success: true } );
+    }
+    else {
+      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
     }
   }
 

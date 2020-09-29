@@ -2,6 +2,8 @@ import angular from 'angular';
 
 import * as api from '../api';
 
+const clone = _ => JSON.parse( JSON.stringify( _ ) );
+
 /******************* Shipment Manager Service *************************/
 //
 // This service provides some utility functionality to the shipments API and UI
@@ -11,28 +13,71 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams',
 
     const shipmentId = () =>  $stateParams.shipmentId;
 
+    const palletAudit = shipment => {
+
+      // working copy of expected pallets array
+      const expected = clone( shipment.palletsExpected ).map( p => Object.assign( p, { isReceived: false, isExpected: true } ) );
+
+      // initialize the final audit as a new array with the same references as the expected pallets array 
+      const audit = [].concat( expected );
+
+      if( shipment.isReceived ) {
+
+
+        for( const pr of shipment.palletsReceived ) {
+
+          const found = expected.find( pe => pe.handle === pr.handle );
+          if( found ) {
+
+            Object.assign(
+              found,
+              { isReceived: true },
+              {
+                hasProblem: pr.hasProblem,
+                note: pr.note,
+                showNote: false,
+                toggleShowNote: function() { this.showNote = !this.showNote; }
+              }
+            );
+
+          }
+          else {
+
+            audit.push( Object.assign( clone( pr ), { isExpected: false } ) );
+
+          }
+
+        }
+
+      }
+      return audit;
+    };
+
     const datify = dString => dString ? new Date( dString ) : null;
 
-    const prettify = shipment => Object.assign(
+    const process = shipment => Object.assign(
       {},
       shipment,
       [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( shipment[ d ] ) } ), {}),
+      { palletAudit: palletAudit(shipment) }
     );
 
     return {
 
       createShipment: ( shipment ) => $q.when( api.createIncomingShipment( shipment ) ),
 
+      editShipment: ( _shipmentId = shipmentId() ) => _data => $q.when( api.editIncomingShipment( _shipmentId, _data ) ),
+
       getShipmentId: () => shipmentId(),
 
-      loadShipment: () => $q.when( api.getIncomingShipmentById( shipmentId() ) ).then( resp => {
+      loadShipment: ( _shipmentId = shipmentId() ) => $q.when( api.getIncomingShipmentById( _shipmentId ) ).then( resp => {
         if( !resp || !resp.shipment ) {
           return null;
         }
 
         const shipment = resp.shipment;
 
-        return prettify( shipment);
+        return process( shipment);
       }),
 
       listShipments: ( { filter, sort } ) => {
@@ -64,7 +109,7 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams',
             return [];
           }
 
-          return resp.shipments.map( prettify );
+          return resp.shipments.map( process );
 
         });
       },

@@ -239,3 +239,12 @@ export function getIncomingShipmentById( shipmentId ) {
   })
     .then( resp => resp.data );
 }
+
+export function editIncomingShipment( shipmentId, _data ) {
+  return axios({
+    method: 'patch',
+    url: `/api/receiving/${ shipmentId }`,
+    data: _data
+  })
+    .then( resp => resp.data );
+}
