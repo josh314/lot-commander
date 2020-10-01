@@ -67,6 +67,7 @@ async function list({ num, bucket, folder, continuationToken }) {
   documents = documents
                 .map( _ => ({
                   name: folder ? _.Key.replace( new RegExp(`${folder}/`), '') : _.Key,
+                  size: _.Size,
                   updatedAt: _.LastModified
                 }) )
                 .filter( _ => _.name );

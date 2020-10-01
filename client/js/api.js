@@ -240,11 +240,84 @@ export function getIncomingShipmentById( shipmentId ) {
     .then( resp => resp.data );
 }
 
+
+export function removeIncomingShipment( shipmentId ) {
+  return axios({
+    method: 'delete',
+    url: `/api/receiving/${ shipmentId }`,
+  })
+    .then( resp => resp.data );
+}
+
 export function editIncomingShipment( shipmentId, _data ) {
   return axios({
     method: 'patch',
     url: `/api/receiving/${ shipmentId }`,
     data: _data
+  })
+    .then( resp => resp.data );
+}
+
+// Pallet modifying operations
+export function addIncomingShipmentPallet( shipmentId, _pallet ) {
+  return axios({
+    method: 'post',
+    url: `/api/receiving/${ shipmentId }/pallets`,
+    data: _pallet
+  })
+    .then( resp => resp.data );
+}
+export function removeIncomingShipmentPallet( shipmentId ) {
+  return axios({
+    method: 'delete',
+    url: `/api/receiving/${ shipmentId }/pallets/:palletId`,
+  })
+    .then( resp => resp.data );
+}
+export function editIncomingShipmentPallet( shipmentId, _data ) {
+  return axios({
+    method: 'patch',
+    url: `/api/receiving/${ shipmentId }/pallets/:palletId`,
+    data: _data
+  })
+    .then( resp => resp.data );
+}
+
+// Incoming Shipment documents
+export function listIncomingShipmentDocuments( shipmentId ) {
+  return axios({
+    method: 'get',
+    url: `/api/receiving/${ shipmentId }/documents`,
+  })
+    .then( resp => resp.data );
+}
+
+export function getIncomingShipmentDocument( shipmentId, documentName ) {
+  return axios({
+    method: 'get',
+    url: `/api/receiving/${ shipmentId }/documents/${ documentName }`,
+    responseType: 'stream'
+  })
+    .then( resp => resp.data );
+}
+
+export function removeIncomingShipmentDocument( shipmentId, documentName ) {
+  return axios({
+    method: 'delete',
+    url: `/api/receiving/${ shipmentId }/documents/${ documentName }`,
+  })
+    .then( resp => resp.data );
+}
+
+export function uploadIncomingShipmentDocument( shipmentId, _document ) {
+
+  const fd = new FormData();
+  fd.append('file', _document);
+
+  return axios({
+    method: 'put',
+    url: `/api/receiving/${ shipmentId }/documents/${ _document.name }`,
+    data: fd
   })
     .then( resp => resp.data );
 }

@@ -5,7 +5,7 @@
       <div ng-hide="ctrl.isEditing[ 'handle' ]">
         <dt>Shipment ID<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'handle' )">edit</a>)</span></dt>
         <dd ng-hide="ctrl.isEditing[ 'handle' ]">
-          {{ ctrl.shipment.handle }}
+          {{ ctrl.shipment.handle || '----' }}
         </dd>
       </div>
       <div ng-show="ctrl.isEditing[ 'handle' ]">
@@ -14,29 +14,106 @@
           <input ng-model="ctrl.editValue[ 'handle' ]" />
         </dd>
       </div>
-      <div ng-show="ctrl.shipment.category">
-        <dt>Category</dt>
-        <dd>{{ ctrl.shipment.category }}</dd>
+      <div ng-hide="ctrl.isEditing[ 'category' ]">
+        <dt>Category<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'category' )">edit</a>)</span></dt>
+        <dd ng-hide="ctrl.isEditing[ 'category' ]">
+          {{ ctrl.shipment.category || '----' }}
+        </dd>
       </div>
-      <div ng-show="ctrl.shipment.vendor">
-        <dt>Vendor</dt>
-        <dd>{{ ctrl.shipment.vendor }}</dd>
+      <div ng-show="ctrl.isEditing[ 'category' ]">
+        <dt>Category (<a href ng-click="ctrl.saveEdit( 'category' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'category' )" style="color: red">cancel edit</a>)</dt>
+        <dd ng-show="ctrl.isEditing[ 'category' ]">
+          <input ng-model="ctrl.editValue[ 'category' ]" />
+        </dd>
       </div>
-      <div ng-show="ctrl.shipment.carrier">
-        <dt>Carrier</dt>
-        <dd>{{ ctrl.shipment.carrier }}</dd>
+      <div ng-hide="ctrl.isEditing[ 'vendor' ]">
+        <dt>Vendor<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'vendor' )">edit</a>)</span></dt>
+        <dd ng-hide="ctrl.isEditing[ 'vendor' ]">
+          {{ ctrl.shipment.vendor || '----' }}
+        </dd>
       </div>
-      <div ng-hide="ctrl.shipment.arrivalDate">
-        <div ng-show="ctrl.shipment.arrivalDateExpected">
-          <dt>Expected arrival date</dt>
-          <dd>{{ ctrl.shipment.arrivalDateExpected.toLocaleDateString() }}</dd>
-        </div>
+      <div ng-show="ctrl.isEditing[ 'vendor' ]">
+        <dt>Vendor (<a href ng-click="ctrl.saveEdit( 'vendor' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'vendor' )" style="color: red">cancel edit</a>)</dt>
+        <dd ng-show="ctrl.isEditing[ 'vendor' ]">
+          <input ng-model="ctrl.editValue[ 'vendor' ]" />
+        </dd>
       </div>
-      <div ng-show="ctrl.shipment.arrivalDate">
-        <dt>Arrived On</dt>
-        <dd>{{ ctrl.shipment.arrivalDate.toLocaleDateString() }}</dd>
+      <div ng-hide="ctrl.isEditing[ 'carrier' ]">
+        <dt>Carrier<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'carrier' )">edit</a>)</span></dt>
+        <dd ng-hide="ctrl.isEditing[ 'carrier' ]">
+          {{ ctrl.shipment.carrier || '----' }}
+        </dd>
+      </div>
+      <div ng-show="ctrl.isEditing[ 'carrier' ]">
+        <dt>Carrier (<a href ng-click="ctrl.saveEdit( 'carrier' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'carrier' )" style="color: red">cancel edit</a>)</dt>
+        <dd ng-show="ctrl.isEditing[ 'carrier' ]">
+          <input ng-model="ctrl.editValue[ 'carrier' ]" />
+        </dd>
+      </div>
+      <div ng-hide="ctrl.isEditing[ 'arrivalDate' ]">
+        <dt>Arrival date<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'arrivalDate' )">edit</a>)</span></dt>
+        <dd ng-hide="ctrl.isEditing[ 'arrivalDate' ]">
+          {{ ctrl.shipment.arrivalDate.toLocaleDateString() || '----' }}
+        </dd>
+      </div>
+      <div ng-show="ctrl.isEditing[ 'arrivalDate' ]">
+        <dt>Arrival date (<a href ng-click="ctrl.saveEdit( 'arrivalDate' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'arrivalDate' )" style="color: red">cancel edit</a>)</dt>
+        <dd ng-show="ctrl.isEditing[ 'arrivalDate' ]">
+          <input type="date" ng-model="ctrl.editValue[ 'arrivalDate' ]" />
+        </dd>
+      </div>
+      <div ng-hide="ctrl.isEditing[ 'arrivalDateExpected' ]">
+        <dt>Expected arrival date<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'arrivalDateExpected' )">edit</a>)</span></dt>
+        <dd ng-hide="ctrl.isEditing[ 'arrivalDateExpected' ]">
+          {{ ctrl.shipment.arrivalDateExpected.toLocaleDateString() || '----' }}
+        </dd>
+      </div>
+      <div ng-show="ctrl.isEditing[ 'arrivalDateExpected' ]">
+        <dt>Expected arrival date (<a href ng-click="ctrl.saveEdit( 'arrivalDateExpected' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'arrivalDateExpected' )" style="color: red">cancel edit</a>)</dt>
+        <dd ng-show="ctrl.isEditing[ 'arrivalDateExpected' ]">
+          <input type="date" ng-model="ctrl.editValue[ 'arrivalDateExpected' ]" />
+        </dd>
       </div>
     </dl>
+    <div ng-show="ctrl.showEditControls">
+      <button ng-click="ctrl.removeShipment()">Delete Shipment</button>
+    </div>
+  </div>
+  <div class="row well">
+    <div class="row">
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : ctrl.noFileSelected }">
+        <label for="fileInput">Document File</label>
+        <input type="file" class="form-control" id="fileInput" required file-model="ctrl.documentToUpload">
+        <span class="text-danger h4" ng-show="ctrl.noFileSelected">Please select a file.</span>
+      </div>
+      <div class="col-xs-12">
+        <button class="btn btn-primary" type="button" ng-click="ctrl.uploadDocument()">Upload</button>
+      </div>
+    </div>
+    <div class="row" ng-show="ctrl.shipment.documents && ctrl.shipment.documents.length">
+      <table class="table table-striped" ng-hide="ctrl.waitingForResponse">
+        <thead>
+          <th>Name</th>
+          <th>Size</th>
+          <th ng-show="ctrl.showEditControls">Remove</th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="document in ctrl.shipment.documents track by $index">
+            <td><a ng-href="/api/receiving/{{ ctrl.shipment._id }}/documents/{{ document.name }}" target="_self" download>{{ document.name }}</a></td>
+            <td>{{ document.displaySize }}</td>
+            <td ng-show="ctrl.showEditControls">
+              <button class="btn btn-danger btn-xs" ng-click="ctrl.removeDocument( document.name )">
+                <span class="glyphicon glyphicon-remove"></span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div ng-show="ctrl.waitingForResponse">
+        <div class="center-block loader"></div>
+        <h2 class="text-center">Please wait...</h2>
+      </div>
+    </div>
   </div>
   <div class="row well">
     <table class="table table-striped">
@@ -45,12 +122,13 @@
         <th>Units</th>
         <th>Category</th>
         <th>Received?</th>
-        <th ng-show="ctrl.showReceiveControls">Unreceive</th>
         <th ng-show="ctrl.showEditControls || ctrl.showReceiveControls">Remove</th>
         <th>Note</th>
+        <th ng-show="ctrl.showEditControls"></th>
       </tr></thead>
       <tbody>	
         <tr ng-repeat="pallet in ctrl.shipment.palletAudit track by $index">
+          <td ng-show="ctrl.showEditControls"><span ng-hide="pallet.isEditing">(<a href ng-click="pallet.openEdit()">edit</a>)</span></td>
           <td>{{pallet.handle}}</td>
           <td>{{pallet.units}}</td>
           <td>{{pallet.category}}</td>
@@ -58,11 +136,6 @@
             <span class="glyphicon glyphicon-alert" ng-show="!pallet.isExpected"></span>
             <span class="glyphicon glyphicon-ok" ng-show="pallet.isReceived && !pallet.hasProblem"></span>
             <span class="glyphicon glyphicon-remove" ng-show="pallet.hasProblem"></span>
-          </td>
-          <td ng-show="ctrl.showReceiveControls">
-            <button class="btn btn-danger btn-xs" ng-click="ctrl.unreceivePallet($index)" ng-show="pallet.isExpected && pallet.isReceived">
-              <span class="glyphicon glyphicon-remove"></span>
-            </button>
           </td>
           <td ng-show="ctrl.showEditControls || ctrl.showReceiveControls">
             <button class="btn btn-danger btn-xs" ng-click="ctrl.removePallet($index)" ng-show="ctrl.showEditControls || (ctrl.showReceiveControls && !pallet.isExpected)">
@@ -72,6 +145,10 @@
           <td>
             <span ng-show="pallet.showNote">{{pallet.note}}</span>
             <span ng-show="pallet.note">[<a href ng-hide="pallet.showNote" ng-click="pallet.toggleShowNote()">Show</a><a href ng-show="pallet.showNote" ng-click="pallet.toggleShowNote()">Hide</a>]</span>
+          </td>
+          <td ng-show="ctrl.showEditControls">
+            <span ng-hide="pallet.isEditing">(<a href ng-click="pallet.openEdit()">edit</a>)</span>
+            <span ng-show="pallet.isEditing">(<a href ng-click="pallet.saveEdit()" style="color: red">save</a> or <a href ng-click="pallet.closeEdit()" style="color: red">cancel edit</a>)</span>
           </td>
         </tr>
       </tbody>

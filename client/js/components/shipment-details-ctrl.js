@@ -6,6 +6,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'LoggedInUser', 'mes
     sessionTimeout.timeoutExpired();
 
     const vm = this;
+    vm.shipment = {};
 
     vm.showEditControls = LoggedInUser.hasPermission('EDIT_INCOMING_SHIPMENT');
     vm.showReceiveControls = LoggedInUser.hasPermission('RECEIVE_INCOMING_SHIPMENT');
@@ -25,7 +26,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'LoggedInUser', 'mes
       let p; // will be set to a promise
 
       if( vm.editValue[ key ] !== vm.shipment[ key ] ) {
-        p = ShipmentManagerSvc.editShipment( )( { handle: vm.editValue[ key ] } )
+        p = ShipmentManagerSvc.editShipment( )( { [ key ]: vm.editValue[ key ] } )
           .then( resp => {
             if( resp.success ) {
               return vm.shipment[ key ] = vm.editValue[ key ]; 
@@ -47,10 +48,58 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'LoggedInUser', 'mes
 
     vm.receiveShipment = () => navigate.receiveShipment( ShipmentManagerSvc.getShipmentId() );
 
+    vm.removeShipment = () => {
+      return ShipmentManagerSvc.removeShipment().then( _ => {
+        //TODO: messageModal check
+        navigate.shipmentList();
+      });
+    };
+
+    const updateDocumentList = () => {
+
+      ShipmentManagerSvc.listShipmentDocuments().then( documents => {console.log(documents)
+
+        if( documents ) {
+          Object.assign( vm.shipment, { documents } );
+        }
+
+      });
+
+    };
+
+    vm.uploadDocument = function() {
+      if(!vm.documentToUpload) {
+        vm.noFileSelected = true;
+        return;
+      }
+      else {
+        vm.noFileSelected = false;
+      }
+
+      const document = vm.documentToUpload;
+
+      // TDO: waiting graphic/popup?
+      vm.waitingForResponse = true;
+      ShipmentManagerSvc.uploadShipmentDocument()( document ).then( _ => {
+        updateDocumentList();
+      vm.waitingForResponse = false;
+      });
+
+    };
+
+    vm.removeDocument = documentName => {
+      ShipmentManagerSvc.removeShipmentDocument()( documentName ).then( _ => {
+        updateDocumentList();
+      });
+    }
+ 
     const init = () => {
       ShipmentManagerSvc.loadShipment( ).then( shipment => {
-        vm.shipment = shipment;
+        Object.assign(vm.shipment, shipment);
       });
+
+      updateDocumentList();
+
     };
 
     // init the page
