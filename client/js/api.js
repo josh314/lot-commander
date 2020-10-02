@@ -267,17 +267,17 @@ export function addIncomingShipmentPallet( shipmentId, _pallet ) {
   })
     .then( resp => resp.data );
 }
-export function removeIncomingShipmentPallet( shipmentId ) {
+export function removeIncomingShipmentPallet( shipmentId, palletId ) {
   return axios({
     method: 'delete',
-    url: `/api/receiving/${ shipmentId }/pallets/:palletId`,
+    url: `/api/receiving/${ shipmentId }/pallets/${ palletId }`,
   })
     .then( resp => resp.data );
 }
-export function editIncomingShipmentPallet( shipmentId, _data ) {
+export function editIncomingShipmentPallet( shipmentId, palletId, _data ) {
   return axios({
     method: 'patch',
-    url: `/api/receiving/${ shipmentId }/pallets/:palletId`,
+    url: `/api/receiving/${ shipmentId }/pallets/${ palletId }`,
     data: _data
   })
     .then( resp => resp.data );
@@ -318,6 +318,15 @@ export function uploadIncomingShipmentDocument( shipmentId, _document ) {
     method: 'put',
     url: `/api/receiving/${ shipmentId }/documents/${ _document.name }`,
     data: fd
+  })
+    .then( resp => resp.data );
+}
+
+// Receiving shipments/pallets
+export function receiveIncomingShipment( shipmentId ) {
+  return axios({
+    method: 'put',
+    url: `/api/receiving/${ shipmentId }/is-received`,
   })
     .then( resp => resp.data );
 }

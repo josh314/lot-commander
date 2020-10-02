@@ -19,6 +19,7 @@ import "./js/ng-app";
 // Angular components
 import "./js/components/auctions.js";
 import "./js/components/clean-manifest-ctrl.js";
+import "./js/components/confirmation-modal.js";
 import "./js/components/counter-tool-ctrl.js";
 import "./js/components/edit-manifest.js";
 import "./js/components/file-upload.js";

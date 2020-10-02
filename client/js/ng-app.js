@@ -150,6 +150,12 @@ angular.module('myApp').constant('lotCategories', [
   },
 ]);
 
+angular.module('myApp').constant('palletCategories', [
+  "general merchandise",
+  "cosmetics",
+  "personal care",
+  "clothing"
+]);
 
 //************************************************************************
 //********************* Config Block *************************************

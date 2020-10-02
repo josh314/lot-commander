@@ -14,18 +14,6 @@
           <input ng-model="ctrl.editValue[ 'handle' ]" />
         </dd>
       </div>
-      <div ng-hide="ctrl.isEditing[ 'category' ]">
-        <dt>Category<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'category' )">edit</a>)</span></dt>
-        <dd ng-hide="ctrl.isEditing[ 'category' ]">
-          {{ ctrl.shipment.category || '----' }}
-        </dd>
-      </div>
-      <div ng-show="ctrl.isEditing[ 'category' ]">
-        <dt>Category (<a href ng-click="ctrl.saveEdit( 'category' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'category' )" style="color: red">cancel edit</a>)</dt>
-        <dd ng-show="ctrl.isEditing[ 'category' ]">
-          <input ng-model="ctrl.editValue[ 'category' ]" />
-        </dd>
-      </div>
       <div ng-hide="ctrl.isEditing[ 'vendor' ]">
         <dt>Vendor<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'vendor' )">edit</a>)</span></dt>
         <dd ng-hide="ctrl.isEditing[ 'vendor' ]">
@@ -116,6 +104,42 @@
     </div>
   </div>
   <div class="row well">
+    <h2>Expected Pallets</h2>
+    <table class="table table-striped">
+      <thead><tr>
+        <th>Handle</th>
+        <th>Units</th>
+        <th>Category</th>
+        <th ng-show="ctrl.showEditControls">Remove</th>
+        <th ng-show="ctrl.showEditControls"></th>
+      </tr></thead>
+      <tbody>	
+        <tr ng-repeat="pallet in ctrl.shipment.palletsExpected track by $index">
+          <td><span ng-show="pallet.isEditing"><input ng-model="pallet.editValues.handle"></span><span ng-hide="pallet.isEditing">{{pallet.handle}}</span></td>
+          <td><span ng-show="pallet.isEditing"><input type="number" ng-model="pallet.editValues.units"></span><span ng-hide="pallet.isEditing">{{pallet.units}}</span></td>
+          <td>
+            <span ng-show="pallet.isEditing">
+              <select ng-model="pallet.editValues.category">
+                <option ng-repeat="cat in ctrl.categoryOptions">{{cat}}</option>
+              </select>
+            </span>
+            <span ng-hide="pallet.isEditing">{{pallet.category}}</span>
+          </td>
+          <td ng-show="ctrl.showEditControls">
+            <button class="btn btn-danger btn-xs" ng-click="ctrl.removePallet($index)" ng-show="ctrl.showEditControls">
+              <span class="glyphicon glyphicon-remove"></span>
+            </button>
+          </td>
+          <td ng-show="ctrl.showEditControls">
+            <span ng-hide="pallet.isEditing">(<a href ng-click="pallet.openEdit()">edit</a>)</span>
+            <span ng-show="pallet.isEditing">(<a href ng-click="pallet.saveEdit()" style="color: red">save</a> or <a href ng-click="pallet.closeEdit()" style="color: red">cancel edit</a>)</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="row well">
+    <h2>Receiving</h2>
     <table class="table table-striped">
       <thead><tr>
         <th>Handle</th>
@@ -153,4 +177,5 @@
         </tr>
       </tbody>
     </table>
+  </div>
 </div>

@@ -24,19 +24,13 @@ class ShipmentValidator {
 }
 
 /******************* Shipment Creation Page Controller *************************/
-angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'navigate', 'sessionTimeout', 'ShipmentManagerSvc',
-  function(messageModal, navigate, sessionTimeout, ShipmentManagerSvc) {
+angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'navigate', 'palletCategories', 'sessionTimeout', 'ShipmentManagerSvc',
+  function(messageModal, navigate, palletCategories, sessionTimeout, ShipmentManagerSvc) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
     vm.inputs = {
-      categoryOptions: [
-        "",
-        "general merchandise",
-        "cosmetics",
-        "personal care",
-        "clothing"
-      ],
+      categoryOptions: [ "" ].concat( palletCategories ),
       pallets: [],
     };
     vm.validator = new ShipmentValidator();

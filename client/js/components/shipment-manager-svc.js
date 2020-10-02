@@ -114,6 +114,10 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams',
         });
       },
 
+      removeShipment: ( _shipmentId = shipmentId() ) => $q.when( api.removeIncomingShipment( _shipmentId ) ),
+
+      // Shipment document functions
+
       listShipmentDocuments: ( _shipmentId = shipmentId() ) => $q.when( api.listIncomingShipmentDocuments( _shipmentId ) ).then( resp => {
 
         const displaySize = size => {
@@ -126,15 +130,17 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams',
           else {
             return `${size} B`;
           }
-        }
+        };
         return resp && resp.documents ? resp.documents.map( d => Object.assign( d, { displaySize: displaySize(d.size) } )  ) : [];
       }),
-
-      removeShipment: ( _shipmentId = shipmentId() ) => $q.when( api.removeIncomingShipment( _shipmentId ) ),
 
       uploadShipmentDocument: ( _shipmentId = shipmentId() ) => (documentName, file) => $q.when( api.uploadIncomingShipmentDocument( _shipmentId, documentName, file) ),
 
       removeShipmentDocument: ( _shipmentId = shipmentId() ) => documentName => $q.when( api.removeIncomingShipmentDocument( _shipmentId, documentName ) ),
+
+      // Shipment pallet functions
+
+      editExpectedPallet: ( _shipmentId = shipmentId() ) => ( _palletId, _data ) => $q.when( api.editIncomingShipmentPallet( _shipmentId, _palletId, _data ) ),
 
     };
 

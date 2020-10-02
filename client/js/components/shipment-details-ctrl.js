@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'LoggedInUser', 'messageModal', 'navigate', 'sessionTimeout', 'ShipmentManagerSvc',
-  function( LoggedInUser, messageModal, navigate, sessionTimeout, ShipmentManagerSvc ) {
+angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'sessionTimeout', 'ShipmentManagerSvc',
+  function( ConfirmationModal, LoggedInUser, messageModal, navigate, palletCategories, sessionTimeout, ShipmentManagerSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -10,6 +10,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'LoggedInUser', 'mes
 
     vm.showEditControls = LoggedInUser.hasPermission('EDIT_INCOMING_SHIPMENT');
     vm.showReceiveControls = LoggedInUser.hasPermission('RECEIVE_INCOMING_SHIPMENT');
+    vm.categoryOptions = [ "" ].concat( palletCategories );
 
     vm.editValue = {};
     vm.isEditing = {};
@@ -46,18 +47,67 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'LoggedInUser', 'mes
       p.then( _ => vm.closeEdit( key ) ); // close edit when done
     };
 
+    /* eslint-disable angular/controller-as-vm */
+    const registerPalletEditingHandlers = ( pallet ) => {
+      pallet.openEdit = function( ) {
+        this.editValues = JSON.parse( JSON.stringify( this ) );
+        this.isEditing = true;
+      };
+      pallet.closeEdit = function( ) {
+        this.isEditing = false;
+        delete this.editValues;
+      };
+      pallet.saveEdit = function( ) {
+
+        this.isEditing = false;
+        let p;
+
+        if( this.editValues.handle !== this.handle ||
+            this.editValues.units !== this.units ||
+            this.editValues.category !== this.category ) {
+
+          p = ShipmentManagerSvc.editExpectedPallet()( this._id, this.editValues )
+            .then( resp => {
+              if( resp.success ) {
+                return Object.assign( this, this.editValues );
+              }
+              else {
+                throw new Error(resp.error);
+              }
+            })
+            .catch( _e => {
+              return messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
+            });
+
+        }
+        else {
+
+          p = Promise.resolve( true );
+
+        }
+
+        p.then( _ => this.closeEdit() );
+      };
+    };
+    /* eslint-enable */
+
+
     vm.receiveShipment = () => navigate.receiveShipment( ShipmentManagerSvc.getShipmentId() );
 
     vm.removeShipment = () => {
-      return ShipmentManagerSvc.removeShipment().then( _ => {
-        //TODO: messageModal check
-        navigate.shipmentList();
-      });
+
+      ConfirmationModal.launch({ header: "Delete Shipment", body: "Really delete this shipment?" }).then( result => {
+        if( result ) {
+          return ShipmentManagerSvc.removeShipment().then( _ => {
+            navigate.shipmentList();
+          });
+        }
+      } );
     };
 
     const updateDocumentList = () => {
 
-      ShipmentManagerSvc.listShipmentDocuments().then( documents => {console.log(documents)
+      ShipmentManagerSvc.listShipmentDocuments().then( documents => {
 
         if( documents ) {
           Object.assign( vm.shipment, { documents } );
@@ -78,11 +128,10 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'LoggedInUser', 'mes
 
       const document = vm.documentToUpload;
 
-      // TDO: waiting graphic/popup?
       vm.waitingForResponse = true;
       ShipmentManagerSvc.uploadShipmentDocument()( document ).then( _ => {
         updateDocumentList();
-      vm.waitingForResponse = false;
+        vm.waitingForResponse = false;
       });
 
     };
@@ -95,7 +144,11 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'LoggedInUser', 'mes
  
     const init = () => {
       ShipmentManagerSvc.loadShipment( ).then( shipment => {
+
         Object.assign(vm.shipment, shipment);
+
+        vm.shipment.palletsExpected.forEach( p => registerPalletEditingHandlers(p) );
+
       });
 
       updateDocumentList();
