@@ -24,6 +24,5 @@ angular.module('myApp').factory('ConfirmationModal', ['$uibModal', function($uib
 
 /***************** Modal Controller ************************/
 angular.module('myApp').controller('ConfirmationModalCtrl', [ '$scope', 'message', function($scope, message){
-  const vm = this;
   $scope.message = JSON.parse(JSON.stringify(message));
 }]);

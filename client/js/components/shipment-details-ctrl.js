@@ -1,9 +1,15 @@
 import angular from 'angular';
 
+
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'sessionTimeout', 'ShipmentManagerSvc',
-  function( ConfirmationModal, LoggedInUser, messageModal, navigate, palletCategories, sessionTimeout, ShipmentManagerSvc ) {
-    sessionTimeout.timeoutExpired();
+angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal', 'focus', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'sessionTimeout', 'ShipmentManagerSvc',
+  function( ConfirmationModal, focus, LoggedInUser, messageModal, navigate, palletCategories, sessionTimeout, ShipmentManagerSvc ) {
+
+    /****************************************************
+     * View variables
+     * ==============
+     *
+     ****/
 
     const vm = this;
     vm.shipment = {};
@@ -12,17 +18,47 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     vm.showReceiveControls = LoggedInUser.hasPermission('RECEIVE_INCOMING_SHIPMENT');
     vm.categoryOptions = [ "" ].concat( palletCategories );
 
+    vm.removeShipment = removeShipment;
+
     vm.editValue = {};
     vm.isEditing = {};
-    vm.openEdit = key => {
+    vm.openEdit = openShipmentEdit;
+    vm.closeEdit = closeShipmentEdit;
+    vm.saveEdit = saveShipmentEdit;
+
+    vm.removeDocument = removeDocument;
+    vm.uploadDocument = uploadDocument;
+
+    vm.removeExpectedPallet = removeExpectedPallet;
+    vm.addExpectedPallet = {
+      isStarted: false,
+      start: startExpectedPallet,
+      close: closeExpectedPallet,
+      save: saveExpectedPallet,
+    };
+
+    vm.receiveShipment = receiveShipment;
+    vm.unreceiveShipment = unreceiveShipment;
+    vm.receivePallet = receivePallet;
+    vm.unreceivePallet = unreceivePallet;
+
+    /****************************************************
+     * Functions
+     * =========
+     *
+     ****/
+
+    function openShipmentEdit( key ) {
       vm.isEditing[ key ] = true;
       vm.editValue[ key ] = vm.shipment[ key ];
-    };
-    vm.closeEdit = key => {
+    }
+
+    function closeShipmentEdit( key ) {
       vm.isEditing[ key ] = false;
       delete vm.editValue[ key ];
-    };
-    vm.saveEdit = key => {
+    }
+
+    function saveShipmentEdit( key ) {
       vm.isEditing[ key ] = false;
       let p; // will be set to a promise
 
@@ -45,10 +81,80 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
       }
 
       p.then( _ => vm.closeEdit( key ) ); // close edit when done
-    };
+    }
+
+    function removeShipment() {
+
+      ConfirmationModal.launch({ header: "Delete Shipment", body: "Really delete this shipment?" }).then( result => {
+        if( result ) {
+          return ShipmentManagerSvc.removeShipment().then( _ => {
+            navigate.shipmentList();
+          });
+        }
+      } );
+    }
+
+    function removeExpectedPallet( idx ) {
+
+      const pallet = vm.shipment.palletsExpected[ idx ];
+
+      ShipmentManagerSvc.removeExpectedPallet()( pallet._id )
+        .then( resp => {
+
+          if( resp.success ) {
+            vm.shipment.palletsExpected.splice( idx, 1 );
+          }
+          else {
+            throw new Error(resp.error);
+          }
+
+        })
+        .catch( _e => {
+          return messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
+        });
+    }
+
 
     /* eslint-disable angular/controller-as-vm */
-    const registerPalletEditingHandlers = ( pallet ) => {
+    function startExpectedPallet() {
+      this.isStarted = true;
+    }
+
+    function closeExpectedPallet() {
+      this.isStarted = false;
+      this.data = {};
+    }
+
+    function saveExpectedPallet() {
+
+      return ShipmentManagerSvc.addExpectedPallet()( this.data )
+        .then( resp => {
+
+          if( resp.success ) {
+
+            return loadShipment().then( _ => this.close() );
+
+          }
+          else {
+            throw new Error(resp.error);
+          }
+
+        })
+        .catch( _e => {
+          return messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
+        });
+
+    }
+    /* eslint-enable */
+
+    /*******************************************************
+     * Pallet editing functionality
+     * ============================
+     * 
+     *******/
+
+    /* eslint-disable angular/controller-as-vm */
+    function registerPalletEditingHandlers( pallet ) {
       pallet.openEdit = function( ) {
         this.editValues = JSON.parse( JSON.stringify( this ) );
         this.isEditing = true;
@@ -88,36 +194,28 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
         p.then( _ => this.closeEdit() );
       };
-    };
+    }
     /* eslint-enable */
 
-
-    vm.receiveShipment = () => navigate.receiveShipment( ShipmentManagerSvc.getShipmentId() );
-
-    vm.removeShipment = () => {
-
-      ConfirmationModal.launch({ header: "Delete Shipment", body: "Really delete this shipment?" }).then( result => {
-        if( result ) {
-          return ShipmentManagerSvc.removeShipment().then( _ => {
-            navigate.shipmentList();
-          });
-        }
-      } );
-    };
+    /*******************************************************
+     * Documents
+     * =========
+     * 
+     *******/
 
     const updateDocumentList = () => {
 
       ShipmentManagerSvc.listShipmentDocuments().then( documents => {
 
         if( documents ) {
-          Object.assign( vm.shipment, { documents } );
+          Object.assign( vm, { documents } );
         }
 
       });
 
     };
 
-    vm.uploadDocument = function() {
+    function uploadDocument() {
       if(!vm.documentToUpload) {
         vm.noFileSelected = true;
         return;
@@ -134,22 +232,102 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
         vm.waitingForResponse = false;
       });
 
-    };
+    }
 
-    vm.removeDocument = documentName => {
+    function removeDocument( documentName ) {
       ShipmentManagerSvc.removeShipmentDocument()( documentName ).then( _ => {
         updateDocumentList();
       });
     }
+
+
+    /*******************************************************
+     * Receiving
+     * =========
+     * 
+     *******/
+
+    function receiveShipment() {
+
+      return ShipmentManagerSvc.receiveShipment().then( _response => {
+
+        return loadShipment().then( _response => {
+
+          focus('receivedPalletIdInput');
+
+        });
+
+      });
+
+    }
+
+    function unreceiveShipment() {
+
+      return ShipmentManagerSvc.unreceiveShipment().then( _response => {
+
+        return loadShipment();
+
+      });
+
+    }
+
+    function receivePallet() {
+
+      if( vm.receivedPalletId ) {
+
+        const found = vm.shipment.palletsReceived.find( p => p.handle === vm.receivedPalletId );
+
+        if( found ) {
+          //TODO: warning of duplicate
+          return;
+        }
+
+        return ShipmentManagerSvc.receivePallet()( { handle: vm.receivedPalletId } ).then( _response => {
+
+          vm.receivedPalletId = '';
+
+          return loadShipment().then( _ => focus( 'receivedPalletIdInput' ) );
+
+        });
+
+      }
+    }
+
+    function unreceivePallet( idx ) {
+
+      const pallet = vm.shipment.palletsReceived[idx];
+
+      if( !pallet ) {
+        return;
+      }
+
+      return ShipmentManagerSvc.unreceivePallet()( pallet._id ).then( _response => {
+        return loadShipment();
+      });
+
+    }
  
-    const init = () => {
-      ShipmentManagerSvc.loadShipment( ).then( shipment => {
+    /*******************************************************
+     * Initialization
+     * ==============
+     * 
+     *******/
+
+    function loadShipment() {
+      return ShipmentManagerSvc.loadShipment( ).then( shipment => {
 
         Object.assign(vm.shipment, shipment);
 
         vm.shipment.palletsExpected.forEach( p => registerPalletEditingHandlers(p) );
 
       });
+    }
+
+    const init = () => {
+
+      sessionTimeout.timeoutExpired();
+
+      loadShipment();
 
       updateDocumentList();
 

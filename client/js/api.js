@@ -327,6 +327,33 @@ export function receiveIncomingShipment( shipmentId ) {
   return axios({
     method: 'put',
     url: `/api/receiving/${ shipmentId }/is-received`,
+    data: { isReceived: true }
+  })
+    .then( resp => resp.data );
+}
+
+export function unreceiveIncomingShipment( shipmentId ) {
+  return axios({
+    method: 'put',
+    url: `/api/receiving/${ shipmentId }/is-received`,
+    data: { isReceived: false }
+  })
+    .then( resp => resp.data );
+}
+
+export function receiveIncomingShipmentPallet( shipmentId, _data ) {
+  return axios({
+    method: 'post',
+    url: `/api/receiving/${ shipmentId }/pallets-received`,
+    data: _data
+  })
+    .then( resp => resp.data );
+}
+
+export function unreceiveIncomingShipmentPallet( shipmentId, palletId ) {
+  return axios({
+    method: 'delete',
+    url: `/api/receiving/${ shipmentId }/pallets-received/${ palletId }`,
   })
     .then( resp => resp.data );
 }

@@ -52,6 +52,7 @@ function routes({ inventoryDb }) {
    * 
    ****/
 
+  // view shipment(s)
   router.get(
     '/',
     auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' ),
@@ -62,15 +63,17 @@ function routes({ inventoryDb }) {
     auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' ),
     countIncomingShipments
   );
-  router.post(
-    '/create',
-    auth.isAuthorized( 'CREATE_INCOMING_SHIPMENT' ),
-    createIncomingShipment
-  );
   router.get(
     '/:shipmentId',
     auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' ),
     getIncomingShipmentById
+  );
+
+  // Edit/create shipment
+  router.post(
+    '/create',
+    auth.isAuthorized( 'CREATE_INCOMING_SHIPMENT' ),
+    createIncomingShipment
   );
   router.patch(
     '/:shipmentId',
