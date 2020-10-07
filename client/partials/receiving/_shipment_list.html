@@ -33,7 +33,6 @@
           </span>
         </th>
         <th>Received</th>
-        <th></th>
       </tr></thead>
       <tbody>	
         <tr ng-repeat="shipment in ctrl.shipments">
@@ -44,7 +43,6 @@
             <span ng-if="columnKey!=='handle'">{{ columnData.transform ? columnData.transform( shipment[ columnKey ] ) : shipment[ columnKey ] }}</span>
           </td>
           <td><span class="glyphicon glyphicon-ok" ng-show="shipment.isReceived"></span></td>
-          <td><button class="btn btn-xs btn-success" ng-click="ctrl.startReceivingShipment( shipment._id )">Start Receiving</button></td>
         </tr>
       </tbody>
     </table>

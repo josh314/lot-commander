@@ -341,6 +341,7 @@ export function unreceiveIncomingShipment( shipmentId ) {
     .then( resp => resp.data );
 }
 
+
 export function receiveIncomingShipmentPallet( shipmentId, _data ) {
   return axios({
     method: 'post',
@@ -354,6 +355,15 @@ export function unreceiveIncomingShipmentPallet( shipmentId, palletId ) {
   return axios({
     method: 'delete',
     url: `/api/receiving/${ shipmentId }/pallets-received/${ palletId }`,
+  })
+    .then( resp => resp.data );
+}
+
+export function editIncomingShipmentPalletReceived( shipmentId, palletId, _data ) {
+  return axios({
+    method: 'patch',
+    url: `/api/receiving/${ shipmentId }/pallets-received/${ palletId }`,
+    data: _data
   })
     .then( resp => resp.data );
 }

@@ -108,7 +108,7 @@
         <th>Units</th>
         <th>Category</th>
         <th>Received?</th>
-        <th ng-show="ctrl.showEditControls">Remove</th>
+        <th ng-show="ctrl.showEditControls"></th>
         <th ng-show="ctrl.showEditControls"></th>
       </tr></thead>
       <tbody>	
@@ -125,8 +125,9 @@
           </td>
           <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isReceived"></span></td>
           <td ng-show="ctrl.showEditControls">
-            <button type="button" class="btn btn-danger btn-xs" ng-click="ctrl.removeExpectedPallet($index)" ng-show="ctrl.showEditControls">
-              <span class="glyphicon glyphicon-remove"></span>
+            <button type="button" class="btn btn-danger btn-xs" ng-click="ctrl.removeExpectedPallet($index)" ng-show="pallet.isEditing">
+              <!-- <span class="glyphicon glyphicon-remove"></span> -->
+              Delete
             </button>
           </td>
           <td ng-show="ctrl.showEditControls">
@@ -170,29 +171,51 @@
         <input class="form-control" id="receivedPalletIdInput" name="receivedPalletIdInput" ng-model="ctrl.receivedPalletId" ng-keyup="$event.keyCode == 13 && ctrl.receivePallet()" autocomplete="off" />
       </div>
 
-      <table class="table table-striped">
+      <table class="table table-striped" ng-show="ctrl.shipment.palletsReceived.length">
 
         <thead><tr>
           <th>Handle</th>
-          <th>Problem</th>
+          <th>Expected?</th>
+          <th>Problem?</th>
           <th>Note</th>
-          <th>Unreceive</th>
+          <th></th>
+          <th></th>
         </tr></thead>
 
         <tbody>
           <tr ng-repeat="pallet in ctrl.shipment.palletsReceived track by $index">
-            <td>{{pallet.handle}}</td>
+            <td><span ng-show="pallet.isEditing"><input ng-model="pallet.editValues.handle"></span><span ng-hide="pallet.isEditing">{{pallet.handle}}</span></td>
             <td>
-              <span class="glyphicon glyphicon-alert" ng-show="pallet.hasProblem"></span>
+              <span class="glyphicon glyphicon-ok" ng-show="pallet.isExpected"></span>
+              <span class="glyphicon glyphicon-remove" ng-hide="pallet.isExpected"></span>
             </td>
             <td>
-              <span ng-show="pallet.showNote">{{pallet.note}}</span>
-              <span ng-show="pallet.note">[<a href ng-hide="pallet.showNote" ng-click="pallet.toggleShowNote()">Show</a><a href ng-show="pallet.showNote" ng-click="pallet.toggleShowNote()">Hide</a>]</span>
+              <span ng-hide="pallet.isEditing"><span class="glyphicon glyphicon-alert" ng-show="pallet.hasProblem"></span></span>
+              <span ng-show="pallet.isEditing">
+                <select ng-model="pallet.editValues.hasProblem">
+                    <option ng-value="true">Yes</option>
+                    <option ng-value="false">No</option>
+                </select>
+                </span>
             </td>
             <td>
-              <button type="button" class="btn btn-danger btn-xs" ng-click="ctrl.unreceivePallet($index)">
-                <span class="glyphicon glyphicon-remove"></span>
+              <span ng-hide="pallet.isEditing">
+                <span ng-show="pallet.showNote">{{pallet.note}}</span>
+                <span ng-show="pallet.note">[<a href ng-hide="pallet.showNote" ng-click="pallet.toggleShowNote()">Show</a><a href ng-show="pallet.showNote" ng-click="pallet.toggleShowNote()">Hide</a>]</span>
+              </span>
+              <span ng-show="pallet.isEditing">
+                <textarea ng-model="pallet.editValues.note"></textarea>
+              </span>
+            </td>
+            <td>
+              <button type="button" class="btn btn-danger btn-xs" ng-click="ctrl.unreceivePallet($index)" ng-show="pallet.isEditing">
+                <!-- <span class="glyphicon glyphicon-remove"></span> -->
+                Delete
               </button>
+            </td>
+            <td ng-show="ctrl.showEditControls">
+              <span ng-hide="pallet.isEditing">(<a href ng-click="pallet.openEdit()">edit</a>)</span>
+              <span ng-show="pallet.isEditing">(<a href ng-click="ctrl.savePalletEdit(pallet)" style="color: red">save</a> or <a href ng-click="pallet.closeEdit()" style="color: red">cancel edit</a>)</span>
             </td>
           </tr>
         </tbody>

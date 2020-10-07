@@ -2,8 +2,8 @@ import angular from 'angular';
 
 
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal', 'focus', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'sessionTimeout', 'ShipmentManagerSvc',
-  function( ConfirmationModal, focus, LoggedInUser, messageModal, navigate, palletCategories, sessionTimeout, ShipmentManagerSvc ) {
+angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal', 'focus', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'DisplayPalletFactory', 'sessionTimeout', 'ShipmentManagerSvc',
+  function( ConfirmationModal, focus, LoggedInUser, messageModal, navigate, palletCategories, DisplayPalletFactory, sessionTimeout, ShipmentManagerSvc ) {
 
     /****************************************************
      * View variables
@@ -25,6 +25,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     vm.openEdit = openShipmentEdit;
     vm.closeEdit = closeShipmentEdit;
     vm.saveEdit = saveShipmentEdit;
+    vm.savePalletEdit = savePalletEdit;
 
     vm.removeDocument = removeDocument;
     vm.uploadDocument = uploadDocument;
@@ -147,6 +148,14 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     }
     /* eslint-enable */
 
+    function savePalletEdit( pallet ) {
+
+      pallet.saveEdit().then( _ => {
+        loadShipment();
+      });
+
+    }
+
     /*******************************************************
      * Pallet editing functionality
      * ============================
@@ -154,47 +163,47 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
      *******/
 
     /* eslint-disable angular/controller-as-vm */
-    function registerPalletEditingHandlers( pallet ) {
-      pallet.openEdit = function( ) {
-        this.editValues = JSON.parse( JSON.stringify( this ) );
-        this.isEditing = true;
-      };
-      pallet.closeEdit = function( ) {
-        this.isEditing = false;
-        delete this.editValues;
-      };
-      pallet.saveEdit = function( ) {
+    // function registerPalletEditingHandlers( pallet ) {
+    //   pallet.openEdit = function( ) {
+    //     this.editValues = JSON.parse( JSON.stringify( this ) );
+    //     this.isEditing = true;
+    //   };
+    //   pallet.closeEdit = function( ) {
+    //     this.isEditing = false;
+    //     delete this.editValues;
+    //   };
+    //   pallet.saveEdit = function( ) {
 
-        this.isEditing = false;
-        let p;
+    //     this.isEditing = false;
+    //     let p;
 
-        if( this.editValues.handle !== this.handle ||
-            this.editValues.units !== this.units ||
-            this.editValues.category !== this.category ) {
+    //     if( this.editValues.handle !== this.handle ||
+    //         this.editValues.units !== this.units ||
+    //         this.editValues.category !== this.category ) {
 
-          p = ShipmentManagerSvc.editExpectedPallet()( this._id, this.editValues )
-            .then( resp => {
-              if( resp.success ) {
-                return Object.assign( this, this.editValues );
-              }
-              else {
-                throw new Error(resp.error);
-              }
-            })
-            .catch( _e => {
-              return messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
-            });
+    //       p = ShipmentManagerSvc.editExpectedPallet()( this._id, this.editValues )
+    //         .then( resp => {
+    //           if( resp.success ) {
+    //             return Object.assign( this, this.editValues );
+    //           }
+    //           else {
+    //             throw new Error(resp.error);
+    //           }
+    //         })
+    //         .catch( _e => {
+    //           return messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
+    //         });
 
-        }
-        else {
+    //     }
+    //     else {
 
-          p = Promise.resolve( true );
+    //       p = Promise.resolve( true );
 
-        }
+    //     }
 
-        p.then( _ => this.closeEdit() );
-      };
-    }
+    //     p.then( _ => this.closeEdit() );
+    //   };
+    // }
     /* eslint-enable */
 
     /*******************************************************
@@ -318,7 +327,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
         Object.assign(vm.shipment, shipment);
 
-        vm.shipment.palletsExpected.forEach( p => registerPalletEditingHandlers(p) );
+        vm.shipment.palletsExpected = shipment.palletsExpected.map( p => DisplayPalletFactory( 'expected', p ) );
+        vm.shipment.palletsReceived = shipment.palletsReceived.map( p => DisplayPalletFactory( 'received', p ) );
 
       });
     }
@@ -336,3 +346,102 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     // init the page
     init();
   }]);
+
+/******************* Constrcutor for Pallet Objects *************************/
+angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal', 'ShipmentManagerSvc',
+  function( messageModal, ShipmentManagerSvc ) {
+
+    const saveFn = {
+      expected: ShipmentManagerSvc.editExpectedPallet(),
+      received: ShipmentManagerSvc.editReceivedPallet(),
+    };
+
+    const editFields = {
+      expected: [
+        'handle',
+        'units',
+        'category'
+      ],
+      received: [
+        'handle',
+        'hasProblem',
+        'note'
+      ],
+    };
+
+    function DisplayPallet( _type, _data ) {
+
+      const savePallet = saveFn[ _type ];
+
+      const pallet = Object.assign({}, _data);
+
+      if( _type === 'received' ) {
+        pallet.showNote = false;
+        pallet.toggleShowNote = function() { this.showNote = !this.showNote; };
+      }
+
+      
+      pallet.isEdited = function( ) {
+
+        for( let field of editFields[ _type ] ) {
+          if( this.editValues[ field ] !== this[ field ] ) {
+            return true;
+          }
+        }
+
+        return false;
+      };
+
+      pallet.cloneEditFields = function() {
+        const res = {};
+        for( let field of editFields[ _type ] ) {
+          res[ field ] = this[ field ];
+        }
+        return res;
+      };
+
+      pallet.openEdit = function( ) {
+        this.editValues = this.cloneEditFields();
+        this.isEditing = true;
+      };
+      
+      pallet.closeEdit = function( ) {
+        this.isEditing = false;
+        delete this.editValues;
+      };
+      
+      pallet.saveEdit = function( ) {
+        this.isEditing = false;
+        let p;
+
+        if( pallet.isEdited() ) {
+
+          p = savePallet( this._id, this.editValues )
+            .then( resp => {
+              if( resp.success ) {
+                return Object.assign( this, this.editValues );
+              }
+              else {
+                throw new Error(resp.error);
+              }
+            })
+            .catch( _e => {
+              return messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
+            });
+
+        }
+        else {
+
+          p = Promise.resolve( true );
+
+        }
+
+        return p.then( _ => this.closeEdit() );
+      };
+
+      return pallet;
+    }
+
+    return DisplayPallet;
+  }]);
+
