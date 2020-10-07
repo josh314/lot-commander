@@ -4,7 +4,7 @@ const path = require('path');
 const session = require('express-session');
 const MongoStore = require('connect-mongodb-session')(session);
 
-const hostData = __config.dbHosts[__config.dbConnMapping.sessions];
+const hostData = __config.dbHosts.mongo;
 
 const mongoUserStr = hostData.auth && hostData.auth.user && hostData.auth.pwd ? `${hostData.auth.user}:${hostData.auth.pwd}@` : '';
 
