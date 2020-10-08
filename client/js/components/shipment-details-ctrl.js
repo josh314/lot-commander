@@ -16,6 +16,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
     vm.showEditControls = LoggedInUser.hasPermission('EDIT_INCOMING_SHIPMENT');
     vm.showReceiveControls = LoggedInUser.hasPermission('RECEIVE_INCOMING_SHIPMENT');
+    vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
     vm.categoryOptions = [ "" ].concat( palletCategories );
 
     vm.removeShipment = removeShipment;
@@ -119,6 +120,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     /* eslint-disable angular/controller-as-vm */
     function startExpectedPallet() {
       this.isStarted = true;
+      focus('add-expected-pallet-input');
     }
 
     function closeExpectedPallet() {

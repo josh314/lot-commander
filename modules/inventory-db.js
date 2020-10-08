@@ -217,6 +217,7 @@ incomingShipmentSchema.methods.receive = function() {
 incomingShipmentSchema.methods.unreceive = function() {
   this.isReceived = false;
   this.arrivalDate = undefined;
+  this.palletsReceived = [];
   return this.save();
 }
 

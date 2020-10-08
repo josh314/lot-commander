@@ -14,17 +14,31 @@
           <input ng-model="ctrl.editValue[ 'handle' ]" />
         </dd>
       </div>
-      <div ng-hide="ctrl.isEditing[ 'vendor' ]">
-        <dt>Vendor<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'vendor' )">edit</a>)</span></dt>
-        <dd ng-hide="ctrl.isEditing[ 'vendor' ]">
-          {{ ctrl.shipment.vendor || '----' }}
-        </dd>
-      </div>
-      <div ng-show="ctrl.isEditing[ 'vendor' ]">
-        <dt>Vendor (<a href ng-click="ctrl.saveEdit( 'vendor' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'vendor' )" style="color: red">cancel edit</a>)</dt>
-        <dd ng-show="ctrl.isEditing[ 'vendor' ]">
-          <input ng-model="ctrl.editValue[ 'vendor' ]" />
-        </dd>
+      <div ng-show="ctrl.showPurchasingData">
+        <div ng-hide="ctrl.isEditing[ 'vendor' ]">
+          <dt>Vendor<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'vendor' )">edit</a>)</span></dt>
+          <dd ng-hide="ctrl.isEditing[ 'vendor' ]">
+            {{ ctrl.shipment.vendor || '----' }}
+          </dd>
+        </div>
+        <div ng-show="ctrl.isEditing[ 'vendor' ]">
+          <dt>Vendor (<a href ng-click="ctrl.saveEdit( 'vendor' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'vendor' )" style="color: red">cancel edit</a>)</dt>
+          <dd ng-show="ctrl.isEditing[ 'vendor' ]">
+            <input ng-model="ctrl.editValue[ 'vendor' ]" />
+          </dd>
+        </div>
+        <div ng-hide="ctrl.isEditing[ 'cost' ]">
+          <dt>Cost<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'cost' )">edit</a>)</span></dt>
+          <dd ng-hide="ctrl.isEditing[ 'cost' ]">
+            {{ ctrl.shipment.cost || '----' }}
+          </dd>
+        </div>
+        <div ng-show="ctrl.isEditing[ 'cost' ]">
+          <dt>Cost (<a href ng-click="ctrl.saveEdit( 'cost' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'cost' )" style="color: red">cancel edit</a>)</dt>
+          <dd ng-show="ctrl.isEditing[ 'cost' ]">
+            <input ng-model="ctrl.editValue[ 'cost' ]" />
+          </dd>
+        </div>
       </div>
       <div ng-hide="ctrl.isEditing[ 'carrier' ]">
         <dt>Carrier<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'carrier' )">edit</a>)</span></dt>
@@ -64,17 +78,20 @@
       </div>
     </dl>
   </div>
-  <div class="row well">
+  <div class="row well" ng-show="ctrl.showEditControls">
+
     <div class="row">
       <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : ctrl.noFileSelected }">
-        <label for="fileInput">Document File</label>
-        <input type="file" class="form-control" id="fileInput" required file-model="ctrl.documentToUpload">
-        <span class="text-danger h4" ng-show="ctrl.noFileSelected">Please select a file.</span>
-      </div>
-      <div class="col-xs-12">
-        <button type="button" class="btn btn-primary" ng-click="ctrl.uploadDocument()">Upload</button>
+        <label for="fileInput">Upload Document File</label>
+        <div class="input-group">
+          <input type="file" class="form-control" id="fileInput" required file-model="ctrl.documentToUpload">
+          <div class="input-group-btn">
+            <button type="button" class="btn btn-primary" ng-click="ctrl.uploadDocument()">Upload</button>
+          </div><!-- /btn-group -->
+        </div><!-- /input-group -->
       </div>
     </div>
+
     <div class="row" ng-show="ctrl.documents && ctrl.documents.length">
       <table class="table table-striped" ng-hide="ctrl.waitingForResponse">
         <thead>
@@ -136,7 +153,7 @@
           </td>
         </tr>
         <tr ng-show="ctrl.addExpectedPallet.isStarted">
-          <td><input ng-model="ctrl.addExpectedPallet.data.handle"></td>
+          <td><input id="add-expected-pallet-input" ng-model="ctrl.addExpectedPallet.data.handle"></td>
           <td><input type="number" ng-model="ctrl.addExpectedPallet.data.units"></td>
           <td>
             <select ng-model="ctrl.addExpectedPallet.data.category">
@@ -151,7 +168,7 @@
         </tr>
       </tbody>
     </table>
-    <div class="text-center">
+    <div class="text-center" ng-show="ctrl.showEditControls">
       <button type="button" class="btn btn-sm btn-success" ng-click="ctrl.addExpectedPallet.start()">Add pallet</button>
     </div>
   </div>
@@ -213,7 +230,7 @@
                 Delete
               </button>
             </td>
-            <td ng-show="ctrl.showEditControls">
+            <td>
               <span ng-hide="pallet.isEditing">(<a href ng-click="pallet.openEdit()">edit</a>)</span>
               <span ng-show="pallet.isEditing">(<a href ng-click="ctrl.savePalletEdit(pallet)" style="color: red">save</a> or <a href ng-click="pallet.closeEdit()" style="color: red">cancel edit</a>)</span>
             </td>
