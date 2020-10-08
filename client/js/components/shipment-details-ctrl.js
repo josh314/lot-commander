@@ -65,7 +65,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
       let p; // will be set to a promise
 
       if( vm.editValue[ key ] !== vm.shipment[ key ] ) {
-        p = ShipmentManagerSvc.editShipment( )( { [ key ]: vm.editValue[ key ] } )
+        p = vm.shipment.editShipment( { [ key ]: vm.editValue[ key ] } )
           .then( resp => {
             if( resp.success ) {
               return vm.shipment[ key ] = vm.editValue[ key ]; 
@@ -89,7 +89,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
       ConfirmationModal.launch({ header: "Delete Shipment", body: "Really delete this shipment?" }).then( result => {
         if( result ) {
-          return ShipmentManagerSvc.removeShipment().then( _ => {
+          return vm.shipment.removeShipment().then( _ => {
             navigate.shipmentList();
           });
         }
@@ -100,7 +100,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
       const pallet = vm.shipment.palletsExpected[ idx ];
 
-      ShipmentManagerSvc.removeExpectedPallet()( pallet._id )
+      vm.shipment.removeExpectedPallet( pallet._id )
         .then( resp => {
 
           if( resp.success ) {
@@ -130,7 +130,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
     function saveExpectedPallet() {
 
-      return ShipmentManagerSvc.addExpectedPallet()( this.data )
+      return vm.shipment.addExpectedPallet( this.data )
         .then( resp => {
 
           if( resp.success ) {
@@ -159,56 +159,6 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     }
 
     /*******************************************************
-     * Pallet editing functionality
-     * ============================
-     * 
-     *******/
-
-    /* eslint-disable angular/controller-as-vm */
-    // function registerPalletEditingHandlers( pallet ) {
-    //   pallet.openEdit = function( ) {
-    //     this.editValues = JSON.parse( JSON.stringify( this ) );
-    //     this.isEditing = true;
-    //   };
-    //   pallet.closeEdit = function( ) {
-    //     this.isEditing = false;
-    //     delete this.editValues;
-    //   };
-    //   pallet.saveEdit = function( ) {
-
-    //     this.isEditing = false;
-    //     let p;
-
-    //     if( this.editValues.handle !== this.handle ||
-    //         this.editValues.units !== this.units ||
-    //         this.editValues.category !== this.category ) {
-
-    //       p = ShipmentManagerSvc.editExpectedPallet()( this._id, this.editValues )
-    //         .then( resp => {
-    //           if( resp.success ) {
-    //             return Object.assign( this, this.editValues );
-    //           }
-    //           else {
-    //             throw new Error(resp.error);
-    //           }
-    //         })
-    //         .catch( _e => {
-    //           return messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
-    //         });
-
-    //     }
-    //     else {
-
-    //       p = Promise.resolve( true );
-
-    //     }
-
-    //     p.then( _ => this.closeEdit() );
-    //   };
-    // }
-    /* eslint-enable */
-
-    /*******************************************************
      * Documents
      * =========
      * 
@@ -216,11 +166,15 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
     const updateDocumentList = () => {
 
-      ShipmentManagerSvc.listShipmentDocuments().then( documents => {
+      vm.waitingForResponse = true;
+
+      vm.shipment.listShipmentDocuments().then( documents => {
 
         if( documents ) {
           Object.assign( vm, { documents } );
         }
+
+        vm.waitingForResponse = false;
 
       });
 
@@ -238,7 +192,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
       const document = vm.documentToUpload;
 
       vm.waitingForResponse = true;
-      ShipmentManagerSvc.uploadShipmentDocument()( document ).then( _ => {
+      vm.shipment.uploadShipmentDocument( document ).then( _ => {
         updateDocumentList();
         vm.waitingForResponse = false;
       });
@@ -246,8 +200,12 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     }
 
     function removeDocument( documentName ) {
-      ShipmentManagerSvc.removeShipmentDocument()( documentName ).then( _ => {
+
+      vm.waitingForResponse = true;
+
+      vm.shipment.removeShipmentDocument( documentName ).then( _ => {
         updateDocumentList();
+        vm.waitingForResponse = false;
       });
     }
 
@@ -260,7 +218,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
     function receiveShipment() {
 
-      return ShipmentManagerSvc.receiveShipment().then( _response => {
+      return vm.shipment.receiveShipment().then( _response => {
 
         return loadShipment().then( _response => {
 
@@ -274,7 +232,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
     function unreceiveShipment() {
 
-      return ShipmentManagerSvc.unreceiveShipment().then( _response => {
+      return vm.shipment.unreceiveShipment().then( _response => {
 
         return loadShipment();
 
@@ -293,7 +251,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
           return;
         }
 
-        return ShipmentManagerSvc.receivePallet()( { handle: vm.receivedPalletId } ).then( _response => {
+        return vm.shipment.receivePallet( { handle: vm.receivedPalletId } ).then( _response => {
 
           vm.receivedPalletId = '';
 
@@ -312,7 +270,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
         return;
       }
 
-      return ShipmentManagerSvc.unreceivePallet()( pallet._id ).then( _response => {
+      return vm.shipment.unreceivePallet( pallet._id ).then( _response => {
         return loadShipment();
       });
 
@@ -329,8 +287,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
         Object.assign(vm.shipment, shipment);
 
-        vm.shipment.palletsExpected = shipment.palletsExpected.map( p => DisplayPalletFactory( 'expected', p ) );
-        vm.shipment.palletsReceived = shipment.palletsReceived.map( p => DisplayPalletFactory( 'received', p ) );
+        vm.shipment.palletsExpected = shipment.palletsExpected.map( p => DisplayPalletFactory( shipment, 'expected', p ) );
+        vm.shipment.palletsReceived = shipment.palletsReceived.map( p => DisplayPalletFactory( shipment, 'received', p ) );
 
       });
     }
@@ -339,9 +297,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
       sessionTimeout.timeoutExpired();
 
-      loadShipment();
-
-      updateDocumentList();
+      loadShipment().then( updateDocumentList );
 
     };
 
@@ -349,13 +305,13 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     init();
   }]);
 
-/******************* Constrcutor for Pallet Objects *************************/
-angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal', 'ShipmentManagerSvc',
-  function( messageModal, ShipmentManagerSvc ) {
+/******************* Constructor for Pallet Objects *************************/
+angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal', 
+  function( messageModal ) {
 
     const saveFn = {
-      expected: ShipmentManagerSvc.editExpectedPallet(),
-      received: ShipmentManagerSvc.editReceivedPallet(),
+      expected: _shipment => _shipment.editExpectedPallet.bind( _shipment ),
+      received: _shipment => _shipment.editReceivedPallet.bind( _shipment ),
     };
 
     const editFields = {
@@ -371,9 +327,9 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal', 'Shipm
       ],
     };
 
-    function DisplayPallet( _type, _data ) {
+    function DisplayPallet( _shipment, _type, _data ) {
 
-      const savePallet = saveFn[ _type ];
+      const savePallet = saveFn[ _type ]( _shipment );
 
       const pallet = Object.assign({}, _data);
 

@@ -2,57 +2,19 @@ import angular from 'angular';
 
 import * as api from '../api';
 
-const datify = dString => dString ? new Date( dString ) : null;
-
-class Shipment {
-  constructor( _data ) {
-    Object.assign(
-      this,
-      _data,
-      [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
-    );
-
-
-    this.palletsReceived.forEach( pr => {
-      const pe = this.palletsExpected.find( _pallet => _pallet.handle === pr.handle );
-  
-      if( pe ) {
-        pe.isReceived = true;
-      }
-  
-      pr.isExpected = !!pe;
-  
-    });
-  }
-
-  isComplete() {
-    return this.palletsExpected.every( pe => pe.isReceived );
-  }
-
-  noUnexpectedPallets() {
-    return this.palletsReceived.every( pr => pr.isExpected );
-  }
-
-  hasProblem() {
-    return this.palletsReceived.every( pr => !pr.hasProblem );
-  }
-
-}
 
 /******************* Shipment Manager Service *************************/
 //
 // This service provides some utility functionality to the shipments API and UI
 //
-angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 
-  function( $q, $stateParams ) {
+angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'ShipmentFactory',
+  function( $q, $stateParams, ShipmentFactory ) {
 
     const shipmentId = () =>  $stateParams.shipmentId;
 
     return {
 
       createShipment: ( shipment ) => $q.when( api.createIncomingShipment( shipment ) ),
-
-      editShipment: ( _shipmentId = shipmentId() ) => _data => $q.when( api.editIncomingShipment( _shipmentId, _data ) ),
 
       getShipmentId: () => shipmentId(),
 
@@ -61,7 +23,7 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams',
           return null;
         }
 
-        return new Shipment( resp.shipment );
+        return ShipmentFactory( resp.shipment );
       }),
 
       listShipments: ( { filter, sort } ) => {
@@ -93,19 +55,69 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams',
             return [];
           }
 
-          return resp.shipments.map( data => new Shipment( data ) );
+          return resp.shipments.map( data => ShipmentFactory( data ) );
 
         });
       },
 
-      receiveShipment: ( _shipmentId = shipmentId() ) => $q.when( api.receiveIncomingShipment( _shipmentId ) ),
-      unreceiveShipment: ( _shipmentId = shipmentId() ) => $q.when( api.unreceiveIncomingShipment( _shipmentId ) ),
+    };
 
-      removeShipment: ( _shipmentId = shipmentId() ) => $q.when( api.removeIncomingShipment( _shipmentId ) ),
+
+  }
+]);
+
+
+/******************* Constructor for Shipment Objects *************************/
+angular.module('myApp').factory('ShipmentFactory', [ '$q', 
+  function( $q ) {
+    const datify = dString => dString ? new Date( dString ) : null;
+
+    function Shipment( _data ) {
+    
+      const shipment = Object.assign(
+        {},
+        _data,
+        [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
+      );
+  
+  
+      shipment.palletsReceived.forEach( pr => {
+        const pe = shipment.palletsExpected.find( _pallet => _pallet.handle === pr.handle );
+    
+        if( pe ) {
+          pe.isReceived = true;
+        }
+    
+        pr.isExpected = !!pe;
+    
+      });
+
+    
+      shipment.isComplete = function() {
+        return shipment.palletsExpected.every( pe => pe.isReceived );
+      }
+    
+      shipment.noUnexpectedPallets = function() {
+        return shipment.palletsReceived.every( pr => pr.isExpected );
+      }
+    
+      shipment.hasProblem = function() {
+        return shipment.palletsReceived.every( pr => !pr.hasProblem );
+      }
+    
+      // API functions
+
+
+      shipment.editShipment = _data => $q.when( api.editIncomingShipment( shipment._id, _data ) );
+
+      shipment.receiveShipment = ( ) => $q.when( api.receiveIncomingShipment( shipment._id ) );
+      shipment.unreceiveShipment = ( ) => $q.when( api.unreceiveIncomingShipment( shipment._id ) );
+
+      shipment.removeShipment = ( ) => $q.when( api.removeIncomingShipment( shipment._id ) );
 
       // Shipment document functions
 
-      listShipmentDocuments: ( _shipmentId = shipmentId() ) => $q.when( api.listIncomingShipmentDocuments( _shipmentId ) ).then( resp => {
+      shipment.listShipmentDocuments = ( ) => $q.when( api.listIncomingShipmentDocuments( shipment._id ) ).then( resp => {
 
         const displaySize = size => {
           if( size > 1024*1024 ) {
@@ -119,29 +131,35 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams',
           }
         };
         return resp && resp.documents ? resp.documents.map( d => Object.assign( d, { displaySize: displaySize(d.size) } )  ) : [];
-      }),
+      });
 
-      uploadShipmentDocument: ( _shipmentId = shipmentId() ) => (documentName, file) => $q.when( api.uploadIncomingShipmentDocument( _shipmentId, documentName, file) ),
+      shipment.uploadShipmentDocument = ( documentName, file) => $q.when( api.uploadIncomingShipmentDocument( shipment._id, documentName, file) );
 
-      removeShipmentDocument: ( _shipmentId = shipmentId() ) => documentName => $q.when( api.removeIncomingShipmentDocument( _shipmentId, documentName ) ),
+      shipment.removeShipmentDocument = documentName => $q.when( api.removeIncomingShipmentDocument( shipment._id, documentName ) );
 
       // Shipment pallet functions
 
-      editExpectedPallet: ( _shipmentId = shipmentId() ) => ( _palletId, _data ) => $q.when( api.editIncomingShipmentPallet( _shipmentId, _palletId, _data ) ),
+      shipment.editExpectedPallet = ( _palletId, _data ) => $q.when( api.editIncomingShipmentPallet( shipment._id, _palletId, _data ) );
 
-      removeExpectedPallet: ( _shipmentId = shipmentId() ) => _palletId => $q.when( api.removeIncomingShipmentPallet( _shipmentId, _palletId ) ),
+      shipment.removeExpectedPallet = _palletId => $q.when( api.removeIncomingShipmentPallet( shipment._id, _palletId ) );
 
-      addExpectedPallet: ( _shipmentId = shipmentId() ) => _data => $q.when( api.addIncomingShipmentPallet( _shipmentId, _data ) ),
+      shipment.addExpectedPallet = _data => $q.when( api.addIncomingShipmentPallet( shipment._id, _data ) );
 
-      receivePallet: ( _shipmentId = shipmentId() ) => _data => $q.when( api.receiveIncomingShipmentPallet( _shipmentId, _data ) ),
+      shipment.receivePallet = _data => $q.when( api.receiveIncomingShipmentPallet( shipment._id, _data ) );
 
-      unreceivePallet: ( _shipmentId = shipmentId() ) => _data => $q.when( api.unreceiveIncomingShipmentPallet( _shipmentId, _data ) ),
+      shipment.unreceivePallet = _data => $q.when( api.unreceiveIncomingShipmentPallet( shipment._id, _data ) );
 
-      editReceivedPallet: ( _shipmentId = shipmentId() ) => ( _palletId, _data ) => $q.when( api.editIncomingShipmentPalletReceived( _shipmentId, _palletId, _data ) ),
-
-    };
+      shipment.editReceivedPallet = ( _palletId, _data ) => $q.when( api.editIncomingShipmentPalletReceived( shipment._id, _palletId, _data ) );
 
 
+      shipment.editExpectedPallet = ( _palletId, _data ) => $q.when( api.editIncomingShipmentPallet( shipment._id, _palletId, _data ) );
+    
+      shipment.editReceivedPallet = ( _palletId, _data ) => $q.when( api.editIncomingShipmentPalletReceived( this._id, _palletId, _data ) );
+    
+      return shipment;
+    }
+
+    return Shipment;
   }
-]);
 
+]);

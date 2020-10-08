@@ -92,7 +92,7 @@
       </div>
     </div>
 
-    <div class="row" ng-show="ctrl.documents && ctrl.documents.length">
+    <div class="row" ng-show="ctrl.waitingForResponse || (ctrl.documents && ctrl.documents.length)">
       <table class="table table-striped" ng-hide="ctrl.waitingForResponse">
         <thead>
           <th>Name</th>
