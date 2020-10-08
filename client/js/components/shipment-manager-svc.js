@@ -2,6 +2,43 @@ import angular from 'angular';
 
 import * as api from '../api';
 
+const datify = dString => dString ? new Date( dString ) : null;
+
+class Shipment {
+  constructor( _data ) {
+    Object.assign(
+      this,
+      _data,
+      [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
+    );
+
+
+    this.palletsReceived.forEach( pr => {
+      const pe = this.palletsExpected.find( _pallet => _pallet.handle === pr.handle );
+  
+      if( pe ) {
+        pe.isReceived = true;
+      }
+  
+      pr.isExpected = !!pe;
+  
+    });
+  }
+
+  isComplete() {
+    return this.palletsExpected.every( pe => pe.isReceived );
+  }
+
+  noUnexpectedPallets() {
+    return this.palletsReceived.every( pr => pr.isExpected );
+  }
+
+  hasProblem() {
+    return this.palletsReceived.every( pr => !pr.hasProblem );
+  }
+
+}
+
 /******************* Shipment Manager Service *************************/
 //
 // This service provides some utility functionality to the shipments API and UI
@@ -10,30 +47,6 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams',
   function( $q, $stateParams ) {
 
     const shipmentId = () =>  $stateParams.shipmentId;
-
-    const datify = dString => dString ? new Date( dString ) : null;
-
-    const process = _shipment => {
-
-      const shipment = Object.assign(
-        {},
-        _shipment,
-        [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _shipment[ d ] ) } ), {}),
-      );
-
-      shipment.palletsReceived.forEach( pr => {
-        const pe = shipment.palletsExpected.find( _pallet => _pallet.handle === pr.handle );
-
-        if( pe ) {
-          pe.isReceived = true;
-        }
-
-        pr.isExpected = !!pe;
-
-      });
-
-      return shipment;
-    };
 
     return {
 
@@ -48,9 +61,7 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams',
           return null;
         }
 
-        const shipment = resp.shipment;
-
-        return process( shipment );
+        return new Shipment( resp.shipment );
       }),
 
       listShipments: ( { filter, sort } ) => {
@@ -82,7 +93,7 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams',
             return [];
           }
 
-          return resp.shipments.map( process );
+          return resp.shipments.map( data => new Shipment( data ) );
 
         });
       },
