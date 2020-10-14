@@ -1,6 +1,6 @@
 <div class="container" ng-controller="ShipmentDetailsCtrl as ctrl">
   <h2>Shipment Details</h2>
-	<div class="row well">
+	<div class="row well" style="display: flex;">
     <dl>
       <div ng-hide="ctrl.isEditing[ 'handle' ]">
         <dt>Shipment ID<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'handle' )">edit</a>)</span></dt>
@@ -77,6 +77,22 @@
         </dd>
       </div>
     </dl>
+    <div style="flex-grow: 1"></div>
+
+    <!-- Status Badges -->
+    <div 
+      style="
+        display:  flex;
+        flex-direction: column;
+        align-items: flex-end;
+      "
+    >
+      <span ng-show="ctrl.shipment.isComplete()" style="font-size: 2rem;"><span class="label label-success">Complete</span></span>
+      <span ng-hide="!ctrl.shipment || !ctrl.shipment.isComplete || ctrl.shipment.isComplete()" style="font-size: 2rem;"><span class="label label-warning">Incomplete</span></span>
+      <span ng-hide="!ctrl.shipment || !ctrl.shipment.noUnexpectedPallets || ctrl.shipment.noUnexpectedPallets()" style="font-size: 2rem;"><span class="label label-warning">Extras</span></span>
+      <span ng-show="ctrl.shipment.hasProblem()" style="font-size: 2rem;"><span class="label label-danger">Problems</span></span>
+    </div>
+
   </div>
   <div class="row well" ng-show="ctrl.showEditControls">
 
@@ -122,6 +138,7 @@
     <table class="table table-striped">
       <thead><tr>
         <th>Handle</th>
+        <th>Anonymous?</th>
         <th>Units</th>
         <th>Category</th>
         <th>Received?</th>
@@ -131,6 +148,7 @@
       <tbody>	
         <tr ng-repeat="pallet in ctrl.shipment.palletsExpected track by $index">
           <td><span ng-show="pallet.isEditing"><input ng-model="pallet.editValues.handle"></span><span ng-hide="pallet.isEditing">{{pallet.handle}}</span></td>
+          <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isAnonymous"></span></td>
           <td><span ng-show="pallet.isEditing"><input type="number" ng-model="pallet.editValues.units"></span><span ng-hide="pallet.isEditing">{{pallet.units}}</span></td>
           <td>
             <span ng-show="pallet.isEditing">
@@ -154,6 +172,12 @@
         </tr>
         <tr ng-show="ctrl.addExpectedPallet.isStarted">
           <td><input id="add-expected-pallet-input" ng-model="ctrl.addExpectedPallet.data.handle"></td>
+          <td>
+            <select ng-model="ctrl.addExpectedPallet.data.isAnonymous">
+              <option ng-value="true">Yes</option>
+              <option ng-value="false">No</option>
+            </select>
+          </td>
           <td><input type="number" ng-model="ctrl.addExpectedPallet.data.units"></td>
           <td>
             <select ng-model="ctrl.addExpectedPallet.data.category">
@@ -169,7 +193,9 @@
       </tbody>
     </table>
     <div class="text-center" ng-show="ctrl.showEditControls">
-      <button type="button" class="btn btn-sm btn-success" ng-click="ctrl.addExpectedPallet.start()">Add pallet</button>
+      <div ng-hide="ctrl.addExpectedPallet.isStarted">
+        <button type="button" class="btn btn-sm btn-success" ng-click="ctrl.addExpectedPallet.start()">Add pallet</button>
+      </div>
     </div>
   </div>
   <div class="row well" ng-show="ctrl.showReceiveControls">
@@ -183,15 +209,43 @@
     </div>
 
     <div ng-show="ctrl.shipment.isReceived">
-      <div class="form-group">
-        <label for="receivedPalletIdInput">Pallet ID</label>
-        <input class="form-control" id="receivedPalletIdInput" name="receivedPalletIdInput" ng-model="ctrl.receivedPalletId" ng-keyup="$event.keyCode == 13 && ctrl.receivePallet()" autocomplete="off" />
+
+      <div 
+        style="
+          margin-bottom: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: space-evenly;
+        "
+      >
+
+        <div style="flex-grow: 2;">
+          <div class="form-group">
+            <label for="receivedPalletIdInput">Pallet ID</label>
+            <input class="form-control" id="receivedPalletIdInput" name="receivedPalletIdInput" ng-model="ctrl.receivedPalletId" ng-keyup="$event.keyCode == 13 && ctrl.receivePallet()" autocomplete="off" />
+          </div>
+        </div>
+
+
+        <div 
+          style="
+            flex-grow: 1;
+            display: flex;
+            justify-content: center
+          "
+        >
+          <div ng-show="ctrl.shipment.hasAnonymousPallets()">
+            <button class="btn btn-primary" ng-click="ctrl.receiveAnonymousPallet()">Receive Anonymous Pallet</button>
+          </div>
+        </div>
+
       </div>
 
       <table class="table table-striped" ng-show="ctrl.shipment.palletsReceived.length">
 
         <thead><tr>
           <th>Handle</th>
+          <th>Anonymous?</th>
           <th>Expected?</th>
           <th>Problem?</th>
           <th>Note</th>
@@ -202,6 +256,9 @@
         <tbody>
           <tr ng-repeat="pallet in ctrl.shipment.palletsReceived track by $index">
             <td><span ng-show="pallet.isEditing"><input ng-model="pallet.editValues.handle"></span><span ng-hide="pallet.isEditing">{{pallet.handle}}</span></td>
+            <td>
+              <span class="glyphicon glyphicon-ok" ng-show="pallet.isAnonymous"></span>
+            </td>
             <td>
               <span class="glyphicon glyphicon-ok" ng-show="pallet.isExpected"></span>
               <span class="glyphicon glyphicon-remove" ng-hide="pallet.isExpected"></span>

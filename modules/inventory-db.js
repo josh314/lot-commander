@@ -174,11 +174,13 @@ const incomingShipmentSchema = mongoose.Schema({
     handle: String,
     units: Number,
     category: String,
+    isAnonymous: Boolean
   } ],
   palletsReceived: [ {
     handle: String,
     hasProblem: Boolean,
-    note: String
+    note: String,
+    isAnonymous: Boolean
   } ]
   // TODO: manifests, costs, total units, category
 }, { collection: 'incoming-shipments', timestamps: true });

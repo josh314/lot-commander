@@ -43,6 +43,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     vm.unreceiveShipment = unreceiveShipment;
     vm.receivePallet = receivePallet;
     vm.unreceivePallet = unreceivePallet;
+    vm.receiveAnonymousPallet = receiveAnonymousPallet;
 
     /****************************************************
      * Functions
@@ -129,6 +130,18 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     }
 
     function saveExpectedPallet() {
+
+      if( this.data.isAnonymous && !this.data.handle ) {
+
+        const currentNumAnonPallet = vm.shipment.getNumAnonyomusPalletExpected();
+
+        this.data.handle = vm.shipment.buildAnonymousPalletHandle( currentNumAnonPallet + 1 );
+
+      }
+
+      if( !vm.shipment.validatePalletHandle( 'expected' )( this.data.handle ) ) {
+        return;
+      }
 
       return vm.shipment.addExpectedPallet( this.data )
         .then( resp => {
@@ -275,7 +288,34 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
       });
 
     }
- 
+
+    function receiveAnonymousPallet() {
+
+      const nextAnonPalletExpected = vm.shipment.getNextAnonymousPalletExpected();
+
+      let handle;
+      if( nextAnonPalletExpected ) {
+
+        handle = nextAnonPalletExpected.handle;
+
+      }
+      else {
+
+        const currentNumAnonPalletReceived = vm.shipment.getNumAnonyomusPalletReceived();
+        handle = vm.shipment.buildAnonymousPalletHandle( currentNumAnonPalletReceived + 1 );
+
+      }
+
+      return vm.shipment.receivePallet( { handle: handle, isAnonymous: true } ).then( _response => {
+
+        vm.receivedPalletId = '';
+
+        return loadShipment().then( _ => focus( 'receivedPalletIdInput' ) );
+
+      });
+
+    }
+
     /*******************************************************
      * Initialization
      * ==============
@@ -287,8 +327,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
         Object.assign(vm.shipment, shipment);
 
-        vm.shipment.palletsExpected = shipment.palletsExpected.map( p => DisplayPalletFactory( shipment, 'expected', p ) );
         vm.shipment.palletsReceived = shipment.palletsReceived.map( p => DisplayPalletFactory( shipment, 'received', p ) );
+        vm.shipment.palletsExpected = shipment.palletsExpected.map( p => DisplayPalletFactory( shipment, 'expected', p ) );
 
       });
     }

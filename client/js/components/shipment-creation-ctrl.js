@@ -32,22 +32,30 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'na
     vm.inputs = {
       categoryOptions: [ "" ].concat( palletCategories ),
       pallets: [],
+      numAnonymousPallet: ''
     };
     vm.validator = new ShipmentValidator();
-    const refreshValidator = () => vm.validator = new ShipmentValidator( vm.inputs );
 
+    vm.refreshValidator = refreshValidator;
     vm.setPalletCategories = ( ) => vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
-
     vm.addPallet = () => vm.inputs.pallets.push({ category: vm.inputs.category });
+    vm.removePallet = removePallet;
+    vm.addAnonymousPallets = addAnonymousPallets;
+    vm.createShipment = createShipment;
 
-    vm.removePallet = ( idx ) => {
+
+    function removePallet( idx ) {
       vm.inputs.pallets.splice( idx, 1 );
       if( vm.validator.pallets ) {
         vm.validator.pallets.splice( idx, 1 );
       }
-    };
+    }
 
-    vm.createShipment = () => {
+    function refreshValidator() {
+      vm.validator = new ShipmentValidator( vm.inputs );
+    }
+
+    function createShipment() {
 
       refreshValidator();
 
@@ -67,7 +75,36 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'na
 
       }
 
-    };
+    }
+
+
+    function addAnonymousPallets() {
+
+      const numAnonPalletsToAdd = parseInt( vm.inputs.numAnonymousPallet );
+
+      if( !numAnonPalletsToAdd ) {
+        // TODO: warn that num anon pallets not set
+        return;
+      }
+
+      if( !vm.inputs.handle ) {
+        vm.validator.invalidHandle = true;
+        return;
+      }
+      else {
+        refreshValidator();
+      }
+
+      const currentNumAnonPallet = vm.inputs.pallets.reduce( (num, p) => num + ( p.isAnonymous ? 1 : 0 ) , 0 );
+
+      const handleFn = ( idx ) => ShipmentManagerSvc.buildAnonymousPalletHandle( vm.inputs.handle, currentNumAnonPallet + 1 + idx );
+
+      const anonPallets = Array( numAnonPalletsToAdd ).fill( null ).map( ( _, idx ) => ({ handle: handleFn( idx ), category: vm.inputs.category, isAnonymous: true }) );
+
+      vm.inputs.pallets = vm.inputs.pallets.concat(anonPallets);
+
+    }
+
 
     function shipmentRequest() {
 

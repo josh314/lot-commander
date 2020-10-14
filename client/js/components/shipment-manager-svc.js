@@ -26,6 +26,10 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'S
         return ShipmentFactory( resp.shipment );
       }),
 
+      buildAnonymousPalletHandle( shipmentHandle, number ) {
+        return ShipmentFactory.buildAnonymousPalletHandle( shipmentHandle, number );
+      },
+
       listShipments: ( { filter, sort } ) => {
         
         const query = {};
@@ -72,39 +76,73 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q',
   function( $q ) {
     const datify = dString => dString ? new Date( dString ) : null;
 
+    const buildAnonymousPalletHandle = ( shipmentHandle , number ) => `${ shipmentHandle }_${ number }`; 
+
     function Shipment( _data ) {
-    
+
       const shipment = Object.assign(
         {},
         _data,
         [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
       );
-  
-  
+
       shipment.palletsReceived.forEach( pr => {
         const pe = shipment.palletsExpected.find( _pallet => _pallet.handle === pr.handle );
-    
+
         if( pe ) {
           pe.isReceived = true;
         }
-    
+
         pr.isExpected = !!pe;
-    
+
       });
 
     
       shipment.isComplete = function() {
         return shipment.palletsExpected.every( pe => pe.isReceived );
-      }
+      };
+
+      shipment.hasAnonymousPallets = () => shipment.palletsExpected.some( pe => pe.isAnonymous );
     
       shipment.noUnexpectedPallets = function() {
         return shipment.palletsReceived.every( pr => pr.isExpected );
-      }
+      };
     
       shipment.hasProblem = function() {
-        return shipment.palletsReceived.every( pr => !pr.hasProblem );
-      }
+        return shipment.palletsReceived.some( pr => pr.hasProblem );
+      };
+
+      shipment.getNextAnonymousPalletExpected = () => shipment.palletsExpected.find( pe => pe.isAnonymous && !pe.isReceived );
     
+      shipment.getNumAnonyomusPalletExpected = () => shipment.palletsExpected.reduce( (_num, p) => _num + ( p.isAnonymous ? 1 : 0 ) , 0);
+      shipment.getNumAnonyomusPalletReceived = () => shipment.palletsReceived.reduce( (_num, p) => _num + ( p.isAnonymous ? 1 : 0 ) , 0);
+
+      shipment.buildAnonymousPalletHandle = ( number ) => buildAnonymousPalletHandle( shipment.handle, number );
+
+      shipment.validatePalletHandle = type => handle => {
+
+        if( !handle ) {
+          return false;
+        }
+
+        let pallets;
+        if( type === 'expected' ) {
+          pallets = shipment.palletsExpected;
+        }
+        else if( type === 'received' ) {
+          pallets = shipment.palletsReceived;
+        }
+        else {
+          return false;
+        }
+
+        if( pallets.find( p => p.handle === handle ) ) {
+          return false;
+        }
+
+        return true;
+      };
+
       // API functions
 
 
@@ -149,15 +187,14 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q',
 
       shipment.unreceivePallet = _data => $q.when( api.unreceiveIncomingShipmentPallet( shipment._id, _data ) );
 
-      shipment.editReceivedPallet = ( _palletId, _data ) => $q.when( api.editIncomingShipmentPalletReceived( shipment._id, _palletId, _data ) );
-
-
       shipment.editExpectedPallet = ( _palletId, _data ) => $q.when( api.editIncomingShipmentPallet( shipment._id, _palletId, _data ) );
     
-      shipment.editReceivedPallet = ( _palletId, _data ) => $q.when( api.editIncomingShipmentPalletReceived( this._id, _palletId, _data ) );
+      shipment.editReceivedPallet = ( _palletId, _data ) => $q.when( api.editIncomingShipmentPalletReceived( shipment._id, _palletId, _data ) );
     
       return shipment;
     }
+
+    Shipment.buildAnonymousPalletHandle = buildAnonymousPalletHandle;
 
     return Shipment;
   }

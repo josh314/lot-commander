@@ -32,6 +32,7 @@
             <span>
           </span>
         </th>
+        <th>Status</th>
         <th>Received</th>
       </tr></thead>
       <tbody>	
@@ -41,6 +42,12 @@
               <a ng-href="/receiving/shipments/{{shipment._id}}">{{ shipment.handle }}</a>
             </span>
             <span ng-if="columnKey!=='handle'">{{ columnData.transform ? columnData.transform( shipment[ columnKey ] ) : shipment[ columnKey ] }}</span>
+          </td>
+          <td>
+            <span ng-show="shipment.isComplete()"><span class="label label-success">Complete</span></span>
+            <span ng-hide="shipment.isComplete()"><span class="label label-warning">Incomplete</span></span>
+            <span ng-hide="shipment.noUnexpectedPallets()"><span class="label label-warning">Extras</span></span>
+            <span ng-show="shipment.hasProblem()"><span class="label label-danger">Problems</span></span>
           </td>
           <td><span class="glyphicon glyphicon-ok" ng-show="shipment.isReceived"></span></td>
         </tr>

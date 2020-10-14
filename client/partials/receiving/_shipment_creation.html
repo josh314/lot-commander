@@ -6,7 +6,7 @@
     <div class="col-xs-12 col-sm-6">
       <div class="form-group" ng-class="{ 'has-error' : ctrl.validator.invalidHandle }">
         <label for="handleInput">Shipment ID</label>
-        <input type="text" class="form-control" id="handleInput" ng-model="ctrl.inputs.handle" autocomplete="off">
+        <input type="text" class="form-control" id="handleInput" ng-model="ctrl.inputs.handle" autocomplete="off" ng-change="ctrl.inputs.handle && ctrl.refreshValidator()">
         <span class="text-danger h4" ng-show="ctrl.validator.invalidHandle">No shipment ID submitted.</span>
       </div>
     </div>
@@ -61,6 +61,16 @@
       </table>
       <div class="text-center">
         <button class="btn btn-primary" ng-click="ctrl.addPallet()">Add Pallet</button>
+        <button class="btn btn-primary" ng-click="ctrl.addAnonymousPallets()">
+          Add
+          <input
+            type="text"
+            size="2"
+            ng-model="ctrl.inputs.numAnonymousPallet"
+            ng-click="$event.stopPropagation();"
+            ng-keyup="$event.keyCode == 13 && ctrl.addAnonymousPallets()"
+            style="color: black; border: none; padding-top:0px; padding-bottom:0px"/>
+          Anonymous Pallet(s)</button>
       </div>
     </fieldset>
     <fieldset class="col-xs-12 box-border">
