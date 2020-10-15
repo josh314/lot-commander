@@ -97,7 +97,7 @@ function createShippingItemsLabels(opts={}) {
   return doc;
 }
 
-function createLabels(lot) {
+function createLotLabels(lot) {
   const labelProps = {
     barcode: {
       text: decodeURIComponent(lot.handle),
@@ -214,6 +214,6 @@ function createPickReceipt(order) {
 }
 
 module.exports = {
-  createLabels: createLabels,
+  createLotLabels: createLotLabels,
   createPickReceipt: createPickReceipt
 };

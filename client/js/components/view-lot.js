@@ -225,11 +225,11 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$st
     $scope.editShippingItems = editShippingItems;
 
     $scope.printLabels = function() {
-      const isPrinting = PrintSvc.printLabels();
+      const isPrinting = PrintSvc.printLotLabels( lotStore );
       if(!isPrinting) {
         editShippingItems().then(isEdited=>{
           if(isEdited) {
-            PrintSvc.printLabels();
+            PrintSvc.printLotLabels( lotStore );
           }
         });
       }

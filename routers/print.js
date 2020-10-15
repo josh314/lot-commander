@@ -11,15 +11,15 @@ const fulfillment = require('../modules/fulfillment');
 const router = new express.Router();
 
 //endpoints
-router.get('/labels/:lotId', labels);
+router.get('/labels/lots/:lotId', lotLabels);
 router.get('/pick-receipt/:orderId', pickReceipt);
 
-function labels(req, res, next) {
+function lotLabels(req, res, next) {
   const lotId = req.params.lotId;
   lotdb.getLotById(lotId)
     .then(lot=>{
       if(lot) {
-        print.createLabels(lot).pipe(res);
+        print.createLotLabels(lot).pipe(res);
       }
       else {
         throw new Error(`No lot found with id ${lotId}`);

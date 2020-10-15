@@ -3,38 +3,37 @@ import angular from 'angular';
 import printJS from 'print-js';
 
 /******************* Print labels service ******************************/
-angular.module('myApp').factory('PrintSvc', ['lotStore',
-  function(lotStore){
+angular.module('myApp').factory('PrintSvc', [ function(){
 
-    const verifyShippingData = () => {
-      if(lotStore.numBoxes) {
-        return true;
-      }
+  const verifyShippingData = lot => {
+    if(lot.numBoxes) {
+      return true;
+    }
 
-      if(lotStore.shippingItems && lotStore.shippingItems.length && lotStore.shippingItems.every( _ => _.weight && _.height && _.length && _.width )) {
-        return true;
-      }
+    if(lot.shippingItems && lot.shippingItems.length && lot.shippingItems.every( _ => _.weight && _.height && _.length && _.width )) {
+      return true;
+    }
 
+    return false;
+  };
+
+  const printLotLabels = lot => {
+    if( verifyShippingData( lot ) ) {
+      printJS(`/api/print/labels/lots/${lot._id}`);
+      return true;
+    }
+    else {
       return false;
-    };
+    }
+  };
 
-    const printLabels = () => {
-      if(verifyShippingData()) {
-        printJS(`/api/print/labels/${lotStore._id}`);
-        return true;
-      }
-      else {
-        return false;
-      }
-    };
+  const printPickReceipt = (orderId) => {
+    printJS(`/api/print/pick-receipt/${orderId}`);
+  };
 
-    const printPickReceipt = (orderId) => {
-      printJS(`/api/print/pick-receipt/${orderId}`);
-    };
+  return {
+    printLotLabels: printLotLabels,
+    printPickReceipt: printPickReceipt,
+  };
 
-    return {
-      printLabels: printLabels,
-      printPickReceipt: printPickReceipt,
-    };
-  }
-]);
+}]);
