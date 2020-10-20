@@ -2,8 +2,8 @@ import angular from 'angular';
 
 
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal', 'focus', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'DisplayPalletFactory', 'sessionTimeout', 'ShipmentManagerSvc',
-  function( ConfirmationModal, focus, LoggedInUser, messageModal, navigate, palletCategories, DisplayPalletFactory, sessionTimeout, ShipmentManagerSvc ) {
+angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal', 'DisplayPalletFactory', 'focus', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc',
+  function( ConfirmationModal, DisplayPalletFactory, focus, LoggedInUser, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc ) {
 
     /****************************************************
      * View variables
@@ -38,6 +38,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
       close: closeExpectedPallet,
       save: saveExpectedPallet,
     };
+
+    vm.printShipmentLabels = printShipmentLabels;
 
     vm.receiveShipment = receiveShipment;
     vm.unreceiveShipment = unreceiveShipment;
@@ -314,6 +316,16 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
       });
 
+    }
+
+    /*******************************************************
+     * Labels
+     * ======
+     *
+     *******/
+
+    function printShipmentLabels( palletList ) {
+      PrintSvc.printIncomingShipmentLabels( vm.shipment._id, palletList );
     }
 
     /*******************************************************

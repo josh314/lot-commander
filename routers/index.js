@@ -89,7 +89,7 @@ function routes({ inventoryDbClient, shopifyGqlClient, shopifyDumpDb, userDbClie
 
   // import & register routers
   router.use('/api/fulfillment', require('./fulfillment'));
-  router.use('/api/print', require('./print'));
+  router.use('/api/print', require('./print')( { inventoryDb: inventoryDbClient, lotdb: lotdb } ) );
   router.use('/api/manifests', require('./manifests'));
   router.use(
     '/api/reports',

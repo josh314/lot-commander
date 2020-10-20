@@ -192,10 +192,9 @@
         </tr>
       </tbody>
     </table>
-    <div class="text-center" ng-show="ctrl.showEditControls">
-      <div ng-hide="ctrl.addExpectedPallet.isStarted">
-        <button type="button" class="btn btn-sm btn-success" ng-click="ctrl.addExpectedPallet.start()">Add pallet</button>
-      </div>
+    <div class="text-center" ng-hide="ctrl.addExpectedPallet.isStarted" >
+      <span ng-show="ctrl.showEditControls"><button type="button" class="btn btn-sm btn-success" ng-click="ctrl.addExpectedPallet.start()">Add pallet</button></span>
+      <button class="btn btn-sm btn-primary" ng-click="ctrl.printShipmentLabels('expected')">Print Expected Pallet Labels</button>
     </div>
   </div>
   <div class="row well" ng-show="ctrl.showReceiveControls">
@@ -204,7 +203,7 @@
       <span class="h2">Receiving</span>
 
       <span style="margin-left: auto; margin-right: 40px;" ng-hide="ctrl.shipment.isReceived" ><button type="button" class="btn btn-sm btn-primary" ng-click="ctrl.receiveShipment()">Start Receiving</button></span>
-      <span style="margin-left: auto; margin-right: 40px;" ng-show="ctrl.shipment.isReceived"><button type="button" class="btn btn-sm btn-warning" ng-click="ctrl.unreceiveShipment()">Cancel Receiving</button></span>
+      <span style="margin-left: auto; margin-right: 40px" ng-show="ctrl.shipment.isReceived"><button type="button" class="btn btn-sm btn-warning" ng-click="ctrl.unreceiveShipment()">Cancel Receiving</button></span>
 
     </div>
 
@@ -295,6 +294,10 @@
         </tbody>
 
       </table>
+
+      <div class="text-center">
+        <button type="button" class="btn btn-sm btn-primary" ng-click="ctrl.printShipmentLabels('received')">Print Received Pallet Labels</button>
+      </div>
 
     </div>
   </div>

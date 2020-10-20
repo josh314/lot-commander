@@ -213,7 +213,47 @@ function createPickReceipt(order) {
   return doc;
 }
 
+function createBarcodeLabels( barcodeValues ) {
+
+  const labelDims = {
+    width: 162,// 72/in * 2.25 in
+    height: 90, // 72/in * 1.25 in
+  };
+
+
+  const doc = new PDFDocument({ autoFirstPage: false });
+  doc.fontSize(8);
+
+
+  for( const str of barcodeValues ) {
+
+    doc.addPage({
+      margin: 0,
+      size: [ labelDims.width , labelDims.height ]
+    });
+
+    let canvas = createCanvas('image');
+    JsBarcode(
+      canvas,
+      decodeURIComponent( str ),
+      {
+        height: 50,
+      }
+    );
+
+    const margin = 5;
+    doc
+      .image(canvas.toBuffer(), margin, 15, { width: labelDims.width - 2*margin })
+
+  }
+
+  doc.end();
+  return doc;
+
+}
+
 module.exports = {
+  createBarcodeLabels: createBarcodeLabels,
   createLotLabels: createLotLabels,
   createPickReceipt: createPickReceipt
 };

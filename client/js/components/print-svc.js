@@ -31,9 +31,19 @@ angular.module('myApp').factory('PrintSvc', [ function(){
     printJS(`/api/print/pick-receipt/${orderId}`);
   };
 
+  const printIncomingShipmentLabels = ( shipmentId, palletList ) => {
+    printJS(`/api/print/labels/incoming-shipments/${ shipmentId }/pallets-${ palletList }`);
+  };
+
+  const printIncomingShipmenPalletLabel = ( shipmentId, palletList, palletId ) => {
+    printJS(`/api/print/labels/incoming-shipments/${ shipmentId }/pallets-${ palletList }/${palletId}`);
+  };
+
   return {
+    printIncomingShipmentLabels: printIncomingShipmentLabels,
+    printIncomingShipmenPalletLabel: printIncomingShipmenPalletLabel,
     printLotLabels: printLotLabels,
-    printPickReceipt: printPickReceipt,
+    printPickReceipt: printPickReceipt
   };
 
 }]);
