@@ -49,7 +49,7 @@ const submitListing = Promise.method(async function (listing) {
         barcode: listing.lot.handle,
         sku: listing.lot.handle,
         price: listing.shopifyPrice,
-        option1: listing.lot.totalUnits,
+        option1: listing.lot.totalUnits || 'Default Title',
       }
     ],
     // unit count?

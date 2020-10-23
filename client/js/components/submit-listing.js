@@ -1,12 +1,12 @@
 import angular from 'angular';
 
 /******************* Scanning Page Controller *************************/
-angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$http', 'bstockFormConstants', 'dbEnums', 'listingTitleVerifier', 'lotStore', 'messageModal', 'saveLot', 'sessionTimeout',
-  function($scope, $state, $http, bstockFormConstants, dbEnums, listingTitleVerifier, lotStore, messageModal, saveLot, sessionTimeout) {
+angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bstockFormConstants', 'dbEnums', 'listingTitleVerifier', 'lotStore', 'messageModal', 'navigate', 'saveLot', 'sessionTimeout',
+  function($scope, $http, bstockFormConstants, dbEnums, listingTitleVerifier, lotStore, messageModal, navigate, saveLot, sessionTimeout) {
     sessionTimeout.timeoutExpired();
 
     if(!lotStore._id) {
-      $state.go('main.lots.list');
+      navigate.listLots();
     }
 
     $scope.lot = lotStore;
@@ -45,6 +45,24 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
       return tags.join(', ');
     })();
 
+    const conditionTag = lotType => {
+      let cond;
+      if( lotType === 'customer returns' ) {
+        cond = 'returns';
+      }
+      else if ( lotType == 'salvage' ) {
+        cond = 'salvage';
+      }
+      else if ( lotType == 'shelf-pull' ) {
+        cond = 'shelf-pulls';
+      }
+      else if ( lotType == 'case-packed' ) {
+        cond = 'case-packed';
+      }
+
+      return cond ? `condition:${ cond }` : null;
+    };
+
     const getShopifyTags = () => {
       const tags = $scope.additionalShopifyTags ? $scope.additionalShopifyTags.split(',').map(_=>_.trim()) : [];
       if($scope.lot.unmanifested) {
@@ -55,7 +73,14 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
       }
       tags.push(lotStore.packagingType || $scope.lotPackagingType);
       tags.push('review');
-      return tags.join(', ');
+
+      tags.push( conditionTag( $scope.lot.type ) );
+
+      if( $scope.asIs ) {
+        tags.push('as-is');
+      }
+
+      return tags.filter( _ => _ ).join(', ');// remove any empty tags then join as a CSV string before returning
     };
 
     const estimatedRetailValue = lotStore.getEstimatedRetailValue();
@@ -107,13 +132,14 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
     function validateShopifyListingOptions() {
       $scope.invalidShopifyPrice = ($scope.listing.shopifyPrice && $scope.listing.shopifyPrice.match(/^[0-9]+(\.[0-9]{2})?$/)) ? false : true;
       $scope.invalidShopifyInventory = ($scope.listing.shopifyInventory && ($scope.listing.shopifyInventory >= 0)) ? false : true;
+      $scope.invalidUnitCount = $scope.totalUnits <= 0 && !lotStore.unmanifested;
 
       $scope.noPackagingType = !$scope.lotPackagingType;
 
       if($scope.invalidShopifyPrice || $scope.invalidAdditionalShopifyTags || $scope.invalidShopifyInventory) {
         return false;
       }
-      if(!$scope.totalUnits) {
+      if($scope.invalidUnitCount) {
         return false;
       }
       if($scope.noPackagingType) {
@@ -163,7 +189,7 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
         }
         else {
           messageModal.launch({header: 'Status', body: 'Listing submitted. Submission may take several minutes. Return to lot page to view results.', type: 'success'});
-          $state.go('main.lots.list');
+          navigate.listLots();
         }
       })
         .catch(e=>{
@@ -175,7 +201,7 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$state', '$h
     };
 
     $scope.backToLotDetails = function() {
-      $state.go('main.lots.view', { lotId: lotStore._id});
+      navigate.viewLot( lotStore._id );
     };
 
   }

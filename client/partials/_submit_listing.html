@@ -17,6 +17,12 @@
 								<input type="checkbox" name="refreshProductData" id="refreshProductDataInput" ng-model="listing.refreshProductData">
 								<b>Check here if new product data should be obtained for this lot</b>
 							</label>
+            </div>
+            <div class="checkbox" ng-show="listing.marketplace==='wholesaleninjas'">
+							<label for="asIsInput">
+								<input type="checkbox" id="asIsInput" ng-model="asIs">
+								<b>Check here if lot sold as-is</b>
+							</label>
 						</div>
 					</div>
 				</div>
@@ -121,10 +127,10 @@
 						<input class="form-control" type="number" id="shopifyInventoryInput" ng-model="listing.shopifyInventory">
 						<span class="text-danger h4" ng-show="invalidShopifyInventory">Invalid Inventory</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': !totalUnits }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidTotalUnits }" ng-hide="lot.unmanifested">
 						<label for="totalUnitsInput">Total unit count</label>
-						<input class="form-control" type="number" id="totalUnitsInput" ng-model="totalUnits" ng-disabled="!lot.unmanifested">
-						<span class="text-danger h4" ng-show="!totalUnits">No unit count!</span>
+						<input class="form-control" type="number" id="totalUnitsInput" ng-model="totalUnits" ng-disabled="!lot.unmanifested" min="0">
+						<span class="text-danger h4" ng-show="invalidTotalUnits">Invalid unit count!</span>
 					</div>
 				</div>
 			</div>
