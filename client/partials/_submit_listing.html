@@ -17,6 +17,12 @@
 								<input type="checkbox" name="refreshProductData" id="refreshProductDataInput" ng-model="listing.refreshProductData">
 								<b>Check here if new product data should be obtained for this lot</b>
 							</label>
+            </div>
+            <div class="checkbox" ng-show="listing.marketplace==='wholesaleninjas'">
+							<label for="asIsInput">
+								<input type="checkbox" id="asIsInput" ng-model="asIs">
+								<b>Check here if lot sold as-is</b>
+							</label>
 						</div>
 					</div>
 				</div>

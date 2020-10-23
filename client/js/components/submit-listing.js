@@ -45,6 +45,24 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bst
       return tags.join(', ');
     })();
 
+    const conditionTag = lotType => {
+      let cond;
+      if( lotType === 'customer returns' ) {
+        cond = 'returns';
+      }
+      else if ( lotType == 'salvage' ) {
+        cond = 'salvage';
+      }
+      else if ( lotType == 'shelf-pull' ) {
+        cond = 'shelf-pulls';
+      }
+      else if ( lotType == 'case-packed' ) {
+        cond = 'case-packed';
+      }
+
+      return cond ? `condition:${ cond }` : null;
+    };
+
     const getShopifyTags = () => {
       const tags = $scope.additionalShopifyTags ? $scope.additionalShopifyTags.split(',').map(_=>_.trim()) : [];
       if($scope.lot.unmanifested) {
@@ -55,7 +73,14 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bst
       }
       tags.push(lotStore.packagingType || $scope.lotPackagingType);
       tags.push('review');
-      return tags.join(', ');
+
+      tags.push( conditionTag( $scope.lot.type ) );
+
+      if( $scope.asIs ) {
+        tags.push('as-is');
+      }
+
+      return tags.filter( _ => _ ).join(', ');// remove any empty tags then join as a CSV string before returning
     };
 
     const estimatedRetailValue = lotStore.getEstimatedRetailValue();
