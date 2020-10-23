@@ -99,7 +99,7 @@ const submit = Promise.method(async function(req, res, next) {
   };
   try {
 
-    if(!listing.lot.manifestFileLocation) {
+    if(!listing.lot.manifestFileLocation && !listing.lot.unmanifested ) {
       const generatedManifestResponse = await manifests.generateLotManifest( req.body.lotId , { save: true } );
       listing.lot.manifestFileLocation = generatedManifestResponse.manifest;
     }

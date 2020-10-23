@@ -121,10 +121,10 @@
 						<input class="form-control" type="number" id="shopifyInventoryInput" ng-model="listing.shopifyInventory">
 						<span class="text-danger h4" ng-show="invalidShopifyInventory">Invalid Inventory</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': !totalUnits }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidTotalUnits }" ng-hide="lot.unmanifested">
 						<label for="totalUnitsInput">Total unit count</label>
-						<input class="form-control" type="number" id="totalUnitsInput" ng-model="totalUnits" ng-disabled="!lot.unmanifested">
-						<span class="text-danger h4" ng-show="!totalUnits">No unit count!</span>
+						<input class="form-control" type="number" id="totalUnitsInput" ng-model="totalUnits" ng-disabled="!lot.unmanifested" min="0">
+						<span class="text-danger h4" ng-show="invalidTotalUnits">Invalid unit count!</span>
 					</div>
 				</div>
 			</div>
