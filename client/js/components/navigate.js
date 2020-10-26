@@ -25,10 +25,22 @@ angular.module('myApp').factory('navigate', [ '$state', function($state){
     $state.reload();
   };
 
+  const shipmentCreation = () => $state.go('main.receiving.shipment-creation');
+
+  const shipmentDetails = ( shipmentId ) => $state.go('main.receiving.shipment-details', { shipmentId: shipmentId } );
+
+  const shipmentList = () => $state.go('main.receiving.shipment-list');
+
+  const shipmentReceiving = ( shipmentId ) => $state.go('main.receiving.shipment-receiving', { shipmentId: shipmentId } );
+
   return {
     home: home,
     listLots: listLots,
     reload: reload,
+    shipmentCreation: shipmentCreation,
+    shipmentDetails: shipmentDetails,
+    shipmentList: shipmentList,
+    shipmentReceiving: shipmentReceiving,
     scanLot: scanLot,
     viewLot: viewLot,
   };

@@ -202,3 +202,168 @@ export function editUserDisabledStatus( userId, _isDisabled ) {
   })
     .then( resp => resp.data );
 }
+
+
+/*************************************************
+* Receiving
+* =========
+*
+************/
+
+export function listIncomingShipments( qp ) {
+  return axios({
+    method: 'get',
+    url: `/api/receiving/?${querystring.stringify(qp)}`,
+  })
+    .then( resp => resp.data );
+}
+export function countIncomingShipments() {
+  return axios({
+    method: 'get',
+    url: `/api/receiving/count`,
+  })
+    .then( resp => resp.data );
+}
+export function createIncomingShipment( shipment ) {
+  return axios({
+    method: 'post',
+    url: `/api/receiving/create`,
+    data: shipment 
+  })
+    .then( resp => resp.data );
+}
+export function getIncomingShipmentById( shipmentId ) {
+  return axios({
+    method: 'get',
+    url: `/api/receiving/${ shipmentId }`,
+  })
+    .then( resp => resp.data );
+}
+
+
+export function removeIncomingShipment( shipmentId ) {
+  return axios({
+    method: 'delete',
+    url: `/api/receiving/${ shipmentId }`,
+  })
+    .then( resp => resp.data );
+}
+
+export function editIncomingShipment( shipmentId, _data ) {
+  return axios({
+    method: 'patch',
+    url: `/api/receiving/${ shipmentId }`,
+    data: _data
+  })
+    .then( resp => resp.data );
+}
+
+// Pallet modifying operations
+export function addIncomingShipmentPallet( shipmentId, _pallet ) {
+  return axios({
+    method: 'post',
+    url: `/api/receiving/${ shipmentId }/pallets`,
+    data: _pallet
+  })
+    .then( resp => resp.data );
+}
+export function removeIncomingShipmentPallet( shipmentId, palletId ) {
+  return axios({
+    method: 'delete',
+    url: `/api/receiving/${ shipmentId }/pallets/${ palletId }`,
+  })
+    .then( resp => resp.data );
+}
+export function editIncomingShipmentPallet( shipmentId, palletId, _data ) {
+  return axios({
+    method: 'patch',
+    url: `/api/receiving/${ shipmentId }/pallets/${ palletId }`,
+    data: _data
+  })
+    .then( resp => resp.data );
+}
+
+// Incoming Shipment documents
+export function listIncomingShipmentDocuments( shipmentId ) {
+  return axios({
+    method: 'get',
+    url: `/api/receiving/${ shipmentId }/documents`,
+  })
+    .then( resp => resp.data );
+}
+
+export function getIncomingShipmentDocument( shipmentId, documentName ) {
+  return axios({
+    method: 'get',
+    url: `/api/receiving/${ shipmentId }/documents/${ documentName }`,
+    responseType: 'stream'
+  })
+    .then( resp => resp.data );
+}
+
+export function removeIncomingShipmentDocument( shipmentId, documentName ) {
+  return axios({
+    method: 'delete',
+    url: `/api/receiving/${ shipmentId }/documents/${ documentName }`,
+  })
+    .then( resp => resp.data );
+}
+
+export function uploadIncomingShipmentDocument( shipmentId, _document ) {
+
+  const fd = new FormData();
+  fd.append('file', _document);
+
+  return axios({
+    method: 'put',
+    url: `/api/receiving/${ shipmentId }/documents/${ _document.name }`,
+    data: fd
+  })
+    .then( resp => resp.data );
+}
+
+// Receiving shipments/pallets
+export function receiveIncomingShipment( shipmentId ) {
+  return axios({
+    method: 'put',
+    url: `/api/receiving/${ shipmentId }/is-received`,
+    data: { isReceived: true }
+  })
+    .then( resp => resp.data );
+}
+
+export function unreceiveIncomingShipment( shipmentId ) {
+  return axios({
+    method: 'put',
+    url: `/api/receiving/${ shipmentId }/is-received`,
+    data: { isReceived: false }
+  })
+    .then( resp => resp.data );
+}
+
+
+export function receiveIncomingShipmentPallet( shipmentId, _data ) {
+  return axios({
+    method: 'post',
+    url: `/api/receiving/${ shipmentId }/pallets-received`,
+    data: _data
+  })
+    .then( resp => resp.data );
+}
+
+export function unreceiveIncomingShipmentPallet( shipmentId, palletId ) {
+  return axios({
+    method: 'delete',
+    url: `/api/receiving/${ shipmentId }/pallets-received/${ palletId }`,
+  })
+    .then( resp => resp.data );
+}
+
+export function editIncomingShipmentPalletReceived( shipmentId, palletId, _data ) {
+  return axios({
+    method: 'patch',
+    url: `/api/receiving/${ shipmentId }/pallets-received/${ palletId }`,
+    data: _data
+  })
+    .then( resp => resp.data );
+}

@@ -22,7 +22,7 @@ const productData = require(path.join(__basedir, __config.modulesPath, 'product-
 // }
 
 //routes
-function routes({ shopifyGqlClient, shopifyDumpDb, userDbClient }) {
+function routes({ inventoryDbClient, shopifyGqlClient, shopifyDumpDb, userDbClient }) {
 
   const router = new express.Router();
 
@@ -89,13 +89,14 @@ function routes({ shopifyGqlClient, shopifyDumpDb, userDbClient }) {
 
   // import & register routers
   router.use('/api/fulfillment', require('./fulfillment'));
-  router.use('/api/print', require('./print'));
+  router.use('/api/print', require('./print')( { inventoryDb: inventoryDbClient, lotdb: lotdb } ) );
   router.use('/api/manifests', require('./manifests'));
   router.use(
     '/api/reports',
     auth.isAuthorized('VIEW_REPORT'),
     require('./reports')( { shopifyGqlClient, shopifyDumpDb })
   );
+  router.use('/api/receiving', require('./receiving')( { inventoryDb: inventoryDbClient } ) );
 
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{

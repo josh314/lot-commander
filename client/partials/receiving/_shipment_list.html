@@ -1,0 +1,57 @@
+<div class="container" ng-controller="ShipmentListCtrl as ctrl">
+  <h2>Shipments</h2>
+	<div class="row well">
+    <button class="btn btn-primary pull-right" ng-click="ctrl.createShipment()" ng-show="ctrl.showCreateIncomingShipmentButton">Create New Shipment</button>
+    <fieldset class="col-xs-12 box-border">
+      <legend class="box-border">Filter</legend>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label for="shipmentHandleFilter">Shipment ID</label>
+        <input class="form-control" name="shipmentHandleFilter" ng-model="ctrl.filter.handle" ng-keyup="ctrl.refreshShipmentsList()">
+      </div>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label for="vendorFilter">Vendor</label>
+        <input class="form-control" name="vendorFilter" ng-model="ctrl.filter.vendor" ng-keyup="ctrl.refreshShipmentsList()">
+      </div>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label for="shipmentStatusFilter">Received Status</label>
+        <select class="form-control" name="shipmentStatusFilter" ng-model="ctrl.filter.status" ng-change="ctrl.refreshShipmentsList()">
+          <option>awaiting</option>
+          <option>received</option>
+          <option>all</option>
+        </select>
+      </div>
+    </fieldset>
+    <table class="table table-striped">
+      <thead><tr>
+        <th ng-repeat="(columnKey, columnData) in ctrl.columns">
+          <span ng-click="ctrl.sortListBy(columnKey)" style="cursor: pointer;">
+            {{columnData.displayName}}
+            <span ng-show="columnKey === ctrl.sortOpts.key">
+              <span class="glyphicon glyphicon-triangle-bottom" ng-hide="ctrl.sortOpts.ascending" style="font-size: .75em"></span>
+              <span class="glyphicon glyphicon-triangle-top" ng-show="ctrl.sortOpts.ascending" style="font-size: .75em"></span>
+            <span>
+          </span>
+        </th>
+        <th>Status</th>
+        <th>Received</th>
+      </tr></thead>
+      <tbody>	
+        <tr ng-repeat="shipment in ctrl.shipments">
+          <td ng-repeat="(columnKey, columnData) in ctrl.columns">
+            <span ng-if="columnKey==='handle'">
+              <a ng-href="/receiving/shipments/{{shipment._id}}">{{ shipment.handle }}</a>
+            </span>
+            <span ng-if="columnKey!=='handle'">{{ columnData.transform ? columnData.transform( shipment[ columnKey ] ) : shipment[ columnKey ] }}</span>
+          </td>
+          <td>
+            <span ng-show="shipment.isComplete()"><span class="label label-success">Complete</span></span>
+            <span ng-hide="shipment.isComplete()"><span class="label label-warning">Incomplete</span></span>
+            <span ng-hide="shipment.noUnexpectedPallets()"><span class="label label-warning">Extras</span></span>
+            <span ng-show="shipment.hasProblem()"><span class="label label-danger">Problems</span></span>
+          </td>
+          <td><span class="glyphicon glyphicon-ok" ng-show="shipment.isReceived"></span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

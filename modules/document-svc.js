@@ -1,0 +1,84 @@
+const aws = require('aws-sdk');
+aws.config.credentials = new aws.SharedIniFileCredentials({profile: 'lot-commander'});
+const s3 = new aws.S3({
+  apiVersion: '2006-03-01',
+  region: 'us-east-1'
+});
+
+const __EXPRESSHOP_DOCUMENTS_BUCKET__ = 'expresshop-documents';
+
+module.exports = {
+  folder: type => id => `${type}-${id}`,
+  get,
+  list,
+  remove,
+  store
+}
+
+function get( { bucket, folder, name } ) {
+  return s3.getObject({
+    Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
+    Key: folder ? `${folder}/${name}` : name,
+  })
+    .createReadStream();
+}
+
+function remove( { bucket, folder, name } ) {
+
+  return s3.deleteObject({
+    Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
+    Key: folder ? `${folder}/${name}` : name,
+  }).promise();
+
+}
+
+function store( { readStream, bucket, folder, name, isPublic=false } ) {
+
+  const ACL = isPublic ? "public-read" : 'private'
+
+  return s3.upload({
+    Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
+    Key: folder ? `${folder}/${name}` : name,
+    Body: readStream,
+    ACL: ACL
+  })
+    .promise();
+    
+}
+
+async function list({ num, bucket, folder, continuationToken }) {
+
+  const params = {
+    Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
+    MaxKeys: num || 50 + ( folder ? 1 : 0 ) // add an extra since we will delete the folder result 
+  };
+
+  if( folder ) {
+    params.Prefix = folder;
+  }
+  if(continuationToken) {
+    params.ContinuationToken = continuationToken;
+  }
+
+  const response = await s3.listObjectsV2(params).promise();
+
+  let documents = response.Contents || [];
+
+  documents = documents
+                .map( _ => ({
+                  name: folder ? _.Key.replace( new RegExp(`${folder}/`), '') : _.Key,
+                  size: _.Size,
+                  updatedAt: _.LastModified
+                }) )
+                .filter( _ => _.name );
+
+  const result = {
+
+    documents,
+
+    continuationToken: response.NextContinuationToken
+
+  };
+
+  return result;
+}
