@@ -14,7 +14,7 @@ module.exports = routes;
  * 
  *********/
 
-const filterParamsFromQueryParams = ( qp ) => {
+const listShipmentsFilterParamsFromQueryParams = ( qp ) => {
 
   const fp = {};
 
@@ -43,7 +43,7 @@ const filterParamsFromQueryParams = ( qp ) => {
  * 
  **********/
 
-function routes({ inventoryDb }) {
+function routes({ eventsDb, inventoryDb }) {
   const router = new express.Router();
 
   /*******************************************
@@ -147,8 +147,6 @@ function routes({ inventoryDb }) {
     editIncomingShipmentPalletReceived
   );
   
-  //TODO: unreceivePallet endpoint
-  
   /*******************************************
    * Define Handlers
    * ===============
@@ -170,7 +168,7 @@ function routes({ inventoryDb }) {
       sortDir: parseInt(req.query.sort_dir),
 
       // filters
-      filterParams: filterParamsFromQueryParams( req.query ),
+      filterParams: listShipmentsFilterParamsFromQueryParams( req.query ),
     };
 
     const shipments = await inventoryDb.listIncomingShipments(query);
@@ -180,7 +178,7 @@ function routes({ inventoryDb }) {
 
   async function countIncomingShipments( req, res ) {
   
-    const count = await inventoryDb.countIncomingShipments( filterParamsFromQueryParams( req.query ) );
+    const count = await inventoryDb.countIncomingShipments( listShipmentsFilterParamsFromQueryParams( req.query ) );
 
     res.json({ count: count });
     
@@ -202,6 +200,8 @@ function routes({ inventoryDb }) {
     }
 
     const shipment = await inventoryDb.createIncomingShipment( data );
+
+    eventsDb.createIncomingShipment( { user: req.user, shipment } );
 
     res.json( { shipment } );
 
@@ -226,7 +226,26 @@ function routes({ inventoryDb }) {
 
     const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
     if( shipment ) {
+
+      const edits = Object.keys( req.body ).map( _key => ({ path: _key, oldValue: shipment[ _key ], newValue: req.body[ _key ] }) ); 
+
       const result = await shipment.edit( req.body );
+
+      for( let edit of edits ) {
+
+        const eventData = Object.assign(
+          {
+            user: req.user,
+            shipment: shipment,
+          },
+          edit
+        )
+
+        eventsDb.editIncomingShipment( eventData );
+
+      }
+
+
       res.json( { success: true } );
     }
     else {
@@ -236,8 +255,14 @@ function routes({ inventoryDb }) {
   }
 
   async function removeIncomingShipment( req, res ) {
-    const result = await inventoryDb.removeIncomingShipment( req.params.shipmentId );
-    res.json( result )
+
+    const shipmentId = req.params.shipmentId;
+
+    const result = await inventoryDb.removeIncomingShipment( shipmentId );
+
+    eventsDb.removeIncomingShipment( { user: req.user, shipmentId: shipmentId } );
+    res.json( result );
+
   }
 
   //==========================
@@ -389,6 +414,9 @@ function routes({ inventoryDb }) {
       const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
       if( shipment ) {
         const result = isReceived ? await shipment.receive() : await shipment.unreceive();
+
+        eventsDb.receiveIncomingShipment( { user: req.user, shipment } );
+
         res.json( { success: true } );
       }
       else {
@@ -411,6 +439,12 @@ function routes({ inventoryDb }) {
 
       if( shipment ) {
         const result = await shipment.receivePallet( req.body );
+
+        eventsDb.receiveIncomingShipmentPallet({
+          user: req.user,
+          shipment: result
+        });
+
         res.json( { success: true } );
       }
       else {

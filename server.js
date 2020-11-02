@@ -199,6 +199,9 @@ class Server {
     //======================================================
     // Load routes based on layout
 
+    const EventsDb = require('./modules/events-db');
+    const eventsDbClient = new EventsDb.Client( this.mongooseConnection );
+
     const shopifyGqlClient = new ShopifyGql({
       store: this.config.shopify.store.name,
       accessToken: this.config.shopify.store.auth.password
@@ -210,6 +213,7 @@ class Server {
     const inventoryDbClient = new InventoryDb.Client( { mongooseConnection: this.mongooseConnection } );
 
     const routerOpts = {
+      eventsDbClient,
       inventoryDbClient,
       userDbClient: this.users,
       shopifyGqlClient,

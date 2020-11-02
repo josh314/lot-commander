@@ -22,7 +22,7 @@ const productData = require(path.join(__basedir, __config.modulesPath, 'product-
 // }
 
 //routes
-function routes({ inventoryDbClient, shopifyGqlClient, shopifyDumpDb, userDbClient }) {
+function routes({ eventsDbClient, inventoryDbClient, shopifyGqlClient, shopifyDumpDb, userDbClient }) {
 
   const router = new express.Router();
 
@@ -96,7 +96,12 @@ function routes({ inventoryDbClient, shopifyGqlClient, shopifyDumpDb, userDbClie
     auth.isAuthorized('VIEW_REPORT'),
     require('./reports')( { shopifyGqlClient, shopifyDumpDb })
   );
-  router.use('/api/receiving', require('./receiving')( { inventoryDb: inventoryDbClient } ) );
+  router.use('/api/receiving', require('./receiving')( { eventsDb: eventsDbClient, inventoryDb: inventoryDbClient } ) );
+  router.use(
+    '/api/events',
+    // auth.isAuthorized('VIEW_EVENTS'),
+    require('./events')( eventsDbClient )
+  );
 
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{
