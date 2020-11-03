@@ -5,6 +5,7 @@ const documentSvc = require('../modules/document-svc');
 
 const fs = require('fs');
 const formidable = require('formidable');
+const Promise = require('bluebird');
 
 module.exports = routes;
 
@@ -36,6 +37,9 @@ const filterParamsFromQueryParams = ( qp ) => {
 
   return fp;
 };
+
+const __SHIPMENT_DOCUMENTS_FOLDER_PREFIX__ = 'incoming-shipment';
+const __RESTRICTED_DOCUMENT_PERMISSION__ = 'VIEW_PURCHASING_DATA';
 
 /**********************************************
  * Routes function for export
@@ -123,6 +127,11 @@ function routes({ inventoryDb }) {
     '/:shipmentId/documents/:documentName', 
     auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' ),
     uploadIncomingShipmentDocument
+  );
+  router.patch(
+    '/:shipmentId/documents/:documentName', 
+    auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' ),
+    editIncomingShipmentDocumentRestrictionStatus
   );
 
   // Receiving shipments/pallets
@@ -291,12 +300,34 @@ function routes({ inventoryDb }) {
   async function listIncomingShipmentDocuments( req, res ) {
 
     const opts = {
-      folder: documentSvc.folder('incoming-shipment')(req.params.shipmentId),
+      folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)(req.params.shipmentId),
       num: req.query.num ? parseInt(req.query.num) + 1 : undefined,
       continuationToken: req.query.continuation_token
     };
 
     const result = await documentSvc.list( opts );
+
+    if( result && result.documents ) {
+
+      result.documents = (await Promise.map(
+        result.documents,
+        async (doc) => {
+
+          const docTags = await documentSvc.getDocumentTags( { 
+            folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)(req.params.shipmentId),
+            name: doc.name
+          } );
+          
+          const kv = docTags.TagSet.find( _ => _.Key === 'permission' );
+
+          doc.permission = kv && kv.Value;
+
+          return doc;
+        }
+      ))
+        .filter( doc => req.user.isAuthorized(doc.permission) );
+
+    }
 
     res.json( result );
   }
@@ -306,7 +337,7 @@ function routes({ inventoryDb }) {
     const documentName = req.params.documentName;
 
     const stream = documentSvc.get( { 
-      folder: documentSvc.folder('incoming-shipment')( req.params.shipmentId ),
+      folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)( req.params.shipmentId ),
       name: documentName
     } );
 
@@ -323,7 +354,7 @@ function routes({ inventoryDb }) {
     const documentName = req.params.documentName;
 
     documentSvc.remove({
-      folder: documentSvc.folder('incoming-shipment')( req.params.shipmentId ),
+      folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)( req.params.shipmentId ),
       name: documentName
     })
       .then( _ => res.json( { success: true } ) )
@@ -336,7 +367,7 @@ function routes({ inventoryDb }) {
     const documentName = req.params.documentName;
 
     const form = new formidable.IncomingForm();
-    form.parse(req, async function (err, _fields, files) {
+    form.parse(req, async function (err, fields, files) {
       if( err ) {
         next(err);
       }
@@ -353,9 +384,9 @@ function routes({ inventoryDb }) {
   
           const storePromise = await documentSvc.store( {
             readStream: readStream,
-            folder: documentSvc.folder('incoming-shipment')( req.params.shipmentId ),
+            folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)( req.params.shipmentId ),
             name: documentName,
-            isPublic: false,
+            permission: fields.isRestricted === 'true' ? __RESTRICTED_DOCUMENT_PERMISSION__ : null,
           } )
 
           console.log(`Unlinking temp file ${f.path}`);
@@ -373,6 +404,29 @@ function routes({ inventoryDb }) {
         next(e);
       }
     });
+
+  }
+
+  function editIncomingShipmentDocumentRestrictionStatus( req, res ) {
+
+    if( !req.body || !('isRestricted' in req.body) ) {
+      res.json({ error: true, message: `Invalid request.` })
+    }
+
+    const documentName = req.params.documentName;
+
+    documentSvc.setDocumentTags({
+      folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)( req.params.shipmentId ),
+      name: documentName,
+      tagset: [
+        {
+          Key: 'permission',
+          Value: req.body.isRestricted ? __RESTRICTED_DOCUMENT_PERMISSION__ : ''
+        }
+      ]
+    })
+      .then( _ => res.json( { success: true } ) )
+      .catch( e => console.log(e) || res.json({ error: true, message: `Unable to update object: '${documentName}'` }) );
 
   }
 

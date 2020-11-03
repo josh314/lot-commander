@@ -17,6 +17,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     vm.showEditControls = LoggedInUser.hasPermission('EDIT_INCOMING_SHIPMENT');
     vm.showReceiveControls = LoggedInUser.hasPermission('RECEIVE_INCOMING_SHIPMENT');
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+    vm.showRestrictedDocuments = vm.showPurchasingData;
     vm.categoryOptions = [ "" ].concat( palletCategories );
 
     vm.removeShipment = removeShipment;
@@ -179,13 +180,22 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
      * 
      *******/
 
-    const updateDocumentList = () => {
+    function updateDocumentList() {
 
       vm.waitingForResponse = true;
 
       vm.shipment.listShipmentDocuments().then( documents => {
 
         if( documents ) {
+
+          documents.forEach( doc => {
+
+            doc.isRestricted = doc.permission === 'VIEW_PURCHASING_DATA';
+
+            doc.updateRestrictionStatus = () => vm.shipment.updateDocumentRestrictionStatus( doc.name, doc.isRestricted ).then( updateDocumentList )
+
+          });
+
           Object.assign( vm, { documents } );
         }
 
@@ -205,9 +215,10 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
       }
 
       const document = vm.documentToUpload;
+      const isRestricted = !!vm.documentToUploadIsRestricted;
 
       vm.waitingForResponse = true;
-      vm.shipment.uploadShipmentDocument( document ).then( _ => {
+      vm.shipment.uploadShipmentDocument( document, isRestricted ).then( _ => {
         updateDocumentList();
         vm.waitingForResponse = false;
       });

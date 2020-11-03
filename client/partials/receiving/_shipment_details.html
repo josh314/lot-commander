@@ -94,12 +94,17 @@
     </div>
 
   </div>
-  <div class="row well" ng-show="ctrl.showEditControls">
+  <div class="row well" ng-show="ctrl.showEditControls || (ctrl.documents && ctrl.documents.length)">
 
-    <div class="row">
-      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : ctrl.noFileSelected }">
+    <div class="row" style="display: flex; align-items: center; justify-content: center;" ng-show="ctrl.showEditControls">
+      <div class="form-group" ng-class="{ 'has-error' : ctrl.noFileSelected }">
         <label for="fileInput">Upload Document File</label>
         <div class="input-group">
+          <span class="input-group-addon">
+            <label for="documentToUploadIsRestrictedInput">Restricted document
+              <input type="checkbox" id="documentToUploadIsRestrictedInput" ng-model="ctrl.documentToUploadIsRestricted">
+            </label>
+          </span>
           <input type="file" class="form-control" id="fileInput" required file-model="ctrl.documentToUpload">
           <div class="input-group-btn">
             <button type="button" class="btn btn-primary" ng-click="ctrl.uploadDocument()">Upload</button>
@@ -113,12 +118,19 @@
         <thead>
           <th>Name</th>
           <th>Size</th>
+          <th ng-show="ctrl.showRestrictedDocuments">Restricted?</th>
           <th ng-show="ctrl.showEditControls">Remove</th>
         </thead>
         <tbody>
           <tr ng-repeat="document in ctrl.documents track by $index">
             <td><a ng-href="/api/receiving/{{ ctrl.shipment._id }}/documents/{{ document.name }}" target="_self" download>{{ document.name }}</a></td>
             <td>{{ document.displaySize }}</td>
+            <td ng-show="ctrl.showRestrictedDocuments">
+              <select ng-model="document.isRestricted" ng-change="document.updateRestrictionStatus()">
+                <option ng-value="true">Yes</option>
+                <option ng-value="false">No</option>
+              </select>
+            </td>
             <td ng-show="ctrl.showEditControls">
               <button type="button" class="btn btn-danger btn-xs" ng-click="ctrl.removeDocument( document.name )">
                 <span class="glyphicon glyphicon-remove"></span>
@@ -269,7 +281,7 @@
                     <option ng-value="true">Yes</option>
                     <option ng-value="false">No</option>
                 </select>
-                </span>
+              </span>
             </td>
             <td>
               <span ng-hide="pallet.isEditing">

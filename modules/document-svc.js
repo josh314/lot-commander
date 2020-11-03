@@ -10,8 +10,10 @@ const __EXPRESSHOP_DOCUMENTS_BUCKET__ = 'expresshop-documents';
 module.exports = {
   folder: type => id => `${type}-${id}`,
   get,
+  getDocumentTags,
   list,
   remove,
+  setDocumentTags,
   store
 }
 
@@ -32,17 +34,20 @@ function remove( { bucket, folder, name } ) {
 
 }
 
-function store( { readStream, bucket, folder, name, isPublic=false } ) {
+function store( { readStream, bucket, folder, name, permission } ) {
 
-  const ACL = isPublic ? "public-read" : 'private'
-
-  return s3.upload({
+  const req = {
     Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
     Key: folder ? `${folder}/${name}` : name,
     Body: readStream,
-    ACL: ACL
-  })
-    .promise();
+    ACL: 'private'
+  }
+
+  if( permission ) {
+    req.Tagging = `permission=${permission}`;
+  }
+
+  return s3.upload( req ).promise();
     
 }
 
@@ -81,4 +86,23 @@ async function list({ num, bucket, folder, continuationToken }) {
   };
 
   return result;
+}
+
+
+function getDocumentTags( { bucket, folder, name } ) {
+  return s3.getObjectTagging({
+    Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
+    Key: folder ? `${folder}/${name}` : name,
+  })
+    .promise();
+}
+
+function setDocumentTags( { bucket, folder, name, tagset } ) {
+  return s3.putObjectTagging({
+    Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
+    Key: folder ? `${folder}/${name}` : name,
+    Tagging: {
+      TagSet: tagset
+    }
+  }).promise();
 }
