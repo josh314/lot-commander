@@ -171,7 +171,9 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q',
         return resp && resp.documents ? resp.documents.map( d => Object.assign( d, { displaySize: displaySize(d.size) } )  ) : [];
       });
 
-      shipment.uploadShipmentDocument = ( documentName, file) => $q.when( api.uploadIncomingShipmentDocument( shipment._id, documentName, file) );
+      shipment.uploadShipmentDocument = ( file, isRestricted ) => $q.when( api.uploadIncomingShipmentDocument( shipment._id, file, isRestricted ) );
+
+      shipment.updateDocumentRestrictionStatus = ( documentName, isRestricted ) => $q.when( api.updateIncomingShipmentDocumentRestrictionStatus( shipment._id, documentName, isRestricted ) );
 
       shipment.removeShipmentDocument = documentName => $q.when( api.removeIncomingShipmentDocument( shipment._id, documentName ) );
 

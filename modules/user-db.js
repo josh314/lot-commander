@@ -21,7 +21,7 @@ const __USER_ROLE_PERMISSIONS__ = {
 
 const superuserRoles = () => Object.keys( __USER_ROLE_PERMISSIONS__ );
 
-const userRoleHasPermission = permission => role => __USER_ROLE_PERMISSIONS__[ role ].includes( permission );
+const userRoleHasPermission = permission => role => !permission || __USER_ROLE_PERMISSIONS__[ role ].includes( permission );
 
 //=======================================
 //=======================================
