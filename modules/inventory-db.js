@@ -90,7 +90,7 @@ const withoutProblemShipmentFilter = {
   ]
 }
 
-const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProblemDateArrivedStart } ) => {
+const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProblemDateArrivedStart, includeClosed=false } ) => {
   const filter = {};
 
   if ( handle ) {
@@ -151,6 +151,10 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
 
   }
 
+  if( !includeClosed ) {
+    Object.assign( filter, { isClosed: { $not: { $eq: true } } } );
+  }
+
   return filter;
 }
 
@@ -181,7 +185,8 @@ const incomingShipmentSchema = mongoose.Schema({
     hasProblem: Boolean,
     note: String,
     isAnonymous: Boolean
-  } ]
+  } ],
+  isClosed: Boolean
   // TODO: manifests, costs, total units, category
 }, { collection: 'incoming-shipments', timestamps: true });
 
@@ -244,6 +249,16 @@ incomingShipmentSchema.methods.editPalletReceived = async function( palletId, da
   return this;
 }
 
+incomingShipmentSchema.methods.close = function() {
+  this.isClosed = true;
+  return this.save();
+}
+
+incomingShipmentSchema.methods.reopen = function() {
+  this.isClosed = false;
+  return this.save();
+}
+
 /************************************************
  * 
  * Public Database Client
@@ -293,6 +308,7 @@ class InventoryDbClient {
     const data = Object.assign(
       {
         isReceived: false,
+        isClosed: false
       },
       _data
     );

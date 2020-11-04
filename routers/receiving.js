@@ -35,6 +35,10 @@ const listShipmentsFilterParamsFromQueryParams = ( qp ) => {
     fp.hasProblem = !!parseInt( qp.problem );
   }
 
+  if( 'include_closed' in qp ) {
+    fp.includeClosed = !!parseInt( qp.include_closed );
+  }
+
   return fp;
 };
 
@@ -154,6 +158,12 @@ function routes({ eventsDb, inventoryDb }) {
     '/:shipmentId/pallets-received/:palletId',
     auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
     editIncomingShipmentPalletReceived
+  );
+
+  router.patch(
+    '/:shipmentId/is-closed',
+    auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' ),
+    closeIncomingShipment
   );
   
   /*******************************************
@@ -550,6 +560,46 @@ function routes({ eventsDb, inventoryDb }) {
     else {
       res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
     }
+  }
+
+  //===========================
+  // Close shipment handler
+
+  async function closeIncomingShipment( req, res ) {
+
+    if( 'isClosed' in req.body && typeof req.body.isClosed === 'boolean' ) {
+      const isClosed = req.body.isClosed;
+
+      const shipmentId = req.params.shipmentId;
+
+      const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+      if( shipment ) {
+
+        if( isClosed ) {
+
+          await shipment.close();
+
+          eventsDb.closeIncomingShipment( { user: req.user, shipment } );
+
+        }
+        else {
+
+          await shipment.reopen();
+
+          eventsDb.reopenIncomingShipment( { user: req.user, shipment } );
+
+        }
+
+        res.json( { success: true } );
+      }
+      else {
+        res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+      }
+    }
+    else {
+      res.json( { error: true, message: `Invalid request.` } );
+    }
+
   }
 
   /**************************************

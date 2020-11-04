@@ -379,3 +379,23 @@ export function editIncomingShipmentPalletReceived( shipmentId, palletId, _data 
   })
     .then( resp => resp.data );
 }
+
+// Close/reopen shipments
+
+export function closeIncomingShipment( shipmentId ){
+  return axios({
+    method: 'patch',
+    url: `/api/receiving/${ shipmentId }/is-closed`,
+    data: { isClosed: true }
+  })
+    .then( resp => resp.data );
+}
+
+export function reopenIncomingShipment( shipmentId ){
+  return axios({
+    method: 'patch',
+    url: `/api/receiving/${ shipmentId }/is-closed`,
+    data: { isClosed: false }
+  })
+    .then( resp => resp.data );
+}

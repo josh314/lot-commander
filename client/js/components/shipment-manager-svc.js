@@ -41,11 +41,15 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'S
           query.vendor = filter.vendor;
         }
   
-        if( filter.status === 'awaiting' ) {
+        if( filter.status === 'not received' ) {
           query.received = 0;
         }
         else if ( filter.status === 'received' ) {
           query.received = 1;
+        }
+
+        if( filter.includeClosed ) {
+          query.include_closed = 1;
         }
   
         if( sort.key ) {
@@ -193,6 +197,11 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q',
     
       shipment.editReceivedPallet = ( _palletId, _data ) => $q.when( api.editIncomingShipmentPalletReceived( shipment._id, _palletId, _data ) );
     
+      // Shipment close/reopen
+
+      shipment.close = ( ) => $q.when( api.closeIncomingShipment( shipment._id ) );
+      shipment.reopen = ( ) => $q.when( api.reopenIncomingShipment( shipment._id ) );
+
       return shipment;
     }
 

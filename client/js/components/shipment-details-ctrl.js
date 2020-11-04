@@ -48,6 +48,9 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     vm.unreceivePallet = unreceivePallet;
     vm.receiveAnonymousPallet = receiveAnonymousPallet;
 
+    vm.closeShipment = closeShipment;
+    vm.reopenShipment = reopenShipment;
+
     /****************************************************
      * Functions
      * =========
@@ -192,7 +195,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
             doc.isRestricted = doc.permission === 'VIEW_PURCHASING_DATA';
 
-            doc.updateRestrictionStatus = () => vm.shipment.updateDocumentRestrictionStatus( doc.name, doc.isRestricted ).then( updateDocumentList )
+            doc.updateRestrictionStatus = () => vm.shipment.updateDocumentRestrictionStatus( doc.name, doc.isRestricted ).then( updateDocumentList );
 
           });
 
@@ -203,7 +206,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
       });
 
-    };
+    }
 
     function uploadDocument() {
       if(!vm.documentToUpload) {
@@ -337,6 +340,23 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
     function printShipmentLabels( palletList ) {
       PrintSvc.printIncomingShipmentLabels( vm.shipment._id, palletList );
+    }
+
+
+    /*******************************************************
+     * Close/Reopen
+     * ======
+     *
+     *******/
+
+    function closeShipment() {
+      vm.shipment.isClosed = true;
+      return vm.shipment.close();
+    }
+
+    function reopenShipment() {
+      vm.shipment.isClosed = false;
+      return vm.shipment.reopen();
     }
 
     /*******************************************************

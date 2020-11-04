@@ -75,6 +75,20 @@ const receiveIncomingShipmentPalletEventSchema = new mongoose.Schema(
   discriminatorOpts
 );
 
+const closeIncomingShipmentEventSchema = new mongoose.Schema(
+  {
+    shipment: incomingShipmentRef
+  },
+  discriminatorOpts
+);
+
+const reopenIncomingShipmentEventSchema = new mongoose.Schema(
+  {
+    shipment: incomingShipmentRef
+  },
+  discriminatorOpts
+);
+
 /************************************************
  * 
  * Public Database Client
@@ -96,6 +110,8 @@ class EventsDbClient {
     this.ReceiveIncomingShipmentEvent = this.Event.discriminator( 'receive-incoming-shipment', receiveIncomingShipmentEventSchema );
     this.UnreceiveIncomingShipmentEvent = this.Event.discriminator( 'unreceive-incoming-shipment', unreceiveIncomingShipmentEventSchema );
     this.ReceiveIncomingShipmentPalletEvent = this.Event.discriminator( 'receive-incoming-shipment-pallet', receiveIncomingShipmentPalletEventSchema );
+    this.CloseIncomingShipmentEvent = this.Event.discriminator( 'close-incoming-shipment', closeIncomingShipmentEventSchema );
+    this.ReopenIncomingShipmentEvent = this.Event.discriminator( 'reopen-incoming-shipment', reopenIncomingShipmentEventSchema );  
 
     // TODO:
     // add/remove documents
@@ -202,6 +218,30 @@ class EventsDbClient {
     const pallet = shipment.palletsReceived[ shipment.palletsReceived.length - 1 ];
 
     const e = new this.ReceiveIncomingShipmentPalletEvent( { user: user && user._id , shipment: shipment && shipment._id, pallet: pallet && pallet._id } );
+
+    return e.save();
+
+  }
+
+  closeIncomingShipment( { user, shipment } ) {
+
+    if( !shipment ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.CloseIncomingShipmentEvent({ user: user && user._id , shipment: shipment && shipment._id  });
+
+    return e.save();
+
+  }
+
+  reopenIncomingShipment( { user, shipment } ) {
+
+    if( !shipment ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.ReopenIncomingShipmentEvent({ user: user && user._id , shipment: shipment && shipment._id  });
 
     return e.save();
 

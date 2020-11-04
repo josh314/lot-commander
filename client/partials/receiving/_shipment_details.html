@@ -87,8 +87,11 @@
         align-items: flex-end;
       "
     >
+
+      <span ng-show="ctrl.shipment.isClosed" style="font-size: 2rem;"><span class="label label-default">Closed</span></span>
       <span ng-show="ctrl.shipment.isComplete()" style="font-size: 2rem;"><span class="label label-success">Complete</span></span>
-      <span ng-hide="!ctrl.shipment || !ctrl.shipment.isComplete || ctrl.shipment.isComplete()" style="font-size: 2rem;"><span class="label label-warning">Incomplete</span></span>
+      <span ng-show="ctrl.shipment && ctrl.shipment.isComplete && !ctrl.shipment.isReceived && !ctrl.shipment.isClosed" style="font-size: 2rem;"><span class="label label-info">Waiting</span></span>
+      <span ng-show="!ctrl.shipment.isComplete() && ctrl.shipment.isReceived" style="font-size: 2rem;"><span class="label label-danger">Incomplete</span></span>
       <span ng-hide="!ctrl.shipment || !ctrl.shipment.noUnexpectedPallets || ctrl.shipment.noUnexpectedPallets()" style="font-size: 2rem;"><span class="label label-warning">Extras</span></span>
       <span ng-show="ctrl.shipment.hasProblem()" style="font-size: 2rem;"><span class="label label-danger">Problems</span></span>
     </div>
@@ -316,6 +319,8 @@
 
   <div class="row" style="margin-top: 40px; margin-bottom: 60px;" >
     <div class="text-center" ng-show="ctrl.showEditControls">
+      <button type="button" class="btn btn-default" ng-click="ctrl.closeShipment()" ng-hide="ctrl.shipment.isClosed">Mark as Closed</button>
+      <button type="button" class="btn btn-default" ng-click="ctrl.reopenShipment()" ng-show="ctrl.shipment.isClosed">Reopen Shipment</button>
       <button type="button" class="btn btn-danger" ng-click="ctrl.removeShipment()">Delete Shipment</button>
     </div>
   </div>
