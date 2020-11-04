@@ -60,6 +60,13 @@ const receiveIncomingShipmentEventSchema = new mongoose.Schema(
   discriminatorOpts
 );
 
+const unreceiveIncomingShipmentEventSchema = new mongoose.Schema(
+  {
+    shipment: incomingShipmentRef
+  },
+  discriminatorOpts
+);
+
 const receiveIncomingShipmentPalletEventSchema = new mongoose.Schema(
   {
     shipment: incomingShipmentRef,
@@ -87,6 +94,7 @@ class EventsDbClient {
     this.RemoveIncomingShipmentEvent = this.Event.discriminator( 'remove-incoming-shipment', removeIncomingShipmentEventSchema );
     this.EditIncomingShipmentEvent = this.Event.discriminator( 'edit-incoming-shipment', editIncomingShipmentEventSchema );
     this.ReceiveIncomingShipmentEvent = this.Event.discriminator( 'receive-incoming-shipment', receiveIncomingShipmentEventSchema );
+    this.UnreceiveIncomingShipmentEvent = this.Event.discriminator( 'unreceive-incoming-shipment', unreceiveIncomingShipmentEventSchema );
     this.ReceiveIncomingShipmentPalletEvent = this.Event.discriminator( 'receive-incoming-shipment-pallet', receiveIncomingShipmentPalletEventSchema );
 
     // TODO:
@@ -168,6 +176,18 @@ class EventsDbClient {
     }
 
     const e = new this.ReceiveIncomingShipmentEvent({ user: user && user._id , shipment: shipment && shipment._id  });
+
+    return e.save();
+
+  }
+
+  unreceiveIncomingShipment( { user, shipment } ) {
+
+    if( !shipment ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.UnreceiveIncomingShipmentEvent({ user: user && user._id , shipment: shipment && shipment._id  });
 
     return e.save();
 

@@ -467,9 +467,21 @@ function routes({ eventsDb, inventoryDb }) {
 
       const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
       if( shipment ) {
-        const result = isReceived ? await shipment.receive() : await shipment.unreceive();
 
-        eventsDb.receiveIncomingShipment( { user: req.user, shipment } );
+        if( isReceived ) {
+
+          await shipment.receive();
+
+          eventsDb.receiveIncomingShipment( { user: req.user, shipment } );
+
+        }
+        else {
+
+          await shipment.unreceive();
+
+          eventsDb.unreceiveIncomingShipment( { user: req.user, shipment } );
+
+        }
 
         res.json( { success: true } );
       }
