@@ -76,6 +76,18 @@
           <input type="date" ng-model="ctrl.editValue[ 'arrivalDateExpected' ]" />
         </dd>
       </div>
+      <div ng-hide="ctrl.isEditing[ 'notes' ]">
+        <dt>Notes<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'notes' )">edit</a>)</span></dt>
+        <dd ng-hide="ctrl.isEditing[ 'notes' ]">
+          {{ ctrl.shipment.notes || '----' }}
+        </dd>
+      </div>
+      <div ng-show="ctrl.isEditing[ 'notes' ]">
+        <dt>Notes (<a href ng-click="ctrl.saveEdit( 'notes' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'notes' )" style="color: red">cancel edit</a>)</dt>
+        <dd ng-show="ctrl.isEditing[ 'notes' ]">
+          <textarea rows="5" cols="80" ng-model="ctrl.editValue[ 'notes' ]" autocomplete="off"></textarea>
+        </dd>
+      </div>
     </dl>
     <div style="flex-grow: 1"></div>
 

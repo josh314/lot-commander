@@ -186,6 +186,7 @@ const incomingShipmentSchema = mongoose.Schema({
     note: String,
     isAnonymous: Boolean
   } ],
+  notes: String,
   isClosed: Boolean
   // TODO: manifests, costs, total units, category
 }, { collection: 'incoming-shipments', timestamps: true });
