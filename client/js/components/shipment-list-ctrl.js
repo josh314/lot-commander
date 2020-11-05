@@ -2,6 +2,8 @@ import angular from 'angular';
 
 const prettifyDate = dt => dt && dt.toLocaleDateString();
 
+const __PAGE_SIZE__ = 10;
+
 /******************* Shipment List Page Controller *************************/
 angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTimeout', 'ShipmentManagerSvc', 'LoggedInUser',
   function(navigate, sessionTimeout, ShipmentManagerSvc, LoggedInUser) {
@@ -17,6 +19,13 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTim
     vm.sortOpts = {
       key: 'createdAt',
       ascending: false
+    };
+
+    vm.pagination = {
+      current: 1,
+      totalItems: 0,
+      pageSize: __PAGE_SIZE__,
+      pageChange: refreshShipmentsList
     };
 
     vm.columns = {
@@ -62,14 +71,28 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTim
 
     function refreshShipmentsList() {
 
-      const options = {
+      const baseQueryOptions = {
         filter: vm.filter,
         sort: vm.sortOpts,
       };
 
-      ShipmentManagerSvc.listShipments( options ).then( shipments => {
-        vm.shipments = shipments;
+      return ShipmentManagerSvc.countShipments( baseQueryOptions ).then( resp => {
+        vm.pagination.totalItems = resp.count;
+
+        const pagedQueryOptions = Object.assign(
+          baseQueryOptions,
+          {
+            num: __PAGE_SIZE__,
+            page: vm.pagination.current,
+          },
+        );
+
+        return ShipmentManagerSvc.listShipments( pagedQueryOptions ).then( shipments => {
+          vm.shipments = shipments;
+        });
+
       });
+
     }
 
     const init = () => {

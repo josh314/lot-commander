@@ -28,6 +28,14 @@
         </select>
       </div>
     </fieldset>
+
+    <ul uib-pagination
+    total-items="ctrl.pagination.totalItems"
+    items-per-page="ctrl.pagination.pageSize"
+    ng-model="ctrl.pagination.current"
+    ng-change="ctrl.pagination.pageChange()"
+    class="pagination-sm pull-right"></ul>
+    
     <table class="table table-striped">
       <thead><tr>
         <th ng-repeat="(columnKey, columnData) in ctrl.columns">

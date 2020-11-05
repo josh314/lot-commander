@@ -2,6 +2,37 @@ import angular from 'angular';
 
 import * as api from '../api';
 
+/***************************************
+ * Helpers
+ * =======
+ * 
+ ******/
+
+const queryParams = ( params ) => {
+
+  const qp = {};
+
+  if( params.handle ) {
+    qp.handle = params.handle;
+  }
+
+  if( params.vendor ) {
+    qp.vendor = params.vendor;
+  }
+
+  if( params.status === 'not received' ) {
+    qp.received = 0;
+  }
+  else if ( params.status === 'received' ) {
+    qp.received = 1;
+  }
+
+  if( params.includeClosed ) {
+    qp.include_closed = 1;
+  }
+
+  return qp;
+};
 
 /******************* Shipment Manager Service *************************/
 //
@@ -30,34 +61,17 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'S
         return ShipmentFactory.buildAnonymousPalletHandle( shipmentHandle, number );
       },
 
-      listShipments: ( { filter, sort } ) => {
+      listShipments: ( { filter, sort, num, page } ) => {
         
-        const query = {};
-        if( filter.handle ) {
-          query.handle = filter.handle;
-        }
+        const query = { num, page };
 
-        if( filter.vendor ) {
-          query.vendor = filter.vendor;
-        }
-  
-        if( filter.status === 'not received' ) {
-          query.received = 0;
-        }
-        else if ( filter.status === 'received' ) {
-          query.received = 1;
-        }
-
-        if( filter.includeClosed ) {
-          query.include_closed = 1;
-        }
+        Object.assign( query, queryParams(filter) );
   
         if( sort.key ) {
           query.sort = sort.key;
           query.sort_dir = sort.ascending ? 1 : -1;
         }
   
-
         return $q.when( api.listIncomingShipments( query ) ).then( resp => {
           if( !resp || !resp.shipments ) {
             return [];
@@ -67,6 +81,8 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'S
 
         });
       },
+
+      countShipments: filter => $q.when( api.countIncomingShipments( queryParams( filter ) ) ),
 
     };
 

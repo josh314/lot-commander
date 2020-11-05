@@ -217,10 +217,10 @@ export function listIncomingShipments( qp ) {
   })
     .then( resp => resp.data );
 }
-export function countIncomingShipments() {
+export function countIncomingShipments( qp ) {
   return axios({
     method: 'get',
-    url: `/api/receiving/count`,
+    url: `/api/receiving/count/?${querystring.stringify(qp)}`,
   })
     .then( resp => resp.data );
 }
