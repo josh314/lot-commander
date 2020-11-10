@@ -1,0 +1,45 @@
+<div class="container" ng-controller="HistoryCtrl as ctrl">
+  <h2>History</h2>
+  <div class="row well">
+    <table class="table">
+      <thead><tr>
+        <th>Timestamp</th>
+        <th>Message</th>
+        <th>Details</th>
+      </tr></thead>
+      <tbody ng-repeat="ev in ctrl.events">
+        <tr style="background-color: white">
+          <td>{{ ev.timestamp }}</td>
+          <td ng-bind-html="ev.message"></td>
+          <td>[<a ng-click="ev.toggleDetails()">Details</a>]</td>
+        </tr>
+        <tr style="background-color: white" ng-show="ev.showDetails">
+          <td>
+            <dl>
+
+              <!-- <dt>Event ID</dt>
+              <dd>{{ ev._id }}</dd>
+
+              <div ng-show="ev.user">
+                <div ng-show="ev.user.fullName">
+                  <dt>User</dt>
+                  <dd>{{ ev.user.fullName }}</dd>
+                </div>
+                <dt>Username</dt>
+                <dd>{{ ev.user.username }}</dd>
+              </div> -->
+              <div ng-repeat="(detailName, detailValue) in ev.details">
+                <dt>{{ detailName }}</dt>
+                <dd>{{ detailValue }}</dd>
+              </div>
+
+
+            </dt>
+          </td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

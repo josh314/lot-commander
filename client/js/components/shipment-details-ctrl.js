@@ -2,8 +2,8 @@ import angular from 'angular';
 
 
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal', 'DisplayPalletFactory', 'focus', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc',
-  function( ConfirmationModal, DisplayPalletFactory, focus, LoggedInUser, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc ) {
+angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal', 'DisplayPalletFactory', 'EventsSvc', 'focus', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc',
+  function( ConfirmationModal, DisplayPalletFactory, EventsSvc, focus, LoggedInUser, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc ) {
 
     /****************************************************
      * View variables
@@ -16,6 +16,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
     vm.showEditControls = LoggedInUser.hasPermission('EDIT_INCOMING_SHIPMENT');
     vm.showReceiveControls = LoggedInUser.hasPermission('RECEIVE_INCOMING_SHIPMENT');
+    vm.showHistoryControls = LoggedInUser.hasPermission('VIEW_EVENTS');
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
     vm.showRestrictedDocuments = vm.showPurchasingData;
     vm.categoryOptions = [ "" ].concat( palletCategories );
@@ -50,6 +51,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
     vm.closeShipment = closeShipment;
     vm.reopenShipment = reopenShipment;
+
+    vm.viewHistory = viewHistory;
 
     /****************************************************
      * Functions
@@ -357,6 +360,18 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     function reopenShipment() {
       vm.shipment.isClosed = false;
       return vm.shipment.reopen();
+    }
+
+
+    /*******************************************************
+     * View Events
+     * ======
+     *
+     *******/
+
+    function viewHistory() {
+      // EventsSvc.getShipmentEvents( vm.shipment._id ).then( _ => navigate.history() );
+      navigate.history( 'shipments', vm.shipment._id );
     }
 
     /*******************************************************

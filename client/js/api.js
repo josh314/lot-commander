@@ -399,3 +399,18 @@ export function reopenIncomingShipment( shipmentId ){
   })
     .then( resp => resp.data );
 }
+
+
+/*************************************************
+* Events
+* ======
+*
+************/
+
+export function getIncomingShipmentEvents( shipmentId ) {
+  return axios({
+    method: 'get',
+    url: `/api/events/shipment/${ shipmentId }?populate_user=1&populate_shipment=1`
+  })
+    .then( resp => resp.data );
+}

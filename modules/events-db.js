@@ -111,12 +111,14 @@ class EventsDbClient {
     this.UnreceiveIncomingShipmentEvent = this.Event.discriminator( 'unreceive-incoming-shipment', unreceiveIncomingShipmentEventSchema );
     this.ReceiveIncomingShipmentPalletEvent = this.Event.discriminator( 'receive-incoming-shipment-pallet', receiveIncomingShipmentPalletEventSchema );
     this.CloseIncomingShipmentEvent = this.Event.discriminator( 'close-incoming-shipment', closeIncomingShipmentEventSchema );
-    this.ReopenIncomingShipmentEvent = this.Event.discriminator( 'reopen-incoming-shipment', reopenIncomingShipmentEventSchema );  
+    this.ReopenIncomingShipmentEvent = this.Event.discriminator( 'reopen-incoming-shipment', reopenIncomingShipmentEventSchema );
 
     // TODO:
     // add/remove documents
+    // change documents to restricted
     // add/remove/edit expected pallets
     // edit received pallets
+    // delete shipment
 
   }
 

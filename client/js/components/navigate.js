@@ -33,7 +33,10 @@ angular.module('myApp').factory('navigate', [ '$state', function($state){
 
   const shipmentReceiving = ( shipmentId ) => $state.go('main.receiving.shipment-receiving', { shipmentId: shipmentId } );
 
+  const history = ( species, id ) => $state.go('main.history', { species: species, id: id } );
+
   return {
+    history: history,
     home: home,
     listLots: listLots,
     reload: reload,

@@ -69,7 +69,9 @@ function routes( eventsDb ) {
 
     };
 
-    const events = await eventsDb.listIncomingShipmentEventsByShipmentId( req.params.shipmentId , options );
+    const eventDocuments = await eventsDb.listIncomingShipmentEventsByShipmentId( req.params.shipmentId , options );
+
+    const events = eventDocuments.map( _ => Object.assign( {}, _._doc , { user: _.user && _.user.getPublicInfo ? _.user.getPublicInfo() : _.user })  );
 
     res.json( { events } );
     

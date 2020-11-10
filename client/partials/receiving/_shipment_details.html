@@ -1,111 +1,123 @@
 <div class="container" ng-controller="ShipmentDetailsCtrl as ctrl">
   <h2>Shipment Details</h2>
-	<div class="row well" style="display: flex;">
-    <dl>
-      <div ng-hide="ctrl.isEditing[ 'handle' ]">
-        <dt>Shipment ID<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'handle' )">edit</a>)</span></dt>
-        <dd ng-hide="ctrl.isEditing[ 'handle' ]">
-          {{ ctrl.shipment.handle || '----' }}
-        </dd>
-      </div>
-      <div ng-show="ctrl.isEditing[ 'handle' ]">
-        <dt>Shipment ID (<a href ng-click="ctrl.saveEdit( 'handle' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'handle' )" style="color: red">cancel edit</a>)</dt>
-        <dd ng-show="ctrl.isEditing[ 'handle' ]">
-          <input ng-model="ctrl.editValue[ 'handle' ]" />
-        </dd>
-      </div>
-      <div ng-show="ctrl.showPurchasingData">
-        <div ng-hide="ctrl.isEditing[ 'vendor' ]">
-          <dt>Vendor<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'vendor' )">edit</a>)</span></dt>
-          <dd ng-hide="ctrl.isEditing[ 'vendor' ]">
-            {{ ctrl.shipment.vendor || '----' }}
+	<div class="row well">
+    <div style="display: flex;">
+      <dl>
+        <div ng-hide="ctrl.isEditing[ 'handle' ]">
+          <dt>Shipment ID<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'handle' )">edit</a>)</span></dt>
+          <dd ng-hide="ctrl.isEditing[ 'handle' ]">
+            {{ ctrl.shipment.handle || '----' }}
           </dd>
         </div>
-        <div ng-show="ctrl.isEditing[ 'vendor' ]">
-          <dt>Vendor (<a href ng-click="ctrl.saveEdit( 'vendor' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'vendor' )" style="color: red">cancel edit</a>)</dt>
-          <dd ng-show="ctrl.isEditing[ 'vendor' ]">
-            <input ng-model="ctrl.editValue[ 'vendor' ]" />
+        <div ng-show="ctrl.isEditing[ 'handle' ]">
+          <dt>Shipment ID (<a href ng-click="ctrl.saveEdit( 'handle' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'handle' )" style="color: red">cancel edit</a>)</dt>
+          <dd ng-show="ctrl.isEditing[ 'handle' ]">
+            <input ng-model="ctrl.editValue[ 'handle' ]" />
           </dd>
         </div>
-        <div ng-hide="ctrl.isEditing[ 'cost' ]">
-          <dt>Cost<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'cost' )">edit</a>)</span></dt>
-          <dd ng-hide="ctrl.isEditing[ 'cost' ]">
-            {{ ctrl.shipment.cost || '----' }}
+        <div ng-show="ctrl.showPurchasingData">
+          <div ng-hide="ctrl.isEditing[ 'vendor' ]">
+            <dt>Vendor<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'vendor' )">edit</a>)</span></dt>
+            <dd ng-hide="ctrl.isEditing[ 'vendor' ]">
+              {{ ctrl.shipment.vendor || '----' }}
+            </dd>
+          </div>
+          <div ng-show="ctrl.isEditing[ 'vendor' ]">
+            <dt>Vendor (<a href ng-click="ctrl.saveEdit( 'vendor' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'vendor' )" style="color: red">cancel edit</a>)</dt>
+            <dd ng-show="ctrl.isEditing[ 'vendor' ]">
+              <input ng-model="ctrl.editValue[ 'vendor' ]" />
+            </dd>
+          </div>
+          <div ng-hide="ctrl.isEditing[ 'cost' ]">
+            <dt>Cost<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'cost' )">edit</a>)</span></dt>
+            <dd ng-hide="ctrl.isEditing[ 'cost' ]">
+              {{ ctrl.shipment.cost || '----' }}
+            </dd>
+          </div>
+          <div ng-show="ctrl.isEditing[ 'cost' ]">
+            <dt>Cost (<a href ng-click="ctrl.saveEdit( 'cost' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'cost' )" style="color: red">cancel edit</a>)</dt>
+            <dd ng-show="ctrl.isEditing[ 'cost' ]">
+              <input ng-model="ctrl.editValue[ 'cost' ]" />
+            </dd>
+          </div>
+        </div>
+        <div ng-hide="ctrl.isEditing[ 'carrier' ]">
+          <dt>Carrier<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'carrier' )">edit</a>)</span></dt>
+          <dd ng-hide="ctrl.isEditing[ 'carrier' ]">
+            {{ ctrl.shipment.carrier || '----' }}
           </dd>
         </div>
-        <div ng-show="ctrl.isEditing[ 'cost' ]">
-          <dt>Cost (<a href ng-click="ctrl.saveEdit( 'cost' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'cost' )" style="color: red">cancel edit</a>)</dt>
-          <dd ng-show="ctrl.isEditing[ 'cost' ]">
-            <input ng-model="ctrl.editValue[ 'cost' ]" />
+        <div ng-show="ctrl.isEditing[ 'carrier' ]">
+          <dt>Carrier (<a href ng-click="ctrl.saveEdit( 'carrier' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'carrier' )" style="color: red">cancel edit</a>)</dt>
+          <dd ng-show="ctrl.isEditing[ 'carrier' ]">
+            <input ng-model="ctrl.editValue[ 'carrier' ]" />
           </dd>
         </div>
-      </div>
-      <div ng-hide="ctrl.isEditing[ 'carrier' ]">
-        <dt>Carrier<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'carrier' )">edit</a>)</span></dt>
-        <dd ng-hide="ctrl.isEditing[ 'carrier' ]">
-          {{ ctrl.shipment.carrier || '----' }}
-        </dd>
-      </div>
-      <div ng-show="ctrl.isEditing[ 'carrier' ]">
-        <dt>Carrier (<a href ng-click="ctrl.saveEdit( 'carrier' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'carrier' )" style="color: red">cancel edit</a>)</dt>
-        <dd ng-show="ctrl.isEditing[ 'carrier' ]">
-          <input ng-model="ctrl.editValue[ 'carrier' ]" />
-        </dd>
-      </div>
-      <div ng-hide="ctrl.isEditing[ 'arrivalDate' ]">
-        <dt>Arrival date<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'arrivalDate' )">edit</a>)</span></dt>
-        <dd ng-hide="ctrl.isEditing[ 'arrivalDate' ]">
-          {{ ctrl.shipment.arrivalDate.toLocaleDateString() || '----' }}
-        </dd>
-      </div>
-      <div ng-show="ctrl.isEditing[ 'arrivalDate' ]">
-        <dt>Arrival date (<a href ng-click="ctrl.saveEdit( 'arrivalDate' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'arrivalDate' )" style="color: red">cancel edit</a>)</dt>
-        <dd ng-show="ctrl.isEditing[ 'arrivalDate' ]">
-          <input type="date" ng-model="ctrl.editValue[ 'arrivalDate' ]" />
-        </dd>
-      </div>
-      <div ng-hide="ctrl.isEditing[ 'arrivalDateExpected' ]">
-        <dt>Expected arrival date<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'arrivalDateExpected' )">edit</a>)</span></dt>
-        <dd ng-hide="ctrl.isEditing[ 'arrivalDateExpected' ]">
-          {{ ctrl.shipment.arrivalDateExpected.toLocaleDateString() || '----' }}
-        </dd>
-      </div>
-      <div ng-show="ctrl.isEditing[ 'arrivalDateExpected' ]">
-        <dt>Expected arrival date (<a href ng-click="ctrl.saveEdit( 'arrivalDateExpected' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'arrivalDateExpected' )" style="color: red">cancel edit</a>)</dt>
-        <dd ng-show="ctrl.isEditing[ 'arrivalDateExpected' ]">
-          <input type="date" ng-model="ctrl.editValue[ 'arrivalDateExpected' ]" />
-        </dd>
-      </div>
-      <div ng-hide="ctrl.isEditing[ 'notes' ]">
-        <dt>Notes<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'notes' )">edit</a>)</span></dt>
-        <dd ng-hide="ctrl.isEditing[ 'notes' ]">
-          {{ ctrl.shipment.notes || '----' }}
-        </dd>
-      </div>
-      <div ng-show="ctrl.isEditing[ 'notes' ]">
-        <dt>Notes (<a href ng-click="ctrl.saveEdit( 'notes' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'notes' )" style="color: red">cancel edit</a>)</dt>
-        <dd ng-show="ctrl.isEditing[ 'notes' ]">
-          <textarea rows="5" cols="80" ng-model="ctrl.editValue[ 'notes' ]" autocomplete="off"></textarea>
-        </dd>
-      </div>
-    </dl>
-    <div style="flex-grow: 1"></div>
+        <div ng-hide="ctrl.isEditing[ 'createdAt' ]">
+          <dt>Created date<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'createdAt' )">edit</a>)</span></dt>
+          <dd ng-hide="ctrl.isEditing[ 'createdAt' ]">
+            {{ ctrl.shipment.createdAt.toLocaleDateString() || '----' }}
+          </dd>
+        </div>
+        <div ng-hide="ctrl.isEditing[ 'arrivalDate' ]">
+          <dt>Arrival date<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'arrivalDate' )">edit</a>)</span></dt>
+          <dd ng-hide="ctrl.isEditing[ 'arrivalDate' ]">
+            {{ ctrl.shipment.arrivalDate.toLocaleDateString() || '----' }}
+          </dd>
+        </div>
+        <div ng-show="ctrl.isEditing[ 'arrivalDate' ]">
+          <dt>Arrival date (<a href ng-click="ctrl.saveEdit( 'arrivalDate' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'arrivalDate' )" style="color: red">cancel edit</a>)</dt>
+          <dd ng-show="ctrl.isEditing[ 'arrivalDate' ]">
+            <input type="date" ng-model="ctrl.editValue[ 'arrivalDate' ]" />
+          </dd>
+        </div>
+        <div ng-hide="ctrl.isEditing[ 'arrivalDateExpected' ]">
+          <dt>Expected arrival date<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'arrivalDateExpected' )">edit</a>)</span></dt>
+          <dd ng-hide="ctrl.isEditing[ 'arrivalDateExpected' ]">
+            {{ ctrl.shipment.arrivalDateExpected.toLocaleDateString() || '----' }}
+          </dd>
+        </div>
+        <div ng-show="ctrl.isEditing[ 'arrivalDateExpected' ]">
+          <dt>Expected arrival date (<a href ng-click="ctrl.saveEdit( 'arrivalDateExpected' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'arrivalDateExpected' )" style="color: red">cancel edit</a>)</dt>
+          <dd ng-show="ctrl.isEditing[ 'arrivalDateExpected' ]">
+            <input type="date" ng-model="ctrl.editValue[ 'arrivalDateExpected' ]" />
+          </dd>
+        </div>
+        <div ng-hide="ctrl.isEditing[ 'notes' ]">
+          <dt>Notes<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'notes' )">edit</a>)</span></dt>
+          <dd ng-hide="ctrl.isEditing[ 'notes' ]">
+            {{ ctrl.shipment.notes || '----' }}
+          </dd>
+        </div>
+        <div ng-show="ctrl.isEditing[ 'notes' ]">
+          <dt>Notes (<a href ng-click="ctrl.saveEdit( 'notes' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'notes' )" style="color: red">cancel edit</a>)</dt>
+          <dd ng-show="ctrl.isEditing[ 'notes' ]">
+            <textarea rows="5" cols="80" ng-model="ctrl.editValue[ 'notes' ]" autocomplete="off"></textarea>
+          </dd>
+        </div>
+      </dl>
+      <div style="flex-grow: 1"></div>
 
-    <!-- Status Badges -->
-    <div 
-      style="
-        display:  flex;
-        flex-direction: column;
-        align-items: flex-end;
-      "
-    >
+      <!-- Status Badges -->
+      <div 
+        style="
+          display:  flex;
+          flex-direction: column;
+          align-items: flex-end;
+        "
+      >
 
-      <span ng-show="ctrl.shipment.isClosed" style="font-size: 2rem;"><span class="label label-default">Closed</span></span>
-      <span ng-show="ctrl.shipment.isComplete()" style="font-size: 2rem;"><span class="label label-success">Complete</span></span>
-      <span ng-show="ctrl.shipment && ctrl.shipment.isComplete && !ctrl.shipment.isReceived && !ctrl.shipment.isClosed" style="font-size: 2rem;"><span class="label label-info">Waiting</span></span>
-      <span ng-show="!ctrl.shipment.isComplete() && ctrl.shipment.isReceived" style="font-size: 2rem;"><span class="label label-danger">Incomplete</span></span>
-      <span ng-hide="!ctrl.shipment || !ctrl.shipment.noUnexpectedPallets || ctrl.shipment.noUnexpectedPallets()" style="font-size: 2rem;"><span class="label label-warning">Extras</span></span>
-      <span ng-show="ctrl.shipment.hasProblem()" style="font-size: 2rem;"><span class="label label-danger">Problems</span></span>
+        <span ng-show="ctrl.shipment.isClosed" style="font-size: 2rem;"><span class="label label-default">Closed</span></span>
+        <span ng-show="ctrl.shipment.isComplete()" style="font-size: 2rem;"><span class="label label-success">Complete</span></span>
+        <span ng-show="ctrl.shipment && ctrl.shipment.isComplete && !ctrl.shipment.isReceived && !ctrl.shipment.isClosed" style="font-size: 2rem;"><span class="label label-info">Waiting</span></span>
+        <span ng-show="!ctrl.shipment.isComplete() && ctrl.shipment.isReceived" style="font-size: 2rem;"><span class="label label-danger">Incomplete</span></span>
+        <span ng-hide="!ctrl.shipment || !ctrl.shipment.noUnexpectedPallets || ctrl.shipment.noUnexpectedPallets()" style="font-size: 2rem;"><span class="label label-warning">Extras</span></span>
+        <span ng-show="ctrl.shipment.hasProblem()" style="font-size: 2rem;"><span class="label label-danger">Problems</span></span>
+      </div>
+    </div>
+
+    <div ng-show="ctrl.showHistoryControls">
+      <button class="btn btn-info" ng-click="ctrl.viewHistory()">View history</button>
     </div>
 
   </div>
