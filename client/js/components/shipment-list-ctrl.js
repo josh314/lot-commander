@@ -82,6 +82,12 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTim
         active: false,
         optionAvailable: vm.showPurchasingData
       },
+      units: {
+        displayName: 'Total Units',
+        active: false,
+        optionAvailable: true,
+        noSort: true,
+      },
       carrier: {
         displayName: 'Carrier',
         defaultSortAscending: true,
