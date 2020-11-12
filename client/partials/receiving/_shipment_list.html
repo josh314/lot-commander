@@ -1,72 +1,90 @@
 <div class="container" ng-controller="ShipmentListCtrl as ctrl">
   <h2>Shipments</h2>
-	<div class="row well">
-    <button class="btn btn-primary pull-right" ng-click="ctrl.createShipment()" ng-show="ctrl.showCreateIncomingShipmentButton">Create New Shipment</button>
-    <fieldset class="col-xs-12 box-border">
-      <legend class="box-border">Filter</legend>
-      <div class="form-group col-xs-12 col-sm-6">
-        <label for="shipmentHandleFilter">Shipment ID</label>
-        <input class="form-control" name="shipmentHandleFilter" ng-model="ctrl.filter.handle" ng-keyup="ctrl.refreshShipmentsList()">
-      </div>
-      <div class="form-group col-xs-12 col-sm-6">
-        <label for="vendorFilter">Vendor</label>
-        <input class="form-control" name="vendorFilter" ng-model="ctrl.filter.vendor" ng-keyup="ctrl.refreshShipmentsList()">
-      </div>
-      <div class="form-group col-xs-12 col-sm-6">
-        <label for="shipmentStatusFilter">Received Status</label>
-        <select class="form-control" name="shipmentStatusFilter" ng-model="ctrl.filter.status" ng-change="ctrl.refreshShipmentsList()">
-          <option>not received</option>
-          <option>received</option>
-          <option>all</option>
-        </select>
-      </div>
-      <div class="form-group col-xs-12 col-sm-6">
-        <label for="includeClosedFilter">Include closed</label>
-        <select class="form-control" name="includeClosedFilter" ng-model="ctrl.filter.includeClosed" ng-change="ctrl.refreshShipmentsList()">
-          <option ng-value="false">no</option>
-          <option ng-value="true">yes</option>
-        </select>
-      </div>
-    </fieldset>
+	<div class="row well" style="display: flex; flex-direction: column">
+    <div>
+      <button class="btn btn-primary pull-right" ng-click="ctrl.createShipment()" ng-show="ctrl.showCreateIncomingShipmentButton">Create New Shipment</button>
+      <fieldset class="col-xs-12 box-border">
+        <legend class="box-border">Filter</legend>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="shipmentHandleFilter">Shipment ID</label>
+          <input class="form-control" name="shipmentHandleFilter" ng-model="ctrl.filter.handle" ng-keyup="ctrl.refreshShipmentsList()">
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="vendorFilter">Vendor</label>
+          <input class="form-control" name="vendorFilter" ng-model="ctrl.filter.vendor" ng-keyup="ctrl.refreshShipmentsList()">
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="shipmentStatusFilter">Received Status</label>
+          <select class="form-control" name="shipmentStatusFilter" ng-model="ctrl.filter.status" ng-change="ctrl.refreshShipmentsList()">
+            <option>not received</option>
+            <option>received</option>
+            <option>all</option>
+          </select>
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="includeClosedFilter">Include closed</label>
+          <select class="form-control" name="includeClosedFilter" ng-model="ctrl.filter.includeClosed" ng-change="ctrl.refreshShipmentsList()">
+            <option ng-value="false">no</option>
+            <option ng-value="true">yes</option>
+          </select>
+        </div>
+      </fieldset>
+    </div>
 
-    <ul uib-pagination
-    total-items="ctrl.pagination.totalItems"
-    items-per-page="ctrl.pagination.pageSize"
-    ng-model="ctrl.pagination.current"
-    ng-change="ctrl.pagination.pageChange()"
-    class="pagination-sm pull-right"></ul>
+    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+
+      <div class="btn-group dropdown" ng-class="{ open: ctrl.showColumnOptions }">
+        <button type="button" class="btn btn-default dropdown-toggle" ng-click="ctrl.toggleShowColumnOptions()">
+          Columns <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li ng-repeat="(columnKey, columnData) in ctrl.columns" ng-show="columnData.optionAvailable" ng-click="ctrl.toggleColumnActive( columnKey )">
+            <a><label for="{{columnKey}}ColumnDisplayToggleInput">
+              <input type="checkbox" id="{{columnKey}}ColumnDisplayToggleInput" ng-model="ctrl.columns[columnKey].active"> {{ columnData.displayName}}
+            </label></a>
+          </li>
+        </ul>
+      </div>
+
+      <ul uib-pagination
+      total-items="ctrl.pagination.totalItems"
+      items-per-page="ctrl.pagination.pageSize"
+      ng-model="ctrl.pagination.current"
+      ng-change="ctrl.pagination.pageChange()"
+      class="pagination-sm pull-right"></ul>
+      
+    </div>
     
     <table class="table table-striped">
       <thead><tr>
-        <th ng-repeat="(columnKey, columnData) in ctrl.columns">
-          <span ng-click="ctrl.sortListBy(columnKey)" style="cursor: pointer;">
+        <th ng-repeat="(columnKey, columnData) in ctrl.columns" ng-show="columnData.optionAvailable && columnData.active">
+          <span ng-click="ctrl.sortListBy(columnKey)" style="cursor: pointer;" ng-hide="columnData.noSort">
             {{columnData.displayName}}
             <span ng-show="columnKey === ctrl.sortOpts.key">
               <span class="glyphicon glyphicon-triangle-bottom" ng-hide="ctrl.sortOpts.ascending" style="font-size: .75em"></span>
               <span class="glyphicon glyphicon-triangle-top" ng-show="ctrl.sortOpts.ascending" style="font-size: .75em"></span>
-            <span>
+            </span>
           </span>
+          <span ng-show="columnData.noSort">{{columnData.displayName}}</span>
         </th>
-        <th>Status</th>
-        <th>Received</th>
       </tr></thead>
       <tbody>	
         <tr ng-repeat="shipment in ctrl.shipments">
-          <td ng-repeat="(columnKey, columnData) in ctrl.columns">
-            <span ng-if="columnKey==='handle'">
+          <td ng-repeat="(columnKey, columnData) in ctrl.columns" ng-show="columnData.optionAvailable && columnData.active" ng-switch="columnKey">
+            <span ng-switch-when="handle">
               <a ng-href="/receiving/shipments/{{shipment._id}}">{{ shipment.handle }}</a>
             </span>
-            <span ng-if="columnKey!=='handle'">{{ columnData.transform ? columnData.transform( shipment[ columnKey ] ) : shipment[ columnKey ] }}</span>
+            <span ng-switch-when="status">
+              <span ng-show="shipment.isClosed"><span class="label label-default">Closed</span></span>
+              <span ng-show="shipment.isComplete()"><span class="label label-success">Complete</span></span>
+              <span ng-show="!shipment.isReceived && !shipment.isClosed"><span class="label label-info">Waiting</span></span>
+              <span ng-show="!shipment.isComplete() && shipment.isReceived"><span class="label label-danger">Incomplete</span></span>
+              <span ng-hide="shipment.noUnexpectedPallets()"><span class="label label-warning">Extras</span></span>
+              <span ng-show="shipment.hasProblem()"><span class="label label-danger">Problems</span></span>
+            </span>
+            <span ng-switch-when="isReceived" class="glyphicon glyphicon-ok" ng-show="shipment.isReceived"></span>
+            <span ng-switch-default>{{ columnData.transform ? columnData.transform( shipment[ columnKey ] ) : shipment[ columnKey ] }}</span>
           </td>
-          <td>
-            <span ng-show="shipment.isClosed"><span class="label label-default">Closed</span></span>
-            <span ng-show="shipment.isComplete()"><span class="label label-success">Complete</span></span>
-            <span ng-show="!shipment.isReceived && !shipment.isClosed"><span class="label label-info">Waiting</span></span>
-            <span ng-show="!shipment.isComplete() && shipment.isReceived"><span class="label label-danger">Incomplete</span></span>
-            <span ng-hide="shipment.noUnexpectedPallets()"><span class="label label-warning">Extras</span></span>
-            <span ng-show="shipment.hasProblem()"><span class="label label-danger">Problems</span></span>
-          </td>
-          <td><span class="glyphicon glyphicon-ok" ng-show="shipment.isReceived"></span></td>
         </tr>
       </tbody>
     </table>

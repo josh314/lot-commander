@@ -10,6 +10,14 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTim
     sessionTimeout.timeoutExpired();
 
     const vm = this;
+
+    // Permissions
+    vm.showCreateIncomingShipmentButton = LoggedInUser.hasPermission('CREATE_INCOMING_SHIPMENT');
+    vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+
+    vm.showColumnOptions = false;
+    vm.toggleShowColumnOptions = () => vm.showColumnOptions = !vm.showColumnOptions;
+
     vm.filter = {
       handle: '',
       status: 'all',
@@ -32,28 +40,75 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTim
       handle: {
         displayName: 'Shipment ID',
         defaultSortAscending: true,
+        active: true,
+        optionAvailable: true
       },
       createdAt: {
         displayName: 'Created',
         defaultSortAscending: false,
-        transform: prettifyDate
+        transform: prettifyDate,
+        active: true,
+        optionAvailable: true
       },
       arrivalDateExpected: {
         displayName: 'Expected',
         defaultSortAscending: false,
-        transform: prettifyDate
+        transform: prettifyDate,
+        active: true,
+        optionAvailable: true
+      },
+      arrivalDate: {
+        displayName: 'Arrived',
+        defaultSortAscending: false,
+        transform: prettifyDate,
+        active: true,
+        optionAvailable: true
       },
       vendor: {
         displayName: 'Vendor',
-        defaultSortAscending: true
+        defaultSortAscending: true,
+        active: true,
+        optionAvailable: vm.showPurchasingData
+      },
+      cost: {
+        displayName: 'Cost',
+        defaultSortAscending: true,
+        active: false,
+        optionAvailable: vm.showPurchasingData
+      },
+      source: {
+        displayName: 'Source',
+        defaultSortAscending: true,
+        active: false,
+        optionAvailable: vm.showPurchasingData
+      },
+      carrier: {
+        displayName: 'Carrier',
+        defaultSortAscending: true,
+        active: false,
+        optionAvailable: true
+      },
+      status: {
+        displayName: 'Status',
+        active: true,
+        optionAvailable: true,
+        noSort: true
+      },
+      isReceived: {
+        displayName: 'Received?',
+        active: true,
+        optionAvailable: true
       },
     };
-
-    vm.showCreateIncomingShipmentButton = LoggedInUser.hasPermission('CREATE_INCOMING_SHIPMENT');
+    vm.toggleColumnActive = columnKey => vm.columns[ columnKey ].active = !vm.columns[ columnKey ].active;
 
     vm.refreshShipmentsList = refreshShipmentsList;
 
     vm.sortListBy = sortKey => {
+      if( vm.columns[sortKey].noSort ) {
+        return;
+      }
+
       if( sortKey === vm.sortOpts.key ) {
         vm.sortOpts.ascending = !vm.sortOpts.ascending;
       }
