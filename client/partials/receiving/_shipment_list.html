@@ -74,6 +74,7 @@
             <span ng-switch-when="handle">
               <a ng-href="/receiving/shipments/{{shipment._id}}">{{ shipment.handle }}</a>
             </span>
+            <span ng-switch-when="units">{{ shipment.getTotalUnits() }}</span>
             <span ng-switch-when="status">
               <span ng-show="shipment.isClosed"><span class="label label-default">Closed</span></span>
               <span ng-show="shipment.isComplete()"><span class="label label-success">Complete</span></span>

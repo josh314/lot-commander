@@ -9,7 +9,7 @@ angular.module('myApp').factory('SettingsSvc', [ '$localStorage', 'LoggedInUser'
     get: get,
     reset: reset,
     save: save
-  }
+  };
 
   function get( key ) {
     const userSettings = $localStorage[ UserSettingsKey( LoggedInUser ) ] || {};

@@ -41,6 +41,30 @@
             </dd>
           </div>
         </div>
+        <div ng-hide="ctrl.isEditing[ 'source' ]">
+          <dt>Source<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'source' )">edit</a>)</span></dt>
+          <dd ng-hide="ctrl.isEditing[ 'source' ]">
+            {{ ctrl.shipment.source || '----' }}
+          </dd>
+        </div>
+        <div ng-show="ctrl.isEditing[ 'source' ]">
+          <dt>Source (<a href ng-click="ctrl.saveEdit( 'source' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'source' )" style="color: red">cancel edit</a>)</dt>
+          <dd ng-show="ctrl.isEditing[ 'source' ]">
+            <input ng-model="ctrl.editValue[ 'source' ]" />
+          </dd>
+        </div>
+        <div ng-hide="ctrl.isEditing[ 'totalUnits' ]">
+          <dt>Total Units<span ng-hide="!ctrl.showEditControls || ctrl.shipment.getTotalUnits() !== ctrl.shipment.totalUnits"> (<a href ng-click="ctrl.openEdit( 'totalUnits' )">edit</a>)</span></dt>
+          <dd ng-hide="ctrl.isEditing[ 'totalUnits' ]">
+            {{ ctrl.shipment.getTotalUnits() || '----' }}
+          </dd>
+        </div>
+        <div ng-show="ctrl.isEditing[ 'totalUnits' ]">
+          <dt>Total Units (<a href ng-click="ctrl.saveEdit( 'totalUnits' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'totalUnits' )" style="color: red">cancel edit</a>)</dt>
+          <dd ng-show="ctrl.isEditing[ 'totalUnits' ]">
+            <input ng-model="ctrl.editValue[ 'totalUnits' ]" />
+          </dd>
+        </div>
         <div ng-hide="ctrl.isEditing[ 'carrier' ]">
           <dt>Carrier<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'carrier' )">edit</a>)</span></dt>
           <dd ng-hide="ctrl.isEditing[ 'carrier' ]">

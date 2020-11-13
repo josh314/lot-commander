@@ -82,6 +82,12 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
         active: false,
         optionAvailable: vm.showPurchasingData
       },
+      units: {
+        displayName: 'Total Units',
+        active: false,
+        optionAvailable: true,
+        noSort: true,
+      },
       carrier: {
         displayName: 'Carrier',
         defaultSortAscending: true,
@@ -106,7 +112,7 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
 
       saveUserSettings();
 
-    }
+    };
 
     vm.refreshShipmentsList = refreshShipmentsList;
 
