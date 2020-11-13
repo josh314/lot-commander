@@ -3,14 +3,14 @@ import angular from 'angular';
 const prettifyDate = dt => dt && dt.toLocaleDateString();
 
 const __PAGE_SIZE__ = 10;
+const __USER_SETTINGS_SUBKEY__ = 'shipment-list-page';
 
 /******************* Shipment List Page Controller *************************/
-angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTimeout', 'ShipmentManagerSvc', 'LoggedInUser',
-  function(navigate, sessionTimeout, ShipmentManagerSvc, LoggedInUser) {
+angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'navigate', 'sessionTimeout', 'SettingsSvc', 'ShipmentManagerSvc',
+  function(LoggedInUser, navigate, sessionTimeout, SettingsSvc, ShipmentManagerSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
-
     // Permissions
     vm.showCreateIncomingShipmentButton = LoggedInUser.hasPermission('CREATE_INCOMING_SHIPMENT');
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
@@ -100,7 +100,13 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTim
         optionAvailable: true
       },
     };
-    vm.toggleColumnActive = columnKey => vm.columns[ columnKey ].active = !vm.columns[ columnKey ].active;
+    vm.toggleColumnActive = columnKey => {
+
+      vm.columns[ columnKey ].active = !vm.columns[ columnKey ].active;
+
+      saveUserSettings();
+
+    }
 
     vm.refreshShipmentsList = refreshShipmentsList;
 
@@ -150,7 +156,49 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'navigate', 'sessionTim
 
     }
 
+    // Settings
+
+    const loadUserSettings = () => {
+      const userSettings = SettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
+
+      if( userSettings ) {
+
+        if( userSettings.activeColumns ) {
+
+          for ( let [ columnName, columnData ] of Object.entries(vm.columns) ) {
+
+            columnData.active = userSettings.activeColumns.includes( columnName );
+
+          }
+
+        }
+
+      }
+
+    };
+
+    const saveUserSettings = () => {
+
+      const activeColumns = [];
+      for( let column in vm.columns ) {
+        
+        if( vm.columns[ column ].active ) {
+          activeColumns.push( column );
+        }
+
+      }
+
+      const userSettings = SettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
+
+      SettingsSvc.save( 
+        __USER_SETTINGS_SUBKEY__, 
+        userSettings ? Object.assign( userSettings, { activeColumns: activeColumns } ) : { activeColumns: activeColumns }
+      );
+
+    };
+
     const init = () => {
+      loadUserSettings();
       refreshShipmentsList();
     };
 

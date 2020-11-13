@@ -52,6 +52,7 @@ import "./js/components/root.js";
 import "./js/components/save-lot.js";
 import "./js/components/save-manifest.js";
 import "./js/components/scan.js";
+import "./js/components/settings-svc.js";
 import "./js/components/shipment-creation-ctrl.js";
 import "./js/components/shipment-details-ctrl.js";
 import "./js/components/shipment-list-ctrl.js";
