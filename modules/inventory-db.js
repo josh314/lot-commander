@@ -158,12 +158,20 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
   return filter;
 }
 
+const packageQueryFilter = ( { isShipped } ) => {
+  const filter = {};
+
+  return filter;
+}
+
 /************************************************
  * 
  * Mongoose data models
  * ====================
  * 
  ****/
+
+// IncomingShipment
 
 const incomingShipmentSchema = mongoose.Schema({
   handle: String,
@@ -189,7 +197,7 @@ const incomingShipmentSchema = mongoose.Schema({
   } ],
   notes: String,
   isClosed: Boolean
-  // TODO: manifests, costs, total units, category
+  // TODO: manifests, costs, category
 }, { collection: 'incoming-shipments', timestamps: true });
 
 
@@ -261,6 +269,31 @@ incomingShipmentSchema.methods.reopen = function() {
   return this.save();
 }
 
+// Package
+
+const PKG_TYPE_ENUM = [
+  'cosmetics',
+  'cosmetics__maybelline',
+  'cosmetics__loreal',
+  'general_merchandise',
+  'nail_polish',
+  'personal_care',
+  'personal_care__cosmetics',
+];
+
+const packageSchema = mongoose.Schema({
+  handle: String,
+  units: Number,
+  type: [{ type: String, enum: PKG_TYPE_ENUM }],
+  isShipped: Boolean,
+  shipDate: Date,
+}, { collection: 'packages', timestamps: true });
+
+packageSchema.methods.markShipped = function() {
+  this.isShipped = true;
+  this.shipDate = new Date();
+}
+
 /************************************************
  * 
  * Public Database Client
@@ -275,7 +308,12 @@ class InventoryDbClient {
 
     // initialize models
     this.IncomingShipment = mongooseConnection.model('IncomingShipment', incomingShipmentSchema);
+    this.Package = mongooseConnection.model('Package', packageSchema);
   }
+
+  //=====================================================
+  // Shipments
+  //
 
   listIncomingShipments( { num, skip, sort, sortDir, filterParams } ) {
 
@@ -325,6 +363,51 @@ class InventoryDbClient {
 
   removeIncomingShipment( shipmentId ) {
     return this.IncomingShipment.deleteOne( { _id: shipmentId } );
+  }
+
+  //==========================================================
+  // Packages
+  //
+
+  listPackages( { num, skip, sort, sortDir, filterParams } ) {
+
+    const filter = packageQueryFilter(filterParams);
+
+    let sortField;
+    if ( sort ) {
+      sortField = sort;
+    }
+    else {
+      sortField = 'createdAt';
+    }
+
+    const sortParams = {
+      [ sortField ] : sortDir || 1
+    };
+
+    return this.Package.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
+  
+  }
+
+  countPackages( filterParams ) {
+
+    const filter = packageQueryFilter(filterParams);
+
+    return this.Package.countDocuments( filter );
+
+  }
+
+  createPackage( _data ) {
+
+    const data = Object.assign(
+      {
+        isShipped: false
+      },
+      _data
+    );
+
+    const newShipment = new this.Package( data );
+    return newShipment.save();
   }
 
 }
