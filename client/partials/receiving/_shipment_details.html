@@ -53,8 +53,22 @@
             <input ng-model="ctrl.editValue[ 'source' ]" />
           </dd>
         </div>
+        <div ng-hide="ctrl.isEditing[ 'category' ]">
+          <dt>Category<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'category' )">edit</a>)</span></dt>
+          <dd ng-hide="ctrl.isEditing[ 'category' ]">
+            {{ ctrl.shipment.category || '----' }}
+          </dd>
+        </div>
+        <div ng-show="ctrl.isEditing[ 'category' ]">
+          <dt>Category (<a href ng-click="ctrl.saveEdit( 'category' )" style="color: red">save</a> or <a href ng-click="ctrl.closeEdit( 'category' )" style="color: red">cancel edit</a>)</dt>
+          <dd ng-show="ctrl.isEditing[ 'category' ]">
+            <select ng-model="ctrl.editValue[ 'category' ]">
+              <option ng-repeat="cat in ctrl.categoryOptions">{{cat}}</option>
+            </select>
+          </dd>
+        </div>
         <div ng-hide="ctrl.isEditing[ 'totalUnits' ]">
-          <dt>Total Units<span ng-hide="!ctrl.showEditControls || ctrl.shipment.getTotalUnits() !== ctrl.shipment.totalUnits"> (<a href ng-click="ctrl.openEdit( 'totalUnits' )">edit</a>)</span></dt>
+          <dt>Total Units<span ng-show="ctrl.showEditControls && (!ctrl.shipment.getTotalUnits() || ctrl.shipment.getTotalUnits() === ctrl.shipment.totalUnits)"> (<a href ng-click="ctrl.openEdit( 'totalUnits' )">edit</a>)</span></dt>
           <dd ng-hide="ctrl.isEditing[ 'totalUnits' ]">
             {{ ctrl.shipment.getTotalUnits() || '----' }}
           </dd>
@@ -202,7 +216,7 @@
       <thead><tr>
         <th>Handle</th>
         <th>Anonymous?</th>
-        <th>Units</th>
+        <th ng-hide="ctrl.shipment.totalUnits">Units</th>
         <th>Category</th>
         <th>Received?</th>
         <th ng-show="ctrl.showEditControls"></th>
@@ -212,7 +226,11 @@
         <tr ng-repeat="pallet in ctrl.shipment.palletsExpected track by $index">
           <td><span ng-show="pallet.isEditing"><input ng-model="pallet.editValues.handle"></span><span ng-hide="pallet.isEditing">{{pallet.handle}}</span></td>
           <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isAnonymous"></span></td>
-          <td><span ng-show="pallet.isEditing"><input type="number" ng-model="pallet.editValues.units"></span><span ng-hide="pallet.isEditing">{{pallet.units}}</span></td>
+          <td ng-hide="ctrl.shipment.totalUnits">
+            <span ng-show="pallet.isEditing">
+              <input type="number" ng-model="pallet.editValues.units" ng-disabled="ctrl.shipment.totalUnits">
+            </span>
+            <span ng-hide="pallet.isEditing">{{pallet.units}}</span></td>
           <td>
             <span ng-show="pallet.isEditing">
               <select ng-model="pallet.editValues.category">

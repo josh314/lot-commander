@@ -132,7 +132,7 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q',
         return shipment.palletsReceived.some( pr => pr.hasProblem );
       };
 
-      shipment.getTotalUnits = function() { return this.totalUnits || this.palletsExpected.reduce( (total, p) => total + p.units  , 0); };
+      shipment.getTotalUnits = function() { return this.totalUnits || this.palletsExpected.reduce( (total, p) => total + (p.units || 0) , 0); };
 
       shipment.getNextAnonymousPalletExpected = () => shipment.palletsExpected.find( pe => pe.isAnonymous && !pe.isReceived );
     

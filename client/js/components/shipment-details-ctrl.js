@@ -78,6 +78,15 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
         p = vm.shipment.editShipment( { [ key ]: vm.editValue[ key ] } )
           .then( resp => {
             if( resp.success ) {
+
+              if( key === 'category' ) {
+                vm.shipment.palletsExpected.forEach( p => p.category = vm.editValue.category );
+              }
+
+              if( key === 'totalUnits' ) {
+                vm.shipment.palletsExpected.forEach( p => delete p.units );
+              }
+
               return vm.shipment[ key ] = vm.editValue[ key ]; 
             }
             else {

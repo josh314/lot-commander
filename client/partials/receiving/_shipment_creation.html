@@ -40,8 +40,8 @@
         <span class="text-danger h4" ng-show="ctrl.validator.invalidCategory">No category submitted.</span>
       </div>
       <div class="form-group col-xs-12 col-sm-4">
-        <label for="totalUnitsInput">TotalUnits</label>
-        <input type="number" min="0" class="form-control" id="totalUnitsInput" ng-model="ctrl.inputs.totalUnits">
+        <label for="totalUnitsInput">Total Units</label>
+        <input type="number" min="0" class="form-control" id="totalUnitsInput" ng-model="ctrl.inputs.totalUnits" ng-change="ctrl.clearPalletUnits()">
       </div>
       <table class="table table-striped" ng-if="ctrl.inputs.pallets.length">
         <thead><tr>

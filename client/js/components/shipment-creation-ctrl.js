@@ -38,6 +38,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'na
 
     vm.refreshValidator = refreshValidator;
     vm.setPalletCategories = ( ) => vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
+    vm.clearPalletUnits = ( ) => vm.inputs.pallets.forEach( p => delete p.units );
     vm.addPallet = () => vm.inputs.pallets.push({ category: vm.inputs.category });
     vm.removePallet = removePallet;
     vm.addAnonymousPallets = addAnonymousPallets;
@@ -107,6 +108,10 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'na
 
 
     function shipmentRequest() {
+
+      if( vm.inputs.totalUnits ) {
+        vm.clearPalletUnits();
+      }
 
       const shipment = Object.assign( {}, vm.inputs );
       

@@ -178,6 +178,7 @@ const incomingShipmentSchema = mongoose.Schema({
   vendor: String,
   cost: Number,
   source: String,
+  category: String,
   totalUnits: Number,
   carrier: String,
   arrivalDateExpected: Date,
@@ -197,9 +198,51 @@ const incomingShipmentSchema = mongoose.Schema({
   } ],
   notes: String,
   isClosed: Boolean
-  // TODO: manifests, costs, category
+  // TODO: manifests
 }, { collection: 'incoming-shipments', timestamps: true });
 
+/***********************
+ * IncomingShipment pre-save hook
+ * 
+ ******/
+incomingShipmentSchema.pre( 'save', function(next) {
+
+  if( 'totalUnits' in this ) {
+
+    if( this.totalUnits ) { // destroy pallet-level units if shipment-level units is set
+
+      this.palletsExpected.forEach( p => p.set( { units: undefined } ) );
+
+    }
+    else { // unset shipment-level totalUnits if the data is falsey
+
+      this.totalUnits = undefined;
+
+    }
+
+  }
+
+  if( this.category ) { // set pallet categories from shipment-level category
+
+    this.palletsExpected.forEach( p => p.category = this.category );
+
+  }
+
+  this.palletsExpected.forEach( p => {
+
+    if( 'units' in p && !p.units ) { // unset pallet-level units if the data is falsey
+      p.set( { units: undefined } );
+    }
+
+  });
+
+  next();
+} );
+
+/***************************************
+ * IncomingShipment document methods
+ * 
+ ******/
 
 incomingShipmentSchema.methods.edit = function( data ) {
   Object.assign( this, data );
@@ -219,7 +262,9 @@ incomingShipmentSchema.methods.removePalletExpected = async function( palletId )
 incomingShipmentSchema.methods.editPalletExpected = async function( palletId, data ) {
   const pallet = this.palletsExpected.id( palletId );
   if( pallet ) {
+
     Object.assign( pallet, data );
+
     await this.save();
   }
   return this;
@@ -267,6 +312,21 @@ incomingShipmentSchema.methods.close = function() {
 incomingShipmentSchema.methods.reopen = function() {
   this.isClosed = false;
   return this.save();
+}
+
+incomingShipmentSchema.methods.getCategory = function() {
+
+  if( this.category ) {
+    return this.category;
+  }
+
+  const category = this.palletsExpected[0].category;
+  const allSameCategory = this.palletsExpected.every( p => p.category === category );
+
+  if( allSameCategory ) {
+    return category;
+  }
+
 }
 
 // Package
