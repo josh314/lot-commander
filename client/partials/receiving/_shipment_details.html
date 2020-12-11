@@ -124,7 +124,8 @@
         <div ng-hide="ctrl.isEditing[ 'notes' ]">
           <dt>Notes<span ng-hide="!ctrl.showEditControls"> (<a href ng-click="ctrl.openEdit( 'notes' )">edit</a>)</span></dt>
           <dd ng-hide="ctrl.isEditing[ 'notes' ]">
-            {{ ctrl.shipment.notes || '----' }}
+            <span ng-bind-html="ctrl.htmlifyText( ctrl.shipment.notes )"></span>
+            <!-- {{ ctrl.shipment.notes || '----' }} -->
           </dd>
         </div>
         <div ng-show="ctrl.isEditing[ 'notes' ]">

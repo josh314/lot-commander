@@ -1,5 +1,8 @@
 import angular from 'angular';
 
+function htmlifyText( txt ) {
+  return txt.split("\n").join('<br/>');
+}
 
 /******************* Shipment Details Page Controller *************************/
 angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal', 'DisplayPalletFactory', 'EventsSvc', 'focus', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc',
@@ -53,6 +56,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
     vm.reopenShipment = reopenShipment;
 
     vm.viewHistory = viewHistory;
+
+    vm.htmlifyText = htmlifyText;
 
     /****************************************************
      * Functions
