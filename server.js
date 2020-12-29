@@ -211,12 +211,12 @@ class Server {
 
     const shopifyDumpDbClient = new ShopifyDumpDbClient( this.mongoClient.db('ehdb') );
 
-    const InventoryDb = require('./modules/inventory-db');
-    const inventoryDbClient = new InventoryDb.Client( { mongooseConnection: this.mongooseConnection } );
+    const InventoryCommander = require('./modules/inventory-commander');
+    const inventoryCommander = new InventoryCommander( { mongooseConnection: this.mongooseConnection } );
 
     const routerOpts = {
       eventsDbClient,
-      inventoryDbClient,
+      inventoryCommander,
       userDbClient: this.users,
       shopifyGqlClient,
       shopifyDumpDb: shopifyDumpDbClient

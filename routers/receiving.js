@@ -51,7 +51,7 @@ const __RESTRICTED_DOCUMENT_PERMISSION__ = 'VIEW_PURCHASING_DATA';
  * 
  **********/
 
-function routes({ eventsDb, inventoryDb }) {
+function routes({ eventsDb, inventoryCommander }) {
   const router = new express.Router();
 
   /*******************************************
@@ -190,14 +190,14 @@ function routes({ eventsDb, inventoryDb }) {
       filterParams: listShipmentsFilterParamsFromQueryParams( req.query ),
     };
 
-    const shipments = await inventoryDb.listIncomingShipments(query);
+    const shipments = await inventoryCommander.listIncomingShipments(query);
 
     res.json( { shipments } );
   };
 
   async function countIncomingShipments( req, res ) {
   
-    const count = await inventoryDb.countIncomingShipments( listShipmentsFilterParamsFromQueryParams( req.query ) );
+    const count = await inventoryCommander.countIncomingShipments( listShipmentsFilterParamsFromQueryParams( req.query ) );
 
     res.json({ count: count });
     
@@ -218,7 +218,7 @@ function routes({ eventsDb, inventoryDb }) {
       delete data.arrivalDate;
     }
 
-    const shipment = await inventoryDb.createIncomingShipment( data );
+    const shipment = await inventoryCommander.createIncomingShipment( data );
 
     eventsDb.createIncomingShipment( { user: req.user, shipment } );
 
@@ -230,7 +230,7 @@ function routes({ eventsDb, inventoryDb }) {
 
     const shipmentId = req.params.shipmentId;
 
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
     if( shipment ) {
       res.json( { shipment } );
     }
@@ -243,7 +243,7 @@ function routes({ eventsDb, inventoryDb }) {
 
     const shipmentId = req.params.shipmentId;
 
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
     if( shipment ) {
 
       const edits = Object.keys( req.body ).map( _key => ({ path: _key, oldValue: shipment[ _key ], newValue: req.body[ _key ] }) ); 
@@ -277,7 +277,7 @@ function routes({ eventsDb, inventoryDb }) {
 
     const shipmentId = req.params.shipmentId;
 
-    const result = await inventoryDb.removeIncomingShipment( shipmentId );
+    const result = await inventoryCommander.removeIncomingShipment( shipmentId );
 
     eventsDb.removeIncomingShipment( { user: req.user, shipmentId: shipmentId } );
     res.json( result );
@@ -291,7 +291,7 @@ function routes({ eventsDb, inventoryDb }) {
 
     const shipmentId = req.params.shipmentId;
 
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
     if( shipment ) {
       const result = await shipment.addPalletExpected( req.body );
       res.json( { success: true } );
@@ -305,7 +305,7 @@ function routes({ eventsDb, inventoryDb }) {
 
     const shipmentId = req.params.shipmentId;
 
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
     if( shipment ) {
       const result = await shipment.removePalletExpected( req.params.palletId );
       res.json( { success: true } );
@@ -319,7 +319,7 @@ function routes({ eventsDb, inventoryDb }) {
 
     const shipmentId = req.params.shipmentId;
 
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
     if( shipment ) {
       const result = await shipment.editPalletExpected( req.params.palletId, req.body );
       res.json( { success: true } );
@@ -475,7 +475,7 @@ function routes({ eventsDb, inventoryDb }) {
 
       const shipmentId = req.params.shipmentId;
 
-      const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+      const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
       if( shipment ) {
 
         if( isReceived ) {
@@ -511,7 +511,7 @@ function routes({ eventsDb, inventoryDb }) {
 
       const shipmentId = req.params.shipmentId;
 
-      const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+      const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
 
       if( shipment ) {
         const result = await shipment.receivePallet( req.body );
@@ -538,7 +538,7 @@ function routes({ eventsDb, inventoryDb }) {
 
     const shipmentId = req.params.shipmentId;
 
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
     if( shipment ) {
       const result = await shipment.removePalletReceived( req.params.palletId );
       res.json( { success: true } );
@@ -552,7 +552,7 @@ function routes({ eventsDb, inventoryDb }) {
 
     const shipmentId = req.params.shipmentId;
 
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
     if( shipment ) {
       const result = await shipment.editPalletReceived( req.params.palletId, req.body );
       res.json( { success: true } );
@@ -572,7 +572,7 @@ function routes({ eventsDb, inventoryDb }) {
 
       const shipmentId = req.params.shipmentId;
 
-      const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+      const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
       if( shipment ) {
 
         if( isClosed ) {

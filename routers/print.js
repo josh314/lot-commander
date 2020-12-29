@@ -16,7 +16,7 @@ module.exports = routes;
  * 
  **********/
 
-function routes({ inventoryDb, lotdb }) {
+function routes({ inventoryCommander, lotdb }) {
 
   const router = new express.Router();
 
@@ -55,7 +55,7 @@ function routes({ inventoryDb, lotdb }) {
   function incomingShipmentLabels(req, res, next) {
     const shipmentId = req.params.shipmentId;
 
-    inventoryDb.getIncomingShipmentById( shipmentId )
+    inventoryCommander.getIncomingShipmentById( shipmentId )
       .then( shipment => {
 
         if(shipment) {
@@ -78,7 +78,7 @@ function routes({ inventoryDb, lotdb }) {
     const shipmentId = req.params.shipmentId;
     const palletId = req.params.palletId;
 
-    inventoryDb.getIncomingShipmentById( shipmentId )
+    inventoryCommander.getIncomingShipmentById( shipmentId )
       .then( shipment => {
 
         if( !shipment ) {
