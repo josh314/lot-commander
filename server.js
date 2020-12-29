@@ -81,11 +81,14 @@ class Server {
     //=================================================
 
     const mongoSettings = this.config.dbHosts.mongo;
+
+    const mongoose = require('mongoose');
+
     this.mongoClient = await (async ( { host, port, dbName, user, password } ) => {
     
       const location = `${host}:${ port || 27017 }/${dbName}`;
       
-      const MongoClient = require('mongodb').MongoClient;
+      const MongoClient = mongoose.mongo.MongoClient;
       const client = new MongoClient(
         `mongodb://${ user && password ? `${user}:${password}@` : ''}${location}`,
         {
@@ -105,7 +108,6 @@ class Server {
       password: mongoSettings.auth && mongoSettings.auth.pwd,
     });
 
-    const mongoose = require('mongoose');
     this.mongooseConnection = mongoose.createConnection().setClient( this.mongoClient );
     global.__mongooseConnection = this.mongooseConnection;
 
