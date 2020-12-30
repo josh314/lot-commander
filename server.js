@@ -10,6 +10,8 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const express = require('express');
 
+const { ClientError, AuthorizationError } = require('./errors');
+
 //====================================================
 // Modules
 //====================================================
@@ -248,14 +250,17 @@ class Server {
       __logger.error(err);
 
       const response = {
-        status: 'error'
-      }
+        error: true
+      };
 
-      if( err.message === 'UNAUTHORIZED' ) {
-        response.error = 'UNAUTHORIZED';
+      if( err instanceof ClientError ) {
+        response.message = err.message; 
+      }
+      else if ( err instanceof AuthorizationError ) {
+        response.message = `UNAUTHORIZED`;
       }
       else {
-        response.error = err.clientMessage ? err.clientMessage : 'Server Error.';
+        response.message = 'Server Error.';
       }
 
       res.json( response );

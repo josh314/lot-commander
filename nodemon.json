@@ -5,6 +5,7 @@
     "server.js",
     "auth.js",
     "dbs.js",
+    "errors.js",
     "config.js",
     "routers/*",
     "modules/*"
