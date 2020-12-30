@@ -178,17 +178,19 @@ class InventoryCommander {
 
     const pkg = require('./models/package');
     const incomingShipment = require('./models/incoming-shipment');
+    const receivedPallet = require('./models/received-pallet');
 
     // initialize models
     this.IncomingShipment = mongooseConnection.model('IncomingShipment', incomingShipment.schema);
     this.Package = mongooseConnection.model('Package', pkg.schema);
+    this.ReceivedPallet = mongooseConnection.model('ReceivedPallet', receivedPallet.schema);
   }
 
   //=====================================================
   // Shipments
   //
 
-  listIncomingShipments( { num, skip, sort, sortDir, filterParams } ) {
+  listIncomingShipments( { num, skip, sort, sortDir, filterParams, populate = [] } ) {
 
     const filter = shipmentQueryFilter(filterParams);
 
@@ -204,7 +206,15 @@ class InventoryCommander {
       [ sortField ] : sortDir || 1
     };
     
-    return this.IncomingShipment.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
+    let q = this.IncomingShipment.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
+
+    for( let path of populate ) {
+
+      q = q.populate( path );
+
+    }
+
+    return q.exec();
   
   }
 
@@ -230,8 +240,18 @@ class InventoryCommander {
     return newShipment.save();
   }
 
-  getIncomingShipmentById( shipmentId ) {
-    return this.IncomingShipment.findOne( { _id: shipmentId } );
+  getIncomingShipmentById( shipmentId, populate = [] ) {
+    
+    let q = this.IncomingShipment.findOne( { _id: shipmentId } );
+
+    for( let path of populate ) {
+
+      q = q.populate( path );
+
+    }
+
+    return q.exec();
+
   }
 
   removeIncomingShipment( shipmentId ) {

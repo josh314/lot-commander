@@ -18,10 +18,8 @@ const incomingShipmentSchema = mongoose.Schema({
     isAnonymous: Boolean
   } ],
   palletsReceived: [ {
-    handle: String,
-    hasProblem: Boolean,
-    note: String,
-    isAnonymous: Boolean
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ReceivedPallet'
   } ],
   notes: String,
   isClosed: Boolean

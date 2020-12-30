@@ -1,6 +1,7 @@
 const express = require('express');
 
 const auth = require('../auth');
+const helpers = require('../helpers');
 const documentSvc = require('../modules/document-svc');
 
 const fs = require('fs');
@@ -188,6 +189,9 @@ function routes({ eventsDb, inventoryCommander }) {
 
       // filters
       filterParams: listShipmentsFilterParamsFromQueryParams( req.query ),
+
+      // populate options
+      populate: helpers.populationPathsFromQuery( req.query )
     };
 
     const shipments = await inventoryCommander.listIncomingShipments(query);
@@ -229,8 +233,9 @@ function routes({ eventsDb, inventoryCommander }) {
   async function getIncomingShipmentById( req, res ) {
 
     const shipmentId = req.params.shipmentId;
+    const populate = helpers.populationPathsFromQuery( req.query );
 
-    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
+    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId, populate );
     if( shipment ) {
       res.json( { shipment } );
     }
