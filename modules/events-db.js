@@ -18,6 +18,12 @@ const incomingShipmentRef = {
   ref: 'IncomingShipment'
 };
 
+const receivedPalletRef = {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'ReceivedPallet'
+};
+
+
 const eventSchema = new mongoose.Schema(
   {
     user: {
@@ -28,6 +34,11 @@ const eventSchema = new mongoose.Schema(
   eventSchemaOpts
 );
 
+/************************************************
+ * Incoming Shipment Events
+ * 
+ ****/
+
 const createIncomingShipmentEventSchema = new mongoose.Schema(
   {
     shipment: incomingShipmentRef
@@ -35,8 +46,7 @@ const createIncomingShipmentEventSchema = new mongoose.Schema(
   discriminatorOpts
 );
 
-//TODO: serialize entire object or at least some identifying data like handle? Otherwise, not much usable info.
-const removeIncomingShipmentEventSchema = new mongoose.Schema( 
+const deleteIncomingShipmentEventSchema = new mongoose.Schema( 
   {
     shipment: incomingShipmentRef
   },
@@ -67,14 +77,6 @@ const unreceiveIncomingShipmentEventSchema = new mongoose.Schema(
   discriminatorOpts
 );
 
-const receiveIncomingShipmentPalletEventSchema = new mongoose.Schema(
-  {
-    shipment: incomingShipmentRef,
-    pallet: mongoose.Schema.Types.ObjectId
-  },
-  discriminatorOpts
-);
-
 const closeIncomingShipmentEventSchema = new mongoose.Schema(
   {
     shipment: incomingShipmentRef
@@ -85,6 +87,27 @@ const closeIncomingShipmentEventSchema = new mongoose.Schema(
 const reopenIncomingShipmentEventSchema = new mongoose.Schema(
   {
     shipment: incomingShipmentRef
+  },
+  discriminatorOpts
+);
+
+/************************************************
+ * Received Pallet Events
+ * 
+ ****/
+
+const createReceivedPalletEventSchema = new mongoose.Schema(
+  {
+    shipment: incomingShipmentRef,
+    pallet: receivedPalletRef
+  },
+  discriminatorOpts
+);
+
+const deleteReceivedPalletEventSchema = new mongoose.Schema(
+  {
+    shipment: incomingShipmentRef,
+    pallet: receivedPalletRef
   },
   discriminatorOpts
 );
@@ -105,20 +128,23 @@ class EventsDbClient {
     this.Event = mongooseConnection.model('Event', eventSchema);
 
     this.CreateIncomingShipmentEvent = this.Event.discriminator( 'create-incoming-shipment', createIncomingShipmentEventSchema );
-    this.RemoveIncomingShipmentEvent = this.Event.discriminator( 'remove-incoming-shipment', removeIncomingShipmentEventSchema );
+    this.DeleteIncomingShipmentEvent = this.Event.discriminator( 'delete-incoming-shipment', deleteIncomingShipmentEventSchema );
     this.EditIncomingShipmentEvent = this.Event.discriminator( 'edit-incoming-shipment', editIncomingShipmentEventSchema );
     this.ReceiveIncomingShipmentEvent = this.Event.discriminator( 'receive-incoming-shipment', receiveIncomingShipmentEventSchema );
     this.UnreceiveIncomingShipmentEvent = this.Event.discriminator( 'unreceive-incoming-shipment', unreceiveIncomingShipmentEventSchema );
-    this.ReceiveIncomingShipmentPalletEvent = this.Event.discriminator( 'receive-incoming-shipment-pallet', receiveIncomingShipmentPalletEventSchema );
     this.CloseIncomingShipmentEvent = this.Event.discriminator( 'close-incoming-shipment', closeIncomingShipmentEventSchema );
     this.ReopenIncomingShipmentEvent = this.Event.discriminator( 'reopen-incoming-shipment', reopenIncomingShipmentEventSchema );
+
+    this.CreateReceivedPalletEvent = this.Event.discriminator( 'create-received-pallet', createReceivedPalletEventSchema );
+    this.DeleteReceivedPalletEvent = this.Event.discriminator( 'delete-received-pallet', deleteReceivedPalletEventSchema );
 
     // TODO:
     // add/remove documents
     // change documents to restricted
     // add/remove/edit expected pallets
     // edit received pallets
-    // delete shipment
+    // undelete shipment
+    // undelete received pallets
 
   }
 
@@ -150,6 +176,12 @@ class EventsDbClient {
   
   }
 
+
+  /************************************************
+   * Register shipment events
+   * 
+   ****/
+
   createIncomingShipment( { user, shipment } ) {
 
     const e = new this.CreateIncomingShipmentEvent({ user: user && user._id , shipment: shipment && shipment._id  });
@@ -158,9 +190,9 @@ class EventsDbClient {
 
   }
 
-  removeIncomingShipment( { user, shipmentId } ) {
+  deleteIncomingShipment( { user, shipmentId } ) {
 
-    const e = new this.RemoveIncomingShipmentEvent({ user: user && user._id , shipment: shipmentId  });
+    const e = new this.DeleteIncomingShipmentEvent({ user: user && user._id , shipment: shipmentId  });
 
     return e.save();
 
@@ -211,20 +243,6 @@ class EventsDbClient {
 
   }
 
-  receiveIncomingShipmentPallet( { user, shipment } ) {
-
-    if( !shipment ) {
-      return Promise.resolve( null );
-    }
-
-    const pallet = shipment.palletsReceived[ shipment.palletsReceived.length - 1 ];
-
-    const e = new this.ReceiveIncomingShipmentPalletEvent( { user: user && user._id , shipment: shipment && shipment._id, pallet: pallet && pallet._id } );
-
-    return e.save();
-
-  }
-
   closeIncomingShipment( { user, shipment } ) {
 
     if( !shipment ) {
@@ -248,6 +266,37 @@ class EventsDbClient {
     return e.save();
 
   }
+
+  /************************************************
+   * Register pallet events
+   * 
+   ****/
+
+
+  createReceivedPallet( { user, shipmentId, palletId } ) {
+
+    if( !palletId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.CreateReceivedPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
+
+    return e.save();
+
+  }
+
+  deleteReceivedPallet( { user, shipmentId, palletId } ) {
+
+    if( !palletId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.DeleteReceivedPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
+
+    return e.save();
+
+  }
+
 
 }
 

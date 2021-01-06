@@ -22,7 +22,10 @@ const incomingShipmentSchema = mongoose.Schema({
     ref: 'ReceivedPallet'
   } ],
   notes: String,
-  isClosed: Boolean
+  isClosed: Boolean,
+  closedDate: Date,
+  isDeleted: Boolean,
+  deletedDate: Date
   // TODO: manifests
 }, { collection: 'incoming-shipments', timestamps: true });
 
@@ -104,7 +107,7 @@ incomingShipmentSchema.methods.receive = function() {
 incomingShipmentSchema.methods.unreceive = function() {
   this.isReceived = false;
   this.arrivalDate = undefined;
-  this.palletsReceived = [];
+  this.palletsReceived = [];//TODO: This orphans ReceivedPallets. Need to destroy these pallets
   return this.save();
 }
 
@@ -115,12 +118,12 @@ incomingShipmentSchema.methods.addPalletReceived = function( pallet ) {
 
 incomingShipmentSchema.methods.receivePallet = incomingShipmentSchema.methods.addPalletReceived;
 
-incomingShipmentSchema.methods.removePalletReceived = async function( palletId ) {
+incomingShipmentSchema.methods.removePalletReceived = async function( palletId ) { //TODO: convert to handle references
   await this.palletsReceived.pull( palletId );
   return this.save();
 }
 
-incomingShipmentSchema.methods.editPalletReceived = async function( palletId, data ) {
+incomingShipmentSchema.methods.editPalletReceived = async function( palletId, data ) { //TODO: convert to handle references
   const pallet = this.palletsReceived.id( palletId );
   if( pallet ) {
     Object.assign( pallet, data );
@@ -131,11 +134,25 @@ incomingShipmentSchema.methods.editPalletReceived = async function( palletId, da
 
 incomingShipmentSchema.methods.close = function() {
   this.isClosed = true;
+  this.closedDate = new Date();
   return this.save();
 }
 
 incomingShipmentSchema.methods.reopen = function() {
   this.isClosed = false;
+  this.closedDate = undefined;
+  return this.save();
+}
+
+incomingShipmentSchema.methods.delete = function() {
+  this.isDeleted = true;
+  this.deletedDate = new Date();
+  return this.save();
+}
+
+incomingShipmentSchema.methods.undelete = function() {
+  this.isDeleted = false;
+  this.deletedDate = undefined;
   return this.save();
 }
 

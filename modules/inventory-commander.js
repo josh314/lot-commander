@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
+const Promise = require('bluebird');
+
+const { ResourceNotFoundError } = require('../errors');
 
 /************************************************
  * Helpers
@@ -91,7 +93,9 @@ const withoutProblemShipmentFilter = {
 }
 
 const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProblemDateArrivedStart, includeClosed=false } ) => {
-  const filter = {};
+  const filter = {
+    isDeleted: false,
+  };
 
   if ( handle ) {
     filter.handle = handle;
@@ -231,7 +235,8 @@ class InventoryCommander {
     const data = Object.assign(
       {
         isReceived: false,
-        isClosed: false
+        isClosed: false,
+        isDeleted: false
       },
       _data
     );
@@ -240,13 +245,32 @@ class InventoryCommander {
     return newShipment.save();
   }
 
-  getIncomingShipmentById( shipmentId, populate = [] ) {
-    
-    let q = this.IncomingShipment.findOne( { _id: shipmentId } );
+  getIncomingShipmentById( shipmentId, { populate, includeDeleted = false } = {} ) {
 
-    for( let path of populate ) {
+    let objectId;
 
-      q = q.populate( path );
+    try {
+      objectId = new mongoose.Types.ObjectId(shipmentId);
+    }
+    catch {
+      return null;
+    }
+
+    const findDoc = { _id: objectId };
+
+    if( !includeDeleted ) {
+      findDoc.isDeleted = false;
+    }
+
+    let q = this.IncomingShipment.findOne( findDoc );
+
+    if( populate ) {
+
+      for( let path of populate ) {
+
+        q = q.populate( path );
+
+      }
 
     }
 
@@ -254,8 +278,103 @@ class InventoryCommander {
 
   }
 
-  removeIncomingShipment( shipmentId ) {
-    return this.IncomingShipment.deleteOne( { _id: shipmentId } );
+  async deleteIncomingShipment( shipmentId, { deletePallets } = {}) {
+ 
+    const shipment = await this.getIncomingShipmentById( shipmentId, deletePallets ? { populate: [ 'palletsReceived' ] } : {} );
+
+    if( !shipment || shipment.isDeleted) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    if( deletePallets ) {
+
+      var pallets = await Promise.all( 
+        Promise.map( shipment.palletsReceived, pallet => pallet.delete() )
+      );
+
+    }
+
+    await shipment.delete();
+
+    return { shipment, pallets };
+  }
+
+  async receiveIncomingShipment( shipmentId ) {
+
+    const shipment = await this.getIncomingShipmentById( shipmentId );
+
+    if( !shipment ) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    if( shipment.isReceived ) {
+      return {};
+    }
+
+    await shipment.receive();
+
+    return { shipment };
+
+  }
+
+  async unreceiveIncomingShipment( shipmentId, { deletePallets } = {}) {
+
+    const shipment = await this.getIncomingShipmentById( shipmentId, deletePallets ? { populate: [ 'palletsReceived' ] } : {} );
+    
+    if( !shipment ) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    if( !shipment.isReceived ) {
+      return {};
+    }
+
+    if( deletePallets ) {
+
+      var pallets = await Promise.all( 
+        Promise.map( shipment.palletsReceived, pallet => pallet.delete() )
+      );
+
+    }
+
+    await shipment.unreceive();
+
+    return { shipment, pallets };
+  }
+
+  async closeIncomingShipment( shipmentId ) {
+
+    const shipment = await this.getIncomingShipmentById( shipmentId );
+
+    if( !shipment ) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    if( shipment.isClosed ) {
+      return {};
+    }
+
+    await shipment.close();
+
+    return { shipment };
+
+  }
+
+  async reopenIncomingShipment( shipmentId ) {
+
+    const shipment = await this.getIncomingShipmentById( shipmentId );
+
+    if( !shipment ) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    if( !shipment.isClosed ) {
+      return {};
+    }
+
+    await shipment.reopen();
+
+    return { shipment };
   }
 
   //==========================================================

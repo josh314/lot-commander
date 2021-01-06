@@ -2,6 +2,7 @@ const express = require('express');
 
 const auth = require('../auth');
 const helpers = require('../helpers');
+const { InvalidRequestError, ResourceNotFoundError } = require('../errors');
 const documentSvc = require('../modules/document-svc');
 
 const fs = require('fs');
@@ -92,7 +93,7 @@ function routes({ eventsDb, inventoryCommander }) {
   router.delete(
     '/:shipmentId',
     auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' ),
-    removeIncomingShipment
+    deleteIncomingShipment
   );
 
   // Pallet modifying operations
@@ -161,7 +162,7 @@ function routes({ eventsDb, inventoryCommander }) {
     editIncomingShipmentPalletReceived
   );
 
-  router.patch(
+  router.put(
     '/:shipmentId/is-closed',
     auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' ),
     closeIncomingShipment
@@ -230,21 +231,25 @@ function routes({ eventsDb, inventoryCommander }) {
 
   }
 
-  async function getIncomingShipmentById( req, res ) {
+  async function getIncomingShipmentById( req, res, next ) {
 
-    const shipmentId = req.params.shipmentId;
-    const populate = helpers.populationPathsFromQuery( req.query );
+    try {
 
-    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId, populate );
-    if( shipment ) {
+      const shipmentId = req.params.shipmentId;
+      const populate = helpers.populationPathsFromQuery( req.query );
+
+      const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId, { populate } );
+
       res.json( { shipment } );
     }
-    else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+    catch(e) {
+      return next( e );
     }
+
   };
 
-  async function editIncomingShipment( req, res ) {
+  // TODO: rewrite (move logic into InventoryCommander)
+  async function editIncomingShipment( req, res, next ) {
 
     const shipmentId = req.params.shipmentId;
 
@@ -273,19 +278,36 @@ function routes({ eventsDb, inventoryCommander }) {
       res.json( { success: true } );
     }
     else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+      next( )
     }
 
   }
 
-  async function removeIncomingShipment( req, res ) {
+  async function deleteIncomingShipment( req, res, next ) {
 
-    const shipmentId = req.params.shipmentId;
+    try {
+      const shipmentId = req.params.shipmentId;
+      const deletePallets = !!parseInt( req.query.delete_pallets );
 
-    const result = await inventoryCommander.removeIncomingShipment( shipmentId );
+      const { shipment, pallets } = await inventoryCommander.deleteIncomingShipment( shipmentId , { deletePallets });
 
-    eventsDb.removeIncomingShipment( { user: req.user, shipmentId: shipmentId } );
-    res.json( result );
+      if( shipment ) {
+        eventsDb.deleteIncomingShipment( { user: req.user, shipmentId: shipmentId } );
+      }
+
+      if( pallets && deletePallets ) {
+
+        for( const p of pallets ) {
+          eventsDb.deleteReceivedPallet( { user: req.user, shipmentId: shipment && shipment._id, palletId: p._id } );
+        }
+
+      }
+
+      res.json( { success: true } );
+    }
+    catch(e) {
+      return next(e);
+    }
 
   }
 
@@ -473,43 +495,59 @@ function routes({ eventsDb, inventoryCommander }) {
   //===================
   // Receiving handlers
 
-  async function receiveIncomingShipment( req, res ) {
+  async function receiveIncomingShipment( req, res, next ) {
 
-    if( 'isReceived' in req.body && typeof req.body.isReceived === 'boolean' ) {
-      const isReceived = req.body.isReceived;
+    try {
 
-      const shipmentId = req.params.shipmentId;
+      if( 'isReceived' in req.body && typeof req.body.isReceived === 'boolean' ) {
 
-      const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
-      if( shipment ) {
+        const isReceived = req.body.isReceived;
+        const shipmentId = req.params.shipmentId;
 
         if( isReceived ) {
 
-          await shipment.receive();
+          const { shipment } = await inventoryCommander.receiveIncomingShipment( shipmentId );
 
-          eventsDb.receiveIncomingShipment( { user: req.user, shipment } );
+          if( shipment ) {
+            eventsDb.receiveIncomingShipment( { user: req.user, shipment } );
+          }
 
         }
         else {
 
-          await shipment.unreceive();
+          const { shipment, pallets } = await inventoryCommander.unreceiveIncomingShipment( shipmentId, { deletePallets: true } );
 
-          eventsDb.unreceiveIncomingShipment( { user: req.user, shipment } );
+          if( shipment ) {
+            eventsDb.unreceiveIncomingShipment( { user: req.user, shipment } );
+          }
+
+          if( pallets ) {
+
+            for( const p of pallets ) {
+              eventsDb.deleteReceivedPallet( { user: req.user, shipmentId: shipment && shipment._id, palletId: p._id } );
+            }
+
+          }
 
         }
 
         res.json( { success: true } );
+
       }
       else {
-        res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+        throw new InvalidRequestError();
       }
-    }
-    else {
-      res.json( { error: true, message: `Invalid request.` } );
-    }
 
+    }
+    catch(e) {
+
+      return next( e );
+
+    }
+ 
   }
 
+  // TODO: REWRITE
   async function receiveIncomingShipmentPallet( req, res, next ) {
 
     try {
@@ -539,6 +577,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
   }
 
+  // TODO: REWRITE
   async function removeIncomingShipmentPalletReceived( req, res ) {
 
     const shipmentId = req.params.shipmentId;
@@ -553,6 +592,8 @@ function routes({ eventsDb, inventoryCommander }) {
     }
   }
 
+
+  // TODO: REWRITE
   async function editIncomingShipmentPalletReceived( req, res ) {
 
     const shipmentId = req.params.shipmentId;
@@ -570,40 +611,43 @@ function routes({ eventsDb, inventoryCommander }) {
   //===========================
   // Close shipment handler
 
-  async function closeIncomingShipment( req, res ) {
+  async function closeIncomingShipment( req, res, next ) {
 
-    if( 'isClosed' in req.body && typeof req.body.isClosed === 'boolean' ) {
-      const isClosed = req.body.isClosed;
+    try {
 
-      const shipmentId = req.params.shipmentId;
+      if( 'isClosed' in req.body && typeof req.body.isClosed === 'boolean' ) {
 
-      const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
-      if( shipment ) {
+        const isClosed = req.body.isClosed;
+        const shipmentId = req.params.shipmentId;
 
         if( isClosed ) {
 
-          await shipment.close();
+          const { shipment } = await inventoryCommander.closeIncomingShipment( shipmentId );
 
           eventsDb.closeIncomingShipment( { user: req.user, shipment } );
 
         }
         else {
 
-          await shipment.reopen();
+          const { shipment } = await inventoryCommander.reopenIncomingShipment( shipmentId );
 
           eventsDb.reopenIncomingShipment( { user: req.user, shipment } );
 
         }
 
         res.json( { success: true } );
+
       }
       else {
-        res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+        throw new InvalidRequestError();
       }
+
     }
-    else {
-      res.json( { error: true, message: `Invalid request.` } );
-    }
+    catch(e) {
+
+      return next(e);
+
+    }    
 
   }
 
