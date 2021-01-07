@@ -162,9 +162,37 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
   return filter;
 }
 
+const palletQueryFilter = ( { handle, isBrokendown, isAnonymous, hasProblem, shipment } ) => {
+  const filter = {
+    isDeleted: false,
+  };
+
+  if ( handle ) {
+    filter.handle = handle;
+  }
+
+  if( shipment ) {
+    filter.shipment = shipment;
+  }
+
+  if( hasProblem !== undefined ) {
+    filter.hasProblem = hasProblem;
+  }
+
+  if( isBrokendown !== undefined ) {
+    filter.isBrokendown = isBrokendown;
+  }
+
+  if( isAnonymous !== undefined ) {
+    filter.isAnonymous = isAnonymous;
+  }
+
+  return filter;
+};
+
 const packageQueryFilter = ( { isShipped } ) => {
   const filter = {};
-
+  //TODO
   return filter;
 }
 
@@ -375,6 +403,131 @@ class InventoryCommander {
     await shipment.reopen();
 
     return { shipment };
+  }
+
+  async receiveIncomingShipmentPallet( shipmentId, _palletData ) {
+
+    const shipment = await this.getIncomingShipmentById( shipmentId );
+
+    if( !shipment ) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    const palletData = Object.assign(
+      {
+        shipment: shipment._id
+      },
+      _palletData
+    );
+
+    const pallet = await this.createReceivedPallet( palletData ); 
+
+    await shipment.receivePallet( pallet._id );
+
+    return { shipment, pallet };
+  }
+
+  //==========================================================
+  // Received Pallets
+  //
+
+
+  listReceivedPallets( { num, skip, sort, sortDir, filterParams, populate = [] } ) {
+
+    const filter = palletQueryFilter(filterParams);
+
+    let sortField;
+    if ( sort ) {
+      sortField = sort;
+    }
+    else {
+      sortField = 'createdAt';
+    }
+
+    const sortParams = {
+      [ sortField ] : sortDir || 1
+    };
+
+    let q = this.ReceivedPallet.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
+
+    for( let path of populate ) {
+
+      q = q.populate( path );
+
+    }
+
+    return q.exec();
+
+  }
+
+  countReceivedPallets( filterParams ) {
+
+    const filter = palletQueryFilter(filterParams);
+
+    return this.ReceivedPallet.countDocuments( filter );
+
+  }
+
+  createReceivedPallet( _data ) {
+
+    const data = Object.assign(
+      {
+        hasProblem: false,
+        isAnonymous: false,
+        isBrokendown: false,
+        isDeleted: false
+      },
+      _data
+    );
+
+    const newPallet = new this.ReceivedPallet( data );
+    return newPallet.save();
+  }
+
+  getReceivedPalletById( palletId, { populate, includeDeleted = false } = {}) {
+
+    let objectId;
+
+    try {
+      objectId = new mongoose.Types.ObjectId( palletId );
+    }
+    catch {
+      return null;
+    }
+
+    const findDoc = { _id: objectId };
+
+    if( !includeDeleted ) {
+      findDoc.isDeleted = false;
+    }
+
+    let q = this.ReceivedPallet.findOne( findDoc );
+
+    if( populate ) {
+
+      for( let path of populate ) {
+
+        q = q.populate( path );
+
+      }
+
+    }
+
+    return q.exec();
+
+  }
+
+  async deleteReceivedPallet( palletId ) {
+
+    const pallet = await this.getReceivedPalletById( palletId );
+
+    if( !pallet ) {
+      throw new ResourceNotFoundError( { type: 'received pallet', id: palletId } );
+    }
+
+    await pallet.delete();
+
+    return { pallet };
   }
 
   //==========================================================

@@ -151,7 +151,7 @@ function routes({ eventsDb, inventoryCommander }) {
     auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
     receiveIncomingShipmentPallet
   );
-  router.delete(
+  router.delete(//TODO: review
     '/:shipmentId/pallets-received/:palletId',
     auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
     removeIncomingShipmentPalletReceived
@@ -547,32 +547,32 @@ function routes({ eventsDb, inventoryCommander }) {
  
   }
 
-  // TODO: REWRITE
   async function receiveIncomingShipmentPallet( req, res, next ) {
 
     try {
 
       const shipmentId = req.params.shipmentId;
+      const palletData = req.body;
 
-      const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
+      const { shipment, pallet } = await inventoryCommander.receiveIncomingShipmentPallet( shipmentId, palletData );
 
-      if( shipment ) {
-        const result = await shipment.receivePallet( req.body );
+      if( shipment && pallet ) {
 
-        eventsDb.receiveIncomingShipmentPallet({
+        eventsDb.createReceivedPallet( {
           user: req.user,
-          shipment: result
-        });
+          palletId: pallet._id,
+          shipmentId: shipment._id
+        } );
+        
+      }
 
-        res.json( { success: true } );
-      }
-      else {
-        res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
-      }
+      res.json( { success: true } );
+
     }
     catch(e) {
-      res.json( { error: true, message: `Invalid request.` } );
+
       next(e);
+
     }
 
   }
