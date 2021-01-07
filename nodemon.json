@@ -1,13 +1,6 @@
 {
   "verbose": true,
   "watch": [
-    "index.js",
-    "server.js",
-    "auth.js",
-    "dbs.js",
-    "errors.js",
-    "config.js",
-    "routers/*",
-    "modules/*"
+    "server/*"
   ]
 }

@@ -64,8 +64,8 @@ class Server {
     //=================================================
 
     const viewsPath = path.join(__basedir, this.config.views.root);
-    const partialsPath = this.config.views.partials;
-    const layoutsPath = this.config.views.layouts;
+    const partialsPath = path.join(__basedir, this.config.views.partials);
+    const layoutsPath = path.join(__basedir, this.config.views.layouts);
     const hbs = require('express-handlebars').create({
       extname: '.hbs',
       defaultLayout: path.resolve(path.join(layoutsPath, 'index')),

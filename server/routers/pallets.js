@@ -137,7 +137,7 @@ function routes({ eventsDb, inventoryCommander }) {
     }
     catch(e) {
 
-      next( e );
+      return next( e );
 
     }
 
