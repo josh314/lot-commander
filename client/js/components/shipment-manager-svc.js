@@ -49,7 +49,7 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'S
 
       getShipmentId: () => shipmentId(),
 
-      loadShipment: ( _shipmentId = shipmentId() ) => $q.when( api.getIncomingShipmentById( _shipmentId ) ).then( resp => {
+      loadShipment: ( { populate = [] } = {} ) => $q.when( api.getIncomingShipmentById( shipmentId(), { populate: populate } ) ).then( resp => {
         if( !resp || !resp.shipment ) {
           return null;
         }
@@ -209,11 +209,11 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q',
 
       shipment.receivePallet = _data => $q.when( api.receiveIncomingShipmentPallet( shipment._id, _data ) );
 
-      shipment.unreceivePallet = _data => $q.when( api.unreceiveIncomingShipmentPallet( shipment._id, _data ) );
+      shipment.unreceivePallet = palletId => $q.when( api.unreceiveIncomingShipmentPallet( shipment._id, palletId ) );
 
       shipment.editExpectedPallet = ( _palletId, _data ) => $q.when( api.editIncomingShipmentPallet( shipment._id, _palletId, _data ) );
     
-      shipment.editReceivedPallet = ( _palletId, _data ) => $q.when( api.editIncomingShipmentPalletReceived( shipment._id, _palletId, _data ) );
+      shipment.editReceivedPallet = ( _palletId, _data ) => $q.when( api.editReceivedPallet( _palletId, _data ) );
     
       // Shipment close/reopen
 

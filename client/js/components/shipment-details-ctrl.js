@@ -1,6 +1,6 @@
 import angular from 'angular';
 
-function htmlifyText( txt ) {
+function htmlifyText( txt = "" ) {
   return txt.split("\n").join('<br/>');
 }
 
@@ -395,7 +395,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
      *******/
 
     function loadShipment() {
-      return ShipmentManagerSvc.loadShipment( ).then( shipment => {
+      return ShipmentManagerSvc.loadShipment( { populate: [ 'pallets_received' ] } ).then( shipment => {
 
         Object.assign(vm.shipment, shipment);
 

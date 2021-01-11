@@ -98,16 +98,43 @@ const reopenIncomingShipmentEventSchema = new mongoose.Schema(
 
 const createReceivedPalletEventSchema = new mongoose.Schema(
   {
+    pallet: receivedPalletRef,
     shipment: incomingShipmentRef,
-    pallet: receivedPalletRef
   },
   discriminatorOpts
 );
 
 const deleteReceivedPalletEventSchema = new mongoose.Schema(
   {
+    pallet: receivedPalletRef,
     shipment: incomingShipmentRef,
-    pallet: receivedPalletRef
+  },
+  discriminatorOpts
+);
+
+const editReceivedPalletEventSchema = new mongoose.Schema(
+  {
+    pallet: receivedPalletRef,
+    shipment: incomingShipmentRef,
+    path: String,
+    oldValue: mongoose.Mixed,
+    newValue: mongoose.Mixed
+  },
+  discriminatorOpts
+);
+
+const breakdownReceivedPalletEventSchema = new mongoose.Schema(
+  {
+    pallet: receivedPalletRef,
+    shipment: incomingShipmentRef,
+  },
+  discriminatorOpts
+);
+
+const unbreakdownReceivedPalletEventSchema = new mongoose.Schema(
+  {
+    pallet: receivedPalletRef,
+    shipment: incomingShipmentRef,
   },
   discriminatorOpts
 );
@@ -137,6 +164,9 @@ class EventsDbClient {
 
     this.CreateReceivedPalletEvent = this.Event.discriminator( 'create-received-pallet', createReceivedPalletEventSchema );
     this.DeleteReceivedPalletEvent = this.Event.discriminator( 'delete-received-pallet', deleteReceivedPalletEventSchema );
+    this.EditReceivedPalletEvent = this.Event.discriminator( 'edit-received-pallet', editReceivedPalletEventSchema );
+    this.BreakdownReceivedPalletEvent = this.Event.discriminator( 'breakdown-received-pallet', breakdownReceivedPalletEventSchema );
+    this.UnbreakdownReceivedPalletEvent = this.Event.discriminator( 'unbreakdown-received-pallet', unbreakdownReceivedPalletEventSchema );
 
     // TODO:
     // add/remove documents
@@ -273,7 +303,7 @@ class EventsDbClient {
    ****/
 
 
-  createReceivedPallet( { user, shipmentId, palletId } ) {
+  createReceivedPallet( { user, palletId, shipmentId } ) {
 
     if( !palletId ) {
       return Promise.resolve( null );
@@ -285,7 +315,7 @@ class EventsDbClient {
 
   }
 
-  deleteReceivedPallet( { user, shipmentId, palletId } ) {
+  deleteReceivedPallet( { user, palletId, shipmentId } ) {
 
     if( !palletId ) {
       return Promise.resolve( null );
@@ -297,6 +327,50 @@ class EventsDbClient {
 
   }
 
+  editReceivedPallet( { user, palletId, shipmentId, path, oldValue, newValue } ) {
+
+    if( !palletId || !path ) {
+      return Promise.resolve( null );
+    }
+
+    const eventData = {
+      user: user && user._id,
+      pallet: palletId,
+      shipment: shipmentId,
+      path: path,
+      oldValue: oldValue,
+      newValue: newValue
+    };
+
+    const e = new this.EditReceivedPalletEvent( eventData );
+
+    return e.save();
+
+  }
+
+  breakdownReceivedPallet( { user, palletId, shipmentId } ) {
+
+    if( !palletId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.BreakdownReceivedPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
+
+    return e.save();
+
+  }
+
+  unbreakdownReceivedPallet( { user, palletId, shipmentId } ) {
+
+    if( !palletId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.UnbreakdownReceivedPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
+
+    return e.save();
+
+  }
 
 }
 
