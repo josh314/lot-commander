@@ -107,7 +107,7 @@ incomingShipmentSchema.methods.receive = function() {
 incomingShipmentSchema.methods.unreceive = function() {
   this.isReceived = false;
   this.arrivalDate = undefined;
-  this.palletsReceived = [];//TODO: This orphans ReceivedPallets. Need to destroy these pallets
+  this.palletsReceived = [];
   return this.save();
 }
 
@@ -118,18 +118,9 @@ incomingShipmentSchema.methods.addPalletReceived = function( pallet ) {
 
 incomingShipmentSchema.methods.receivePallet = incomingShipmentSchema.methods.addPalletReceived;
 
-incomingShipmentSchema.methods.removePalletReceived = async function( palletId ) { //TODO: convert to handle references
+incomingShipmentSchema.methods.removePalletReceived = async function( palletId ) {
   await this.palletsReceived.pull( palletId );
   return this.save();
-}
-
-incomingShipmentSchema.methods.editPalletReceived = async function( palletId, data ) { //TODO: convert to handle references
-  const pallet = this.palletsReceived.id( palletId );
-  if( pallet ) {
-    Object.assign( pallet, data );
-    await this.save();
-  }
-  return this;
 }
 
 incomingShipmentSchema.methods.close = function() {

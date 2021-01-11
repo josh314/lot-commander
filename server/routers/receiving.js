@@ -156,11 +156,6 @@ function routes({ eventsDb, inventoryCommander }) {
     auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
     removeIncomingShipmentPalletReceived
   );
-  router.patch(
-    '/:shipmentId/pallets-received/:palletId',
-    auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
-    editIncomingShipmentPalletReceived
-  );
 
   router.put(
     '/:shipmentId/is-closed',
@@ -571,40 +566,36 @@ function routes({ eventsDb, inventoryCommander }) {
     }
     catch(e) {
 
-      next(e);
+      return next(e);
 
     }
 
   }
 
-  // TODO: REWRITE
-  async function removeIncomingShipmentPalletReceived( req, res ) {
+  async function removeIncomingShipmentPalletReceived( req, res, next ) {
 
-    const shipmentId = req.params.shipmentId;
+    try {
 
-    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
-    if( shipment ) {
-      const result = await shipment.removePalletReceived( req.params.palletId );
+      const shipmentId = req.params.shipmentId;
+      const palletId = req.params.palletId;
+
+      const { shipment, pallet } = await inventoryCommander.deleteIncomingShipmentReceivedPallet( shipmentId, palletId );
+
+ 
+      if( shipment && pallet ) {
+
+        eventsDb.deleteReceivedPallet( {
+          user: req.user,
+          palletId: pallet._id,
+          shipmentId: shipment._id
+        } );
+
+      }
+
       res.json( { success: true } );
     }
-    else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
-    }
-  }
-
-
-  // TODO: REWRITE
-  async function editIncomingShipmentPalletReceived( req, res ) {
-
-    const shipmentId = req.params.shipmentId;
-
-    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
-    if( shipment ) {
-      const result = await shipment.editPalletReceived( req.params.palletId, req.body );
-      res.json( { success: true } );
-    }
-    else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+    catch(e) {
+      return next(e);
     }
   }
 

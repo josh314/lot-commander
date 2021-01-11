@@ -525,9 +525,101 @@ class InventoryCommander {
       throw new ResourceNotFoundError( { type: 'received pallet', id: palletId } );
     }
 
+    if( pallet.isDeleted ) {
+      return {};
+    }
+
     await pallet.delete();
 
     return { pallet };
+  }
+
+  async editReceivedPallet( palletId, _editDocument ) {
+
+    const pallet = await this.getReceivedPalletById( palletId );
+
+    if( !pallet ) {
+      throw new ResourceNotFoundError( { type: 'received pallet', id: palletId } );
+    }
+
+    try { 
+      const edits = Object.keys( _editDocument ).map( _key => ({ path: _key, oldValue: pallet[ _key ], newValue: _editDocument[ _key ] }) ).filter( x => x.oldValue !== x.newValue ); 
+
+      if( edits.length <= 0 ) {
+        return {};
+      }
+
+      const editDocument = edits.reduce( (acc, _) => { 
+        acc[_.path] = _.newValue;
+        return acc;
+      }, {});
+
+      await pallet.edit( editDocument );
+
+      return { pallet, edits };
+    }
+    catch(e) {
+      console.error(e);
+      return {};
+    }
+
+  }
+
+  async breakdownReceivedPallet( palletId ) {
+
+    const pallet = await this.getReceivedPalletById( palletId );
+
+    if( !pallet ) {
+      throw new ResourceNotFoundError( { type: 'received pallet', id: palletId } );
+    }
+
+    if( pallet.isBrokendown ) {
+      return {};
+    }
+
+    await pallet.breakdown();
+
+    return { pallet };
+
+  }
+
+  async unbreakdownReceivedPallet( palletId ) {
+
+    const pallet = await this.getReceivedPalletById( palletId );
+
+    if( !pallet ) {
+      throw new ResourceNotFoundError( { type: 'received pallet', id: palletId } );
+    }
+
+    if( !pallet.isBrokendown ) {
+      return {};
+    }
+
+    await pallet.unbreakdown();
+
+    return { pallet };
+
+  }
+
+  async deleteIncomingShipmentReceivedPallet( shipmentId, palletId ) {
+
+    const shipment = await this.getIncomingShipmentById( shipmentId );
+
+    if( !shipment ) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    const found = shipment.palletsReceived.includes( mongoose.Types.ObjectId(palletId) );
+
+    if( found ) {
+
+      var { pallet } = await this.deleteReceivedPallet( palletId );
+
+      await shipment.removePalletReceived( palletId );
+    }
+
+    return { shipment, pallet };
+
   }
 
   //==========================================================
