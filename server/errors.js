@@ -43,6 +43,22 @@ class ResourceNotFoundError extends ClientError {
   }
 }
 
+class ChildResourceNotFoundError extends ClientError {
+  constructor( { parentType, parentId, childType, childId }) {
+   
+    let msg;
+    if( childId ) {
+      msg = `No ${ childType } found matching id '${childId}' as child of ${ parentType } with id '${parentId}'`
+    }
+    else {
+      msg = `No matching ${ childType } found as child of ${ parentType } with id '${parentId}'`
+    }
+
+    super(msg); 
+
+  }
+}
+
 class AuthorizationError extends MyError {
   constructor() {
     super('UNAUTHORIZED');
@@ -51,10 +67,11 @@ class AuthorizationError extends MyError {
 
 module.exports = {
   //base
-  ClientError: ClientError,
+  ClientError,
 
   //derived
-  AuthorizationError: AuthorizationError,
-  InvalidRequestError: InvalidRequestError,
-  ResourceNotFoundError: ResourceNotFoundError
+  AuthorizationError,
+  InvalidRequestError,
+  ResourceNotFoundError,
+  ChildResourceNotFoundError
 };

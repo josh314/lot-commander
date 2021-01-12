@@ -77,6 +77,15 @@ incomingShipmentSchema.methods.edit = function( data ) {
   return this.save();
 }
 
+incomingShipmentSchema.methods.getPalletExpectedById = function( palletId ) {
+  return this.palletsExpected.id( palletId );
+}
+
+incomingShipmentSchema.methods.getPalletExpectedByHandle = function( palletHandle ) {
+  const found = this.palletsExpected.toObject().find( p => p.handle === palletHandle );
+  return this.palletsExpected.id( found && found._id ); 
+}
+
 incomingShipmentSchema.methods.addPalletExpected = function( pallet ) {
   this.palletsExpected.push( pallet );
   return this.save();
@@ -111,8 +120,8 @@ incomingShipmentSchema.methods.unreceive = function() {
   return this.save();
 }
 
-incomingShipmentSchema.methods.addPalletReceived = function( pallet ) {
-  this.palletsReceived.push( pallet );
+incomingShipmentSchema.methods.addPalletReceived = function( palletId ) {
+  this.palletsReceived.addToSet( palletId );
   return this.save();
 }
 

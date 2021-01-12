@@ -63,6 +63,46 @@ const editIncomingShipmentEventSchema = new mongoose.Schema(
   discriminatorOpts
 );
 
+const addIncomingShipmentExpectedPalletEventSchema = new mongoose.Schema(
+  {
+
+    shipment: incomingShipmentRef,
+
+    // Note: this is an expected pallet so not a ref to another table
+    pallet: mongoose.Schema.Types.ObjectId
+
+  },
+  discriminatorOpts
+);
+
+const deleteIncomingShipmentExpectedPalletEventSchema = new mongoose.Schema(
+  {
+
+    shipment: incomingShipmentRef,
+
+    data: {
+      pallet: mongoose.Mixed
+    }
+
+  },
+  discriminatorOpts
+);
+
+const editIncomingShipmentExpectedPalletEventSchema = new mongoose.Schema(
+  {
+    shipment: incomingShipmentRef,
+    
+    // Note: this is an expected pallet so not a ref to another table
+    pallet: mongoose.Schema.Types.ObjectId,
+
+    path: String,
+    oldValue: mongoose.Mixed,
+    newValue: mongoose.Mixed
+  },
+  discriminatorOpts
+);
+
+
 const receiveIncomingShipmentEventSchema = new mongoose.Schema(
   {
     shipment: incomingShipmentRef
@@ -150,13 +190,16 @@ const unbreakdownReceivedPalletEventSchema = new mongoose.Schema(
 class EventsDbClient {
   constructor( mongooseConnection ) {
     this.conn = mongooseConnection;
-
+    addIncomingShipmentExpectedPalletEventSchema
     // initialize models
     this.Event = mongooseConnection.model('Event', eventSchema);
 
     this.CreateIncomingShipmentEvent = this.Event.discriminator( 'create-incoming-shipment', createIncomingShipmentEventSchema );
     this.DeleteIncomingShipmentEvent = this.Event.discriminator( 'delete-incoming-shipment', deleteIncomingShipmentEventSchema );
     this.EditIncomingShipmentEvent = this.Event.discriminator( 'edit-incoming-shipment', editIncomingShipmentEventSchema );
+    this.AddIncomingShipmentExpectedPalletEvent = this.Event.discriminator( 'add-incoming-shipment-expected-pallet', addIncomingShipmentExpectedPalletEventSchema );
+    this.DeleteIncomingShipmentExpectedPalletEvent = this.Event.discriminator( 'delete-incoming-shipment-expected-pallet', deleteIncomingShipmentExpectedPalletEventSchema );
+    this.EditIncomingShipmentExpectedPalletEvent = this.Event.discriminator( 'edit-incoming-shipment-expected-pallet', editIncomingShipmentExpectedPalletEventSchema );
     this.ReceiveIncomingShipmentEvent = this.Event.discriminator( 'receive-incoming-shipment', receiveIncomingShipmentEventSchema );
     this.UnreceiveIncomingShipmentEvent = this.Event.discriminator( 'unreceive-incoming-shipment', unreceiveIncomingShipmentEventSchema );
     this.CloseIncomingShipmentEvent = this.Event.discriminator( 'close-incoming-shipment', closeIncomingShipmentEventSchema );
@@ -171,7 +214,6 @@ class EventsDbClient {
     // TODO:
     // add/remove documents
     // change documents to restricted
-    // add/remove/edit expected pallets
     // edit received pallets
     // undelete shipment
     // undelete received pallets
@@ -222,27 +264,76 @@ class EventsDbClient {
 
   deleteIncomingShipment( { user, shipmentId } ) {
 
+    if( !shipmentId ) {
+      return Promise.resolve( null );
+    }
+
     const e = new this.DeleteIncomingShipmentEvent({ user: user && user._id , shipment: shipmentId  });
 
     return e.save();
 
   }
 
-  editIncomingShipment( { user, shipment, path, oldValue, newValue } ) {
+  editIncomingShipment( { user, shipmentId, path, oldValue, newValue } ) {
 
-    if( !shipment || !path ) {
+    if( !shipmentId || !path ) {
       return Promise.resolve( null );
     }
 
     const eventData = {
       user: user && user._id,
-      shipment: shipment._id,
-      path: path,
-      oldValue: oldValue,
-      newValue: newValue
+      shipment: shipmentId,
+      path,
+      oldValue,
+      newValue
     };
 
     const e = new this.EditIncomingShipmentEvent( eventData );
+
+    return e.save();
+
+  }
+
+  addIncomingShipmentExpectedPallet( { user, shipmentId, palletId } ) {
+
+    if( !shipmentId || !palletId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.AddIncomingShipmentExpectedPalletEvent({ user: user && user._id , shipment: shipmentId , pallet: palletId });
+
+    return e.save();
+
+  }
+
+  deleteIncomingShipmentExpectedPallet( { user, shipmentId, palletData } ) {
+
+    if( !shipmentId || !palletData) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.DeleteIncomingShipmentExpectedPalletEvent({ user: user && user._id , shipment: shipmentId , data: { pallet: palletData } });
+
+    return e.save();
+
+  }
+
+  editIncomingShipmentExpectedPallet( { user, shipmentId, palletId, path, oldValue, newValue } ) {
+
+    if( !shipmentId || !palletId || !path ) {
+      return Promise.resolve( null );
+    }
+
+    const eventData = {
+      user: user && user._id,
+      shipment: shipmentId,
+      pallet: palletId,
+      path,
+      oldValue,
+      newValue
+    };
+
+    const e = new this.EditIncomingShipmentExpectedPalletEvent( eventData );
 
     return e.save();
 

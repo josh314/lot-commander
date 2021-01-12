@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
 
-const { ResourceNotFoundError } = require('../errors');
+const { ResourceNotFoundError, ChildResourceNotFoundError } = require('../errors');
 
 /************************************************
  * Helpers
@@ -310,7 +310,7 @@ class InventoryCommander {
  
     const shipment = await this.getIncomingShipmentById( shipmentId, deletePallets ? { populate: [ 'palletsReceived' ] } : {} );
 
-    if( !shipment || shipment.isDeleted) {
+    if( !shipment || shipment.isDeleted ) {
       throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
     }
 
@@ -325,6 +325,112 @@ class InventoryCommander {
     await shipment.delete();
 
     return { shipment, pallets };
+  }
+
+  async editIncomingShipment( shipmentId, _editDocument ) {
+
+    const shipment = await this.getIncomingShipmentById( shipmentId );
+
+    if( !shipment ) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    try { 
+      const edits = Object.keys( _editDocument ).map( _key => ({ path: _key, oldValue: shipment[ _key ], newValue: _editDocument[ _key ] }) ).filter( x => x.oldValue !== x.newValue ); 
+
+      if( edits.length <= 0 ) {
+        return {};
+      }
+
+      const editDocument = edits.reduce( (acc, _) => { 
+        acc[_.path] = _.newValue;
+        return acc;
+      }, {});
+
+      await shipment.edit( editDocument );
+
+      return { shipment, edits };
+    }
+    catch(e) {
+      console.error(e);
+      return {};
+    }
+  }
+
+  async addIncomingShipmentExpectedPallet( shipmentId, palletData ) {
+
+    const shipment = await this.getIncomingShipmentById( shipmentId );
+
+    if( !shipment ) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    await shipment.addPalletExpected( palletData );
+
+    const pallet = shipment.getPalletExpectedByHandle( palletData.handle );
+
+    return { shipment, pallet };
+
+  }
+
+  async removeIncomingShipmentExpectedPallet( shipmentId, palletId ) {
+
+    const shipment = await this.getIncomingShipmentById( shipmentId );
+
+    if( !shipment ) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    const pallet = shipment.getPalletExpectedById( palletId );
+
+    if( !pallet ) {
+      throw new ChildResourceNotFoundError( {
+        parentType: 'incoming shipment',
+        parentId: shipmentId,
+        childType: 'received pallet',
+        childId: palletId
+      } );
+    }
+
+    await shipment.removePalletExpected( palletId );
+
+    return { shipment, pallet };
+
+  }
+
+  async editIncomingShipmentExpectedPallet( shipmentId, palletId, _editDocument ) {
+
+    const shipment = await this.getIncomingShipmentById( shipmentId );
+
+    if( !shipment ) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    const pallet = shipment.getPalletExpectedById( palletId );
+
+    if( !pallet ) {
+      throw new ChildResourceNotFoundError( {
+        parentType: 'incoming shipment',
+        parentId: shipmentId,
+        childType: 'received pallet',
+        childId: palletId
+      } );
+    }
+
+    const edits = Object.keys( _editDocument ).map( _key => ({ path: _key, oldValue: pallet[ _key ], newValue: _editDocument[ _key ] }) ).filter( x => x.oldValue !== x.newValue ); 
+
+    if( edits.length <= 0 ) {
+      return {};
+    }
+
+    const editDocument = edits.reduce( (acc, _) => { 
+      acc[_.path] = _.newValue;
+      return acc;
+    }, {});
+
+    await shipment.editPalletExpected( palletId, editDocument );
+
+    return { shipment, pallet, edits };
   }
 
   async receiveIncomingShipment( shipmentId ) {
