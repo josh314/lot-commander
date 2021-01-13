@@ -30,7 +30,7 @@ class InvalidRequestError extends ClientError {
 
 class ResourceNotFoundError extends ClientError {
   constructor( { type, id } ) {
-    
+
     let msg;
     if( id ) {
       msg = `No ${ type || 'resource' } found matching id '${id}'`
@@ -39,7 +39,23 @@ class ResourceNotFoundError extends ClientError {
       msg = `No matching ${ type || 'resource' } found`;
     }
 
-    super(msg); 
+    super(msg);
+  }
+}
+
+class ChildResourceNotFoundError extends ClientError {
+  constructor( { parentType, parentId, childType, childId }) {
+
+    let msg;
+    if( childId ) {
+      msg = `No ${ childType } found matching id '${childId}' as child of ${ parentType } with id '${parentId}'`
+    }
+    else {
+      msg = `No matching ${ childType } found as child of ${ parentType } with id '${parentId}'`
+    }
+
+    super(msg);
+
   }
 }
 
@@ -51,10 +67,11 @@ class AuthorizationError extends MyError {
 
 module.exports = {
   //base
-  ClientError: ClientError,
+  ClientError,
 
   //derived
-  AuthorizationError: AuthorizationError,
-  InvalidRequestError: InvalidRequestError,
-  ResourceNotFoundError: ResourceNotFoundError
+  AuthorizationError,
+  InvalidRequestError,
+  ResourceNotFoundError,
+  ChildResourceNotFoundError
 };

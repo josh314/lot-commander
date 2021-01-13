@@ -151,7 +151,7 @@ function routes({ eventsDb, inventoryCommander }) {
     auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
     receiveIncomingShipmentPallet
   );
-  router.delete(//TODO: review
+  router.delete(
     '/:shipmentId/pallets-received/:palletId',
     auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
     removeIncomingShipmentPalletReceived
@@ -203,29 +203,6 @@ function routes({ eventsDb, inventoryCommander }) {
     
   }
 
-  async function createIncomingShipment( req, res ) {
-
-    const data = Object.assign(
-      {},
-      req.body
-    );
-
-    data.palletsExpected = data.pallets;
-    delete data.pallets;
-
-    if( req.body.arrivalDate ) {
-      data.arrivalDateExpected = new Date( req.body.arrivalDate );
-      delete data.arrivalDate;
-    }
-
-    const shipment = await inventoryCommander.createIncomingShipment( data );
-
-    eventsDb.createIncomingShipment( { user: req.user, shipment } );
-
-    res.json( { shipment } );
-
-  }
-
   async function getIncomingShipmentById( req, res, next ) {
 
     try {
@@ -243,37 +220,68 @@ function routes({ eventsDb, inventoryCommander }) {
 
   };
 
-  // TODO: rewrite (move logic into InventoryCommander)
+  async function createIncomingShipment( req, res, next ) {
+
+    try {
+      const data = Object.assign(
+        {},
+        req.body
+      );
+
+      data.palletsExpected = data.pallets;
+      delete data.pallets;
+
+      if( req.body.arrivalDate ) {
+        data.arrivalDateExpected = new Date( req.body.arrivalDate );
+        delete data.arrivalDate;
+      }
+
+      const shipment = await inventoryCommander.createIncomingShipment( data );
+
+      eventsDb.createIncomingShipment( { user: req.user, shipment } );
+
+      res.json( { shipment } );
+    }
+    catch(e) {
+
+      return next( e );
+
+    }
+
+  }
+
   async function editIncomingShipment( req, res, next ) {
 
-    const shipmentId = req.params.shipmentId;
+    try {
 
-    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
-    if( shipment ) {
+      const shipmentId = req.params.shipmentId;
+      const editDocument = req.body;
 
-      const edits = Object.keys( req.body ).map( _key => ({ path: _key, oldValue: shipment[ _key ], newValue: req.body[ _key ] }) ); 
+      const { shipment, edits } = await inventoryCommander.editIncomingShipment( shipmentId, editDocument );
 
-      const result = await shipment.edit( req.body );
+      if( shipment ) {
 
-      for( let edit of edits ) {
+        for( let edit of edits ) {
 
-        const eventData = Object.assign(
-          {
-            user: req.user,
-            shipment: shipment,
-          },
-          edit
-        )
+          const eventData = Object.assign(
+            {
+              user: req.user,
+              shipmentId,
+            },
+            edit
+          )
 
-        eventsDb.editIncomingShipment( eventData );
+          eventsDb.editIncomingShipment( eventData );
+
+        }
 
       }
 
-
       res.json( { success: true } );
+
     }
-    else {
-      next( )
+    catch(e) {
+      return next( e );
     }
 
   }
@@ -309,46 +317,103 @@ function routes({ eventsDb, inventoryCommander }) {
   //==========================
   // Expected Pallets modifying handlers
 
-  async function addIncomingShipmentPallet( req, res ) {
+  async function addIncomingShipmentPallet( req, res, next ) {
 
     const shipmentId = req.params.shipmentId;
+    const palletData = req.body;
 
-    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
-    if( shipment ) {
-      const result = await shipment.addPalletExpected( req.body );
-      res.json( { success: true } );
+    try {
+
+      const { shipment, pallet } = await inventoryCommander.addIncomingShipmentExpectedPallet( shipmentId, palletData );
+
+      if( shipment && pallet ) {
+
+        eventsDb.addIncomingShipmentExpectedPallet( {
+          user: req.user,
+          shipmentId,
+          palletId: pallet._id
+        } );
+
+      }
+
+      res.json({ success: true });
+
     }
-    else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+    catch(e) {
+
+      return next( e );
+
     }
+
   }
 
-  async function removeIncomingShipmentPallet( req, res ) {
+  async function removeIncomingShipmentPallet( req, res, next ) {
 
     const shipmentId = req.params.shipmentId;
+    const palletId = req.params.palletId;
 
-    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
-    if( shipment ) {
-      const result = await shipment.removePalletExpected( req.params.palletId );
-      res.json( { success: true } );
+    try {
+
+      const { shipment, pallet } = await inventoryCommander.removeIncomingShipmentExpectedPallet( shipmentId, palletId );
+
+      if( shipment && pallet ) {
+
+        eventsDb.deleteIncomingShipmentExpectedPallet( {
+          user: req.user,
+          shipmentId,
+          palletData: pallet
+        } );
+
+      }
+
+      res.json({ success: true });
+
     }
-    else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+    catch(e) {
+
+      return next( e );
+
     }
+
   }
 
-  async function editIncomingShipmentPallet( req, res ) {
+  async function editIncomingShipmentPallet( req, res, next ) {
 
     const shipmentId = req.params.shipmentId;
+    const palletId = req.params.palletId;
+    const editDocument = req.body;
 
-    const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId );
-    if( shipment ) {
-      const result = await shipment.editPalletExpected( req.params.palletId, req.body );
+    try {
+
+      const { shipment, pallet, edits } = await inventoryCommander.editIncomingShipmentExpectedPallet( shipmentId, palletId, editDocument )
+
+      if( shipment && pallet ) {
+
+        for( let edit of edits ) {
+
+          const eventData = Object.assign(
+            {
+              user: req.user,
+              shipmentId,
+              palletId
+            },
+            edit
+          )
+
+          eventsDb.editIncomingShipmentExpectedPallet( eventData );
+
+        }
+
+      }
+
       res.json( { success: true } );
     }
-    else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+    catch(e) {
+
+      return next( e );
+
     }
+
   }
 
   //==================

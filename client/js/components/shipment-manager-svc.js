@@ -107,6 +107,11 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q',
       );
 
       shipment.palletsReceived.forEach( pr => {
+
+        if( angular.isString(pr) ) { // is an unpopulated Mongo ObjectId
+          return;
+        }
+
         const pe = shipment.palletsExpected.find( _pallet => _pallet.handle === pr.handle );
 
         if( pe ) {
