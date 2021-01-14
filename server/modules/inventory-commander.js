@@ -190,9 +190,27 @@ const palletQueryFilter = ( { handle, isBrokendown, isAnonymous, hasProblem, shi
   return filter;
 };
 
-const packageQueryFilter = ( { isShipped } ) => {
-  const filter = {};
-  //TODO
+const packageQueryFilter = ( { handle, pallet, isFinished, isShipped } ) => {
+  const filter = {
+    isDeleted: false,
+  };
+
+  if ( handle ) {
+    filter.handle = handle;
+  }
+
+  if( pallet ) {
+    filter.pallet = pallet;
+  }
+
+  if( isShipped !== undefined ) {
+    filter.isShipped = isShipped;
+  }
+
+  if( isFinished !== undefined ) {
+    filter.isFinished = isFinished;
+  }
+
   return filter;
 }
 
@@ -732,7 +750,7 @@ class InventoryCommander {
   // Packages
   //
 
-  listPackages( { num, skip, sort, sortDir, filterParams } ) {
+  listPackages( { num, skip, sort, sortDir, filterParams, populate = [] } ) {
 
     const filter = packageQueryFilter(filterParams);
 
@@ -748,8 +766,15 @@ class InventoryCommander {
       [ sortField ] : sortDir || 1
     };
 
-    return this.Package.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
-  
+    let q = this.Package.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
+
+    for( let path of populate ) {
+
+      q = q.populate( path );
+
+    }
+
+    return q.exec();
   }
 
   countPackages( filterParams ) {
@@ -764,13 +789,198 @@ class InventoryCommander {
 
     const data = Object.assign(
       {
-        isShipped: false
+        //TODO:
+        isFinished: false,
+        isShipped: false,
+        isDeleted: false,
+        pallets: []
       },
       _data
     );
 
-    const newShipment = new this.Package( data );
-    return newShipment.save();
+    const newPkg = new this.Package( data );
+    return newPkg.save();
+  }
+
+  getPackageById( pkgId, { populate, includeDeleted = false } = {}) {
+
+    let objectId;
+
+    try {
+      objectId = new mongoose.Types.ObjectId( pkgId );
+    }
+    catch {
+      return null;
+    }
+
+    const findDoc = { _id: objectId };
+
+    if( !includeDeleted ) {
+      findDoc.isDeleted = false;
+    }
+
+    let q = this.Package.findOne( findDoc );
+
+    if( populate ) {
+
+      for( let path of populate ) {
+
+        q = q.populate( path );
+
+      }
+
+    }
+
+    return q.exec();
+
+  }
+
+  async deletePackage( pkgId ) {
+
+    const pkg = await this.getPackageById( pkgId );
+
+    if( !pkg ) {
+      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
+    }
+
+    if( pkg.isDeleted ) {
+      return {};
+    }
+
+    await pkg.delete();
+
+    return { package: pkg };
+  }
+
+  async editPackage( pkgId, _editDocument ) {
+    
+    const pkg = await this.getPackageById( pkgId );
+
+    if( !pkg ) {
+      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
+    }
+
+    try { 
+      const edits = Object.keys( _editDocument ).map( _key => ({ path: _key, oldValue: pkg[ _key ], newValue: _editDocument[ _key ] }) ).filter( x => x.oldValue !== x.newValue ); 
+
+      if( edits.length <= 0 ) {
+        return {};
+      }
+
+      const editDocument = edits.reduce( (acc, _) => { 
+        acc[_.path] = _.newValue;
+        return acc;
+      }, {});
+
+      await pkg.edit( editDocument );
+
+      return { package: pkg, edits };
+    }
+    catch(e) {
+      console.error(e);
+      return {};
+    }
+
+  }
+
+  async finishPackage( pkgId ) {
+
+    // TODO: link/unlink bundles, sub-packages, components 
+
+    const pkg = await this.getPackageById( pkgId );
+
+    if( !pkg ) {
+      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
+    }
+
+    if( pkg.isFinished ) {
+      return {};
+    }
+
+    await pkg.finish();
+
+    return { package: pkg };
+
+  }
+
+  async reopenPackage( pkgId ) {
+
+    // TODO: link/unlink bundles, sub-packages, components 
+
+    const pkg = await this.getPackageById( pkgId );
+
+    if( !pkg ) {
+      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
+    }
+
+    if( !pkg.isFinished ) {
+      return {};
+    }
+
+    await pkg.reopen();
+
+    return { package: pkg };
+
+  }
+
+  async addPackageReceivedPallet( pkgId, palletId ) {
+
+    const pkg = await this.getPackageById( pkgId );
+
+    if( !pkg ) {
+      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
+    }
+
+    const pallet = await this.getReceivedPalletById( palletId );
+
+    if( !pallet ) {
+      throw new ResourceNotFoundError( { type: 'received Pallet', id: palletId } );
+    }
+
+    try {
+      await pkg.addPallet( palletId );
+      return { package: pkg, pallet };
+    }
+    catch(e) {
+      return {};
+    }
+
+  }
+
+  async shipPackage( pkgId ) {
+
+    const pkg = await this.getPackageById( pkgId );
+
+    if( !pkg ) {
+      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
+    }
+    
+    if( pkg.isShipped ) {
+      return {};
+    }
+
+    await pkg.ship();
+
+    return { package: pkg };
+
+  }
+
+  async unshipPackage( pkgId ) {
+
+    const pkg = await this.getPackageById( pkgId );
+
+    if( !pkg ) {
+      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
+    }
+    
+    if( !pkg.isShipped ) {
+      return {};
+    }
+
+    await pkg.unship();
+
+    return { package: pkg };
+
   }
 
 }

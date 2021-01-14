@@ -23,6 +23,11 @@ const receivedPalletRef = {
   ref: 'ReceivedPallet'
 };
 
+const packageRef = {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Package'
+};
+
 
 const eventSchema = new mongoose.Schema(
   {
@@ -180,6 +185,57 @@ const unbreakdownReceivedPalletEventSchema = new mongoose.Schema(
 );
 
 /************************************************
+ * Package Events
+ * 
+ ****/
+
+const createPackageEventSchema = new mongoose.Schema(
+  {
+    package: packageRef,
+  },
+  discriminatorOpts
+);
+
+const editPackageEventSchema = new mongoose.Schema(
+  {
+    package: packageRef,
+    path: String,
+    oldValue: mongoose.Mixed,
+    newValue: mongoose.Mixed
+  },
+  discriminatorOpts
+);
+
+const finishPackageEventSchema = new mongoose.Schema(
+  {
+    package: packageRef,
+  },
+  discriminatorOpts
+);
+
+const reopenPackageEventSchema = new mongoose.Schema(
+  {
+    package: packageRef,
+  },
+  discriminatorOpts
+);
+
+const deletePackageEventSchema = new mongoose.Schema(
+  {
+    package: packageRef,
+  },
+  discriminatorOpts
+);
+
+const addPackageReceivedPalletEventSchema = new mongoose.Schema(
+  {
+    package: packageRef,
+    pallet: receivedPalletRef
+  },
+  discriminatorOpts
+)
+
+/************************************************
  * 
  * Public Database Client
  * ======================
@@ -210,6 +266,13 @@ class EventsDbClient {
     this.EditReceivedPalletEvent = this.Event.discriminator( 'edit-received-pallet', editReceivedPalletEventSchema );
     this.BreakdownReceivedPalletEvent = this.Event.discriminator( 'breakdown-received-pallet', breakdownReceivedPalletEventSchema );
     this.UnbreakdownReceivedPalletEvent = this.Event.discriminator( 'unbreakdown-received-pallet', unbreakdownReceivedPalletEventSchema );
+
+    this.CreatePackageEvent = this.Event.discriminator( 'create-package', createPackageEventSchema );
+    this.EditPackageEvent = this.Event.discriminator( 'edit-package', editPackageEventSchema );
+    this.FinishPackageEvent = this.Event.discriminator( 'finish-package', finishPackageEventSchema );
+    this.ReopenPackageEvent = this.Event.discriminator( 'reopen-package', reopenPackageEventSchema );
+    this.DeletePackageEvent = this.Event.discriminator( 'delete-package', deletePackageEventSchema );
+    this.AddPackageReceivedPalletEvent = this.Event.discriminator( 'add-package-received-pallet', addPackageReceivedPalletEventSchema );
 
     // TODO:
     // add/remove documents
@@ -458,6 +521,92 @@ class EventsDbClient {
     }
 
     const e = new this.UnbreakdownReceivedPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
+
+    return e.save();
+
+  }
+
+
+  /************************************************
+   * Register package events
+   * 
+   ****/
+
+  createPackage( { user, packageId } ) {
+
+    if( !packageId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.CreatePackageEvent( { user: user && user._id , package: packageId } );
+
+    return e.save();
+
+  }
+
+  deletePackage( { user, packageId } ) {
+
+    if( !packageId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.DeletePackageEvent( { user: user && user._id , package: packageId } );
+
+    return e.save();
+
+  }
+
+  editPackage( { user, packageId, path, oldValue, newValue } ) {
+
+    if( !packageId || !path ) {
+      return Promise.resolve( null );
+    }
+
+    const eventData = {
+      user: user && user._id,
+      package: packageId,
+      path: path,
+      oldValue: oldValue,
+      newValue: newValue
+    };
+
+    const e = new this.EditPackageEvent( eventData );
+
+    return e.save();
+
+  }
+
+  finishPackage( { user, packageId } ) {
+
+    if( !packageId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.FinishPackageEvent( { user: user && user._id , package: packageId } );
+
+    return e.save();
+
+  }
+
+  reopenPackage( { user, packageId } ) {
+
+    if( !packageId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.ReopenPackageEvent( { user: user && user._id , package: packageId } );
+
+    return e.save();
+
+  }
+
+  addPackageReceivedPallet( { user, packageId, palletId } ) {
+
+    if( !packageId || !palletId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.AddPackageReceivedPalletEvent( { user: user && user._id , package: packageId, pallet: palletId } );
 
     return e.save();
 
