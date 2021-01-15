@@ -983,6 +983,127 @@ class InventoryCommander {
 
   }
 
+
+  //==========================================================
+  // Aggregation and Inventory Levels
+  //
+  //
+
+  async getReceivedPalletInventory( { date } ) {
+
+    let matchDoc;
+    if( date ) {
+
+      matchDoc = {
+        $and: [
+          { // was created by date
+            createdAt: { $lte: date }
+          },
+          { // either never deleted or deleted after date
+            $or: [ 
+              { isDeleted: false },
+              { deletedDate: { $gte: date } }
+            ] 
+          },
+          { // either never brokendown or brokendown after date
+            $or: [
+              { isBrokendown: false },
+              { breakdownDate: { $gte: date } }
+            ]
+          }
+        ]
+      };
+
+    }
+    else {
+
+      matchDoc = {
+        isDeleted: false,
+        isBrokendown: false
+      };
+
+    }
+
+    return this.ReceivedPallet.aggregate()
+      .match( matchDoc )
+      .group( {
+        _id: "$category",
+        count: { $sum: 1 }
+      } )
+      .project( {
+        _id: 0,
+        category: "$_id",
+        count: "$count"
+      } );
+      // TODO: sort
+
+  }
+
+  async getPackageInventory( { date } ) {
+
+    let matchDoc;
+    if( date ) {
+
+      matchDoc = {
+        $and: [
+          { // was created and finished by date
+            finishedDate: { $lte: date },
+          },
+          { // either never deleted or deleted after date
+            $or: [ 
+              { isDeleted: false },
+              { deletedDate: { $gte: date } }
+            ] 
+          },
+          { // either never shipped or shipped after date
+            $or: [
+              { isShipped: false },
+              { shippedDate: { $gte: date } }
+            ]
+          }
+        ]
+      };
+
+    }
+    else {
+
+      matchDoc = {
+        isFinished: true,
+        isDeleted: false,
+        isShipped: false
+      };
+
+    }
+
+    return this.Package.aggregate()
+      .match( matchDoc )
+      .project( {
+        class: { //either "type:units" or just type
+          $cond:{
+            if: "$units",
+            then: {
+              $concat: [
+                "$type",
+                ":",
+                { $toString: "$units" }
+              ]
+            },
+            else: "$type"
+          }
+        }
+      } )
+      .group( {
+        _id: "$class",
+        count: { $sum: 1 }
+      } )
+      .project( {
+        _id: 0,
+        class: "$_id",
+        count: "$count"
+      } );
+
+  }
+
 }
 
 module.exports = InventoryCommander;
