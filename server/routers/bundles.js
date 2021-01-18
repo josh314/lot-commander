@@ -21,7 +21,7 @@ const listBundlesFilterParamsFromQueryParams = ( qp ) => {
   }
 
   if( qp.package ) {
-    fp.package = qp.package;
+    fp.pkg = qp.package;
   }
 
   if( qp.is_packed ) {

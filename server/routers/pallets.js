@@ -77,7 +77,7 @@ function routes({ eventsDb, inventoryCommander }) {
   router.post(
     '/create',
     auth.isAuthorized( 'CREATE_RECEIVED_PALLET' ),
-    createReceivedPallet
+    createReceivedPallets
   );
   router.patch(
     '/:palletId',
@@ -137,18 +137,22 @@ function routes({ eventsDb, inventoryCommander }) {
     
   }
 
-  async function createReceivedPallet( req, res, next  ) {
+  async function createReceivedPallets( req, res, next  ) {
 
     try {
       const palletData = req.body;
 
-      const pallet = await inventoryCommander.createReceivedPallet( palletData );
+      const { pallets } = await inventoryCommander.createReceivedPallets( palletData );
 
-      if( pallet ) {
-        eventsDb.createReceivedPallet( { user: req.user, palletId: pallet._id } );
+      if( pallets ) {
+
+        for( let pallet of pallets ) {
+          eventsDb.createReceivedPallet( { user: req.user, palletId: pallet._id } );
+        }
+        
       }
 
-      res.json( { pallet } );
+      res.json( { pallets } );
     }
     catch(e) {
 

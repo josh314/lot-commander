@@ -67,7 +67,7 @@ function routes( { eventsDb, inventoryCommander } ) {
   router.post(
     '/create',
     auth.isAuthorized( 'CREATE_PACKAGE' ),
-    createPackage
+    createPackages
   );
   router.delete(
     '/:pkgId',
@@ -149,18 +149,22 @@ function routes( { eventsDb, inventoryCommander } ) {
 
   };
 
-  async function createPackage( req, res, next  ) {
+  async function createPackages( req, res, next  ) {
 
     try {
       const pkgData = req.body;
 
-      const pkg = await inventoryCommander.createPackage( pkgData );
+      const { packages } = await inventoryCommander.createPackages( pkgData );
 
-      if( pkg ) {
-        eventsDb.createPackage( { user: req.user, packageId: pkg._id } );
+      if( packages ) {
+
+        for( let pkg of packages ) {
+          eventsDb.createPackage( { user: req.user, packageId: pkg._id } );
+        }
+
       }
 
-      res.json( { package: pkg } );
+      res.json( { packages: packages } );
     }
     catch(e) {
 

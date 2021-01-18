@@ -18,6 +18,31 @@ const receivedPalletSchema = mongoose.Schema({
   //TODO: manifest, breakdown date
 }, { collection: 'received-pallets', timestamps: true });
 
+/***********************
+ * ReceivedPallet pre-save hook
+ * 
+ ******/
+receivedPalletSchema.pre( 'save', function(next) {
+
+  if( typeof this.hasProblem !== 'boolean' ) {
+    this.hasProblem = false;
+  }
+
+  if( typeof this.isAnonymous !== 'boolean' ) {
+    this.isAnonymous = false;
+  }
+
+  if( typeof this.isBrokendown !== 'boolean' ) {
+    this.isBrokendown = false;
+  }
+
+  if( typeof this.isDeleted !== 'boolean' ) {
+    this.isDeleted = false;
+  }
+
+  next();
+} );
+
 receivedPalletSchema.methods.edit = function( data ) {
   Object.assign( this, data );
   return this.save();

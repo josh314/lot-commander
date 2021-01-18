@@ -214,7 +214,7 @@ const packageQueryFilter = ( { handle, pallet, isFinished, isShipped } ) => {
   return filter;
 }
 
-const bundleQueryFilter = ( { handle, package, isPacked } ) => {
+const bundleQueryFilter = ( { handle, pkg, isPacked } ) => {
   const filter = {
     isDeleted: false,
   };
@@ -223,8 +223,8 @@ const bundleQueryFilter = ( { handle, package, isPacked } ) => {
     filter.handle = handle;
   }
 
-  if( package ) {
-    filter.package = package;
+  if( pkg ) {
+    filter.package = pkg;
   }
 
   if( isPacked !== undefined ) {
@@ -566,7 +566,7 @@ class InventoryCommander {
       _palletData
     );
 
-    const pallet = await this.createReceivedPallet( palletData ); 
+    const { pallets: [ pallet ] } = await this.createReceivedPallets( palletData ); 
 
     await shipment.receivePallet( pallet._id );
 
@@ -614,20 +614,16 @@ class InventoryCommander {
 
   }
 
-  createReceivedPallet( _data ) {
+  async createReceivedPallets( _data ) {
 
-    const data = Object.assign(
-      {
-        hasProblem: false,
-        isAnonymous: false,
-        isBrokendown: false,
-        isDeleted: false
-      },
-      _data
-    );
+    if( Array.isArray( _data ) ) {
+      const pallets  = await this.ReceivedPallet.create(_data);
+      return { pallets  };
+    }
 
-    const newPallet = new this.ReceivedPallet( data );
-    return newPallet.save();
+    const pallet = await ( new this.ReceivedPallet( _data ) ).save();
+    return { pallets : [ pallet ] };
+
   }
 
   getReceivedPalletById( palletId, { populate, includeDeleted = false } = {}) {
@@ -807,21 +803,16 @@ class InventoryCommander {
 
   }
 
-  createPackage( _data ) {
+  async createPackages( _data ) {
 
-    const data = Object.assign(
-      {
-        //TODO:
-        isFinished: false,
-        isShipped: false,
-        isDeleted: false,
-        pallets: []
-      },
-      _data
-    );
+    if( Array.isArray( _data ) ) {
+      const packages = await this.Package.create(_data);
+      return { packages };
+    }
 
-    const newPkg = new this.Package( data );
-    return newPkg.save();
+    const pkg = await ( new this.Package( _data ) ).save();
+    return { packages: [ pkg ] };
+
   }
 
   getPackageById( pkgId, { populate, includeDeleted = false } = {}) {

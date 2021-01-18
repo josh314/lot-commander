@@ -27,6 +27,30 @@ const packageSchema = mongoose.Schema({
   // TODO: bundles
 }, { collection: 'packages', timestamps: true });
 
+/***********************
+ * Package pre-save hook
+ * 
+ ******/
+packageSchema.pre( 'save', function(next) {
+
+  if( typeof this.isFinished !== 'boolean' ) {
+    this.isFinished = false;
+  }
+
+  if( typeof this.isShipped !== 'boolean' ) {
+    this.isShipped = false;
+  }
+
+  if( typeof this.isDeleted !== 'boolean' ) {
+    this.isDeleted = false;
+  }
+
+  if( !this.pallets ) {
+    this.pallets = [];
+  }
+
+  next();
+} );
 
 packageSchema.methods.edit = function( data ) {
   Object.assign( this, data );
