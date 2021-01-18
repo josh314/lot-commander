@@ -214,6 +214,26 @@ const packageQueryFilter = ( { handle, pallet, isFinished, isShipped } ) => {
   return filter;
 }
 
+const bundleQueryFilter = ( { handle, package, isPacked } ) => {
+  const filter = {
+    isDeleted: false,
+  };
+
+  if ( handle ) {
+    filter.handle = handle;
+  }
+
+  if( package ) {
+    filter.package = package;
+  }
+
+  if( isPacked !== undefined ) {
+    filter.isPacked = isPacked;
+  }
+
+  return filter;
+}
+
 /************************************************
  * 
  * Public Database Client
@@ -229,10 +249,12 @@ class InventoryCommander {
     const pkg = require('./models/package');
     const incomingShipment = require('./models/incoming-shipment');
     const receivedPallet = require('./models/received-pallet');
+    const bundle = require('./models/bundle');
 
     // initialize models
     this.IncomingShipment = mongooseConnection.model('IncomingShipment', incomingShipment.schema);
     this.Package = mongooseConnection.model('Package', pkg.schema);
+    this.Bundle = mongooseConnection.model('Bundle', bundle.schema);
     this.ReceivedPallet = mongooseConnection.model('ReceivedPallet', receivedPallet.schema);
   }
 
@@ -980,6 +1002,138 @@ class InventoryCommander {
     await pkg.unship();
 
     return { package: pkg };
+
+  }
+
+  //==========================================================
+  // Bundles
+  //
+
+  listBundles( { num, skip, sort, sortDir, filterParams, populate = [] } ) {
+
+    const filter = bundleQueryFilter(filterParams);
+
+    let sortField;
+    if ( sort ) {
+      sortField = sort;
+    }
+    else {
+      sortField = 'createdAt';
+    }
+
+    const sortParams = {
+      [ sortField ] : sortDir || 1
+    };
+
+    let q = this.Bundle.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
+
+    for( let path of populate ) {
+
+      q = q.populate( path );
+
+    }
+
+    return q.exec();
+  }
+
+  countBundles( filterParams ) {
+
+    const filter = bundleQueryFilter(filterParams);
+
+    return this.Bundle.countDocuments( filter );
+
+  }
+
+  async createBundles( _data ) {
+
+    if( Array.isArray( _data ) ) {
+      const bundles = await this.Bundle.create(_data);
+      return { bundles };
+    }
+
+    const bundle = await ( new this.Bundle( _data ) ).save();
+    return { bundles: [ bundle ] };
+
+  }
+
+  getBundleById( bundleId, { populate, includeDeleted = false } = {}) {
+
+    let objectId;
+
+    try {
+      objectId = new mongoose.Types.ObjectId( bundleId );
+    }
+    catch {
+      return null;
+    }
+
+    const findDoc = { _id: objectId };
+
+    if( !includeDeleted ) {
+      findDoc.isDeleted = false;
+    }
+
+    let q = this.Bundle.findOne( findDoc );
+
+    if( populate ) {
+
+      for( let path of populate ) {
+
+        q = q.populate( path );
+
+      }
+
+    }
+
+    return q.exec();
+
+  }
+
+  async deleteBundle( bundleId ) {
+
+    const bundle = await this.getBundleById( bundleId );
+
+    if( !bundle ) {
+      throw new ResourceNotFoundError( { type: 'bundle', id: bundleId } );
+    }
+
+    if( bundle.isDeleted ) {
+      return {};
+    }
+
+    await bundle.delete();
+
+    return { bundle };
+  }
+
+  async editBundle( bundleId, _editDocument ) {
+    
+    const bundle = await this.getBundleById( bundleId );
+
+    if( !bundle ) {
+      throw new ResourceNotFoundError( { type: 'bundle', id: bundleId } );
+    }
+
+    try { 
+      const edits = Object.keys( _editDocument ).map( _key => ({ path: _key, oldValue: bundle[ _key ], newValue: _editDocument[ _key ] }) ).filter( x => x.oldValue !== x.newValue ); 
+
+      if( edits.length <= 0 ) {
+        return {};
+      }
+
+      const editDocument = edits.reduce( (acc, _) => { 
+        acc[_.path] = _.newValue;
+        return acc;
+      }, {});
+
+      await bundle.edit( editDocument );
+
+      return { bundle, edits };
+    }
+    catch(e) {
+      console.error(e);
+      return {};
+    }
 
   }
 

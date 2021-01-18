@@ -101,6 +101,7 @@ function routes({ eventsDbClient, inventoryCommander, shopifyGqlClient, shopifyD
   router.use('/api/receiving', require('./receiving')( { eventsDb: eventsDbClient, inventoryCommander } ) );
   router.use('/api/pallets', require('./pallets')( { eventsDb: eventsDbClient, inventoryCommander } ) );
   router.use('/api/packages', require('./packages')( { eventsDb: eventsDbClient, inventoryCommander } ) );
+  router.use('/api/bundles', require('./bundles')( { eventsDb: eventsDbClient, inventoryCommander } ) );
   router.use(
     '/api/events',
     // auth.isAuthorized('VIEW_EVENTS'),

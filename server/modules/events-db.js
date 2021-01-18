@@ -28,6 +28,12 @@ const packageRef = {
   ref: 'Package'
 };
 
+const bundleRef = {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Bundle'
+};
+
+
 
 const eventSchema = new mongoose.Schema(
   {
@@ -233,7 +239,36 @@ const addPackageReceivedPalletEventSchema = new mongoose.Schema(
     pallet: receivedPalletRef
   },
   discriminatorOpts
-)
+);
+
+/************************************************
+ * Package Events
+ * 
+ ****/
+
+const createBundleEventSchema = new mongoose.Schema(
+  {
+    bundle: bundleRef,
+  },
+  discriminatorOpts
+);
+
+const editBundleEventSchema = new mongoose.Schema(
+  {
+    bundle: bundleRef,
+    path: String,
+    oldValue: mongoose.Mixed,
+    newValue: mongoose.Mixed
+  },
+  discriminatorOpts
+);
+
+const deleteBundleEventSchema = new mongoose.Schema(
+  {
+    bundle: bundleRef,
+  },
+  discriminatorOpts
+);
 
 /************************************************
  * 
@@ -273,6 +308,10 @@ class EventsDbClient {
     this.ReopenPackageEvent = this.Event.discriminator( 'reopen-package', reopenPackageEventSchema );
     this.DeletePackageEvent = this.Event.discriminator( 'delete-package', deletePackageEventSchema );
     this.AddPackageReceivedPalletEvent = this.Event.discriminator( 'add-package-received-pallet', addPackageReceivedPalletEventSchema );
+
+    this.CreateBundleEvent = this.Event.discriminator( 'create-bundle', createBundleEventSchema );
+    this.EditBundleEvent = this.Event.discriminator( 'edit-bundle', editBundleEventSchema );
+    this.DeleteBundleEvent = this.Event.discriminator( 'delete-bundle', deleteBundleEventSchema );
 
     // TODO:
     // add/remove documents
@@ -611,6 +650,57 @@ class EventsDbClient {
     return e.save();
 
   }
+
+
+  /************************************************
+   * Register bundle events
+   * 
+   ****/
+
+  createBundle( { user, bundleId } ) {
+
+    if( !bundleId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.CreateBundleEvent( { user: user && user._id , bundle: bundleId } );
+
+    return e.save();
+
+  }
+
+  deleteBundle( { user, bundleId } ) {
+
+    if( !bundleId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.DeleteBundleEvent( { user: user && user._id , bundle: bundleId } );
+
+    return e.save();
+
+  }
+
+  editBundle( { user, bundleId, path, oldValue, newValue } ) {
+
+    if( !bundleId || !path ) {
+      return Promise.resolve( null );
+    }
+
+    const eventData = {
+      user: user && user._id,
+      bundle: bundleId,
+      path: path,
+      oldValue: oldValue,
+      newValue: newValue
+    };
+
+    const e = new this.EditBundleEvent( eventData );
+
+    return e.save();
+
+  }
+
 
 }
 
