@@ -75,7 +75,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
   // Edit/create pallet
   router.post(
-    '/create',
+    '/',
     auth.isAuthorized( 'CREATE_RECEIVED_PALLET' ),
     createReceivedPallets
   );

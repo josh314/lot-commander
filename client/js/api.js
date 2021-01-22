@@ -227,7 +227,7 @@ export function countIncomingShipments( qp ) {
 export function createIncomingShipment( shipment ) {
   return axios({
     method: 'post',
-    url: `/api/receiving/create`,
+    url: `/api/receiving/`,
     data: shipment 
   })
     .then( resp => resp.data );

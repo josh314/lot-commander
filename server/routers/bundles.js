@@ -67,7 +67,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
   // Edit/create bundle
   router.post(
-    '/create',
+    '/',
     auth.isAuthorized( 'CREATE_BUNDLE' ),
     createBundles
   );

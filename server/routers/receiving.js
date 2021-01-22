@@ -81,7 +81,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
   // Edit/create shipment
   router.post(
-    '/create',
+    '/',
     auth.isAuthorized( 'CREATE_INCOMING_SHIPMENT' ),
     createIncomingShipment
   );

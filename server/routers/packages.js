@@ -65,7 +65,7 @@ function routes( { eventsDb, inventoryCommander } ) {
     getPackageById
   );
   router.post(
-    '/create',
+    '/',
     auth.isAuthorized( 'CREATE_PACKAGE' ),
     createPackages
   );
@@ -86,7 +86,7 @@ function routes( { eventsDb, inventoryCommander } ) {
     finishPackage
   );
   router.post(
-    '/:pkgId/add-pallets',
+    '/:pkgId/pallets',
     auth.isAuthorized( 'EDIT_PACKAGE' ),
     addPalletToPackage
   );
