@@ -22,6 +22,12 @@ class ClientError extends MyError {
   }
 }
 
+class IllegalActionError extends ClientError {
+  constructor(message) {
+    super(`Illegal action: ${message}`);
+  }
+}
+
 class InvalidRequestError extends ClientError {
   constructor() {
     super(`Invalid request`);
@@ -71,6 +77,7 @@ module.exports = {
 
   //derived
   AuthorizationError,
+  IllegalActionError,
   InvalidRequestError,
   ResourceNotFoundError,
   ChildResourceNotFoundError

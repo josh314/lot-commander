@@ -42,9 +42,14 @@ bundleSchema.methods.edit = function( data ) {
   return this.save();
 }
 
-bundleSchema.methods.pack = function() {
+bundleSchema.methods.pack = function( packageId ) {
   this.isPacked = true;
   this.packedDate = new Date();
+
+  if( packageId ) {
+    this.package = packageId;
+  }
+
   return this.save();
 };
 

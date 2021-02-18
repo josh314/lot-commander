@@ -270,6 +270,14 @@ const deleteBundleEventSchema = new mongoose.Schema(
   discriminatorOpts
 );
 
+const packBundleEventSchema = new mongoose.Schema(
+  {
+    bundle: bundleRef,
+    package: packageRef
+  },
+  discriminatorOpts
+);
+
 /************************************************
  * 
  * Public Database Client
@@ -312,6 +320,7 @@ class EventsDbClient {
     this.CreateBundleEvent = this.Event.discriminator( 'create-bundle', createBundleEventSchema );
     this.EditBundleEvent = this.Event.discriminator( 'edit-bundle', editBundleEventSchema );
     this.DeleteBundleEvent = this.Event.discriminator( 'delete-bundle', deleteBundleEventSchema );
+    this.PackBundleEvent = this.Event.discriminator( 'pack-bundle', packBundleEventSchema );
 
     // TODO:
     // add/remove documents
@@ -696,6 +705,19 @@ class EventsDbClient {
     };
 
     const e = new this.EditBundleEvent( eventData );
+
+    return e.save();
+
+  }
+
+
+  packBundle( { user, bundleId, packageId } ) {
+
+    if( !bundleId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.PackBundleEvent( { user: user && user._id , bundle: bundleId, package: packageId } );
 
     return e.save();
 

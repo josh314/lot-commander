@@ -81,6 +81,11 @@ function routes({ eventsDb, inventoryCommander }) {
     auth.isAuthorized( 'EDIT_BUNDLE' ),
     deleteBundle
   );
+  router.put(
+    '/:bundleId/package',
+    auth.isAuthorized( 'EDIT_BUNDLE' ),
+    packBundle
+  );
 
 
   /*******************************************
@@ -223,6 +228,35 @@ function routes({ eventsDb, inventoryCommander }) {
     }
 
   }
+
+  async function packBundle( req, res, next ) {
+
+    try {
+
+      const bundleId = req.params.bundleId;
+      const packageId = req.body && req.body.packageId;
+
+      const { bundle, package: pkg } = await inventoryCommander.packBundle( bundleId, packageId );
+
+      if( bundle ) {
+
+        eventsDb.packBundle( {
+          user: req.user,
+          bundleId,
+          packageId: pkg ? packageId : undefined
+        } );
+
+      }
+
+      res.json( { success: true } );
+
+    }
+    catch(e) {
+      return next( e );
+    }
+
+  }
+
 
   /**************************************
    * Return routes

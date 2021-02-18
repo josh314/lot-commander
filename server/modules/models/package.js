@@ -24,7 +24,10 @@ const packageSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'ReceivedPallet'
   } ],
-  // TODO: bundles
+  bundles: [ {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Bundle'
+  } ],
 }, { collection: 'packages', timestamps: true });
 
 /***********************
@@ -47,6 +50,10 @@ packageSchema.pre( 'save', function(next) {
 
   if( !this.pallets ) {
     this.pallets = [];
+  }
+
+  if( !this.bundles ) {
+    this.bundles = [];
   }
 
   next();
@@ -95,6 +102,11 @@ packageSchema.methods.undelete = function() {
 
 packageSchema.methods.addPallet = function( palletId ) {
   this.pallets.addToSet( palletId );
+  return this.save();
+};
+
+packageSchema.methods.addBundle = function( bundleId ) {
+  this.bundles.addToSet( bundleId );
   return this.save();
 };
 

@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
 
-const { ResourceNotFoundError, ChildResourceNotFoundError } = require('../errors');
+const {
+  IllegalActionError,
+  ResourceNotFoundError,
+  ChildResourceNotFoundError
+} = require('../errors');
 
 /************************************************
  * Helpers
@@ -1125,6 +1129,32 @@ class InventoryCommander {
       console.error(e);
       return {};
     }
+
+  }
+
+  async packBundle( bundleId, pkgId ) {
+
+    const bundle = await this.getBundleById( bundleId );
+
+    if( !bundle ) {
+      throw new ResourceNotFoundError( { type: 'bundle', id: bundleId } );
+    }
+
+    // TODO: error if already bundle.isPacked with a different package
+    if ( bundle.isPacked ) {
+      return {};
+    }
+
+    const p = [ bundle.pack( pkgId ) ];
+
+    const pkg = await this.getPackageById( pkgId );
+    if( pkg ) {
+      p.push( pkg.addBundle( bundleId ) );
+    }
+
+    await Promise.all( p );
+
+    return { bundle, package: pkg };
 
   }
 

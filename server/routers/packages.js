@@ -88,7 +88,12 @@ function routes( { eventsDb, inventoryCommander } ) {
   router.post(
     '/:pkgId/pallets',
     auth.isAuthorized( 'EDIT_PACKAGE' ),
-    addPalletToPackage
+    addPalletsToPackage
+  );
+  router.post(
+    '/:pkgId/bundles',
+    auth.isAuthorized( 'EDIT_PACKAGE' ),
+    addBundlesToPackage
   );
 
     /*******************************************
@@ -271,7 +276,7 @@ function routes( { eventsDb, inventoryCommander } ) {
 
   }
 
-  async function addPalletToPackage( req, res, next ) {
+  async function addPalletsToPackage( req, res, next ) {
 
     try {
 
@@ -284,6 +289,31 @@ function routes( { eventsDb, inventoryCommander } ) {
 
         if( pkg && pallet ) {
           eventsDb.addPackageReceivedPallet( { user: req.user, packageId: pkgId, palletId } );
+        }
+
+      }
+
+      res.json( { success: true } );
+    }
+    catch(e) {
+      return next( e );
+    }
+
+  }
+  
+  async function addBundlesToPackage( req, res, next ) {
+
+    try {
+
+      const pkgId = req.params.pkgId;
+      const bundles = req.body;
+
+      for( let bundleId of bundles ) {
+
+        const { package: pkg, bundle } = await inventoryCommander.packBundle( bundleId, pkgId );
+
+        if( pkg && bundle ) {
+          eventsDb.packBundle( { user: req.user, bundleId, packageId: pkgId } );
         }
 
       }
