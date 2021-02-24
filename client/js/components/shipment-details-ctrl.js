@@ -5,8 +5,8 @@ function htmlifyText( txt ) {
 }
 
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal', 'DisplayPalletFactory', 'EventsSvc', 'focus', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc',
-  function( ConfirmationModal, DisplayPalletFactory, EventsSvc, focus, LoggedInUser, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc ) {
+angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'EventsSvc', 'focus', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc',
+  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, EventsSvc, focus, LoggedInUser, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc ) {
 
     /****************************************************
      * View variables
@@ -294,7 +294,16 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'ConfirmationModal',
 
         if( found ) {
           //TODO: warning of duplicate
+          AudioAlertSvc.fail();
           return;
+        }
+
+        const expected = vm.shipment.palletsExpected.find( p => p.handle === vm.receivedPalletId );
+        if( expected ) {
+          AudioAlertSvc.success();
+        }
+        else {
+          AudioAlertSvc.fail();
         }
 
         return vm.shipment.receivePallet( { handle: vm.receivedPalletId } ).then( _response => {
