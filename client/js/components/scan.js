@@ -1,12 +1,8 @@
 import angular from 'angular';
 
-import successBeepWav from '../../audio/success.wav';
-// import failBeepWav from '../../audio/fail-1.wav';
-import failBeepWav from '../../audio/fail-2.wav';
-
 /******************* Scanning Page Controller *************************/
-angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', '$state', 'focus', 'ImageSvc', 'lotStore', 'messageModal', 'saveLot', 'saveManifest', 'sessionTimeout', 'shippingItemsModal',
-  function($scope, $http, $interval, $state, focus, ImageSvc, lotStore, messageModal, saveLot, saveManifest, sessionTimeout, shippingItemsModal) {
+angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', '$state', 'AudioAlertSvc', 'focus', 'ImageSvc', 'lotStore', 'messageModal', 'saveLot', 'saveManifest', 'sessionTimeout', 'shippingItemsModal',
+  function($scope, $http, $interval, $state, AudioAlertSvc, focus, ImageSvc, lotStore, messageModal, saveLot, saveManifest, sessionTimeout, shippingItemsModal) {
     sessionTimeout.timeoutExpired();
     focus('barcodeInput');
     $scope.lot = lotStore;
@@ -64,8 +60,6 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
       });
     };
 
-    const successBeep = new Audio(successBeepWav);
-    const failBeep = new Audio(failBeepWav);
     $scope.scanBarcode = async function() {
       console.log($scope.lot);
       if ($scope.scannedBarcode && $scope.scanForm.barcode.$valid) {
@@ -79,15 +73,15 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
               item.images = resp.data.images;
             }
           }
-          successBeep.play();
+          AudioAlertSvc.success();
           $state.reload();
         }
         else {
-          failBeep.play();
+          AudioAlertSvc.fail();
         }
       }
       else {
-        failBeep.play();
+        AudioAlertSvc.fail();
       }
     };
 

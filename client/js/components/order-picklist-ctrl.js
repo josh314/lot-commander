@@ -1,13 +1,8 @@
 import angular from 'angular';
 
-import successBeepWav from '../../audio/success.wav';
-import failBeepWav from '../../audio/fail-2.wav';
-const successBeep = new Audio(successBeepWav);
-const failBeep = new Audio(failBeepWav);
-
 /******************* Lot List Page Controller *************************/
-angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'focus', 'OrderSvc', 'PrintSvc', 'sessionTimeout',
-  function($scope, focus, OrderSvc, PrintSvc, sessionTimeout) {
+angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'AudioAlertSvc', 'focus', 'OrderSvc', 'PrintSvc', 'sessionTimeout',
+  function($scope, AudioAlertSvc, focus, OrderSvc, PrintSvc, sessionTimeout) {
     sessionTimeout.timeoutExpired();
     focus('PickItemScanInput');
 
@@ -49,11 +44,11 @@ angular.module('myApp').controller('OrderPicklistController', [ '$scope', 'focus
       if(barcode) {
         if(vm.order.pickItem(barcode)) {
           // TODO: store in cache
-          successBeep.play();
+          AudioAlertSvc.success();
           OrderSvc.cache.store(vm.order); 
         }
         else {
-          failBeep.play();
+          AudioAlertSvc.fail();
         }
         vm.barcode = '';
       }
