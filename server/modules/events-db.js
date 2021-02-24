@@ -289,7 +289,7 @@ const packBundleEventSchema = new mongoose.Schema(
 class EventsDbClient {
   constructor( mongooseConnection ) {
     this.conn = mongooseConnection;
-    addIncomingShipmentExpectedPalletEventSchema
+
     // initialize models
     this.Event = mongooseConnection.model('Event', eventSchema);
 

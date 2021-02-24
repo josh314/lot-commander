@@ -217,9 +217,13 @@ class Server {
     const InventoryCommander = require('./modules/inventory-commander');
     const inventoryCommander = new InventoryCommander( { mongooseConnection: this.mongooseConnection } );
 
+    const FulfillmentCommander = require('./modules/fulfillment-commander');
+    const fulfillmentCommander = new FulfillmentCommander( { mongooseConnection: this.mongooseConnection, inventoryCommander } );
+
     const routerOpts = {
       eventsDbClient,
       inventoryCommander,
+      fulfillmentCommander,
       userDbClient: this.users,
       shopifyGqlClient,
       shopifyDumpDb: shopifyDumpDbClient

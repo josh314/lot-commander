@@ -7,7 +7,7 @@ const { nextTick } = require('process');
 const scriptBuilder = require(path.join(__basedir, __config.modulesPath, 'script-builder'));
 
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
-const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
+// const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
 const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
 const images = require(path.join(__basedir, __config.modulesPath, 'images'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
@@ -22,7 +22,7 @@ const productData = require(path.join(__basedir, __config.modulesPath, 'product-
 // }
 
 //routes
-function routes({ eventsDbClient, inventoryCommander, shopifyGqlClient, shopifyDumpDb, userDbClient }) {
+function routes({ eventsDbClient, inventoryCommander, fulfillmentCommander, shopifyGqlClient, shopifyDumpDb, userDbClient }) {
 
   const router = new express.Router();
 
@@ -50,7 +50,7 @@ function routes({ eventsDbClient, inventoryCommander, shopifyGqlClient, shopifyD
   router.post('/api/db/upload-lot-manifest/:lotId', lotdb.uploadManifest);
 
   // bstock db api
-  router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);
+  // router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);
 
   // images
   router.post('/api/image/upload', images.upload);
@@ -88,7 +88,7 @@ function routes({ eventsDbClient, inventoryCommander, shopifyGqlClient, shopifyD
   });
 
   // import & register routers
-  router.use('/api/fulfillment', require('./fulfillment'));
+  router.use('/api/fulfillment', require('./fulfillment')( { eventsDb: eventsDbClient, fulfillmentCommander } ) );
   router.use('/api/print', require('./print')( { inventoryCommander, lotdb: lotdb } ) );
   router.use('/api/manifests', require('./manifests'));
   router.use(

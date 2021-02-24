@@ -5,7 +5,6 @@ const moment = require('moment');
 const Promise = require('bluebird');
 
 const print = require(path.join(__basedir, __config.modulesPath, 'print'));
-const fulfillment = require('../modules/fulfillment');
 
 
 module.exports = routes;
@@ -29,7 +28,6 @@ function routes({ inventoryCommander, lotdb }) {
   router.get('/labels/lots/:lotId', lotLabels);
   router.get('/labels/incoming-shipments/:shipmentId/pallets-:palletList', incomingShipmentLabels);
   router.get('/labels/incoming-shipments/:shipmentId/pallets-:palletList/:palletId', incomingShipmentPalletLabel);
-  router.get('/pick-receipt/:orderId', pickReceipt);
 
 
   /*******************************************
@@ -124,28 +122,6 @@ function routes({ inventoryCommander, lotdb }) {
       };
     }
   }
-
-  async function pickReceipt(req, res, next) {
-    const orderId = req.params.orderId;
-    try {
-      const order = await fulfillment.getOrder(orderId);
-
-      const pickItems = ( await Promise.map( order.items, getPickItemFromOrderItem ) ).filter( _ => _ !== null );
-
-      const orderPicklist = {
-        orderNumber: order.orderNumber,
-        orderDate: order.orderDate ? moment(order.orderDate).format(`MMM D, YYYY`) : null,
-        pickDate: moment().format(`MMM D, YYYY`),
-        items: pickItems,
-      };
-
-      print.createPickReceipt(orderPicklist).pipe(res);
-    }
-    catch(e) {
-      next(e);
-    }
-  }
-
 
   /**************************************
    * Return routes
