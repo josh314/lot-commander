@@ -293,8 +293,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
         const found = vm.shipment.palletsReceived.find( p => p.handle === vm.receivedPalletId );
 
         if( found ) {
-          //TODO: warning of duplicate
-          AudioAlertSvc.fail();
+          AudioAlertSvc.warning();
+          vm.receivedPalletId = '';
           return;
         }
 
