@@ -17,6 +17,7 @@ Promise.config({
 import "./js/ng-app";
 
 // Angular components
+import "./js/components/audio-alert-svc.js";
 import "./js/components/auctions.js";
 import "./js/components/clean-manifest-ctrl.js";
 import "./js/components/confirmation-modal.js";

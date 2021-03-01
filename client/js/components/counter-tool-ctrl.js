@@ -1,11 +1,5 @@
 import angular from 'angular';
 
-import successBeepWav from '../../audio/success.wav';
-import failBeepWav from '../../audio/fail-2.wav';
-
-const successBeep = new Audio(successBeepWav);
-const failBeep = new Audio(failBeepWav);
-
 const invalidBarcode = barcode => !barcode.match(/^[0-9]{8,15}$/);
 
 function Counter($localStorage) {
@@ -42,8 +36,8 @@ function Counter($localStorage) {
 
 
 /******************* Counter Tool Controller *************************/
-angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counterToolModal', 'focus', 'navigate', 'sessionTimeout',
-  function($localStorage, counterToolModal, focus, navigate, sessionTimeout) {
+angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'AudioAlertSvc', 'counterToolModal', 'focus', 'navigate', 'sessionTimeout',
+  function($localStorage, AudioAlertSvc, counterToolModal, focus, navigate, sessionTimeout) {
     sessionTimeout.timeoutExpired();
     const vm = this;
 
@@ -93,7 +87,7 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counter
         startCounter( vm.counterUnitsInput );
       }
       else {
-        failBeep.play();
+        AudioAlertSvc.fail();
         resetCounterUnitsInput();
       }
     };
@@ -151,11 +145,11 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counter
       vm.barcodeInvalid = invalidBarcode( vm.scannedBarcode );
       if ( vm.scannedBarcode && !vm.barcodeInvalid ){
         vm.counter.addBarcode( vm.scannedBarcode );
-        successBeep.play();
+        AudioAlertSvc.success();
         notifyIfDone();
       }
       else {
-        failBeep.play();
+        AudioAlertSvc.fail();
       }
       refreshDisplay();
     };
