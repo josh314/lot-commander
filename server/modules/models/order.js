@@ -18,6 +18,7 @@ const mongoose = require('mongoose');
 const fulfillmentSchema = mongoose.Schema(
   {
     lineItemId: mongoose.Schema.Types.ObjectId,
+    // TODO: carrier & tracking info?
   },
   {
     discriminatorKey: 'type'
@@ -59,33 +60,46 @@ const orderSchema = mongoose.Schema(
 
   // the schema
   {
-    isShipped: Boolean,
-    isDeleted: Boolean,
-
-    orderDate: Date,
-    shippedDate: Date,
-    deletedDate: Date,
-
     handle: String,
+    
+    orderDate: Date,
+
     customer: {
       name: String,
       phone: String,
       email: String
     },
+
     address: {
+      name: String,
       street1: String,
       street2: String,
       state: String,
       zip: String,
     },
+    shippingType: String, // standard ground, pallet breakdown, freight, etc
 
     lineItems: [ {
       name: String,
-      isPicked: Boolean
+      sku: String,
+      units: Number,
+      isPicked: Boolean,
+      // TODO: number of boxes, shippingItems?
     } ],
-    fulfillments: [ fulfillmentSchema ]
 
-    // TODO: line Items, fulfillments, isPicked
+    fulfillments: [ fulfillmentSchema ],
+
+
+    isShipped: Boolean,
+    isDeleted: Boolean,
+
+    shippedDate: Date,
+    deletedDate: Date,
+
+    // TODO: 
+    // line Items,
+    // fulfillments,
+    // isPicked,
 
   },
 
