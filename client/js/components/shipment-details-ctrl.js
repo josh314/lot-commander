@@ -1,7 +1,7 @@
 import angular from 'angular';
 
 function htmlifyText( txt ) {
-  return txt.split("\n").join('<br/>');
+  return txt ? txt.split("\n").join('<br/>') : txt;
 }
 
 /******************* Shipment Details Page Controller *************************/
@@ -84,7 +84,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
           .then( resp => {
             if( resp.success ) {
 
-              if( key === 'category' ) {
+              if( key === 'category' && vm.editValue.category ) { /* The second condition allows blanking the shipment category without blanking the pallet categories */
                 vm.shipment.palletsExpected.forEach( p => p.category = vm.editValue.category );
               }
 
@@ -452,7 +452,7 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
 
       const savePallet = saveFn[ _type ]( _shipment );
 
-      const pallet = Object.assign({}, _data);
+      const pallet = Object.assign({}, _data, { shipment: _shipment });
 
       if( _type === 'received' ) {
         pallet.showNote = false;
@@ -495,7 +495,13 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
 
         if( pallet.isEdited() ) {
 
-          p = savePallet( this._id, this.editValues )
+          /* eslint-disable indent */
+          const shipmentEditCategoryPromise = _shipment.category && this.editValues.category !== _shipment.category ?
+                                                _shipment.editShipment( { category: '' } ) :
+                                                Promise.resolve( true );
+          /* eslint-enable indent */
+
+          p = shipmentEditCategoryPromise.then( _ => savePallet( this._id, this.editValues ) )
             .then( resp => {
               if( resp.success ) {
                 return Object.assign( this, this.editValues );

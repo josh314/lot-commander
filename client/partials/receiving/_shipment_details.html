@@ -249,7 +249,7 @@
           </td>
           <td ng-show="ctrl.showEditControls">
             <span ng-hide="pallet.isEditing">(<a href ng-click="pallet.openEdit()">edit</a>)</span>
-            <span ng-show="pallet.isEditing">(<a href ng-click="pallet.saveEdit()" style="color: red">save</a> or <a href ng-click="pallet.closeEdit()" style="color: red">cancel edit</a>)</span>
+            <span ng-show="pallet.isEditing">(<a href ng-click="ctrl.savePalletEdit(pallet)" style="color: red">save</a> or <a href ng-click="pallet.closeEdit()" style="color: red">cancel edit</a>)</span>
           </td>
         </tr>
         <tr ng-show="ctrl.addExpectedPallet.isStarted">
