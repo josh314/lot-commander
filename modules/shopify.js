@@ -32,7 +32,7 @@ const addImage = Promise.method(async function(productId, imageObj){
 });
 
 //TODO: This function might be real slow. Return right away? 
-const submitListing = Promise.method(async function (listing) {
+const submitListing = Promise.method(async function (listing, { publish } = { publish: false } ) {
 
   // Start the manifest promise if applicable
   const manifestP = listing.lot.unmanifested ? null : manifests.getManifestItemsForLot(listing.lot, { refreshProductData: listing.refreshProductData });
@@ -223,9 +223,11 @@ const submitListing = Promise.method(async function (listing) {
     listingPromises.push(addMetafieldP);
   }
 
-  await listingPromises;
-  //publish after all requests come back and return the response
-  return shopifyClient.publishProduct(newProductId);
+
+  const result = publish ? Promise.all(listingPromises).then( _ => shopifyClient.publishProduct(newProductId) ) : listingPromises;
+
+  return result;
+
 });
 
 module.exports = {

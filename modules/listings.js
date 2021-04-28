@@ -62,6 +62,7 @@ const submitFn = {
 
 const submit = Promise.method(async function(req, res, next) {
   const listing = req.body.listing;
+  const publish = !!req.body.publish;
 
   if(!submitFn[listing.marketplace]) {
     next(new Error('Invalid marketplace.'));
@@ -104,7 +105,7 @@ const submit = Promise.method(async function(req, res, next) {
       listing.lot.manifestFileLocation = generatedManifestResponse.manifest;
     }
 
-    await submitFn[listing.marketplace](listing);
+    await submitFn[listing.marketplace]( listing, { publish: publish } );
     Object.assign(newSubmittedListing, {
       success: true,
       message: 'Submission successful.'

@@ -182,7 +182,7 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bst
         await saveLot($scope.lot);
       }
 
-      $http.post('/api/listings/submit', { lotId: lotStore._id, listing: $scope.listing}).then(resp=>{
+      $http.post('/api/listings/submit', { lotId: lotStore._id, listing: $scope.listing, publish: $scope.publish }).then(resp=>{
         console.log(resp);
         if(resp.data.error) {
           messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
