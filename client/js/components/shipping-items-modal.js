@@ -63,6 +63,7 @@ angular.module('myApp').controller('ShippingItemsModalController', [ '$scope', '
 
     $scope.presets = [
       {
+        name: '24x18x12',
         weightUnits: dbEnums.weightUnits[0],
         height: 24,
         heightUnits: 'inches',
@@ -72,6 +73,7 @@ angular.module('myApp').controller('ShippingItemsModalController', [ '$scope', '
         widthUnits: 'inches',
       },
       {
+        name: '22x22x22',
         weightUnits: dbEnums.weightUnits[0],
         height: 22,
         heightUnits: 'inches',
@@ -81,6 +83,7 @@ angular.module('myApp').controller('ShippingItemsModalController', [ '$scope', '
         widthUnits: 'inches',
       },
       {
+        name: '16x14x12',
         weightUnits: dbEnums.weightUnits[0],
         height: 16,
         heightUnits: 'inches',
@@ -90,12 +93,24 @@ angular.module('myApp').controller('ShippingItemsModalController', [ '$scope', '
         widthUnits: 'inches',
       },
       {
+        name: '12x10x6',
         weightUnits: dbEnums.weightUnits[0],
         height: 12,
         heightUnits: 'inches',
         length: 10,
         lengthUnits: 'inches',
         width: 6,
+        widthUnits: 'inches',
+      },
+      {
+        name: 'pallet',
+        weight: 2000,
+        weightUnits: dbEnums.weightUnits[0],
+        height: 60,
+        heightUnits: 'inches',
+        length: 48,
+        lengthUnits: 'inches',
+        width: 48,
         widthUnits: 'inches',
       }
     ];
