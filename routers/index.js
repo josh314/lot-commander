@@ -59,6 +59,8 @@ function routes({ eventsDbClient, inventoryDbClient, shopifyGqlClient, shopifyDu
   router.post('/api/image/remove', images.removeImage);
   router.post('/api/image/replace', images.replaceImage);
   router.get('/api/image', images.get);
+  router.get('/api/image/list', images.list);
+
 
   // marketplace listings
   router.post(

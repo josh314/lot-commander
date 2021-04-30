@@ -11,6 +11,8 @@ const MAX_IMAGE_WIDTH = 640;
 
 const BUCKET = 'lot-images';
 
+const imageUrl = s3Key => `http://${ BUCKET }.s3.amazonaws.com/${ s3Key }`;
+
 const imageName = (s3Location) => {
   const p = /https:\/\/.*\.s3\.amazonaws\.com\/.*\/(.*)/;
   const match = s3Location.match(p);
@@ -109,6 +111,34 @@ const storeStream = async function(bucket, readStream, key, dedup) {
     .promise();
 };
 
+const list = async ( { urlEncode } = {} ) => {
+
+  const opts = { Bucket: BUCKET };
+  if( urlEncode ) {
+    opts.EncodingType = "url";
+  }
+
+  let imageObjects = [];
+  let continuationToken;
+  
+  do {
+    
+    if( continuationToken ) {
+      opts.ContinuationToken = continuationToken;
+    }
+
+    const res = await s3.listObjectsV2( opts ).promise();
+    imageObjects = imageObjects.concat( res.Contents );
+    continuationToken = res.NextContinuationToken;
+
+  } while( continuationToken );
+
+
+  const images = imageObjects.map( _ => urlEncode ? imageUrl( _.Key ) : _.Key );
+
+  return images;
+};
+
 const get = async function(opts = {}) {
   let { bucket, key } = opts.s3Location ? parseS3Location(opts.s3Location) : opts;
   if(!bucket || !key) {
@@ -168,6 +198,7 @@ module.exports = {
   deleteLotImages: deleteLotImages,
   get: get,
   imageName: imageName,
+  list: list,
   remove: remove,
   replace: replace,
   store: store,

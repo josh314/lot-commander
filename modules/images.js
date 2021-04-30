@@ -28,6 +28,11 @@ async function get(req, res) {
   }
 }
 
+async function list(req, res) {
+  const list = await imageServer.list( { urlEncode: !!req.query.url_encode } );
+  res.json(list);
+}
+
 function upload(req,res) {
   const form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
@@ -130,6 +135,7 @@ async function replaceImage(req, res) {
 
 module.exports = {
   get: get,
+  list: list,
   upload: upload,
   removeImage: removeImage,
   replaceImage: replaceImage,
