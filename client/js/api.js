@@ -414,3 +414,21 @@ export function getIncomingShipmentEvents( shipmentId ) {
   })
     .then( resp => resp.data );
 }
+
+/*************************************************
+* Images
+* =========
+*
+************/
+
+export function cloneImages( lotId, images ) {
+  return axios({
+    method: 'post',
+    url: `/api/image/clone`,
+    data: {
+      lotId,
+      images
+    }
+  })
+    .then( resp => resp.data );
+}

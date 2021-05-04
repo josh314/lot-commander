@@ -1,0 +1,33 @@
+
+<div class="modal-header">
+	<span class="h4 modal-title">Click on images to select</span>
+  <span class="pull-right">
+    <button class="btn btn-primary" type="button" ng-click="$ctrl.confirmSelected()">Confirm selections</button>
+    <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+  </span>
+</div>
+<div class="modal-body" style="overflow-y: scroll; max-height: 70vh">
+  <div ng-show="$ctrl.waitingToLoad">
+    <div class="center-block loader"></div>
+    <h2 class="text-center">Please wait...</h2>
+  </div>
+	<div class="row" ng-hide="$ctrl.waitingToLoad">
+    <div class="col-xs-12 col-sm-4" ng-repeat="image in $ctrl.displayList" ng-click="image.selected = !image.selected">
+      <img ng-src="{{ image.link }}" ng-class="{ 'selected': image.selected }" class="img-thumbnail primary-image" width="240" height="auto">
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+
+  <span class="pull-right" ng-hide="$ctrl.waitingToLoad"
+    <ul uib-pagination
+    total-items="$ctrl.pagination.totalItems"
+    items-per-page="$ctrl.pagination.pageSize"
+    max-size="5"
+    force-ellipses="true"
+    ng-model="$ctrl.pagination.current"
+    ng-change="$ctrl.pagination.pageChange()"
+    class="pagination-sm"></ul>
+  </span>
+
+</div>

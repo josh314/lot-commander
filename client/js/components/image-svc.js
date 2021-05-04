@@ -115,6 +115,15 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$timeout
       }
     };
 
+    svc.getImageList = ( { urlEncode } = { urlEncode: false }  ) => {
+      try {
+        return $http.get(`/api/image/list?url_encode=${ urlEncode ? 1 : 0 }`).then( _ => _.data );
+      }
+      catch(e) {
+        throw Error(`Problem obtaining images`);
+      }
+    };
+
     svc.parseS3Location = (s3Location) => {
       const res = {};
 

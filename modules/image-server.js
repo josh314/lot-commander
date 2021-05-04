@@ -11,7 +11,7 @@ const MAX_IMAGE_WIDTH = 640;
 
 const BUCKET = 'lot-images';
 
-const imageUrl = s3Key => `http://${ BUCKET }.s3.amazonaws.com/${ s3Key }`;
+const imageUrl = s3Key => `https://${ BUCKET }.s3.amazonaws.com/${ s3Key }`;
 
 const imageName = (s3Location) => {
   const p = /https:\/\/.*\.s3\.amazonaws\.com\/.*\/(.*)/;
@@ -111,6 +111,25 @@ const storeStream = async function(bucket, readStream, key, dedup) {
     .promise();
 };
 
+const clone = async ( srcS3Location, destLotId ) => {
+
+  let { bucket, imgName, key } = parseS3Location( srcS3Location );
+
+  const destKey = `${destLotId}/${imgName}`;
+
+  await s3.copyObject({
+    Bucket: bucket,
+    CopySource: `/${bucket}/${key}`,
+    Key: destKey,
+    ACL: 'public-read'
+  }).promise();
+
+  return {
+    s3Location: imageUrl( destKey )
+  };
+
+};
+
 const list = async ( { urlEncode } = {} ) => {
 
   const opts = { Bucket: BUCKET };
@@ -133,7 +152,8 @@ const list = async ( { urlEncode } = {} ) => {
 
   } while( continuationToken );
 
-
+  // sort by recency
+  imageObjects.sort( (a,b) => a.LastModified > b.LastModified ? -1 : 1);
   const images = imageObjects.map( _ => urlEncode ? imageUrl( _.Key ) : _.Key );
 
   return images;
@@ -196,6 +216,7 @@ const deleteLotImages = async (lotId) => {
 
 module.exports = {
   deleteLotImages: deleteLotImages,
+  clone: clone,
   get: get,
   imageName: imageName,
   list: list,

@@ -30,7 +30,7 @@ async function get(req, res) {
 
 async function list(req, res) {
   const list = await imageServer.list( { urlEncode: !!req.query.url_encode } );
-  res.json(list);
+  res.json( { images: list } );
 }
 
 function upload(req,res) {
@@ -52,6 +52,25 @@ function upload(req,res) {
     }
     res.json(Promise.all(fileUploads));
   });
+}
+
+async function clone( req, res ) {
+
+  try {
+    const { lotId, images } = req.body;
+
+    for( let image of images ) {
+      const resp = await imageServer.clone( image, lotId );
+      await lotdb.addImage( lotId, { s3: resp.s3Location });
+    }
+
+    res.json( { success: true } );
+  }
+  catch(e) {
+    console.erro(e);
+    res.json( { success: false } );
+  }
+
 }
 
 async function removeImage(req, res) {
@@ -134,6 +153,7 @@ async function replaceImage(req, res) {
 }
 
 module.exports = {
+  clone: clone,
   get: get,
   list: list,
   upload: upload,
