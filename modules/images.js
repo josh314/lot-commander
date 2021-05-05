@@ -67,7 +67,7 @@ async function clone( req, res ) {
     res.json( { success: true } );
   }
   catch(e) {
-    console.erro(e);
+    console.error(e);
     res.json( { success: false } );
   }
 

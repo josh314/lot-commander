@@ -115,11 +115,12 @@ const clone = async ( srcS3Location, destLotId ) => {
 
   let { bucket, imgName, key } = parseS3Location( srcS3Location );
 
-  const destKey = `${destLotId}/${imgName}`;
+  const destKey = `${destLotId}/${imgName.replace(/\+/g, ' ')}`;
+  const src = `/${bucket}/${key}`;
 
   await s3.copyObject({
     Bucket: bucket,
-    CopySource: `/${bucket}/${key}`,
+    CopySource: src,
     Key: destKey,
     ACL: 'public-read'
   }).promise();
