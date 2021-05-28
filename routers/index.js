@@ -22,7 +22,7 @@ const productData = require(path.join(__basedir, __config.modulesPath, 'product-
 // }
 
 //routes
-function routes({ eventsDbClient, inventoryDbClient, shopifyGqlClient, shopifyDumpDb, userDbClient }) {
+function routes({ eventsDbClient, inventoryDbClient, shopifyGqlClient, shopifyDumpDb, userDbClient, manualInventoryDbClient }) {
 
   const router = new express.Router();
 
@@ -105,6 +105,7 @@ function routes({ eventsDbClient, inventoryDbClient, shopifyGqlClient, shopifyDu
     // auth.isAuthorized('VIEW_EVENTS'),
     require('./events')( eventsDbClient )
   );
+  router.use('/api/manual-inventory', require('./manual-inventory')( { manualInventoryDb: manualInventoryDbClient } ) );
 
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{

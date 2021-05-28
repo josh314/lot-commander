@@ -7,11 +7,12 @@ const mongoose = require('mongoose');
  *********/
 
 
- const manualInventoryQueryFilter = (  ) => {
-  const filter = {
-    isDeleted: false,
-  };
+ const manualInventoryQueryFilter = ( { includeDeleted } ) => {
+  const filter = {};
 
+  if( !includeDeleted ) {
+    filter.isDeleted = false;
+  }
 
   return filter;
 };
@@ -31,7 +32,9 @@ const manualInventorySchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
-  entries: [ {
+  previouslyUsedNames: [ String ],
+  previouslyUsedUnits: [ String ],
+  inventory: [ {
     name: String,
     quantity: Number,
     units: String
@@ -45,10 +48,13 @@ const manualInventorySchema = mongoose.Schema({
  * ManualInventory pre-save hook
  * 
  ******/
-// manualInventorySchema.pre( 'save', function(next) {
+manualInventorySchema.pre( 'save', function(next) {
 
-//   next();
-// } );
+  this.previouslyUsedNames = [ ... new Set( [ ...this.previouslyUsedNames, ... this.inventory.map( _ => _.name ) ] ) ].sort();
+  this.previouslyUsedUnits = [ ... new Set( [ ...this.previouslyUsedUnits, ... this.inventory.map( _ => _.units ) ] ) ].sort();
+
+  next();
+} );
 
 /************************************************
  * 
@@ -68,7 +74,7 @@ const manualInventorySchema = mongoose.Schema({
   }
 
 
-  listManualInventories( { num, skip, sort, sortDir, filterParams } ) {
+  listManualInventory( { num, skip, sort, sortDir, filterParams, populate = []  } ) {
 
     const filter = manualInventoryQueryFilter(filterParams);
 
@@ -83,12 +89,21 @@ const manualInventorySchema = mongoose.Schema({
     const sortParams = {
       [ sortField ] : sortDir || 1
     };
-    
-    return this.ManualInventory.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
+
+
+    let q = this.ManualInventory.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
+
+    for( let path of populate ) {
+
+      q = q.populate( path );
+
+    }
+
+    return q.exec();
   
   }
 
-  countManualInventories( filterParams ) {
+  countManualInventory( filterParams ) {
 
     const filter = manualInventoryQueryFilter(filterParams);
 
@@ -105,15 +120,16 @@ const manualInventorySchema = mongoose.Schema({
       _data
     );
 
+    if( _data.user ) {
+      _data.user = _data.user._id;
+    }
+
+
     const newInventory = new this.ManualInventory( data );
     return newInventory.save();
   }
 
-  getManualInventoryById( inventoryId ) {
-    return this.ManualInventory.findOne( { _id: inventoryId } );
-  }
-
-  getManualInventoryById( inventoryId, { includeDeleted = false } = {} ) {
+  getManualInventoryById( inventoryId, { populate, includeDeleted = false } = {} ) {
 
     let objectId;
 
@@ -131,6 +147,16 @@ const manualInventorySchema = mongoose.Schema({
     }
 
     const q = this.ManualInventory.findOne( findDoc );
+
+    if( populate ) {
+
+      for( let path of populate ) {
+
+        q = q.populate( path );
+
+      }
+
+    }
 
     return q.exec();
 
