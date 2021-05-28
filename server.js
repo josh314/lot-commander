@@ -212,9 +212,14 @@ class Server {
     const InventoryDb = require('./modules/inventory-db');
     const inventoryDbClient = new InventoryDb.Client( { mongooseConnection: this.mongooseConnection } );
 
+
+    const ManualInventoryDb = require('./modules/manual-inventory-db');
+    const manualInventoryDbClient = new ManualInventoryDb.Client( { mongooseConnection: this.mongooseConnection } );
+
     const routerOpts = {
       eventsDbClient,
       inventoryDbClient,
+      manualInventoryDbClient,
       userDbClient: this.users,
       shopifyGqlClient,
       shopifyDumpDb: shopifyDumpDbClient
