@@ -40,6 +40,7 @@ import "./js/components/listing-title-verifier.js";
 import "./js/components/load-lot.js";
 import "./js/components/lot-store.js";
 import "./js/components/message-modal.js";
+import "./js/components/manual-inventory";
 import "./js/components/navbar.js";
 import "./js/components/navigate.js";
 import "./js/components/new-lot.js";

@@ -1,0 +1,23 @@
+<div class="container" ng-controller="ManualInventoryCtrl as ctrl">
+	<h3>Manual Inventory</h3>
+	<div class="row well">
+		<table class="table table-striped">
+			<thead><tr>
+				<th>Date</th>
+				<th>User</th>
+				<th></th>
+			</tr></thead>
+			<tbody>	
+				<tr ng-repeat="inventory in ctrl.manualInventoryList">
+          <td>{{inventory.updatedAt}}</td>
+          <td>{{inventory.user.username}}</td>
+          <td>
+            <span>
+              <button class="btn btn-success btn-xs">Details</button>
+            </span>
+          </td>
+				</tr>
+			</tbody>
+		</table>
+  </div>
+</div>

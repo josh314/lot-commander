@@ -432,3 +432,44 @@ export function cloneImages( lotId, images ) {
   })
     .then( resp => resp.data );
 }
+
+
+/*************************************************
+* Manual Inventory
+* ================
+*
+************/
+
+
+export function listManualInventory( qp ) {
+
+  const queryParams = qp;
+
+  queryParams.populate_user = 'populate_user' in qp ? qp.populate_user : 1;
+
+  return axios({
+    method: 'get',
+    url: `/api/manual-inventory/?${querystring.stringify(queryParams)}`
+  })
+    .then( resp => resp.data );
+}
+
+export function countManualInventory( qp ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/manual-inventory/count?${querystring.stringify(qp)}`
+  })
+    .then( resp => resp.data );
+}
+
+export function createManualInventory( inventory ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/manual-inventory/new`,
+    data: inventory
+  })
+    .then( resp => resp.data );
+
+}
