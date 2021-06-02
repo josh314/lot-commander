@@ -18,11 +18,11 @@ const stateData = [
   { name: "main", abstract:true, templateUrl: '/partials/_main.html'},
   { name: "main.home", url: '/', templateUrl: '/partials/_home.html'},
   // states for managing lots
-  { name: "main.lots", abstract: true, url: '/lots', templateUrl: '/partials/_container.html' },
-  { name: "main.lots.new", navName: 'New Lot', url: '/new', templateUrl: '/partials/_new_lot.html', controller: 'NewLotCtrl'},
+  { name: "main.lots", abstract: true, navName: 'Lots', url: '/lots', templateUrl: '/partials/_container.html' },
+  { name: "main.lots.new", navName: 'New Lot', navParent: 'Lots', url: '/new', templateUrl: '/partials/_new_lot.html', controller: 'NewLotCtrl'},
   { name: "main.lots.scan", url: '/scan', templateUrl: '/partials/_scan.html', controller: 'ScanCtrl'},
   { name: "main.lots.edit-manifest", url: '/edit-manifest', templateUrl: '/partials/_edit_manifest.html', controller: 'EditManifestCtrl'},
-  { name: "main.lots.list", navName: 'List Lots', url: '/list', templateUrl: '/partials/_list_lots.html', controller: 'ListLotsCtrl'},
+  { name: "main.lots.list", navName: 'List Lots', navParent: 'Lots', url: '/list', templateUrl: '/partials/_list_lots.html', controller: 'ListLotsCtrl'},
   { name: "main.lots.view", url: '/view/{lotId}', templateUrl: '/partials/_view_lot.html', controller: 'ViewLotCtrl'},
   { name: "main.lots.submit-listing", url: '/submit-listing', templateUrl: '/partials/_submit_listing.html', controller: 'SubmitListingCtrl'},
   { name: "main.lots.image-editor", url: '/image-editor', templateUrl: '/partials/_image_editor.html' },
@@ -32,9 +32,9 @@ const stateData = [
   { name: "main.auctions", abstract: true, url: '/auctions', templateUrl: '/partials/_container.html' },
   { name: "main.auctions.list", navName: 'List Auctions', url: '/list', templateUrl: '/partials/_list_auctions.html', controller: 'ListAuctionsCtrl', userPermission: 'LIST_AUCTIONS' },
   // orders
-  { name: "main.orders", abstract: true, url: '/orders', templateUrl: '/partials/_container.html'},
-  { name: "main.orders.pending", navName: 'Orders', url: '/pending', templateUrl: '/partials/_list_pending_orders.html', userPermission: 'LIST_ORDERS' },
-  { name: "main.orders.pick", url: '/pick/{orderId}', templateUrl: '/partials/_order_pick_list.html', userPermission: 'VIEW_ORDER'  },
+  // { name: "main.orders", abstract: true, url: '/orders', templateUrl: '/partials/_container.html'},
+  // { name: "main.orders.pending", navName: 'Orders', url: '/pending', templateUrl: '/partials/_list_pending_orders.html', userPermission: 'LIST_ORDERS' },
+  // { name: "main.orders.pick", url: '/pick/{orderId}', templateUrl: '/partials/_order_pick_list.html', userPermission: 'VIEW_ORDER'  },
   // manifest files
   { name: "main.manifests", abstract: true, navName: 'Manifests', url: '/manifests', templateUrl: '/partials/_container.html' },
   { name: "main.manifests.clean", navName: 'Clean', navParent: 'Manifests', url: '/clean', templateUrl: '/partials/_clean_manifest.html' },
@@ -44,8 +44,8 @@ const stateData = [
   { name: "main.reports", navName: 'Reports',  url: '/reports', templateUrl: '/partials/_reports.html', userPermission: 'VIEW_REPORT' },
 
   // tools
-  { name: "main.tools", abstract:true, navName: "Tools", url: "/tools", templateUrl: 'partials/_container.html'},
-  { name: "main.tools.counter", navName: "Counter", navParent: 'Tools', url: "/counter", templateUrl: 'partials/tools/_counter_tool.html' },
+  // { name: "main.tools", abstract:true, navName: "Tools", url: "/tools", templateUrl: 'partials/_container.html'},
+  // { name: "main.tools.counter", navName: "Counter", navParent: 'Tools', url: "/counter", templateUrl: 'partials/tools/_counter_tool.html' },
 
   // receiving
   { name: "main.receiving", abstract: true, navName: "Receiving", url: "/receiving", templateUrl: 'partials/_container.html'},
