@@ -15,6 +15,8 @@ const listManualInventoryFilterParamsFromQueryParams = ( qp ) => {
 
   const fp = {};
 
+  fp.includeDeleted = !!qp.include_deleted;
+
   return fp;
 };
 
@@ -48,9 +50,10 @@ function routes({ manualInventoryDb }) {
    * 
    ****/
 
+  // Read
   router.get(
     '/',
-    auth.isAuthorized( 'VIEW_PACKAGE' ),
+    auth.isAuthorized( 'VIEW_MANUAL_INVENTORY' ),
     listManualInventory
   );
   router.get(
@@ -58,13 +61,29 @@ function routes({ manualInventoryDb }) {
     auth.isAuthorized( 'VIEW_MANUAL_INVENTORY' ),
     countManualInventory
   );
+  router.get(
+    '/:inventoryId',
+    auth.isAuthorized( 'VIEW_MANUAL_INVENTORY' ),
+    getManualInventoryById
+  );
   // Create
   router.post(
     '/new',
     auth.isAuthorized( 'CREATE_MANUAL_INVENTORY' ),
     createManualInventory
   );
-
+  // Edit
+  router.patch(
+    '/:inventoryId',
+    auth.isAuthorized( 'EDIT_MANUAL_INVENTORY' ),
+    editManualInventory
+  );
+  // Delete
+  router.delete(
+    '/:inventoryId',
+    auth.isAuthorized( 'DELETE_MANUAL_INVENTORY' ),
+    deleteManualInventory
+  );
 
   /*******************************************
    * Define Handlers
@@ -84,8 +103,8 @@ function routes({ manualInventoryDb }) {
       num: numPage,
 
       // sorting
-      sort: req.query.sort,
-      sortDir: parseInt(req.query.sort_dir),
+      sort: req.query.sort || "createdAt",
+      sortDir: parseInt(req.query.sort_dir) || -1,
 
       // filters
       filterParams: listManualInventoryFilterParamsFromQueryParams( req.query ),
@@ -111,6 +130,23 @@ function routes({ manualInventoryDb }) {
     
   }
 
+
+  async function getManualInventoryById( req, res ) {
+
+    const inventoryId = req.params.inventoryId;
+
+    const populate = populationPaths( req.query );
+    const includeDeleted = !!req.query.include_deleted;
+
+    const inventory = await manualInventoryDb.getManualInventoryById( inventoryId, { populate, includeDeleted } );
+    if( inventory ) {
+      res.json( { manualInventory: inventory } );
+    }
+    else {
+      res.json( { error: true, message: `No inventory found with _id ${inventoryId}.` } );
+    }
+  };
+
   async function createManualInventory( req, res ) {
 
     const data = Object.assign(
@@ -123,6 +159,30 @@ function routes({ manualInventoryDb }) {
     const manualInventory = await manualInventoryDb.createManualInventory( data );
 
     res.json( { manualInventory } );
+
+  }
+
+  async function editManualInventory( req, res ) {
+
+    const inventoryId = req.params.inventoryId;
+
+    const data = Object.assign(
+      req.body
+    );
+
+    const manualInventory = await manualInventoryDb.editManualInventory( inventoryId, data );
+
+    res.json( { manualInventory } );
+
+  }
+
+  async function deleteManualInventory( req, res ) {
+
+    const inventoryId = req.params.inventoryId;
+
+    const result = await manualInventoryDb.deleteManualInventory( inventoryId );
+
+    res.json( result );
 
   }
 
