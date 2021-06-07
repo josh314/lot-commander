@@ -32,12 +32,9 @@ const manualInventorySchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
-  previouslyUsedNames: [ String ],
-  previouslyUsedUnits: [ String ],
   inventory: [ {
     name: String,
-    quantity: Number,
-    units: String
+    quantity: Number
   } ],
   notes: String,
   isDeleted: Boolean
@@ -45,16 +42,19 @@ const manualInventorySchema = mongoose.Schema({
 
 
 /***********************
- * ManualInventory pre-save hook
+ * ManualInventory methods
  * 
  ******/
-manualInventorySchema.pre( 'save', function(next) {
 
-  this.previouslyUsedNames = [ ... new Set( [ ...this.previouslyUsedNames, ... this.inventory.map( _ => _.name ) ] ) ].sort();
-  this.previouslyUsedUnits = [ ... new Set( [ ...this.previouslyUsedUnits, ... this.inventory.map( _ => _.units ) ] ) ].sort();
+ manualInventorySchema.methods.delete = function() {
+  this.isDeleted = true;
+  return this.save();
+}
 
-  next();
-} );
+manualInventorySchema.methods.edit = function( data ) {
+  Object.assign( this, data );
+  return this.save();
+}
 
 /************************************************
  * 
@@ -124,7 +124,6 @@ manualInventorySchema.pre( 'save', function(next) {
       _data.user = _data.user._id;
     }
 
-
     const newInventory = new this.ManualInventory( data );
     return newInventory.save();
   }
@@ -164,7 +163,7 @@ manualInventorySchema.pre( 'save', function(next) {
 
   async deleteManualInventory( inventoryId ) {
  
-    const inventory = await this.getManualInventoryById( inventoryId, { includeDeleted: false} );
+    const inventory = await this.getManualInventoryById( inventoryId, { includeDeleted: false } );
 
     if( !inventory || inventory.isDeleted ) {
       throw new ResourceNotFoundError( { type: 'manual inventory', id: inventoryId } );
@@ -173,6 +172,17 @@ manualInventorySchema.pre( 'save', function(next) {
     await inventory.delete();
 
     return { manualInventory: inventory };
+  }
+
+  async editManualInventory( inventoryId, _data ) {
+
+    const inventory = await this.getManualInventoryById( inventoryId, { includeDeleted: false });
+
+    if( !inventory ) {
+      throw new Error(`NOT FOUND: manual inventory with _id ${inventoryId}`);
+    }
+
+    return inventory.edit( _data );
   }
 
 

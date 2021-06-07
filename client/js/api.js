@@ -463,12 +463,44 @@ export function countManualInventory( qp ) {
     .then( resp => resp.data );
 }
 
+export function getManualInventory( inventoryId, qp ) {
+
+  const queryParams = qp;
+
+  queryParams.populate_user = 'populate_user' in qp ? qp.populate_user : 1;
+
+  return axios({
+    method: 'get',
+    url: `/api/manual-inventory/${inventoryId}?${querystring.stringify(queryParams)}`
+  })
+    .then( resp => resp.data );
+}
+
 export function createManualInventory( inventory ) {
 
   return axios({
     method: 'post',
     url: `/api/manual-inventory/new`,
     data: inventory
+  })
+    .then( resp => resp.data );
+
+}
+
+export function deleteManualInventory( inventoryId ) {
+  return axios({
+    method: 'delete',
+    url: `/api/manual-inventory/${ inventoryId }`,
+  })
+    .then( resp => resp.data );
+}
+
+export function editManualInventory( inventoryId, data ) {
+
+  return axios({
+    method: 'patch',
+    url: `/api/manual-inventory/${ inventoryId }`,
+    data: data
   })
     .then( resp => resp.data );
 
