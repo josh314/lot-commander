@@ -1,6 +1,8 @@
 const express = require('express');
 
 const auth = require('../auth');
+const helpers = require('../helpers');
+const { InvalidRequestError, ResourceNotFoundError } = require('../errors');
 const documentSvc = require('../modules/document-svc');
 
 const fs = require('fs');
@@ -51,7 +53,7 @@ const __RESTRICTED_DOCUMENT_PERMISSION__ = 'VIEW_PURCHASING_DATA';
  * 
  **********/
 
-function routes({ eventsDb, inventoryDb }) {
+function routes({ eventsDb, inventoryCommander }) {
   const router = new express.Router();
 
   /*******************************************
@@ -79,7 +81,7 @@ function routes({ eventsDb, inventoryDb }) {
 
   // Edit/create shipment
   router.post(
-    '/create',
+    '/',
     auth.isAuthorized( 'CREATE_INCOMING_SHIPMENT' ),
     createIncomingShipment
   );
@@ -91,7 +93,7 @@ function routes({ eventsDb, inventoryDb }) {
   router.delete(
     '/:shipmentId',
     auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' ),
-    removeIncomingShipment
+    deleteIncomingShipment
   );
 
   // Pallet modifying operations
@@ -154,13 +156,8 @@ function routes({ eventsDb, inventoryDb }) {
     auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
     removeIncomingShipmentPalletReceived
   );
-  router.patch(
-    '/:shipmentId/pallets-received/:palletId',
-    auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
-    editIncomingShipmentPalletReceived
-  );
 
-  router.patch(
+  router.put(
     '/:shipmentId/is-closed',
     auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' ),
     closeIncomingShipment
@@ -188,145 +185,235 @@ function routes({ eventsDb, inventoryDb }) {
 
       // filters
       filterParams: listShipmentsFilterParamsFromQueryParams( req.query ),
+
+      // populate options
+      populate: helpers.populationPathsFromQuery( req.query )
     };
 
-    const shipments = await inventoryDb.listIncomingShipments(query);
+    const shipments = await inventoryCommander.listIncomingShipments(query);
 
     res.json( { shipments } );
   };
 
   async function countIncomingShipments( req, res ) {
   
-    const count = await inventoryDb.countIncomingShipments( listShipmentsFilterParamsFromQueryParams( req.query ) );
+    const count = await inventoryCommander.countIncomingShipments( listShipmentsFilterParamsFromQueryParams( req.query ) );
 
     res.json({ count: count });
     
   }
 
-  async function createIncomingShipment( req, res ) {
+  async function getIncomingShipmentById( req, res, next ) {
 
-    const data = Object.assign(
-      {},
-      req.body
-    );
+    try {
 
-    data.palletsExpected = data.pallets;
-    delete data.pallets;
+      const shipmentId = req.params.shipmentId;
+      const populate = helpers.populationPathsFromQuery( req.query );
 
-    if( req.body.arrivalDate ) {
-      data.arrivalDateExpected = new Date( req.body.arrivalDate );
-      delete data.arrivalDate;
+      const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId, { populate } );
+
+      res.json( { shipment } );
+    }
+    catch(e) {
+      return next( e );
     }
 
-    const shipment = await inventoryDb.createIncomingShipment( data );
+  };
 
-    eventsDb.createIncomingShipment( { user: req.user, shipment } );
+  async function createIncomingShipment( req, res, next ) {
 
-    res.json( { shipment } );
+    try {
+      const data = Object.assign(
+        {},
+        req.body
+      );
+
+      data.palletsExpected = data.pallets;
+      delete data.pallets;
+
+      if( req.body.arrivalDate ) {
+        data.arrivalDateExpected = new Date( req.body.arrivalDate );
+        delete data.arrivalDate;
+      }
+
+      const shipment = await inventoryCommander.createIncomingShipment( data );
+
+      eventsDb.createIncomingShipment( { user: req.user, shipment } );
+
+      res.json( { shipment } );
+    }
+    catch(e) {
+
+      return next( e );
+
+    }
 
   }
 
-  async function getIncomingShipmentById( req, res ) {
+  async function editIncomingShipment( req, res, next ) {
 
-    const shipmentId = req.params.shipmentId;
+    try {
 
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
-    if( shipment ) {
-      res.json( { shipment } );
-    }
-    else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
-    }
-  };
+      const shipmentId = req.params.shipmentId;
+      const editDocument = req.body;
 
-  async function editIncomingShipment( req, res ) {
+      const { shipment, edits } = await inventoryCommander.editIncomingShipment( shipmentId, editDocument );
 
-    const shipmentId = req.params.shipmentId;
+      if( shipment ) {
 
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
-    if( shipment ) {
+        for( let edit of edits ) {
 
-      const edits = Object.keys( req.body ).map( _key => ({ path: _key, oldValue: shipment[ _key ], newValue: req.body[ _key ] }) ); 
+          const eventData = Object.assign(
+            {
+              user: req.user,
+              shipmentId,
+            },
+            edit
+          )
 
-      const result = await shipment.edit( req.body );
+          eventsDb.editIncomingShipment( eventData );
 
-      for( let edit of edits ) {
-
-        const eventData = Object.assign(
-          {
-            user: req.user,
-            shipment: shipment,
-          },
-          edit
-        )
-
-        eventsDb.editIncomingShipment( eventData );
+        }
 
       }
 
-
       res.json( { success: true } );
+
     }
-    else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+    catch(e) {
+      return next( e );
     }
 
   }
 
-  async function removeIncomingShipment( req, res ) {
+  async function deleteIncomingShipment( req, res, next ) {
 
-    const shipmentId = req.params.shipmentId;
+    try {
+      const shipmentId = req.params.shipmentId;
+      const deletePallets = !!parseInt( req.query.delete_pallets );
 
-    const result = await inventoryDb.removeIncomingShipment( shipmentId );
+      const { shipment, pallets } = await inventoryCommander.deleteIncomingShipment( shipmentId , { deletePallets });
 
-    eventsDb.removeIncomingShipment( { user: req.user, shipmentId: shipmentId } );
-    res.json( result );
+      if( shipment ) {
+        eventsDb.deleteIncomingShipment( { user: req.user, shipmentId: shipmentId } );
+      }
+
+      if( pallets && deletePallets ) {
+
+        for( const p of pallets ) {
+          eventsDb.deleteReceivedPallet( { user: req.user, shipmentId: shipment && shipment._id, palletId: p._id } );
+        }
+
+      }
+
+      res.json( { success: true } );
+    }
+    catch(e) {
+      return next(e);
+    }
 
   }
 
   //==========================
   // Expected Pallets modifying handlers
 
-  async function addIncomingShipmentPallet( req, res ) {
+  async function addIncomingShipmentPallet( req, res, next ) {
 
     const shipmentId = req.params.shipmentId;
+    const palletData = req.body;
 
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
-    if( shipment ) {
-      const result = await shipment.addPalletExpected( req.body );
-      res.json( { success: true } );
+    try {
+
+      const { shipment, pallet } = await inventoryCommander.addIncomingShipmentExpectedPallet( shipmentId, palletData );
+
+      if( shipment && pallet ) {
+
+        eventsDb.addIncomingShipmentExpectedPallet( {
+          user: req.user,
+          shipmentId,
+          palletId: pallet._id
+        } );
+
+      }
+
+      res.json({ success: true });
+
     }
-    else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+    catch(e) {
+
+      return next( e );
+
     }
+
   }
 
-  async function removeIncomingShipmentPallet( req, res ) {
+  async function removeIncomingShipmentPallet( req, res, next ) {
 
     const shipmentId = req.params.shipmentId;
+    const palletId = req.params.palletId;
 
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
-    if( shipment ) {
-      const result = await shipment.removePalletExpected( req.params.palletId );
-      res.json( { success: true } );
+    try {
+
+      const { shipment, pallet } = await inventoryCommander.removeIncomingShipmentExpectedPallet( shipmentId, palletId );
+
+      if( shipment && pallet ) {
+
+        eventsDb.deleteIncomingShipmentExpectedPallet( {
+          user: req.user,
+          shipmentId,
+          palletData: pallet
+        } );
+
+      }
+
+      res.json({ success: true });
+
     }
-    else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+    catch(e) {
+
+      return next( e );
+
     }
+
   }
 
-  async function editIncomingShipmentPallet( req, res ) {
+  async function editIncomingShipmentPallet( req, res, next ) {
 
     const shipmentId = req.params.shipmentId;
+    const palletId = req.params.palletId;
+    const editDocument = req.body;
 
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
-    if( shipment ) {
-      const result = await shipment.editPalletExpected( req.params.palletId, req.body );
+    try {
+
+      const { shipment, pallet, edits } = await inventoryCommander.editIncomingShipmentExpectedPallet( shipmentId, palletId, editDocument )
+
+      if( shipment && pallet ) {
+
+        for( let edit of edits ) {
+
+          const eventData = Object.assign(
+            {
+              user: req.user,
+              shipmentId,
+              palletId
+            },
+            edit
+          )
+
+          eventsDb.editIncomingShipmentExpectedPallet( eventData );
+
+        }
+
+      }
+
       res.json( { success: true } );
     }
-    else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+    catch(e) {
+
+      return next( e );
+
     }
+
   }
 
   //==================
@@ -468,41 +555,56 @@ function routes({ eventsDb, inventoryDb }) {
   //===================
   // Receiving handlers
 
-  async function receiveIncomingShipment( req, res ) {
+  async function receiveIncomingShipment( req, res, next ) {
 
-    if( 'isReceived' in req.body && typeof req.body.isReceived === 'boolean' ) {
-      const isReceived = req.body.isReceived;
+    try {
 
-      const shipmentId = req.params.shipmentId;
+      if( 'isReceived' in req.body && typeof req.body.isReceived === 'boolean' ) {
 
-      const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
-      if( shipment ) {
+        const isReceived = req.body.isReceived;
+        const shipmentId = req.params.shipmentId;
 
         if( isReceived ) {
 
-          await shipment.receive();
+          const { shipment } = await inventoryCommander.receiveIncomingShipment( shipmentId );
 
-          eventsDb.receiveIncomingShipment( { user: req.user, shipment } );
+          if( shipment ) {
+            eventsDb.receiveIncomingShipment( { user: req.user, shipment } );
+          }
 
         }
         else {
 
-          await shipment.unreceive();
+          const { shipment, pallets } = await inventoryCommander.unreceiveIncomingShipment( shipmentId, { deletePallets: true } );
 
-          eventsDb.unreceiveIncomingShipment( { user: req.user, shipment } );
+          if( shipment ) {
+            eventsDb.unreceiveIncomingShipment( { user: req.user, shipment } );
+          }
+
+          if( pallets ) {
+
+            for( const p of pallets ) {
+              eventsDb.deleteReceivedPallet( { user: req.user, shipmentId: shipment && shipment._id, palletId: p._id } );
+            }
+
+          }
 
         }
 
         res.json( { success: true } );
+
       }
       else {
-        res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+        throw new InvalidRequestError();
       }
-    }
-    else {
-      res.json( { error: true, message: `Invalid request.` } );
-    }
 
+    }
+    catch(e) {
+
+      return next( e );
+
+    }
+ 
   }
 
   async function receiveIncomingShipmentPallet( req, res, next ) {
@@ -510,95 +612,98 @@ function routes({ eventsDb, inventoryDb }) {
     try {
 
       const shipmentId = req.params.shipmentId;
+      const palletData = req.body;
 
-      const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
+      const { shipment, pallet } = await inventoryCommander.receiveIncomingShipmentPallet( shipmentId, palletData );
 
-      if( shipment ) {
-        const result = await shipment.receivePallet( req.body );
+      if( shipment && pallet ) {
 
-        eventsDb.receiveIncomingShipmentPallet({
+        eventsDb.createReceivedPallet( {
           user: req.user,
-          shipment: result
-        });
+          palletId: pallet._id,
+          shipmentId: shipment._id
+        } );
+        
+      }
 
-        res.json( { success: true } );
-      }
-      else {
-        res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
-      }
+      res.json( { success: true } );
+
     }
     catch(e) {
-      res.json( { error: true, message: `Invalid request.` } );
-      next(e);
+
+      return next(e);
+
     }
 
   }
 
-  async function removeIncomingShipmentPalletReceived( req, res ) {
+  async function removeIncomingShipmentPalletReceived( req, res, next ) {
 
-    const shipmentId = req.params.shipmentId;
+    try {
 
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
-    if( shipment ) {
-      const result = await shipment.removePalletReceived( req.params.palletId );
+      const shipmentId = req.params.shipmentId;
+      const palletId = req.params.palletId;
+
+      const { shipment, pallet } = await inventoryCommander.deleteIncomingShipmentReceivedPallet( shipmentId, palletId );
+
+ 
+      if( shipment && pallet ) {
+
+        eventsDb.deleteReceivedPallet( {
+          user: req.user,
+          palletId: pallet._id,
+          shipmentId: shipment._id
+        } );
+
+      }
+
       res.json( { success: true } );
     }
-    else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
-    }
-  }
-
-  async function editIncomingShipmentPalletReceived( req, res ) {
-
-    const shipmentId = req.params.shipmentId;
-
-    const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
-    if( shipment ) {
-      const result = await shipment.editPalletReceived( req.params.palletId, req.body );
-      res.json( { success: true } );
-    }
-    else {
-      res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+    catch(e) {
+      return next(e);
     }
   }
 
   //===========================
   // Close shipment handler
 
-  async function closeIncomingShipment( req, res ) {
+  async function closeIncomingShipment( req, res, next ) {
 
-    if( 'isClosed' in req.body && typeof req.body.isClosed === 'boolean' ) {
-      const isClosed = req.body.isClosed;
+    try {
 
-      const shipmentId = req.params.shipmentId;
+      if( 'isClosed' in req.body && typeof req.body.isClosed === 'boolean' ) {
 
-      const shipment = await inventoryDb.getIncomingShipmentById( shipmentId );
-      if( shipment ) {
+        const isClosed = req.body.isClosed;
+        const shipmentId = req.params.shipmentId;
 
         if( isClosed ) {
 
-          await shipment.close();
+          const { shipment } = await inventoryCommander.closeIncomingShipment( shipmentId );
 
           eventsDb.closeIncomingShipment( { user: req.user, shipment } );
 
         }
         else {
 
-          await shipment.reopen();
+          const { shipment } = await inventoryCommander.reopenIncomingShipment( shipmentId );
 
           eventsDb.reopenIncomingShipment( { user: req.user, shipment } );
 
         }
 
         res.json( { success: true } );
+
       }
       else {
-        res.json( { error: true, message: `No shipment found with _id ${shipmentId}.` } );
+        throw new InvalidRequestError();
       }
+
     }
-    else {
-      res.json( { error: true, message: `Invalid request.` } );
-    }
+    catch(e) {
+
+      return next(e);
+
+    }    
 
   }
 

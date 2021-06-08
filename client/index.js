@@ -59,7 +59,6 @@ import "./js/components/shipment-creation-ctrl.js";
 import "./js/components/shipment-details-ctrl.js";
 import "./js/components/shipment-list-ctrl.js";
 import "./js/components/shipment-manager-svc.js";
-import "./js/components/shipment-receiving-ctrl.js";
 import "./js/components/shipping-items-modal.js";
 import "./js/components/submit-listing.js";
 import "./js/components/upload-lot-manifest.js";

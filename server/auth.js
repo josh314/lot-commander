@@ -2,6 +2,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 
 const flashMessages = require('./modules/flash-messages');
+const { AuthorizationError } = require('./errors');
 // const users = require('./modules/users');
 
 let users;
@@ -99,7 +100,7 @@ function isAuthorized( permission ) {
     if( __config.skipAuth || req.user.isAuthorized( permission ) ) {
       return next();
     }
-    return next( new Error('UNAUTHORIZED') );
+    return next( new AuthorizationError() );
   };
 }
 

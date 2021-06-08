@@ -404,7 +404,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
      *******/
 
     function loadShipment() {
-      return ShipmentManagerSvc.loadShipment( ).then( shipment => {
+      return ShipmentManagerSvc.loadShipment( { populate: [ 'pallets_received' ] } ).then( shipment => {
 
         Object.assign(vm.shipment, shipment);
 

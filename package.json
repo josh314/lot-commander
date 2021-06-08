@@ -3,15 +3,15 @@
   "version": "1.5.0",
   "private": true,
   "description": "For building manifests by storing scanned barcodes and matching with product data on export.",
-  "main": "server.js",
+  "main": "server/index.js",
   "scripts": {
     "build-client-dev": "webpack --config webpack.dev.js",
     "build-client": "webpack --mode production --config webpack.prod.js",
-    "debug": "DEBUG=lot-commander node inspect server.js",
-    "demon": "SESSION_SECRET=foobar DEBUG=lot-commander nodemon index.js",
+    "debug": "DEBUG=lot-commander node inspect server/index.js",
+    "demon": "SESSION_SECRET=foobar DEBUG=lot-commander nodemon server/index.js",
     "dev-server": "webpack-dev-server --open --config webpack.dev.js",
-    "lint": "eslint --config .eslintrc.server.js index.js server.js routes.js dbs.js modules/",
-    "start": "SESSION_SECRET=foobar DEBUG=lot-commander node index.js"
+    "lint-server": "eslint --config .eslintrc.server.js server/",
+    "start": "SESSION_SECRET=foobar DEBUG=lot-commander node server/index.js"
   },
   "keywords": [
     "app"
@@ -62,8 +62,7 @@
     "mini-css-extract-plugin": "^0.7.0",
     "moment": "^2.21.0",
     "moment-timezone": "^0.5.31",
-    "mongodb": "^3.6.1",
-    "mongoose": "^5.10.3",
+    "mongoose": "^5.11.9",
     "morgan": "^1.9.1",
     "ngstorage": "^0.3.11",
     "passport": "^0.4.0",

@@ -22,7 +22,7 @@ const productData = require(path.join(__basedir, __config.modulesPath, 'product-
 // }
 
 //routes
-function routes({ eventsDbClient, inventoryDbClient, shopifyGqlClient, shopifyDumpDb, userDbClient, manualInventoryDbClient }) {
+function routes({ eventsDbClient, inventoryCommander, shopifyGqlClient, shopifyDumpDb, userDbClient, manualInventoryDbClient }) {
 
   const router = new express.Router();
 
@@ -92,14 +92,19 @@ function routes({ eventsDbClient, inventoryDbClient, shopifyGqlClient, shopifyDu
 
   // import & register routers
   router.use('/api/fulfillment', require('./fulfillment'));
-  router.use('/api/print', require('./print')( { inventoryDb: inventoryDbClient, lotdb: lotdb } ) );
+  router.use('/api/print', require('./print')( { inventoryCommander, lotdb: lotdb } ) );
   router.use('/api/manifests', require('./manifests'));
   router.use(
     '/api/reports',
     auth.isAuthorized('VIEW_REPORT'),
     require('./reports')( { shopifyGqlClient, shopifyDumpDb })
   );
-  router.use('/api/receiving', require('./receiving')( { eventsDb: eventsDbClient, inventoryDb: inventoryDbClient } ) );
+
+  router.use('/api/inventory', require('./inventory')( { inventoryCommander } ) );
+  router.use('/api/receiving', require('./receiving')( { eventsDb: eventsDbClient, inventoryCommander } ) );
+  router.use('/api/pallets', require('./pallets')( { eventsDb: eventsDbClient, inventoryCommander } ) );
+  router.use('/api/packages', require('./packages')( { eventsDb: eventsDbClient, inventoryCommander } ) );
+  router.use('/api/bundles', require('./bundles')( { eventsDb: eventsDbClient, inventoryCommander } ) );
   router.use(
     '/api/events',
     // auth.isAuthorized('VIEW_EVENTS'),

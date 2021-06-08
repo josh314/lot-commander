@@ -227,15 +227,23 @@ export function countIncomingShipments( qp ) {
 export function createIncomingShipment( shipment ) {
   return axios({
     method: 'post',
-    url: `/api/receiving/create`,
+    url: `/api/receiving/`,
     data: shipment 
   })
     .then( resp => resp.data );
 }
-export function getIncomingShipmentById( shipmentId ) {
+export function getIncomingShipmentById( shipmentId, { populate = [] } = {} ) {
+
+  let populateStr;
+  if( populate && populate.length ) {
+
+    populateStr = '?' + populate.map( s => `populate_${s}=1` ).join('&');
+
+  }
+
   return axios({
     method: 'get',
-    url: `/api/receiving/${ shipmentId }`,
+    url: `/api/receiving/${ shipmentId }${ populateStr || '' }`,
   })
     .then( resp => resp.data );
 }
@@ -371,10 +379,10 @@ export function unreceiveIncomingShipmentPallet( shipmentId, palletId ) {
     .then( resp => resp.data );
 }
 
-export function editIncomingShipmentPalletReceived( shipmentId, palletId, _data ) {
+export function editReceivedPallet( palletId, _data ) {
   return axios({
     method: 'patch',
-    url: `/api/receiving/${ shipmentId }/pallets-received/${ palletId }`,
+    url: `/api/pallets/${ palletId }`,
     data: _data
   })
     .then( resp => resp.data );

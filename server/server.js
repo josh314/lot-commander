@@ -10,6 +10,8 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const express = require('express');
 
+const { ClientError, AuthorizationError } = require('./errors');
+
 //====================================================
 // Modules
 //====================================================
@@ -62,8 +64,8 @@ class Server {
     //=================================================
 
     const viewsPath = path.join(__basedir, this.config.views.root);
-    const partialsPath = this.config.views.partials;
-    const layoutsPath = this.config.views.layouts;
+    const partialsPath = path.join(__basedir, this.config.views.partials);
+    const layoutsPath = path.join(__basedir, this.config.views.layouts);
     const hbs = require('express-handlebars').create({
       extname: '.hbs',
       defaultLayout: path.resolve(path.join(layoutsPath, 'index')),
@@ -81,11 +83,15 @@ class Server {
     //=================================================
 
     const mongoSettings = this.config.dbHosts.mongo;
+
+    const mongoose = require('mongoose');
+    mongoose.promise = require('bluebird');
+
     this.mongoClient = await (async ( { host, port, dbName, user, password } ) => {
     
       const location = `${host}:${ port || 27017 }/${dbName}`;
       
-      const MongoClient = require('mongodb').MongoClient;
+      const MongoClient = mongoose.mongo.MongoClient;
       const client = new MongoClient(
         `mongodb://${ user && password ? `${user}:${password}@` : ''}${location}`,
         {
@@ -105,7 +111,6 @@ class Server {
       password: mongoSettings.auth && mongoSettings.auth.pwd,
     });
 
-    const mongoose = require('mongoose');
     this.mongooseConnection = mongoose.createConnection().setClient( this.mongoClient );
     global.__mongooseConnection = this.mongooseConnection;
 
@@ -209,8 +214,8 @@ class Server {
 
     const shopifyDumpDbClient = new ShopifyDumpDbClient( this.mongoClient.db('ehdb') );
 
-    const InventoryDb = require('./modules/inventory-db');
-    const inventoryDbClient = new InventoryDb.Client( { mongooseConnection: this.mongooseConnection } );
+    const InventoryCommander = require('./modules/inventory-commander');
+    const inventoryCommander = new InventoryCommander( { mongooseConnection: this.mongooseConnection } );
 
 
     const ManualInventoryDb = require('./modules/manual-inventory-db');
@@ -218,8 +223,8 @@ class Server {
 
     const routerOpts = {
       eventsDbClient,
-      inventoryDbClient,
       manualInventoryDbClient,
+      inventoryCommander,
       userDbClient: this.users,
       shopifyGqlClient,
       shopifyDumpDb: shopifyDumpDbClient
@@ -251,14 +256,17 @@ class Server {
       __logger.error(err);
 
       const response = {
-        status: 'error'
-      }
+        error: true
+      };
 
-      if( err.message === 'UNAUTHORIZED' ) {
-        response.error = 'UNAUTHORIZED';
+      if( err instanceof ClientError ) {
+        response.message = err.message; 
+      }
+      else if ( err instanceof AuthorizationError ) {
+        response.message = `UNAUTHORIZED`;
       }
       else {
-        response.error = err.clientMessage ? err.clientMessage : 'Server Error.';
+        response.message = 'Server Error.';
       }
 
       res.json( response );

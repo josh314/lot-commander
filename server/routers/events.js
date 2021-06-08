@@ -1,33 +1,7 @@
 const express = require('express');
+const helpers = require('../helpers');
 
 module.exports = routes;
-
-
-/**********************************************
- * Helpers
- * =======
- * 
- *********/
-
-const populationPaths = qps => {
-
-  const populationPaths = [];
-
-  for( let [ key, value ] of Object.entries( qps ) ) {
-
-    const m = key.match(/^populate_(.*)/)
-
-    if( m && parseInt(value) ) {
-
-      populationPaths.push( m[1] );
-
-    }
-
-  }
-
-  return populationPaths;
-
-};
 
 /**********************************************
  * Routes function for export
@@ -65,7 +39,7 @@ function routes( eventsDb ) {
       eventType: req.query.type,
 
       // populate options
-      populate: populationPaths( req.query ),
+      populate: helpers.populationPathsFromQuery( req.query ),
 
     };
 

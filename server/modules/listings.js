@@ -2,6 +2,8 @@ const path = require('path');
 
 const Promise = require('bluebird');
 
+const { ClientError, ResourceNotFoundError } = require('../errors');
+
 const lotDb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const bstock = require(path.join(__basedir, __config.modulesPath, 'bstock'));
 const shopify = require(path.join(__basedir, __config.modulesPath, 'shopify'));
@@ -70,15 +72,15 @@ const submit = Promise.method(async function(req, res, next) {
 
   let lot;
   if(!req.body.lotId || !(lot = await lotDb.getLotById(req.body.lotId))) {
-    const e = new Error('No listing submitted: invalid or missing lotId.');
-    e.clientMessage = 'Invalid lot ID submitted.';
+    console.error('No listing submitted: invalid or missing lotId.')
+    const e = new ResourceNotFoundError( { name: 'lot', id: req.body.lotId } );
     next(e);
   }
   listing.lot = lot;
 
   if(!listing.lot.images || !listing.lot.images.length) {
-    const e = new Error(`No listing created for lot ${listing.lot.handle} (id: ${listing.lot._id}): no images.`);
-    e.clientMessage ='Please add images to this lot before submission.';
+    console.error(`No listing created for lot ${listing.lot.handle} (id: ${listing.lot._id}): no images.`);
+    const e = new ClientError('Please add images to this lot before submission.')
     next(e);
   }
 
