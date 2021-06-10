@@ -60,22 +60,22 @@ function routes({ users }) {
     // find a user whose name is the same as the forms name
     // we are checking to see if the user trying to login already exists
     users.getUserByUsername( req.body.username )
-    .then( user => {
-  
-      if (user) {
-        throw new Error('USER_EXISTS');
-      }
-  
-      return users.createUser({
-        username: req.body.username,
-        password: req.body.password,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        roles: req.body.roles
-      });
-  
-    })
       .then( user => {
+    
+        if (user) {
+          throw new Error('USER_EXISTS');
+        }
+    
+        return users.createUser({
+          username: req.body.username,
+          password: req.body.password,
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          roles: req.body.roles
+        });
+    
+      })
+      .then( _user => {
         res.json({ success: true });
       })
       .catch(err=>{
@@ -85,7 +85,7 @@ function routes({ users }) {
         else {
           throw err;
         }
-      })
+      });
   
   }
   
@@ -102,16 +102,16 @@ function routes({ users }) {
     };
   
     if( req.query.disabled ) {
-      query.isDisabled = !!parseInt( req.query.disabled )
+      query.isDisabled = !!parseInt( req.query.disabled );
     }
   
     if( req.query.superuser ) {
-      query.isSuperuser = !!parseInt( req.query.superuser )
+      query.isSuperuser = !!parseInt( req.query.superuser );
     }
   
     users.list( query ).then( users => {
       res.json(users);
-    })
+    });
   }
   
   function countUsers( req, res ) {
@@ -119,19 +119,19 @@ function routes({ users }) {
     const query = {};
   
     if( req.query.disabled ) {
-      query.isDisabled = !!parseInt( req.query.disabled )
+      query.isDisabled = !!parseInt( req.query.disabled );
     }
   
     if( req.query.superuser ) {
-      query.isSuperuser = !!parseInt( req.query.superuser )
+      query.isSuperuser = !!parseInt( req.query.superuser );
     }
   
     users.count( query ).then( _count => {
       res.json({ count: _count});
-    })
+    });
   }
   
-  const handleEditUserError = res => err => {
+  const handleEditUserError = ( res, userId ) => err => {
     if( err.message === 'NO_SUCH_USER' ) {
       res.json({ success: false, error: `No user with ID ${userId}.` });
     }
@@ -145,49 +145,51 @@ function routes({ users }) {
   
   function editUserRoles (req, res) {
     const userId = req.params.userId;
-    users.getUserById( userId ).then( user => {
-  
-      if (!user) {
-        throw new Error('NO_SUCH_USER');
-      }
-  
-      if( req.user.id === user.id ) {
-        throw new Error('NO_EDIT_SELF');
-      }
-  
-      // filter to only the roles the logged in user has permission for
-      const newRoles = req.body.roles.filter( role => req.user.isSuperuser || req.user.roles.includes( role ) );
-  
-      return user.editRoles( newRoles );
-  
-    })
-    .then( user => {
-      res.json({ success: true });
-    })
-    .catch( handleEditUserError(res) )
-  
+    users.getUserById( userId )
+      .then( user => {
+    
+        if (!user) {
+          throw new Error('NO_SUCH_USER');
+        }
+    
+        if( req.user.id === user.id ) {
+          throw new Error('NO_EDIT_SELF');
+        }
+    
+        // filter to only the roles the logged in user has permission for
+        const newRoles = req.body.roles.filter( role => req.user.isSuperuser || req.user.roles.includes( role ) );
+    
+        return user.editRoles( newRoles );
+    
+      })
+      .then( _user => {
+        res.json({ success: true });
+      })
+      .catch( handleEditUserError( res, userId ) );
+    
   }
   
   function editUserDisabledStatus (req, res) {
     const userId = req.params.userId;
-    users.getUserById( userId ).then( user => {
-  
-      if (!user) {
-        throw new Error('NO_SUCH_USER');
-      }
-  
-      if( req.user.id === user.id ) {
-        throw new Error('NO_EDIT_SELF');
-      }
-  
-      return user.editDisabledStatus( req.body.isDisabled );
-  
-    })
-    .then( user => {
-      res.json({ success: true });
-    })
-    .catch( handleEditUserError(res) );
-  
+    users.getUserById( userId )
+      .then( user => {
+    
+        if (!user) {
+          throw new Error('NO_SUCH_USER');
+        }
+    
+        if( req.user.id === user.id ) {
+          throw new Error('NO_EDIT_SELF');
+        }
+    
+        return user.editDisabledStatus( req.body.isDisabled );
+    
+      })
+      .then( _user => {
+        res.json({ success: true });
+      })
+      .catch( handleEditUserError( res, userId ) );
+    
   }
 
   return router;

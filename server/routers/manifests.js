@@ -25,7 +25,7 @@ router.get('/', ( req, res ) => {
       res.json(manifests);
     })
     .catch(e => {
-      console.log(e)
+      console.error(e);
       res.json({
         "status": "failed",
         "message": `Unable to get manifest list`
@@ -50,15 +50,15 @@ router.get('/*', function get( req, res ) {
         res.json({
           status: "failed",
           message: `File does not exist: ${key}`
-        })
+        });
       }
       else {
-        console.log('Streaming response...')
+        console.log('Streaming response...');
         resp.data.pipe(res);
       }
     })
     .catch(e => {
-      console.log(e)
+      console.error(e);
       res.json({
         "status": "failed",
         "message": `Unable to get object: '${key}'`
@@ -91,11 +91,11 @@ router.put('/*', ( req, res ) => {
   const { sheets } = req.body;
 
   manifestSvc.build( sheets, saveAs, isPublic )
-  .then( resp => {
+    .then( resp => {
     // 
-    console.log('JSON response...');
-    res.json(resp.data);
-  });
+      console.log('JSON response...');
+      res.json(resp.data);
+    });
 });
 
 
@@ -110,10 +110,10 @@ router.post('/', ( req, res ) => {
   const { sheets } = req.body;
 
   manifestSvc.build( sheets )
-  .then( resp => {
-    console.log('Streaming response...');
-    resp.data.pipe(res);
-  });
+    .then( resp => {
+      console.log('Streaming response...');
+      resp.data.pipe(res);
+    });
 });
 
 /*****************************************

@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const Promise = require('bluebird');
 
 const {
-  IllegalActionError,
   ResourceNotFoundError,
   ChildResourceNotFoundError
 } = require('../errors');
@@ -80,7 +79,7 @@ const awaitingOrHasProblemShipmentFilter = ( hasProblemDateArrivedStart ) => ({
       Object.assign( hasProblemShipmentFilter, { arrivalDate: { $gt: new Date(hasProblemDateArrivedStart) } } ) : 
       hasProblemShipmentFilter
   ]
-})
+});
 
 const flawlessShipmentFilter = {
   $and: [
@@ -94,7 +93,7 @@ const withoutProblemShipmentFilter = {
     awaitingShipmentFilter,
     noProblemShipmentFilter
   ]
-}
+};
 
 const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProblemDateArrivedStart, includeClosed=false } ) => {
   const filter = {
@@ -164,7 +163,7 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
   }
 
   return filter;
-}
+};
 
 const palletQueryFilter = ( { handle, isBrokendown, isAnonymous, hasProblem, shipment } ) => {
   const filter = {
@@ -216,7 +215,7 @@ const packageQueryFilter = ( { handle, pallet, isFinished, isShipped } ) => {
   }
 
   return filter;
-}
+};
 
 const bundleQueryFilter = ( { handle, pkg, isPacked } ) => {
   const filter = {
@@ -236,7 +235,7 @@ const bundleQueryFilter = ( { handle, pkg, isPacked } ) => {
   }
 
   return filter;
-}
+};
 
 /************************************************
  * 
@@ -324,7 +323,7 @@ class InventoryCommander {
     try {
       objectId = new mongoose.Types.ObjectId(shipmentId);
     }
-    catch {
+    catch ( _ ) {
       return null;
     }
 
@@ -358,9 +357,10 @@ class InventoryCommander {
       throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
     }
 
+    let pallets;
     if( deletePallets ) {
 
-      var pallets = await Promise.all( 
+      pallets = await Promise.all( 
         Promise.map( shipment.palletsReceived, pallet => pallet.delete() )
       );
 
@@ -507,9 +507,10 @@ class InventoryCommander {
       return {};
     }
 
+    let pallets;
     if( deletePallets ) {
 
-      var pallets = await Promise.all( 
+      pallets = await Promise.all( 
         Promise.map( shipment.palletsReceived, pallet => pallet.delete() )
       );
 
@@ -637,7 +638,7 @@ class InventoryCommander {
     try {
       objectId = new mongoose.Types.ObjectId( palletId );
     }
-    catch {
+    catch ( _ ) {
       return null;
     }
 
@@ -764,6 +765,7 @@ class InventoryCommander {
       await shipment.removePalletReceived( palletId );
     }
 
+    // eslint-disable-next-line block-scoped-var
     return { shipment, pallet };
 
   }
@@ -826,7 +828,7 @@ class InventoryCommander {
     try {
       objectId = new mongoose.Types.ObjectId( pkgId );
     }
-    catch {
+    catch ( _ ) {
       return null;
     }
 
@@ -1058,7 +1060,7 @@ class InventoryCommander {
     try {
       objectId = new mongoose.Types.ObjectId( bundleId );
     }
-    catch {
+    catch ( _ ) {
       return null;
     }
 
@@ -1210,7 +1212,7 @@ class InventoryCommander {
         category: "$_id",
         count: "$count"
       } );
-      // TODO: sort
+    // TODO: sort
 
   }
 

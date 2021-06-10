@@ -31,6 +31,10 @@ const queryParams = ( params ) => {
     qp.include_closed = 1;
   }
 
+  if( params.populatePalletsReceived ) {
+    qp.populate_pallets_received = 1;
+  }
+
   return qp;
 };
 

@@ -75,7 +75,7 @@ userSchema.methods.isAuthorized = function( permission ) {
   else {
     return false;
   }
-}
+};
 
 userSchema.methods.getPermissionSet = function() {
   const roles = this.isSuperuser ? superuserRoles() : this.roles;
@@ -85,7 +85,7 @@ userSchema.methods.getPermissionSet = function() {
     }
     return permissions;
   }, new Set());
-}
+};
 
 userSchema.methods.getPublicInfo = function() {
   return {
@@ -129,7 +129,7 @@ class Client {
       {
         $set: { 'local.password': user.generateHash(password) }
       }
-    )
+    );
   }
 
   createUser( { username, password, firstName, lastName, roles } ) {
@@ -199,7 +199,7 @@ class Client {
     const q = this.User.find( query ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
   
     return q.then( users => users.map( user => user.getPublicInfo() ) );
-  };
+  }
 }
 
 module.exports = {

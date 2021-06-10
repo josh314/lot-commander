@@ -42,7 +42,7 @@ const listPackagesFilterParamsFromQueryParams = ( qp ) => {
 function routes( { eventsDb, inventoryCommander } ) {
   const router = new express.Router();
 
-/*******************************************
+  /*******************************************
    * Register route handlers
    * ======
    * 
@@ -96,7 +96,7 @@ function routes( { eventsDb, inventoryCommander } ) {
     addBundlesToPackage
   );
 
-    /*******************************************
+  /*******************************************
    * Define Handlers
    * ===============
    * 
@@ -127,7 +127,7 @@ function routes( { eventsDb, inventoryCommander } ) {
     const packages = await inventoryCommander.listPackages(query);
 
     res.json( { packages } );
-  };
+  }
  
   async function countPackages( req, res ) {
   
@@ -152,7 +152,7 @@ function routes( { eventsDb, inventoryCommander } ) {
       return next( e );
     }
 
-  };
+  }
 
   async function createPackages( req, res, next  ) {
 
@@ -197,7 +197,7 @@ function routes( { eventsDb, inventoryCommander } ) {
       return next( e );
     }
 
-  };
+  }
 
   async function editPackage( req, res, next ) {
 
@@ -218,7 +218,7 @@ function routes( { eventsDb, inventoryCommander } ) {
               packageId: pkg._id,
             },
             edit
-          )
+          );
 
           eventsDb.editPackage( eventData );
 

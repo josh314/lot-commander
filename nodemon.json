@@ -2,5 +2,9 @@
   "verbose": true,
   "watch": [
     "server/*"
-  ]
+  ],
+  "events": {
+    "start": "npm run lint-server",
+    "restart": "npm run lint-server"
+  }
 }

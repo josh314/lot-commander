@@ -40,7 +40,7 @@ bundleSchema.pre( 'save', function(next) {
 bundleSchema.methods.edit = function( data ) {
   Object.assign( this, data );
   return this.save();
-}
+};
 
 bundleSchema.methods.pack = function( packageId ) {
   this.isPacked = true;

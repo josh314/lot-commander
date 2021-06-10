@@ -21,7 +21,7 @@ function build( sheets, saveAs = '', isPublic = false) {
     data.s3 = {
       key: saveAs,
       public: isPublic
-    }
+    };
   }
 
   return axios({
@@ -75,11 +75,11 @@ function list( queryParams = {} ) {
         baseUrl: `https://${data.Name}.s3.amazonaws.com/`,
         continuationToken: data.NextContinuationToken,
         manifests: data.Contents.map( item => ({
-            name: item.Key,
-            size: item.Size,
-            lastModified: item.LastModified
-          })
+          name: item.Key,
+          size: item.Size,
+          lastModified: item.LastModified
+        })
         )
-      }
+      };
     });
 }

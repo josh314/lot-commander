@@ -15,7 +15,6 @@ const { ClientError, AuthorizationError } = require('./errors');
 //====================================================
 // Modules
 //====================================================
-const ShopifyGql = require('./modules/shopify-gql');
 const ShopifyDumpDbClient = require('./modules/shopify-dump-db');
 
 class Server {
@@ -157,7 +156,7 @@ class Server {
     // Authentication ======================
     // =====================================
 
-    const UserDbClient = require('./modules/user-db').Client
+    const UserDbClient = require('./modules/user-db').Client;
     this.users = new UserDbClient( this.mongooseConnection );
 
     const auth = require('./auth');
@@ -207,11 +206,6 @@ class Server {
     const EventsDb = require('./modules/events-db');
     const eventsDbClient = new EventsDb.Client( this.mongooseConnection );
 
-    const shopifyGqlClient = new ShopifyGql({
-      store: this.config.shopify.store.name,
-      accessToken: this.config.shopify.store.auth.password
-    });
-
     const shopifyDumpDbClient = new ShopifyDumpDbClient( this.mongoClient.db('ehdb') );
 
     const InventoryCommander = require('./modules/inventory-commander');
@@ -226,7 +220,6 @@ class Server {
       manualInventoryDbClient,
       inventoryCommander,
       userDbClient: this.users,
-      shopifyGqlClient,
       shopifyDumpDb: shopifyDumpDbClient
     };
 
@@ -248,7 +241,7 @@ class Server {
     //   res.render('404', layout);
     // });
 
-    this.app.use(function(err, req, res, next){
+    this.app.use( function( err, _req, res ){
       
       // __logger.error(`404: path does not exist -- ${req.originalUrl}`);
       // res.status(404).render('404', {});

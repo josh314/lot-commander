@@ -29,10 +29,10 @@ async function listPendingOrders(req, res) {
 }
 
 
-async function getOrder(req, res, next) {
+async function getOrder(req, res, _next) {
   const orderId = req.params.orderId;
   if(orderId) {
-    const order = await fulfillment.getOrder(orderId)
+    const order = await fulfillment.getOrder(orderId);
     res.json(order);
   }
   else {

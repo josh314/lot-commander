@@ -41,7 +41,7 @@ const unitAbbreviations = {
   'feet': 'ft',
   'inches': 'in',
   'centimeters': 'cm'
-}
+};
 
 const getShippingItemDimString = (item) => {
   const dims = [];
@@ -134,7 +134,7 @@ function createPickReceipt(order) {
       width: label.width - 2 * margin,
       height: label.height/4
     }
-  }
+  };
 
 
   // Initialize PDF document
@@ -161,12 +161,12 @@ function createPickReceipt(order) {
   if(order.orderDate) {
     doc.text(`Order date: ${order.orderDate}`);
   }
-    // .moveDown()
+  // .moveDown()
   doc
     .text(`Pick date: ${order.pickDate}`)
-    .moveDown()
+    .moveDown();
 
-    // .path(`M ${margin}, ${sections.barcode.height + margin} h ${sections.barcode.width} Z`).stroke()
+  // .path(`M ${margin}, ${sections.barcode.height + margin} h ${sections.barcode.width} Z`).stroke()
   for(let i=0; i<order.items.length; i++) {
     const item = order.items[i];
     doc.fontSize(12).text(`${i+1}`, { underline: true });
@@ -186,7 +186,7 @@ function createPickReceipt(order) {
       doc.list( item.shippingItems.map( getShippingItemDimString ) );
     }
     doc.moveDown();
-  };
+  }
 
   // Create and add barcode
   const barcodeText = order.orderNumber;
@@ -205,7 +205,7 @@ function createPickReceipt(order) {
       fit: [ sections.barcode.width, sections.barcode.height ],
       align: 'center',
       valign: 'center'
-    })
+    });
 
 
   // close doc and return
@@ -243,7 +243,7 @@ function createBarcodeLabels( barcodeValues ) {
 
     const margin = 5;
     doc
-      .image(canvas.toBuffer(), margin, 15, { width: labelDims.width - 2*margin })
+      .image(canvas.toBuffer(), margin, 15, { width: labelDims.width - 2*margin });
 
   }
 

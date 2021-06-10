@@ -1,11 +1,11 @@
-const util = require('util')
-const stream = require('stream')
-const Transform = stream.Transform
+const util = require('util');
+const stream = require('stream');
+const Transform = stream.Transform;
 
-util.inherits(Stringer, Transform)
+util.inherits(Stringer, Transform);
 
 function Stringer() {
-  Transform.call(this, { objectMode: true } )
+  Transform.call(this, { objectMode: true } );
   // 'object mode allows us to consume one object at a time
 }
 
@@ -27,8 +27,8 @@ const rangeFilterObject = ( field, start, end ) => {
 
   return {
     $match: { $and: rangeLimits }
-  }
-}
+  };
+};
 
 // Pipeline functions for date parsing and assembling
 const dateProject = ( dateExpression, binSize ) => {
@@ -47,7 +47,7 @@ const dateProject = ( dateExpression, binSize ) => {
     };
     o.isoWeek = {
       $isoWeek: dateExpression
-    }
+    };
   }
 
   if( binSize == 'day' ) {
@@ -72,7 +72,7 @@ const dateFromParts = ( binSize ) =>  {
   }
 
   if( binSize == 'day' ) {
-    o.day = "$day"
+    o.day = "$day";
   }
   return o;
 };
@@ -80,7 +80,7 @@ const dateFromParts = ( binSize ) =>  {
 const tagParseObject = ( tagField ) => ({
   tags: { // Splits the csv tag string and trims whitespace
     $map: { 
-      input: { $split: [ "$product.data.tags", ',' ]  },
+      input: { $split: [ tagField, ',' ]  },
       as: "tag",
       in: { $trim: { input: "$$tag" } }
     }            
@@ -104,7 +104,7 @@ class DbClient {
     this.db = mongoDb;
   }
 
-  getOrderHistory({ start, end, query, limit, skip }) {
+  getOrderHistory({ start, end, _query, limit, skip }) {
 
     const findOpts = {
 
@@ -117,7 +117,7 @@ class DbClient {
       findOpts["data.created_at"] = { $lt: end };
     }
 
-    let cursor = this.db.collection( this.collections.orders ).find( findOpts )
+    let cursor = this.db.collection( this.collections.orders ).find( findOpts );
 
     if(limit) {
       cursor = cursor.limit(limit);

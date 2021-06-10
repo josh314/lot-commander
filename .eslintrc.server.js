@@ -15,6 +15,7 @@ module.exports = {
         "__connections": "readable",
         "__config": "readable",
         "__logger": "readable",
+        "__mongooseConnection": "readable"
     },
     "rules": {
         "array-callback-return": [

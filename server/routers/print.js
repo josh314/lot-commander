@@ -123,7 +123,7 @@ function routes({ inventoryCommander, lotdb }) {
         title: orderItem.name
       };
     }
-  }
+  };
 
   async function pickReceipt(req, res, next) {
     const orderId = req.params.orderId;

@@ -75,26 +75,26 @@ incomingShipmentSchema.pre( 'save', function(next) {
 incomingShipmentSchema.methods.edit = function( data ) {
   Object.assign( this, data );
   return this.save();
-}
+};
 
 incomingShipmentSchema.methods.getPalletExpectedById = function( palletId ) {
   return this.palletsExpected.id( palletId );
-}
+};
 
 incomingShipmentSchema.methods.getPalletExpectedByHandle = function( palletHandle ) {
   const found = this.palletsExpected.toObject().find( p => p.handle === palletHandle );
   return this.palletsExpected.id( found && found._id );
-}
+};
 
 incomingShipmentSchema.methods.addPalletExpected = function( pallet ) {
   this.palletsExpected.push( pallet );
   return this.save();
-}
+};
 
 incomingShipmentSchema.methods.removePalletExpected = async function( palletId ) {
   await this.palletsExpected.pull( palletId );
   return this.save();
-}
+};
 
 incomingShipmentSchema.methods.editPalletExpected = async function( palletId, data ) {
   const pallet = this.palletsExpected.id( palletId );
@@ -105,56 +105,56 @@ incomingShipmentSchema.methods.editPalletExpected = async function( palletId, da
     await this.save();
   }
   return this;
-}
+};
 
 incomingShipmentSchema.methods.receive = function() {
   this.isReceived = true;
   this.arrivalDate = new Date();
   return this.save();
-}
+};
 
 incomingShipmentSchema.methods.unreceive = function() {
   this.isReceived = false;
   this.arrivalDate = undefined;
   this.palletsReceived = [];
   return this.save();
-}
+};
 
 incomingShipmentSchema.methods.addPalletReceived = function( palletId ) {
   this.palletsReceived.addToSet( palletId );
   return this.save();
-}
+};
 
 incomingShipmentSchema.methods.receivePallet = incomingShipmentSchema.methods.addPalletReceived;
 
 incomingShipmentSchema.methods.removePalletReceived = async function( palletId ) {
   await this.palletsReceived.pull( palletId );
   return this.save();
-}
+};
 
 incomingShipmentSchema.methods.close = function() {
   this.isClosed = true;
   this.closedDate = new Date();
   return this.save();
-}
+};
 
 incomingShipmentSchema.methods.reopen = function() {
   this.isClosed = false;
   this.closedDate = undefined;
   return this.save();
-}
+};
 
 incomingShipmentSchema.methods.delete = function() {
   this.isDeleted = true;
   this.deletedDate = new Date();
   return this.save();
-}
+};
 
 incomingShipmentSchema.methods.undelete = function() {
   this.isDeleted = false;
   this.deletedDate = undefined;
   return this.save();
-}
+};
 
 incomingShipmentSchema.methods.getCategory = function() {
 
@@ -169,7 +169,7 @@ incomingShipmentSchema.methods.getCategory = function() {
     return category;
   }
 
-}
+};
 
 module.exports = {
   schema: incomingShipmentSchema

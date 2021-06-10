@@ -1,5 +1,3 @@
-const path = require('path');
-
 //Set up mongo store for flash messages
 const session = require('express-session');
 const MongoStore = require('connect-mongodb-session')(session);

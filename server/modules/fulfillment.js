@@ -30,7 +30,7 @@ async function listPendingOrders(page, pageSize) {
 
 async function getOrder(orderId) {
   if(orderId) {
-    const order = await shipstationClient.getOrder(orderId)
+    const order = await shipstationClient.getOrder(orderId);
 
     return order;
   }

@@ -1,45 +1,8 @@
 const express = require('express');
 
 const auth = require('../auth');
-const helpers = require('../helpers');
-const { InvalidRequestError } = require('../errors');
 
 module.exports = routes;
-
-/**********************************************
- * Helpers
- * =======
- * 
- *********/
-
-const listPalletsFilterParamsFromQueryParams = ( qp ) => {
-
-  const fp = {};
-
-  if( qp.handle ) {
-    fp.handle = new RegExp( qp.handle, 'i');
-  }
-
-  if( qp.shipment ) {
-    fp.shipment = qp.shipment;
-  }
-
-  if( qp.has_problem ) {
-    fp.hasProblem = !!parseInt(qp.has_problem);
-  }
-
-  if( qp.is_brokendown ) {
-    fp.isBrokendown = !!parseInt(qp.is_brokendown);
-  }
-
-  if( qp.is_anonymous ) {
-    fp.isAnonymous = !!parseInt(qp.is_anonymous);
-  }
-
-  // TODO: category
-  return fp;
-};
-
 
 /**********************************************
  * Routes function for export
@@ -80,7 +43,7 @@ function routes({ inventoryCommander }) {
    ****/
 
 
-  async function getReceivedPalletInventory( req, res, next ) {
+  async function getReceivedPalletInventory( req, res, _next ) {
 
     const options = {};
 
@@ -91,9 +54,9 @@ function routes({ inventoryCommander }) {
     const inventory = await inventoryCommander.getReceivedPalletInventory( options );
 
     res.json( { inventory } );
-  };
+  }
 
-  async function getPackageInventory( req, res, next ) {
+  async function getPackageInventory( req, res, _next ) {
 
     const options = {};
 
@@ -104,9 +67,9 @@ function routes({ inventoryCommander }) {
     const inventory = await inventoryCommander.getPackageInventory( options );
 
     res.json( { inventory } );
-  };
+  }
 
-  async function getBundleInventory( req, res, next ) {
+  async function getBundleInventory( req, res, _next ) {
 
     const options = {};
 
@@ -117,7 +80,7 @@ function routes({ inventoryCommander }) {
     const inventory = await inventoryCommander.getBundleInventory( options );
 
     res.json( { inventory } );
-  };
+  }
 
 
   /**************************************

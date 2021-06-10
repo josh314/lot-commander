@@ -2,13 +2,11 @@ const path = require('path');
 const express = require('express');
 
 const auth = require('../auth');
-const { nextTick } = require('process');
 
 const scriptBuilder = require(path.join(__basedir, __config.modulesPath, 'script-builder'));
 
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
-const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
 const images = require(path.join(__basedir, __config.modulesPath, 'images'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
@@ -22,7 +20,7 @@ const productData = require(path.join(__basedir, __config.modulesPath, 'product-
 // }
 
 //routes
-function routes({ eventsDbClient, inventoryCommander, shopifyGqlClient, shopifyDumpDb, userDbClient, manualInventoryDbClient }) {
+function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClient, manualInventoryDbClient }) {
 
   const router = new express.Router();
 
@@ -97,7 +95,7 @@ function routes({ eventsDbClient, inventoryCommander, shopifyGqlClient, shopifyD
   router.use(
     '/api/reports',
     auth.isAuthorized('VIEW_REPORT'),
-    require('./reports')( { shopifyGqlClient, shopifyDumpDb })
+    require('./reports')( { shopifyDumpDb })
   );
 
   router.use('/api/inventory', require('./inventory')( { inventoryCommander } ) );

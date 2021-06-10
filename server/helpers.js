@@ -19,7 +19,7 @@ function populationPathsFromQuery( qps ) {
 
   for( let [ key, value ] of Object.entries( qps ) ) {
 
-    const m = key.match(/^populate_(.*)/)
+    const m = key.match(/^populate_(.*)/);
 
     if( m && parseInt(value) ) {
 
@@ -33,4 +33,4 @@ function populationPathsFromQuery( qps ) {
 
   return populationPaths;
 
-};
+}

@@ -72,7 +72,7 @@ const submit = Promise.method(async function(req, res, next) {
 
   let lot;
   if(!req.body.lotId || !(lot = await lotDb.getLotById(req.body.lotId))) {
-    console.error('No listing submitted: invalid or missing lotId.')
+    console.error('No listing submitted: invalid or missing lotId.');
     const e = new ResourceNotFoundError( { name: 'lot', id: req.body.lotId } );
     next(e);
   }
@@ -80,7 +80,7 @@ const submit = Promise.method(async function(req, res, next) {
 
   if(!listing.lot.images || !listing.lot.images.length) {
     console.error(`No listing created for lot ${listing.lot.handle} (id: ${listing.lot._id}): no images.`);
-    const e = new ClientError('Please add images to this lot before submission.')
+    const e = new ClientError('Please add images to this lot before submission.');
     next(e);
   }
 

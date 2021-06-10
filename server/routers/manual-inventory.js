@@ -26,7 +26,7 @@ const populationPaths = qps => {
 
   for( let [ key, value ] of Object.entries( qps ) ) {
 
-    const m = key.match(/^populate_(.*)/)
+    const m = key.match(/^populate_(.*)/);
 
     if( m && parseInt(value) ) {
 
@@ -92,7 +92,7 @@ function routes({ manualInventoryDb }) {
    ****/
 
 
-   async function listManualInventory( req, res ) {
+  async function listManualInventory( req, res ) {
 
     const numPage = parseInt( req.query.num ) || 10;
     const page = parseInt( req.query.page ) || 1;
@@ -120,7 +120,7 @@ function routes({ manualInventoryDb }) {
 
 
     res.json( { manualInventory } );
-  };
+  }
 
   async function countManualInventory( req, res ) {
   
@@ -145,7 +145,7 @@ function routes({ manualInventoryDb }) {
     else {
       res.json( { error: true, message: `No inventory found with _id ${inventoryId}.` } );
     }
-  };
+  }
 
   async function createManualInventory( req, res ) {
 
@@ -192,6 +192,6 @@ function routes({ manualInventoryDb }) {
    * =============
    * 
    ************/
-   return router;
+  return router;
 
-  }
+}

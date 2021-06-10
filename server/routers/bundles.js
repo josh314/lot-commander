@@ -2,7 +2,6 @@ const express = require('express');
 
 const auth = require('../auth');
 const helpers = require('../helpers');
-const { InvalidRequestError } = require('../errors');
 
 module.exports = routes;
 
@@ -119,7 +118,7 @@ function routes({ eventsDb, inventoryCommander }) {
     const bundles = await inventoryCommander.listBundles(query);
 
     res.json( { bundles } );
-  };
+  }
 
   async function countBundles( req, res ) {
   
@@ -171,7 +170,7 @@ function routes({ eventsDb, inventoryCommander }) {
       return next( e );
     }
 
-  };
+  }
 
   async function deleteBundle( req, res, next ) {
 
@@ -191,7 +190,7 @@ function routes({ eventsDb, inventoryCommander }) {
       return next( e );
     }
 
-  };
+  }
 
   async function editBundle( req, res, next ){
 
@@ -212,7 +211,7 @@ function routes({ eventsDb, inventoryCommander }) {
               bundleId: bundle._id,
             },
             edit
-          )
+          );
 
           eventsDb.editBundle( eventData );
 

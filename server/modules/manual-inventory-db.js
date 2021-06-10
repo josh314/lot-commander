@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const { ResourceNotFoundError } = require('../errors');
+
 /************************************************
  * Helpers
  * =======
@@ -7,7 +9,7 @@ const mongoose = require('mongoose');
  *********/
 
 
- const manualInventoryQueryFilter = ( { includeDeleted } ) => {
+const manualInventoryQueryFilter = ( { includeDeleted } ) => {
   const filter = {};
 
   if( !includeDeleted ) {
@@ -46,15 +48,15 @@ const manualInventorySchema = mongoose.Schema({
  * 
  ******/
 
- manualInventorySchema.methods.delete = function() {
+manualInventorySchema.methods.delete = function() {
   this.isDeleted = true;
   return this.save();
-}
+};
 
 manualInventorySchema.methods.edit = function( data ) {
   Object.assign( this, data );
   return this.save();
-}
+};
 
 /************************************************
  * 
@@ -64,7 +66,7 @@ manualInventorySchema.methods.edit = function( data ) {
  ****/
 
 
- class ManualInventoryDbClient {
+class ManualInventoryDbClient {
   constructor({ mongooseConnection }) {
     this.conn = mongooseConnection;
 
@@ -135,7 +137,7 @@ manualInventorySchema.methods.edit = function( data ) {
     try {
       objectId = new mongoose.Types.ObjectId( inventoryId );
     }
-    catch {
+    catch ( _e ) {
       return null;
     }
 
@@ -145,7 +147,7 @@ manualInventorySchema.methods.edit = function( data ) {
       findDoc.isDeleted = false;
     }
 
-    const q = this.ManualInventory.findOne( findDoc );
+    let q = this.ManualInventory.findOne( findDoc );
 
     if( populate ) {
 
@@ -190,4 +192,4 @@ manualInventorySchema.methods.edit = function( data ) {
 
 module.exports = {
   Client: ManualInventoryDbClient,
-}
+};

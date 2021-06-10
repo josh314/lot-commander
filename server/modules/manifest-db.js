@@ -1,5 +1,3 @@
-const path = require('path');
-
 const libMandb = require('manifests-db/mandb');
 
 const mandbClient = new libMandb.Client({ connection: __mongooseConnection }); 

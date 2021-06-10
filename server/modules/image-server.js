@@ -168,8 +168,8 @@ const get = async function(opts = {}) {
   return s3.getObject({
     Bucket: bucket,
     Key: key,
-  }).promise().catch(e=> {
-    __logger.error(`No image for key ${key}.`)
+  }).promise().catch(_e=> {
+    __logger.error(`No image for key ${key}.`);
     return null;
   });
 };
@@ -186,7 +186,7 @@ const remove = function(s3Location) {
 };
 
 const replace = (s3Location, imgPath) => {
-  const { bucket , lotId, imgName } = parseS3Location(s3Location);
+  const { lotId, imgName } = parseS3Location(s3Location);
   return store(lotId, imgPath, imgName, { dedup: false });
 };
 

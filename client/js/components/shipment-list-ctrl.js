@@ -22,6 +22,7 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
       handle: '',
       status: 'all',
       includeClosed: false,
+      populatePalletsReceived: true,
     };
     vm.shipments = [];
     vm.sortOpts = {

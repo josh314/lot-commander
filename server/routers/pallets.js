@@ -127,7 +127,7 @@ function routes({ eventsDb, inventoryCommander }) {
     const pallets = await inventoryCommander.listReceivedPallets(query);
 
     res.json( { pallets } );
-  };
+  }
 
   async function countReceivedPallets( req, res ) {
   
@@ -177,7 +177,7 @@ function routes({ eventsDb, inventoryCommander }) {
       return next( e );
     }
 
-  };
+  }
 
   async function deleteReceivedPallet( req, res, next ) {
 
@@ -197,7 +197,7 @@ function routes({ eventsDb, inventoryCommander }) {
       return next( e );
     }
 
-  };
+  }
 
   async function editReceivedPallet( req, res, next ){
 
@@ -218,7 +218,7 @@ function routes({ eventsDb, inventoryCommander }) {
               palletId: pallet._id,
             },
             edit
-          )
+          );
 
           eventsDb.editReceivedPallet( eventData );
 

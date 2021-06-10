@@ -62,7 +62,7 @@ packageSchema.pre( 'save', function(next) {
 packageSchema.methods.edit = function( data ) {
   Object.assign( this, data );
   return this.save();
-}
+};
 
 packageSchema.methods.finish = function() {
   this.isFinished = true;

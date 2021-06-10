@@ -2,7 +2,7 @@ const express = require('express');
 
 const auth = require('../auth');
 const helpers = require('../helpers');
-const { InvalidRequestError, ResourceNotFoundError } = require('../errors');
+const { InvalidRequestError } = require('../errors');
 const documentSvc = require('../modules/document-svc');
 
 const fs = require('fs');
@@ -193,7 +193,7 @@ function routes({ eventsDb, inventoryCommander }) {
     const shipments = await inventoryCommander.listIncomingShipments(query);
 
     res.json( { shipments } );
-  };
+  }
 
   async function countIncomingShipments( req, res ) {
   
@@ -218,7 +218,7 @@ function routes({ eventsDb, inventoryCommander }) {
       return next( e );
     }
 
-  };
+  }
 
   async function createIncomingShipment( req, res, next ) {
 
@@ -269,7 +269,7 @@ function routes({ eventsDb, inventoryCommander }) {
               shipmentId,
             },
             edit
-          )
+          );
 
           eventsDb.editIncomingShipment( eventData );
 
@@ -385,7 +385,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
     try {
 
-      const { shipment, pallet, edits } = await inventoryCommander.editIncomingShipmentExpectedPallet( shipmentId, palletId, editDocument )
+      const { shipment, pallet, edits } = await inventoryCommander.editIncomingShipmentExpectedPallet( shipmentId, palletId, editDocument );
 
       if( shipment && pallet ) {
 
@@ -398,7 +398,7 @@ function routes({ eventsDb, inventoryCommander }) {
               palletId
             },
             edit
-          )
+          );
 
           eventsDb.editIncomingShipmentExpectedPallet( eventData );
 
@@ -463,7 +463,7 @@ function routes({ eventsDb, inventoryCommander }) {
       name: documentName
     } );
 
-    stream.on('error', e => {
+    stream.on('error', _e => {
       res.json({ error: true, message: `Unable to get object: '${documentName}'` });
     });
 
@@ -509,11 +509,11 @@ function routes({ eventsDb, inventoryCommander }) {
             folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)( req.params.shipmentId ),
             name: documentName,
             permission: fields.isRestricted === 'true' ? __RESTRICTED_DOCUMENT_PERMISSION__ : null,
-          } )
+          } );
 
           console.log(`Unlinking temp file ${f.path}`);
           fs.promises.unlink(f.path);
-          await storePromise
+          await storePromise;
           res.json( { success: true } );
         }
         else {
@@ -532,7 +532,7 @@ function routes({ eventsDb, inventoryCommander }) {
   function editIncomingShipmentDocumentRestrictionStatus( req, res ) {
 
     if( !req.body || !('isRestricted' in req.body) ) {
-      res.json({ error: true, message: `Invalid request.` })
+      res.json({ error: true, message: `Invalid request.` });
     }
 
     const documentName = req.params.documentName;

@@ -2,7 +2,7 @@ const axios = require('axios');
 const moment = require('moment');
 
 // for pretty-printing in debug mode
-const prettyPrintGqlQuery = q => {
+const _prettyPrintGqlQuery = q => {
   console.log('-----------------------------------------');
   console.log('Shopify GraphQL query:');
 
@@ -17,7 +17,7 @@ const prettyPrintGqlQuery = q => {
 };
 
 // Trimming the query of unnecessary whitespace
-compressGqlQuery = q => q.split('\n').map( s => s.trim() ).join(' ')
+const compressGqlQuery = q => q.split('\n').map( s => s.trim() ).join(' ');
 
 const gqlNodeQueries = {
   order: `
@@ -39,7 +39,7 @@ const gqlNodeQueries = {
       }
     }
   `
-}
+};
 
 const gqlNodeProcessFn = {
   order: n => ({
@@ -49,10 +49,10 @@ const gqlNodeProcessFn = {
       if(!li.node.variant || !li.node.product) {
         return null;
       }
-      return { numUnits: li.node.quantity*li.node.variant.numUnits, tags: li.node.product.tags } 
+      return { numUnits: li.node.quantity*li.node.variant.numUnits, tags: li.node.product.tags }; 
     })
   })
-}
+};
 
 class Client {
   constructor({ store, accessToken }) {
@@ -63,7 +63,7 @@ class Client {
   gqlRequest({ gqlQuery, debug = false }) {
     if(debug) {
       // prettyPrintGqlQuery(gqlQuery);
-      console.log(gqlQuery)
+      console.log(gqlQuery);
     }
 
     const req = {
@@ -86,28 +86,17 @@ class Client {
 
   }
 
-  getOrdersPage({ pageSize, searchQuery, cursor, debug }) {
-    return this.gqlRequest({
-      debug: debug,
-      gqlQuery: gqlQueries.ordersPage({
-        numOrders: pageSize,
-        searchQuery: searchQuery,
-        cursor: cursor
-      })
-    });
-  };
-
   getPage(queryType, nodeQuery, { pageSize, searchQuery, cursor, debug } = {}) {
     const queryArgs = {
       first: pageSize || 1,
-    }
+    };
 
     if(searchQuery) {
-      queryArgs.query = searchQuery
+      queryArgs.query = searchQuery;
     }
 
     if(cursor) {
-      queryArgs.after = cursor
+      queryArgs.after = cursor;
     }
 
     const gqlQuery = `
@@ -203,110 +192,9 @@ class Client {
   getOrderHistory({ start, end, cursor, debug }) {
     start = start || moment().subtract(7, 'days').format();
     const dateQuery = `created_at:>'${start}'${ end ? ` AND created_at:<'${end}'` : ''}`;
-    return this.getAll( 'orders', gqlNodeQueries.order, { searchQuery: dateQuery, debug: debug, cursor: cursor }, gqlNodeProcessFn.order )
+    return this.getAll( 'orders', gqlNodeQueries.order, { searchQuery: dateQuery, debug: debug, cursor: cursor }, gqlNodeProcessFn.order );
   }
 
 }
 
 module.exports = Client;
-
-
-// const gqlQueries = {
-//   ordersPage: ({ numOrders, cursor, searchQuery } = {}) => {
-//     const queryArgs = {
-//       first: numOrders || 1,
-//       // sort:
-//     }
-
-//     if(searchQuery) {
-//       queryArgs.query = searchQuery
-//     }
-
-//     if(cursor) {
-//       queryArgs.after = cursor
-//     }
-
-//     return `
-//       {
-//         orders(${ Object.entries(queryArgs).map( ([key, val]) => `${key}: ${ typeof val === 'string' ? `"${val}"` : val }` ).join(', ') }) {
-//           pageInfo {
-//             hasNextPage
-//           }
-//           edges {
-//             cursor
-//             node {
-//               id
-//               name
-//               createdAt
-//               lineItems(first:10) {
-//                 edges {
-//                   node {
-//                     product {
-//                       id
-//                     }
-//                   }
-//                 }
-//               }
-//             }
-//           }
-//         }
-//       }
-//     `
-//   },
-// };
-
-  // async getOrderHistory( { start, end, debug } = {}) {
-  //   start = start || moment().subtract(7, 'days').format();
-  //   const dateQuery = `created_at:>'${start}'${ end ? ` AND created_at:<'${end}'` : ''}`;
-
-  //   let orders = [];
-  //   let getNextPage = true;
-  //   let cursor = null;
-
-  //   try {
-  //     while(getNextPage) {
-  //       const resp = await this.getOrdersPage({
-  //         pageSize: 10,
-  //         searchQuery: dateQuery,
-  //         debug: debug,
-  //         cursor: cursor
-  //       });
-
-  //       let ordersPage;
-  //       if(resp.errors) {
-  //         throw new Error(JSON.stringify(resp,null,2));
-  //       }
-  //       else {
-  //         if(debug) {
-  //           try {
-  //             console.log(JSON.stringify(resp,null,2));
-  //           }
-  //           catch(e) {
-  //             console.log(resp);
-  //           }
-  //         }
-  //         ordersPage = resp.data.orders;
-  //         if(ordersPage.edges.length) {
-  //           orders = orders.concat(ordersPage.edges);
-  //           getNextPage = ordersPage.pageInfo.hasNextPage;
-  //           cursor = ordersPage.edges[ordersPage.edges.length-1].cursor;
-  //         }
-  //         else {
-  //           getNextPage = false;
-  //         }
-  //       }
-  //     }
-
-  //     return orders
-  //     // .map( elem => {
-  //     //   const n = elem.node;
-  //     //   return {
-
-  //     //   }
-  //     // });
-  //   }
-  //   catch(e) {
-  //     throw e;
-  //   }
-
-  // };

@@ -1,14 +1,3 @@
-const die = (msg) => {
-  throw new Error(msg);
-}
-
-const envvar = (envvarName) => {
-  if( process.env[envvarName] ) {
-    return process.env[envvarName];
-  }
-  throw new Error(`Must set envvar: ${envvarName}`);
-}
-
 const config = require('./config');
 
 const Server = require('./server');

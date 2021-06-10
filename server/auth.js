@@ -58,7 +58,7 @@ passport.use('local-login',
         // all is well, return successful user
         return done(null, user);
       })
-      .catch( e => done(e) );
+        .catch( e => done(e) );
     }
   )
 );
@@ -82,7 +82,7 @@ function authenticate( { success, failure } ) {
     successRedirect : success, // redirect to main
     failureRedirect : failure, // redirect back to the login page if there is an error
     failureFlash : false // allow flash messages
-  })
+  });
 }
 
 // route middleware to make sure a user is logged in
@@ -96,7 +96,7 @@ function isLoggedIn(req, res, next) {
 }
 
 function isAuthorized( permission ) {
-  return ( req, res, next ) => {
+  return ( req, _res, next ) => {
     if( __config.skipAuth || req.user.isAuthorized( permission ) ) {
       return next();
     }

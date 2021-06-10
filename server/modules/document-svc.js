@@ -15,7 +15,7 @@ module.exports = {
   remove,
   setDocumentTags,
   store
-}
+};
 
 function get( { bucket, folder, name } ) {
   return s3.getObject({
@@ -41,7 +41,7 @@ function store( { readStream, bucket, folder, name, permission } ) {
     Key: folder ? `${folder}/${name}` : name,
     Body: readStream,
     ACL: 'private'
-  }
+  };
 
   if( permission ) {
     req.Tagging = `permission=${permission}`;
@@ -70,12 +70,12 @@ async function list({ num, bucket, folder, continuationToken }) {
   let documents = response.Contents || [];
 
   documents = documents
-                .map( _ => ({
-                  name: folder ? _.Key.replace( new RegExp(`${folder}/`), '') : _.Key,
-                  size: _.Size,
-                  updatedAt: _.LastModified
-                }) )
-                .filter( _ => _.name );
+    .map( _ => ({
+      name: folder ? _.Key.replace( new RegExp(`${folder}/`), '') : _.Key,
+      size: _.Size,
+      updatedAt: _.LastModified
+    }) )
+    .filter( _ => _.name );
 
   const result = {
 
