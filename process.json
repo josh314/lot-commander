@@ -2,7 +2,7 @@
   "apps": [
       {
           "name": "lot-commander",
-          "script": "server.js",
+          "script": "server/index.js",
           "log_date_format": "YYYY-MM-DD HH:mm Z",
           "env": {
               "SESSION_SECRET": "FOOBARJONES_DID_NOTHING_WRONG"
