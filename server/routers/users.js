@@ -42,14 +42,15 @@ function routes({ users }) {
       password: req.body.password
     } )
       .then(user=>{
-        __logger.debug(user);
+        console.log('Logging in user:');
+        console.log(user);
         req.session.flash = flashMessages.successfulPasswordChange;
         status = 'success';
       })
       .catch(err=>{
         req.session.flash = flashMessages.serverError;
         status = 'failed';
-        __logger.error(err);
+        console.error(err);
       })
       .finally(()=>{
         res.json({status: status});

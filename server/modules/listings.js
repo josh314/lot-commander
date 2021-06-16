@@ -120,7 +120,7 @@ const submit = Promise.method(async function(req, res, next) {
       message: e.name + ': ' + e.message,
     });
     listing.lot.status = 'Error';
-    __logger.error(e);
+    console.error(e);
   }
   if(listing.lot.submittedListings && listing.lot.submittedListings.length>0) {
     const submittedListings = [].concat(listing.lot.submittedListings);

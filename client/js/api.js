@@ -16,27 +16,6 @@ export function getLotByHandle(handle) {
 }
 
 /*************************************************
-* Fulfillment
-*
-************/
-
-export function getFulfillmentOrders(page) {
-
-  return axios({
-    method: 'get',
-    url: `/api/fulfillment/list/${page}`,
-  })
-    .then( resp => resp.data );
-
-}
-
-export function getFulfillmentOrderById(orderId) {
-
-  return axios.get(`/api/fulfillment/details/${orderId}`).then( resp => resp.data );
-
-}
-
-/*************************************************
 * Manifests
 * =========
 *

@@ -86,7 +86,8 @@ const storeStream = async function(bucket, readStream, key, dedup) {
       Bucket: bucket,
       ACL: 'public-read',
     }).promise();
-    __logger.debug(newBucket);
+    console.log('Creating new S3 bucket.');
+    console.log(newBucket);
   }
 
   if(dedup) {
@@ -169,7 +170,7 @@ const get = async function(opts = {}) {
     Bucket: bucket,
     Key: key,
   }).promise().catch(_e=> {
-    __logger.error(`No image for key ${key}.`);
+    console.error(`No image for key ${key}.`);
     return null;
   });
 };

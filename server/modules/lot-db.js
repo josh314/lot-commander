@@ -46,7 +46,7 @@ async function getLotByHandleApi(req, res) {
 
 function getLots(req, res) {
   //todo: start and end dates, other search filters, sort options
-  __logger.info('Lot list requested.');
+  console.log('Lot list requested.');
   const opts = {
     sort: { createdAt: -1 },
     limit: 100,
@@ -80,7 +80,7 @@ function getLots(req, res) {
 
 function newLot(req, res) {
   const newLot = req.body;
-  __logger.info(`Submitting new lot with data ${JSON.stringify(newLot)}.`);
+  console.log(`Submitting new lot with data ${JSON.stringify(newLot)}.`);
   newLot.listings = [{ platform: 'bstock', body: ''}];
   lotdbClient.getLots({handle: newLot.handle}).then(resp=>{
     if(!resp || !resp[0]) {
@@ -137,7 +137,7 @@ function getManifest(req, res) {
 function setPrimaryImage(req, res) {
   lotdbClient.setPrimaryImage(req.body.lotId, req.body.primaryImage).then(resp=>{
     if(resp.error) {
-      __logger.error(resp.error);
+      console.error(resp.error);
       res.json({error: 'server error.'});
     }
     else {

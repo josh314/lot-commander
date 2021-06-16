@@ -61,9 +61,9 @@ const submitListing = Promise.method(async function (listing, { publish } = { pu
     product.variants[0].weight_unit = 'lb';
   }
 
-  __logger.info('Creating new Shopify product.');
+  console.log('Creating new Shopify product.');
   const addProductResp = await shopifyClient.addProduct(product).then(_=>{
-    __logger.info(`New Shopify product created with id ${_.product.id}`);
+    console.log(`New Shopify product created with id ${_.product.id}`);
     return _;
   });
   const newProductId = addProductResp.product.id;

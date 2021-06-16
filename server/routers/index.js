@@ -89,7 +89,6 @@ function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClien
   });
 
   // import & register routers
-  router.use('/api/fulfillment', require('./fulfillment'));
   router.use('/api/print', require('./print')( { inventoryCommander, lotdb: lotdb } ) );
   router.use('/api/manifests', require('./manifests'));
   router.use(

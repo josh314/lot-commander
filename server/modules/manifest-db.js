@@ -9,7 +9,7 @@ function getManifestById(manifestId) {
 
 function getManifests(req, res) {
   //todo: start and end dates, other search filters, sort options
-  __logger.info('Manifest list requested.');
+  console.log('Manifest list requested.');
   const query = {
     sort: { updatedAt: -1 },
     limit: 100
@@ -27,11 +27,11 @@ function submitManifest(manifest) {
   const itemList = manifest.inventory;
   const manifestSummaryStr = `${itemList.reduce((sum,item)=> sum = sum + parseInt(item.quantity), 0)} units across ${itemList.length} SKUs.`;
   if(manifest._id) {
-    __logger.info(`Updating manifest with id ${manifest._id}: ${manifestSummaryStr}`);
+    console.log(`Updating manifest with id ${manifest._id}: ${manifestSummaryStr}`);
     manifestDbPromise = mandbClient.updateManifest(manifest);
   }
   else {
-    __logger.info(`Submitting new manifest: ${manifestSummaryStr}`);
+    console.log(`Submitting new manifest: ${manifestSummaryStr}`);
     manifestDbPromise = mandbClient.submitNewManifest(manifest);
   }
   return manifestDbPromise;

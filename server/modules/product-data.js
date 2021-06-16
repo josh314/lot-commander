@@ -79,21 +79,21 @@ async function getProductDataFromMwsdb(barcode) {
   if(normalizedBarcode) {
     let asinData = await mwsdbClient.getBestAsinDataForUpcNoFilter(normalizedBarcode);
     if(asinData && asinData.price) {
-      __logger.info(`Product data found in MWSDB for barcode ${normalizedBarcode}.`);
-      __logger.debug(JSON.stringify(asinData));
+      console.log(`Product data found in MWSDB for barcode ${normalizedBarcode}.`);
+      console.log(JSON.stringify(asinData));
       productData = getProductDataFromAsinData(asinData);
     }
     else {
-      __logger.info(`Requesting data from MWS API for barcode ${normalizedBarcode}.`);
+      console.log(`Requesting data from MWS API for barcode ${normalizedBarcode}.`);
       const refreshResp = await mwsdbClient.refreshBarcodeFromMws(normalizedBarcode);
-      __logger.debug(JSON.stringify(refreshResp));
+      console.log(JSON.stringify(refreshResp));
       if(!refreshResp.error) {
-        __logger.info(`Product data refreshed from MWS API for barcode ${normalizedBarcode}.`);
+        console.log(`Product data refreshed from MWS API for barcode ${normalizedBarcode}.`);
         asinData = await mwsdbClient.getBestAsinDataForUpcNoFilter(normalizedBarcode);
         productData = getProductDataFromAsinData(asinData);
       }
       else {
-        __logger.info(`No product data found in MWS API for barcode ${normalizedBarcode}`);
+        console.log(`No product data found in MWS API for barcode ${normalizedBarcode}`);
       }
     }
     productData.normalizedBarcode = normalizedBarcode;
@@ -111,10 +111,10 @@ async function getAsinsFromMwsApiForBarcode(barcode) {
 
   if(normalizedBarcode) {
 
-    __logger.info(`Requesting data from MWS API for barcode ${normalizedBarcode}.`);
+    console.log(`Requesting data from MWS API for barcode ${normalizedBarcode}.`);
     const refreshResp = await mwsdbClient.refreshBarcodeFromMws(normalizedBarcode);
     if(!refreshResp.error) {
-      __logger.info(`Product data refreshed from MWS API for barcode ${normalizedBarcode}.`);
+      console.log(`Product data refreshed from MWS API for barcode ${normalizedBarcode}.`);
       for( let elem of refreshResp ) {
         if(elem.asin) {
           asins.push(elem.asin);
@@ -122,7 +122,7 @@ async function getAsinsFromMwsApiForBarcode(barcode) {
       }
     }
     else {
-      __logger.info(`No product data found in MWS API for barcode ${normalizedBarcode}`);
+      console.log(`No product data found in MWS API for barcode ${normalizedBarcode}`);
     }
   }
   return asins;
@@ -143,11 +143,11 @@ async function getProductDataFromUpcItemDb(barcode) {
   if(normalizedBarcode) {
     const resp = await upcItemDbClient.lookup(normalizedBarcode);
     if(resp && resp.item) {
-      __logger.info(`Product data obtained from UpcItemDb for barcode ${normalizedBarcode}.`);
+      console.log(`Product data obtained from UpcItemDb for barcode ${normalizedBarcode}.`);
       productData = Object.assign(productData, dataModule.processItem(resp.item));
     }
     else {
-      __logger.info(`No product data found in UpcItemDb for barcode ${normalizedBarcode}.`);
+      console.log(`No product data found in UpcItemDb for barcode ${normalizedBarcode}.`);
     }
     productData.normalizedBarcode = normalizedBarcode;
   }
@@ -169,7 +169,7 @@ async function getProductDataFromWalmartOpenApi(barcode){
   if(normalizedBarcode) {
     const apiResp = await walmartOpenApiClient.lookup(barcode);
     if(apiResp && apiResp.items && apiResp.items[0]) {
-      __logger.info(`Product data obtained from Walmart Open API for barcode ${normalizedBarcode}.`);
+      console.log(`Product data obtained from Walmart Open API for barcode ${normalizedBarcode}.`);
       const item = apiResp.items[0];
       productData.title = item.name;
       productData.price = item.msrp ? item.msrp : (item.salePrice ? item.salePrice : 0);
@@ -178,7 +178,7 @@ async function getProductDataFromWalmartOpenApi(barcode){
       }
     }
     else {
-      __logger.info(`No product data found in Walmart Open API for barcode ${normalizedBarcode}.`);
+      console.log(`No product data found in Walmart Open API for barcode ${normalizedBarcode}.`);
     }
     productData.normalizedBarcode = normalizedBarcode;
   }

@@ -2,7 +2,7 @@ import angular from 'angular';
 import "angular-cookies";
 import "angular-animate";
 import "angular-sanitize";
-import "@uirouter/angularjs";
+import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "ngstorage";
 
@@ -31,10 +31,7 @@ const stateData = [
   // auctions
   { name: "main.auctions", abstract: true, url: '/auctions', templateUrl: '/partials/_container.html' },
   { name: "main.auctions.list", navName: 'List Auctions', url: '/list', templateUrl: '/partials/_list_auctions.html', controller: 'ListAuctionsCtrl', userPermission: 'LIST_AUCTIONS' },
-  // orders
-  // { name: "main.orders", abstract: true, url: '/orders', templateUrl: '/partials/_container.html'},
-  // { name: "main.orders.pending", navName: 'Orders', url: '/pending', templateUrl: '/partials/_list_pending_orders.html', userPermission: 'LIST_ORDERS' },
-  // { name: "main.orders.pick", url: '/pick/{orderId}', templateUrl: '/partials/_order_pick_list.html', userPermission: 'VIEW_ORDER'  },
+
   // manifest files
   { name: "main.manifests", abstract: true, navName: 'Manifests', url: '/manifests', templateUrl: '/partials/_container.html' },
   { name: "main.manifests.clean", navName: 'Clean', navParent: 'Manifests', url: '/clean', templateUrl: '/partials/_clean_manifest.html' },

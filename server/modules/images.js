@@ -77,20 +77,20 @@ async function removeImage(req, res) {
   const [lotId, image] = [req.body.lotId, req.body.image];
   const removeImageFromLotResp = await lotdb.removeImage(lotId, image);
   if(removeImageFromLotResp.error) {
-    __logger.error(removeImageFromLotResp.error);
+    console.error(removeImageFromLotResp.error);
     res.json({error: 'Server error.'});
   }
   else {
-    __logger.info(`Removed image ${image.s3 || image.filename} from lot ${lotId}.`);
+    console.log(`Removed image ${image.s3 || image.filename} from lot ${lotId}.`);
     res.json({ status: "success" });
     if(image.s3) {
       try {
         await imageServer.remove(image.s3);
-        __logger.info(`Image ${imageServer.imageName(image.s3)} deleted from lot ${lotId}.`);
+        console.log(`Image ${imageServer.imageName(image.s3)} deleted from lot ${lotId}.`);
       }
       catch(e) {
-        __logger.warn(`Image ${imageServer.imageName(image.s3)} could not be deleted from lot ${lotId}.`);
-        __logger.error(e);
+        console.error(`Image ${imageServer.imageName(image.s3)} could not be deleted from lot ${lotId}.`);
+        console.error(e);
       }
     }
   }
@@ -100,7 +100,7 @@ async function downloadImages(req, res) {
 
   const lotRequest = lotdb.getLotById(req.params.lotId);
 
-  __logger.info(`Requesting image download for lotId ${req.params.lotId}...`);
+  console.log(`Requesting image download for lotId ${req.params.lotId}...`);
   const archiveType = 'zip';
   const archive = archiver(archiveType, {
     gzip: true,
@@ -112,7 +112,7 @@ async function downloadImages(req, res) {
   });
 
   archive.on('end', ()=>{
-    __logger.info(`Archiver wrote ${archive.pointer()} bytes.`);
+    console.log(`Archiver wrote ${archive.pointer()} bytes.`);
   });
 
   const lot = await lotRequest;
@@ -122,11 +122,11 @@ async function downloadImages(req, res) {
 
   for(let image of lot.images) {
     const p = path.normalize(path.join(__config.imgPath, image.filename));
-    __logger.info(`Appending to archive file ${image.filename} as ${image.filename}...`);
+    console.log(`Appending to archive file ${image.filename} as ${image.filename}...`);
     archive.file(p, {name: image.filename});
   }
   archive.finalize();
-  __logger.log('Image archive finalized');
+  console.log('Image archive finalized');
 }
 
 async function replaceImage(req, res) {
@@ -141,7 +141,7 @@ async function replaceImage(req, res) {
       else {
         s = save(f.path, path.join(imgPath, fields.filename), (err)=>{
           if (err) {
-            __logger.error(err);
+            console.error(err);
             return;
           }
         });

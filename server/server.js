@@ -28,11 +28,6 @@ class Server {
     global.__config = this.config;
 
     //=================================================
-    // General logging ================================
-    //=================================================
-    global.__logger = require(path.join(__basedir, this.config.modulesPath, 'logger'));
-
-    //=================================================
     // INITIALIZE EXPRESS APP =========================
     //=================================================
 
@@ -241,12 +236,11 @@ class Server {
     //   res.render('404', layout);
     // });
 
-    this.app.use( function( err, _req, res ){
+    this.app.use( function( err, _req, res, _next ){
       
-      // __logger.error(`404: path does not exist -- ${req.originalUrl}`);
+      // console.error(`404: path does not exist -- ${req.originalUrl}`);
       // res.status(404).render('404', {});
-      console.log('Logging error to file.');
-      __logger.error(err);
+      console.error(err);
 
       const response = {
         error: true

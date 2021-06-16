@@ -6,6 +6,8 @@ npm-debug.log
 *~
 *\#
 *.josh
+*sandbox
+foo
 
 #Bower stuff
 bower_components
@@ -23,6 +25,7 @@ config/deploy.js
 config.*
 config-*.js
 settings.js
+.env
 
 # data and generated files
 dat/

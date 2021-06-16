@@ -25,7 +25,7 @@ function boilerplateManifestItems(lot, manifestOptions) {
 
 async function submitListing(data) {
   const lot = data.lot;
-  const client = new bstockWeb.Client({auth:__config.bstock.auth, logger: __logger});
+  const client = new bstockWeb.Client({auth:__config.bstock.auth, logger: console });
 
   const images = await Promise.map(lot.images, async (_)=>{
     let imgContents;

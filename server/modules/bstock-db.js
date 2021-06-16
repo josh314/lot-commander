@@ -1,5 +1,5 @@
 const db = require('bstock/bstock-db');
-const client = new db.Client({ db: { connection: __mongooseConnection }, logger: __logger});
+const client = new db.Client({ db: { connection: __mongooseConnection }, logger: console });
 
 
 function getAuctions(req, res) {
