@@ -24,7 +24,7 @@
 								<b>Check here if lot sold as-is</b>
 							</label>
 						</div>
-            <div>
+            <div class="checkbox">
               <label for="publishInput">
 								<input type="checkbox" id="publishInput" ng-model="publish">
 								<b>Publish on submission</b>
@@ -138,6 +138,15 @@
 						<input class="form-control" type="number" id="totalUnitsInput" ng-model="totalUnits" ng-disabled="!lot.unmanifested" min="0">
 						<span class="text-danger h4" ng-show="invalidTotalUnits">Invalid unit count!</span>
 					</div>
+          <fieldset class="col-xs-12 col-sm-6 box-border">
+            <legend class="box-border">Choose collections</legend>
+            <div class="checkbox" ng-repeat="coll in shopifyCollections">
+              <label for="shopifyCollectionInput-{{ coll.name }}">
+								<input type="checkbox" id="shopifyCollectionInput-{{ coll.name }}" ng-model="coll.selected">
+								<b>{{ coll.name }}</b>
+							</label>
+            </div>
+          </fieldset>
 				</div>
 			</div>
 		</div>

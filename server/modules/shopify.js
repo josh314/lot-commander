@@ -56,7 +56,7 @@ const submitListing = Promise.method(async function (listing, { publish } = { pu
     // collection?
   };
 
-  if(listing.shopifyTags.includes('pallets') || listing.shopifyTags.includes('Pallets')) {
+  if( listing.lot.packagingType.includes('pallets') ) {
     product.variants[0].weight = 2000;
     product.variants[0].weight_unit = 'lb';
   }

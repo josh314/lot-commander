@@ -45,6 +45,8 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bst
       return tags.join(', ');
     })();
 
+    $scope.shopifyCollections = [ 'lots', 'pallets', 'truckloads', 'cases' ].map( _ => ({ name: _, selected: false }) );
+
     const conditionTag = lotType => {
       let cond;
       if( lotType === 'customer returns' ) {
@@ -79,6 +81,12 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bst
       if( $scope.asIs ) {
         tags.push('as-is');
       }
+
+      $scope.shopifyCollections.forEach( coll => {
+        if( coll.selected ) {
+          tags.push(`collection:${ coll.name }`);
+        }
+      });
 
       return tags.filter( _ => _ ).join(', ');// remove any empty tags then join as a CSV string before returning
     };
