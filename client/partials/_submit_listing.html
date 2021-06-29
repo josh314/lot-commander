@@ -18,12 +18,6 @@
 								<b>Check here if new product data should be obtained for this lot</b>
 							</label>
             </div>
-            <div class="checkbox" ng-show="listing.marketplace==='wholesaleninjas'">
-							<label for="asIsInput">
-								<input type="checkbox" id="asIsInput" ng-model="asIs">
-								<b>Check here if lot sold as-is</b>
-							</label>
-						</div>
             <div class="checkbox">
               <label for="publishInput">
 								<input type="checkbox" id="publishInput" ng-model="publish">
@@ -138,15 +132,28 @@
 						<input class="form-control" type="number" id="totalUnitsInput" ng-model="totalUnits" ng-disabled="!lot.unmanifested" min="0">
 						<span class="text-danger h4" ng-show="invalidTotalUnits">Invalid unit count!</span>
 					</div>
-          <fieldset class="col-xs-12 col-sm-6 box-border">
-            <legend class="box-border">Choose collections</legend>
-            <div class="checkbox" ng-repeat="coll in shopifyCollections">
-              <label for="shopifyCollectionInput-{{ coll.name }}">
-								<input type="checkbox" id="shopifyCollectionInput-{{ coll.name }}" ng-model="coll.selected">
-								<b>{{ coll.name }}</b>
-							</label>
-            </div>
-          </fieldset>
+          <div class="col-xs-12 col-sm-6">
+            <fieldset class="box-border">
+              <legend class="box-border">Choose collections</legend>
+              <div class="checkbox" ng-repeat="coll in shopifyCollections">
+                <label for="shopifyCollectionInput-{{ coll.name }}">
+                  <input type="checkbox" id="shopifyCollectionInput-{{ coll.name }}" ng-model="coll.selected">
+                  <b>{{ coll.name }}</b>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+          <div class="col-xs-12 col-sm-6">
+            <fieldset class="box-border">
+              <legend class="box-border">Guarantee</legend>
+              <div class="radio" ng-repeat="option in guaranteeOptions">
+                <label>
+                  <input type="radio" name="guaranteeOptions" value="{{ option.value }}" ng-model="guarantee.value">
+                  {{ option.label }}
+                </label>
+              </div>
+            </fieldset>
+          </div>
 				</div>
 			</div>
 		</div>

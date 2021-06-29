@@ -47,6 +47,22 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bst
 
     $scope.shopifyCollections = [ 'lots', 'pallets', 'truckloads', 'cases' ].map( _ => ({ name: _, selected: false }) );
 
+    $scope.guaranteeOptions = [ 
+      {
+        value: 'standard',
+        label: 'Standard (95%)'
+      },
+      {
+        value: 'as-is',
+        label: 'None (sold as-is)'
+      },
+      {
+        value: 'complete',
+        label: 'Complete (100%)'
+      },
+    ];
+    $scope.guarantee = { value: 'standard' };
+
     const conditionTag = lotType => {
       let cond;
       if( lotType === 'customer returns' ) {
@@ -78,9 +94,7 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bst
 
       tags.push( conditionTag( $scope.lot.type ) );
 
-      if( $scope.asIs ) {
-        tags.push('as-is');
-      }
+      tags.push( `guarantee:${ $scope.guarantee.value }` );
 
       $scope.shopifyCollections.forEach( coll => {
         if( coll.selected ) {
