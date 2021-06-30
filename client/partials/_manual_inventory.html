@@ -25,7 +25,7 @@
           <tbody>	
             <tr ng-repeat="entry in ctrl.newInventory.inventory">
               <td><input ng-model="entry.name"></td>
-              <td><input ng-model="entry.quantity"></td>
+              <td><input type="number" ng-model="entry.quantity"></td>
               <td><button class="btn btn-xs btn-danger" ng-click="ctrl.newInventory.removeInventory($index)">Remove</button>
               </td>
             </tr>

@@ -53,7 +53,7 @@ angular.module('myApp').factory('NewManualInventorySvc', [ function(){
   const isEmpty = () => !inventory.length;
 
   const isInvalid = () => {
-
+    console.log(inventory)
     let invalid = false;
 
     if( isEmpty() ) {
@@ -64,7 +64,7 @@ angular.module('myApp').factory('NewManualInventorySvc', [ function(){
       inventory.forEach( _ => { 
         
         _.nameInvalid = !_.name;
-        _.quantityInvalid = isNaN( _.quantity ) || _.quantity <= 0; 
+        _.quantityInvalid = typeof _.quantity !== 'number' || _.quantity < 0; 
 
       });
 
