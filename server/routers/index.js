@@ -7,7 +7,6 @@ const scriptBuilder = require(path.join(__basedir, __config.modulesPath, 'script
 
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
-const images = require(path.join(__basedir, __config.modulesPath, 'images'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
@@ -50,17 +49,6 @@ function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClien
   // bstock db api
   router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);
 
-  // images
-  router.post('/api/image/upload', images.upload);
-  router.post('/api/image/primary', lotdb.setPrimaryImage);
-  router.get('/api/image/download/:lotId', images.downloadImages);
-  router.post('/api/image/remove', images.removeImage);
-  router.post('/api/image/replace', images.replaceImage);
-  router.get('/api/image', images.get);
-  router.get('/api/image/list', images.list);
-  router.post('/api/image/clone', images.clone);
-
-
   // marketplace listings
   router.post(
     '/api/listings/submit',
@@ -89,6 +77,8 @@ function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClien
   });
 
   // import & register routers
+
+  router.use('/api/image', require('./images')( { lotdb } ) );
   router.use('/api/print', require('./print')( { inventoryCommander, lotdb: lotdb } ) );
   router.use('/api/manifests', require('./manifests'));
   router.use(
@@ -119,7 +109,7 @@ function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClien
 
   //default route. the front-end rendering will all hit this.
   router.get('*', 
-    (req,res) => res.render('main.hbs', {
+    (req,res) => res.render('main.hbs', { 
       title: "Lot Commander",
       description: "App for creating and managing product lots and associated manifests.",
     })
