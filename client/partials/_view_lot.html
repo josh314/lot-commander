@@ -118,23 +118,44 @@
 					</div>
 				</div>
 			</div>
-			<div class="row col-xs-12" style="display: flex; align-items: center; justify-content: space-between;">
-        <div>
-            <div class="form-group">
-            <input type="file" file-list-model="imagesToUpload" multiple/>
-            </div>
-            <button class="btn btn-success btn-sm" ng-click="uploadImages()">Upload File</button>
-				</div>
-        <div>
-          <p class="h3" style="margin-right: 100px">- OR -</p>
+		</div>
+  </div>
+
+
+  <div class="add-image-widget">
+    <h4>Add an image (use any option below)</h4>
+
+
+    <ul class="nav nav-tabs nav-justified">
+      <li role="presentation" ng-class="{ active: addLotImageMethodIs( 'file' ) }" ng-click="setAddLotImageMethod( 'file' )"><a> File Upload </a></li>
+      <li role="presentation" ng-class="{ active: addLotImageMethodIs( 'url' ) }" ng-click="setAddLotImageMethod( 'url' )"><a> URL submission </a></li>
+      <li role="presentation" ng-class="{ active: addLotImageMethodIs( 'clone' ) }" ng-click="setAddLotImageMethod( 'clone' )"><a> Clone Recent </a></li>
+    </ul>
+    <div class="well add-image-widget__content">
+
+      <div ng-show="addLotImageMethodIs( 'file' )">
+          <div class="form-group">
+          <input type="file" file-list-model="imagesToUpload" multiple/>
+          </div>
+          <button class="btn btn-success btn-sm" ng-click="uploadImages()">Upload File</button>
+      </div>
+
+      <div ng-show="addLotImageMethodIs( 'url' )">
+        <div class="form-group">
+          <label for="imageUrlToCloneInput">Image URL</label>
+          <input class="form-control" name="imageUrlToCloneInput" type="text" ng-model="imageUrlToClone" />
+          <button class="btn btn-success btn-sm" ng-click="cloneImageFromUrl()">Fetch</button>
         </div>
-        <div>
+      </div>
+
+      <div ng-show="addLotImageMethodIs( 'clone' )">
+        <div class="text-center">
           <button class="btn btn-primary btn-sm" ng-click="openRecentImageGallery()">select from recent images</button>
         </div>
-				<!-- Search existing images on server -->
-			</div>
-		</div>
-	</div>
+      </div>
+
+    </div>
+  </div>
 
 	<div class="well" ng-hide="lot.unmanifested">
     <div class="row" ng-hide="lot.manifestId">
@@ -164,51 +185,7 @@
         <a class="btn btn-primary btn-warning" ng-click="generateManifestFileForScannedInventory()">Create Manifest File</a>
       </div>
     </div>
-		<!-- <div class="row" ng-hide="waitingForResponse">
-			<div class="col-xs-12">
-				<h4>Third-party Manifests</h4>
-			</div>
-			<div ng-show="lot.getThirdPartyManifests().length">
-				<div class="col-xs-12">
-					<h5>Linked Blocks</h5>
-				</div>
-				<div class="col-xs-12">
-					<table class="table table-striped">
-						<thead><tr>
-							<th>Identifier</th>
-							<th>Type</th>
-							<th></th>
-						</tr></thead>
-						<tbody>
-							<tr ng-repeat="item in lot.getThirdPartyManifests()">
-								<td>{{item.blockId || item.filename}}</td>
-								<td>{{item.blockId ? 'Block ID' : 'File name'}}</td>
-								<td>
-
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-
-			<div class="col-xs-12">
-				<h5>Link Block by ID</h5>
-			</div>
-			<div class="col-xs-12 col-sm-6">
-				<div class="input-group">
-					<input type="text" class="form-control" ng-model="searchBlockId" ng-keyup="$event.keyCode == 13 && linkManifestBlock()">
-				    <span class="input-group-btn">
-				        <button class="btn btn-default btn-primary" placeholder="Search for Block ID here" type="button" ng-click="linkManifestBlock()">Search & Link</button>
-				    </span>
-				</div>
-			</div>
-		</div>
-		<div class="row" ng-show="waitingForResponse">
-			<div class="center-block loader"></div>
-			<h2 class="text-center">Please wait...</h2>
-		</div> -->
-	</div>
+  </div>
 
 	<div class="well" ng-hide="lot.unmanifested">
 		<div class="row">
@@ -232,7 +209,7 @@
 					<tbody>
 						<tr ng-repeat="item in lot.getInventorySortedByBarcode()">
 							<td>
-								<div id="item-thumbnail-container-{{item.barcode}}">
+								<div id="item-thumbnail-container-{{item.barcode}}" ng-click="confirmAddLotImage( $event )">
 								</div>
 							</td>
 							<td>{{item.barcode}}</td>
@@ -244,17 +221,7 @@
 				</table>
 			</div>
 		</div>
-		<!-- <div class="row">
-			<h3>Product Images</h3>
-			<div ng-show="item.images.length" ng-repeat="item in lot.getInventorySortedByBarcode()">
-				<h5>{{item.barcode}} - {{item.description}}</h5>
-				<div class="row">
-					<div class="col-xs-6 col-sm-4 col-md-3 col-lg-1" ng-repeat="image in item.images track by $index">
-						<a ng-href="{{image}}"><img class="img-responsive" ng-src="{{image}}"></a>
-					</div>
-				</div>
-			</div>
-		</div> -->
+
 	</div>
 	<div class="well">
 		<div class="row">
@@ -264,3 +231,4 @@
 		</div>
 	</div>
 </div>
+

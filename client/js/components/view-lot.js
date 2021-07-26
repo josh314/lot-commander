@@ -3,8 +3,8 @@ import angular from 'angular';
 import * as api from '../api';
 
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$state', '$stateParams', '$uibModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal', 'LoggedInUser',
-  function($http, $q, $scope, $state, $stateParams, $uibModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, PrintSvc, saveLot, sessionTimeout, shippingItemsModal, LoggedInUser) {
+angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$state', '$stateParams', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal', 'LoggedInUser',
+  function($http, $q, $scope, $state, $stateParams, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, PrintSvc, saveLot, sessionTimeout, shippingItemsModal, LoggedInUser) {
     sessionTimeout.timeoutExpired();
 
     $scope.showCreateListingButton = LoggedInUser.hasPermission('SUBMIT_AUCTION') || LoggedInUser.hasPermission('SUBMIT_SHOPIFY_LISTING');
@@ -15,6 +15,10 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$st
 
     $scope.showShippingItems = false;
     $scope.toggleShowShippingItems = () => $scope.showShippingItems = !$scope.showShippingItems;
+
+    $scope.addLotImageMethod = 'file';
+    $scope.setAddLotImageMethod = s => $scope.addLotImageMethod = s;
+    $scope.addLotImageMethodIs = s => ( $scope.addLotImageMethod === s );
 
     const initializeAllThumbnailImages = () => {
       for(let i=0; i<lotStore.inventory.length; i++) {
@@ -264,6 +268,45 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$st
         console.log('Modal dismissed at: ' + new Date());
       });
     };
+
+    $scope.cloneImageFromUrl = () => {
+      
+      return cloneImageFromUrl( $scope.imageUrlToClone );
+
+    };
+
+    $scope.confirmAddLotImage = ( event ) =>{
+
+      const imgUrl = event.target.currentSrc;
+
+      ConfirmationModal.launch({
+        header: "Add Image",
+        body: "Add this as a lot image?",
+        html: `<img src="${ imgUrl }" />`
+      }).then( isConfirmed => {
+
+        if( isConfirmed ) {
+
+          return cloneImageFromUrl( imgUrl );
+
+        }
+
+      } );
+
+    };
+
+    function cloneImageFromUrl( url ) {
+          
+      if( !url ) { // TODO: check if valid URL
+        return;
+      }
+
+      api.cloneImages( lotStore._id, [ url ] ).then(resp=>{
+        console.log(resp);
+        $state.reload();
+      });
+
+    }
 
   }]
 );

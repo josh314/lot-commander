@@ -53,7 +53,6 @@ angular.module('myApp').factory('NewManualInventorySvc', [ function(){
   const isEmpty = () => !inventory.length;
 
   const isInvalid = () => {
-    console.log(inventory)
     let invalid = false;
 
     if( isEmpty() ) {

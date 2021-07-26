@@ -127,7 +127,7 @@ function routes( { lotdb } ) {
     res.json( { images: list } );
   }
 
-  async function clone( req, res ) {
+  async function clone( req, res, next ) {
 
     try {
       const { lotId, images } = req.body;
@@ -140,8 +140,7 @@ function routes( { lotdb } ) {
       res.json( { success: true } );
     }
     catch(e) {
-      console.error(e);
-      res.json( { success: false } );
+      return next( e );
     }
   
   }
