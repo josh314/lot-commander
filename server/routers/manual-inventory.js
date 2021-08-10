@@ -17,6 +17,18 @@ const listManualInventoryFilterParamsFromQueryParams = ( qp ) => {
 
   fp.includeDeleted = !!qp.include_deleted;
 
+  if( qp.start_date ) {
+
+    fp.startDate = new Date( qp.start_date );
+
+  }
+
+  if( qp.end_date ) {
+
+    fp.endDate = new Date( qp.end_date );
+
+  }
+
   return fp;
 };
 
@@ -103,7 +115,7 @@ function routes({ manualInventoryDb }) {
       num: numPage,
 
       // sorting
-      sort: req.query.sort || "createdAt",
+      sort: req.query.sort || "reportDate",
       sortDir: parseInt(req.query.sort_dir) || -1,
 
       // filters

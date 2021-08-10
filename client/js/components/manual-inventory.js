@@ -153,7 +153,7 @@ angular.module('myApp').controller('ManualInventoryCtrl', [ 'LoggedInUser', 'Man
     function refreshManualInventoryList() {
       return ManualInventorySvc.list().then( resp => {
 
-        resp.manualInventory.forEach( _ => _.createdAt = new Date( _.createdAt ) );
+        resp.manualInventory.forEach( _ => _.reportDate = new Date( _.reportDate ) );
 
         vm.manualInventoryList = resp.manualInventory;
       });

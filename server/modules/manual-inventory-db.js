@@ -9,11 +9,25 @@ const { ResourceNotFoundError } = require('../errors');
  *********/
 
 
-const manualInventoryQueryFilter = ( { includeDeleted } ) => {
+const manualInventoryQueryFilter = ( { includeDeleted, startDate, endDate } ) => {
   const filter = {};
 
   if( !includeDeleted ) {
     filter.isDeleted = false;
+  }
+
+  if( startDate ) {
+
+    filter.reportDate = filter.reportDate || {};
+    filter.reportDate.$gte = startDate;
+
+  }
+
+  if( endDate ) {
+
+    filter.reportDate = filter.reportDate || {};
+    filter.reportDate.$lte = endDate;
+
   }
 
   return filter;
@@ -30,18 +44,45 @@ const manualInventoryQueryFilter = ( { includeDeleted } ) => {
 // ManualInventory
 
 const manualInventorySchema = mongoose.Schema({
+
+  // User making the report
   user:   {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
+
+  // date that inventory was taken. Not to be confused with the timestamps which are metadata about the document itself
+  reportDate: {
+    type: Date,
+    default: Date.now,
+  },
+
+  // the actual inventory items
   inventory: [ {
     name: String,
     quantity: Number
   } ],
+
+  // catchall notes
   notes: String,
+
+  // for hiding from the interface while preserving the data itself.
   isDeleted: Boolean
+
 }, { collection: 'manual-inventory', timestamps: true });
 
+/***********************
+ * pre-save hook
+ * 
+ ******/
+manualInventorySchema.pre( 'save', function(next) {
+
+  if( ! this.reportDate ) {
+    this.reportDate = new Date();
+  }
+
+  next();
+} );
 
 /***********************
  * ManualInventory methods
@@ -85,7 +126,7 @@ class ManualInventoryDbClient {
       sortField = sort;
     }
     else {
-      sortField = 'createdAt';
+      sortField = 'reportDate';
     }
   
     const sortParams = {

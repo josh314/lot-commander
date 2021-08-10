@@ -4,7 +4,7 @@
   <div class="row">
     <div ng-show="ctrl.showCreateInventoryControls">
       <fieldset class="col-xs-12 box-border">
-        <legend class="box-border">Inventory Report</legend>
+        <legend class="box-border">Add Inventory Report</legend>
 
         <div style="display: flex; justify-content: space-between;">
           <span>
@@ -41,7 +41,7 @@
     <div  class="panel panel-primary" ng-repeat="inventory in ctrl.manualInventoryList">
       <div class="panel-heading">
         <div style="display:flex;justify-content:space-between;">
-          <span>{{ inventory.createdAt.toLocaleString() }}</span>
+          <span>{{ inventory.reportDate.toLocaleString() }}</span>
           <span>User: {{ inventory.user.username }}</span>
         </div>
       </div>
