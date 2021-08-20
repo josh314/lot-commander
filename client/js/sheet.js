@@ -117,21 +117,28 @@ export class Sheet {
     try {
       if( column.isSelected() ) {
         if( column.isBarcodeColumn() ) {
-          const barcode = row[column.name];
-          if(barcode) {
-            if(libBarcodes.validateCheckDigit(barcode)) {
+
+          if( row[column.name] ) {
+
+            row[column.name] = `${ row[column.name] }`; // ensure the barcode is a string
+
+            if(libBarcodes.validateCheckDigit( row[column.name] )) {
               _class.success = true;
             }
             else {
               _class.danger = true;
             }
+
           }
+
         }
         else {
           _class.warning = true;
         }
       }
-    } catch(e) {
+    }
+    catch(e) {
+      console.error(e);
       console.log(row);
       console.log(column);
     }
@@ -143,7 +150,11 @@ export class Sheet {
     if(barcodeColumn) {
       for(const r of this.rows) {
         try {
+
+          r[barcodeColumn.name] = `${ r[barcodeColumn.name] }`; // ensure the barcode is a string
+
           r[barcodeColumn.name] = libBarcodes.addCheckDigit(r[barcodeColumn.name]);
+
         }
         catch(e) {
           console.log(e);
