@@ -1,5 +1,7 @@
 import angular from 'angular';
 
+import moment from 'moment';
+
 import * as api from '../api';
 
 
@@ -31,26 +33,34 @@ angular.module('myApp').factory('ManualInventorySvc', [ '$q', 'NewManualInventor
 
 }]);
 
+
+/******************* New Manual Inventory Service *************************/
 angular.module('myApp').factory('NewManualInventorySvc', [ function(){
-  const inventory = [];
-  let notes = '';
+
+  const data = {
+    reportDate: new Date(),
+    inventory: [],
+    notes: '',
+  };
 
   const clear = () => {
-    inventory.splice( 0, inventory.length );
-    notes = '';
+    data.inventory.splice( 0, data.inventory.length );
+    data.notes = '';
+    data.reportDate = new Date();
   };
 
   const set = _inventory => {
     clear();
-    inventory.splice( 0, 0, ...JSON.parse( JSON.stringify(_inventory.inventory) ) );
-    notes = _inventory.notes;
+    data.inventory.splice( 0, 0, ...JSON.parse( JSON.stringify(_inventory.inventory) ) );
+    data.notes = _inventory.notes;
+    data.reportDate = _inventory.reportDate;
   };
 
-  const addInventory = () => inventory.push({ name: '', quantity: '' });
+  const addInventory = () => data.inventory.push({ name: '', quantity: '' });
 
-  const removeInventory = idx => inventory.splice( idx, 1 );
+  const removeInventory = idx => data.inventory.splice( idx, 1 );
 
-  const isEmpty = () => !inventory.length;
+  const isEmpty = () => !data.inventory.length;
 
   const isInvalid = () => {
     let invalid = false;
@@ -60,28 +70,24 @@ angular.module('myApp').factory('NewManualInventorySvc', [ function(){
     }
     else {
 
-      inventory.forEach( _ => { 
+      data.inventory.forEach( _ => { 
         
         _.nameInvalid = !_.name;
         _.quantityInvalid = typeof _.quantity !== 'number' || _.quantity < 0; 
 
       });
 
-      invalid = inventory.some( _ => _.nameInvalid || _.quantityInvalid );
+      invalid = data.inventory.some( _ => _.nameInvalid || _.quantityInvalid );
 
     }
 
     return invalid;
   };
 
-  const getData = () => ({
-    inventory,
-    notes
-  });
+  const getData = () => data;
 
   return {
-    inventory,
-    notes,
+    data,
     clear,
     set,
     addInventory,
@@ -98,14 +104,25 @@ angular.module('myApp').controller('ManualInventoryCtrl', [ 'LoggedInUser', 'Man
   function( LoggedInUser, ManualInventorySvc, NewManualInventorySvc, sessionTimeout ) {
     sessionTimeout.timeoutExpired();
 
+    const TODAY = moment().format('YYYY-MM-DD');
+
     const vm = this;
     vm.showCreateInventoryControls = LoggedInUser.hasPermission('CREATE_MANUAL_INVENTORY');
     vm.newInventory = NewManualInventorySvc;
+    vm.newInventoryMaxReportDate = TODAY;
     vm.submitNewInventory = submitNewInventory;
     vm.startEditManualInventory = startEditManualInventory;
     vm.cancelEditManualInventory = cancelEditManualInventory;
     vm.deleteManualInventory = deleteManualInventory;
+    vm.search = search;
     
+    vm.searchInputs = {
+      // startDate: moment().startOf('day').toDate(),
+      endDate: moment().endOf('day').toDate(),
+      minDate: moment('2021-01-01').format('YYYY-MM-DD'),
+      maxDate: TODAY,
+    };
+
     function submitNewInventory() {
 
       if( NewManualInventorySvc.isInvalid() ) {
@@ -150,8 +167,8 @@ angular.module('myApp').controller('ManualInventoryCtrl', [ 'LoggedInUser', 'Man
       return ManualInventorySvc.delete( inventory._id ).then( _ => refresh() );
     }
 
-    function refreshManualInventoryList() {
-      return ManualInventorySvc.list().then( resp => {
+    function refreshManualInventoryList( options = {} ) {
+      return ManualInventorySvc.list( options ).then( resp => {
 
         resp.manualInventory.forEach( _ => _.reportDate = new Date( _.reportDate ) );
 
@@ -163,9 +180,29 @@ angular.module('myApp').controller('ManualInventoryCtrl', [ 'LoggedInUser', 'Man
       refreshManualInventoryList();
     }
 
+    function search() {
+
+      const qp = {};
+
+      if( vm.searchInputs.startDate ) {
+
+        qp.start_date = moment( vm.searchInputs.startDate ).format('YYYY-MM-DD');
+
+      }
+
+      if( vm.searchInputs.endDate ) {
+
+        qp.end_date = moment( vm.searchInputs.endDate ).format('YYYY-MM-DD');
+
+      }
+
+      refreshManualInventoryList( qp );
+
+    }
+
     //TODO: clear newInventory button
     const init = () => {
-      refresh();
+      refreshManualInventoryList();
     };
 
     // Initialize the page

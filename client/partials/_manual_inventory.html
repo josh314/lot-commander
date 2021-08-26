@@ -1,6 +1,7 @@
 <div class="container" ng-controller="ManualInventoryCtrl as ctrl">
 	<h3>Manual Inventory</h3>
 
+  <!-- UI: Submit new inventory -->
   <div class="row">
     <div ng-show="ctrl.showCreateInventoryControls">
       <fieldset class="col-xs-12 box-border">
@@ -16,26 +17,60 @@
           </span>
         </div>
 
-        <table class="table table-striped" ng-hide="ctrl.newInventory.isEmpty()">
-          <thead><tr>
-            <th>Type</th>
-            <th>Quantity</th>
-            <th></th>
-          </tr></thead>
-          <tbody>	
-            <tr ng-repeat="entry in ctrl.newInventory.inventory">
-              <td><input ng-model="entry.name"></td>
-              <td><input type="number" ng-model="entry.quantity"></td>
-              <td><button class="btn btn-xs btn-danger" ng-click="ctrl.newInventory.removeInventory($index)">Remove</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div ng-hide="ctrl.newInventory.isEmpty()">
+
+          <div class="form-group">
+            <label for="reportDateInput">Report Date</label>
+            <input type="date" class="form-control" id="reportDateInput" ng-model="ctrl.newInventory.data.reportDate" max="{{ ctrl.newInventoryMaxReportDate }}"/>
+          </div>
+
+          <table class="table table-striped">
+            <thead><tr>
+              <th>Type</th>
+              <th>Quantity</th>
+              <th></th>
+            </tr></thead>
+            <tbody>
+              <tr ng-repeat="entry in ctrl.newInventory.data.inventory">
+                <td><input ng-model="entry.name"></td>
+                <td><input type="number" ng-model="entry.quantity"></td>
+                <td><button class="btn btn-xs btn-danger" ng-click="ctrl.newInventory.removeInventory($index)">Remove</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
 
       </fieldset>
     </div>
   </div>
   
+  <!-- UI: Search manual inventory -->
+  <div class="row">
+    <div>
+      <fieldset class="col-xs-12 box-border">
+        <legend class="box-border">Search Inventory Reports</legend>
+
+        <div style="display: flex;">
+
+          <div class="form-group">
+            <label for="startDateSearchInput">Start Date</label>
+            <input type="date" class="form-control" id="startDateSearchInput" ng-model="ctrl.searchInputs.startDate" min="{{ ctrl.searchInputs.minDate }}"/>
+          </div>
+
+          <div class="form-group">
+            <label for="endDateSearchInput">End Date</label>
+            <input type="date" class="form-control" id="endDateSearchInput" ng-model="ctrl.searchInputs.endDate" min="{{ ctrl.searchInputs.minDate }}"/>
+          </div>
+
+        </div>
+
+        <button class="btn btn-success" ng-click="ctrl.search()">Search</button>
+      </fieldset>
+    </div>
+  </div>
+
   <div class="row well">
     <h4>Recent Inventory Levels</h4>
     <div  class="panel panel-primary" ng-repeat="inventory in ctrl.manualInventoryList">
