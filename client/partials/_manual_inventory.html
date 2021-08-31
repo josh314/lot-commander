@@ -19,11 +19,6 @@
 
         <div ng-hide="ctrl.newInventory.isEmpty()">
 
-          <div class="form-group">
-            <label for="reportDateInput">Report Date</label>
-            <input type="date" class="form-control" id="reportDateInput" ng-model="ctrl.newInventory.data.reportDate" max="{{ ctrl.newInventoryMaxReportDate }}"/>
-          </div>
-
           <table class="table table-striped">
             <thead><tr>
               <th>Type</th>
@@ -39,6 +34,18 @@
               </tr>
             </tbody>
           </table>
+
+          <div class="form-group">
+            <label for="reportDateInput">Report Date</label>
+            <input type="date" class="form-control" id="reportDateInput" ng-model="ctrl.newInventory.data.reportDate" max="{{ ctrl.newInventoryMaxReportDate }}"/>
+          </div>
+
+          <div class="form-group">
+            <label>Groups</label>
+            <input ng-model="ctrl.groupToAdd" ng-keyup="$event.keyCode == 13 && ctrl.addGroup()">
+            <button ng-click="ctrl.addGroup()">Add group</button>
+            <span ng-repeat="grp in ctrl.newInventory.data.groups" class="label label-default">{{ grp }}<span class="glyphicon glyphicon-remove" ng-click="ctrl.removeGroup( grp )"></span></span>
+          </div>
 
         </div>
 
@@ -64,6 +71,14 @@
             <input type="date" class="form-control" id="endDateSearchInput" ng-model="ctrl.searchInputs.endDate" min="{{ ctrl.searchInputs.minDate }}"/>
           </div>
 
+        </div>
+
+
+        <div class="form-group">
+          <label>Groups</label>
+          <input ng-model="ctrl.searchInputs.groupToAdd">
+          <button ng-click="ctrl.searchInputs.addGroup()">Add group to search</button>
+          <span ng-repeat="grp in ctrl.searchInputs.groups" class="label label-default">{{ grp }}<span class="glyphicon glyphicon-remove" ng-click="ctrl.searchInputs.removeGroup( grp )"></span></span>
         </div>
 
         <button class="btn btn-success" ng-click="ctrl.search()">Search</button>
@@ -103,11 +118,15 @@
           </tbody>
         </table>
 
+        <div ng-show="inventory.groups.length">
+          <span ng-repeat="grp in inventory.groups" class="label label-default">{{ grp }}</span>
+        </div>
+
         <div ng-show="entry.notes">
           <p>{{ entry.notes }}</p>
         </div>
 
-        <div style="display:flex;justify-content:flex-end;" ng-if="$index==0">
+        <div style="display:flex;justify-content:flex-end;">
           <div style="margin-left: 8px;">
             <button class="btn btn-sm btn-warning" ng-click="ctrl.startEditManualInventory( inventory )">Edit</button>
           </div>

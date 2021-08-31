@@ -9,7 +9,7 @@ const { ResourceNotFoundError } = require('../errors');
  *********/
 
 
-const manualInventoryQueryFilter = ( { includeDeleted, startDate, endDate } ) => {
+const manualInventoryQueryFilter = ( { includeDeleted, startDate, endDate, groups } ) => {
   const filter = {};
 
   if( !includeDeleted ) {
@@ -27,6 +27,12 @@ const manualInventoryQueryFilter = ( { includeDeleted, startDate, endDate } ) =>
 
     filter.reportDate = filter.reportDate || {};
     filter.reportDate.$lte = endDate;
+
+  }
+
+  if( groups ) {
+
+    filter.groups = { $all: groups };
 
   }
 
@@ -63,6 +69,9 @@ const manualInventorySchema = mongoose.Schema({
     quantity: Number
   } ],
 
+  // Tags for grouping documents into sets
+  groups: [ String ],
+
   // catchall notes
   notes: String,
 
@@ -98,6 +107,19 @@ manualInventorySchema.methods.edit = function( data ) {
   Object.assign( this, data );
   return this.save();
 };
+
+manualInventorySchema.methods.addGroup = function( grp ) {
+  
+  if( ! this.groups.includes( grp ) ) {
+
+    this.groups.push( grp );
+    return this.save();
+
+  }
+
+};
+
+// TODO: delete group
 
 /************************************************
  * 

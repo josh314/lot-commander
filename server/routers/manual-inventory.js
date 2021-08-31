@@ -1,4 +1,5 @@
 const express = require('express');
+const dayjs = require('dayjs');
 
 const auth = require('../auth');
 
@@ -19,13 +20,19 @@ const listManualInventoryFilterParamsFromQueryParams = ( qp ) => {
 
   if( qp.start_date ) {
 
-    fp.startDate = new Date( qp.start_date );
+    fp.startDate = dayjs( qp.start_date ).startOf('day').toDate();
 
   }
 
   if( qp.end_date ) {
 
-    fp.endDate = new Date( qp.end_date );
+    fp.endDate = dayjs( qp.end_date ).endOf('day').toDate();
+
+  }
+
+  if( qp.groups ) {
+
+    fp.groups = qp.groups.split( ',' );
 
   }
 
