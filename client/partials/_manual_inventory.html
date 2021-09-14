@@ -40,12 +40,24 @@
             <input type="date" class="form-control" id="reportDateInput" ng-model="ctrl.newInventory.data.reportDate" max="{{ ctrl.newInventoryMaxReportDate }}"/>
           </div>
 
-          <div class="form-group">
-            <label>Groups</label>
-            <input ng-model="ctrl.groupToAdd" ng-keyup="$event.keyCode == 13 && ctrl.addGroup()">
-            <button ng-click="ctrl.addGroup()">Add group</button>
-            <span ng-repeat="grp in ctrl.newInventory.data.groups" class="label label-default">{{ grp }}<span class="glyphicon glyphicon-remove" ng-click="ctrl.removeGroup( grp )"></span></span>
-          </div>
+          <fieldset class="box-border">
+
+            <legend class="box-border"><small>Groups</small></legend>
+  
+            <div class="form-group">
+              <span ng-repeat="grp in ctrl.newInventory.data.groups" class="label label-info inventory-group-label">{{ grp }} <span class="glyphicon glyphicon-remove" ng-click="ctrl.removeGroup( grp )"></span></span>
+            </div>
+  
+            <div class="form-group">
+              <div class="input-group">
+                <span class="input-group-btn">
+                  <button ng-click="ctrl.addGroup()" class="btn btn-default" type="button">Add group</button>
+                </span>
+                <input class="form-control" ng-model="ctrl.groupToAdd" ng-keyup="$event.keyCode == 13 && ctrl.addGroup()">
+              </div><!-- /input-group -->
+            </div>
+  
+          </fieldset>
 
         </div>
 
@@ -61,7 +73,7 @@
 
         <div style="display: flex;">
 
-          <div class="form-group">
+          <div class="form-group" style="margin-right: 12px;">
             <label for="startDateSearchInput">Start Date</label>
             <input type="date" class="form-control" id="startDateSearchInput" ng-model="ctrl.searchInputs.startDate" min="{{ ctrl.searchInputs.minDate }}"/>
           </div>
@@ -73,13 +85,24 @@
 
         </div>
 
+        <fieldset class="box-border">
 
-        <div class="form-group">
-          <label>Groups</label>
-          <input ng-model="ctrl.searchInputs.groupToAdd">
-          <button ng-click="ctrl.searchInputs.addGroup()">Add group to search</button>
-          <span ng-repeat="grp in ctrl.searchInputs.groups" class="label label-default">{{ grp }}<span class="glyphicon glyphicon-remove" ng-click="ctrl.searchInputs.removeGroup( grp )"></span></span>
-        </div>
+          <legend class="box-border"><small>Groups</small></legend>
+
+          <div class="form-group">
+            <span ng-repeat="grp in ctrl.searchInputs.groups" class="label label-info inventory-group-label">{{ grp }} <span class="glyphicon glyphicon-remove" ng-click="ctrl.searchInputs.removeGroup( grp )"></span></span>
+          </div>
+
+          <div class="form-group">
+            <div class="input-group">
+              <span class="input-group-btn">
+                <button ng-click="ctrl.searchInputs.addGroup()" class="btn btn-default" type="button">Add group to search</button>
+              </span>
+              <input class="form-control" ng-model="ctrl.searchInputs.groupToAdd" ng-keyup="$event.keyCode == 13 && ctrl.searchInputs.addGroup()">
+            </div><!-- /input-group -->
+          </div>
+
+        </fieldset>
 
         <button class="btn btn-success" ng-click="ctrl.search()">Search</button>
       </fieldset>
@@ -119,7 +142,7 @@
         </table>
 
         <div ng-show="inventory.groups.length">
-          <span ng-repeat="grp in inventory.groups" class="label label-default">{{ grp }}</span>
+          <span ng-repeat="grp in inventory.groups" class="label label-info inventory-group-label">{{ grp }}</span>
         </div>
 
         <div ng-show="entry.notes">
