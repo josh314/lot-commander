@@ -1,5 +1,7 @@
 import angular from 'angular';
 
+import dayjs from 'dayjs';
+
 import * as api from '../api';
 
 
@@ -31,26 +33,63 @@ angular.module('myApp').factory('ManualInventorySvc', [ '$q', 'NewManualInventor
 
 }]);
 
+
+/******************* New Manual Inventory Service *************************/
 angular.module('myApp').factory('NewManualInventorySvc', [ function(){
-  const inventory = [];
-  let notes = '';
+
+  const data = {
+    reportDate: new Date(),
+    inventory: [],
+    groups: [],
+    notes: '',
+  };
 
   const clear = () => {
-    inventory.splice( 0, inventory.length );
-    notes = '';
+    data.inventory.splice( 0, data.inventory.length );
+    data.groups.splice( 0, data.groups.length );
+    data.notes = '';
+    data.reportDate = new Date();
   };
 
   const set = _inventory => {
     clear();
-    inventory.splice( 0, 0, ...JSON.parse( JSON.stringify(_inventory.inventory) ) );
-    notes = _inventory.notes;
+    data.inventory.splice( 0, 0, ...JSON.parse( JSON.stringify(_inventory.inventory) ) );
+    data.groups.splice( 0, 0, ...JSON.parse( JSON.stringify(_inventory.groups) ) );
+    data.notes = _inventory.notes;
+    data.reportDate = _inventory.reportDate;
   };
 
-  const addInventory = () => inventory.push({ name: '', quantity: '' });
+  const addInventory = () => data.inventory.push({ name: '', quantity: '' });
 
-  const removeInventory = idx => inventory.splice( idx, 1 );
+  const removeInventory = idx => data.inventory.splice( idx, 1 );
 
-  const isEmpty = () => !inventory.length;
+  const addGroup = grp => {
+
+    if( !grp || data.groups.includes( grp ) ) {
+      return;
+    }
+
+    data.groups.push( grp );
+
+  };
+
+  const removeGroup = grp => {
+
+    if( !grp ) {
+      return;
+    }
+
+    const foundIdx = data.groups.findIndex( _ => _ === grp );
+
+    if( foundIdx >= 0 ) {
+
+      data.groups.splice( foundIdx, 1 );
+
+    }
+
+  };
+
+  const isEmpty = () => !data.inventory.length;
 
   const isInvalid = () => {
     let invalid = false;
@@ -60,32 +99,30 @@ angular.module('myApp').factory('NewManualInventorySvc', [ function(){
     }
     else {
 
-      inventory.forEach( _ => { 
+      data.inventory.forEach( _ => { 
         
         _.nameInvalid = !_.name;
         _.quantityInvalid = typeof _.quantity !== 'number' || _.quantity < 0; 
 
       });
 
-      invalid = inventory.some( _ => _.nameInvalid || _.quantityInvalid );
+      invalid = data.inventory.some( _ => _.nameInvalid || _.quantityInvalid );
 
     }
 
     return invalid;
   };
 
-  const getData = () => ({
-    inventory,
-    notes
-  });
+  const getData = () => data;
 
   return {
-    inventory,
-    notes,
+    data,
     clear,
     set,
     addInventory,
     removeInventory,
+    addGroup,
+    removeGroup,
     isInvalid,
     isEmpty,
     getData
@@ -94,18 +131,76 @@ angular.module('myApp').factory('NewManualInventorySvc', [ function(){
 }]);
 
 /******************* Manual Inventory Controller *************************/
-angular.module('myApp').controller('ManualInventoryCtrl', [ 'LoggedInUser', 'ManualInventorySvc', 'NewManualInventorySvc', 'sessionTimeout', 
-  function( LoggedInUser, ManualInventorySvc, NewManualInventorySvc, sessionTimeout ) {
+angular.module('myApp').controller('ManualInventoryCtrl', [ '$anchorScroll', 'LoggedInUser', 'ManualInventorySvc', 'NewManualInventorySvc', 'sessionTimeout', 
+  function( $anchorScroll, LoggedInUser, ManualInventorySvc, NewManualInventorySvc, sessionTimeout ) {
     sessionTimeout.timeoutExpired();
+
+    const TODAY = dayjs().format('YYYY-MM-DD');
 
     const vm = this;
     vm.showCreateInventoryControls = LoggedInUser.hasPermission('CREATE_MANUAL_INVENTORY');
     vm.newInventory = NewManualInventorySvc;
+    vm.newInventoryMaxReportDate = TODAY;
+    vm.addGroup = addGroup;
+    vm.removeGroup = removeGroup;
     vm.submitNewInventory = submitNewInventory;
     vm.startEditManualInventory = startEditManualInventory;
     vm.cancelEditManualInventory = cancelEditManualInventory;
     vm.deleteManualInventory = deleteManualInventory;
+    vm.search = search;
     
+    vm.searchInputs = {
+
+      // startDate: dayjs().startOf('day').toDate(),
+      endDate: dayjs().endOf('day').toDate(),
+      minDate: dayjs('2021-01-01').format('YYYY-MM-DD'),
+      maxDate: TODAY,
+
+      groups: [],
+      groupToAdd: '',
+      // Turn off the rule or eslint will complain about the usage of `this`
+      /* eslint-disable angular/controller-as-vm */
+      addGroup: function() {
+
+        if( !this.groupToAdd || this.groups.includes( this.groupToAdd ) ) {
+          return;
+        }
+
+        this.groups.push( this.groupToAdd );
+        this.groupToAdd = '';
+
+      },
+      removeGroup: function( grp ) {
+
+        if( !grp ) {
+          return;
+        }
+    
+        const foundIdx = this.groups.findIndex( _ => _ === grp );
+    
+        if( foundIdx >= 0 ) {
+    
+          this.groups.splice( foundIdx, 1 );
+    
+        }
+      },
+      /* eslint-enable */
+
+    };
+
+    function addGroup() {
+
+      NewManualInventorySvc.addGroup( vm.groupToAdd );
+      vm.groupToAdd = '';
+
+    }
+
+    function removeGroup( grp ) {
+
+      NewManualInventorySvc.removeGroup( grp );
+
+    }
+
     function submitNewInventory() {
 
       if( NewManualInventorySvc.isInvalid() ) {
@@ -131,6 +226,10 @@ angular.module('myApp').controller('ManualInventoryCtrl', [ 'LoggedInUser', 'Man
 
     }
 
+    // TODO!!!!!!!!!!!! Re-evaluate editting functionality. 
+    // - Are new fields editable?
+    // - append-only actions in DB
+
     function startEditManualInventory( inventory ) {
 
       NewManualInventorySvc.clear( );
@@ -138,6 +237,9 @@ angular.module('myApp').controller('ManualInventoryCtrl', [ 'LoggedInUser', 'Man
       NewManualInventorySvc.set( inventory );
 
       vm.editingInventoryId = inventory._id;
+
+      // scroll to the top of page to show input form
+      $anchorScroll();
 
     }
 
@@ -150,10 +252,10 @@ angular.module('myApp').controller('ManualInventoryCtrl', [ 'LoggedInUser', 'Man
       return ManualInventorySvc.delete( inventory._id ).then( _ => refresh() );
     }
 
-    function refreshManualInventoryList() {
-      return ManualInventorySvc.list().then( resp => {
+    function refreshManualInventoryList( options = {} ) {
+      return ManualInventorySvc.list( options ).then( resp => {
 
-        resp.manualInventory.forEach( _ => _.createdAt = new Date( _.createdAt ) );
+        resp.manualInventory.forEach( _ => _.reportDate = new Date( _.reportDate ) );
 
         vm.manualInventoryList = resp.manualInventory;
       });
@@ -163,9 +265,35 @@ angular.module('myApp').controller('ManualInventoryCtrl', [ 'LoggedInUser', 'Man
       refreshManualInventoryList();
     }
 
+    function search() {
+
+      const qp = {};
+
+      if( vm.searchInputs.startDate ) {
+
+        qp.start_date = dayjs( vm.searchInputs.startDate ).format('YYYY-MM-DD');
+
+      }
+
+      if( vm.searchInputs.endDate ) {
+
+        qp.end_date = dayjs( vm.searchInputs.endDate ).format('YYYY-MM-DD');
+
+      }
+
+      if( vm.searchInputs.groups.length ) {
+
+        qp.groups = vm.searchInputs.groups.join(',');
+
+      }
+
+      refreshManualInventoryList( qp );
+
+    }
+
     //TODO: clear newInventory button
     const init = () => {
-      refresh();
+      refreshManualInventoryList();
     };
 
     // Initialize the page

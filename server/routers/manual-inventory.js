@@ -1,4 +1,5 @@
 const express = require('express');
+const dayjs = require('dayjs');
 
 const auth = require('../auth');
 
@@ -16,6 +17,24 @@ const listManualInventoryFilterParamsFromQueryParams = ( qp ) => {
   const fp = {};
 
   fp.includeDeleted = !!qp.include_deleted;
+
+  if( qp.start_date ) {
+
+    fp.startDate = dayjs( qp.start_date ).startOf('day').toDate();
+
+  }
+
+  if( qp.end_date ) {
+
+    fp.endDate = dayjs( qp.end_date ).endOf('day').toDate();
+
+  }
+
+  if( qp.groups ) {
+
+    fp.groups = qp.groups.split( ',' );
+
+  }
 
   return fp;
 };
@@ -103,7 +122,7 @@ function routes({ manualInventoryDb }) {
       num: numPage,
 
       // sorting
-      sort: req.query.sort || "createdAt",
+      sort: req.query.sort || "reportDate",
       sortDir: parseInt(req.query.sort_dir) || -1,
 
       // filters
