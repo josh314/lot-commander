@@ -112,6 +112,10 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', 
         console.log('Modal dismissed at: ' + new Date());
       });
     };
+
+    vm.splitActiveSheetByColumn = function( column ) {
+      vm.manifest.splitActiveSheetByColumn( column );
+    };
   }
 ]);
 

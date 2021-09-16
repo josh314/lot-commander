@@ -65,4 +65,21 @@ export class Manifest {
       this.activeSheet = this.sheets[0];
     }
   }
+
+  splitActiveSheetByColumn( column ) {
+
+    const sheet = this.getActiveSheet();
+
+    const newSheets = sheet.splitByColumn( column );
+
+    for( const s of newSheets ) {
+      this.addSheet( s );
+    }
+    this.setActiveSheet( newSheets[0].name );
+
+
+    this.deleteSheet( sheet );
+
+  }
+
 }

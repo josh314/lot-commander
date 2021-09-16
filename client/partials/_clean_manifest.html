@@ -55,6 +55,9 @@
             <div class="text-center" style="margin-bottom: 3px;" ng-show="column.isStandardColumn()">
               <button class="btn btn-xs btn-primary" ng-click="cleaner.manifest.setStandardColumnAllSheets(column.name, column.displayName)">Use for all sheets</button>
             </div>
+            <div class="text-center" style="margin-bottom: 3px;">
+              <button class="btn btn-xs btn-primary" ng-click="cleaner.splitActiveSheetByColumn( column.name )">Split &amp; group by</button>
+            </div>
             <select ng-model="column.displayName" ng-change="sheet.updateColumnTitleOptions()">
               <option >{{ column.name }}</option>
               <option ng-repeat="opt in column.nameOptions">{{ opt }}</option>

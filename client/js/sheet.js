@@ -3,12 +3,13 @@ import * as xlsx from 'xlsx';
 import * as libBarcodes from 'barcodes';
 
 export class Sheet {
-  constructor(opts) {
+  constructor( { manifest, name, standardBarcodeColumnName, standardColumnNames, skipFirstRows, noHeaderRow, data, rows, selectedColumns, standardColumns } ) {
 
-    this.manifest = opts.manifest;
-    this.name = opts.name;
-    this.__STANDARD_BARCODE_COLUMN__ = opts.standardBarcodeColumnName;
-    this.__STANDARD_COLUMNS__ = opts.standardColumnNames;
+    this.manifest = manifest;
+    this.name = name;
+    this.rawData = data;
+    this.__STANDARD_BARCODE_COLUMN__ = standardBarcodeColumnName;
+    this.__STANDARD_COLUMNS__ = standardColumnNames;
 
     this.getBarcodeColumn = function() {
       return this.columns.find( column => column.isBarcodeColumn() );
@@ -17,13 +18,29 @@ export class Sheet {
     const sheetParseOpts = {
       blankRows: true,
       defVal: '',
-      range: opts.skipFirstRows || 0,
+      range: skipFirstRows || 0,
     };
-    if(opts.noHeaderRow) {
+    if( noHeaderRow ) {
       sheetParseOpts.header = "A";
     }
 
-    this.rows = xlsx.utils.sheet_to_json(opts.data, sheetParseOpts).map( ( r, idx ) => {
+    if( rows ) {
+
+      this.rows = rows;
+
+    }
+    else if ( this.rawData ) {
+
+      this.rows = xlsx.utils.sheet_to_json( this.rawData, sheetParseOpts );
+
+    }
+    else {
+
+      throw new Error('Sheet requires `data` or `rows` field.');
+
+    }
+
+    this.rows = this.rows.map( ( r, idx ) => {
       r.idx = idx;
       return r;
     });
@@ -61,6 +78,9 @@ export class Sheet {
               this.selected = !this.selected;
             }
           },
+          toggleStandard: function() {
+            this.standard = !this.standard;
+          },
         };
       });
 
@@ -79,6 +99,26 @@ export class Sheet {
     }
 
     this.updateColumnTitleOptions();
+
+    if( standardColumns ) {
+
+      for( let [ columnName, standardColumnName ] of standardColumns ) {
+
+        this.setStandardColumn( columnName, standardColumnName );
+
+      }
+
+    }
+
+    if( selectedColumns ) {
+
+      for( let columnName of selectedColumns ) {
+
+        this.selectColumnByName( columnName );
+
+      }
+
+    }
   }
 
   updateColumnTitleOptions() {
@@ -110,6 +150,16 @@ export class Sheet {
     if( column ) {
       column.displayName = standardColumnName;
     }
+  }
+
+  selectColumnByName( columnName ) {
+
+    const column = this.columns.find( c => c.name === columnName );
+
+    if( column && !column.isSelected() ) {
+      column.toggleSelect();
+    }
+
   }
 
   getCellClass(row, column) {
@@ -225,4 +275,60 @@ export class Sheet {
     const hack = this.upcColumnHack.bind(this);
     return this.rows.map( filter ).map( hack );
   }
+
+  splitByColumn( column ) {
+
+    const commonOpts = {
+      manifest: this.manifest,
+      standardBarcodeColumnName: this.__STANDARD_BARCODE_COLUMN__,
+      standardColumnNames: this.__STANDARD_COLUMNS__,
+      skipFirstRows: false,
+      noHeaderRow: false,
+    };
+
+    const groups = {};
+
+    for( let r of this.rows ) {
+
+      const groupId = r[ column ];
+
+      if( groups[ groupId ] ) {
+
+        groups[ groupId ].push( r );
+
+      }
+      else {
+
+        groups[ groupId ] = [ r ];
+
+      }
+
+      delete r[ column ];
+
+    }
+
+    const newSheets = [];
+    for( let [ groupId, group ] of Object.entries( groups ) ) {
+
+      const opts = Object.assign(
+        commonOpts,
+        {
+          name: `${this.name} - ${column} - ${groupId}`,
+          rows: group,
+          selectedColumns: this.columns.filter( c => c.isSelected() ).map( c => c.name ),
+          standardColumns: this.columns.filter( c => c.isStandardColumn() ).map( c => [ c.name, c.displayName ] )
+        },
+      );
+
+      const s = new Sheet( opts );
+
+      newSheets.push( s );
+
+    }
+
+    return newSheets;
+
+  }
+
+
 }
