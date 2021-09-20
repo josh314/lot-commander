@@ -313,7 +313,7 @@ export class Sheet {
       const opts = Object.assign(
         commonOpts,
         {
-          name: `${this.name} - ${column} - ${groupId}`,
+          name: `${groupId}`.slice(0,31), // there's a max number of characters for a sheet name
           rows: group,
           selectedColumns: this.columns.filter( c => c.isSelected() ).map( c => c.name ),
           standardColumns: this.columns.filter( c => c.isStandardColumn() ).map( c => [ c.name, c.displayName ] )
