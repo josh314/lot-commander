@@ -1,7 +1,14 @@
-import querystring from 'querystring';
+import qs from 'querystring';
 import axios from 'axios';
 
-export function getLotByHandle(handle) {
+
+/*************************************************
+* Lot-db and Manifest-db
+* ======================
+*
+************/
+
+export function getLotByHandle( handle ) {
 
   return axios({
     method: 'post',
@@ -11,6 +18,57 @@ export function getLotByHandle(handle) {
     .then(resp=>{
       const lot = resp.data;
       return lot;
+    });
+
+}
+
+export function getLot( lotId ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/db/get/${ lotId }`
+  })
+    .then(resp=>{
+      const lot = resp.data;
+      return lot;
+    });
+
+}
+
+export function getManifest( manifestId ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/db/manifest/${ manifestId }`
+  })
+    .then(resp=>{
+      return resp.data.manifest;
+    });
+
+}
+
+export function import3rdPartyManifestBlock( { lot, blockId } ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/db/import-3p-manifest-block`,
+    data: { lot, blockId }
+  })
+    .then(resp=>{
+      return resp.data;
+    });
+
+}
+
+export function deleteLot( lotId ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/db/delete-lot`,
+    data: { lotId }
+  })
+    .then(resp=>{
+      return resp.data;
     });
 
 }
@@ -28,7 +86,7 @@ export function listManifests( isPublic = false ) {
     prefix: isPublic ? 'public' : 'private'
   };
 
-  const uri = `/api/manifests/?${querystring.stringify(qp)}`;
+  const uri = `/api/manifests/?${qs.stringify(qp)}`;
 
   return axios.get(uri).then( resp => {
     const manifests = resp.data.manifests;
@@ -36,7 +94,7 @@ export function listManifests( isPublic = false ) {
   });
 }
 
-export function getManifest( fileName, isPrivate = false ) {
+export function getManifestFile( fileName, isPrivate = false ) {
 
   const uri = `/api/manifests/${ isPrivate ? 'private' : 'public' }/${encodeURIComponent(fileName)}`;
 
@@ -95,7 +153,7 @@ export function unitsSoldReport( { startDate, endDate, tag, binSize } ) {
     qp.bin_size = binSize;
   }
 
-  const uri = `/api/reports/units-sold?${querystring.stringify(qp)}`;
+  const uri = `/api/reports/units-sold?${qs.stringify(qp)}`;
 
   return axios.get(uri).then( resp => resp.data );
 }
@@ -116,7 +174,7 @@ export function palletsSoldReport( { startDate, endDate, tag, binSize } ) {
     qp.bin_size = binSize;
   }
 
-  const uri = `/api/reports/pallets-sold?${querystring.stringify(qp)}`;
+  const uri = `/api/reports/pallets-sold?${qs.stringify(qp)}`;
 
   return axios.get(uri).then( resp => resp.data );
 }
@@ -139,7 +197,7 @@ export function createNewUser( newUserData ) {
 }
 
 export function countUsers( queryParams ) {
-  const uri = `/api/users/count/?${ queryParams ? querystring.stringify( queryParams ) : ''}`;
+  const uri = `/api/users/count/?${ queryParams ? qs.stringify( queryParams ) : ''}`;
 
   return axios({
     method: 'get',
@@ -150,7 +208,7 @@ export function countUsers( queryParams ) {
 }
 
 export function listUsers( queryParams ) {
-  const uri = `/api/users/?${ queryParams ? querystring.stringify( queryParams ) : ''}`;
+  const uri = `/api/users/?${ queryParams ? qs.stringify( queryParams ) : ''}`;
 
   return axios({
     method: 'get',
@@ -192,14 +250,14 @@ export function editUserDisabledStatus( userId, _isDisabled ) {
 export function listIncomingShipments( qp ) {
   return axios({
     method: 'get',
-    url: `/api/receiving/?${querystring.stringify(qp)}`,
+    url: `/api/receiving/?${qs.stringify(qp)}`,
   })
     .then( resp => resp.data );
 }
 export function countIncomingShipments( qp ) {
   return axios({
     method: 'get',
-    url: `/api/receiving/count/?${querystring.stringify(qp)}`,
+    url: `/api/receiving/count/?${qs.stringify(qp)}`,
   })
     .then( resp => resp.data );
 }
@@ -436,7 +494,7 @@ export function listManualInventory( qp ) {
 
   return axios({
     method: 'get',
-    url: `/api/manual-inventory/?${querystring.stringify(queryParams)}`
+    url: `/api/manual-inventory/?${qs.stringify(queryParams)}`
   })
     .then( resp => resp.data );
 }
@@ -445,7 +503,7 @@ export function countManualInventory( qp ) {
 
   return axios({
     method: 'get',
-    url: `/api/manual-inventory/count?${querystring.stringify(qp)}`
+    url: `/api/manual-inventory/count?${qs.stringify(qp)}`
   })
     .then( resp => resp.data );
 }
@@ -458,7 +516,7 @@ export function getManualInventory( inventoryId, qp ) {
 
   return axios({
     method: 'get',
-    url: `/api/manual-inventory/${inventoryId}?${querystring.stringify(queryParams)}`
+    url: `/api/manual-inventory/${inventoryId}?${qs.stringify(queryParams)}`
   })
     .then( resp => resp.data );
 }

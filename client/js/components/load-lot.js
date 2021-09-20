@@ -1,21 +1,34 @@
 import angular from 'angular';
 
+import * as api from '../api';
+
 /****************** Load lot *****************************/
 // Service for loading lot data into the client from the remote DB
-angular.module('myApp').service('loadLot', ['$http', '$stateParams', 'lotStore',
-  function($http, $stateParams, lotStore){
+angular.module('myApp').service( 'loadLot', [ '$q', '$stateParams', 'lotStore',
+
+  function( $q, $stateParams, lotStore ){
 
     return function() {
-      return $http.get(`/api/db/get/${$stateParams.lotId}`).then(async (resp)=>{
-        const lot = resp.data;
+      return $q.when( api.getLot( $stateParams.lotId ) ).then( lot =>{
+
         lotStore.save(lot);
+
+        let manP;
         if(lot.manifestId) {
-          await $http.get(`/api/db/manifest/${lot.manifestId}`).then(resp=>{
-            lotStore.setInventory(resp.data.manifest.inventory);
+
+          manP = $q.when( api.getManifest( lot.manifestId) ).then( manifest => {
+            lotStore.setInventory( manifest.inventory );
           });
+
         }
-        return lot;
+        else {
+          manP = $q.when( null );
+        }
+
+        return manP.then( _ => lot );
       });
     };
+
   }
+
 ]);

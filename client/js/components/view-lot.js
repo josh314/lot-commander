@@ -3,8 +3,8 @@ import angular from 'angular';
 import * as api from '../api';
 
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$state', '$stateParams', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'lotStore', 'messageModal', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal', 'LoggedInUser',
-  function($http, $q, $scope, $state, $stateParams, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, lotStore, messageModal, PrintSvc, saveLot, sessionTimeout, shippingItemsModal, LoggedInUser) {
+angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'loadLot', 'lotStore', 'messageModal', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal', 'LoggedInUser',
+  function( $q, $scope, $state, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, loadLot, lotStore, messageModal, PrintSvc, saveLot, sessionTimeout, shippingItemsModal, LoggedInUser) {
     sessionTimeout.timeoutExpired();
 
     $scope.showCreateListingButton = LoggedInUser.hasPermission('SUBMIT_AUCTION') || LoggedInUser.hasPermission('SUBMIT_SHOPIFY_LISTING');
@@ -26,23 +26,6 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$st
         ImageSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
       }
     };
-
-    function getLot() {
-      return $http.get('/api/db/get/' + $stateParams.lotId).then(async (resp)=>{
-        const lot = resp.data;
-        lotStore.save(lot);
-        $scope.images = lot.images;
-        if(lot.manifestId) {
-          await $http.get('/api/db/manifest/'+lot.manifestId).then(resp=>{
-            lotStore.setInventory(resp.data.manifest.inventory);
-          });
-        }
-        $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title);
-      });
-    }
-    getLot().then(_=>{
-      initializeAllThumbnailImages(_);
-    });
 
     $scope.getImageLink = function(image) {
       return image.s3 ? `/api/image/?s3=${encodeURIComponent(image.s3)}` : image.filename;
@@ -120,26 +103,34 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$st
     };
 
     $scope.scanItems = function() {
+      let manP;
       if(lotStore.manifestId) {
-        $http.get('/api/db/manifest/'+lotStore.manifestId).then(resp=>{
-          lotStore.setInventory(resp.data.manifest.inventory);
+        manP = $q.when( api.getManifest( lotStore.manifestId ) ).then( manifest =>{
+          lotStore.setInventory( manifest.inventory );
         });
       }
-      $state.go('main.lots.scan');
+      else {
+        manP = $q.when( null );
+      }
+      manP.then( _ => $state.go('main.lots.scan') );
     };
 
     $scope.editManifest = function() {
+      let manP;
       if(lotStore.manifestId) {
-        $http.get('/api/db/manifest/'+lotStore.manifestId).then(resp=>{
-          lotStore.setInventory(resp.data.manifest.inventory);
+        manP = $q.when( api.getManifest( lotStore.manifestId ) ).then( manifest =>{
+          lotStore.setInventory( manifest.inventory );
         });
       }
-      $state.go('main.lots.edit-manifest');
+      else {
+        manP = $q.when( null );
+      }
+      manP.then( _ => $state.go('main.lots.edit-manifest') );
     };
 
     $scope.linkManifestBlock = function() {
       $scope.waitingForResponse = true;
-      $http.post('/api/db/import-3p-manifest-block', { lot: lotStore, blockId: $scope.searchBlockId}).then(resp=>{
+      $q.when( api.import3rdPartyManifestBlock({ lot: lotStore, blockId: $scope.searchBlockId}) ).then(resp=>{
         if(resp.data.error) {
           messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
         }
@@ -196,7 +187,7 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$st
       });
 
       modalInstance.result.then(function () {
-        $http.post('/api/db/delete-lot/', {lotId: lotId});
+        api.deleteLot( lotId );
         $state.go('main.lots.list');
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
@@ -307,6 +298,19 @@ angular.module('myApp').controller('ViewLotCtrl', ['$http', '$q', '$scope', '$st
       });
 
     }
+
+    function init() {
+
+      loadLot()
+        .then( lot =>{
+          $scope.images = lot.images;
+          initializeAllThumbnailImages( lot );
+        })
+        .then( _ => $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title) );
+
+    }
+
+    init();
 
   }]
 );
