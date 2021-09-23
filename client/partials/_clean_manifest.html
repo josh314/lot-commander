@@ -48,9 +48,13 @@
     <div class="manifest-table-container col-xs-12 well" ng-repeat="sheet in cleaner.manifest.sheets" ng-show="cleaner.getActiveSheet() == sheet" >
       <table class="table table-striped table-bordered">
         <thead>
-          <th ng-repeat="column in sheet.columns">
+          <th>#</th>
+          <th ng-repeat="column in sheet.columns" ng-if="column.name!=='idx'">
             <div class="text-center" style="margin-bottom: 3px;" ng-show="column.isBarcodeColumn()">
               <button class="btn btn-xs btn-primary" ng-click="cleaner.getActiveSheet().addCheckDigits()">Add check digits</button>
+            </div>
+            <div class="text-center" style="margin-bottom: 3px;" ng-show="column.isBarcodeColumn()">
+              <button class="btn btn-xs btn-primary" ng-click="cleaner.getActiveSheet().prependUpcZeros()">Prepend zeros</button>
             </div>
             <div class="text-center" style="margin-bottom: 3px;" ng-show="column.isStandardColumn()">
               <button class="btn btn-xs btn-primary" ng-click="cleaner.manifest.setStandardColumnAllSheets(column.name, column.displayName)">Use for all sheets</button>
@@ -66,10 +70,41 @@
         </thead>
         <tbody>
           <tr ng-repeat="row in sheet.rows | limitTo: 50 track by row.idx">
-            <td ng-repeat="column in sheet.columns" ng-if="column.name!=='idx'" ng-class="sheet.getCellClass(row, column)" ng-click="column.toggleSelect()">{{ row[column.name] }}</td>
+            <td>{{ row.idx }}</td>
+            <td ng-repeat="column in sheet.columns" ng-if="column.name!=='idx'" ng-class="sheet.getCellClass(row, column)" ng-click="column.toggleSelect()">
+              <p>{{ row[column.name] }}</p>
+              <p style="font-size: 10px;" ng-show="column.isBarcodeColumn()">
+                <span class="glyphicon glyphicon-remove" ng-hide="sheet.cellUpcCheckDigitValid( row, column )"></span>
+                <span class="glyphicon glyphicon-ok" ng-show="sheet.cellUpcCheckDigitValid( row, column )"></span>
+                Check digit
+              </p>
+              <p style="font-size: 10px;" ng-show="column.isBarcodeColumn()">
+                <span class="glyphicon glyphicon-remove" ng-hide="sheet.cellUpcLengthValid( row, column )"></span>
+                <span class="glyphicon glyphicon-ok" ng-show="sheet.cellUpcLengthValid( row, column )"></span>
+                UPC-12 length
+              </p>
+            </td>
+          </tr>
+          <tr ng-repeat="row in sheet.rows.slice( 50 ) track by row.idx" ng-show="sheet.displayAllRows">
+            <td>{{ row.idx }}</td>
+            <td ng-repeat="column in sheet.columns" ng-if="column.name!=='idx'" ng-class="sheet.getCellClass(row, column)" ng-click="column.toggleSelect()">
+              <p>{{ row[column.name] }}</p>
+              <p style="font-size: 10px;" ng-show="column.isBarcodeColumn()">
+                <span class="glyphicon glyphicon-remove" ng-hide="sheet.cellUpcCheckDigitValid( row, column )"></span>
+                <span class="glyphicon glyphicon-ok" ng-show="sheet.cellUpcCheckDigitValid( row, column )"></span>
+                Check digit
+              </p>
+              <p style="font-size: 10px;" ng-show="column.isBarcodeColumn()">
+                <span class="glyphicon glyphicon-remove" ng-hide="sheet.cellUpcLengthValid( row, column )"></span>
+                <span class="glyphicon glyphicon-ok" ng-show="sheet.cellUpcLengthValid( row, column )"></span>
+                UPC-12 length
+              </p>
+            </td>
           </tr>
         </tbody>
       </table>
+
+      <a ng-show="(sheet.rows.length > 50) && !sheet.displayAllRows" ng-click="sheet.displayAllRows=true">Show all rows...</a>
     </div>
   </div>
 </div>

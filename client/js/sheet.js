@@ -1,6 +1,51 @@
 import * as xlsx from 'xlsx';
 
-import * as libBarcodes from 'barcodes';
+// Helpers
+
+function calculateCheckDigit(upc) {
+  upc = upc.split('').reverse().join('');
+  let total = 0;
+  for(let i=0; i<upc.length; i++) {
+    if(i % 2===0) {
+      total = total + 3*parseInt(upc[i]);
+    }
+    else {
+      total = total + parseInt(upc[i]);
+    }
+  }
+  //Check digit is the remainder after subtracting above sum from nearest (larger or equal) multiple of ten.
+  if(parseInt(total/10)===total/10) {//Total is multiple of 10
+    return 0;
+  }
+  else {
+    return (parseInt(total/10)+1)*10 -total;
+  }
+}
+
+
+// Checks if the barcode includes a check digit
+function validateCheckDigit(barcode) {
+  if( !isNumericString( barcode ) ) {
+    return false;
+  }
+  const lastIdx = barcode.length-1;
+  return calculateCheckDigit(barcode.slice(0, lastIdx))==barcode[lastIdx];// use == since we are comparing a string to a number
+}
+
+const isDigit = c => ('0123456789'.split('')).includes(c);
+const isNumericString = s => s.split('').every(isDigit);
+
+function addCheckDigit(barcode) {
+
+  // return unaltered barcode if not a numeric string
+  if( !barcode || !isNumericString( barcode ) ) {
+    return barcode;
+  }
+
+  return barcode + calculateCheckDigit(barcode);
+}
+
+// Main class
 
 export class Sheet {
   constructor( { manifest, name, standardBarcodeColumnName, standardColumnNames, skipFirstRows, noHeaderRow, data, rows, selectedColumns, standardColumns } ) {
@@ -49,7 +94,7 @@ export class Sheet {
       const columnRenameMapping = {};
       const __BARCODE_COLUMN__ = this.__STANDARD_BARCODE_COLUMN__;
 
-      this.columns = Object.entries(this.rows[0]).filter( kv => kv[0] !== 'idx' ).map( kv => {
+      this.columns = Object.entries(this.rows[0]).map( kv => {
         let [ name, _ ] = kv;
 
         // Rename column if it matches a standard column name
@@ -162,37 +207,79 @@ export class Sheet {
 
   }
 
-  getCellClass(row, column) {
+  getCellClass( _row, column ) {
     const _class = {};
     try {
       if( column.isSelected() ) {
-        if( column.isBarcodeColumn() ) {
-
-          if( row[column.name] ) {
-
-            row[column.name] = `${ row[column.name] }`; // ensure the barcode is a string
-
-            if(libBarcodes.validateCheckDigit( row[column.name] )) {
-              _class.success = true;
-            }
-            else {
-              _class.danger = true;
-            }
-
-          }
-
-        }
-        else {
-          _class.warning = true;
-        }
+        _class.warning = true;
       }
     }
     catch(e) {
       console.error(e);
-      console.log(row);
-      console.log(column);
     }
     return _class;
+  }
+
+  cellUpcCheckDigitValid( row, column ) {
+    let isValid = false;
+    try {
+
+      const barcode = `${ row[ column.name ] }`; // ensure the barcode is a string
+      
+      if( barcode && isNumericString( barcode ) && validateCheckDigit( barcode ) ) { //filter out malformed
+
+        isValid = true;
+
+      }
+
+    }
+    catch(e) {
+      console.error(e);
+    }
+    return isValid;
+  }
+
+  cellUpcLengthValid( row, column ) {
+    let isValid = false;
+    try {
+
+      const barcode = `${ row[ column.name ] }`; // ensure the barcode is a string
+      
+      if( barcode && isNumericString( barcode) && barcode.length >= 12 ) { //filter out malformed
+
+        isValid = true;
+
+      }
+
+    }
+    catch(e) {
+      console.error(e);
+    }
+    return isValid;
+  }
+
+  
+  prependUpcZeros() {
+    const barcodeColumn = this.getBarcodeColumn();
+    if(barcodeColumn) {
+      for(const r of this.rows) {
+        try {
+
+          r[barcodeColumn.name] = `${ r[barcodeColumn.name] }`; // ensure the barcode is a string
+
+          if( validateCheckDigit( r[barcodeColumn.name] ) && r[barcodeColumn.name].length < 12 ) {
+            
+            r[barcodeColumn.name] =  `${ '0'.repeat( 12 - r[barcodeColumn.name].length ) }${r[barcodeColumn.name]}`;
+
+          }
+
+        }
+        catch(e) {
+          console.log(e);
+          console.log(r);
+        }
+      }
+    }
   }
 
   addCheckDigits() {
@@ -201,9 +288,9 @@ export class Sheet {
       for(const r of this.rows) {
         try {
 
-          r[barcodeColumn.name] = `${ r[barcodeColumn.name] }`; // ensure the barcode is a string
+          r[barcodeColumn.name] = `${ r[barcodeColumn.name] || '' }`; // ensure the barcode is a string
 
-          r[barcodeColumn.name] = libBarcodes.addCheckDigit(r[barcodeColumn.name]);
+          r[barcodeColumn.name] = addCheckDigit(r[barcodeColumn.name]);
 
         }
         catch(e) {
