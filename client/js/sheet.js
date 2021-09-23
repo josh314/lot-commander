@@ -87,6 +87,7 @@ export class Sheet {
 
     this.rows = this.rows.map( ( r, idx ) => {
       r.idx = idx;
+      r.editing = new Set();
       return r;
     });
 
@@ -94,7 +95,8 @@ export class Sheet {
       const columnRenameMapping = {};
       const __BARCODE_COLUMN__ = this.__STANDARD_BARCODE_COLUMN__;
 
-      this.columns = Object.entries(this.rows[0]).map( kv => {
+      const rowMetadataFields = new Set( [ 'idx', 'editing' ] );
+      this.columns = Object.entries( this.rows[0] ).filter( _ => ! rowMetadataFields.has( _[0] ) ).map( kv => {
         let [ name, _ ] = kv;
 
         // Rename column if it matches a standard column name
@@ -207,10 +209,10 @@ export class Sheet {
 
   }
 
-  getCellClass( _row, column ) {
+  getCellClass( row, column ) {
     const _class = {};
     try {
-      if( column.isSelected() ) {
+      if( column.isSelected() && ! this.isEditing( row, column ) ) {
         _class.warning = true;
       }
     }
@@ -417,5 +419,16 @@ export class Sheet {
 
   }
 
+  isEditing( row, column ) {
+    return row.editing.has( column.name );
+  }
+
+  startCellEdit( row, column ) {
+    row.editing.add( column.name );
+  }
+
+  endCellEdit( row, column ) {
+    row.editing.delete( column.name );
+  }
 
 }
