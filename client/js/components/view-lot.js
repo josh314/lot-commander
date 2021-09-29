@@ -1,10 +1,8 @@
 import angular from 'angular';
 
-import * as api from '../api';
-
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'loadLot', 'lotStore', 'messageModal', 'navigate', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal', 'LoggedInUser',
-  function( $q, $scope, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, loadLot, lotStore, messageModal, navigate, PrintSvc, saveLot, sessionTimeout, shippingItemsModal, LoggedInUser) {
+angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'loadLot', 'LoggedInUser', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal',
+  function( $scope, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, loadLot, LoggedInUser, lotStore, LotSvc, messageModal, navigate, PrintSvc, saveLot, sessionTimeout, shippingItemsModal ) {
     sessionTimeout.timeoutExpired();
 
     $scope.showCreateListingButton = LoggedInUser.hasPermission('SUBMIT_AUCTION') || LoggedInUser.hasPermission('SUBMIT_SHOPIFY_LISTING');
@@ -104,38 +102,38 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$uibModal',
 
     $scope.scanItems = function() {
       let manP;
-      if(lotStore.manifestId) {
-        manP = $q.when( api.getManifest( lotStore.manifestId ) ).then( manifest =>{
+      if( lotStore.manifestId ) {
+        manP = LotSvc.getManifest( lotStore.manifestId ).then( manifest => {
           lotStore.setInventory( manifest.inventory );
         });
       }
-      else {
-        manP = $q.when( null );
-      }
-      manP.then( _ => navigate.scanLot() );
+
+      manP ? manP.then( _ => navigate.scanLot() ) : navigate.scanLot();
+
     };
 
     $scope.editManifest = function() {
       let manP;
       if(lotStore.manifestId) {
-        manP = $q.when( api.getManifest( lotStore.manifestId ) ).then( manifest =>{
+        manP = LotSvc.getManifest( lotStore.manifestId ).then( manifest => {
           lotStore.setInventory( manifest.inventory );
         });
       }
-      else {
-        manP = $q.when( null );
-      }
-      manP.then( _ => navigate.editLotManifest() );
+
+      manP ? manP.then( _ => navigate.editLotManifest() ) : navigate.editLotManifest();
+
     };
 
     $scope.linkManifestBlock = function() {
       $scope.waitingForResponse = true;
-      $q.when( api.import3rdPartyManifestBlock({ lot: lotStore, blockId: $scope.searchBlockId}) ).then(resp=>{
+      LotSvc.import3rdPartyManifestBlock( { lot: lotStore, blockId: $scope.searchBlockId } ).then( resp => {
+
         if(resp.data.error) {
           messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
         }
         $scope.waitingForResponse = false;
         navigate.reload();
+
       });
     };
 
@@ -187,7 +185,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$uibModal',
       });
 
       modalInstance.result.then(function () {
-        api.deleteLot( lotId );
+        LotSvc.delete( lotId );
         navigate.listLots();
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
@@ -231,9 +229,11 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$uibModal',
     };
 
     $scope.generateManifestFileForScannedInventory = function() {
-      $q.when( api.generateLotManifest( $scope.lot._id, true, false) ).then( () => {
+
+      LotSvc.generateManifest( $scope.lot._id, true, false ).then( () => {
         navigate.reload();
       });
+
     };
 
 
@@ -249,10 +249,12 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$uibModal',
       modalInstance.result.then(function ( res ) {
 
         if( res.images.length ) {
-          api.cloneImages( lotStore._id, res.images ).then(resp=>{
+
+          LotSvc.cloneImages( lotStore._id, res.images ).then( resp => {
             console.log(resp);
             navigate.reload();
           });
+
         }
 
       }, function () {
@@ -292,7 +294,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$uibModal',
         return;
       }
 
-      api.cloneImages( lotStore._id, [ url ] ).then(resp=>{
+      LotSvc.cloneImages( lotStore._id, [ url ] ).then( resp => {
         console.log(resp);
         navigate.reload();
       });

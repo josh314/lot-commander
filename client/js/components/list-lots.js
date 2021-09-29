@@ -1,10 +1,8 @@
 import angular from 'angular';
 
-import * as api from '../api';
-
 /******************* Lot List Page Controller *************************/
-angular.module('myApp').controller('ListLotsCtrl', [ '$q', '$scope', 'dbEnums', 'lotStore', 'navigate', 'saveLot', 'sessionTimeout', 
-  function( $q, $scope, dbEnums, lotStore, navigate, saveLot, sessionTimeout) {
+angular.module('myApp').controller('ListLotsCtrl', [ '$scope', 'dbEnums', 'lotStore', 'LotSvc', 'navigate', 'saveLot', 'sessionTimeout',
+  function( $scope, dbEnums, lotStore, LotSvc, navigate, saveLot, sessionTimeout ) {
     sessionTimeout.timeoutExpired();
     $scope.lots = [];
 
@@ -22,7 +20,7 @@ angular.module('myApp').controller('ListLotsCtrl', [ '$q', '$scope', 'dbEnums', 
         startDate: $scope.startDate,
       };
 
-      $q.when( api.listLots( query ) ).then( lots => {
+      LotSvc.list( query ).then( lots => {
 
         lots.forEach( lot =>{
           lot.readableUpdatedAt = (new Date(lot.updatedAt)).toLocaleString();
@@ -40,14 +38,16 @@ angular.module('myApp').controller('ListLotsCtrl', [ '$q', '$scope', 'dbEnums', 
       const targetLot = $scope.lots.find(lot => lot._id === lotId);
       if(targetLot) {
         lotStore.save(targetLot);
-        if(lotStore.manifestId) {
 
-          $q.when( api.getManifest( lotStore.manifestId ) ).then( resp => {
-            lotStore.setInventory(resp.data.manifest.inventory);
+        let manP;
+        if( lotStore.manifestId ) {
+          manP = LotSvc.getManifest( lotStore.manifestId ).then( manifest => {
+            lotStore.setInventory( manifest.inventory );
           });
-
         }
-        navigate.scanLot( lotId );
+
+        manP ? manP.then( _ => navigate.scanLot( lotId ) ) : navigate.scanLot( lotId );
+
       }
     };
 
@@ -55,14 +55,16 @@ angular.module('myApp').controller('ListLotsCtrl', [ '$q', '$scope', 'dbEnums', 
       const targetLot = $scope.lots.find(lot => lot._id === lotId);
       if(targetLot) {
         lotStore.save(targetLot);
-        if(lotStore.manifestId) {
 
-          $q.when( api.getManifest( lotStore.manifestId ) ).then( resp => {
-            lotStore.setInventory(resp.data.manifest.inventory);
+        let manP;
+        if( lotStore.manifestId ) {
+          manP = LotSvc.getManifest( lotStore.manifestId ).then( manifest => {
+            lotStore.setInventory( manifest.inventory );
           });
-
         }
-        navigate.viewLot( lotId );
+
+        manP ? manP.then( _ => navigate.viewLot( lotId ) ) : navigate.viewLot( lotId );
+
       }
     };
 
