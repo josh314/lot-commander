@@ -2,8 +2,8 @@ import angular from 'angular';
 import * as Croppie from 'croppie';
 
 /******************* Image editor controller *******************************/
-angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$state', '$uibModal', 'fileUpload', 'ImageSvc', 
-  function($document, $state, $uibModal, fileUpload, ImageSvc) {
+angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal', 'fileUpload', 'ImageSvc', 'navigate',
+  function( $document, $uibModal, fileUpload, ImageSvc, navigate) {
     const vm = this;
 
     const imgProps = {
@@ -85,7 +85,7 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$state', '
       modalInstance.result.then(async function () {
         const blob = await editor.result({type: 'blob', size: 'original', format: 'jpeg', quality: .99});
         fileUpload.uploadFileToUrl(blob, '/api/image/replace', ImageSvc.getStore());
-        $state.go('main.lots.view', { lotId: ImageSvc.parseS3Location(imageStore.s3).lotId });
+        navigate.viewLot( ImageSvc.parseS3Location(imageStore.s3).lotId );
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
       });

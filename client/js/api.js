@@ -8,6 +8,20 @@ import axios from 'axios';
 *
 ************/
 
+export function listLots( query ) {
+
+  return axios({
+    method: 'post',
+    url: '/api/db/get',
+    data: query
+  })
+    .then(resp=>{
+      const lots = resp.data;
+      return lots;
+    });
+
+}
+
 export function getLotByHandle( handle ) {
 
   return axios({
@@ -53,6 +67,19 @@ export function import3rdPartyManifestBlock( { lot, blockId } ) {
     method: 'post',
     url: `/api/db/import-3p-manifest-block`,
     data: { lot, blockId }
+  })
+    .then(resp=>{
+      return resp.data;
+    });
+
+}
+
+export function createLot( data ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/db/new-lot`,
+    data: data
   })
     .then(resp=>{
       return resp.data;

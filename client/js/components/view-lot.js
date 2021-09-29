@@ -3,8 +3,8 @@ import angular from 'angular';
 import * as api from '../api';
 
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'loadLot', 'lotStore', 'messageModal', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal', 'LoggedInUser',
-  function( $q, $scope, $state, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, loadLot, lotStore, messageModal, PrintSvc, saveLot, sessionTimeout, shippingItemsModal, LoggedInUser) {
+angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'loadLot', 'lotStore', 'messageModal', 'navigate', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal', 'LoggedInUser',
+  function( $q, $scope, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, loadLot, lotStore, messageModal, navigate, PrintSvc, saveLot, sessionTimeout, shippingItemsModal, LoggedInUser) {
     sessionTimeout.timeoutExpired();
 
     $scope.showCreateListingButton = LoggedInUser.hasPermission('SUBMIT_AUCTION') || LoggedInUser.hasPermission('SUBMIT_SHOPIFY_LISTING');
@@ -35,7 +35,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
     $scope.updatePrimaryImage = async (image) => { 
       const resp = await ImageSvc.updateLotPrimaryImage($scope.lot, image);
       if(!resp.error) {
-        $state.reload();
+        navigate.reload();
       }
       else {
         messageModal.launch({header: 'Error', body: resp.error, type: 'error'});
@@ -47,7 +47,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
         console.log(resp);
       }
       else {
-        $state.reload();
+        navigate.reload();
       }
     };
     $scope.removeImage = (image) => {
@@ -59,7 +59,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
       modalInstance.result.then(async function () {
         const resp = await ImageSvc.removeLotImage($scope.lot, image);
         if(!resp.data.error) {
-          $state.reload();
+          navigate.reload();
         }
         else {
           messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
@@ -85,7 +85,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
       modalInstance.result.then(function (lot) {
         saveLot(lot).then(resp=>{
           console.log(resp);
-          $state.reload();
+          navigate.reload();
         });
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
@@ -95,7 +95,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
     $scope.editImage = (image) => {
       if(image.s3) {
         ImageSvc.setStore(image);
-        $state.go('main.lots.image-editor');
+        navigate.imageEditor();
       }
       else {
         messageModal.launch({header: 'Error', body: 'This image cannot be edited.', type: 'error'});
@@ -112,7 +112,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
       else {
         manP = $q.when( null );
       }
-      manP.then( _ => $state.go('main.lots.scan') );
+      manP.then( _ => navigate.scanLot() );
     };
 
     $scope.editManifest = function() {
@@ -125,7 +125,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
       else {
         manP = $q.when( null );
       }
-      manP.then( _ => $state.go('main.lots.edit-manifest') );
+      manP.then( _ => navigate.editLotManifest() );
     };
 
     $scope.linkManifestBlock = function() {
@@ -135,7 +135,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
           messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
         }
         $scope.waitingForResponse = false;
-        $state.reload();
+        navigate.reload();
       });
     };
 
@@ -172,7 +172,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
 
 
       if(!missingFields.length) {
-        $state.go('main.lots.submit-listing');
+        navigate.submitListing();
       }
       else {
         const msg = `Must input the following data before submission: ${missingFields}`;
@@ -188,7 +188,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
 
       modalInstance.result.then(function () {
         api.deleteLot( lotId );
-        $state.go('main.lots.list');
+        navigate.listLots();
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
       });
@@ -199,7 +199,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
     };
 
     $scope.openGallery = function() {
-      $state.go('main.lots.gallery', { lotId: lotStore._id });
+      navigate.lotGallery( lotStore._id );
     };
 
     const editShippingItems = function() {
@@ -232,7 +232,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
 
     $scope.generateManifestFileForScannedInventory = function() {
       $q.when( api.generateLotManifest( $scope.lot._id, true, false) ).then( () => {
-        $state.reload();
+        navigate.reload();
       });
     };
 
@@ -251,7 +251,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
         if( res.images.length ) {
           api.cloneImages( lotStore._id, res.images ).then(resp=>{
             console.log(resp);
-            $state.reload();
+            navigate.reload();
           });
         }
 
@@ -294,7 +294,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$q', '$scope', '$state', '$
 
       api.cloneImages( lotStore._id, [ url ] ).then(resp=>{
         console.log(resp);
-        $state.reload();
+        navigate.reload();
       });
 
     }

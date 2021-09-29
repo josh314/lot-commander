@@ -1,10 +1,12 @@
 import angular from 'angular';
 
+import * as api from '../api';
+
 /******************* New Lot Controller *************************/
-angular.module('myApp').controller('NewLotCtrl', ['$http', '$scope', '$state', 'dbEnums', 'listingBuilder', 'lotCategories', 'lotStore', 'messageModal', 'packagingTypeInfoModal', 'sessionTimeout',
-  function($http, $scope, $state, dbEnums, listingBuilder, lotCategories, lotStore, messageModal, packagingTypeInfoModal, sessionTimeout) {
+angular.module('myApp').controller('NewLotCtrl', [  '$q', '$scope', 'dbEnums', 'listingBuilder', 'lotCategories', 'lotStore', 'messageModal', 'navigate', 'packagingTypeInfoModal', 'sessionTimeout',
+  function( $q, $scope, dbEnums, listingBuilder, lotCategories, lotStore, messageModal, navigate, packagingTypeInfoModal, sessionTimeout ) {
     sessionTimeout.timeoutExpired();
-    console.log(dbEnums);
+
     $scope.quickLots = listingBuilder.quickLotsBoilerplate;
 
     $scope.lotTypes = dbEnums.lotType;
@@ -32,9 +34,13 @@ angular.module('myApp').controller('NewLotCtrl', ['$http', '$scope', '$state', '
       const query = {
         handle: { prefix: true, value: categoryDatePrefix }
       };
-      return $http.post('/api/db/get', query).then(resp=>{
+
+      // TODO: this really just compares against the most recent lots. Might be better off
+      // creating a new API endpoint that validates a proposed handle against the existing DB,
+      // perhaps using an mongo aggregate function
+      return $q.when( api.listLots( query ) ).then( lots => {
         const handlePattern = new RegExp(`${categoryDatePrefix}-([0-9]+)`);
-        const existingLotNumbers = resp.data.reduce((numbers, lot) => {
+        const existingLotNumbers = lots.reduce((numbers, lot) => {
           const lotNumberMatch = lot.handle.match(handlePattern);
           if(lotNumberMatch) {
             numbers.add(parseInt(lotNumberMatch[1]));
@@ -84,25 +90,25 @@ angular.module('myApp').controller('NewLotCtrl', ['$http', '$scope', '$state', '
       if(!$scope.newLot.listingData) {
         listingBuilder.buildFromCategory($scope.newLot);
       }
-      $http.post('/api/db/new-lot', $scope.newLot).then(resp=>{
-        if(resp.data.error) {
-          console.log(resp.data.error);
+      $q.when( api.createLot( $scope.newLot ) ).then( resp => {
+        if( resp.error ) {
+          console.error( resp.error );
         }
-        else if (resp.data.lotExists) {
+        else if ( resp.lotExists ) {
           messageModal.launch({header: 'Error', body: `A lot with handle ${$scope.newLot.handle} already exists.`, type: 'error'});
         }
         else{
-          const lot = resp.data;
+          const lot = resp;
           lotStore.save(lot);
           if(lot.unmanifested) {
-            $state.go('main.lots.view', {lotId: lotStore._id});
+            navigate.viewLot( lotStore._id );
           }
           else {
             if($scope.willUploadManifest) {
-              $state.go('main.lots.upload-manifest', { lotId: lotStore._id });
+              navigate.uploadLotManifest( lotStore._id );
             }
             else {
-              $state.go('main.lots.scan');
+              navigate.scanLot( lotStore._id );
             }
           }
         }

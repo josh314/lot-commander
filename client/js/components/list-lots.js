@@ -1,8 +1,10 @@
 import angular from 'angular';
 
+import * as api from '../api';
+
 /******************* Lot List Page Controller *************************/
-angular.module('myApp').controller('ListLotsCtrl', ['$scope', '$state', '$http', 'dbEnums', 'lotStore', 'saveLot', 'sessionTimeout', 
-  function($scope, $state, $http, dbEnums, lotStore, saveLot, sessionTimeout) {
+angular.module('myApp').controller('ListLotsCtrl', [ '$q', '$scope', 'dbEnums', 'lotStore', 'navigate', 'saveLot', 'sessionTimeout', 
+  function( $q, $scope, dbEnums, lotStore, navigate, saveLot, sessionTimeout) {
     sessionTimeout.timeoutExpired();
     $scope.lots = [];
 
@@ -19,14 +21,17 @@ angular.module('myApp').controller('ListLotsCtrl', ['$scope', '$state', '$http',
         endDate: $scope.endDate,
         startDate: $scope.startDate,
       };
-      $http.post('/api/db/get', query).then(resp=>{
-        const lots = resp.data;
+
+      $q.when( api.listLots( query ) ).then( lots => {
+
         lots.forEach( lot =>{
           lot.readableUpdatedAt = (new Date(lot.updatedAt)).toLocaleString();
           lot.readableCreatedAt = (new Date(lot.createdAt)).toLocaleString();
         });
         $scope.lots = lots;
+
       });
+
     }
     updateLotList();
     $scope.update = updateLotList;
@@ -36,11 +41,13 @@ angular.module('myApp').controller('ListLotsCtrl', ['$scope', '$state', '$http',
       if(targetLot) {
         lotStore.save(targetLot);
         if(lotStore.manifestId) {
-          $http.get('/api/db/manifest/'+lotStore.manifestId).then(resp=>{
+
+          $q.when( api.getManifest( lotStore.manifestId ) ).then( resp => {
             lotStore.setInventory(resp.data.manifest.inventory);
           });
+
         }
-        $state.go('main.lots.scan');
+        navigate.scanLot( lotId );
       }
     };
 
@@ -49,11 +56,13 @@ angular.module('myApp').controller('ListLotsCtrl', ['$scope', '$state', '$http',
       if(targetLot) {
         lotStore.save(targetLot);
         if(lotStore.manifestId) {
-          $http.get('/api/db/manifest/'+lotStore.manifestId).then(resp=>{
+
+          $q.when( api.getManifest( lotStore.manifestId ) ).then( resp => {
             lotStore.setInventory(resp.data.manifest.inventory);
           });
+
         }
-        $state.go('main.lots.view');
+        navigate.viewLot( lotId );
       }
     };
 
