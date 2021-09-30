@@ -3,23 +3,42 @@ import angular from 'angular';
 import * as api from '../api';
 
 /******************* Service for managing lots ***/
-angular.module('myApp').factory( 'LotSvc', [ '$q', function( $q ) {
+angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
+  function( $q, $stateParams, lotStore ) {
 
-  return {
+    return {
 
-    cloneImages: ( lotId, images ) => $q.when( api.cloneImages( lotId, images ) ),
+      cloneImages: ( lotId, images ) => $q.when( api.cloneImages( lotId, images ) ),
 
-    delete: lotId => $q.when( api.deleteLot( lotId ) ),
+      delete: lotId => $q.when( api.deleteLot( lotId ) ),
 
-    generateManifest: ( lotId, save, bstock ) => $q.when( api.generateLotManifest( lotId, save, bstock) ),
+      generateManifest: ( lotId, save, bstock ) => $q.when( api.generateLotManifest( lotId, save, bstock) ),
 
-    getManifest: manifestId => $q.when( api.getManifest( manifestId ) ),
+      getLotStore: () => lotStore,
 
-    import3rdPartyManifestBlock: ( lot, blockId ) => $q.when( api.import3rdPartyManifestBlock({ lot, blockId }) ),
+      getManifest: manifestId => $q.when( api.getManifest( manifestId ) ),
 
-    list: query => $q.when( api.listLots( query ) ),
+      import3rdPartyManifestBlock: ( lot, blockId ) => $q.when( api.import3rdPartyManifestBlock({ lot, blockId }) ),
 
-  };
+      list: query => $q.when( api.listLots( query ) ),
 
-}]);
+      load: () => $q.when( api.getLot( $stateParams.lotId ) ).then( async (lot) => {
+
+        lotStore.save( lot );
+
+        if( lot.manifestId ) {
+
+          await $q.when( api.getManifest( lot.manifestId) ).then( manifest => {
+            lotStore.setInventory( manifest.inventory );
+          });
+
+        }
+
+        return lot;
+      }),
+    
+    };
+
+  }
+]);
 

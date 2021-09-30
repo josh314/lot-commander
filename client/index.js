@@ -36,7 +36,6 @@ import "./js/components/list-lots.js";
 import "./js/components/list-manifests-ctrl.js";
 import "./js/components/listing-builder.js";
 import "./js/components/listing-title-verifier.js";
-import "./js/components/load-lot.js";
 import "./js/components/lot-store.js";
 import "./js/components/lot-svc.js";
 import "./js/components/message-modal.js";

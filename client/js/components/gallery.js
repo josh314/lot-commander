@@ -2,8 +2,8 @@ import angular from 'angular';
 
 
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('GalleryCtrl', ['$scope', '$window', 'ImageSvc', 'loadLot', 'lotStore',
-  function($scope, $window, ImageSvc, loadLot, lotStore){
+angular.module('myApp').controller('GalleryCtrl', ['$scope', '$window', 'ImageSvc', 'lotStore', 'LotSvc',
+  function( $scope, $window, ImageSvc, lotStore, LotSvc ){
     const vm = this;
 
     vm.lot = lotStore;
@@ -56,7 +56,7 @@ angular.module('myApp').controller('GalleryCtrl', ['$scope', '$window', 'ImageSv
       // }
     };
 
-    loadLot().then(()=>{
+    LotSvc.load().then(()=>{
       loadImageGallery();    
     });
   }

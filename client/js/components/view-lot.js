@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'loadLot', 'LoggedInUser', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal',
-  function( $scope, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, loadLot, LoggedInUser, lotStore, LotSvc, messageModal, navigate, PrintSvc, saveLot, sessionTimeout, shippingItemsModal ) {
+angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'LoggedInUser', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal',
+  function( $scope, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, LoggedInUser, lotStore, LotSvc, messageModal, navigate, PrintSvc, saveLot, sessionTimeout, shippingItemsModal ) {
     sessionTimeout.timeoutExpired();
 
     $scope.showCreateListingButton = LoggedInUser.hasPermission('SUBMIT_AUCTION') || LoggedInUser.hasPermission('SUBMIT_SHOPIFY_LISTING');
@@ -303,7 +303,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
 
     function init() {
 
-      loadLot()
+      LotSvc.load()
         .then( lot =>{
           $scope.images = lot.images;
           initializeAllThumbnailImages( lot );
