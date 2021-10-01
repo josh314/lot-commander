@@ -38,6 +38,21 @@ angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
 
         return lot;
       }),
+
+      saveManifest: () => {
+        // This filters out completely empty lines
+        lotStore.inventory = lotStore.inventory.filter(item=>{
+          if(item.barcode || item.description || item.quantity || item.price) {
+            return true;
+          }
+          return false;
+        });
+
+        lotStore.updateTotalUnits();
+
+        return $q.when( api.saveLotManifest( lotStore ) );
+
+      }
     
     };
 

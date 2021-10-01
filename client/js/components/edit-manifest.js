@@ -1,14 +1,20 @@
 import angular from 'angular';
 
 
-/******************* Scanning Page Controller *************************/
-angular.module('myApp').controller('EditManifestCtrl', ['$scope', '$state', 'lotStore', 'saveManifest', 'sessionTimeout',
-  function($scope, $state, lotStore, saveManifest, sessionTimeout) {
+/******************* Edit Manifest Page Controller *************************/
+angular.module('myApp').controller('EditManifestCtrl', [ 'lotStore', 'LotSvc', 'navigate', 'sessionTimeout',
+  function( lotStore, LotSvc, navigate, sessionTimeout ) {
+
     sessionTimeout.timeoutExpired();
-    $scope.lot = lotStore;
-    $scope.saveManifest = () => saveManifest().then(()=>{
-      // $state.go('main.home');
-      $state.go('main.lots.view', {lotId: lotStore._id});
+
+    const vm = this;
+
+    vm.addInventoryItem = lotStore.addInventory.bind( lotStore );
+    vm.getInventory = lotStore.getInventorySortedByBarcode.bind( lotStore );
+    vm.deleteInventoryItem = lotStore.deleteProduct.bind( lotStore );
+
+    vm.saveManifest = () => LotSvc.saveManifest().then(()=>{
+      navigate.viewLot( lotStore._id );
     });
 
   }

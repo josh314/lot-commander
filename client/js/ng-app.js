@@ -20,8 +20,8 @@ const stateData = [
   // states for managing lots
   { name: "main.lots", abstract: true, navName: 'Lots', url: '/lots', templateUrl: '/partials/_container.html' },
   { name: "main.lots.new", navName: 'New Lot', navParent: 'Lots', url: '/new', templateUrl: '/partials/_new_lot.html', controller: 'NewLotCtrl'},
-  { name: "main.lots.scan", url: '/scan', templateUrl: '/partials/_scan.html', controller: 'ScanCtrl'},
-  { name: "main.lots.edit-manifest", url: '/edit-manifest', templateUrl: '/partials/_edit_manifest.html', controller: 'EditManifestCtrl'},
+  { name: "main.lots.scan", url: '/scan', templateUrl: '/partials/_scan.html' },
+  { name: "main.lots.edit-manifest", url: '/edit-manifest', templateUrl: '/partials/_edit_manifest.html' },
   { name: "main.lots.list", navName: 'List Lots', navParent: 'Lots', url: '/list', templateUrl: '/partials/_list_lots.html', controller: 'ListLotsCtrl'},
   { name: "main.lots.view", url: '/view/{lotId}', templateUrl: '/partials/_view_lot.html', controller: 'ViewLotCtrl'},
   { name: "main.lots.submit-listing", url: '/submit-listing', templateUrl: '/partials/_submit_listing.html', controller: 'SubmitListingCtrl'},

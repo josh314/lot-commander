@@ -133,6 +133,23 @@ export function editLot( lotId, data ) {
 
 }
 
+export function saveLotManifest( lot ) {
+
+  if(!lot) {
+    throw new Error('Must supply lot data.');
+  }
+
+  return axios({
+    method: 'post',
+    url: `/api/db/save-manifest`,
+    data: { lot }
+  })
+    .then(resp=>{
+      return resp.data;
+    });
+
+}
+
 /*************************************************
 * Manifests
 * =========
