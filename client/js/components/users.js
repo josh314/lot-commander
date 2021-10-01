@@ -30,9 +30,9 @@ const prettifyUser = user => {
 };
 
 /*********************** Logout service ****************************/
-angular.module('myApp').factory('logout', ['$http', '$window', 'sessionTimeout', 'LoggedInUser', function($http, $window, sessionTimeout, LoggedInUser){
+angular.module('myApp').factory('logout', [ '$window', 'sessionTimeout', 'LoggedInUser', function( $window, sessionTimeout, LoggedInUser ){
   return function() {
-    $http.get('/logout').then(()=>{
+    api.logoutUser().then(()=>{
       console.log("destroying 'lotCommander' cookie");
       sessionTimeout.destroy();
       LoggedInUser.destroy();
@@ -126,7 +126,7 @@ angular.module('myApp').controller('LogoutCtrl', ['logout', function(logout){
 }]);
 
 /******************* Change Password Controller ********************/
-angular.module('myApp').controller('ChangeUserPasswordCtrl', ['$scope', '$http', 'logout', 'sessionTimeout', function($scope, $http, logout, sessionTimeout){
+angular.module('myApp').controller('ChangeUserPasswordCtrl', ['$scope', 'logout', 'sessionTimeout', function( $scope, logout, sessionTimeout ){
   sessionTimeout.timeoutExpired();
   $scope.passwordMismatch = false;
   $scope.passwordInvalid = false;
@@ -140,10 +140,10 @@ angular.module('myApp').controller('ChangeUserPasswordCtrl', ['$scope', '$http',
       return;
     }
 
-    const submitData = { password: $scope.password };
-    $http.post('/api/users/change-password', submitData).then(function(){
+    api.changeUserPassword( $scope.password ).then(function(){
       logout();
     });
+
   };
 }]);
 

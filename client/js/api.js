@@ -267,6 +267,28 @@ export function editUserDisabledStatus( userId, _isDisabled ) {
     .then( resp => resp.data );
 }
 
+export function logoutUser() {
+
+  return axios({
+    method: 'get',
+    url: '/logout'
+  })
+    .then( resp => resp.data );
+
+}
+
+export function changeUserPassword( newPassword ) {
+
+  const uri = `/api/users/change-password`;
+
+  return axios({
+    method: 'post',
+    url: uri,
+    data: { password: newPassword }
+  })
+    .then( resp => resp.data );
+
+}
 
 /*************************************************
 * Receiving
