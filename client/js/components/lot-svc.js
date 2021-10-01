@@ -12,6 +12,8 @@ angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
 
       delete: lotId => $q.when( api.deleteLot( lotId ) ),
 
+      edit: ( lotId, data ) => $q.when( api.editLot( lotId, data ) ),
+
       generateManifest: ( lotId, save, bstock ) => $q.when( api.generateLotManifest( lotId, save, bstock) ),
 
       getLotStore: () => lotStore,

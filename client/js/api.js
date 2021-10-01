@@ -24,6 +24,10 @@ export function listLots( query ) {
 
 export function getLotByHandle( handle ) {
 
+  if(!handle) {
+    throw new Error('Must supply lot handle.');
+  }
+
   return axios({
     method: 'post',
     url: '/api/db/get-by-handle',
@@ -38,6 +42,10 @@ export function getLotByHandle( handle ) {
 
 export function getLot( lotId ) {
 
+  if(!lotId) {
+    throw new Error('Must supply lot ID.');
+  }
+
   return axios({
     method: 'get',
     url: `/api/db/get/${ lotId }`
@@ -50,6 +58,10 @@ export function getLot( lotId ) {
 }
 
 export function getManifest( manifestId ) {
+
+  if(!manifestId) {
+    throw new Error('Must supply manifest ID.');
+  }
 
   return axios({
     method: 'get',
@@ -89,10 +101,31 @@ export function createLot( data ) {
 
 export function deleteLot( lotId ) {
 
+  if(!lotId) {
+    throw new Error('Must supply lot ID.');
+  }
+
   return axios({
     method: 'post',
     url: `/api/db/delete-lot`,
     data: { lotId }
+  })
+    .then(resp=>{
+      return resp.data;
+    });
+
+}
+
+export function editLot( lotId, data ) {
+
+  if(!lotId) {
+    throw new Error('Must supply lot ID.');
+  }
+
+  return axios({
+    method: 'post',
+    url: `/api/db/edit-lot/${ lotId }`,
+    data: data
   })
     .then(resp=>{
       return resp.data;

@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* Scanning Page Controller *************************/
-angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bstockFormConstants', 'dbEnums', 'listingTitleVerifier', 'lotStore', 'messageModal', 'navigate', 'saveLot', 'sessionTimeout',
-  function($scope, $http, bstockFormConstants, dbEnums, listingTitleVerifier, lotStore, messageModal, navigate, saveLot, sessionTimeout) {
+angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bstockFormConstants', 'dbEnums', 'listingTitleVerifier', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'sessionTimeout',
+  function( $scope, $http, bstockFormConstants, dbEnums, listingTitleVerifier, lotStore, LotSvc, messageModal, navigate, sessionTimeout ) {
     sessionTimeout.timeoutExpired();
 
     if(!lotStore._id) {
@@ -201,7 +201,7 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bst
 
       if($scope.totalUnits!==$scope.lot.totalUnits) {
         $scope.lot.totalUnits = $scope.totalUnits;
-        await saveLot($scope.lot);
+        await LotSvc.edit( $scope.lot._id, $scope.lot );
       }
 
       $http.post('/api/listings/submit', { lotId: lotStore._id, listing: $scope.listing, publish: $scope.publish }).then(resp=>{

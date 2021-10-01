@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* Lot List Page Controller *************************/
-angular.module('myApp').controller('ListLotsCtrl', [ '$scope', 'dbEnums', 'lotStore', 'LotSvc', 'navigate', 'saveLot', 'sessionTimeout',
-  function( $scope, dbEnums, lotStore, LotSvc, navigate, saveLot, sessionTimeout ) {
+angular.module('myApp').controller('ListLotsCtrl', [ '$scope', 'dbEnums', 'lotStore', 'LotSvc', 'navigate', 'sessionTimeout',
+  function( $scope, dbEnums, lotStore, LotSvc, navigate, sessionTimeout ) {
     sessionTimeout.timeoutExpired();
     $scope.lots = [];
 
@@ -68,7 +68,11 @@ angular.module('myApp').controller('ListLotsCtrl', [ '$scope', 'dbEnums', 'lotSt
       }
     };
 
-    $scope.saveLot = saveLot;
+    $scope.saveLot = function( lot ) {
+
+      return LotSvc.edit( lot._id, lot );
+
+    };
 
   }
 ]);

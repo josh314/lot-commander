@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* Scanning Page Controller *************************/
-angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', '$state', 'AudioAlertSvc', 'focus', 'ImageSvc', 'lotStore', 'messageModal', 'saveLot', 'saveManifest', 'sessionTimeout', 'shippingItemsModal',
-  function($scope, $http, $interval, $state, AudioAlertSvc, focus, ImageSvc, lotStore, messageModal, saveLot, saveManifest, sessionTimeout, shippingItemsModal) {
+angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', '$state', 'AudioAlertSvc', 'focus', 'ImageSvc', 'lotStore', 'LotSvc', 'messageModal', 'saveManifest', 'sessionTimeout', 'shippingItemsModal',
+  function( $scope, $http, $interval, $state, AudioAlertSvc, focus, ImageSvc, lotStore, LotSvc, messageModal, saveManifest, sessionTimeout, shippingItemsModal ) {
     sessionTimeout.timeoutExpired();
     focus('barcodeInput');
     $scope.lot = lotStore;
@@ -108,7 +108,7 @@ angular.module('myApp').controller('ScanCtrl', ['$scope', '$http', '$interval', 
         .then(shippingItems => {
           if(shippingItems) {
             lotStore.shippingItems = shippingItems;
-            return saveLot(lotStore).then( _resp => {
+            return LotSvc.edit( lotStore._id, lotStore ).then( _resp => {
               return true;
             });
           }

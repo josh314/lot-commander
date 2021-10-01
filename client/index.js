@@ -47,7 +47,6 @@ import "./js/components/packaging-type-info-modal.js";
 import "./js/components/print-svc.js";
 import "./js/components/reports-ctrl.js";
 import "./js/components/root.js";
-import "./js/components/save-lot.js";
 import "./js/components/save-manifest.js";
 import "./js/components/scan.js";
 import "./js/components/settings-svc.js";

@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'LoggedInUser', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'PrintSvc', 'saveLot', 'sessionTimeout', 'shippingItemsModal',
-  function( $scope, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, LoggedInUser, lotStore, LotSvc, messageModal, navigate, PrintSvc, saveLot, sessionTimeout, shippingItemsModal ) {
+angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'LoggedInUser', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'PrintSvc', 'sessionTimeout', 'shippingItemsModal',
+  function( $scope, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, LoggedInUser, lotStore, LotSvc, messageModal, navigate, PrintSvc, sessionTimeout, shippingItemsModal ) {
     sessionTimeout.timeoutExpired();
 
     $scope.showCreateListingButton = LoggedInUser.hasPermission('SUBMIT_AUCTION') || LoggedInUser.hasPermission('SUBMIT_SHOPIFY_LISTING');
@@ -80,11 +80,13 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
         },
       });
 
-      modalInstance.result.then(function (lot) {
-        saveLot(lot).then(resp=>{
-          console.log(resp);
+      modalInstance.result.then( lot => {
+
+        LotSvc.edit( lot._id, lot ).then( lot =>{
+          console.log( lot );
           navigate.reload();
         });
+
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
       });
@@ -206,7 +208,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
         .then(shippingItems => {
           if(shippingItems) {
             lotStore.shippingItems = shippingItems;
-            return saveLot(lotStore).then( _resp => {
+            return LotSvc.edit( lotStore._id , lotStore ).then( _lot => {
               return true;
             });
           }
