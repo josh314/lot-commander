@@ -9,7 +9,7 @@ angular.module('myApp').factory('messageModal', ['$uibModal', function($uibModal
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_message_modal.html',
         size: 'lg',
-        controller: 'MessageModalController',
+        controller: 'MessageModalCtrl as ctrl',
         resolve: {
           message: function () {
             return message;
@@ -23,6 +23,9 @@ angular.module('myApp').factory('messageModal', ['$uibModal', function($uibModal
 }]);
 
 /***************** Modal Controller ************************/
-angular.module('myApp').controller('MessageModalController', [ '$scope', 'message', function($scope, message){
-  $scope.message = JSON.parse(JSON.stringify(message));
+angular.module('myApp').controller('MessageModalCtrl', [ 'message', function( message ){
+
+  const vm = this;
+  vm.message = JSON.parse( JSON.stringify( message ) );
+
 }]);

@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* Shipping Items Modal service ******************************/
-angular.module('myApp').factory('shippingItemsModal', ['$uibModal', 'lotStore',
-  function($uibModal, lotStore){
+angular.module('myApp').factory('shippingItemsModal', [ '$uibModal', 'lotStore',
+  function( $uibModal, lotStore ){
 
     return {
       launch: function() {
@@ -10,7 +10,7 @@ angular.module('myApp').factory('shippingItemsModal', ['$uibModal', 'lotStore',
         const modalInstance = $uibModal.open({
           templateUrl: '/partials/modals/_shipping_items_modal.html',
           size: 'lg',
-          controller: 'ShippingItemsModalController',
+          controller: 'ShippingItemsModalCtrl as ctrl',
           resolve: {
             shippingItems: function () {
               return lotStore.shippingItems;
@@ -35,18 +35,20 @@ angular.module('myApp').factory('shippingItemsModal', ['$uibModal', 'lotStore',
 ]);
 
 /***************** Modal Controller ************************/
-angular.module('myApp').controller('ShippingItemsModalController', [ '$scope', 'dbEnums', 'shippingItems',
-  function($scope, dbEnums, shippingItems){
+angular.module('myApp').controller('ShippingItemsModalCtrl', [ '$uibModalInstance', 'dbEnums', 'shippingItems',
+  function( $uibModalInstance, dbEnums, shippingItems ){
     // copy shippingItems so we can edit the copy without affecting the original
-    const _shippingItems = shippingItems ? JSON.parse(JSON.stringify(shippingItems)) : [];
+    const _shippingItems = shippingItems ? JSON.parse( JSON.stringify( shippingItems ) ) : [];
 
-    $scope.weightUnitsEnum = dbEnums.weightUnits;
-    $scope.lengthUnitsEnum = dbEnums.lengthUnits;
+    const vm = this;
 
-    $scope.shippingItems = _shippingItems;
-    $scope.errorStyles = $scope.shippingItems.map( _ => ({}) );
+    vm.weightUnitsEnum = dbEnums.weightUnits;
+    vm.lengthUnitsEnum = dbEnums.lengthUnits;
 
-    $scope.addItem = () => { 
+    vm.shippingItems = _shippingItems;
+    vm.errorStyles = vm.shippingItems.map( _ => ({}) );
+
+    vm.addItem = () => {
       const newItem = {
         weightUnits: dbEnums.weightUnits[0],
         heightUnits: dbEnums.lengthUnits[0],
@@ -56,12 +58,12 @@ angular.module('myApp').controller('ShippingItemsModalController', [ '$scope', '
       _shippingItems.push(newItem);
     };
 
-    $scope.removeItem = (itemIndex) => {
+    vm.removeItem = (itemIndex) => {
       _shippingItems.splice(itemIndex, 1);
-      $scope.errorStyles.splice(itemIndex, 1);
+      vm.errorStyles.splice(itemIndex, 1);
     };
 
-    $scope.presets = [
+    vm.presets = [
       {
         name: '24x18x12',
         weightUnits: dbEnums.weightUnits[0],
@@ -115,15 +117,15 @@ angular.module('myApp').controller('ShippingItemsModalController', [ '$scope', '
       }
     ];
 
-    $scope.addPresetItem = (index) => {
-      const newItem = JSON.parse( JSON.stringify($scope.presets[index]) ); 
-      $scope.shippingItems.push(newItem);
+    vm.addPresetItem = (index) => {
+      const newItem = JSON.parse( JSON.stringify(vm.presets[index]) );
+      vm.shippingItems.push(newItem);
     };
 
     function validateDimensions() {
       let valid = true;
 
-      $scope.errorStyles = $scope.shippingItems.map( item => {
+      vm.errorStyles = vm.shippingItems.map( item => {
 
         const itemErrorStyles = {};
 
@@ -144,9 +146,11 @@ angular.module('myApp').controller('ShippingItemsModalController', [ '$scope', '
       return valid;
     }
 
-    $scope.validateAndClose = () => {
-      if(validateDimensions()) {
-        $scope.$close($scope.shippingItems);
+    vm.validateAndClose = () => {
+      if( validateDimensions() ) {
+
+        $uibModalInstance.close(vm.shippingItems);
+
       }
     };
 

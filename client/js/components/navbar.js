@@ -2,7 +2,9 @@ import angular from 'angular';
 
 
 /******************* Navbar Controller *************************/
-angular.module('myApp').controller('NavbarCtrl', ['$scope', 'LoggedInUser', 'navbarData', function($scope, LoggedInUser, navbarData) {
+angular.module('myApp').controller('NavbarCtrl', [ 'LoggedInUser', 'navbarData', function( LoggedInUser, navbarData ) {
+
+  const vm = this;
 
   const userPermissionFilter =  _ => _.userPermission ?  LoggedInUser.hasPermission( _.userPermission ) : true;
 
@@ -19,18 +21,18 @@ angular.module('myApp').controller('NavbarCtrl', ['$scope', 'LoggedInUser', 'nav
       })
       .filter( item => item.drops ? item.drops.length > 0 : true );
 
-  $scope.navbar = {
+  vm.navbar = {
     brand: navbarData.brand,
     navItems: userPermittedNavItems,
   };
 
-  $scope.isCollapsed = true;
-  $scope.toggleCollapse  = function() { $scope.isCollapsed = !$scope.isCollapsed; };
-  $scope.collapse = function() {$scope.isCollapsed = true; };
-  $scope.expand = function() {$scope.isCollapsed = false;};
+  vm.isCollapsed = true;
+  vm.toggleCollapse  = function() { vm.isCollapsed = !vm.isCollapsed; };
+  vm.collapse = function() { vm.isCollapsed = true; };
+  vm.expand = function() { vm.isCollapsed = false;};
 
-  $scope.dropdownOpen = false;
-  $scope.dropdownCollapse = function() {$scope.dropdownOpen = false; };
+  vm.dropdownOpen = false;
+  vm.dropdownCollapse = function() { vm.dropdownOpen = false; };
 }]);
 
 /*********************** Navbar Directive ***********************/
@@ -39,6 +41,5 @@ angular.module('myApp').directive('navbarDirective', function(){
     restrict: 'A',
     replace: true,
     templateUrl: '/partials/_navbar.html',
-    controller: 'NavbarCtrl',
   };
 });

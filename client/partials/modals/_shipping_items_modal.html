@@ -13,37 +13,37 @@
         <th></th>
       </tr></thead>
       <tbody>
-        <tr ng-repeat="item in shippingItems track by $index">
+        <tr ng-repeat="item in ctrl.shippingItems track by $index">
           <td>{{ $index + 1 }}</td>
           <td>
-            <input type="number" min="0" class="hide-controls" ng-style='errorStyles[{{$index}}].weight' style="width: 4em" ng-model="item.weight">
-            <select ng-model="item.weightUnits"><option ng-repeat="unit in weightUnitsEnum">{{unit}}</option></select>
+            <input type="number" min="0" class="hide-controls" ng-style='ctrl.errorStyles[{{$index}}].weight' style="width: 4em" ng-model="item.weight">
+            <select ng-model="item.weightUnits"><option ng-repeat="unit in ctrl.weightUnitsEnum">{{unit}}</option></select>
           </td>
           <td>
-            <input type="number" min="0" class="hide-controls" ng-style='errorStyles[{{$index}}].height' style="width: 4em" ng-model="item.height">
-            <select ng-model="item.heightUnits"><option ng-repeat="unit in lengthUnitsEnum">{{unit}}</option></select>
+            <input type="number" min="0" class="hide-controls" ng-style='ctrl.errorStyles[{{$index}}].height' style="width: 4em" ng-model="item.height">
+            <select ng-model="item.heightUnits"><option ng-repeat="unit in ctrl.lengthUnitsEnum">{{unit}}</option></select>
           </td>
           <td>
-            <input type="number" min="0" class="hide-controls" ng-style='errorStyles[{{$index}}].length' style="width: 4em" ng-model="item.length">
-            <select ng-model="item.lengthUnits"><option ng-repeat="unit in lengthUnitsEnum">{{unit}}</option></select>
+            <input type="number" min="0" class="hide-controls" ng-style='ctrl.errorStyles[{{$index}}].length' style="width: 4em" ng-model="item.length">
+            <select ng-model="item.lengthUnits"><option ng-repeat="unit in ctrl.lengthUnitsEnum">{{unit}}</option></select>
           </td>
           <td>
-            <input type="number" min="0" class="hide-controls" ng-style='errorStyles[{{$index}}].width' style="width: 4em" ng-model="item.width">
-            <select ng-model="item.widthUnits"><option ng-repeat="unit in lengthUnitsEnum">{{unit}}</option></select>
+            <input type="number" min="0" class="hide-controls" ng-style='ctrl.errorStyles[{{$index}}].width' style="width: 4em" ng-model="item.width">
+            <select ng-model="item.widthUnits"><option ng-repeat="unit in ctrl.lengthUnitsEnum">{{unit}}</option></select>
           </td>
-          <td><button class="btn btn-danger btn-xs" ng-click="removeItem($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
+          <td><button class="btn btn-danger btn-xs" ng-click="ctrl.removeItem($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
         </tr>
       </tbody>
     </table>
     <div class="text-center">
-      <button class="btn btn-primary btn-sm text-center" ng-click="addItem()">Add Shipping New Item</button>
-      <span ng-repeat="preset in presets">
-        <button class="btn btn-primary btn-sm text-center" ng-click="addPresetItem($index)">Preset ({{ preset.name }})</button>
+      <button class="btn btn-primary btn-sm text-center" ng-click="ctrl.addItem()">Add Shipping New Item</button>
+      <span ng-repeat="preset in ctrl.presets">
+        <button class="btn btn-primary btn-sm text-center" ng-click="ctrl.addPresetItem($index)">Preset ({{ preset.name }})</button>
       </span>
     </div>
 	</div>
 </div>
 <div class="modal-footer">
-  <button class="btn btn-danger" type="button" ng-click="validateAndClose()">Save</button>
+  <button class="btn btn-danger" type="button" ng-click="ctrl.validateAndClose()">Save</button>
   <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
 </div>

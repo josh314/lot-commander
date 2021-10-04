@@ -1,23 +1,29 @@
 import angular from 'angular';
 
 /******************* Lot List Page Controller *************************/
-angular.module('myApp').controller('ListLotsCtrl', [ '$scope', 'dbEnums', 'lotStore', 'LotSvc', 'navigate', 'sessionTimeout',
-  function( $scope, dbEnums, lotStore, LotSvc, navigate, sessionTimeout ) {
+angular.module('myApp').controller('ListLotsCtrl', [ 'dbEnums', 'lotStore', 'LotSvc', 'navigate', 'sessionTimeout',
+  function( dbEnums, lotStore, LotSvc, navigate, sessionTimeout ) {
     sessionTimeout.timeoutExpired();
-    $scope.lots = [];
 
-    $scope.statusOptions = dbEnums.lotStatus;
-    $scope.lotStatus = 'All';
+    const vm = this;
 
-    $scope.marketplaces = [undefined].concat(dbEnums.marketplaces);
+    vm.lots = [];
+    vm.statusOptions = dbEnums.lotStatus;
+    vm.lotStatus = 'All';
+    vm.marketplaces = [undefined].concat(dbEnums.marketplaces);
+
+    vm.saveLot = saveLot;
+    vm.scanItems = scanItems;
+    vm.update = updateLotList;
+    vm.viewLot = viewLot;
 
     function updateLotList() {
       //TODO: incorporate search/sort options
       const query = {
-        status: $scope.lotStatus==='All' ? undefined : $scope.lotStatus,
-        handle: $scope.lotHandle,
-        endDate: $scope.endDate,
-        startDate: $scope.startDate,
+        status: vm.lotStatus==='All' ? undefined : vm.lotStatus,
+        handle: vm.lotHandle,
+        endDate: vm.endDate,
+        startDate: vm.startDate,
       };
 
       LotSvc.list( query ).then( lots => {
@@ -26,16 +32,15 @@ angular.module('myApp').controller('ListLotsCtrl', [ '$scope', 'dbEnums', 'lotSt
           lot.readableUpdatedAt = (new Date(lot.updatedAt)).toLocaleString();
           lot.readableCreatedAt = (new Date(lot.createdAt)).toLocaleString();
         });
-        $scope.lots = lots;
+        vm.lots = lots;
 
       });
 
     }
     updateLotList();
-    $scope.update = updateLotList;
 
-    $scope.scanItems = function(lotId) {
-      const targetLot = $scope.lots.find(lot => lot._id === lotId);
+    function scanItems( lotId ) {
+      const targetLot = vm.lots.find(lot => lot._id === lotId);
       if(targetLot) {
         lotStore.save(targetLot);
 
@@ -49,10 +54,10 @@ angular.module('myApp').controller('ListLotsCtrl', [ '$scope', 'dbEnums', 'lotSt
         manP ? manP.then( _ => navigate.scanLot( lotId ) ) : navigate.scanLot( lotId );
 
       }
-    };
+    }
 
-    $scope.viewLot = function(lotId) {
-      const targetLot = $scope.lots.find(lot => lot._id === lotId);
+    function viewLot( lotId ) {
+      const targetLot = vm.lots.find(lot => lot._id === lotId);
       if(targetLot) {
         lotStore.save(targetLot);
 
@@ -66,13 +71,13 @@ angular.module('myApp').controller('ListLotsCtrl', [ '$scope', 'dbEnums', 'lotSt
         manP ? manP.then( _ => navigate.viewLot( lotId ) ) : navigate.viewLot( lotId );
 
       }
-    };
+    }
 
-    $scope.saveLot = function( lot ) {
+    function saveLot( lot ) {
 
       return LotSvc.edit( lot._id, lot );
 
-    };
+    }
 
   }
 ]);

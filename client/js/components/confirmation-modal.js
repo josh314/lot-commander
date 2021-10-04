@@ -9,7 +9,7 @@ angular.module('myApp').factory('ConfirmationModal', ['$uibModal', function($uib
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_confirmation_modal.html',
         size: 'lg',
-        controller: 'ConfirmationModalCtrl',
+        controller: 'ConfirmationModalCtrl as ctrl',
         resolve: {
           message: function () {
             return message;
@@ -23,6 +23,9 @@ angular.module('myApp').factory('ConfirmationModal', ['$uibModal', function($uib
 }]);
 
 /***************** Modal Controller ************************/
-angular.module('myApp').controller('ConfirmationModalCtrl', [ '$scope', 'message', function($scope, message){
-  $scope.message = JSON.parse(JSON.stringify(message));
+angular.module('myApp').controller('ConfirmationModalCtrl', [ 'message', function( message ){
+
+  const vm = this;
+  vm.message = JSON.parse( JSON.stringify( message ) );
+
 }]);
