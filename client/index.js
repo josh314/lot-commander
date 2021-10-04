@@ -20,7 +20,7 @@ import "./js/ng-app";
 import "./js/components/audio-alert-svc.js";
 import "./js/components/auctions.js";
 import "./js/components/clean-manifest-ctrl.js";
-import "./js/components/confirmation-modal.js";
+import "./js/components/confirmation-modal-svc.js";
 import "./js/components/counter-tool-ctrl.js";
 import "./js/components/edit-lot-modal-ctrl.js";
 import "./js/components/edit-manifest.js";

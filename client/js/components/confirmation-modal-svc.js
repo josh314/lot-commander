@@ -1,7 +1,7 @@
 import angular from 'angular';
 
 
-/******************* Message Modal service ******************************/
+/******************* Confirmation Modal service ******************************/
 angular.module('myApp').factory('ConfirmationModal', ['$uibModal', function($uibModal){
   return {
     launch: function( message ) {
@@ -9,7 +9,7 @@ angular.module('myApp').factory('ConfirmationModal', ['$uibModal', function($uib
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_confirmation_modal.html',
         size: 'lg',
-        controller: 'ConfirmationModalCtrl as ctrl',
+        controller: 'ConfirmationModalCtrl as $ctrl',
         resolve: {
           message: function () {
             return message;
