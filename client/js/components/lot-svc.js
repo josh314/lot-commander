@@ -10,6 +10,8 @@ angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
 
       cloneImages: ( lotId, images ) => $q.when( api.cloneImages( lotId, images ) ),
 
+      create: data => $q.when( api.createLot( data ) ),
+
       delete: lotId => $q.when( api.deleteLot( lotId ) ),
 
       edit: ( lotId, data ) => $q.when( api.editLot( lotId, data ) ),

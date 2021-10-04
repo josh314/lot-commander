@@ -1,30 +1,30 @@
 import angular from 'angular';
 
-import * as api from '../api';
-
 /******************* New Lot Controller *************************/
-angular.module('myApp').controller('NewLotCtrl', [  '$q', '$scope', 'dbEnums', 'listingBuilder', 'lotCategories', 'lotStore', 'messageModal', 'navigate', 'packagingTypeInfoModal', 'sessionTimeout',
-  function( $q, $scope, dbEnums, listingBuilder, lotCategories, lotStore, messageModal, navigate, packagingTypeInfoModal, sessionTimeout ) {
+angular.module('myApp').controller('NewLotCtrl', [ 'dbEnums', 'listingBuilder', 'lotCategories', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'packagingTypeInfoModal', 'sessionTimeout',
+  function( dbEnums, listingBuilder, lotCategories, lotStore, LotSvc, messageModal, navigate, packagingTypeInfoModal, sessionTimeout ) {
     sessionTimeout.timeoutExpired();
 
-    $scope.quickLots = listingBuilder.quickLotsBoilerplate;
+    const vm = this;
 
-    $scope.lotTypes = dbEnums.lotType;
-    $scope.packagingTypes = dbEnums.packagingType;
+    vm.quickLots = listingBuilder.quickLotsBoilerplate;
 
-    $scope.categories = ['None'].concat(lotCategories.map(x=>x.name));
-    $scope.newLotCategory = 'None';
-
-    $scope.marketplaces = ['wholesaleninjas', 'bstock'];
-
-    $scope.newLot = {
+    vm.lotTypes = dbEnums.lotType;
+    vm.packagingTypes = dbEnums.packagingType;
+    vm.categories = ['None'].concat(lotCategories.map(x=>x.name));
+    vm.newLotCategory = 'None';
+    vm.marketplaces = ['wholesaleninjas', 'bstock'];
+    vm.newLot = {
       unmanifested: false,
       destinationMarketplace: 'wholesaleninjas',
     };
+    vm.willUploadManifest = false;
+    vm.openPackagingTypeInfo = packagingTypeInfoModal;
 
-    $scope.willUploadManifest = false;
-
-    $scope.openPackagingTypeInfo = packagingTypeInfoModal;
+    vm.setHandleForCategory = setHandleForCategory;
+    vm.startQuickLot = startQuickLot;
+    vm.startCustomLot = startCustomLot;
+    vm.startLot = startLot;
 
     function buildHandleForPrefix(prefix) {
       const today = new Date();//fix time zone to EST
@@ -38,7 +38,7 @@ angular.module('myApp').controller('NewLotCtrl', [  '$q', '$scope', 'dbEnums', '
       // TODO: this really just compares against the most recent lots. Might be better off
       // creating a new API endpoint that validates a proposed handle against the existing DB,
       // perhaps using an mongo aggregate function
-      return $q.when( api.listLots( query ) ).then( lots => {
+      return LotSvc.list( query ).then( lots => {
         const handlePattern = new RegExp(`${categoryDatePrefix}-([0-9]+)`);
         const existingLotNumbers = lots.reduce((numbers, lot) => {
           const lotNumberMatch = lot.handle.match(handlePattern);
@@ -55,47 +55,46 @@ angular.module('myApp').controller('NewLotCtrl', [  '$q', '$scope', 'dbEnums', '
       });
     }
 
-
-    $scope.setHandleForCategory = function() {
-      const categoryObj = lotCategories.find(x=>x.name===$scope.newLotCategory);
+    function setHandleForCategory() {
+      const categoryObj = lotCategories.find(x=>x.name===vm.newLotCategory);
       if(categoryObj) {
-        buildHandleForPrefix(categoryObj.prefix).then(handle => $scope.newLot.handle = handle);
+        buildHandleForPrefix(categoryObj.prefix).then(handle => vm.newLot.handle = handle);
       }
-    };
+    }
 
-    $scope.startQuickLot = function(quickLot) {
+    function startQuickLot(quickLot) {
       buildHandleForPrefix(quickLot.handlePrefix).then(handle=>{
-        Object.assign($scope.newLot, {
+        Object.assign(vm.newLot, {
           handle: handle,
           unmanifested: true,
         });
-        Object.assign($scope.newLot, quickLot.template);
-        $scope.startLot();
+        Object.assign(vm.newLot, quickLot.template);
+        vm.startLot();
       });
-    };
+    }
 
-    $scope.startCustomLot = function() {
-      $scope.noHandleSubmitted = !$scope.newLot.handle;
-      $scope.noLotTypeSubmitted = !$scope.newLot.type;
-      $scope.noPackagingTypeSubmitted = !$scope.newLot.packagingType;
+    function startCustomLot() {
+      vm.noHandleSubmitted = !vm.newLot.handle;
+      vm.noLotTypeSubmitted = !vm.newLot.type;
+      vm.noPackagingTypeSubmitted = !vm.newLot.packagingType;
 
-      if ($scope.noHandleSubmitted || $scope.noLotTypeSubmitted || $scope.noPackagingTypeSubmitted ) {
+      if (vm.noHandleSubmitted || vm.noLotTypeSubmitted || vm.noPackagingTypeSubmitted ) {
         return;
       }
 
-      $scope.startLot();
-    };
+      vm.startLot();
+    }
 
-    $scope.startLot = function() {
-      if(!$scope.newLot.listingData) {
-        listingBuilder.buildFromCategory($scope.newLot);
+    function startLot() {
+      if(!vm.newLot.listingData) {
+        listingBuilder.buildFromCategory(vm.newLot);
       }
-      $q.when( api.createLot( $scope.newLot ) ).then( resp => {
+      LotSvc.create( vm.newLot ).then( resp => {
         if( resp.error ) {
           console.error( resp.error );
         }
         else if ( resp.lotExists ) {
-          messageModal.launch({header: 'Error', body: `A lot with handle ${$scope.newLot.handle} already exists.`, type: 'error'});
+          messageModal.launch({header: 'Error', body: `A lot with handle ${vm.newLot.handle} already exists.`, type: 'error'});
         }
         else{
           const lot = resp;
@@ -104,7 +103,7 @@ angular.module('myApp').controller('NewLotCtrl', [  '$q', '$scope', 'dbEnums', '
             navigate.viewLot( lotStore._id );
           }
           else {
-            if($scope.willUploadManifest) {
+            if(vm.willUploadManifest) {
               navigate.uploadLotManifest( lotStore._id );
             }
             else {
@@ -113,6 +112,7 @@ angular.module('myApp').controller('NewLotCtrl', [  '$q', '$scope', 'dbEnums', '
           }
         }
       });
-    };
+    }
+
   }
 ]);
