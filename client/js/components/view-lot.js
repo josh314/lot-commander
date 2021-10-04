@@ -71,7 +71,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_edit_lot_modal.html',
         size: 'lg',
-        controller: 'EditLotModalController',
+        controller: 'EditLotModalCtrl as $ctrl',
         backdrop: 'static',
         resolve: {
           lot: function () {
@@ -243,8 +243,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_past_images_gallery_modal.html',
         size: 'lg',
-        controller: 'PastImagesGalleryModalController',
-        controllerAs: '$ctrl',
+        controller: 'PastImagesGalleryModalCtrl as $ctrl',
         backdrop: 'static',
       });
 
@@ -318,103 +317,3 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
 
   }]
 );
-
-/*************************************************************/
-/****************** Modal Controllers ************************/
-/******************                   ************************/
-/*************************************************************/
-/*************************************************************/
-
-/****************** Edit Lot ***********************/
-angular.module('myApp').controller('EditLotModalController', [ '$scope', 'dbEnums', 'listingTitleVerifier', 'lot', 'packagingTypeInfoModal', 'shippingItemsModal',
-  function($scope, dbEnums, listingTitleVerifier, lot, packagingTypeInfoModal, shippingItemsModal){
-    $scope.lot = JSON.parse(JSON.stringify(lot));
-    $scope.lotStatusEnum = dbEnums.lotStatus;
-    $scope.lotTypeEnum = dbEnums.lotType;
-    $scope.packagingTypeEnum = dbEnums.packagingType;
-    // $scope.selectedListing = 'bstock';
-    $scope.marketplaces = [undefined].concat(dbEnums.marketplaces);
-
-    $scope.titleTooLong = {};
-    $scope.verifyTitle = () => {
-      $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title);
-      if($scope.titleTooLong.bstock && $scope.lot.destinationMarketplace==='bstock') {
-        return false;
-      }
-      if($scope.titleTooLong.shopify && $scope.lot.destinationMarketplace==='wholesaleninjas') {
-        return false;
-      }
-      return true;
-    };
-    $scope.verifyTitle();
-
-    $scope.invalidLot = () => {
-      return !$scope.verifyTitle() || $scope.lot.numBoxes < 0;
-    };
-
-    $scope.openPackagingTypeInfo = packagingTypeInfoModal;
-
-    $scope.editShippingItems = function() {
-      shippingItemsModal
-        .launch()
-        .then(shippingItems => {
-          if(shippingItems) {
-            $scope.lot.shippingItems = shippingItems;
-          }
-        });
-    };
-  }
-]);
-
-
-/****************** Past images ***********************/
-angular.module('myApp').controller('PastImagesGalleryModalController', [ '$q', '$uibModalInstance', 'ImageSvc',
-  function( $q, $uibModalInstance, ImageSvc ){
-
-    const vm = this;
-
-    const __PAGE_SIZE__ = 100;
-
-    vm.pagination = {
-      current: 1,
-      totalItems: 0,
-      pageSize: __PAGE_SIZE__,
-      pageChange: refreshDisplayList
-    };
-
-    const loadImages = () => {
-
-      $q.when( ImageSvc.getImageList( { urlEncode: true } ) ).then( resp => {
-
-        vm.images = resp.images.map( _ => ({ link: _, selected: false }) );
-        vm.pagination.totalItems = vm.images.length;
-
-        refreshDisplayList();
-
-        vm.waitingToLoad = false;
-      });
-
-    };
-
-    vm.confirmSelected = () => {
-
-      const selectedImages = vm.images.filter( _ => _.selected ).map( _ => _.link );
-
-      $uibModalInstance.close( { images: selectedImages } );
-
-    };
-
-    function refreshDisplayList( ) {
-      const begin = __PAGE_SIZE__ * ( vm.pagination.current - 1 );
-      const end = __PAGE_SIZE__ * ( vm.pagination.current );
-      vm.displayList = vm.images.slice( begin, end );
-    }
-
-    const init = () => {
-      vm.waitingToLoad = true;
-      loadImages();
-    };
-    init();
-
-  }
-]);

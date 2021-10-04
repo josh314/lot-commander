@@ -5,49 +5,49 @@
 	<div class="row">
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="handleInput">Handle</label>
-			<input class="form-control" name="handle" id="handleInput" required ng-model="lot.handle">
+			<input class="form-control" name="handle" id="handleInput" required ng-model="$ctrl.lot.handle">
 		</div>
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="typeInput">Type</label>
-			<select class="form-control" name="type" id="typeInput" required ng-model="lot.type">
-				<option ng-repeat="type in lotTypeEnum">{{type}}</option>
+			<select class="form-control" name="type" id="typeInput" required ng-model="$ctrl.lot.type">
+				<option ng-repeat="type in $ctrl.lotTypeEnum">{{ type }}</option>
 			</select>
     </div>
     <div class="form-group col-xs-12 col-sm-6">
-			<label for="packingTypeInput">Packaging Type <span class="glyphicon glyphicon-question-sign" ng-click="openPackagingTypeInfo()"></span></label>
-			<select class="form-control" name="packagingType" id="packingTypeInput" required ng-model="lot.packagingType">
-				<option ng-repeat="packagingType in packagingTypeEnum">{{packagingType}}</option>
+			<label for="packingTypeInput">Packaging Type <span class="glyphicon glyphicon-question-sign" ng-click="$ctrl.openPackagingTypeInfo()"></span></label>
+			<select class="form-control" name="packagingType" id="packingTypeInput" required ng-model="$ctrl.lot.packagingType">
+				<option ng-repeat="packagingType in $ctrl.packagingTypeEnum">{{ packagingType }}</option>
 			</select>
 		</div>
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="descriptionInput">Description</label>
-			<input class="form-control" name="description" id="descriptionInput" required ng-model="lot.description">
+			<input class="form-control" name="description" id="descriptionInput" required ng-model="$ctrl.lot.description">
 		</div>
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="destinationMarketplaceInput">Destination Marketplace</label>
-			<select class="form-control" name="destinationMarketplace" id="destinationMarketplaceInput" ng-model="lot.destinationMarketplace">
-				<option ng-repeat="marketplace in marketplaces">{{marketplace}}</option>
+			<select class="form-control" name="destinationMarketplace" id="destinationMarketplaceInput" ng-model="$ctrl.lot.destinationMarketplace">
+				<option ng-repeat="marketplace in $ctrl.marketplaces">{{marketplace}}</option>
 			</select>
 		</div>
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="statusInput">Status</label>
-			<select class="form-control" name="status" id="statusInput" required ng-model="lot.status">
-				<option ng-repeat="status in lotStatusEnum">{{status}}</option>
+			<select class="form-control" name="status" id="statusInput" required ng-model="$ctrl.lot.status">
+				<option ng-repeat="status in $ctrl.lotStatusEnum">{{status}}</option>
 			</select>
 		</div>
-		<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : (lot.numBoxes && lot.numBoxes < 0)}" ng-show="lot.numBoxes">
+		<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : ($ctrl.lot.numBoxes && $ctrl.lot.numBoxes < 0)}" ng-show="$ctrl.lot.numBoxes">
 			<label for="numBoxesInput">Number of Boxes</label>
-			<input type="number" class="form-control" name="numBoxes" id="numBoxesInput" required ng-model="lot.numBoxes">
-			<span class="text-danger h4" ng-show="lot.numBoxes && lot.numBoxes < 0">Invalid number of boxes</span>
+			<input type="number" class="form-control" name="numBoxes" id="numBoxesInput" required ng-model="$ctrl.lot.numBoxes">
+			<span class="text-danger h4" ng-show="$ctrl.lot.numBoxes && $ctrl.lot.numBoxes < 0">Invalid number of boxes</span>
     </div>
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="manifestedInput">Manifested Lot?</label>
-			<select class="form-control" name="manifested" id="manifestedInput" ng-model="lot.unmanifested">
+			<select class="form-control" name="manifested" id="manifestedInput" ng-model="$ctrl.lot.unmanifested">
 				<option ng-value="true">No</option>
 				<option ng-value="false">Yes</option>
 			</select>
     </div>
-    <div class="form-group col-xs-12" ng-hide="lot.numBoxes">
+    <div class="form-group col-xs-12" ng-hide="$ctrl.lot.numBoxes">
         <label for="shippingItems">Shipping Items</label>
         <div class="well" id="shippingItems">
           <table class="table table-striped">
@@ -59,7 +59,7 @@
               <th>Width</th>
             </tr></thead>
             <tbody>
-              <tr ng-repeat="item in lot.shippingItems track by $index">
+              <tr ng-repeat="item in $ctrl.lot.shippingItems track by $index">
                 <td>{{ $index + 1 }}</td>
                 <td>{{ item.weight ? item.weight + " " + item.weightUnits : ''}}</td>
                 <td>{{ item.height ? item.height + " " + item.heightUnits : ''}}</td>
@@ -69,34 +69,34 @@
             </tbody>
           </table>
           <div class="text-center">
-            <button class="btn btn-primary btn-sm" ng-click="editShippingItems()">Edit Shipping Items</button>
+            <button class="btn btn-primary btn-sm" ng-click="$ctrl.editShippingItems()">Edit Shipping Items</button>
           </div>
         </div>
       </div>
-		<div class="form-group col-xs-12 col-sm-6" ng-show="lot.unmanifested || lot.manifestFileLocation">
+		<div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.lot.unmanifested || $ctrl.lot.manifestFileLocation">
 			<label for="totalUnitsInput">Total Units</label>
-			<input class="form-control" id="totalUnitsInput" required ng-model="lot.totalUnits">
+			<input class="form-control" id="totalUnitsInput" required ng-model="$ctrl.lot.totalUnits">
     </div>
-    <div class="form-group col-xs-12 col-sm-6" ng-show="lot.unmanifested || lot.manifestFileLocation">
+    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.lot.unmanifested || $ctrl.lot.manifestFileLocation">
 			<label for="estimatedRetailValueInput">Estimated Retail Value</label>
-			<input class="form-control" id="estimatedRetailValueInput" required ng-model="lot.estimatedRetailValue">
+			<input class="form-control" id="estimatedRetailValueInput" required ng-model="$ctrl.lot.estimatedRetailValue">
 		</div>
 		<div class="col-xs-12">
 			<h3>Listings</h3>
-			<div class="form-group" ng-class="{ 'has-error' : !verifyTitle()}">
+			<div class="form-group" ng-class="{ 'has-error' : !$ctrl.verifyTitle()}">
 				<label>Title</label>
-				<input class="form-control" name="listingTitle" id="listingTitleinput" ng-keyup="verifyTitle()" ng-model="lot.listingData.title">
-				<span class="text-danger h4" ng-show="titleTooLong.bstock && lot.destinationMarketplace ==='bstock'">Title too long for a Bstock Listing</span>
-				<span class="text-danger h4" ng-show="titleTooLong.shopify && lot.destinationMarketplace ==='wholesaleninjas'">Title too long for a Shopify Listing</span>
+				<input class="form-control" name="listingTitle" id="listingTitleinput" ng-keyup="$ctrl.verifyTitle()" ng-model="$ctrl.lot.listingData.title">
+				<span class="text-danger h4" ng-show="$ctrl.titleTooLong.bstock && $ctrl.lot.destinationMarketplace ==='bstock'">Title too long for a Bstock Listing</span>
+				<span class="text-danger h4" ng-show="$ctrl.titleTooLong.shopify && $ctrl.lot.destinationMarketplace ==='wholesaleninjas'">Title too long for a Shopify Listing</span>
 			</div>
 			<div>
 				<label>Body (boilerplate omitted)</label>
-				<textarea rows="15" class="form-control" name="listingBody" id="listingBodyInput" required ng-model="lot.listingData.body"></textarea>
+				<textarea rows="15" class="form-control" name="listingBody" id="listingBodyInput" required ng-model="$ctrl.lot.listingData.body"></textarea>
 			</div>
 		</div>
 	</div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="$close(lot)" ng-disabled="invalidLot()">Save edit data</button>
+    <button class="btn btn-primary" type="button" ng-click="$close($ctrl.lot)" ng-disabled="$ctrl.invalidLot()">Save edit data</button>
     <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
 </div>
