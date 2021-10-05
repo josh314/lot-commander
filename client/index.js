@@ -39,6 +39,7 @@ import "./js/ng/services/session-timeout-svc.js";
 import "./js/ng/services/settings-svc.js";
 import "./js/ng/services/shipment-manager-svc.js";
 import "./js/ng/services/shipping-items-modal-svc.js";
+import "./js/ng/services/user-svc.js";
 
 
 // Angular directives
@@ -51,8 +52,10 @@ import "./js/ng/directives/navbar.js";
 // Angular controllers
 
 import "./js/ng/controllers/auctions-ctrl.js";
+import "./js/ng/controllers/change-user-password-ctrl.js";
 import "./js/ng/controllers/clean-manifest-ctrl.js";
 import "./js/ng/controllers/counter-tool-ctrl.js";
+import "./js/ng/controllers/create-new-user-ctrl.js";
 import "./js/ng/controllers/edit-lot-modal-ctrl.js";
 import "./js/ng/controllers/edit-manifest-ctrl.js";
 import "./js/ng/controllers/flash-ctrl.js";
@@ -61,6 +64,8 @@ import "./js/ng/controllers/history-ctrl.js";
 import "./js/ng/controllers/image-editor-ctrl.js";
 import "./js/ng/controllers/list-lots-ctrl.js";
 import "./js/ng/controllers/list-manifests-ctrl.js";
+import "./js/ng/controllers/list-users-ctrl.js";
+import "./js/ng/controllers/logout-ctrl.js";
 import "./js/ng/controllers/manual-inventory-ctrl.js";
 import "./js/ng/controllers/navbar-ctrl.js";
 import "./js/ng/controllers/new-lot-ctrl.js";
@@ -74,5 +79,4 @@ import "./js/ng/controllers/shipment-list-ctrl.js";
 import "./js/ng/controllers/shipping-items-modal-ctrl.js";
 import "./js/ng/controllers/submit-listing-ctrl.js";
 import "./js/ng/controllers/upload-lot-manifest-ctrl.js";
-import "./js/ng/controllers/users-ctrl.js";
 import "./js/ng/controllers/view-lot-ctrl.js";
