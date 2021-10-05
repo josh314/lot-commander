@@ -62,6 +62,7 @@ import "./js/ng/controllers/image-editor-ctrl.js";
 import "./js/ng/controllers/list-lots-ctrl.js";
 import "./js/ng/controllers/list-manifests-ctrl.js";
 import "./js/ng/controllers/manual-inventory-ctrl.js";
+import "./js/ng/controllers/navbar-ctrl.js";
 import "./js/ng/controllers/new-lot-ctrl.js";
 import "./js/ng/controllers/past-image-gallery-modal-ctrl.js";
 import "./js/ng/controllers/reports-ctrl.js";

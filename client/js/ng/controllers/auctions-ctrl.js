@@ -1,40 +1,47 @@
 import angular from 'angular';
 
-/******************* Open Auctions Controller *************************/
-angular.module('myApp').controller('ListAuctionsCtrl', ['$http', '$scope', 'sessionTimeout',
-  function($http, $scope, sessionTimeout) {   
-    sessionTimeout.timeoutExpired();
-    $scope.auctions = [];
+import * as api from '../../api';
 
-    $scope.auctionStatusOptions = [ 'All', 'Open', 'Sold', 'Unsold', 'Cancelled' ];
-    $scope.auctionStatus = 'Open';
+/******************* Open Auctions Controller *************************/
+angular.module('myApp').controller('ListAuctionsCtrl', [ 'LotSvc', 'sessionTimeout',
+  function( LotSvc, sessionTimeout ) {
+    sessionTimeout.timeoutExpired();
+
+    const vm = this;
+
+    vm.auctions = [];
+    vm.auctionStatusOptions = [ 'All', 'Open', 'Sold', 'Unsold', 'Cancelled' ];
+    vm.auctionStatus = 'Open';
+
+    vm.update = updateAuctionList;
 
     function updateAuctionList() {
       //TODO: sort by auction end date (or maybe update date)
       const query = {
-        auction_status: $scope.auctionStatus==='All' ? undefined : $scope.auctionStatus,
-        lot_id: $scope.auctionLotId,
+        auction_status: vm.auctionStatus==='All' ? undefined : vm.auctionStatus,
+        lot_id: vm.auctionLotId,
       };
-      $http.post('/api/bstock-db/auctions/get', query).then(resp=>{
-        const auctions = resp.data;
+      api.listAuctions( query ).then( auctions =>{
+
+        vm.auctions = auctions;
+
         auctions.forEach((auction)=>{
           auction.readableEndDate = (new Date(auction.auction_end_time)).toLocaleString();
           auction.readableStartDate = (new Date(auction.auction_start_time)).toLocaleString();
         });
-        $scope.auctions = auctions;
+
         for(let auction of auctions) {
-          $http.post(`/api/db/get/`, {handle: auction.lot_id}).then(resp=>{
-            if(resp.data && resp.data.length) {
+          LotSvc.list( { handle: auction.lot_id } ).then( lots =>{
+            if( lots.length ) {
               auction.inLotDb = true;
-              auction.lotDbId = resp.data[0]._id;
+              auction.lotDbId = lots[0]._id;
             }
           });
         }
+
       });
     }
     updateAuctionList();
-
-    $scope.update = updateAuctionList;
   }
 ]);
 

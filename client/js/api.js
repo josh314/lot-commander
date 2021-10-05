@@ -208,6 +208,27 @@ export function generateLotManifest( lotId, save = true, bstock = false ) {
 
 }
 
+
+/*************************************************
+* Reports
+* =======
+*
+************/
+
+export function listAuctions( query ) {
+
+  return axios({
+    method: 'post',
+    url: '/api/bstock-db/auctions/get',
+    data: query
+  })
+    .then(resp=>{
+      const auctions = resp.data;
+      return auctions;
+    });
+
+}
+
 /*************************************************
 * Reports
 * =======
