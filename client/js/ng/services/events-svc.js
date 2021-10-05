@@ -1,6 +1,6 @@
 import angular from 'angular';
 
-import * as api from '../api';
+import * as api from '../../api';
 
 const datify = o => Object.assign( o, { createdAt: new Date(o.createdAt), updatedAt: new Date (o.updatedAt) } );
 

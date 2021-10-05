@@ -1,5 +1,5 @@
 import angular from 'angular';
-import * as DisplayEvents from '../display-events';
+import * as DisplayEvents from '../../display-events';
 
 /******************* History Controller *************************/
 angular.module('myApp').controller('HistoryCtrl', [ 'EventsSvc', 'sessionTimeout',  

@@ -2,8 +2,8 @@ import angular from 'angular';
 
 import moment from 'moment';
 
-import { Graph } from '../graph';
-import * as api from '../api';
+import { Graph } from '../../graph';
+import * as api from '../../api';
 
 const reportApiFn = (reportType) => {
   if( reportType == 'units sold' ) {

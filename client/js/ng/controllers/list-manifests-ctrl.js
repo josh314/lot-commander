@@ -1,6 +1,6 @@
 import * as path from 'path';
 import angular from 'angular';
-import * as api from '../api';
+import * as api from '../../api';
 
 /******************* Manifest Cleaner Controller *************************/
 angular.module('myApp').controller('ListManifestsCtrl', ['$q', 'sessionTimeout',  

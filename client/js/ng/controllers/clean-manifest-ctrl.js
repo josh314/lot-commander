@@ -1,8 +1,8 @@
 import angular from 'angular';
 import * as xlsx from 'xlsx';
 
-import { Sheet } from '../sheet';
-import { Manifest } from '../manifest';
+import { Sheet } from '../../sheet';
+import { Manifest } from '../../manifest';
 
 /******************* Manifest Cleaner Controller *************************/
 angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', '__STANDARD_MANIFEST_COLUMNS__', '__STANDARD_MANIFEST_BARCODE_COLUMN__', 'sessionTimeout',

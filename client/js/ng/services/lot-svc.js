@@ -1,6 +1,6 @@
 import angular from 'angular';
 
-import * as api from '../api';
+import * as api from '../../api';
 
 /******************* Service for managing lots ***/
 angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',

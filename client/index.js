@@ -14,49 +14,64 @@ Promise.config({
 
 
 // Angular setup
-import "./js/ng-app";
+import "./js/ng/app";
 
-// Angular components
-import "./js/components/audio-alert-svc.js";
-import "./js/components/auctions.js";
-import "./js/components/clean-manifest-ctrl.js";
-import "./js/components/confirmation-modal-svc.js";
-import "./js/components/counter-tool-ctrl.js";
-import "./js/components/edit-lot-modal-ctrl.js";
-import "./js/components/edit-manifest.js";
-import "./js/components/events-svc.js";
-import "./js/components/file-upload.js";
-import "./js/components/flash.js";
-import "./js/components/focus.js";
-import "./js/components/footer.js";
-import "./js/components/gallery.js";
-import "./js/components/history-ctrl.js";
-import "./js/components/image-editor.js";
-import "./js/components/image-svc.js";
-import "./js/components/list-lots.js";
-import "./js/components/list-manifests-ctrl.js";
-import "./js/components/listing-builder.js";
-import "./js/components/listing-title-verifier.js";
-import "./js/components/lot-store.js";
-import "./js/components/lot-svc.js";
-import "./js/components/message-modal.js";
-import "./js/components/manual-inventory";
-import "./js/components/navbar.js";
-import "./js/components/navigate-svc.js";
-import "./js/components/new-lot.js";
-import "./js/components/packaging-type-info-modal.js";
-import "./js/components/past-image-gallery-modal-ctrl.js";
-import "./js/components/print-svc.js";
-import "./js/components/reports-ctrl.js";
-import "./js/components/root.js";
-import "./js/components/scan.js";
-import "./js/components/settings-svc.js";
-import "./js/components/shipment-creation-ctrl.js";
-import "./js/components/shipment-details-ctrl.js";
-import "./js/components/shipment-list-ctrl.js";
-import "./js/components/shipment-manager-svc.js";
-import "./js/components/shipping-items-modal.js";
-import "./js/components/submit-listing.js";
-import "./js/components/upload-lot-manifest.js";
-import "./js/components/users.js";
-import "./js/components/view-lot.js";
+// Angular services
+
+import "./js/ng/services/audio-alert-svc.js";
+import "./js/ng/services/confirmation-modal-svc.js";
+import "./js/ng/services/events-svc.js";
+import "./js/ng/services/file-upload-svc.js";
+import "./js/ng/services/focus-svc.js";
+import "./js/ng/services/image-svc.js";
+import "./js/ng/services/listing-builder-svc.js";
+import "./js/ng/services/listing-title-verifier-svc.js";
+import "./js/ng/services/logged-in-user-svc.js";
+import "./js/ng/services/logout-svc.js";
+import "./js/ng/services/lot-store-svc.js";
+import "./js/ng/services/lot-svc.js";
+import "./js/ng/services/manual-inventory-svc.js";
+import "./js/ng/services/message-modal-svc.js";
+import "./js/ng/services/navigate-svc.js";
+import "./js/ng/services/packaging-type-info-modal-svc.js";
+import "./js/ng/services/print-svc.js";
+import "./js/ng/services/session-timeout-svc.js";
+import "./js/ng/services/settings-svc.js";
+import "./js/ng/services/shipment-manager-svc.js";
+import "./js/ng/services/shipping-items-modal-svc.js";
+
+
+// Angular directives
+
+import "./js/ng/directives/file-model.js";
+import "./js/ng/directives/file-list-model.js";
+import "./js/ng/directives/footer.js";
+import "./js/ng/directives/navbar.js";
+
+// Angular controllers
+
+import "./js/ng/controllers/auctions-ctrl.js";
+import "./js/ng/controllers/clean-manifest-ctrl.js";
+import "./js/ng/controllers/counter-tool-ctrl.js";
+import "./js/ng/controllers/edit-lot-modal-ctrl.js";
+import "./js/ng/controllers/edit-manifest-ctrl.js";
+import "./js/ng/controllers/flash-ctrl.js";
+import "./js/ng/controllers/gallery-ctrl.js";
+import "./js/ng/controllers/history-ctrl.js";
+import "./js/ng/controllers/image-editor-ctrl.js";
+import "./js/ng/controllers/list-lots-ctrl.js";
+import "./js/ng/controllers/list-manifests-ctrl.js";
+import "./js/ng/controllers/manual-inventory-ctrl.js";
+import "./js/ng/controllers/new-lot-ctrl.js";
+import "./js/ng/controllers/past-image-gallery-modal-ctrl.js";
+import "./js/ng/controllers/reports-ctrl.js";
+import "./js/ng/controllers/root-ctrl.js";
+import "./js/ng/controllers/scan-ctrl.js";
+import "./js/ng/controllers/shipment-creation-ctrl.js";
+import "./js/ng/controllers/shipment-details-ctrl.js";
+import "./js/ng/controllers/shipment-list-ctrl.js";
+import "./js/ng/controllers/shipping-items-modal-ctrl.js";
+import "./js/ng/controllers/submit-listing-ctrl.js";
+import "./js/ng/controllers/upload-lot-manifest-ctrl.js";
+import "./js/ng/controllers/users-ctrl.js";
+import "./js/ng/controllers/view-lot-ctrl.js";

@@ -1,7 +1,7 @@
 import angular from "angular";
 import * as Promise from "bluebird";
 
-import errorImg from '../../030-warning.svg';
+import errorImg from '../../../030-warning.svg';
 
 const urls = {
   upload: '/api/image/upload',

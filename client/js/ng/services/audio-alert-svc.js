@@ -1,8 +1,8 @@
 import angular from 'angular';
 
-import successBeepWav from '../../audio/success.wav';
-import warningBeepWav from '../../audio/fail-1.wav';
-import failBeepWav from '../../audio/fail-2.wav';
+import successBeepWav from '../../../audio/success.wav';
+import warningBeepWav from '../../../audio/fail-1.wav';
+import failBeepWav from '../../../audio/fail-2.wav';
 
 const successBeep = new Audio(successBeepWav);
 const warningBeep = new Audio(warningBeepWav);
