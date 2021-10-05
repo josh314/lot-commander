@@ -1,16 +1,18 @@
 import angular from 'angular';
 import dayjs from 'dayjs';
 
+import { ManualInventory } from '../../manual-inventory.js';
+
 /******************* Manual Inventory Controller *************************/
-angular.module('myApp').controller('ManualInventoryCtrl', [ '$anchorScroll', 'LoggedInUser', 'ManualInventorySvc', 'NewManualInventorySvc', 'sessionTimeout', 
-  function( $anchorScroll, LoggedInUser, ManualInventorySvc, NewManualInventorySvc, sessionTimeout ) {
+angular.module('myApp').controller('ManualInventoryCtrl', [ '$anchorScroll', 'LoggedInUser', 'ManualInventorySvc', 'sessionTimeout', 
+  function( $anchorScroll, LoggedInUser, ManualInventorySvc, sessionTimeout ) {
     sessionTimeout.timeoutExpired();
 
     const TODAY = dayjs().format('YYYY-MM-DD');
 
     const vm = this;
     vm.showCreateInventoryControls = LoggedInUser.hasPermission('CREATE_MANUAL_INVENTORY');
-    vm.newInventory = NewManualInventorySvc;
+    vm.newInventory = new ManualInventory();
     vm.newInventoryMaxReportDate = TODAY;
     vm.addGroup = addGroup;
     vm.removeGroup = removeGroup;
@@ -61,20 +63,20 @@ angular.module('myApp').controller('ManualInventoryCtrl', [ '$anchorScroll', 'Lo
 
     function addGroup() {
 
-      NewManualInventorySvc.addGroup( vm.groupToAdd );
+      vm.newInventory.addGroup( vm.groupToAdd );
       vm.groupToAdd = '';
 
     }
 
     function removeGroup( grp ) {
 
-      NewManualInventorySvc.removeGroup( grp );
+      vm.newInventory.removeGroup( grp );
 
     }
 
     function submitNewInventory() {
 
-      if( NewManualInventorySvc.isInvalid() ) {
+      if( vm.newInventory.isInvalid() ) {
         return;
       }
 
@@ -82,17 +84,17 @@ angular.module('myApp').controller('ManualInventoryCtrl', [ '$anchorScroll', 'Lo
 
       if( vm.editingInventoryId ) {
 
-        req = ManualInventorySvc.edit( vm.editingInventoryId );
+        req = ManualInventorySvc.edit( vm.editingInventoryId, vm.newInventory.getData() );
         vm.editingInventoryId = null;
       }
       else {
 
-        req = ManualInventorySvc.create();
+        req = ManualInventorySvc.create( vm.newInventory.getData() );
           
       }
 
       req
-        .then( _ => NewManualInventorySvc.clear() )
+        .then( _ => vm.newInventory.clear() )
         .then( _ => refresh() );
 
     }
@@ -103,10 +105,8 @@ angular.module('myApp').controller('ManualInventoryCtrl', [ '$anchorScroll', 'Lo
 
     function startEditManualInventory( inventory ) {
 
-      NewManualInventorySvc.clear( );
-
-      NewManualInventorySvc.set( inventory );
-
+      vm.newInventory.clear( );
+      vm.newInventory.set( inventory );
       vm.editingInventoryId = inventory._id;
 
       // scroll to the top of page to show input form
@@ -116,7 +116,7 @@ angular.module('myApp').controller('ManualInventoryCtrl', [ '$anchorScroll', 'Lo
 
     function cancelEditManualInventory( ) {
       vm.editingInventoryId = null;
-      NewManualInventorySvc.clear();
+      vm.newInventory.clear();
     }
 
     function deleteManualInventory( inventory ) {
@@ -164,7 +164,7 @@ angular.module('myApp').controller('ManualInventoryCtrl', [ '$anchorScroll', 'Lo
 
     //TODO: clear newInventory button
     const init = () => {
-      refreshManualInventoryList();
+      refresh();
     };
 
     // Initialize the page
