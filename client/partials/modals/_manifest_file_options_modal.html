@@ -6,9 +6,9 @@
     <div class="row form-group">
       <div class="col-xs-12">
         <label for="filenameInput">Filename</label>
-        <input type="text" id="filenameInput" class="form-control" ng-model="manifestOptions.filename">
+        <input type="text" id="filenameInput" class="form-control" ng-model="$ctrl.manifestOptions.filename">
       </div>
-      <div class="col-xs-12" ng-repeat="sheetName in manifestOptions.sheetNames">
+      <div class="col-xs-12" ng-repeat="sheetName in $ctrl.manifestOptions.sheetNames">
         <label for="sheetname{{$index+1}}">Sheetname {{$index+1}}</label>
         <input type="text" id="sheetname{{$index+1}}" class="form-control" ng-model="sheetName.new">
       </div>
@@ -16,6 +16,6 @@
 	</div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="$close(manifestOptions)">Download Manifest</button>
+    <button class="btn btn-primary" type="button" ng-click="$close($ctrl.manifestOptions)">Download Manifest</button>
     <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
 </div>

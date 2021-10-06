@@ -5,8 +5,8 @@ import { Sheet } from '../../sheet';
 import { Manifest } from '../../manifest';
 
 /******************* Manifest Cleaner Controller *************************/
-angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', '__STANDARD_MANIFEST_COLUMNS__', '__STANDARD_MANIFEST_BARCODE_COLUMN__', 'sessionTimeout',
-  function($scope, $uibModal, __STANDARD_MANIFEST_COLUMNS__, __STANDARD_MANIFEST_BARCODE_COLUMN__, sessionTimeout) {
+angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '__STANDARD_MANIFEST_COLUMNS__', '__STANDARD_MANIFEST_BARCODE_COLUMN__', 'ManifestFileOptionsModal', 'sessionTimeout',
+  function($scope, __STANDARD_MANIFEST_COLUMNS__, __STANDARD_MANIFEST_BARCODE_COLUMN__, ManifestFileOptionsModal, sessionTimeout) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -30,10 +30,6 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', 
         const data = new Uint8Array(e.target.result);
         const wb = xlsx.read(data, {type: 'array'});
         console.log(wb);
-
-        const fileNameParts = vm.manifestFile.name.split('.');
-        fileNameParts.pop();
-        vm.outputFilename = fileNameParts.concat( [ 'cleaned', 'xlsx' ] ).join('.');
 
         $scope.$apply(function(){
           vm.manifest = new Manifest();
@@ -71,46 +67,42 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', 
       vm.manifest.addCheckDigitsAllSheets();
     };
 
-    vm.createExcelOutput = function() {
-      const wb = vm.manifest.createExcelWorkbook();
-      xlsx.writeFile(wb, vm.outputFilename);
-    };
+    function createExcelOutput( filename, manifest ) {
+      const wb = manifest.createExcelWorkbook();
+      xlsx.writeFile(wb, filename);
+    }
 
     vm.deleteSheet = function(sheet) {
       vm.manifest.deleteSheet(sheet);
     };
 
     vm.launchManifestFileOptionsModal = function() {
-      const modalInstance = $uibModal.open({
-        templateUrl: '/partials/modals/_manifest_file_options_modal.html',
-        size: 'lg',
-        controller: 'ManifestFileOptionsModalController',
-        backdrop: 'static',
-        resolve: {
-          options: function () {
-            return {
-              filename: vm.outputFilename,
-              sheetNames: vm.manifest.sheets.map( s => ( { old: s.name, new: s.name } ) )
-            };
-          }
-        },
-      });
 
-      modalInstance.result.then(function(manifestOptions) {
-        if(!manifestOptions) {
-          return;
-        }
-        console.log(manifestOptions);
-        for(const sheetName of manifestOptions.sheetNames) {
-          if(sheetName.old!=sheetName.new) {
-            vm.manifest.renameSheet(sheetName.old, sheetName.new);
+      const fileNameParts = vm.manifestFile.name.split('.');
+      fileNameParts.pop();
+      const outputFilename = fileNameParts.concat( [ 'cleaned', 'xlsx' ] ).join('.');
+
+      ManifestFileOptionsModal.launch(
+        // modal data
+        {
+          filename: outputFilename,
+          sheetNames: vm.manifest.sheets.map( s => ( { old: s.name, new: s.name } ) )
+        },
+        // callback upon modal closing
+        ( manifestOptions ) => {
+          if(!manifestOptions) {
+            return;
           }
+          for(const sheetName of manifestOptions.sheetNames) {
+            if(sheetName.old!=sheetName.new) {
+              vm.manifest.renameSheet(sheetName.old, sheetName.new);
+            }
+          }
+          createExcelOutput( manifestOptions.filename , vm.manifest);
         }
-        // vm.outputFilename = manifestOptions.filename;
-        vm.createExcelOutput();
-      }, function () {
-        console.log('Modal dismissed at: ' + new Date());
-      });
+
+      );
+
     };
 
     vm.splitActiveSheetByColumn = function( column ) {
@@ -118,8 +110,3 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '$uibModal', 
     };
   }
 ]);
-
-/***************** Modal Controllers ************************/
-angular.module('myApp').controller('ManifestFileOptionsModalController', ['$scope', 'options', function($scope, options){
-  $scope.manifestOptions = options;
-}]);
