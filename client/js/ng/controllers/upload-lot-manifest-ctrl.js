@@ -1,7 +1,7 @@
 import angular from 'angular';
 
 /******************* Upload 3rd Part Manifest Controller *************************/
-angular.module('myApp').controller('UploadLotManifestController', ['$state', '$stateParams', 'fileUpload', 'messageModal', 'sessionTimeout', 
+angular.module('myApp').controller('UploadLotManifestCtrl', ['$state', '$stateParams', 'fileUpload', 'messageModal', 'sessionTimeout', 
   function($state, $stateParams, fileUpload, messageModal, sessionTimeout) {
     sessionTimeout.timeoutExpired();
 

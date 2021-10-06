@@ -74,12 +74,19 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal'
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_preview_image_edit_modal.html',
         size: 'lg',
-        controller: 'PreviewImageEditModalController as preview',
+
         resolve: {
           image: function () {
             return image;
           }
         },
+
+        controller: [ 'image', function(image) {
+          const vm = this;
+          vm.image = image;
+        }],
+        controllerAs: '$ctrl',
+
       });
 
       modalInstance.result.then(async function () {
@@ -92,9 +99,3 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal'
     };
   }
 ]);
-
-/******************* Preview Image edit Modal controller *******************************/
-angular.module('myApp').controller('PreviewImageEditModalController', [ 'image', function(image) {
-  const vm = this;
-  vm.image = image;
-}]);
