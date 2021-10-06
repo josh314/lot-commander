@@ -10,6 +10,8 @@ angular.module('myApp').factory('shippingItemsModal', [ '$uibModal', 'lotStore',
         const modalInstance = $uibModal.open({
           templateUrl: '/partials/modals/_shipping_items_modal.html',
           size: 'lg',
+          backgdrop: 'static',
+
           controller: 'ShippingItemsModalCtrl as ctrl',
           resolve: {
             shippingItems: function () {
