@@ -31,6 +31,7 @@ import "./js/ng/services/logout-svc.js";
 import "./js/ng/services/lot-store-svc.js";
 import "./js/ng/services/lot-svc.js";
 import "./js/ng/services/manual-inventory-svc.js";
+import "./js/ng/services/manifest-file-handler-svc.js";
 import "./js/ng/services/manifest-file-options-modal-svc.js";
 import "./js/ng/services/message-modal-svc.js";
 import "./js/ng/services/navigate-svc.js";

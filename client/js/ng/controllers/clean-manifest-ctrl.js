@@ -1,12 +1,8 @@
 import angular from 'angular';
-import * as xlsx from 'xlsx';
-
-import { Sheet } from '../../sheet';
-import { Manifest } from '../../manifest';
 
 /******************* Manifest Cleaner Controller *************************/
-angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '__STANDARD_MANIFEST_COLUMNS__', '__STANDARD_MANIFEST_BARCODE_COLUMN__', 'ManifestFileOptionsModal', 'sessionTimeout',
-  function($scope, __STANDARD_MANIFEST_COLUMNS__, __STANDARD_MANIFEST_BARCODE_COLUMN__, ManifestFileOptionsModal, sessionTimeout) {
+angular.module('myApp').controller('CleanManifestCtrl', ['ManifestFileHandler', 'sessionTimeout',
+  function( ManifestFileHandler, sessionTimeout) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -17,7 +13,19 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '__STANDARD_M
     vm.noHeaderRow = false;
     vm.skipFirstRows = 0;
 
-    vm.loadManifest = function() {
+    vm.loadManifest = loadManifest;
+    vm.toggleSelect = column => column.toggleSelect;
+    vm.getActiveSheet = () => vm.manifest ? vm.manifest.getActiveSheet(): null;
+    vm.setActiveSheet = sheetName => vm.manifest ? vm.manifest.setActiveSheet(sheetName): null;
+    vm.addCheckDigitsAllSheets = () => vm.manifest.addCheckDigitsAllSheets();
+    vm.deleteSheet = sheet => vm.manifest.deleteSheet(sheet);
+    vm.splitActiveSheetByColumn =  column => vm.manifest.splitActiveSheetByColumn( column );
+    vm.startManifestDownload = startManifestDownload;
+
+    //////////
+
+    function loadManifest() {
+
       if(!vm.manifestFile) {
         vm.noFileSelected = true;
         return;
@@ -25,88 +33,21 @@ angular.module('myApp').controller('CleanManifestCtrl', ['$scope', '__STANDARD_M
       else {
         vm.noFileSelected = false;
       }
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const wb = xlsx.read(data, {type: 'array'});
-        console.log(wb);
 
-        $scope.$apply(function(){
-          vm.manifest = new Manifest();
-          for( const [name, data] of Object.entries(wb.Sheets) ) {
-            const sheetOpts = {
-              manifest: vm.manifest,
-              name: name,
-              data: data,
-              noHeaderRow: vm.noHeaderRow,
-              skipFirstRows: vm.skipFirstRows,
-              standardColumnNames: __STANDARD_MANIFEST_COLUMNS__,
-              standardBarcodeColumnName: __STANDARD_MANIFEST_BARCODE_COLUMN__,
-            };
-            vm.manifest.addSheet( new Sheet(sheetOpts) );
-          }
-
-        });
-      };
-      reader.readAsArrayBuffer(vm.manifestFile);
-    };
-
-    vm.toggleSelect = function(column) {
-      column.toggleSelect();
-    };
-
-    vm.getActiveSheet = function() {
-      return vm.manifest ? vm.manifest.getActiveSheet(): null;
-    };
-
-    vm.setActiveSheet = function(sheetName) {
-      return vm.manifest ? vm.manifest.setActiveSheet(sheetName): null;
-    };
-
-    vm.addCheckDigitsAllSheets = function() {
-      vm.manifest.addCheckDigitsAllSheets();
-    };
-
-    function createExcelOutput( filename, manifest ) {
-      const wb = manifest.createExcelWorkbook();
-      xlsx.writeFile(wb, filename);
+      ManifestFileHandler.load( vm.manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( manifest => vm.manifest = manifest );
+      
     }
 
-    vm.deleteSheet = function(sheet) {
-      vm.manifest.deleteSheet(sheet);
-    };
 
-    vm.launchManifestFileOptionsModal = function() {
+    function startManifestDownload() {
 
       const fileNameParts = vm.manifestFile.name.split('.');
       fileNameParts.pop();
       const outputFilename = fileNameParts.concat( [ 'cleaned', 'xlsx' ] ).join('.');
 
-      ManifestFileOptionsModal.launch(
-        // modal data
-        {
-          filename: outputFilename,
-          sheetNames: vm.manifest.sheets.map( s => ( { old: s.name, new: s.name } ) )
-        },
-        // callback upon modal closing
-        ( manifestOptions ) => {
-          if(!manifestOptions) {
-            return;
-          }
-          for(const sheetName of manifestOptions.sheetNames) {
-            if(sheetName.old!=sheetName.new) {
-              vm.manifest.renameSheet(sheetName.old, sheetName.new);
-            }
-          }
-          createExcelOutput( manifestOptions.filename , vm.manifest);
-        }
+      ManifestFileHandler.download( { manifest: vm.manifest, filename: outputFilename } );
 
-      );
+    }
 
-    };
-
-    vm.splitActiveSheetByColumn = function( column ) {
-      vm.manifest.splitActiveSheetByColumn( column );
-    };
   }
 ]);
