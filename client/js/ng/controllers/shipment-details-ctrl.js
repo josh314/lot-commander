@@ -5,8 +5,8 @@ function htmlifyText( txt ) {
 }
 
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'EventsSvc', 'focus', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc',
-  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, EventsSvc, focus, LoggedInUser, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc ) {
+angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'focus', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc',
+  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, focus, LoggedInUser, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc ) {
 
     /****************************************************
      * View variables

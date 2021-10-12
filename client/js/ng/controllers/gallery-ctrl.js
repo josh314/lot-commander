@@ -2,8 +2,8 @@ import angular from 'angular';
 
 
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('GalleryCtrl', ['$scope', '$window', 'ImageSvc', 'lotStore', 'LotSvc',
-  function( $scope, $window, ImageSvc, lotStore, LotSvc ){
+angular.module('myApp').controller('GalleryCtrl', ['$scope', 'ImageSvc', 'lotStore', 'LotSvc',
+  function( $scope, ImageSvc, lotStore, LotSvc ){
     const vm = this;
 
     vm.lot = lotStore;
@@ -27,33 +27,6 @@ angular.module('myApp').controller('GalleryCtrl', ['$scope', '$window', 'ImageSv
         }
       }
 
-      // const galleryContainer = $window.document.getElementById('gallery-container');
-      // for(let _ of itemImages) {
-      //   const itemGalleryContainer = $window.document.createElement('div');
-      //   const itemGallery = $window.document.createElement('div');
-      //   itemGallery.className = "row";
-      //   const itemGalleryHeader = $window.document.createElement('h4');
-      //   itemGalleryHeader.className = "text-center"
-      //   itemGalleryHeader.appendChild($window.document.createTextNode(`${_.barcode}${_.description ? ` - ${_.description}`: ''}`));
-      //   itemGallery.appendChild(itemGalleryHeader);
-      //   itemGalleryContainer.appendChild(itemGallery);
-
-      //   for(let img of _.images) {
-      //     img.className = 'img-responsive inventory-gallery-img';
-
-      //     const imgContainer = $window.document.createElement('div');
-      //     imgContainer.className = 'item-image-gallery-item col-xs-6 col-sm-4 col-md-4 col-lg-2';
-
-      //     const imgLink = $window.document.createElement('a');
-      //     imgLink.href = img.src;
-
-      //     imgLink.appendChild(img);
-      //     imgContainer.appendChild(imgLink);
-      //     itemGallery.appendChild(imgContainer);
-      //   }
-
-      //   galleryContainer.appendChild(itemGallery);
-      // }
     };
 
     LotSvc.load().then(()=>{

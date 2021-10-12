@@ -58,6 +58,7 @@ module.exports = {
         "angular/controller-as": "off",
         "angular/controller-name": "off",
         "angular/di": [2, "array"],
+        "angular/di-unused": "warn",
         "angular/json-functions": "off",
         "angular/log": "off",
         "angular/no-service-method": "off",
