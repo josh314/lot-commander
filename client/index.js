@@ -36,6 +36,7 @@ import "./js/ng/services/manifest-file-options-modal-svc.js";
 import "./js/ng/services/message-modal-svc.js";
 import "./js/ng/services/navigate-svc.js";
 import "./js/ng/services/packaging-type-info-modal-svc.js";
+import "./js/ng/services/pallets-from-manifest-modal-svc.js";
 import "./js/ng/services/print-svc.js";
 import "./js/ng/services/session-timeout-svc.js";
 import "./js/ng/services/settings-svc.js";

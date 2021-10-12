@@ -45,15 +45,15 @@ const queryParams = ( params ) => {
 angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'ShipmentFactory',
   function( $q, $stateParams, ShipmentFactory ) {
 
-    const shipmentId = () =>  $stateParams.shipmentId;
+    const _shipmentId = () =>  $stateParams.shipmentId;
 
     return {
 
       createShipment: ( shipment ) => $q.when( api.createIncomingShipment( shipment ) ),
 
-      getShipmentId: () => shipmentId(),
+      getShipmentId: () => _shipmentId(),
 
-      loadShipment: ( { populate = [] } = {} ) => $q.when( api.getIncomingShipmentById( shipmentId(), { populate: populate } ) ).then( resp => {
+      loadShipment: ( { shipmentId, populate = [] } = {} ) => $q.when( api.getIncomingShipmentById( shipmentId || _shipmentId(), { populate: populate } ) ).then( resp => {
         if( !resp || !resp.shipment ) {
           return null;
         }
@@ -87,6 +87,8 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'S
       },
 
       countShipments: filter => $q.when( api.countIncomingShipments( queryParams( filter ) ) ),
+
+      uploadShipmentDocument: ( { shipmentId, file, isRestricted } ) => $q.when( api.uploadIncomingShipmentDocument( shipmentId || _shipmentId(), file, isRestricted ) ),
 
     };
 

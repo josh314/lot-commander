@@ -1,5 +1,6 @@
-<div class="modal-header">
-	<h3 class="modal-title">Create Pallets From File</h3>
+<div class="modal-header" style="display: flex;">
+	<span class="modal-title h3">Create Pallets From File</span>
+  <span class="glyphicon glyphicon-remove" style="margin-left: auto;" ng-click="$dismiss()"></span>
 </div>
 
 
@@ -7,11 +8,6 @@
 
 	<div class="row" ng-hide="$ctrl.manifestLoaded">
     <div class="col-xs-6 row">
-      <div class="form-group col-xs-12" ng-class="{ 'has-error' : $ctrl.noFileSelected }">
-        <label for="fileInput">Manifest File</label>
-        <input type="file" class="form-control" id="fileInput" required file-model="$ctrl.manifestFile">
-        <span class="text-danger h4" ng-show="$ctrl.noFileSelected">Please select a file.</span>
-      </div>
       <div class="form-group col-xs-12">
         <div class="checkbox">
           <label for="noHeaderRowInput">
@@ -22,27 +18,28 @@
       </div>
       <div class="form-group col-xs-12">
         <label for="skipFirstRowsInput">Skip first rows</label>
-        <input type="number" id="skipFirstRowsInput" ng-model="$ctrl.skipFirstRows">
+        <input class="form-control" type="number" id="skipFirstRowsInput" ng-model="$ctrl.skipFirstRows">
       </div>
-    </div>
-    <div class="col-xs-12">
-      <button class="btn btn-primary" type="button" ng-click="$ctrl.loadManifest()">Load Manifest</button>
     </div>
 	</div>
 
   <div class="row" ng-show="$ctrl.manifestLoaded && !$ctrl.palletsStaged">
-    <div class="form-group">
-      <label for="destinationMarketplaceInput">Pallet ID column</label>
-      <select class="form-control" ng-model="$ctrl.palletIdColumn">
-        <option ng-repeat="columnName in $ctrl.columnNames">{{ columnName }}</option>
-      </select>
+    <div class="col-xs-6 row">
+      <div class="form-group col-xs-12">
+        <label for="destinationMarketplaceInput">Pallet ID column</label>
+        <select class="form-control" ng-model="$ctrl.palletIdColumn">
+          <option ng-repeat="columnName in $ctrl.columnNames">{{ columnName }}</option>
+        </select>
+      </div>
     </div>
-    <button ng-click="$ctrl.previewPallets()">Preview pallets</button>
   </div>
 
   <div class="row" ng-show="$ctrl.palletsStaged">
-    <div class="form-group col-xs-12" ng-repeat="palletName in $ctrl.palletNames">
-      <input type="text" class="form-control" ng-model="palletName">
+    <div class="col-xs-12 row">
+      <p class="col-xs-12">Create pallets with these names?</p>
+      <div class="form-group col-xs-12" ng-repeat="palletName in $ctrl.palletNames">
+        <input type="text" class="form-control" ng-model="palletName">
+      </div>
     </div>
   </div>
 
@@ -50,9 +47,19 @@
 
 
 <div class="modal-footer">
-    <span ng-show="$ctrl.palletsStaged">
-      <button class="btn btn-primary" type="button" ng-click="$close( $ctrl.palletNames )">Create</button>
-    </span>
 
+    <!-- Visible before manifest is loaded from file -->
+    <button class="btn btn-primary" type="button" ng-click="$ctrl.loadManifest()" ng-show="!$ctrl.manifestLoaded && !$ctrl.palletsStaged">Load Manifest</button>
+
+    <!-- Visible after manifest is loaded from file but before pallet ID column chosen -->
+    <button class="btn btn-danger" type="button" ng-click="$ctrl.unloadManifest()" ng-show="$ctrl.manifestLoaded && !$ctrl.palletsStaged">Back</button>
+    <button class="btn btn-primary" type="button" ng-click="$ctrl.stagePallets()"  ng-show="$ctrl.manifestLoaded && !$ctrl.palletsStaged">Preview pallets</button>
+
+    <!-- Visible after pallet ID column chosen  -->
+    <button class="btn btn-danger" type="button" ng-click="$ctrl.unstagePallets()" ng-show="$ctrl.palletsStaged">Back</button>
+    <button class="btn btn-primary" type="button" ng-click="$close( $ctrl.palletNames )" ng-show="$ctrl.palletsStaged">Create</button>
+
+    <!-- Always visible -->
     <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+
 </div>

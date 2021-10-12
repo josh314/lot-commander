@@ -3,6 +3,7 @@
   <h2>New Incoming Shipment</h2>
 
   <div class="row well">
+
     <div class="col-xs-12 col-sm-6">
       <div class="form-group" ng-class="{ 'has-error' : $ctrl.validator.invalidHandle }">
         <label for="handleInput">Shipment ID</label>
@@ -10,9 +11,7 @@
         <span class="text-danger h4" ng-show="$ctrl.validator.invalidHandle">No shipment ID submitted.</span>
       </div>
     </div>
-    <div class="col-xs-12 col-sm-6">
-  
-    </div>
+
     <fieldset class="col-xs-12 box-border">
       <legend class="box-border">Purchase</legend>
       <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.invalidVendor }">
@@ -25,6 +24,26 @@
         <input type="number" class="form-control" id="costInput" ng-model="$ctrl.inputs.cost" min="0">
       </div>
     </fieldset>
+
+    <fieldset class="col-xs-12 box-border">
+      <legend class="box-border">Manifest</legend>
+  
+      <div class="col-xs-12 row">
+   
+        <div class="input-group">
+          <span class="input-group-addon">
+            <label for="manifestUploadIsRestrictedInput">Restricted
+              <input type="checkbox" id="manifestUploadIsRestrictedInput" ng-model="$ctrl.inputs.manifest.isRestricted">
+            </label>
+          </span>
+          <input type="file" class="form-control" id="fileInput" required file-model="$ctrl.inputs.manifest.file">
+        </div>
+
+      </div>
+
+    </fieldset>
+
+
     <fieldset class="col-xs-12 box-border">
       <legend class="box-border">Inventory</legend>
       <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $ctrl.validator.invalidSource }">
@@ -78,9 +97,11 @@
           Anonymous Pallet(s)
         </button>
 
-        <button class="btn btn-primary" ng-click="$ctrl.importManifest()">Import Manifest</button>
+        <button class="btn btn-warning" ng-show="$ctrl.inputs.manifest.file" ng-click="$ctrl.importPalletsFromManifest()">Import from Manifest</button>
+
       </div>
     </fieldset>
+
     <fieldset class="col-xs-12 box-border">
       <legend class="box-border">Shipping</legend>
       <div class="col-xs-12 col-sm-6">
@@ -96,6 +117,7 @@
         </div>
       </div>
     </fieldset>
+
   </div>
   <button class="btn btn-success" ng-click="$ctrl.createShipment()">Create</button>
   <span class="text-danger h4" ng-hide="$ctrl.validator.isValid()">Check for input errors.</span>

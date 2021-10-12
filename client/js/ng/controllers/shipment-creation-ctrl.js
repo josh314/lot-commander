@@ -25,24 +25,28 @@ class ShipmentValidator {
 
 /******************* Shipment Creation Page Controller *************************/
 angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'navigate', 'palletCategories', 'PalletsFromManifestModalSvc', 'sessionTimeout', 'ShipmentManagerSvc',
-  function( messageModal, navigate, palletCategories,  PalletsFromManifestModalSvc, sessionTimeout, ShipmentManagerSvc ) {
+  function( messageModal, navigate, palletCategories, PalletsFromManifestModalSvc, sessionTimeout, ShipmentManagerSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
     vm.inputs = {
       categoryOptions: [ "" ].concat( palletCategories ),
+      manifest: {
+        file: null,
+        isRestricted: false
+      },
       pallets: [],
       numAnonymousPallet: ''
     };
     vm.validator = new ShipmentValidator();
 
     vm.refreshValidator = refreshValidator;
-    vm.importManifest = importManifest;
     vm.setPalletCategories = ( ) => vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
     vm.clearPalletUnits = ( ) => vm.inputs.pallets.forEach( p => delete p.units );
     vm.addPallet = () => addPallet({ category: vm.inputs.category });
     vm.removePallet = removePallet;
     vm.addAnonymousPallets = addAnonymousPallets;
+    vm.importPalletsFromManifest = importPalletsFromManifest;
     vm.createShipment = createShipment;
 
 
@@ -65,12 +69,27 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'na
         ShipmentManagerSvc.createShipment( shipmentRequest() ).then( result => {
 
           if( result && result.shipment ) {
-            navigate.shipmentDetails( result.shipment._id );
+            return result.shipment;
           }
           else {
             throw new Error('Server error.');
           }
         })
+          .then( async (shipment) => {
+
+            if( vm.inputs.manifest.file ) {
+
+              await ShipmentManagerSvc.uploadShipmentDocument( {
+                shipmentId: shipment._id,
+                file: vm.inputs.manifest.file,
+                isRestricted: vm.inputs.manifest.isRestricted || false
+              } );
+
+            }
+
+            return shipment;
+          })
+          .then( shipment => navigate.shipmentDetails( shipment._id ) )
           .catch( e => {
             messageModal.launch({header: 'Error', body: e.message, type: 'error'});
           });
@@ -129,74 +148,12 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'na
       return shipment;
     }
 
-    function importManifest() {
-      PalletsFromManifestModalSvc.launch( palletNames => palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category } ) ));
+    function importPalletsFromManifest() {
+
+      PalletsFromManifestModalSvc.launch( vm.inputs.manifest.file, palletNames => palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category } ) ));
+
     }
 
   }
+
 ]);
-
-angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', function( $uibModal ) {
-
-  return {
-    launch: launch,
-  };
-
-  // launches the modal
-  function launch( cb ) {
-
-    const modalInstance = $uibModal.open({
-      templateUrl: '/partials/modals/_pallets_expected_from_manifest_modal.html',
-      size: 'lg',
-      controller: [ 'ManifestFileHandler', modalCtrl ],
-      controllerAs: '$ctrl'
-    });
-
-    modalInstance.result.then( cb || function(){}, function(){} );
-  }
-
-  // The modal controller
-  function modalCtrl( ManifestFileHandler ) {
-
-    const vm = this;
-    vm.manifest = null;
-    vm.noFileSelected = false;
-    vm.manifestFile = null;
-    vm.noHeaderRow = false;
-    vm.skipFirstRows = 0;
-    vm.manifestLoaded = false;
-    vm.palletsStaged = false;
-    vm.loadManifest = loadManifest;
-    vm.previewPallets = previewPallets;
-
-    function loadManifest() {
-
-      if(!vm.manifestFile) {
-        vm.noFileSelected = true;
-        return;
-      }
-      else {
-        vm.noFileSelected = false;
-      }
-
-      ManifestFileHandler.load( vm.manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( manifest => {
-        vm.manifest = manifest;
-        vm.manifestLoaded = true;
-        startPalletConfiguration();
-      });
-
-    }
-
-    function startPalletConfiguration() {
-      vm.palletNames = [];
-      vm.columnNames = vm.manifest.getColumnNamesAllSheets();
-    }
-
-    function previewPallets() {
-      vm.palletNames = vm.manifest.getUniqueValuesInColumnAllSheets( vm.palletIdColumn );
-      vm.palletsStaged = true;
-    }
-
-  }
-
-}]);

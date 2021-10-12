@@ -25,7 +25,7 @@ angular.module('myApp').factory( 'ManifestFileHandler', [ '$q', '__STANDARD_MANI
       load: load,
     };
 
-    function load( file, { noHeaderRow, skipFirstRows } ) {
+    function load( file, { noHeaderRow, skipFirstRows } = {} ) {
 
       return $q.when( readFile( file ) ).then( reader => {
         const data = new Uint8Array( reader.result );
@@ -37,8 +37,8 @@ angular.module('myApp').factory( 'ManifestFileHandler', [ '$q', '__STANDARD_MANI
             manifest: manifest,
             name: name,
             data: data,
-            noHeaderRow: noHeaderRow,
-            skipFirstRows: skipFirstRows,
+            noHeaderRow: noHeaderRow || false,
+            skipFirstRows: skipFirstRows || 0,
             standardColumnNames: __STANDARD_MANIFEST_COLUMNS__,
             standardBarcodeColumnName: __STANDARD_MANIFEST_BARCODE_COLUMN__,
           };
