@@ -317,6 +317,11 @@ export class Sheet {
     return columnWidth;
   }
 
+  getUniqueValuesInColumn( columnName ) {
+    const values = this.rows.map( r => r[ columnName ] ).filter( _ => angular.isDefined(_) );
+    return [ ... new Set( values ) ];
+  }
+
   filterRowDataForOutput(row) {
 
     const columnNameMapping = this.columns.reduce( (mapping, column) => {

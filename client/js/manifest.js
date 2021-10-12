@@ -19,6 +19,34 @@ export class Manifest {
     }
   }
 
+  getColumnNamesAllSheets() {
+    const columnNames = new Set();
+
+    for( let i=0; i<this.sheets.length; i++) {
+      this.sheets[i].columns.forEach( c => columnNames.add( c.name ));
+    }
+
+    return [...columnNames].sort();
+  }
+
+  getUniqueValuesInColumnAllSheets( columnName ) {
+    const columnValues = new Set();
+
+    for( let sheet of this.sheets ) {
+
+      if( sheet.columns.find( c => c.name === columnName ) ) {
+
+        for( let _ of sheet.getUniqueValuesInColumn( columnName ) ) {
+          columnValues.add( _ );
+        }
+
+      }
+
+    }
+
+    return [ ... columnValues ].sort();
+  }
+
   setActiveSheet(sheetName) {
     this.activeSheet = this.sheets.find( s => s.name == sheetName );
   }

@@ -1,13 +1,13 @@
-<div class="container" ng-controller="ShipmentCreationCtrl as ctrl">
+<div class="container" ng-controller="ShipmentCreationCtrl as $ctrl">
 
   <h2>New Incoming Shipment</h2>
 
   <div class="row well">
     <div class="col-xs-12 col-sm-6">
-      <div class="form-group" ng-class="{ 'has-error' : ctrl.validator.invalidHandle }">
+      <div class="form-group" ng-class="{ 'has-error' : $ctrl.validator.invalidHandle }">
         <label for="handleInput">Shipment ID</label>
-        <input type="text" class="form-control" id="handleInput" ng-model="ctrl.inputs.handle" autocomplete="off" ng-change="ctrl.inputs.handle && ctrl.refreshValidator()">
-        <span class="text-danger h4" ng-show="ctrl.validator.invalidHandle">No shipment ID submitted.</span>
+        <input type="text" class="form-control" id="handleInput" ng-model="$ctrl.inputs.handle" autocomplete="off" ng-change="$ctrl.inputs.handle && $ctrl.refreshValidator()">
+        <span class="text-danger h4" ng-show="$ctrl.validator.invalidHandle">No shipment ID submitted.</span>
       </div>
     </div>
     <div class="col-xs-12 col-sm-6">
@@ -15,35 +15,35 @@
     </div>
     <fieldset class="col-xs-12 box-border">
       <legend class="box-border">Purchase</legend>
-      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : ctrl.validator.invalidVendor }">
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.invalidVendor }">
         <label for="vendorInput">Vendor</label>
-        <input type="text" class="form-control" id="vendorInput" ng-model="ctrl.inputs.vendor" autocomplete="off">
-        <span class="text-danger h4" ng-show="ctrl.validator.invalidVendor">No vendor submitted.</span>
+        <input type="text" class="form-control" id="vendorInput" ng-model="$ctrl.inputs.vendor" autocomplete="off">
+        <span class="text-danger h4" ng-show="$ctrl.validator.invalidVendor">No vendor submitted.</span>
       </div>
       <div class="form-group col-xs-12 col-sm-6">
         <label for="costInput">Cost</label>
-        <input type="number" class="form-control" id="costInput" ng-model="ctrl.inputs.cost" min="0">
+        <input type="number" class="form-control" id="costInput" ng-model="$ctrl.inputs.cost" min="0">
       </div>
     </fieldset>
     <fieldset class="col-xs-12 box-border">
       <legend class="box-border">Inventory</legend>
-      <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : ctrl.validator.invalidSource }">
+      <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $ctrl.validator.invalidSource }">
         <label for="sourceInput">Source</label>
-        <input type="text" class="form-control" id="sourceInput" ng-model="ctrl.inputs.source" autocomplete="off">
-        <span class="text-danger h4" ng-show="ctrl.validator.invalidSource">No source submitted.</span>
+        <input type="text" class="form-control" id="sourceInput" ng-model="$ctrl.inputs.source" autocomplete="off">
+        <span class="text-danger h4" ng-show="$ctrl.validator.invalidSource">No source submitted.</span>
       </div>
-      <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : ctrl.validator.invalidCategory }">
+      <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $ctrl.validator.invalidCategory }">
         <label for="categoryInput">Category</label>
-        <select class="form-control" id="categoryInput" ng-model="ctrl.inputs.category" ng-change="ctrl.setPalletCategories()">
-          <option ng-repeat="cat in ctrl.inputs.categoryOptions">{{cat}}</option>
+        <select class="form-control" id="categoryInput" ng-model="$ctrl.inputs.category" ng-change="$ctrl.setPalletCategories()">
+          <option ng-repeat="cat in $ctrl.inputs.categoryOptions">{{cat}}</option>
         </select>
-        <span class="text-danger h4" ng-show="ctrl.validator.invalidCategory">No category submitted.</span>
+        <span class="text-danger h4" ng-show="$ctrl.validator.invalidCategory">No category submitted.</span>
       </div>
       <div class="form-group col-xs-12 col-sm-4">
         <label for="totalUnitsInput">Total Units</label>
-        <input type="number" min="0" class="form-control" id="totalUnitsInput" ng-model="ctrl.inputs.totalUnits" ng-change="ctrl.clearPalletUnits()">
+        <input type="number" min="0" class="form-control" id="totalUnitsInput" ng-model="$ctrl.inputs.totalUnits" ng-change="$ctrl.clearPalletUnits()">
       </div>
-      <table class="table table-striped" ng-if="ctrl.inputs.pallets.length">
+      <table class="table table-striped" ng-if="$ctrl.inputs.pallets.length">
         <thead><tr>
           <th>Pallet ID</th>
           <th>Units</th>
@@ -51,30 +51,34 @@
           <th class="text-center">Remove</th>
         </tr></thead>
         <tbody>	
-          <tr ng-repeat="pallet in ctrl.inputs.pallets track by $index">
-            <td ng-class="{ 'has-error' : ctrl.validator.pallets[$index].invalidHandle }"><input class="form-control" ng-model="pallet.handle"/></td>
-            <td><input class="form-control" type="number" min="0" ng-model="pallet.units" ng-disabled="ctrl.inputs.totalUnits"/></td>
+          <tr ng-repeat="pallet in $ctrl.inputs.pallets track by $index">
+            <td ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidHandle }"><input class="form-control" ng-model="pallet.handle"/></td>
+            <td><input class="form-control" type="number" min="0" ng-model="pallet.units" ng-disabled="$ctrl.inputs.totalUnits"/></td>
             <td>
-              <select class="form-control" ng-model="pallet.category" ng-disabled="ctrl.inputs.category">
-                <option ng-repeat="cat in ctrl.inputs.categoryOptions">{{cat}}</option>
+              <select class="form-control" ng-model="pallet.category" ng-disabled="$ctrl.inputs.category">
+                <option ng-repeat="cat in $ctrl.inputs.categoryOptions">{{cat}}</option>
               </select>
             </td>
-            <td class="text-center" style="vertical-align: middle;"><button type="submit" class="btn btn-danger btn-xs" ng-click="ctrl.removePallet($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
+            <td class="text-center" style="vertical-align: middle;"><button type="submit" class="btn btn-danger btn-xs" ng-click="$ctrl.removePallet($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
           </tr>
         </tbody>
       </table>
       <div class="text-center">
-        <button class="btn btn-primary" ng-click="ctrl.addPallet()">Add Pallet</button>
-        <button class="btn btn-primary" ng-click="ctrl.addAnonymousPallets()">
+        <button class="btn btn-primary" ng-click="$ctrl.addPallet()">Add Pallet</button>
+
+        <button class="btn btn-primary" ng-click="$ctrl.addAnonymousPallets()">
           Add
           <input
             type="text"
             size="2"
-            ng-model="ctrl.inputs.numAnonymousPallet"
+            ng-model="$ctrl.inputs.numAnonymousPallet"
             ng-click="$event.stopPropagation();"
-            ng-keyup="$event.keyCode == 13 && ctrl.addAnonymousPallets()"
+            ng-keyup="$event.keyCode == 13 && $ctrl.addAnonymousPallets()"
             style="color: black; border: none; padding-top:0px; padding-bottom:0px"/>
-          Anonymous Pallet(s)</button>
+          Anonymous Pallet(s)
+        </button>
+
+        <button class="btn btn-primary" ng-click="$ctrl.importManifest()">Import Manifest</button>
       </div>
     </fieldset>
     <fieldset class="col-xs-12 box-border">
@@ -82,17 +86,17 @@
       <div class="col-xs-12 col-sm-6">
         <div class="form-group">
           <label for="carrierInput">Carrier</label>
-          <input type="text" class="form-control" id="carrierInput" ng-model="ctrl.inputs.carrier" autocomplete="off">
+          <input type="text" class="form-control" id="carrierInput" ng-model="$ctrl.inputs.carrier" autocomplete="off">
         </div>
       </div>
       <div class="col-xs-12 col-sm-6">
         <div class="form-group">
           <label for="arrivalDateInput">Arrival Date</label>
-          <input type="date" class="form-control" id="arrivalDateInput" ng-model="ctrl.inputs.arrivalDate"/>
+          <input type="date" class="form-control" id="arrivalDateInput" ng-model="$ctrl.inputs.arrivalDate"/>
         </div>
       </div>
     </fieldset>
   </div>
-  <button class="btn btn-success" ng-click="ctrl.createShipment()">Create</button>
-  <span class="text-danger h4" ng-hide="ctrl.validator.isValid()">Check for input errors.</span>
+  <button class="btn btn-success" ng-click="$ctrl.createShipment()">Create</button>
+  <span class="text-danger h4" ng-hide="$ctrl.validator.isValid()">Check for input errors.</span>
 </div>
