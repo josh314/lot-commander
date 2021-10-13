@@ -18,7 +18,7 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
           return manifestFile;
         }
       },
-      controller: [ 'manifestFile', 'ManifestFileHandler', modalCtrl ],
+      controller: [ 'manifestFile', 'ManifestFileHandlerSvc', modalCtrl ],
       controllerAs: '$ctrl'
     });
 
@@ -26,7 +26,7 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
   }
 
   // The modal controller
-  function modalCtrl( manifestFile, ManifestFileHandler ) {
+  function modalCtrl( manifestFile, ManifestFileHandlerSvc ) {
 
     const vm = this;
     vm.noHeaderRow = false;
@@ -43,7 +43,7 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
     
     function loadManifest() {
 
-      ManifestFileHandler.load( manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( manifest => {
+      ManifestFileHandlerSvc.parse( manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( manifest => {
         vm.manifest = manifest;
         vm.manifestLoaded = true;
         vm.columnNames = vm.manifest.getColumnNamesAllSheets();

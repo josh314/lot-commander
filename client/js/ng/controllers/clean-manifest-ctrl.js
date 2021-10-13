@@ -1,13 +1,13 @@
 import angular from 'angular';
 
 /******************* Manifest Cleaner Controller *************************/
-angular.module('myApp').controller('CleanManifestCtrl', ['ManifestFileHandler', 'sessionTimeout',
-  function( ManifestFileHandler, sessionTimeout) {
+angular.module('myApp').controller('CleanManifestCtrl', ['ManifestFileHandlerSvc', 'sessionTimeout',
+  function( ManifestFileHandlerSvc, sessionTimeout ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
 
-    vm.manifest = null;
+    vm.manifest = ManifestFileHandlerSvc.get() || null;
     vm.noFileSelected = false;
     vm.manifestFile = null;
     vm.noHeaderRow = false;
@@ -34,7 +34,7 @@ angular.module('myApp').controller('CleanManifestCtrl', ['ManifestFileHandler', 
         vm.noFileSelected = false;
       }
 
-      ManifestFileHandler.load( vm.manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( manifest => vm.manifest = manifest );
+      ManifestFileHandlerSvc.parse( vm.manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( manifest => vm.manifest = manifest );
       
     }
 
@@ -45,7 +45,7 @@ angular.module('myApp').controller('CleanManifestCtrl', ['ManifestFileHandler', 
       fileNameParts.pop();
       const outputFilename = fileNameParts.concat( [ 'cleaned', 'xlsx' ] ).join('.');
 
-      ManifestFileHandler.download( { manifest: vm.manifest, filename: outputFilename } );
+      ManifestFileHandlerSvc.download( outputFilename );
 
     }
 
