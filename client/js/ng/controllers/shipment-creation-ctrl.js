@@ -24,23 +24,24 @@ class ShipmentValidator {
 }
 
 /******************* Shipment Creation Page Controller *************************/
-angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'navigate', 'palletCategories', 'PalletsFromManifestModalSvc', 'sessionTimeout', 'ShipmentManagerSvc',
-  function( messageModal, navigate, palletCategories, PalletsFromManifestModalSvc, sessionTimeout, ShipmentManagerSvc ) {
+angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletCategories', 'PalletsFromManifestModalSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
+  function( ManifestFileHandlerSvc, messageModal, navigate, palletCategories, PalletsFromManifestModalSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
     vm.inputs = {
       categoryOptions: [ "" ].concat( palletCategories ),
-      manifest: {
-        file: null,
-        isRestricted: false
-      },
+      documentToAdd: initDocumentToAdd(),
+      documents: [],
       pallets: [],
       numAnonymousPallet: ''
     };
     vm.validator = new ShipmentValidator();
 
     vm.refreshValidator = refreshValidator;
+    vm.addDocument = addDocument;
+    vm.removeDocument = removeDocument;
+    vm.hasManifest = hasManifest;
     vm.setPalletCategories = ( ) => vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
     vm.clearPalletUnits = ( ) => vm.inputs.pallets.forEach( p => delete p.units );
     vm.addPallet = () => addPallet({ category: vm.inputs.category });
@@ -49,6 +50,44 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'na
     vm.importPalletsFromManifest = importPalletsFromManifest;
     vm.createShipment = createShipment;
 
+    function initDocumentToAdd() {
+      return {
+        file: null,
+        isRestricted: false
+      };
+    }
+
+    function addDocument() {
+
+      if( !vm.inputs.documentToAdd.file ) {
+        return;
+      }
+
+      const documentToAdd = {
+        file: vm.inputs.documentToAdd.file,
+        name: vm.inputs.documentToAdd.file.name,
+        size: UtilitiesSvc.humanReadableFileSize( vm.inputs.documentToAdd.file.size ),
+        isRestricted: vm.inputs.documentToAdd.isRestricted
+      };
+      delete vm.inputs.documentToAdd;
+
+      vm.inputs.documents.push( documentToAdd );
+      vm.inputs.documentToAdd = initDocumentToAdd();
+    }
+
+    function removeDocument( documentName ) {
+
+      const foundIdx = vm.inputs.documents.findIndex( d => d.name === documentName );
+
+      if( foundIdx >= 0 ) {
+        vm.inputs.documents.splice( foundIdx, 1 );
+      }
+
+    }
+
+    function hasManifest() {
+      return vm.inputs.documents.some( d => ManifestFileHandlerSvc.isManifestFile( d.name ) );
+    }
 
     function removePallet( idx ) {
       vm.inputs.pallets.splice( idx, 1 );
@@ -77,12 +116,12 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'na
         })
           .then( async (shipment) => {
 
-            if( vm.inputs.manifest.file ) {
+            for( let _document of vm.inputs.documents ) {
 
               await ShipmentManagerSvc.uploadShipmentDocument( {
                 shipmentId: shipment._id,
-                file: vm.inputs.manifest.file,
-                isRestricted: vm.inputs.manifest.isRestricted || false
+                file: _document.file,
+                isRestricted: _document.isRestricted || false
               } );
 
             }
@@ -150,7 +189,13 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'messageModal', 'na
 
     function importPalletsFromManifest() {
 
-      PalletsFromManifestModalSvc.launch( vm.inputs.manifest.file, palletNames => palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category } ) ));
+      const manifestDocument = vm.inputs.documents.find( d => ManifestFileHandlerSvc.isManifestFile( d.name ) );
+
+      if( manifestDocument ) {
+
+        PalletsFromManifestModalSvc.launch( manifestDocument.file, palletNames => palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category } ) ));
+
+      }
 
     }
 

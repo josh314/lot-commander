@@ -26,20 +26,49 @@
     </fieldset>
 
     <fieldset class="col-xs-12 box-border">
-      <legend class="box-border">Manifest</legend>
+      <legend class="box-border">Documents</legend>
   
       <div class="col-xs-12 row">
    
         <div class="input-group">
           <span class="input-group-addon">
-            <label for="manifestUploadIsRestrictedInput">Restricted
-              <input type="checkbox" id="manifestUploadIsRestrictedInput" ng-model="$ctrl.inputs.manifest.isRestricted">
+            <label for="document">Restricted
+              <input type="checkbox" id="document" ng-model="$ctrl.inputs.documentToAdd.isRestricted">
             </label>
           </span>
-          <input type="file" class="form-control" id="fileInput" required file-model="$ctrl.inputs.manifest.file">
+          <input type="file" class="form-control" id="fileInput" required file-model="$ctrl.inputs.documentToAdd.file">
+          <div class="input-group-btn">
+            <button type="button" class="btn btn-primary" ng-click="$ctrl.addDocument()">Add</button>
+          </div>
         </div>
 
       </div>
+
+      <table class="table table-striped" ng-show="$ctrl.inputs.documents.length > 0">
+        <thead>
+          <th>Name</th>
+          <th>Size</th>
+          <th>Restricted?</th>
+          <th>Remove</th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="document in $ctrl.inputs.documents track by $index">
+            <td>{{ document.name }}</td>
+            <td>{{ document.size }}</td>
+            <td>
+              <select ng-model="document.isRestricted">
+                <option ng-value="true">Yes</option>
+                <option ng-value="false">No</option>
+              </select>
+            </td>
+            <td>
+              <button type="button" class="btn btn-danger btn-xs" ng-click="$ctrl.removeDocument( document.name )">
+                <span class="glyphicon glyphicon-remove"></span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
     </fieldset>
 
@@ -97,7 +126,7 @@
           Anonymous Pallet(s)
         </button>
 
-        <button class="btn btn-warning" ng-show="$ctrl.inputs.manifest.file" ng-click="$ctrl.importPalletsFromManifest()">Import from Manifest</button>
+        <button class="btn btn-warning" ng-show="$ctrl.hasManifest()" ng-click="$ctrl.importPalletsFromManifest()">Import from Manifest</button>
 
       </div>
     </fieldset>
