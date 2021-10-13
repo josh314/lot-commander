@@ -98,8 +98,8 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'S
 
 
 /******************* Constructor for Shipment Objects *************************/
-angular.module('myApp').factory('ShipmentFactory', [ '$q', 
-  function( $q ) {
+angular.module('myApp').factory('ShipmentFactory', [ '$q', 'UtilitiesSvc',
+  function( $q, UtilitiesSvc ) {
     const datify = dString => dString ? new Date( dString ) : null;
 
     const buildAnonymousPalletHandle = ( shipmentHandle , number ) => `${ shipmentHandle }_${ number }`; 
@@ -190,18 +190,7 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q',
 
       shipment.listShipmentDocuments = ( ) => $q.when( api.listIncomingShipmentDocuments( shipment._id ) ).then( resp => {
 
-        const displaySize = size => {
-          if( size > 1024*1024 ) {
-            return `${(size/1024/1024).toFixed(2)} MB`;
-          }
-          else if ( size > 1024 ) {
-            return `${(size/1024).toFixed(2)} KB`;
-          }
-          else {
-            return `${size} B`;
-          }
-        };
-        return resp && resp.documents ? resp.documents.map( d => Object.assign( d, { displaySize: displaySize(d.size) } )  ) : [];
+        return resp && resp.documents ? resp.documents.map( d => Object.assign( d, { displaySize: UtilitiesSvc.humanReadableFileSize(d.size) } )  ) : [];
       });
 
       shipment.uploadShipmentDocument = ( file, isRestricted ) => $q.when( api.uploadIncomingShipmentDocument( shipment._id, file, isRestricted ) );
