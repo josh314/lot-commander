@@ -37,9 +37,9 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
     vm.palletNames = [];
 
     vm.loadManifest = loadManifest;
-    vm.unloadManifest = unloadManifest;
     vm.stagePallets = stagePallets;
-    vm.unstagePallets = unstagePallets;
+    vm.deletePallet = deletePallet;
+    vm.goBack = goBack;
     
     function loadManifest() {
 
@@ -51,15 +51,35 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
 
     }
 
+    function stagePallets() {
+      vm.palletNames = vm.manifest.getUniqueValuesInColumnAllSheets( vm.palletIdColumn );
+      vm.palletsStaged = true;
+    }
+
+    function deletePallet( palletName ) {
+      const foundIdx = vm.palletNames.findIndex( _pn => _pn === palletName );
+
+      if( foundIdx >= 0 ) {
+        vm.palletNames.splice( foundIdx, 1 );
+      }
+
+    }
+
+    function goBack() {
+
+      if( vm.manifestLoaded && !vm.palletsStaged ) {
+        unloadManifest();
+      }
+      else if ( vm.palletsStaged ) {
+        unstagePallets();
+      }
+
+    }
+
     function unloadManifest() {
       delete vm.manifest;
       vm.manifestLoaded = false;
       vm.columnNames = [];
-    }
-
-    function stagePallets() {
-      vm.palletNames = vm.manifest.getUniqueValuesInColumnAllSheets( vm.palletIdColumn );
-      vm.palletsStaged = true;
     }
 
     function unstagePallets() {

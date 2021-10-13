@@ -6,6 +6,10 @@
 
 <div class="modal-body">
 
+  <div style="display: flex; justify-content: flex-end;">
+    <button class="btn btn-sm btn-warning" type="button" ng-click="$ctrl.goBack()" ng-show="$ctrl.manifestLoaded || $ctrl.palletsStaged">Back</button>
+  </div>
+
 	<div class="row" ng-hide="$ctrl.manifestLoaded">
     <div class="col-xs-6 row">
       <div class="form-group col-xs-12">
@@ -36,10 +40,18 @@
 
   <div class="row" ng-show="$ctrl.palletsStaged">
     <div class="col-xs-12 row">
+
       <p class="col-xs-12">Create pallets with these names?</p>
+
       <div class="form-group col-xs-12" ng-repeat="palletName in $ctrl.palletNames">
-        <input type="text" class="form-control" ng-model="palletName">
+        <div class="input-group">
+          <input type="text" class="form-control" ng-model="palletName">
+          <span class="input-group-btn">
+            <button class="btn btn-danger" type="button" ng-click="$ctrl.deletePallet( palletName )"><span class="glyphicon glyphicon-remove"></span></button>
+          </span>
+        </div>
       </div>
+      
     </div>
   </div>
 
@@ -52,11 +64,9 @@
     <button class="btn btn-primary" type="button" ng-click="$ctrl.loadManifest()" ng-show="!$ctrl.manifestLoaded && !$ctrl.palletsStaged">Load Manifest</button>
 
     <!-- Visible after manifest is loaded from file but before pallet ID column chosen -->
-    <button class="btn btn-danger" type="button" ng-click="$ctrl.unloadManifest()" ng-show="$ctrl.manifestLoaded && !$ctrl.palletsStaged">Back</button>
     <button class="btn btn-primary" type="button" ng-click="$ctrl.stagePallets()"  ng-show="$ctrl.manifestLoaded && !$ctrl.palletsStaged">Preview pallets</button>
 
     <!-- Visible after pallet ID column chosen  -->
-    <button class="btn btn-danger" type="button" ng-click="$ctrl.unstagePallets()" ng-show="$ctrl.palletsStaged">Back</button>
     <button class="btn btn-primary" type="button" ng-click="$close( $ctrl.palletNames )" ng-show="$ctrl.palletsStaged">Create</button>
 
     <!-- Always visible -->
