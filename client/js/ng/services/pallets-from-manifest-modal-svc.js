@@ -43,7 +43,7 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
     
     function loadManifest() {
 
-      ManifestFileHandlerSvc.parse( manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( manifest => {
+      ManifestFileHandlerSvc.parseFile( manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( manifest => {
         vm.manifest = manifest;
         vm.manifestLoaded = true;
         vm.columnNames = vm.manifest.getColumnNamesAllSheets();

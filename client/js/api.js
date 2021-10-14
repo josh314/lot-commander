@@ -461,7 +461,7 @@ export function getIncomingShipmentDocument( shipmentId, documentName ) {
   return axios({
     method: 'get',
     url: `/api/receiving/${ shipmentId }/documents/${ documentName }`,
-    responseType: 'stream'
+    responseType: 'arraybuffer'
   })
     .then( resp => resp.data );
 }

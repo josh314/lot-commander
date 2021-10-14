@@ -29,6 +29,8 @@ angular.module('myApp').factory( 'navigate', [ '$state', function( $state ){
 
   const shipmentReceiving = shipmentId  => $state.go( 'main.receiving.shipment-receiving', { shipmentId: shipmentId } );
 
+  const cleanManifest = () => $state.go( 'main.manifests.clean' );
+
   const history = ( species, id ) => $state.go( 'main.history', { species: species, id: id } );
 
   const submitListing = () => $state.go( 'main.lots.submit-listing' );
@@ -38,6 +40,7 @@ angular.module('myApp').factory( 'navigate', [ '$state', function( $state ){
   const uploadLotManifest = lotId => $state.go('main.lots.upload-manifest', { lotId: lotId });
 
   return {
+    cleanManifest: cleanManifest,
     editLotManifest: editLotManifest,
     history: history,
     home: home,

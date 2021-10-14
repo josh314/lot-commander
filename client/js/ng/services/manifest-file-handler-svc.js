@@ -4,6 +4,7 @@ import * as path from 'path';
 
 import * as xlsx from 'xlsx';
 
+import * as api from '../../api';
 import { Sheet } from '../../sheet';
 import { Manifest } from '../../manifest';
 
@@ -23,17 +24,18 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '__STANDARD_M
 
   function( $q,  __STANDARD_MANIFEST_COLUMNS__, __STANDARD_MANIFEST_BARCODE_COLUMN__, ManifestFileOptionsModal ) {
 
-    this._manifest = null;
+    let _manifest = null;
 
     return {
-      download: download,
+      create: create,
       get: get,
       isManifestFile: isManifestFile,
       parse: parse,
+      parseFile: parseFile,
     };
 
     function get() {
-      return this._manifest;
+      return _manifest;
     }
 
     function isManifestFile( filename ) {
@@ -48,40 +50,44 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '__STANDARD_M
       return manifestExtensions.includes( path.extname( filename ) );
     }
 
-    function parse( file, { noHeaderRow, skipFirstRows } = {} ) {
+    function parseFile( file, { noHeaderRow, skipFirstRows } = {} ) {
 
       return $q.when( readFile( file ) ).then( reader => {
-        const data = new Uint8Array( reader.result );
-        const wb = xlsx.read( data, { type: 'array' } );
-
-        delete this._manifest;
-        this._manifest = new Manifest();
-
-        for( const [name, data] of Object.entries(wb.Sheets) ) {
-          const sheetOpts = {
-            manifest: this._manifest,
-            name: name,
-            data: data,
-            noHeaderRow: noHeaderRow || false,
-            skipFirstRows: skipFirstRows || 0,
-            standardColumnNames: __STANDARD_MANIFEST_COLUMNS__,
-            standardBarcodeColumnName: __STANDARD_MANIFEST_BARCODE_COLUMN__,
-          };
-          this._manifest.addSheet( new Sheet(sheetOpts) );
-        }
-
-        return this.get();
-      } );
+        return parse( reader.result, { noHeaderRow, skipFirstRows } );
+      });
 
     }
 
-    function download( filename ) {
+    function parse( data, { noHeaderRow, skipFirstRows } = {} ) {
+
+      const wb = xlsx.read( new Uint8Array( data ) , { type: 'array' } );
+
+      _manifest = new Manifest();
+
+      for( const [name, data] of Object.entries(wb.Sheets) ) {
+        const sheetOpts = {
+          manifest: _manifest,
+          name: name,
+          data: data,
+          noHeaderRow: noHeaderRow || false,
+          skipFirstRows: skipFirstRows || 0,
+          standardColumnNames: __STANDARD_MANIFEST_COLUMNS__,
+          standardBarcodeColumnName: __STANDARD_MANIFEST_BARCODE_COLUMN__,
+        };
+        _manifest.addSheet( new Sheet(sheetOpts) );
+      }
+
+      return get();
+
+    }
+
+    function create( filename ) {
 
       ManifestFileOptionsModal.launch(
         // modal data
         {
           filename,
-          sheetNames: this._manifest.sheets.map( s => ( { old: s.name, new: s.name } ) )
+          sheetNames: _manifest.sheets.map( s => ( { old: s.name, new: s.name } ) )
         },
         // callback upon modal closing
         ( manifestOptions ) => {
@@ -90,11 +96,11 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '__STANDARD_M
           }
           for(const sheetName of manifestOptions.sheetNames) {
             if(sheetName.old!=sheetName.new) {
-              this._manifest.renameSheet(sheetName.old, sheetName.new);
+              _manifest.renameSheet(sheetName.old, sheetName.new);
             }
           }
     
-          const wb = this._manifest.createExcelWorkbook();
+          const wb = _manifest.createExcelWorkbook();
           xlsx.writeFile( wb, manifestOptions.filename );
     
         }

@@ -34,7 +34,7 @@ angular.module('myApp').controller('CleanManifestCtrl', ['ManifestFileHandlerSvc
         vm.noFileSelected = false;
       }
 
-      ManifestFileHandlerSvc.parse( vm.manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( manifest => vm.manifest = manifest );
+      ManifestFileHandlerSvc.parseFile( vm.manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( manifest => vm.manifest = manifest );
       
     }
 
@@ -45,7 +45,7 @@ angular.module('myApp').controller('CleanManifestCtrl', ['ManifestFileHandlerSvc
       fileNameParts.pop();
       const outputFilename = fileNameParts.concat( [ 'cleaned', 'xlsx' ] ).join('.');
 
-      ManifestFileHandlerSvc.download( outputFilename );
+      ManifestFileHandlerSvc.create( outputFilename );
 
     }
 

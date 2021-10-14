@@ -5,8 +5,8 @@ function htmlifyText( txt ) {
 }
 
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'focus', 'LoggedInUser', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc',
-  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, focus, LoggedInUser, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc ) {
+angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'focus', 'LoggedInUser', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc',
+  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, focus, LoggedInUser, ManifestFileHandlerSvc, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc ) {
 
     /****************************************************
      * View variables
@@ -35,6 +35,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
     vm.removeDocument = removeDocument;
     vm.uploadDocument = uploadDocument;
+    vm.isManifestFile = isManifestFile;
+    vm.cleanManifest = cleanManifest;
 
     vm.removeExpectedPallet = removeExpectedPallet;
     vm.addExpectedPallet = {
@@ -253,6 +255,25 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
         updateDocumentList();
         vm.waitingForResponse = false;
       });
+    }
+
+    function isManifestFile( documentName ) {
+      return ManifestFileHandlerSvc.isManifestFile( documentName );
+    }
+
+    function cleanManifest( _document ) {console.log( _document )
+
+      // TODO: open options modal for manifest parsing
+
+      vm.shipment.getShipmentDocument( _document.name ).then( data => {
+
+        ManifestFileHandlerSvc.parse( data );
+
+        // TODO: pass the shipmentId in somehow so we can save back to the shipment
+        navigate.cleanManifest();
+
+      })
+      
     }
 
 

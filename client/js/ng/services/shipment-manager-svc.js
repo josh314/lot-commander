@@ -193,6 +193,8 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'UtilitiesSvc',
         return resp && resp.documents ? resp.documents.map( d => Object.assign( d, { displaySize: UtilitiesSvc.humanReadableFileSize(d.size) } )  ) : [];
       });
 
+      shipment.getShipmentDocument = documentName => $q.when( api.getIncomingShipmentDocument( shipment._id, documentName ) );
+
       shipment.uploadShipmentDocument = ( file, isRestricted ) => $q.when( api.uploadIncomingShipmentDocument( shipment._id, file, isRestricted ) );
 
       shipment.updateDocumentRestrictionStatus = ( documentName, isRestricted ) => $q.when( api.updateIncomingShipmentDocumentRestrictionStatus( shipment._id, documentName, isRestricted ) );
