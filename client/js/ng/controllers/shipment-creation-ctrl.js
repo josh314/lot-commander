@@ -24,8 +24,8 @@ class ShipmentValidator {
 }
 
 /******************* Shipment Creation Page Controller *************************/
-angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletCategories', 'PalletsFromManifestModalSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
-  function( ManifestFileHandlerSvc, messageModal, navigate, palletCategories, PalletsFromManifestModalSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
+angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletCategories', 'PalletsFromManifestModalSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
+  function( FileModelSvc, ManifestFileHandlerSvc, messageModal, navigate, palletCategories, PalletsFromManifestModalSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -67,12 +67,13 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ManifestFileHandle
         file: vm.inputs.documentToAdd.file,
         name: vm.inputs.documentToAdd.file.name,
         size: UtilitiesSvc.humanReadableFileSize( vm.inputs.documentToAdd.file.size ),
-        isRestricted: vm.inputs.documentToAdd.isRestricted
+        isRestricted: vm.inputs.documentToAdd.isRestricted,
       };
       delete vm.inputs.documentToAdd;
 
       vm.inputs.documents.push( documentToAdd );
       vm.inputs.documentToAdd = initDocumentToAdd();
+      FileModelSvc.startReset();
     }
 
     function removeDocument( documentName ) {
