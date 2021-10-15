@@ -194,7 +194,11 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
 
       if( manifestDocument ) {
 
-        PalletsFromManifestModalSvc.launch( manifestDocument.file, palletNames => palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category } ) ));
+        ManifestFileHandlerSvc.launchFileParsingOptionsModal( parseOptions => {
+
+          PalletsFromManifestModalSvc.launch( manifestDocument.file, parseOptions, palletNames => palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category } ) ));
+
+        });
 
       }
 

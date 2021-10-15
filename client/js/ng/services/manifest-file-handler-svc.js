@@ -4,7 +4,6 @@ import * as path from 'path';
 
 import * as xlsx from 'xlsx';
 
-import * as api from '../../api';
 import { Sheet } from '../../sheet';
 import { Manifest } from '../../manifest';
 
@@ -20,9 +19,9 @@ const readFile = (file = {}, method = 'readAsArrayBuffer') => {
 };
 
 /******************* Manifest File Handler service ******************************/
-angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '__STANDARD_MANIFEST_COLUMNS__', '__STANDARD_MANIFEST_BARCODE_COLUMN__', 'ManifestFileOptionsModal',
+angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', '__STANDARD_MANIFEST_COLUMNS__', '__STANDARD_MANIFEST_BARCODE_COLUMN__', 'ManifestFileOptionsModal',
 
-  function( $q,  __STANDARD_MANIFEST_COLUMNS__, __STANDARD_MANIFEST_BARCODE_COLUMN__, ManifestFileOptionsModal ) {
+  function( $q, $uibModal, __STANDARD_MANIFEST_COLUMNS__, __STANDARD_MANIFEST_BARCODE_COLUMN__, ManifestFileOptionsModal ) {
 
     let _manifest = null;
 
@@ -30,6 +29,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '__STANDARD_M
       create: create,
       get: get,
       isManifestFile: isManifestFile,
+      launchFileParsingOptionsModal: launchFileParsingOptionsModal,
       parse: parse,
       parseFile: parseFile,
     };
@@ -107,6 +107,27 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '__STANDARD_M
     
       );
 
+    }
+
+    function launchFileParsingOptionsModal( cb ) {
+
+      const modalInstance = $uibModal.open({
+        templateUrl: '/partials/modals/_parse_manifest_file_options_modal.html',
+        size: 'lg',
+        backdrop: 'static',
+        controller: function () {
+
+          const vm = this;
+          vm.options = {
+            noHeaderRow: false,
+            skipFirstRows: 0
+          };
+          
+        },
+        controllerAs: '$ctrl'
+      });
+
+      modalInstance.result.then( cb || function(){}, function(){} );
     }
 
   }

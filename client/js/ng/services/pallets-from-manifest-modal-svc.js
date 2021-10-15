@@ -7,7 +7,7 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
   };
 
   // launches the modal
-  function launch( manifestFile, cb ) {
+  function launch( manifestFile, parseOptions, cb ) {
 
     const modalInstance = $uibModal.open({
       templateUrl: '/partials/modals/_pallets_expected_from_manifest_modal.html',
@@ -16,9 +16,12 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
       resolve: {
         manifestFile: function () {
           return manifestFile;
+        },
+        parseOptions: function() {
+          return parseOptions;
         }
       },
-      controller: [ 'manifestFile', 'ManifestFileHandlerSvc', modalCtrl ],
+      controller: [ 'manifestFile', 'parseOptions', 'ManifestFileHandlerSvc', modalCtrl ],
       controllerAs: '$ctrl'
     });
 
@@ -26,26 +29,22 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
   }
 
   // The modal controller
-  function modalCtrl( manifestFile, ManifestFileHandlerSvc ) {
+  function modalCtrl( manifestFile, parseOptions, ManifestFileHandlerSvc ) {
 
     const vm = this;
-    vm.noHeaderRow = false;
-    vm.skipFirstRows = 0;
     vm.palletsStaged = false;
     vm.columnNames = [];
     vm.palletIdColumn = '';
     vm.palletNames = [];
 
-    vm.loadManifest = loadManifest;
     vm.stagePallets = stagePallets;
     vm.deletePallet = deletePallet;
     vm.goBack = goBack;
     
     function loadManifest() {
 
-      ManifestFileHandlerSvc.parseFile( manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( manifest => {
+      ManifestFileHandlerSvc.parseFile( manifestFile, parseOptions ).then( manifest => {
         vm.manifest = manifest;
-        vm.manifestLoaded = true;
         vm.columnNames = vm.manifest.getColumnNamesAllSheets();
       });
 
@@ -66,26 +65,14 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
     }
 
     function goBack() {
-
-      if( vm.manifestLoaded && !vm.palletsStaged ) {
-        unloadManifest();
-      }
-      else if ( vm.palletsStaged ) {
-        unstagePallets();
-      }
-
-    }
-
-    function unloadManifest() {
-      delete vm.manifest;
-      vm.manifestLoaded = false;
-      vm.columnNames = [];
-    }
-
-    function unstagePallets() {
       vm.palletNames = [];
       vm.palletsStaged = false;
     }
+
+    function init() {
+      loadManifest();
+    }
+    init();
 
   }
 
