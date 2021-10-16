@@ -29,6 +29,8 @@ angular.module('myApp').factory( 'navigate', [ '$state', function( $state ){
 
   const shipmentReceiving = shipmentId  => $state.go( 'main.receiving.shipment-receiving', { shipmentId: shipmentId } );
 
+  const shipmentCleanManifest = shipmentId  => $state.go( 'main.receiving.shipment-clean-manifest', { shipmentId: shipmentId } );
+
   const cleanManifest = () => $state.go( 'main.manifests.clean' );
 
   const history = ( species, id ) => $state.go( 'main.history', { species: species, id: id } );
@@ -48,6 +50,7 @@ angular.module('myApp').factory( 'navigate', [ '$state', function( $state ){
     listLots: listLots,
     lotGallery: lotGallery,
     reload: reload,
+    shipmentCleanManifest: shipmentCleanManifest,
     shipmentCreation: shipmentCreation,
     shipmentDetails: shipmentDetails,
     shipmentList: shipmentList,

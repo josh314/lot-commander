@@ -50,6 +50,7 @@ const stateData = [
   { name: "main.receiving.shipment-creation", navName: "New Shipment", navParent: 'Receiving', url: '/shipments/create', templateUrl: '/partials/receiving/_shipment_creation.html', userPermission: 'CREATE_INCOMING_SHIPMENT' },
   { name: "main.receiving.shipment-details", url: '/shipments/{shipmentId}', templateUrl: '/partials/receiving/_shipment_details.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
   { name: "main.receiving.shipment-receiving", url: '/shipments/{shipmentId}/receive', templateUrl: '/partials/receiving/_shipment_receiving.html', userPermission: 'RECEIVE_INCOMING_SHIPMENT' },
+  { name: "main.receiving.shipment-clean-manifest", url: '/shipments/{shipmentId}/manifests/clean', templateUrl: '/partials/_clean_manifest.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
 
   //Manual Inventory
   { name: "main.manual-inventory", navName: 'Inventory', url: "/manual-inventory", templateUrl: 'partials/_manual_inventory.html', userPermission: 'VIEW_MANUAL_INVENTORY' },

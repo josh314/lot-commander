@@ -43,6 +43,9 @@
         <p class="text-center">
           <button class="btn btn-primary" ng-click="$ctrl.startManifestDownload()">Download Manifest File</button>
         </p>
+        <p class="text-center">
+          <button class="btn btn-primary" ng-click="$ctrl.saveToShipment()" ng-show="$ctrl.shipmentId">Save to shipment</button>
+        </p>
       </div>
     </div>
     <div class="manifest-table-container col-xs-12 well" ng-repeat="sheet in $ctrl.manifest.sheets" ng-show="$ctrl.getActiveSheet() == sheet" >

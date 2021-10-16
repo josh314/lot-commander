@@ -23,19 +23,26 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
 
   function( $q, $uibModal, __STANDARD_MANIFEST_COLUMNS__, __STANDARD_MANIFEST_BARCODE_COLUMN__, ManifestFileOptionsModal ) {
 
-    let _manifest = null;
+    let _activeManifest = null;
+    let _activeManifestFilename = null;
 
     return {
-      create: create,
-      get: get,
+      createFile: createFile,
+      downloadFile: downloadFile,
+      getActiveManifest: getActiveManifest,
+      getActiveManifestFilename: getActiveManifestFilename,
       isManifestFile: isManifestFile,
       launchFileParsingOptionsModal: launchFileParsingOptionsModal,
       parse: parse,
       parseFile: parseFile,
     };
 
-    function get() {
-      return _manifest;
+    function getActiveManifest() {
+      return _activeManifest;
+    }
+
+    function getActiveManifestFilename() {
+      return _activeManifestFilename;
     }
 
     function isManifestFile( filename ) {
@@ -53,20 +60,21 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
     function parseFile( file, { noHeaderRow, skipFirstRows } = {} ) {
 
       return $q.when( readFile( file ) ).then( reader => {
-        return parse( reader.result, { noHeaderRow, skipFirstRows } );
+        return parse( reader.result, file.name, { noHeaderRow, skipFirstRows } );
       });
 
     }
 
-    function parse( data, { noHeaderRow, skipFirstRows } = {} ) {
+    function parse( data, filename, { noHeaderRow, skipFirstRows } = {} ) {
 
       const wb = xlsx.read( new Uint8Array( data ) , { type: 'array' } );
 
-      _manifest = new Manifest();
+      _activeManifest = new Manifest();
+      _activeManifestFilename = filename;
 
       for( const [name, data] of Object.entries(wb.Sheets) ) {
         const sheetOpts = {
-          manifest: _manifest,
+          manifest: _activeManifest,
           name: name,
           data: data,
           noHeaderRow: noHeaderRow || false,
@@ -74,20 +82,20 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
           standardColumnNames: __STANDARD_MANIFEST_COLUMNS__,
           standardBarcodeColumnName: __STANDARD_MANIFEST_BARCODE_COLUMN__,
         };
-        _manifest.addSheet( new Sheet(sheetOpts) );
+        _activeManifest.addSheet( new Sheet(sheetOpts) );
       }
 
-      return get();
+      return getActiveManifest();
 
     }
 
-    function create( filename ) {
+    function downloadFile( filename ) {
 
       ManifestFileOptionsModal.launch(
         // modal data
         {
           filename,
-          sheetNames: _manifest.sheets.map( s => ( { old: s.name, new: s.name } ) )
+          sheetNames: _activeManifest.sheets.map( s => ( { old: s.name, new: s.name } ) )
         },
         // callback upon modal closing
         ( manifestOptions ) => {
@@ -96,15 +104,45 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
           }
           for(const sheetName of manifestOptions.sheetNames) {
             if(sheetName.old!=sheetName.new) {
-              _manifest.renameSheet(sheetName.old, sheetName.new);
+              _activeManifest.renameSheet(sheetName.old, sheetName.new);
             }
           }
     
-          const wb = _manifest.createExcelWorkbook();
+          const wb = _activeManifest.createExcelWorkbook();
           xlsx.writeFile( wb, manifestOptions.filename );
     
         }
     
+      );
+
+    }
+
+    function createFile( filename, cb ) {
+
+      ManifestFileOptionsModal.launch(
+        // modal data
+        {
+          filename,
+          sheetNames: _activeManifest.sheets.map( s => ( { old: s.name, new: s.name } ) )
+        },
+        // callback upon modal closing
+        ( manifestOptions ) => {
+          if(!manifestOptions) {
+            return;
+          }
+          for(const sheetName of manifestOptions.sheetNames) {
+            if(sheetName.old!=sheetName.new) {
+              _activeManifest.renameSheet(sheetName.old, sheetName.new);
+            }
+          }
+
+          const wb = _activeManifest.createExcelWorkbook();
+          const wbout = xlsx.write( wb, { type: 'array' } );
+          const file = new File( [ wbout ], filename );
+          cb( file );
+
+        }
+
       );
 
     }

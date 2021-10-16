@@ -1,17 +1,18 @@
 import angular from 'angular';
 
 /******************* Manifest Cleaner Controller *************************/
-angular.module('myApp').controller('CleanManifestCtrl', ['ManifestFileHandlerSvc', 'sessionTimeout',
-  function( ManifestFileHandlerSvc, sessionTimeout ) {
+angular.module('myApp').controller('CleanManifestCtrl', [ 'ManifestFileHandlerSvc', 'navigate', 'sessionTimeout', 'ShipmentManagerSvc',
+  function( ManifestFileHandlerSvc, navigate, sessionTimeout, ShipmentManagerSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
 
-    vm.manifest = ManifestFileHandlerSvc.get() || null;
+    vm.manifest = ManifestFileHandlerSvc.getActiveManifest() || null;
     vm.noFileSelected = false;
     vm.manifestFile = null;
     vm.noHeaderRow = false;
     vm.skipFirstRows = 0;
+    vm.shipmentId = ShipmentManagerSvc.getShipmentId();
 
     vm.loadManifest = loadManifest;
     vm.toggleSelect = column => column.toggleSelect;
@@ -21,6 +22,7 @@ angular.module('myApp').controller('CleanManifestCtrl', ['ManifestFileHandlerSvc
     vm.deleteSheet = sheet => vm.manifest.deleteSheet(sheet);
     vm.splitActiveSheetByColumn =  column => vm.manifest.splitActiveSheetByColumn( column );
     vm.startManifestDownload = startManifestDownload;
+    vm.saveToShipment = saveToShipment;
 
     //////////
 
@@ -45,7 +47,27 @@ angular.module('myApp').controller('CleanManifestCtrl', ['ManifestFileHandlerSvc
       fileNameParts.pop();
       const outputFilename = fileNameParts.concat( [ 'cleaned', 'xlsx' ] ).join('.');
 
-      ManifestFileHandlerSvc.create( outputFilename );
+      ManifestFileHandlerSvc.downloadFile( outputFilename );
+
+    }
+
+    function saveToShipment() {
+
+      if( vm.shipmentId ) {
+
+        // TODO?: get isRestricted status
+
+        const fileNameParts = ManifestFileHandlerSvc.getActiveManifestFilename().split('.');
+        fileNameParts.pop();
+        const outputFilename = fileNameParts.concat( [ 'cleaned', 'xlsx' ] ).join('.');
+
+        ManifestFileHandlerSvc.createFile( outputFilename, function( file ) {
+
+          ShipmentManagerSvc.uploadShipmentDocument( { shipmentId: vm.shipmentId, file, isRestricted: false } ).then( _ => navigate.shipmentDetails( vm.shipmentId ) );
+
+        });
+
+      }
 
     }
 

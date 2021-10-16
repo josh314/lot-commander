@@ -261,19 +261,20 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
       return ManifestFileHandlerSvc.isManifestFile( documentName );
     }
 
-    function cleanManifest( _document ) {console.log( _document )
+    function cleanManifest( _document ) {
 
-      // TODO: open options modal for manifest parsing
+      ManifestFileHandlerSvc.launchFileParsingOptionsModal( options => {
 
-      vm.shipment.getShipmentDocument( _document.name ).then( data => {
+        vm.shipment.getShipmentDocument( _document.name ).then( data => {
 
-        ManifestFileHandlerSvc.parse( data );
+          ManifestFileHandlerSvc.parse( data, _document.name, options );
 
-        // TODO: pass the shipmentId in somehow so we can save back to the shipment
-        navigate.cleanManifest();
+          navigate.shipmentCleanManifest( vm.shipment._id );
 
-      })
-      
+        });
+
+      });
+
     }
 
 
