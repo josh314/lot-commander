@@ -53,7 +53,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
     function initDocumentToAdd() {
       return {
         file: null,
-        isRestricted: false
+        isRestricted: true
       };
     }
 

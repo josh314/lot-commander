@@ -55,15 +55,13 @@ angular.module('myApp').controller('CleanManifestCtrl', [ 'ManifestFileHandlerSv
 
       if( vm.shipmentId ) {
 
-        // TODO?: get isRestricted status
-
         const fileNameParts = ManifestFileHandlerSvc.getActiveManifestFilename().split('.');
         fileNameParts.pop();
         const outputFilename = fileNameParts.concat( [ 'cleaned', 'xlsx' ] ).join('.');
 
         ManifestFileHandlerSvc.createFile( outputFilename, function( file ) {
 
-          ShipmentManagerSvc.uploadShipmentDocument( { shipmentId: vm.shipmentId, file, isRestricted: false } ).then( _ => navigate.shipmentDetails( vm.shipmentId ) );
+          ShipmentManagerSvc.uploadShipmentDocument( { shipmentId: vm.shipmentId, file, isRestricted: true } ).then( _ => navigate.shipmentDetails( vm.shipmentId ) );
 
         });
 
