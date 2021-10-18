@@ -109,7 +109,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
           }
     
           const wb = _activeManifest.createExcelWorkbook();
-          xlsx.writeFile( wb, manifestOptions.filename );
+          xlsx.writeFile( wb, manifestOptions.filename, { compression: true } );
     
         }
     
@@ -137,8 +137,8 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
           }
 
           const wb = _activeManifest.createExcelWorkbook();
-          const wbout = xlsx.write( wb, { type: 'array' } );
-          const file = new File( [ wbout ], filename );
+          const wbout = xlsx.write( wb, { type: 'array', compression: true } );
+          const file = new File( [ wbout ], manifestOptions.filename );
           cb( file );
 
         }
