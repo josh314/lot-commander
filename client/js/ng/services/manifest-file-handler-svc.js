@@ -19,9 +19,9 @@ const readFile = (file = {}, method = 'readAsArrayBuffer') => {
 };
 
 /******************* Manifest File Handler service ******************************/
-angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', '__STANDARD_MANIFEST_COLUMNS__', '__STANDARD_MANIFEST_BARCODE_COLUMN__', 'ManifestFileOptionsModal',
+angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 'ManifestFileOptionsModal',
 
-  function( $q, $uibModal, __STANDARD_MANIFEST_COLUMNS__, __STANDARD_MANIFEST_BARCODE_COLUMN__, ManifestFileOptionsModal ) {
+  function( $q, $uibModal, ManifestFileOptionsModal ) {
 
     let _activeManifest = null;
     let _activeManifestFilename = null;
@@ -78,9 +78,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
           name: name,
           data: data,
           noHeaderRow: noHeaderRow || false,
-          skipFirstRows: skipFirstRows || 0,
-          standardColumnNames: __STANDARD_MANIFEST_COLUMNS__,
-          standardBarcodeColumnName: __STANDARD_MANIFEST_BARCODE_COLUMN__,
+          skipFirstRows: skipFirstRows || 0
         };
         _activeManifest.addSheet( new Sheet(sheetOpts) );
       }

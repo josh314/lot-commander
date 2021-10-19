@@ -1,5 +1,25 @@
 import * as xlsx from 'xlsx';
 
+// CONSTANTS
+
+const __STANDARD_MANIFEST_BARCODE_COLUMN__ = 'UPC/EAN/GTIN';
+const __STANDARD_MANIFEST_QUANTITY_COLUMN__ = 'Quantity';
+const __STANDARD_MANIFEST_UNIT_COST_COLUMN__ = 'Unit Cost'; // our cost per unit
+const __STANDARD_MANIFEST_COST_COLUMN__ = 'Cost'; // our total cost for the line item (unit price * quantity)
+const __STANDARD_MANIFEST_UNIT_PRICE_COLUMN__ = 'Unit Sale Price'; // what we are selling it for per unit
+const __STANDARD_MANIFEST_TOTAL_PRICE_COLUMN__ = 'Sale Price';  // what we are selling the line item for
+const __STANDARD_MANIFEST_COLUMNS__ = [
+  __STANDARD_MANIFEST_BARCODE_COLUMN__,
+  __STANDARD_MANIFEST_QUANTITY_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_COST_COLUMN__,
+  __STANDARD_MANIFEST_COST_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_PRICE_COLUMN__,
+  'Description',
+  'Image',
+];
+
+
 // Helpers
 
 function calculateCheckDigit(upc) {
@@ -48,13 +68,11 @@ function addCheckDigit(barcode) {
 // Main class
 
 export class Sheet {
-  constructor( { manifest, name, standardBarcodeColumnName, standardColumnNames, skipFirstRows, noHeaderRow, data, rows, selectedColumns, standardColumns } ) {
+  constructor( { manifest, name, skipFirstRows, noHeaderRow, data, rows, selectedColumns, standardColumns } ) {
 
     this.manifest = manifest;
     this.name = name;
     this.rawData = data;
-    this.__STANDARD_BARCODE_COLUMN__ = standardBarcodeColumnName;
-    this.__STANDARD_COLUMNS__ = standardColumnNames;
 
     this.getBarcodeColumn = function() {
       return this.columns.find( column => column.isBarcodeColumn() );
@@ -93,14 +111,13 @@ export class Sheet {
 
     if( this.rows && this.rows[0] ) {
       const columnRenameMapping = {};
-      const __BARCODE_COLUMN__ = this.__STANDARD_BARCODE_COLUMN__;
 
       const rowMetadataFields = new Set( [ 'idx', 'editing' ] );
       this.columns = Object.entries( this.rows[0] ).filter( _ => ! rowMetadataFields.has( _[0] ) ).map( kv => {
         let [ name, _ ] = kv;
 
         // Rename column if it matches a standard column name
-        const matchedStandardColumn = this.__STANDARD_COLUMNS__.find( column => column === name );
+        const matchedStandardColumn = __STANDARD_MANIFEST_COLUMNS__.find( column => column === name );
         if( matchedStandardColumn ) {
           const newName = '__' + matchedStandardColumn;
           columnRenameMapping[name] = newName;
@@ -115,7 +132,7 @@ export class Sheet {
             return this.displayName !== this.name;
           },
           isBarcodeColumn: function() {
-            return this.displayName === __BARCODE_COLUMN__;
+            return this.displayName === __STANDARD_MANIFEST_BARCODE_COLUMN__;
           },
           isSelected: function() {
             return this.selected || this.isStandardColumn();
@@ -177,7 +194,7 @@ export class Sheet {
     }, {});
 
     this.columns.forEach( currentColumn => {
-      currentColumn.nameOptions = Object.assign( [ ], this.__STANDARD_COLUMNS__ ) ;
+      currentColumn.nameOptions = Object.assign( [ ], __STANDARD_MANIFEST_COLUMNS__ ) ;
 
       for( let [columnName, displayName] of Object.entries(standardColumnAssignments) ) {
         if( columnName !== currentColumn.name ) {
@@ -333,8 +350,8 @@ export class Sheet {
     
     const outputColumnNames = this.columns.filter( c => c.isSelected() ).map( c => c.displayName );
     outputColumnNames.sort((a, b) => {
-      const aIndex = this.__STANDARD_COLUMNS__.indexOf(a);
-      const bIndex = this.__STANDARD_COLUMNS__.indexOf(b);
+      const aIndex = __STANDARD_MANIFEST_COLUMNS__.indexOf(a);
+      const bIndex = __STANDARD_MANIFEST_COLUMNS__.indexOf(b);
       if( aIndex < 0 && bIndex < 0 ) {
         return 0;
       }
@@ -358,8 +375,8 @@ export class Sheet {
 
   // TODO: remove this bullshit
   upcColumnHack(row) {
-    if( row[ this.__STANDARD_BARCODE_COLUMN__ ] ) {
-      row[ this.__STANDARD_BARCODE_COLUMN__ ] = `'${row[ this.__STANDARD_BARCODE_COLUMN__ ]}`;
+    if( row[ __STANDARD_MANIFEST_BARCODE_COLUMN__ ] ) {
+      row[ __STANDARD_MANIFEST_BARCODE_COLUMN__ ] = `'${row[ __STANDARD_MANIFEST_BARCODE_COLUMN__ ]}`;
     }
     return row;
   }
@@ -374,8 +391,8 @@ export class Sheet {
 
     const commonOpts = {
       manifest: this.manifest,
-      standardBarcodeColumnName: this.__STANDARD_BARCODE_COLUMN__,
-      standardColumnNames: this.__STANDARD_COLUMNS__,
+      standardBarcodeColumnName: __STANDARD_MANIFEST_BARCODE_COLUMN__,
+      standardColumnNames: __STANDARD_MANIFEST_COLUMNS__,
       skipFirstRows: false,
       noHeaderRow: false,
     };
