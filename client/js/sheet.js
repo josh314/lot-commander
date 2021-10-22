@@ -75,10 +75,10 @@ function addCheckDigit(barcode) {
 // Column class
 class Column {
 
-  constructor( name ) {
+  constructor( { name, displayName, selected } ) {
     this.name = name;
-    this.displayName = name;
-    this.selected = false;
+    this.displayName = displayName || name;
+    this.selected = !!selected; // defaults to false
   }
 
   isStandardColumn() {
@@ -150,7 +150,7 @@ class Column {
 // Main class
 
 export class Sheet {
-  constructor( { manifest, name, skipFirstRows, noHeaderRow, data, rows, selectedColumns, standardColumns } ) {
+  constructor( { manifest, name, skipFirstRows, noHeaderRow, data, rows, columns } ) {
 
     this.manifest = manifest;
     this.name = name;
@@ -191,7 +191,10 @@ export class Sheet {
       return r;
     });
 
-    if( this.rows && this.rows[0] ) {
+    if( columns ) {
+      this.columns = columns;
+    }
+    else if( this.rows && this.rows[0] ) {
       const columnRenameMapping = {};
 
       const rowMetadataFields = new Set( [ 'idx', 'editing' ] );
@@ -206,7 +209,7 @@ export class Sheet {
           name = newName;
         }
 
-        return new Column( name );
+        return new Column( { name: name } );
       });
 
       if( Object.keys(columnRenameMapping).length ) {
@@ -225,29 +228,10 @@ export class Sheet {
 
     this.updateColumnTitleOptions();
 
-    if( standardColumns ) {
-
-      for( let [ columnName, standardColumnName ] of standardColumns ) {
-
-        this.setStandardColumn( columnName, standardColumnName );
-
-      }
-
-    }
-
-    if( selectedColumns ) {
-
-      for( let columnName of selectedColumns ) {
-
-        this.selectColumnByName( columnName );
-
-      }
-
-    }
   }
 
   updateColumnDisplayName( column ) {
-    if( column.isStandardColumn() && !column.isRetailPriceColumn() ) {
+    if( column.isStandardColumn() && !column.isRetailPriceColumn() && !column.isCostColumn() ) {
       column.select();
     }
     this.updateColumnTitleOptions();
@@ -503,13 +487,14 @@ export class Sheet {
     const newSheets = [];
     for( let [ groupId, group ] of Object.entries( groups ) ) {
 
+      const clonedColumns = this.columns.filter( _c => _c.name !== column ).map( _c => new Column( { name: _c.name, displayName: _c.displayName, selected: _c.selected } ) );
+
       const opts = Object.assign(
         commonOpts,
         {
           name: `${groupId}`.slice(0,31), // there's a max number of characters for a sheet name
           rows: group,
-          selectedColumns: this.columns.filter( c => c.isSelected() ).map( c => c.name ),
-          standardColumns: this.columns.filter( c => c.isStandardColumn() ).map( c => [ c.name, c.displayName ] )
+          columns: clonedColumns
         },
       );
 
@@ -570,7 +555,7 @@ export class Sheet {
       this.columns.splice( oldPriceColumnIdx, 1 );
     }
 
-    const priceColumn = new Column( priceColumnName );
+    const priceColumn = new Column( { name: priceColumnName } );
     priceColumn.select();
 
     this.columns.push( priceColumn );
