@@ -110,4 +110,10 @@ export class Manifest {
 
   }
 
+  createSalePriceColumnFromRetailPrices( discountFactor, priceType ) {
+    for( const s of this.sheets ) {
+      s.createSalePriceColumnFromRetailPrices( discountFactor, priceType );
+    }
+  }
+
 }

@@ -5,20 +5,26 @@ import * as xlsx from 'xlsx';
 const __STANDARD_MANIFEST_BARCODE_COLUMN__ = 'UPC/EAN/GTIN';
 const __STANDARD_MANIFEST_QUANTITY_COLUMN__ = 'Quantity';
 const __STANDARD_MANIFEST_UNIT_COST_COLUMN__ = 'Unit Cost'; // our cost per unit
-const __STANDARD_MANIFEST_COST_COLUMN__ = 'Cost'; // our total cost for the line item (unit price * quantity)
-const __STANDARD_MANIFEST_UNIT_PRICE_COLUMN__ = 'Unit Sale Price'; // what we are selling it for per unit
-const __STANDARD_MANIFEST_TOTAL_PRICE_COLUMN__ = 'Sale Price';  // what we are selling the line item for
-const __STANDARD_MANIFEST_COLUMNS__ = [
+const __STANDARD_MANIFEST_TOTAL_COST_COLUMN__ = 'Cost'; // our total cost for the line item (unit price * quantity)
+const __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__ = 'Unit Retail Price'; // estimated retail unit price
+const __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ = 'Retail Price';  // estimated retail value of line item
+const __STANDARD_MANIFEST_DISPLAY_COLUMNS__ = [
   __STANDARD_MANIFEST_BARCODE_COLUMN__,
   __STANDARD_MANIFEST_QUANTITY_COLUMN__,
   __STANDARD_MANIFEST_UNIT_COST_COLUMN__,
-  __STANDARD_MANIFEST_COST_COLUMN__,
-  __STANDARD_MANIFEST_UNIT_PRICE_COLUMN__,
-  __STANDARD_MANIFEST_TOTAL_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_COST_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__,
   'Description',
   'Image',
 ];
 
+const __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__ = 'Unit Sale Price'; // what we are selling it for per unit
+const __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__ = 'Sale Price';  // what we are selling the line item for
+const __STANDARD_MANIFEST_COLUMNS__ = __STANDARD_MANIFEST_DISPLAY_COLUMNS__.concat([
+  __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__,
+]);
 
 // Helpers
 
@@ -63,6 +69,76 @@ function addCheckDigit(barcode) {
   }
 
   return barcode + calculateCheckDigit(barcode);
+}
+
+
+// Column class
+class Column {
+
+  constructor( name ) {
+    this.name = name;
+    this.displayName = name;
+    this.selected = false;
+  }
+
+  isStandardColumn() {
+    return __STANDARD_MANIFEST_COLUMNS__.includes( this.displayName );
+  }
+
+  isBarcodeColumn() {
+    return this.displayName === __STANDARD_MANIFEST_BARCODE_COLUMN__;
+  }
+
+  isQuantityColumn() {
+    return this.displayName === __STANDARD_MANIFEST_QUANTITY_COLUMN__;
+  }
+
+  isCostColumn() {
+    return this.isTotalCostColumn() || this.isUnitCostColumn();
+  }
+
+  isTotalCostColumn() {
+    return this.displayName === __STANDARD_MANIFEST_TOTAL_COST_COLUMN__;
+  }
+
+  isUnitCostColumn() {
+    return this.displayName === __STANDARD_MANIFEST_UNIT_COST_COLUMN__;
+  }
+
+  isRetailPriceColumn() {
+    return this.isTotalRetailPriceColumn() || this.isUnitRetailPriceColumn();
+  }
+
+  isTotalRetailPriceColumn() {
+    return this.displayName === __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__;
+  }
+
+  isUnitRetailPriceColumn() {
+    return this.displayName === __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__;
+  }
+
+  isTotalPriceColumn() {
+    return this.displayName === __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__;
+  }
+
+  isUnitPriceColumn() {
+    return this.displayName === __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__;
+  }
+
+  isSelected() {
+    return ( this.selected || this.isStandardColumn() ) && !this.isCostColumn();
+  }
+
+  toggleSelect() {
+    if( !this.isStandardColumn() ) {
+      this.selected = !this.selected;
+    }
+  }
+
+  toggleStandard() {
+    this.standard = !this.standard;
+  }
+
 }
 
 // Main class
@@ -124,28 +200,7 @@ export class Sheet {
           name = newName;
         }
 
-        return {
-          name: name,
-          displayName: name,
-          selected: false,
-          isStandardColumn: function() {
-            return this.displayName !== this.name;
-          },
-          isBarcodeColumn: function() {
-            return this.displayName === __STANDARD_MANIFEST_BARCODE_COLUMN__;
-          },
-          isSelected: function() {
-            return this.selected || this.isStandardColumn();
-          },
-          toggleSelect: function() {
-            if( !this.isStandardColumn() ) {
-              this.selected = !this.selected;
-            }
-          },
-          toggleStandard: function() {
-            this.standard = !this.standard;
-          },
-        };
+        return new Column( name );
       });
 
       if( Object.keys(columnRenameMapping).length ) {
@@ -194,7 +249,7 @@ export class Sheet {
     }, {});
 
     this.columns.forEach( currentColumn => {
-      currentColumn.nameOptions = Object.assign( [ ], __STANDARD_MANIFEST_COLUMNS__ ) ;
+      currentColumn.nameOptions = Object.assign( [ ], __STANDARD_MANIFEST_DISPLAY_COLUMNS__ ) ;
 
       for( let [columnName, displayName] of Object.entries(standardColumnAssignments) ) {
         if( columnName !== currentColumn.name ) {
@@ -451,6 +506,90 @@ export class Sheet {
 
   endCellEdit( row, column ) {
     row.editing.delete( column.name );
+  }
+
+  hasCostColumn() {
+    return this.columns.some( _c => _c.isUnitCostColumn() ) || this.columns.some( _c => _c.isTotalCostColumn() );
+  }
+
+  canComputeSalePriceColumn( priceType ) {
+
+    if( priceType === 'unit' ) {
+      return this.columns.some( _c => _c.isUnitRetailPriceColumn() ) || ( this.columns.some( _c => _c.isTotalRetailPriceColumn() ) && this.columns.some( _c => _c.isQuantityColumn() ) );
+    }
+    else if ( priceType === 'total' ) {
+      return this.columns.some( _c => _c.isTotalRetailPriceColumn() ) || ( this.columns.some( _c => _c.isUnitRetailPriceColumn() ) && this.columns.some( _c => _c.isQuantityColumn() ) );
+    }
+
+  }
+
+  createSalePriceColumnFromRetailPrices( discountFactor, priceType ) {
+
+    if( priceType !== 'unit' && priceType !== 'total' ) {
+      return;
+    }
+
+    if( !this.canComputeSalePriceColumn( priceType ) ) {
+      return;
+    }
+
+    const quantityColumn = this.columns.find( _c => _c.isQuantityColumn() );
+    const totalRetailPriceColumn = this.columns.find( _c => _c.isTotalRetailPriceColumn() );
+    const unitRetailPriceColumn = this.columns.find( _c => _c.isUnitRetailPriceColumn() );
+    const priceColumnName = ( priceType === 'unit' ) ? __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__ : __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__;
+
+    const oldPriceColumnIdx = this.columns.findIndex( _c => _c.name === priceColumnName );
+    if( oldPriceColumnIdx >= 0 ) {
+      this.columns.splice( oldPriceColumnIdx, 1 );
+    }
+
+    const priceColumn = new Column( priceColumnName );
+
+    this.columns.push( priceColumn );
+
+    let cb;
+    if ( priceType === 'unit' && unitRetailPriceColumn ) {
+
+      cb = r => {
+        if( r[ unitRetailPriceColumn.name ] ) {
+          r[ priceColumn.name ] = discountFactor * parseFloat( r[ unitRetailPriceColumn.name ] );
+        }
+      };
+
+    }
+    else if ( priceType == 'unit' && totalRetailPriceColumn ) {
+
+      cb = r => {
+        if( r[ totalRetailPriceColumn.name ] && r[ quantityColumn.name ] ) {
+          r[ priceColumn.name ] = discountFactor * parseFloat( r[ totalRetailPriceColumn.name ] ) / parseFloat( r[ quantityColumn.name ] );
+        }
+      };
+
+    }
+    else if ( priceType === 'total' && unitRetailPriceColumn ) {
+
+      cb = r => {
+        if( r[ unitRetailPriceColumn.name ] && r[ quantityColumn.name ] ) {
+          r[ priceColumn.name ] = discountFactor * parseFloat( r[ unitRetailPriceColumn.name ] ) * parseFloat( r[ quantityColumn.name ] );
+        }
+      };
+
+    }
+    else if ( priceType === 'total' && totalRetailPriceColumn ) {
+
+      cb = r => {
+        if( r[ totalRetailPriceColumn.name ] ) {
+          r[ priceColumn.name ] = discountFactor * parseFloat( r[ totalRetailPriceColumn.name ] );
+        }
+      };
+
+    }
+    else {
+      return;
+    }
+
+    this.rows.forEach( cb );
+
   }
 
 }
