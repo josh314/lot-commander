@@ -65,16 +65,16 @@
             <div class="text-center" style="margin-bottom: 3px;" ng-show="column.isStandardColumn()">
               <button class="btn btn-xs btn-primary" ng-click="$ctrl.manifest.setStandardColumnAllSheets(column.name, column.displayName)">Use for all sheets</button>
             </div>
-            <div class="text-center" style="margin-bottom: 3px;" ng-hide="column.isStandardColumn()">
+            <div class="text-center" style="margin-bottom: 3px;">
               <button class="btn btn-xs btn-primary" ng-click="column.toggleSelect()">
-                <span ng-hide="column.selected">Select column</span>
-                <span ng-show="column.selected">Deselect column</span>
+                <span ng-hide="column.isSelected()">Select column</span>
+                <span ng-show="column.isSelected()">Deselect column</span>
               </button>
             </div>
             <div class="text-center" style="margin-bottom: 3px;">
               <button class="btn btn-xs btn-primary" ng-click="$ctrl.splitActiveSheetByColumn( column.name )">Split &amp; group by</button>
             </div>
-            <select ng-model="column.displayName" ng-change="sheet.updateColumnTitleOptions()">
+            <select ng-model="column.displayName" ng-change="sheet.updateColumnDisplayName( column )">
               <option >{{ column.name }}</option>
               <option ng-repeat="opt in column.nameOptions">{{ opt }}</option>
             </select>

@@ -117,26 +117,32 @@ class Column {
     return this.displayName === __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__;
   }
 
-  isTotalPriceColumn() {
+  isSalePriceColumn() {
+    return this.isTotalSalePriceColumn() || this.isUnitSalePriceColumn();
+  }
+
+  isTotalSalePriceColumn() {
     return this.displayName === __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__;
   }
 
-  isUnitPriceColumn() {
+  isUnitSalePriceColumn() {
     return this.displayName === __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__;
   }
 
   isSelected() {
-    return ( this.selected || this.isStandardColumn() ) && !this.isCostColumn();
+    return this.selected;
+  }
+
+  select() {
+    this.selected = true;
+  }
+
+  deselect() {
+    this.selected = false;
   }
 
   toggleSelect() {
-    if( !this.isStandardColumn() ) {
-      this.selected = !this.selected;
-    }
-  }
-
-  toggleStandard() {
-    this.standard = !this.standard;
+    this.selected = !this.selected;
   }
 
 }
@@ -240,7 +246,15 @@ export class Sheet {
     }
   }
 
+  updateColumnDisplayName( column ) {
+    if( column.isStandardColumn() && !column.isRetailPriceColumn() ) {
+      column.select();
+    }
+    this.updateColumnTitleOptions();
+  }
+
   updateColumnTitleOptions() {
+    // This computes an object which maps original column names to the display name it has been changed to
     const standardColumnAssignments = this.columns.reduce( (acc, column) => {
       if(column.displayName && column.displayName !== column.name) {
         acc[column.name] = column.displayName;
@@ -249,15 +263,25 @@ export class Sheet {
     }, {});
 
     this.columns.forEach( currentColumn => {
-      currentColumn.nameOptions = Object.assign( [ ], __STANDARD_MANIFEST_DISPLAY_COLUMNS__ ) ;
 
-      for( let [columnName, displayName] of Object.entries(standardColumnAssignments) ) {
-        if( columnName !== currentColumn.name ) {
-          const foundIndex = currentColumn.nameOptions.findIndex( option => option === displayName );
-          if( foundIndex >= 0 ) {
-            currentColumn.nameOptions.splice( foundIndex, 1 );
+      if( currentColumn.isSalePriceColumn() ) {
+
+        currentColumn.nameOptions = [];
+
+      }
+      else {
+
+        currentColumn.nameOptions = Object.assign( [ ], __STANDARD_MANIFEST_DISPLAY_COLUMNS__ ) ;
+
+        for( let [columnName, displayName] of Object.entries(standardColumnAssignments) ) {
+          if( columnName !== currentColumn.name ) {
+            const foundIndex = currentColumn.nameOptions.findIndex( option => option === displayName );
+            if( foundIndex >= 0 ) {
+              currentColumn.nameOptions.splice( foundIndex, 1 );
+            }
           }
         }
+
       }
 
     });
@@ -268,6 +292,9 @@ export class Sheet {
     const column = this.columns.find( c => c.name === columnName );
     if( column ) {
       column.displayName = standardColumnName;
+      if( !column.isRetailPriceColumn() ) {
+        column.select();
+      }
     }
   }
 
@@ -275,8 +302,8 @@ export class Sheet {
 
     const column = this.columns.find( c => c.name === columnName );
 
-    if( column && !column.isSelected() ) {
-      column.toggleSelect();
+    if( column ) {
+      column.select();
     }
 
   }
@@ -544,6 +571,7 @@ export class Sheet {
     }
 
     const priceColumn = new Column( priceColumnName );
+    priceColumn.select();
 
     this.columns.push( priceColumn );
 
