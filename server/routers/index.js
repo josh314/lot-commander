@@ -19,7 +19,7 @@ const productData = require(path.join(__basedir, __config.modulesPath, 'product-
 // }
 
 //routes
-function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClient, manualInventoryDbClient }) {
+function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClient, manualInventoryDbClient, shopifyGql }) {
 
   const router = new express.Router();
 
@@ -87,6 +87,8 @@ function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClien
     require('./reports')( { shopifyDumpDb })
   );
 
+
+  // inventory commander
   router.use('/api/inventory', require('./inventory')( { inventoryCommander } ) );
   router.use('/api/receiving', require('./receiving')( { eventsDb: eventsDbClient, inventoryCommander } ) );
   router.use('/api/pallets', require('./pallets')( { eventsDb: eventsDbClient, inventoryCommander } ) );
@@ -98,6 +100,9 @@ function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClien
     require('./events')( eventsDbClient )
   );
   router.use('/api/manual-inventory', require('./manual-inventory')( { manualInventoryDb: manualInventoryDbClient } ) );
+
+  // Shipping rates on Shopify store
+  router.use('/api/shipping-rates/store', require('./shipping-rates/store')( { shopifyGql } ));
 
   // dynamically created JS scripts for the client
   router.get('/build/ng-app-server-data.js', (req,res)=>{

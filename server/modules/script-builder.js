@@ -4,7 +4,6 @@ const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
 const bstock = require(path.join(__basedir, __config.modulesPath, 'bstock'));
 const quickLots = require(path.join(__basedir, __config.modulesPath, 'quick-lots'));
-const manifests = require('./manifests');
 
 const dbEnums = {
   lotStatus: lotdb.lotStatusEnum,

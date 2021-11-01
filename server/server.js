@@ -196,7 +196,15 @@ class Server {
     //======================================================
     // Main app routes =====================================
     //======================================================
-    // Load routes based on layout
+
+    // Initialize database and APi clients to serve as dependencies for the routers
+
+    const ShopifyGql = require('./modules/shopify-gql');
+    const shopifyGqlClient = new ShopifyGql({
+      storeId: __config.shopify.store.id,
+      storeName: __config.shopify.store.name,
+      accessToken: __config.shopify.store.auth.password
+    });
 
     const EventsDb = require('./modules/events-db');
     const eventsDbClient = new EventsDb.Client( this.mongooseConnection );
@@ -206,7 +214,6 @@ class Server {
     const InventoryCommander = require('./modules/inventory-commander');
     const inventoryCommander = new InventoryCommander( { mongooseConnection: this.mongooseConnection } );
 
-
     const ManualInventoryDb = require('./modules/manual-inventory-db');
     const manualInventoryDbClient = new ManualInventoryDb.Client( { mongooseConnection: this.mongooseConnection } );
 
@@ -215,9 +222,11 @@ class Server {
       manualInventoryDbClient,
       inventoryCommander,
       userDbClient: this.users,
-      shopifyDumpDb: shopifyDumpDbClient
+      shopifyDumpDb: shopifyDumpDbClient,
+      shopifyGql: shopifyGqlClient
     };
 
+    // Load routes based on layout
     const router = require(path.join(__basedir,'routers'))(routerOpts);
 
     // Login users on all main routes
