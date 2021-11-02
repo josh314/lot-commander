@@ -334,7 +334,6 @@ class Client {
 
     const result = await this.getAll( 'productVariants', productVariantFlatRateNodeQuery, { searchQuery: searchQuery, debug: debug, cursor: cursor }, processFn );
 
-    // const result = await this.getAll( 'productVariants', productVariantFlatRateNodeQuery, { searchQuery: "product_status:'active'", debug: debug, cursor: cursor }, processFn );
     return result.productVariants;
   }
 

@@ -55,6 +55,10 @@ const stateData = [
   //Manual Inventory
   { name: "main.manual-inventory", navName: 'Inventory', url: "/manual-inventory", templateUrl: 'partials/_manual_inventory.html', userPermission: 'VIEW_MANUAL_INVENTORY' },
 
+  // Shipping rates
+  { name: "main.shipping-rates", abstract: true, url: '/shipping-rates', templateUrl: '/partials/_container.html' },
+  { name: "main.shipping-rates.store", navName: 'Shipping Rates', url: '/store', templateUrl: '/partials/_store_shipping_rates.html', userPermission: 'EDIT_STORE_SHIPPING_RATES' },
+
   // users
   { name: "main.users", abstract:true, navName: "Users", url: "/users", templateUrl: 'partials/_container.html'},
   { name: "main.users.list", navName: "List", navParent: "Users", url: "/list", templateUrl: 'partials/users/_list_users.html', userPermission: 'VIEW_USER' },

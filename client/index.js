@@ -42,6 +42,7 @@ import "./js/ng/services/session-timeout-svc.js";
 import "./js/ng/services/settings-svc.js";
 import "./js/ng/services/shipment-manager-svc.js";
 import "./js/ng/services/shipping-items-modal-svc.js";
+import "./js/ng/services/store-shipping-rates-svc.js";
 import "./js/ng/services/user-svc.js";
 import "./js/ng/services/utilities-svc.js";
 
@@ -81,6 +82,7 @@ import "./js/ng/controllers/shipment-creation-ctrl.js";
 import "./js/ng/controllers/shipment-details-ctrl.js";
 import "./js/ng/controllers/shipment-list-ctrl.js";
 import "./js/ng/controllers/shipping-items-modal-ctrl.js";
+import "./js/ng/controllers/store-shipping-rates-ctrl.js";
 import "./js/ng/controllers/submit-listing-ctrl.js";
 import "./js/ng/controllers/upload-lot-manifest-ctrl.js";
 import "./js/ng/controllers/view-lot-ctrl.js";

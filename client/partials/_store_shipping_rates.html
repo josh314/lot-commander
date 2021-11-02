@@ -1,0 +1,58 @@
+<div class="container" ng-controller="StoreShippingRatesCtrl as $ctrl">
+
+  <div class="row well">
+
+		<h2>Store Shipping Rates</h2>
+
+		<fieldset class="col-xs-12 box-border">
+			<legend class="box-border">Filter</legend>
+			<div class="form-group col-xs-12 col-sm-6">
+				<label for="productNameFilter">Product name</label>
+				<input class="form-control" name="productNameFilter" ng-model="$ctrl.filter.productName" ng-keyup="$ctrl.matchName()">
+			</div>
+			<div class="form-group col-xs-12 col-sm-6">
+				<label for="includePalletsFilter">Include Pallets?</label>
+				<select class="form-control" name="includePalletsFilter" ng-model="$ctrl.filter.includePallets" ng-change="$ctrl.refreshRates()">
+          <option ng-value="false">No</option>
+					<option ng-value="true">Yes</option>
+				</select>
+			</div>
+		</fieldset>
+
+    <table class="table table-striped" ng-hide="$ctrl.waitingForResponse">
+
+      <thead><tr>
+        <th>Title</th>
+        <th>Rate</th>
+        <th></th> <!-- save -->
+        <th></th> <!-- revert -->
+      </tr></thead>
+  
+      <tbody>
+        <tr ng-repeat="displayRate in $ctrl.visibleDisplayRates">
+          <td>{{ displayRate.name }}</td>
+          <td >
+            <div class="form-group" ng-class="{ 'has-error' : displayRate.isDirty() }">
+            <input type="number" class="form-control" ng-model="displayRate.displayValue" ng-keyup="$event.keyCode == 13 && $ctrl.saveRate( displayRate.gid )""/>
+            </div>
+          </td>
+          <td>
+            <button class="btn btn-xs btn-success" ng-click="$ctrl.saveRate( displayRate.gid )">Save</button>
+          </td>
+          <td>
+            <button class="btn btn-xs btn-warning" ng-click="$ctrl.revertRate( displayRate )">Revert</button>
+          </td>
+        </tr>
+      </tbody>
+  
+    </table>
+    <div class="col-xs-12" ng-show="$ctrl.waitingForResponse">
+      <div class="center-block loader"></div>
+      <h2 class="text-center">Please wait...</h2>
+    </div>
+
+  </div>
+
+  
+
+</div>

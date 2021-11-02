@@ -670,3 +670,54 @@ export function editManualInventory( inventoryId, data ) {
     .then( resp => resp.data );
 
 }
+
+/*************************************************
+* Store Shipping Rates
+* ================
+*
+************/
+
+
+export function listStoreShippingRates( qp ) {
+
+  const queryParams = {
+    include_pallets: qp.includePallets ? 1 : 0
+  };
+
+  return axios({
+    method: 'get',
+    url: `/api/shipping-rates/store?${qs.stringify(queryParams)}`
+  })
+    .then( resp => resp.data.rates );
+}
+
+export function editStoreShippingRate( pvid /* REST or GQL version*/, rate ) {
+
+  const data = {
+    rates: [
+      {
+        id: pvid,
+        rate
+      }
+    ]
+  };
+
+  return axios({
+    method: 'post',
+    url: `/api/shipping-rates/store`,
+    data: data
+  })
+    .then( resp => resp.data.rates[0] );
+
+}
+
+export function editStoreMultipleShippingRates( rates = [ /* { id, rate }: { product variant id (either REST or GQL version), number in dollars }  */] ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/shipping-rates/store`,
+    data: { rates }
+  })
+    .then( resp => resp.data.rates );
+
+}
