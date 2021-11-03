@@ -24,7 +24,7 @@ const stateData = [
   { name: "main.lots.edit-manifest", url: '/edit-manifest', templateUrl: '/partials/_edit_manifest.html' },
   { name: "main.lots.list", navName: 'List Lots', navParent: 'Lots', url: '/list', templateUrl: '/partials/_list_lots.html' },
   { name: "main.lots.view", url: '/view/{lotId}', templateUrl: '/partials/_view_lot.html', controller: 'ViewLotCtrl'},
-  { name: "main.lots.submit-listing", url: '/submit-listing', templateUrl: '/partials/_submit_listing.html', controller: 'SubmitListingCtrl'},
+  { name: "main.lots.submit-listing", url: '/submit-listing', templateUrl: '/partials/_submit_listing.html' },
   { name: "main.lots.image-editor", url: '/image-editor', templateUrl: '/partials/_image_editor.html' },
   { name: "main.lots.gallery", url: '/gallery/{lotId}', templateUrl: '/partials/_gallery.html' },
   { name: "main.lots.upload-manifest", url: '/upload-manifest/{lotId}', templateUrl: '/partials/_upload_lot_manifest.html' },

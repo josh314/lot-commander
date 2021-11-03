@@ -1,141 +1,141 @@
-<div class="container">
-	<div class="row well" ng-hide="waitingForResponse">
+<div class="container" ng-controller="SubmitListingCtrl as $ctrl">
+	<div class="row well" ng-hide="$ctrl.waitingForResponse">
 		<h2>Listing Details</h2>
 		<div class="col-xs-12">
 			<div class="row">
 				<div class="row">
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noMarketplace && !listing.marketplace }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.noMarketplace && !$ctrl.listing.marketplace }">
 						<label for="marketplaceInput">Marketplace</label>
-						<select class="form-control" name="marketplace" id="marketplaceInput" ng-model="listing.marketplace">
-							<option ng-repeat="marketplace in marketplaces">{{marketplace}}</option>
+						<select class="form-control" name="marketplace" id="marketplaceInput" ng-model="$ctrl.listing.marketplace">
+							<option ng-repeat="marketplace in $ctrl.formOptions.marketplaces">{{marketplace}}</option>
 						</select>
-						<span class="text-danger h4" ng-show="noMarketplace && !listing.marketplace">No Marketplace Selected.</span>
+						<span class="text-danger h4" ng-show="$ctrl.inputErrors.noMarketplace && !$ctrl.listing.marketplace">No Marketplace Selected.</span>
 					</div>
 					<div class="col-xs-12 col-sm-6">
 						<div class="checkbox">
 							<label for="refreshProductDataInput">
-								<input type="checkbox" name="refreshProductData" id="refreshProductDataInput" ng-model="listing.refreshProductData">
+								<input type="checkbox" name="refreshProductData" id="refreshProductDataInput" ng-model="$ctrl.listing.refreshProductData">
 								<b>Check here if new product data should be obtained for this lot</b>
 							</label>
             </div>
             <div class="checkbox">
               <label for="publishInput">
-								<input type="checkbox" id="publishInput" ng-model="publish">
+								<input type="checkbox" id="publishInput" ng-model="$ctrl.inputs.publish">
 								<b>Publish on submission</b>
 							</label>
             </div>
 					</div>
 				</div>
 			</div>
-			<div class="row" ng-show="listing.marketplace==='bstock'">
+			<div class="row" ng-show="$ctrl.listing.marketplace==='bstock'">
 				<div class="row">
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidAuctionPrice }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.bstock.invalidAuctionPrice }">
 						<label for="auctionPriceInput">Starting Auction Price</label>
-						<input class="form-control" id="auctionPriceInput" ng-model="listing.auctionStartPrice">
-						<span class="text-danger h4" ng-show="invalidAuctionPrice">Invalid Auction Price</span>
+						<input class="form-control" id="auctionPriceInput" ng-model="$ctrl.listing.auctionStartPrice">
+						<span class="text-danger h4" ng-show="$ctrl.inputErrors.bstock.invalidAuctionPrice">Invalid Auction Price</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noBstockCategory && !listing.category }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.bstock.noBstockCategory && !$ctrl.listing.category }">
 						<label for="categoryInput">Category</label>
-						<select class="form-control" class="form-control" name="category" id="categoryInput" required ng-model="listing.category">
-							<option ng-repeat="category in bstockCategories">{{category}}</option>
+						<select class="form-control" class="form-control" name="category" id="categoryInput" required ng-model="$ctrl.listing.category">
+							<option ng-repeat="category in $ctrl.formOptions.bstock.categories">{{category}}</option>
 						</select>
-						<span class="text-danger h4" ng-show="noBstockCategory && !listing.category">Required field.</span>
+						<span class="text-danger h4" ng-show="$ctrl.inputErrors.bstock.noBstockCategory && !$ctrl.listing.category">Required field.</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noBstockCondition && !listing.condition }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.bstock.noBstockCondition && !$ctrl.listing.condition }">
 						<label for="conditionInput">Condition</label>
-						<select class="form-control" class="form-control" name="condition" id="conditionInput" required ng-model="listing.condition">
-							<option ng-repeat="condition in bstockConditions">{{condition}}</option>
+						<select class="form-control" class="form-control" name="condition" id="conditionInput" required ng-model="$ctrl.listing.condition">
+							<option ng-repeat="condition in $ctrl.formOptions.bstock.conditions">{{condition}}</option>
 						</select>
-						<span class="text-danger h4" ng-show="noBstockCondition && !listing.condition">Required field.</span>
+						<span class="text-danger h4" ng-show="$ctrl.inputErrors.bstock.noBstockCondition && !$ctrl.listing.condition">Required field.</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noBstockPackaging && !listing.packaging }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.bstock.noBstockPackaging && !$ctrl.listing.packaging }">
 						<label for="packagingInput">Packaging</label>
-						<select class="form-control" class="form-control" name="packaging" id="packagingInput" required ng-model="listing.packaging">
-							<option ng-repeat="packaging in bstockPackagings">{{packaging}}</option>
+						<select class="form-control" class="form-control" name="packaging" id="packagingInput" required ng-model="$ctrl.listing.packaging">
+							<option ng-repeat="packaging in $ctrl.formOptions.bstock.packagings">{{packaging}}</option>
 						</select>
-						<span class="text-danger h4" ng-show="noBstockPackaging && !listing.packaging">Required field.</span>
+						<span class="text-danger h4" ng-show="$ctrl.inputErrors.bstock.noBstockPackaging && !$ctrl.listing.packaging">Required field.</span>
 					</div>
 				</div>
 				
 				<div class="row">
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noChargeType }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.bstock.noChargeType }">
 						<label for="shippingChargeTypeInput">Shipping Charge Type</label>
-						<select class="form-control" name="shippingChargeType" id="shippingChargeTypeInput" ng-model="listing.shipping.chargeType">
-							<option ng-repeat="type in bstockShippingChargeTypes" value="{{bstockFormConstants.shippingChargeType[type]}}">{{type}}</option>
+						<select class="form-control" name="shippingChargeType" id="shippingChargeTypeInput" ng-model="$ctrl.listing.shipping.chargeType">
+							<option ng-repeat="type in $ctrl.formOptions.bstock.shippingChargeTypes" value="{{$ctrl.formOptions.bstock.constants.shippingChargeType[type]}}">{{type}}</option>
 						</select>
-						<span class="text-danger h4" ng-show="noChargeType">No Charge Type Selected.</span>
+						<span class="text-danger h4" ng-show="$ctrl.inputErrors.bstock.noChargeType">No Charge Type Selected.</span>
 					</div>
 				</div>
 
-				<div class="row" ng-show="listing.shipping.chargeType===bstockFormConstants.shippingChargeType['Fixed Cost']">
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidShippingCharge }">
+				<div class="row" ng-show="$ctrl.listing.shipping.chargeType===$ctrl.formOptions.bstock.constants.shippingChargeType['Fixed Cost']">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.bstock.invalidShippingCharge }">
 						<label for="fixedShippingChargeInput">Charge</label>
-						<input class="form-control" id="fixedShippingChargeInput" ng-model="listing.shipping.charge">
-						<span class="text-danger h4" ng-show="invalidShippingCharge">Invalid Shipping Charge</span>
+						<input class="form-control" id="fixedShippingChargeInput" ng-model="$ctrl.listing.shipping.charge">
+						<span class="text-danger h4" ng-show="$ctrl.inputErrors.bstock.invalidShippingCharge">Invalid Shipping Charge</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': noCarrier }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.bstock.noCarrier }">
 						<label for="shippingCarrierInput">Carrier</label>
-						<input class="form-control" id="shippingCarrierInput" ng-model="listing.shipping.carrier">
-						<span class="text-danger h4" ng-show="noCarrier">Required field.</span>
+						<input class="form-control" id="shippingCarrierInput" ng-model="$ctrl.listing.shipping.carrier">
+						<span class="text-danger h4" ng-show="$ctrl.inputErrors.bstock.noCarrier">Required field.</span>
 					</div>
 				</div>
-				<div class="row" ng-show="[bstockFormConstants.shippingChargeType['Free Shipping'], bstockFormConstants.shippingChargeType['Fixed Cost']].includes(listing.shipping.chargeType)">
+				<div class="row" ng-show="[$ctrl.formOptions.bstock.constants.shippingChargeType['Free Shipping'], $ctrl.formOptions.bstock.constants.shippingChargeType['Fixed Cost']].includes($ctrl.listing.shipping.chargeType)">
 					<div class="form-group col-xs-12 col-sm-6">
 						<label for="shippingAllowedDestinationsInput">Allowed Destinations</label>
-						<select class="form-control" name="shippingAllowedDestinations" id="shippingAllowedDestinationsInput" ng-model="listing.shipping.allowedDestinations">
-							<option ng-repeat="destinations in bstockShippingAllowedDestinations" value="{{bstockFormConstants.shippingAllowedDestinations[destinations]}}">{{destinations}}</option>
+						<select class="form-control" name="shippingAllowedDestinations" id="shippingAllowedDestinationsInput" ng-model="$ctrl.listing.shipping.allowedDestinations">
+							<option ng-repeat="destinations in $ctrl.formOptions.bstock.shippingAllowedDestinations" value="{{$ctrl.formOptions.bstock.constants.shippingAllowedDestinations[destinations]}}">{{destinations}}</option>
 						</select>
 					</div>
 				</div>
-				<div class="row" ng-show="listing.shipping.chargeType===bstockFormConstants.shippingChargeType['Buyer Arranges Shipping']"></div>
+				<div class="row" ng-show="$ctrl.listing.shipping.chargeType===$ctrl.formOptions.bstock.constants.shippingChargeType['Buyer Arranges Shipping']"></div>
 				<div class="row">
 					<div class="form-group col-xs-12">
 						<label for="shippingNotesInput">Shipping Notes</label>
-						<textarea class="form-control" id="shippingNotesInput" ng-model="listing.shipping.notes"></textarea>
+						<textarea class="form-control" id="shippingNotesInput" ng-model="$ctrl.listing.shipping.notes"></textarea>
 					</div>
 				</div>
-				<div class="row" ng-show="bstockTitleTooLong">
+				<div class="row" ng-show="$ctrl.inputErrors.bstock.bstockTitleTooLong">
 					<span class="text-danger h4">Title too long for a Bstock Listing</span>
 				</div>
 			</div>
-			<div class="row" ng-show="listing.marketplace==='wholesaleninjas'">
+			<div class="row" ng-show="$ctrl.listing.marketplace==='wholesaleninjas'">
 				<div class="row">
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': !lotPackagingType && noPackagingType }" ng-show="!lot.packagingType">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': !$ctrl.inputs.shopify.packagingType && $ctrl.inputErrors.shopify.noPackagingType }" ng-show="!$ctrl.lot.packagingType">
             <label for="packagingTypeInput">Packaging Type (required)</label>
-            <select class="form-control" name="packagingType" id="packagingTypeInput" ng-model="lotPackagingType">
-              <option ng-repeat="packagingType in packagingTypes">{{packagingType}}</option>
+            <select class="form-control" name="packagingType" id="packagingTypeInput" ng-model="$ctrl.inputs.shopify.packagingType">
+              <option ng-repeat="packagingType in $ctrl.formOptions.shopify.packagingTypes">{{packagingType}}</option>
             </select>
-            <span class="text-danger h4" ng-show="!lotPackagingType && noPackagingType">Please select a packaging type</span>
+            <span class="text-danger h4" ng-show="!$ctrl.inputs.shopify.packagingType && $ctrl.inputErrors.shopify.noPackagingType">Please select a packaging type</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidAdditionalShopifyTags }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.shopify.invalidAdditionalTags }">
 						<label for="additionalShopifyTagsInput">Tags</label>
-						<input class="form-control" id="additionalShopifyTagsInput" ng-model="additionalShopifyTags">
-						<span class="text-danger h4" ng-show="invalidAdditionalShopifyTags">Invalid tags</span>
+						<input class="form-control" id="additionalShopifyTagsInput" ng-model="$ctrl.inputs.shopify.additionalTags">
+						<span class="text-danger h4" ng-show="$ctrl.inputErrors.shopify.invalidAdditionalTags">Invalid tags</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidShopifyPrice }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.shopify.invalidPrice }">
 						<label for="shopifyPriceInput">Price</label>
-						<input class="form-control" id="shopifyPriceInput" ng-model="listing.shopifyPrice">
-						<span class="text-danger h4" ng-show="invalidShopifyPrice">Invalid Price</span>
+						<input class="form-control" id="shopifyPriceInput" ng-model="$ctrl.listing.shopifyPrice">
+						<span class="text-danger h4" ng-show="$ctrl.inputErrors.shopify.invalidPrice">Invalid Price</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidEstimatedRetailValue }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.shopify.invalidEstimatedRetailValue }">
 						<label for="estimatedRetailValueInput">Estimated Retail Value (Total)</label>
-						<input class="form-control" id="estimatedRetailValueInput" ng-disabled="!lot.unmanifested" ng-model="listing.estimatedRetailValue">
-						<span class="text-danger h4" ng-show="invalidEstimatedRetailValue">Invalid Estimated Retail value</span>
+						<input class="form-control" id="estimatedRetailValueInput" ng-disabled="!$ctrl.lot.unmanifested" ng-model="$ctrl.listing.estimatedRetailValue">
+						<span class="text-danger h4" ng-show="$ctrl.inputErrors.shopify.invalidEstimatedRetailValue">Invalid Estimated Retail value</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidShopifyInventory }">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.shopify.invalidInventory }">
 						<label for="shopifyInventoryInput">Inventory (number of lots)</label>
-						<input class="form-control" type="number" id="shopifyInventoryInput" ng-model="listing.shopifyInventory">
-						<span class="text-danger h4" ng-show="invalidShopifyInventory">Invalid Inventory</span>
+						<input class="form-control" type="number" id="shopifyInventoryInput" ng-model="$ctrl.listing.shopifyInventory">
+						<span class="text-danger h4" ng-show="$ctrl.inputErrors.shopify.invalidInventory">Invalid Inventory</span>
 					</div>
-					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': invalidTotalUnits }" ng-hide="lot.unmanifested">
+					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.shopify.invalidUnitCount }" ng-hide="$ctrl.lot.unmanifested">
 						<label for="totalUnitsInput">Total unit count</label>
-						<input class="form-control" type="number" id="totalUnitsInput" ng-model="totalUnits" ng-disabled="!lot.unmanifested" min="0">
-						<span class="text-danger h4" ng-show="invalidTotalUnits">Invalid unit count!</span>
+						<input class="form-control" type="number" id="totalUnitsInput" ng-model="$ctrl.inputs.totalUnits" ng-disabled="!$ctrl.lot.unmanifested" min="0">
+						<span class="text-danger h4" ng-show="$ctrl.inputErrors.shopify.invalidUnitCount">Invalid unit count!</span>
 					</div>
           <div class="col-xs-12 col-sm-6">
             <fieldset class="box-border">
               <legend class="box-border">Choose collections</legend>
-              <div class="checkbox" ng-repeat="coll in shopifyCollections">
+              <div class="checkbox" ng-repeat="coll in $ctrl.formOptions.shopify.collections">
                 <label for="shopifyCollectionInput-{{ coll.name }}">
                   <input type="checkbox" id="shopifyCollectionInput-{{ coll.name }}" ng-model="coll.selected">
                   <b>{{ coll.name }}</b>
@@ -146,9 +146,9 @@
           <div class="col-xs-12 col-sm-6">
             <fieldset class="box-border">
               <legend class="box-border">Guarantee</legend>
-              <div class="radio" ng-repeat="option in guaranteeOptions">
+              <div class="radio" ng-repeat="option in $ctrl.formOptions.shopify.guarantee">
                 <label>
-                  <input type="radio" name="guaranteeOptions" value="{{ option.value }}" ng-model="guarantee.value">
+                  <input type="radio" name="guaranteeOptions" value="{{ option.value }}" ng-model="$ctrl.inputs.shopify.guarantee.value">
                   {{ option.label }}
                 </label>
               </div>
@@ -160,12 +160,12 @@
 		<div class="col-xs-12 row">
 			<br/>
 			<div class="pull-right">
-				<button class="btn btn-danger" ng-click="backToLotDetails()">Back to Lot Details <span class="glyphicon glyphicon-pencil"></span></button>
-				<button class="btn btn-success" ng-click="submitListing()">Submit Listing</button>
+				<button class="btn btn-danger" ng-click="$ctrl.backToLotDetails()">Back to Lot Details <span class="glyphicon glyphicon-pencil"></span></button>
+				<button class="btn btn-success" ng-click="$ctrl.submitListing()">Submit Listing</button>
 			</div>
 		</div>
 	</div>
-	<div class="row" ng-show="waitingForResponse">
+	<div class="row" ng-show="$ctrl.waitingForResponse">
 		<div class="center-block loader"></div>
 		<h2 class="text-center">Please wait...</h2>
 	</div>

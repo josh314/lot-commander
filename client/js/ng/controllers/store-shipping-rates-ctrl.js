@@ -64,7 +64,7 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'sessionTimeout',
 
     }
 
-    function matchName( s ) {
+    function matchName() {
       vm.visibleDisplayRates = vm.allDisplayRates.filter( _dr => _dr.titleMatches( vm.filter.productName ) );
     }
 

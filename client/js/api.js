@@ -721,3 +721,30 @@ export function editStoreMultipleShippingRates( rates = [ /* { id, rate }: { pro
     .then( resp => resp.data.rates );
 
 }
+
+
+
+/*************************************************
+* Submit Listings
+* ================
+*
+************/
+
+
+export function submitLotListing( lotId, listingData, publish = false ) {
+
+  const data = {
+    lotId,
+    listing: listingData,
+    publish
+  };
+
+  return axios({
+    method: 'post',
+    url: `/api/listings/submit`,
+    data: data
+  })
+    .then( resp => resp.data );
+
+
+}

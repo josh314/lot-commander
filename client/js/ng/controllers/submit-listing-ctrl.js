@@ -1,67 +1,101 @@
 import angular from 'angular';
 
+import * as api from '../../api';
+
 /******************* Scanning Page Controller *************************/
-angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bstockFormConstants', 'dbEnums', 'listingTitleVerifier', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'sessionTimeout',
-  function( $scope, $http, bstockFormConstants, dbEnums, listingTitleVerifier, lotStore, LotSvc, messageModal, navigate, sessionTimeout ) {
+angular.module('myApp').controller('SubmitListingCtrl', [ '$q', 'bstockFormConstants', 'dbEnums', 'listingTitleVerifier', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'sessionTimeout',
+  function( $q, bstockFormConstants, dbEnums, listingTitleVerifier, lotStore, LotSvc, messageModal, navigate, sessionTimeout ) {
     sessionTimeout.timeoutExpired();
 
     if(!lotStore._id) {
       navigate.listLots();
     }
 
-    $scope.lot = lotStore;
-    $scope.totalUnits = $scope.lot.totalUnits;
-
-    $scope.waitingForResponse = false;
-
-    $scope.bstockFormConstants = bstockFormConstants;
+    const vm = this;
+    vm.waitingForResponse = false;
+    vm.lot = lotStore;
 
     // Form dropdown values
-    $scope.marketplaces = ['wholesaleninjas', 'bstock'];
-    $scope.bstockCategories = Object.keys(bstockFormConstants.category);
-    $scope.bstockConditions = Object.keys(bstockFormConstants.condition);
-    $scope.bstockPackagings = Object.keys(bstockFormConstants.packaging);
-    $scope.bstockShippingChargeTypes = Object.keys(bstockFormConstants.shippingChargeType);
-    $scope.bstockShippingAllowedDestinations = Object.keys(bstockFormConstants.shippingAllowedDestinations);
-
-    $scope.packagingTypes = dbEnums.packagingType;
-    $scope.lotPackagingType = lotStore.packagingType;
-
-    $scope.additionalShopifyTags = (function(){
-      const tags = [ ];
-      const handleTags = {
-        'PC': 'personal care',
-        'GM': 'general merchandise',
-        'VT': 'vitamins',
-        'NP': 'nail polish',
-        'CS': 'cosmetics',
-        'AP': 'clothing'
-      };
-
-      const match = $scope.lot.handle.match(/^([a-zA-Z]{2})/);
-      if(match && match[1] && handleTags[match[1]]) {
-        tags.push(handleTags[match[1]]);
+    vm.formOptions = {
+      marketplaces: ['wholesaleninjas', 'bstock'],
+      bstock: {
+        constants: bstockFormConstants,
+        categories: Object.keys(bstockFormConstants.category),
+        conditions: Object.keys(bstockFormConstants.condition),
+        packagings: Object.keys(bstockFormConstants.packaging),
+        shippingChargeTypes: Object.keys(bstockFormConstants.shippingChargeType),
+        shippingAllowedDestinations: Object.keys(bstockFormConstants.shippingAllowedDestinations),
+      },
+      shopify: {
+        packagingTypes: dbEnums.packagingType,
+        collections: [ 'lots', 'pallets', 'truckloads', 'cases' ].map( _ => ({ name: _, selected: false }) ),
+        guarantee: [
+          {
+            value: 'standard',
+            label: 'Standard (95%)'
+          },
+          {
+            value: 'as-is',
+            label: 'None (sold as-is)'
+          },
+          {
+            value: 'complete',
+            label: 'Complete (100%)'
+          },
+        ]
       }
-      return tags.join(', ');
-    })();
+    };
 
-    $scope.shopifyCollections = [ 'lots', 'pallets', 'truckloads', 'cases' ].map( _ => ({ name: _, selected: false }) );
+    vm.inputErrors = {
+      noMarketplace: false,
+      bstock: {
+        invalidAuctionPrice: false,
+        noChargeType: false,
+        invalidShippingCharge: false,
+        noCarrier: false,
+        noBstockCondition: false,
+        noBstockCategory: false,
+        noBstockPackaging: false,
+        bstockTitleTooLong: false,
+      },
+      shopify: {
+        invalidPrice: false,
+        invalidAdditionalTags: false,
+        invalidInventory: false,
+        invalidUnitCount: false,
+        invalidEstimatedRetailValue: false,
+        noPackagingType: false,
+      },
+    };
 
-    $scope.guaranteeOptions = [ 
-      {
-        value: 'standard',
-        label: 'Standard (95%)'
-      },
-      {
-        value: 'as-is',
-        label: 'None (sold as-is)'
-      },
-      {
-        value: 'complete',
-        label: 'Complete (100%)'
-      },
-    ];
-    $scope.guarantee = { value: 'standard' };
+    vm.inputs = {
+      totalUnits: vm.lot.totalUnits,
+      publish: false,
+      shopify: {
+        additionalTags: (function(){
+          const tags = [ ];
+          const handleTags = {
+            'PC': 'personal care',
+            'GM': 'general merchandise',
+            'VT': 'vitamins',
+            'NP': 'nail polish',
+            'CS': 'cosmetics',
+            'AP': 'clothing'
+          };
+
+          const match = vm.lot.handle.match(/^([a-zA-Z]{2})/);
+          if(match && match[1] && handleTags[match[1]]) {
+            tags.push(handleTags[match[1]]);
+          }
+          return tags.join(', ');
+        })(),
+        packagingType: lotStore.packagingType,
+        guarantee: { value: 'standard' },
+      }
+    };
+
+    vm.submitListing = submitListing;
+    vm.backToLotDetails = backToLotDetails;
 
     const conditionTag = lotType => {
       let cond;
@@ -82,21 +116,21 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bst
     };
 
     const getShopifyTags = () => {
-      const tags = $scope.additionalShopifyTags ? $scope.additionalShopifyTags.split(',').map(_=>_.trim()) : [];
-      if($scope.lot.unmanifested) {
+      const tags = vm.inputs.shopify.additionalTags ? vm.inputs.shopify.additionalTags.split(',').map(_=>_.trim()) : [];
+      if(vm.lot.unmanifested) {
         tags.push('unmanifested');
       }
       else {
         tags.push('manifested');
       }
-      tags.push(lotStore.packagingType || $scope.lotPackagingType);
+      tags.push(lotStore.packagingType || vm.inputs.shopify.packagingType);
       tags.push('review');
 
-      tags.push( conditionTag( $scope.lot.type ) );
+      tags.push( conditionTag( vm.lot.type ) );
 
-      tags.push( `guarantee:${ $scope.guarantee.value }` );
+      tags.push( `guarantee:${ vm.inputs.shopify.guarantee.value }` );
 
-      $scope.shopifyCollections.forEach( coll => {
+      vm.formOptions.shopify.collections.forEach( coll => {
         if( coll.selected ) {
           tags.push(`collection:${ coll.name }`);
         }
@@ -107,12 +141,12 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bst
 
     const estimatedRetailValue = lotStore.getEstimatedRetailValue();
     //Form default values
-    $scope.listing = {
-      marketplace: $scope.lot.destinationMarketplace || 'wholesaleninjas',
+    vm.listing = {
+      marketplace: vm.lot.destinationMarketplace || 'wholesaleninjas',
       // bstock defaults
       auctionStartPrice: '300',
       shopifyPrice: estimatedRetailValue ? (.2*parseFloat(estimatedRetailValue)).toFixed(2) : '',
-      condition: ({'shelf-pull': 'Shelf Pulls','customer returns': 'Customer Returns','salvage': 'Salvage'})[$scope.lot.type] || '',
+      condition: ({'shelf-pull': 'Shelf Pulls','customer returns': 'Customer Returns','salvage': 'Salvage'})[vm.lot.type] || '',
       packaging: 'Original',
       shipping: {
         allowedDestinations: bstockFormConstants.shippingAllowedDestinations['Continental US only (Alaska and Hawaii excluded)'],
@@ -129,85 +163,80 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bst
     };
 
     function validateBstockListingOptions() {
-      $scope.invalidAuctionPrice = ($scope.listing.auctionStartPrice && $scope.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;
-      $scope.noChargeType = $scope.listing.shipping.chargeType ? false : true;
+      vm.inputErrors.bstock.invalidAuctionPrice = (vm.listing.auctionStartPrice && vm.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;
+      vm.inputErrors.bstock.noChargeType = vm.listing.shipping.chargeType ? false : true;
 
-      $scope.noBstockCondition = $scope.listing.condition ? false : true;
-      $scope.noBstockCategory = $scope.listing.category ? false : true;
-      $scope.noBstockPackaging = $scope.listing.packaging ? false : true;
-      $scope.bstockTitleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title).bstock;
+      vm.inputErrors.bstock.noBstockCondition = vm.listing.condition ? false : true;
+      vm.inputErrors.bstock.noBstockCategory = vm.listing.category ? false : true;
+      vm.inputErrors.bstock.noBstockPackaging = vm.listing.packaging ? false : true;
+      vm.inputErrors.bstock.bstockTitleTooLong = listingTitleVerifier.tooLong(vm.lot.listingData.title).bstock;
 
-      if($scope.listing.shipping.chargeType===bstockFormConstants.shippingChargeType['Fixed Cost']) {
-        $scope.invalidShippingCharge = ($scope.listing.shipping.charge && $scope.listing.shipping.charge.match(/[0-9]+/)) ? false : true;
-        $scope.noCarrier = $scope.listing.shipping.carrier ? false : true;
+      if(vm.listing.shipping.chargeType===bstockFormConstants.shippingChargeType['Fixed Cost']) {
+        vm.inputErrors.bstock.invalidShippingCharge = (vm.listing.shipping.charge && vm.listing.shipping.charge.match(/[0-9]+/)) ? false : true;
+        vm.inputErrors.bstock.noCarrier = vm.listing.shipping.carrier ? false : true;
       }
       else {
-        $scope.invalidShippingCharge = $scope.noCarrier = false;
+        vm.inputErrors.bstock.invalidShippingCharge = vm.inputErrors.bstock.noCarrier = false;
       }
 
-      if($scope.invalidAuctionPrice || $scope.noChargeType || $scope.invalidShippingCharge || $scope.noCarrier || $scope.noBstockPackaging || $scope.noBstockCategory || $scope.noBstockCondition || $scope.bstockTitleTooLong) {
+      if( Object.values( vm.inputErrors.bstock ).some( _ => _ ) ) {
         return false;
       }
+
       return true;
     }
 
     function validateShopifyListingOptions() {
-      $scope.invalidShopifyPrice = ($scope.listing.shopifyPrice && $scope.listing.shopifyPrice.match(/^[0-9]+(\.[0-9]{2})?$/)) ? false : true;
-      $scope.invalidShopifyInventory = ($scope.listing.shopifyInventory && ($scope.listing.shopifyInventory >= 0)) ? false : true;
-      $scope.invalidUnitCount = $scope.totalUnits <= 0 && !lotStore.unmanifested;
+      vm.inputErrors.shopify.invalidPrice = (vm.listing.shopifyPrice && vm.listing.shopifyPrice.match(/^[0-9]+(\.[0-9]{2})?$/)) ? false : true;
+      vm.inputErrors.shopify.invalidInventory = (vm.listing.shopifyInventory && (vm.listing.shopifyInventory >= 0)) ? false : true;
+      vm.inputErrors.shopify.invalidUnitCount = vm.inputs.totalUnits <= 0 && !lotStore.unmanifested;
 
-      $scope.noPackagingType = !$scope.lotPackagingType;
+      vm.inputErrors.shopify.noPackagingType = !vm.inputs.shopify.packagingType;
 
-      if($scope.invalidShopifyPrice || $scope.invalidAdditionalShopifyTags || $scope.invalidShopifyInventory) {
+      if( Object.values( vm.inputErrors.shopify ).some( _ => _ ) ) {
         return false;
       }
-      if($scope.invalidUnitCount) {
-        return false;
-      }
-      if($scope.noPackagingType) {
-        return false;
-      }      
 
       return true;
     }
 
     function validateListingOptions() {
-      if($scope.listing.marketplace=='bstock') {
+      if(vm.listing.marketplace=='bstock') {
         return validateBstockListingOptions();
       }
-      else if($scope.listing.marketplace=='wholesaleninjas') {
+      else if(vm.listing.marketplace=='wholesaleninjas') {
         return validateShopifyListingOptions();
       }
     }
 
-    $scope.submitListing = async function() {
+    async function submitListing() {
 
       Promise.resolve({}).then(()=>{
-        console.log($scope.listing);
+        console.log(vm.listing);
       });
 
-      $scope.noMarketplace = $scope.listing.marketplace ? false : true;
-      if($scope.noMarketplace) {
+      vm.inputErrors.noMarketplace = vm.listing.marketplace ? false : true;
+      if( vm.inputErrors.noMarketplace ) {
         return;
       }
 
-      $scope.listing.shopifyTags = getShopifyTags();
+      vm.listing.shopifyTags = getShopifyTags();
 
       if(!validateListingOptions()) {
         return;
       }
 
-      $scope.waitingForResponse = true;
+      vm.waitingForResponse = true;
 
-      if($scope.totalUnits!==$scope.lot.totalUnits) {
-        $scope.lot.totalUnits = $scope.totalUnits;
-        await LotSvc.edit( $scope.lot._id, $scope.lot );
+      if(vm.inputs.totalUnits!==vm.lot.totalUnits) {
+        vm.lot.totalUnits = vm.inputs.totalUnits;
+        await LotSvc.edit( vm.lot._id, vm.lot );
       }
 
-      $http.post('/api/listings/submit', { lotId: lotStore._id, listing: $scope.listing, publish: $scope.publish }).then(resp=>{
+      $q.when( api.submitLotListing( lotStore._id, vm.listing, vm.inputs.publish ) ).then(resp=>{
         console.log(resp);
-        if(resp.data.error) {
-          messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
+        if(resp.error) {
+          messageModal.launch({header: 'Error', body: resp.error, type: 'error'});
         }
         else {
           messageModal.launch({header: 'Status', body: 'Listing submitted. Submission may take several minutes. Return to lot page to view results.', type: 'success'});
@@ -218,13 +247,13 @@ angular.module('myApp').controller('SubmitListingCtrl', ['$scope', '$http', 'bst
           console.log(e);
         })
         .then(()=>{
-          $scope.waitingForResponse = false;
+          vm.waitingForResponse = false;
         });
-    };
+    }
 
-    $scope.backToLotDetails = function() {
+    function backToLotDetails() {
       navigate.viewLot( lotStore._id );
-    };
+    }
 
   }
 ]);
