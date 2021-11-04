@@ -8,7 +8,7 @@
 			<legend class="box-border">Filter</legend>
 			<div class="form-group col-xs-12 col-sm-6">
 				<label for="productNameFilter">Product name</label>
-				<input class="form-control" name="productNameFilter" ng-model="$ctrl.filter.productName" ng-keyup="$ctrl.matchName()">
+				<input class="form-control" name="productNameFilter" ng-model="$ctrl.filter.productName" ng-keyup="$ctrl.refreshVisibleDisplayRates()">
 			</div>
 			<div class="form-group col-xs-12 col-sm-6">
 				<label for="includePalletsFilter">Include Pallets?</label>
@@ -33,7 +33,7 @@
           <td>{{ displayRate.name }}</td>
           <td >
             <div class="form-group" ng-class="{ 'has-error' : displayRate.isDirty() }">
-            <input type="number" class="form-control" ng-model="displayRate.displayValue" ng-keyup="$event.keyCode == 13 && $ctrl.saveRate( displayRate.gid )""/>
+            <input type="number" class="form-control" ng-model="displayRate.displayValue" ng-keyup="$event.keyCode == 13 && $ctrl.saveRate( displayRate.gid )"/>
             </div>
           </td>
           <td>

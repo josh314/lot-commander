@@ -29,8 +29,8 @@ class DisplayRate {
 }
 
 /******************* Store Shippinbg Rates Controller *************************/
-angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'sessionTimeout', 'StoreShippingRatesSvc',
-  function( sessionTimeout, StoreShippingRatesSvc ) {
+angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'ListingsSvc', 'sessionTimeout',
+  function( ListingsSvc, sessionTimeout ) {
 
     sessionTimeout.timeoutExpired();
 
@@ -43,7 +43,7 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'sessionTimeout',
       productName: ''
     };
     vm.refreshRates = refreshRates;
-    vm.matchName = matchName;
+    vm.refreshVisibleDisplayRates = refreshVisibleDisplayRates;
     vm.saveRate = saveRate;
     vm.revertRate = revertRate;
 
@@ -54,17 +54,17 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'sessionTimeout',
       };
 
       vm.waitingForResponse = true;
-      StoreShippingRatesSvc.list( qp ).then( rates => {
+      ListingsSvc.listShippingRates( qp ).then( rates => {
 
         vm.allDisplayRates = rates.map( _r => new DisplayRate( _r ) );
-        matchName( vm.filter.productName );
+        refreshVisibleDisplayRates( );
         vm.waitingForResponse = false;
 
       });
 
     }
 
-    function matchName() {
+    function refreshVisibleDisplayRates() {
       vm.visibleDisplayRates = vm.allDisplayRates.filter( _dr => _dr.titleMatches( vm.filter.productName ) );
     }
 
@@ -76,9 +76,10 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'sessionTimeout',
 
         const oldRate = vm.allDisplayRates[idx];
 
-        StoreShippingRatesSvc.edit( gid, oldRate.displayValue ).then( _rate => {
+        ListingsSvc.editShippingRate( gid, oldRate.displayValue ).then( _rate => {
 
           vm.allDisplayRates.splice( idx, 1, new DisplayRate( { gid: oldRate.gid, name: oldRate.name, rate: _rate.rate } ) );
+          refreshVisibleDisplayRates();
 
         } );
       }

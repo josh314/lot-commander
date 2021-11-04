@@ -42,7 +42,6 @@ import "./js/ng/services/session-timeout-svc.js";
 import "./js/ng/services/settings-svc.js";
 import "./js/ng/services/shipment-manager-svc.js";
 import "./js/ng/services/shipping-items-modal-svc.js";
-import "./js/ng/services/store-shipping-rates-svc.js";
 import "./js/ng/services/user-svc.js";
 import "./js/ng/services/utilities-svc.js";
 

@@ -22,6 +22,15 @@ angular.module('myApp').factory('ListingsSvc', [ '$q', function( $q ) {
       return res;
     },
 
+
+    editShippingRate: ( gid, newRate ) => $q.when( api.editStoreShippingRate( gid, newRate ) ),
+
+    listShippingRates: qp => $q.when( api.listStoreShippingRates( qp ) ).then( rates =>  {
+
+      return rates.map( _r => Object.assign( {}, _r ) );
+
+    }),
+
     submitLotListing: ( lotId, listingData, publish = false ) => $q.when( api.submitLotListing( lotId, listingData, publish ) ),
 
   };
