@@ -119,7 +119,7 @@
 					</div>
 					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.shopify.invalidEstimatedRetailValue }">
 						<label for="estimatedRetailValueInput">Estimated Retail Value (Total)</label>
-						<input class="form-control" id="estimatedRetailValueInput" ng-disabled="!$ctrl.lot.unmanifested" ng-model="$ctrl.listing.estimatedRetailValue">
+						<input class="form-control" id="estimatedRetailValueInput" ng-model="$ctrl.listing.estimatedRetailValue">
 						<span class="text-danger h4" ng-show="$ctrl.inputErrors.shopify.invalidEstimatedRetailValue">Invalid Estimated Retail value</span>
 					</div>
 					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.shopify.invalidInventory }">
@@ -129,7 +129,7 @@
 					</div>
 					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.shopify.invalidUnitCount }" ng-hide="$ctrl.lot.unmanifested">
 						<label for="totalUnitsInput">Total unit count</label>
-						<input class="form-control" type="number" id="totalUnitsInput" ng-model="$ctrl.inputs.totalUnits" ng-disabled="!$ctrl.lot.unmanifested" min="0">
+						<input class="form-control" type="number" id="totalUnitsInput" ng-model="$ctrl.inputs.totalUnits" min="0">
 						<span class="text-danger h4" ng-show="$ctrl.inputErrors.shopify.invalidUnitCount">Invalid unit count!</span>
 					</div>
           <div class="col-xs-12 col-sm-6">
