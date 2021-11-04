@@ -1,10 +1,8 @@
 import angular from 'angular';
 
-import * as api from '../../api';
-
-/******************* Scanning Page Controller *************************/
-angular.module('myApp').controller('SubmitListingCtrl', [ '$q', 'bstockFormConstants', 'dbEnums', 'listingTitleVerifier', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'sessionTimeout',
-  function( $q, bstockFormConstants, dbEnums, listingTitleVerifier, lotStore, LotSvc, messageModal, navigate, sessionTimeout ) {
+/******************* Submit Listing Controller *************************/
+angular.module('myApp').controller('SubmitListingCtrl', [ 'bstockFormConstants', 'dbEnums', 'ListingsSvc', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'sessionTimeout',
+  function( bstockFormConstants, dbEnums, ListingsSvc, lotStore, LotSvc, messageModal, navigate, sessionTimeout ) {
     sessionTimeout.timeoutExpired();
 
     if(!lotStore._id) {
@@ -169,7 +167,7 @@ angular.module('myApp').controller('SubmitListingCtrl', [ '$q', 'bstockFormConst
       vm.inputErrors.bstock.noBstockCondition = vm.listing.condition ? false : true;
       vm.inputErrors.bstock.noBstockCategory = vm.listing.category ? false : true;
       vm.inputErrors.bstock.noBstockPackaging = vm.listing.packaging ? false : true;
-      vm.inputErrors.bstock.bstockTitleTooLong = listingTitleVerifier.tooLong(vm.lot.listingData.title).bstock;
+      vm.inputErrors.bstock.bstockTitleTooLong = ListingsSvc.isTitleTooLong(vm.lot.listingData.title).bstock;
 
       if(vm.listing.shipping.chargeType===bstockFormConstants.shippingChargeType['Fixed Cost']) {
         vm.inputErrors.bstock.invalidShippingCharge = (vm.listing.shipping.charge && vm.listing.shipping.charge.match(/[0-9]+/)) ? false : true;
@@ -233,7 +231,7 @@ angular.module('myApp').controller('SubmitListingCtrl', [ '$q', 'bstockFormConst
         await LotSvc.edit( vm.lot._id, vm.lot );
       }
 
-      $q.when( api.submitLotListing( lotStore._id, vm.listing, vm.inputs.publish ) ).then(resp=>{
+      ListingsSvc.submitLotListing( lotStore._id, vm.listing, vm.inputs.publish ).then(resp=>{
         console.log(resp);
         if(resp.error) {
           messageModal.launch({header: 'Error', body: resp.error, type: 'error'});

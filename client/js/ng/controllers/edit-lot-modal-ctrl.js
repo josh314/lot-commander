@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /****************** Edit Lot Modal Controller ***********************/
-angular.module('myApp').controller( 'EditLotModalCtrl', [ 'dbEnums', 'listingTitleVerifier', 'lot', 'packagingTypeInfoModal', 'shippingItemsModal',
-  function( dbEnums, listingTitleVerifier, lot, packagingTypeInfoModal, shippingItemsModal ){
+angular.module('myApp').controller( 'EditLotModalCtrl', [ 'dbEnums', 'ListingsSvc', 'lot', 'packagingTypeInfoModal', 'shippingItemsModal',
+  function( dbEnums, ListingsSvc, lot, packagingTypeInfoModal, shippingItemsModal ){
 
     const vm = this;
 
@@ -22,7 +22,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [ 'dbEnums', 'listingTit
     vm.editShippingItems = editShippingItems;
 
     function verifyTitle() {
-      vm.titleTooLong = listingTitleVerifier.tooLong( vm.lot.listingData.title );
+      vm.titleTooLong = ListingsSvc.isTitleTooLong( vm.lot.listingData.title );
 
       if(vm.titleTooLong.bstock && vm.lot.destinationMarketplace==='bstock') {
         return false;

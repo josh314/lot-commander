@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'listingTitleVerifier', 'LoggedInUser', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'PrintSvc', 'sessionTimeout', 'shippingItemsModal',
-  function( $scope, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, listingTitleVerifier, LoggedInUser, lotStore, LotSvc, messageModal, navigate, PrintSvc, sessionTimeout, shippingItemsModal ) {
+angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'ListingsSvc', 'LoggedInUser', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'PrintSvc', 'sessionTimeout', 'shippingItemsModal',
+  function( $scope, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, ListingsSvc, LoggedInUser, lotStore, LotSvc, messageModal, navigate, PrintSvc, sessionTimeout, shippingItemsModal ) {
     sessionTimeout.timeoutExpired();
 
     $scope.showCreateListingButton = LoggedInUser.hasPermission('SUBMIT_AUCTION') || LoggedInUser.hasPermission('SUBMIT_SHOPIFY_LISTING');
@@ -309,7 +309,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
           $scope.images = lot.images;
           initializeAllThumbnailImages( lot );
         })
-        .then( _ => $scope.titleTooLong = listingTitleVerifier.tooLong($scope.lot.listingData.title) );
+        .then( _ => $scope.titleTooLong = ListingsSvc.isTitleTooLong($scope.lot.listingData.title) );
 
     }
 
