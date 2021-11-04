@@ -49,26 +49,6 @@ function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClien
   // bstock db api
   router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);
 
-  // marketplace listings
-  router.post(
-    '/api/listings/submit',
-    express.json(),
-    ( req, res, next ) => {
-      const marketplace = req.body.listing.marketplace;
-      if( marketplace === 'wholesaleninjas' ) {
-        auth.isAuthorized('SUBMIT_SHOPIFY_LISTING')(req,res,next);
-      }
-      else if ( marketplace === 'bstock' ) {
-        auth.isAuthorized('SUBMIT_AUCTION')(req,res,next);
-      }
-      else {
-        throw new Error(`Marketplace '${marketplace}' not recognized.`);
-      }
-    },
-    listings.submit
-  );
-
-
   // product data
   router.get('/api/product-data/:barcode', (req,res)=>{
     productData.getProductDataByBarcode(req.params.barcode).then(resp=>{
@@ -77,7 +57,7 @@ function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClien
   });
 
   // import & register routers
-
+  router.use('/api/listings', require('./listings')( { listings, lotdb } ));
   router.use('/api/image', require('./images')( { lotdb } ) );
   router.use('/api/print', require('./print')( { inventoryCommander, lotdb: lotdb } ) );
   router.use('/api/manifests', require('./manifests'));

@@ -1,10 +1,7 @@
 const path = require('path');
 
-const Promise = require('bluebird');
+const { ClientError } = require('../errors');
 
-const { ClientError, ResourceNotFoundError } = require('../errors');
-
-const lotDb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const bstock = require(path.join(__basedir, __config.modulesPath, 'bstock'));
 const shopify = require(path.join(__basedir, __config.modulesPath, 'shopify'));
 const manifests = require('./manifests');
@@ -62,26 +59,13 @@ const submitFn = {
   wholesaleninjas: shopify.submitListing,
 };
 
-const submit = Promise.method(async function(req, res, next) {
-  const listing = req.body.listing;
-  const publish = !!req.body.publish;
+const submit = async function( { lotId, listing, publish = false } ) {
 
-  if(!submitFn[listing.marketplace]) {
-    next(new Error('Invalid marketplace.'));
-  }
 
-  let lot;
-  if(!req.body.lotId || !(lot = await lotDb.getLotById(req.body.lotId))) {
-    console.error('No listing submitted: invalid or missing lotId.');
-    const e = new ResourceNotFoundError( { name: 'lot', id: req.body.lotId } );
-    next(e);
-  }
-  listing.lot = lot;
-
-  if(!listing.lot.images || !listing.lot.images.length) {
+  if( !listing.lot.images || !listing.lot.images.length ) {
     console.error(`No listing created for lot ${listing.lot.handle} (id: ${listing.lot._id}): no images.`);
     const e = new ClientError('Please add images to this lot before submission.');
-    next(e);
+    throw e;
   }
 
   const boilerplateFormat = ((mp)=>{
@@ -94,8 +78,6 @@ const submit = Promise.method(async function(req, res, next) {
 
   listing.bodyBoilerplate = boilerplate[listing.lot.type] ? boilerplate[listing.lot.type] : '';
 
-  res.json({ message: 'Listing submitted. Submission may take several minutes.'});
-
   const newSubmittedListing = {
     marketplace: listing.marketplace,
     dateSubmitted: new Date()
@@ -103,7 +85,7 @@ const submit = Promise.method(async function(req, res, next) {
   try {
 
     if(!listing.lot.manifestFileLocation && !listing.lot.unmanifested ) {
-      const generatedManifestResponse = await manifests.generateLotManifest( req.body.lotId , { save: true } );
+      const generatedManifestResponse = await manifests.generateLotManifest( lotId , { save: true } );
       listing.lot.manifestFileLocation = generatedManifestResponse.manifest;
     }
 
@@ -136,8 +118,9 @@ const submit = Promise.method(async function(req, res, next) {
   else {
     listing.lot.submittedListings = [newSubmittedListing];
   }
-  lotDb.updateLot(listing.lot);
-});
+
+  return listing;
+};
 
 module.exports = {
   //functions
