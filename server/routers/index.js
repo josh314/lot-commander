@@ -3,8 +3,8 @@ const express = require('express');
 
 const auth = require('../auth');
 
-const scriptBuilder = require(path.join(__basedir, __config.modulesPath, 'script-builder'));
-
+const bstock = require(path.join(__basedir, __config.modulesPath, 'bstock'));
+const quickLots = require(path.join(__basedir, __config.modulesPath, 'quick-lots'));
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
 const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
@@ -57,7 +57,7 @@ function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClien
   });
 
   // import & register routers
-  router.use('/api/listings', require('./listings')( { listings, lotdb } ));
+  router.use('/api/listings', require('./listings')( { listings, lotdb, shopifyGql } ));
   router.use('/api/image', require('./images')( { lotdb } ) );
   router.use('/api/print', require('./print')( { inventoryCommander, lotdb: lotdb } ) );
   router.use('/api/manifests', require('./manifests'));
@@ -82,12 +82,9 @@ function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClien
   router.use('/api/manual-inventory', require('./manual-inventory')( { manualInventoryDb: manualInventoryDbClient } ) );
 
   // Shipping rates on Shopify store
-  router.use('/api/shipping-rates/store', require('./shipping-rates/store')( { shopifyGql } ));
-
+  
   // dynamically created JS scripts for the client
-  router.get('/build/ng-app-server-data.js', (req,res)=>{
-    res.send(scriptBuilder.ngAppServerData());
-  });
+  router.use('/build', require('./script-builder')( { bstock, listings, lotdb, quickLots }) );
 
   router.use( express.static(path.join(__basedir, __config.assets.root)) );
   router.use( express.static(path.join(__basedir, __config.imgPath)) );

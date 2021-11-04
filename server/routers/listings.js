@@ -3,6 +3,35 @@ const express = require('express');
 const auth = require('../auth');
 const { ResourceNotFoundError } = require('../errors');
 
+// Helpers
+
+const cmpRate = ( a, b ) => {
+
+  if( a.productTitle < b.productTitle ) {
+    return -1;
+  }
+  else if( a.productTitle > b.productTitle ) {
+    return +1;
+  }
+  else {
+
+    const aVariantTitleNumber = parseFloat( a.variantTitle );
+    const bVariantTitleNumber = parseFloat( b.variantTitle );
+
+    if( Number.isNaN( aVariantTitleNumber ) || Number.isNaN( bVariantTitleNumber ) ) {
+
+      return a.variantTitle < b.variantTitle ? -1 : 1;
+
+    }
+    else {
+
+      return aVariantTitleNumber - bVariantTitleNumber;
+
+    }
+
+  }
+
+};
 
 module.exports = routes;
 
@@ -12,7 +41,7 @@ module.exports = routes;
  * 
  **********/
 
-function routes({ listings, lotdb }) {
+function routes({ listings, lotdb, shopifyGql }) {
   const router = new express.Router();
 
 
@@ -22,8 +51,10 @@ function routes({ listings, lotdb }) {
    * 
    ****/
 
+
+  
   router.post(
-    '/submit',
+    '/',
     express.json(),
     ( req, res, next ) => {
       const marketplace = req.body.listing.marketplace;
@@ -39,6 +70,19 @@ function routes({ listings, lotdb }) {
     },
     submit
   );
+
+
+  router.get(
+    '/shipping-rates',
+    auth.isAuthorized( 'VIEW_STORE_SHIPPING_RATES' ),
+    getShippingRates
+  );
+  router.post(
+    '/shipping-rates',
+    auth.isAuthorized( 'EDIT_STORE_SHIPPING_RATES' ),
+    editShippingRates
+  );
+
 
 
   /*******************************************
@@ -77,9 +121,46 @@ function routes({ listings, lotdb }) {
 
     }
   
+  }
+
+
+  async function getShippingRates( req, res, next ) {
+
+    try {
+
+      const includePallets = req.query.include_pallets ? !!parseInt(req.query.include_pallets) : false;
+
+      const rates = await shopifyGql.listProductVariantShippingRates( { includePallets } );
+      rates.sort( cmpRate );
+
+      res.json( { rates } );
+      
+    }
+    catch (e) {
+      next( e );
+    }
 
   }
 
+  async function editShippingRates( req, res, next ) {
+
+    const submittedRates = req.body.rates;
+
+    try {
+
+      const editPromises = submittedRates.filter( _ => _.id && typeof _.rate !== 'undefined' && _.rate !== null ).map( _ => shopifyGql.setProductVariantShippingRate( _.id, _.rate ) );
+      
+      const rates = await Promise.all( editPromises );
+      rates.sort( cmpRate );
+
+      res.json( { rates } );
+
+    }
+    catch (e) {
+      next( e );
+    }
+
+  }
 
   /**************************************
    * Return routes

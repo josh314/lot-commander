@@ -672,10 +672,28 @@ export function editManualInventory( inventoryId, data ) {
 }
 
 /*************************************************
-* Store Shipping Rates
+* Listings
 * ================
 *
 ************/
+
+
+export function submitLotListing( lotId, listingData, publish = false ) {
+
+  const data = {
+    lotId,
+    listing: listingData,
+    publish
+  };
+
+  return axios({
+    method: 'post',
+    url: `/api/listings`,
+    data: data
+  })
+    .then( resp => resp.data );
+
+}
 
 
 export function listStoreShippingRates( qp ) {
@@ -686,7 +704,7 @@ export function listStoreShippingRates( qp ) {
 
   return axios({
     method: 'get',
-    url: `/api/shipping-rates/store?${qs.stringify(queryParams)}`
+    url: `/api/listings/shipping-rates?${qs.stringify(queryParams)}`
   })
     .then( resp => resp.data.rates );
 }
@@ -704,7 +722,7 @@ export function editStoreShippingRate( pvid /* REST or GQL version*/, rate ) {
 
   return axios({
     method: 'post',
-    url: `/api/shipping-rates/store`,
+    url: `/api/listings/shipping-rates`,
     data: data
   })
     .then( resp => resp.data.rates[0] );
@@ -715,36 +733,9 @@ export function editStoreMultipleShippingRates( rates = [ /* { id, rate }: { pro
 
   return axios({
     method: 'post',
-    url: `/api/shipping-rates/store`,
+    url: `/api/listings/shipping-rates`,
     data: { rates }
   })
     .then( resp => resp.data.rates );
-
-}
-
-
-
-/*************************************************
-* Submit Listings
-* ================
-*
-************/
-
-
-export function submitLotListing( lotId, listingData, publish = false ) {
-
-  const data = {
-    lotId,
-    listing: listingData,
-    publish
-  };
-
-  return axios({
-    method: 'post',
-    url: `/api/listings/submit`,
-    data: data
-  })
-    .then( resp => resp.data );
-
 
 }
