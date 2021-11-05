@@ -58,6 +58,7 @@ angular.module('myApp').controller('SubmitListingCtrl', [ 'bstockFormConstants',
       },
       shopify: {
         invalidPrice: false,
+        invalidShippingRate: false,
         invalidAdditionalTags: false,
         invalidInventory: false,
         invalidUnitCount: false,
@@ -70,6 +71,7 @@ angular.module('myApp').controller('SubmitListingCtrl', [ 'bstockFormConstants',
       totalUnits: vm.lot.totalUnits,
       publish: false,
       shopify: {
+        shippingRate: '', 
         additionalTags: (function(){
           const tags = [ ];
           const handleTags = {
@@ -137,6 +139,8 @@ angular.module('myApp').controller('SubmitListingCtrl', [ 'bstockFormConstants',
       return tags.filter( _ => _ ).join(', ');// remove any empty tags then join as a CSV string before returning
     };
 
+    const isBoxedLot = () => lotStore.packagingType === 'box lot';
+
     const estimatedRetailValue = lotStore.getEstimatedRetailValue();
     //Form default values
     vm.listing = {
@@ -188,8 +192,9 @@ angular.module('myApp').controller('SubmitListingCtrl', [ 'bstockFormConstants',
       vm.inputErrors.shopify.invalidPrice = (vm.listing.shopifyPrice && vm.listing.shopifyPrice.match(/^[0-9]+(\.[0-9]{2})?$/)) ? false : true;
       vm.inputErrors.shopify.invalidInventory = (vm.listing.shopifyInventory && (vm.listing.shopifyInventory >= 0)) ? false : true;
       vm.inputErrors.shopify.invalidUnitCount = vm.inputs.totalUnits <= 0 && !lotStore.unmanifested;
-
       vm.inputErrors.shopify.noPackagingType = !vm.inputs.shopify.packagingType;
+
+      vm.inputErrors.shopify.invalidShippingRate = isBoxedLot() ? !vm.inputs.shopify.shippingRate: false;
 
       if( Object.values( vm.inputErrors.shopify ).some( _ => _ ) ) {
         return false;
@@ -219,6 +224,7 @@ angular.module('myApp').controller('SubmitListingCtrl', [ 'bstockFormConstants',
       }
 
       vm.listing.shopifyTags = getShopifyTags();
+      vm.listing.shopifyShippingRate = vm.inputs.shopify.shippingRate;
 
       if(!validateListingOptions()) {
         return;

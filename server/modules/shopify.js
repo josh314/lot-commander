@@ -224,6 +224,11 @@ class Client {
         listingPromises.push(addMetafieldP);
       }
 
+      if( listing.shopifyShippingRate ) {
+        const addMetafieldP = this.shopifyGql.setProductVariantShippingRate( newProductVariant.id, listing.shopifyShippingRate );
+        listingPromises.push(addMetafieldP);
+      }
+
       const result = publish ? Promise.all(listingPromises).then( _ => this.shopifyClient.publishProduct(newProductId) ) : listingPromises;
 
       return result;
