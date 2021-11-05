@@ -199,12 +199,22 @@ class Server {
 
     // Initialize database and APi clients to serve as dependencies for the routers
 
-    const ShopifyGql = require('./modules/shopify-gql');
+    const bstock = require( './modules/bstock' );
+
+    const ShopifyGql = require( './modules/shopify-gql' );
     const shopifyGqlClient = new ShopifyGql({
       storeId: __config.shopify.store.id,
       storeName: __config.shopify.store.name,
       accessToken: __config.shopify.store.auth.password
     });
+    const Shopify = require( './modules/shopify' );
+    const shopify = new Shopify( {
+      config: __config.shopify.store,
+      shopifyGql: shopifyGqlClient,
+    } );
+
+    const ListingsSubmitter = require( './modules/listings-submitter' );
+    const listingsSubmitter = new ListingsSubmitter( { bstock, shopify } );
 
     const EventsDb = require('./modules/events-db');
     const eventsDbClient = new EventsDb.Client( this.mongooseConnection );
@@ -218,12 +228,14 @@ class Server {
     const manualInventoryDbClient = new ManualInventoryDb.Client( { mongooseConnection: this.mongooseConnection } );
 
     const routerOpts = {
+      bstock,
       eventsDbClient,
-      manualInventoryDbClient,
       inventoryCommander,
-      userDbClient: this.users,
+      listings: listingsSubmitter,
+      manualInventoryDbClient,
       shopifyDumpDb: shopifyDumpDbClient,
-      shopifyGql: shopifyGqlClient
+      shopifyGql: shopifyGqlClient,
+      userDbClient: this.users,
     };
 
     // Load routes based on layout

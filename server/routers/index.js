@@ -3,11 +3,9 @@ const express = require('express');
 
 const auth = require('../auth');
 
-const bstock = require(path.join(__basedir, __config.modulesPath, 'bstock'));
 const quickLots = require(path.join(__basedir, __config.modulesPath, 'quick-lots'));
 const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
-const listings = require(path.join(__basedir, __config.modulesPath, 'listings'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
 // middleware to stick for testing purposes
@@ -19,7 +17,16 @@ const productData = require(path.join(__basedir, __config.modulesPath, 'product-
 // }
 
 //routes
-function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClient, manualInventoryDbClient, shopifyGql }) {
+function routes({
+  bstock,
+  eventsDbClient,
+  inventoryCommander,
+  listings,
+  manualInventoryDbClient,
+  shopifyDumpDb,
+  shopifyGql,
+  userDbClient
+}) {
 
   const router = new express.Router();
 
@@ -57,6 +64,7 @@ function routes({ eventsDbClient, inventoryCommander, shopifyDumpDb, userDbClien
   });
 
   // import & register routers
+
   router.use('/api/listings', require('./listings')( { listings, lotdb, shopifyGql } ));
   router.use('/api/image', require('./images')( { lotdb } ) );
   router.use('/api/print', require('./print')( { inventoryCommander, lotdb: lotdb } ) );
