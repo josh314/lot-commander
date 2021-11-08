@@ -29,23 +29,12 @@ class DisplayRate {
 }
 
 /******************* Store Shippinbg Rates Controller *************************/
-angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'ListingsSvc', 'sessionTimeout',
-  function( ListingsSvc, sessionTimeout ) {
+angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'ListingsSvc', 'sessionTimeout',
+  function( focus, ListingsSvc, sessionTimeout ) {
 
     sessionTimeout.timeoutExpired();
 
     const vm = this;
-    vm.waitingForResponse = false;
-    vm.allDisplayRates =[];
-    vm.visibleDisplayRates = [];
-    vm.filter = {
-      includePallets: false,
-      productName: ''
-    };
-    vm.refreshRates = refreshRates;
-    vm.refreshVisibleDisplayRates = refreshVisibleDisplayRates;
-    vm.saveRate = saveRate;
-    vm.revertRate = revertRate;
 
     function refreshRates() {
 
@@ -54,7 +43,7 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'ListingsSvc', 's
       };
 
       vm.waitingForResponse = true;
-      ListingsSvc.listShippingRates( qp ).then( rates => {
+      return ListingsSvc.listShippingRates( qp ).then( rates => {
 
         vm.allDisplayRates = rates.map( _r => new DisplayRate( _r ) );
         refreshVisibleDisplayRates( );
@@ -82,6 +71,8 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'ListingsSvc', 's
           refreshVisibleDisplayRates();
 
         } );
+
+        return true;
       }
 
     }
@@ -90,8 +81,27 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'ListingsSvc', 's
       displayRate.revert();
     }
 
+    function focusOnRate( index ) {
+      focus(`rate-input-${index}`);
+    }
+
     function init() {
-      refreshRates();
+
+      vm.waitingForResponse = false;
+      vm.allDisplayRates =[];
+      vm.visibleDisplayRates = [];
+      vm.filter = {
+        includePallets: false,
+        productName: ''
+      };
+      vm.refreshRates = refreshRates;
+      vm.refreshVisibleDisplayRates = refreshVisibleDisplayRates;
+      vm.saveRate = saveRate;
+      vm.revertRate = revertRate;
+      vm.focusOnRate = focusOnRate;
+
+      refreshRates().then( _ => focusOnRate('0') );
+
     }
     init();
 
