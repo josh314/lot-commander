@@ -1,0 +1,69 @@
+<div class="container" ng-controller="ReceivedPalletListCtrl as $ctrl">
+  <h2>Received Pallets</h2>
+
+
+	<div class="row well" style="display: flex; flex-direction: column">
+
+    <div>
+      <button class="btn btn-primary pull-right" ng-click="$ctrl.createPallet()">Create New Pallet</button>
+      <fieldset class="col-xs-12 box-border">
+        <legend class="box-border">Filter</legend>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="palletHandleFilter">Pallet ID</label>
+          <input class="form-control" name="palletHandleFilter" ng-model="$ctrl.filter.handle" ng-keyup="$ctrl.refreshPalletsList()">
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="palletStatusFilter">Status</label>
+          <select class="form-control" name="palletStatusFilter" ng-model="$ctrl.filter.status" ng-change="$ctrl.refreshPalletsList()">
+            <option>not brokendown</option>
+            <option>brokendown</option>
+            <option>all</option>
+          </select>
+        </div>
+      </fieldset>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; align-items: baseline;">
+
+      <ul uib-pagination
+      total-items="$ctrl.pagination.totalItems"
+      items-per-page="$ctrl.pagination.pageSize"
+      ng-model="$ctrl.pagination.current"
+      ng-change="$ctrl.pagination.pageChange()"
+      class="pagination-sm pull-right"
+  
+      max-size="$ctrl.pagination.maxSize"
+      boundary-links="true"
+      boundary-link-numbers="true"
+      force-ellipses="true"></ul>
+  
+    </div>
+  
+    <table class="table table-striped">
+  
+      <thead><tr>
+        <th>Handle</th>
+        <th>Shipment</th>
+        <th>Category</th>
+        <th>Date</th>
+        <th>Mark as Brokendown</th>
+      </tr></thead>
+  
+      <tbody>
+        <tr ng-repeat="pallet in $ctrl.pallets">
+          <td>{{ pallet.handle }}</td>
+          <td><a ng-href="/receiving/shipments/{{pallet.shipment._id}}">{{ pallet.shipment.handle }}</a></td>
+          <td>{{ pallet.category || pallet.shipment.category }}</td>
+          <td>{{ pallet.createdAt.toLocaleString() }}</td>
+          <td><button type="button" class="btn btn-xs" ng-class="{ 'btn-danger': !pallet.isBrokendown, 'btn-success': pallet.isBrokendown }" ng-click="pallet.breakdown( !pallet.isBrokendown )">
+            {{ pallet.isBrokendown ? 'Undo breakdown' : 'Breakdown' }}
+          </button></td>
+        </tr>
+      </tbody>
+  
+    </table>
+
+  </div>
+
+
+</div>

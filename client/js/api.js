@@ -536,14 +536,6 @@ export function unreceiveIncomingShipmentPallet( shipmentId, palletId ) {
     .then( resp => resp.data );
 }
 
-export function editReceivedPallet( palletId, _data ) {
-  return axios({
-    method: 'patch',
-    url: `/api/pallets/${ palletId }`,
-    data: _data
-  })
-    .then( resp => resp.data );
-}
 
 // Close/reopen shipments
 
@@ -561,6 +553,41 @@ export function reopenIncomingShipment( shipmentId ){
     method: 'patch',
     url: `/api/receiving/${ shipmentId }/is-closed`,
     data: { isClosed: false }
+  })
+    .then( resp => resp.data );
+}
+
+
+// Pallet endpoints
+
+export function listReceivedPallets( qp ) {
+  return axios({
+    method: 'get',
+    url: `/api/pallets/?${qs.stringify(qp)}`,
+  })
+    .then( resp => resp.data.pallets );
+}
+export function countReceivedPallets( qp ) {
+  return axios({
+    method: 'get',
+    url: `/api/pallets/count/?${qs.stringify(qp)}`,
+  })
+    .then( resp => resp.data.count );
+}
+
+export function editReceivedPallet( palletId, _data ) {
+  return axios({
+    method: 'patch',
+    url: `/api/pallets/${ palletId }`,
+    data: _data
+  })
+    .then( resp => resp.data );
+}
+export function breakdownReceivedPallet( palletId, isBrokendown = true ) {
+  return axios({
+    method: 'put',
+    url: `/api/pallets/${ palletId }/is-brokendown`,
+    data: { isBrokendown }
   })
     .then( resp => resp.data );
 }
