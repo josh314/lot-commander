@@ -69,6 +69,8 @@ angular.module('myApp').service('ReceivedPalletManagerSvc', [ '$q', '$stateParam
       },
 
       count: filter => $q.when( api.countReceivedPallets( queryParams( filter ) ) ),
+
+      create: pallets => $q.when( api.createReceivedPallets( pallets ) )
     };
   }
 ]);

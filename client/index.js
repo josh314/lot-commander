@@ -75,6 +75,7 @@ import "./js/ng/controllers/manual-inventory-ctrl.js";
 import "./js/ng/controllers/navbar-ctrl.js";
 import "./js/ng/controllers/new-lot-ctrl.js";
 import "./js/ng/controllers/past-image-gallery-modal-ctrl.js";
+import "./js/ng/controllers/received-pallet-creation-ctrl.js";
 import "./js/ng/controllers/received-pallet-list-ctrl.js";
 import "./js/ng/controllers/reports-ctrl.js";
 import "./js/ng/controllers/root-ctrl.js";

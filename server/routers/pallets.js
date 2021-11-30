@@ -140,9 +140,8 @@ function routes({ eventsDb, inventoryCommander }) {
   async function createReceivedPallets( req, res, next  ) {
 
     try {
-      const palletData = req.body;
-
-      const { pallets } = await inventoryCommander.createReceivedPallets( palletData );
+      
+      const { pallets } = await inventoryCommander.createReceivedPallets( req.body.pallets );
 
       if( pallets ) {
 

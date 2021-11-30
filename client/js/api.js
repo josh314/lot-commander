@@ -574,7 +574,14 @@ export function countReceivedPallets( qp ) {
   })
     .then( resp => resp.data.count );
 }
-
+export function createReceivedPallets( pallets ) {
+  return axios({
+    method: 'post',
+    url: `/api/pallets/`,
+    data: { pallets } 
+  })
+    .then( resp => resp.data );
+}
 export function editReceivedPallet( palletId, _data ) {
   return axios({
     method: 'patch',
