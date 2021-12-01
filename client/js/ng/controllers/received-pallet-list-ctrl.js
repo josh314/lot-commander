@@ -1,5 +1,7 @@
 import angular from 'angular';
 
+const prettifyDate = dt => dt && dt.toLocaleDateString();
+
 const __PAGE_SIZE__ = 25;
 
 /******************* Shipment List Page Controller *************************/
@@ -28,9 +30,68 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'navigate', 'sess
       maxSize: 8
     };
 
+    vm.columns = {
+      handle: {
+        displayName: 'Pallet ID',
+        defaultSortAscending: true,
+        active: true,
+        optionAvailable: true
+      },
+      shipment: {
+        displayName: 'Shipment',
+        active: true,
+        optionAvailable: true,
+        noSort: true
+      },
+      category: {
+        displayName: 'Category',
+        defaultSortAscending: true,
+        active: true,
+        optionAvailable: true
+      },
+      createdAt: {
+        displayName: 'Created',
+        defaultSortAscending: false,
+        transform: prettifyDate,
+        active: true,
+        optionAvailable: true
+      },
+      breakdown: {
+        displayName: 'Mark As Breakdown',
+        active: true,
+        optionAvailable: true,
+        noSort: true,
+      }
+    };
+
+    vm.sortListBy = sortKey => {
+      console.log('foobar')
+      if( vm.columns[sortKey].noSort ) {
+        return;
+      }
+
+      if( sortKey === vm.sortOpts.key ) {
+        vm.sortOpts.ascending = !vm.sortOpts.ascending;
+      }
+      else {
+        vm.sortOpts = {
+          key: sortKey,
+          ascending: !!vm.columns[ sortKey ].defaultSortAscending
+        };
+      }
+
+      vm.pagination.current = 1;
+      console.log(vm.sortOpts)
+      refreshPalletsList();
+    };
+
     vm.refreshPalletsList = refreshPalletsList;
 
     vm.createPallet = () => navigate.receivedPalletCreation();
+
+    const init = () => {
+      refreshPalletsList();
+    };
 
     function refreshPalletsList() {
 
@@ -53,11 +114,6 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'navigate', 'sess
       });
 
     }
-
-
-    const init = () => {
-      refreshPalletsList();
-    };
 
     // Initialize the page
     init();

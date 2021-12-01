@@ -42,22 +42,31 @@
     <table class="table table-striped">
   
       <thead><tr>
-        <th>Handle</th>
-        <th>Shipment</th>
-        <th>Category</th>
-        <th>Date</th>
-        <th>Mark as Brokendown</th>
+        <th ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable">
+          <span ng-click="$ctrl.sortListBy(columnKey)" style="cursor: pointer;" ng-hide="columnData.noSort">
+            {{columnData.displayName}}
+            <span ng-show="columnKey === $ctrl.sortOpts.key">
+              <span class="glyphicon glyphicon-triangle-bottom" ng-hide="$ctrl.sortOpts.ascending" style="font-size: .75em"></span>
+              <span class="glyphicon glyphicon-triangle-top" ng-show="$ctrl.sortOpts.ascending" style="font-size: .75em"></span>
+            </span>
+          </span>
+          <span ng-show="columnData.noSort">{{columnData.displayName}}</span>
+        </th>
       </tr></thead>
   
       <tbody>
         <tr ng-repeat="pallet in $ctrl.pallets">
-          <td>{{ pallet.handle }}</td>
-          <td><a ng-href="/receiving/shipments/{{pallet.shipment._id}}">{{ pallet.shipment.handle }}</a></td>
-          <td>{{ pallet.category || pallet.shipment.category }}</td>
-          <td>{{ pallet.createdAt.toLocaleString() }}</td>
-          <td><button type="button" class="btn btn-xs" ng-class="{ 'btn-danger': !pallet.isBrokendown, 'btn-success': pallet.isBrokendown }" ng-click="pallet.breakdown( !pallet.isBrokendown )">
-            {{ pallet.isBrokendown ? 'Undo breakdown' : 'Breakdown' }}
-          </button></td>
+          <td ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable" ng-switch="columnKey">
+            <span ng-switch-when="shipment">
+              <a ng-href="/receiving/shipments/{{pallet.shipment._id}}">{{ pallet.shipment.handle }}</a>
+            </span>
+            <span ng-switch-when="breakdown">
+              <button type="button" class="btn btn-xs" ng-class="{ 'btn-danger': !pallet.isBrokendown, 'btn-success': pallet.isBrokendown }" ng-click="pallet.breakdown( !pallet.isBrokendown )">
+                {{ pallet.isBrokendown ? 'Undo breakdown' : 'Breakdown' }}
+              </button>
+            </span>
+            <span ng-switch-default>{{ columnData.transform ? columnData.transform( pallet[ columnKey ] ) : pallet[ columnKey ] }}</span>
+          </td>
         </tr>
       </tbody>
   

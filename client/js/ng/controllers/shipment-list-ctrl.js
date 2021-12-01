@@ -118,6 +118,7 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
     vm.refreshShipmentsList = refreshShipmentsList;
 
     vm.sortListBy = sortKey => {
+      
       if( vm.columns[sortKey].noSort ) {
         return;
       }
@@ -131,6 +132,9 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
           ascending: !!vm.columns[ sortKey ].defaultSortAscending
         };
       }
+
+      vm.pagination.current = 1;
+
       refreshShipmentsList();
     };
 

@@ -596,9 +596,15 @@ class InventoryCommander {
     }
 
     const sortParams = {
-      [ sortField ] : sortDir || 1,
-      handle: 1
+      [ sortField ] : sortDir || 1
     };
+
+    if( sortField !== 'createdAt' ) {
+      sortParams.createdAt = 1;
+    }
+    if( sortField !== 'handle' ) {
+      sortParams.handle = 1;
+    }
     
     let q = this.ReceivedPallet.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
 
