@@ -82,12 +82,12 @@ angular.module('myApp').factory('ReceivedPalletFactory', [ '$q',
     function ReceivedPallet( _data ) {
 
       const pallet = Object.assign(
-        {},
+        { showNote: false },
         _data,
         [ 'brokendownDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
       );
 
-      pallet.breakdown = isBrokendown => $q.when( api.breakdownReceivedPallet( pallet._id, isBrokendown ) ).then( _ => pallet.isBrokendown = isBrokendown );
+      pallet.breakdown = isBrokendown => $q.when( api.breakdownReceivedPallet( pallet._id, isBrokendown ) );
 
       return pallet;
     }

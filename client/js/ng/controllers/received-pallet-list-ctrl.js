@@ -3,10 +3,11 @@ import angular from 'angular';
 const prettifyDate = dt => dt && dt.toLocaleDateString();
 
 const __PAGE_SIZE__ = 25;
+const __USER_SETTINGS_SUBKEY__ = 'received-pallet-list-page';
 
 /******************* Shipment List Page Controller *************************/
-angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'navigate', 'sessionTimeout', 'ReceivedPalletManagerSvc',
-  function( navigate, sessionTimeout, ReceivedPalletManagerSvc ) {
+angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'navigate', 'sessionTimeout', 'SettingsSvc', 'ReceivedPalletManagerSvc',
+  function( navigate, sessionTimeout, SettingsSvc, ReceivedPalletManagerSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -61,11 +62,51 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'navigate', 'sess
         active: true,
         optionAvailable: true,
         noSort: true,
+      },
+      brokendownDate: {
+        displayName: 'Brokendown on',
+        transform: prettifyDate,
+        active: false,
+        optionAvailable: true
+      },
+      hasProblem: {
+        displayName: 'Problem?',
+        active: false,
+        optionAvailable: true,
+        noSort: true,
+      },
+      note: {
+        displayName: 'Note',
+        active: false,
+        optionAvailable: true,
+        noSort: true,
       }
     };
 
-    vm.sortListBy = sortKey => {
-      console.log('foobar')
+    vm.showColumnOptions = false;
+    vm.toggleShowColumnOptions = () => vm.showColumnOptions = !vm.showColumnOptions;
+    vm.toggleColumnActive = toggleColumnActive;
+    vm.sortListBy = sortListBy;
+    vm.refreshPalletsList = refreshPalletsList;
+    vm.breakdownPallet = breakdownPallet;
+
+    vm.createPallet = () => navigate.receivedPalletCreation();
+
+    function init() {
+      loadUserSettings();
+      refreshPalletsList();
+    }
+
+    function toggleColumnActive( columnKey ) {
+
+      vm.columns[ columnKey ].active = !vm.columns[ columnKey ].active;
+
+      saveUserSettings();
+
+    }
+
+    function sortListBy( sortKey ) {
+
       if( vm.columns[sortKey].noSort ) {
         return;
       }
@@ -81,17 +122,9 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'navigate', 'sess
       }
 
       vm.pagination.current = 1;
-      console.log(vm.sortOpts)
+
       refreshPalletsList();
-    };
-
-    vm.refreshPalletsList = refreshPalletsList;
-
-    vm.createPallet = () => navigate.receivedPalletCreation();
-
-    const init = () => {
-      refreshPalletsList();
-    };
+    }
 
     function refreshPalletsList() {
 
@@ -108,11 +141,59 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'navigate', 'sess
         };
 
         return ReceivedPalletManagerSvc.list( pagedQueryOptions ).then( pallets => {
+
+          pallets.forEach( p => {
+            p.toggleShowNote = () => p.showNote = !p.showNote;
+          });
+
           vm.pallets = pallets;
         });
 
       });
 
+    }
+
+    function loadUserSettings() {
+      const userSettings = SettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
+
+      if( userSettings ) {
+
+        if( userSettings.activeColumns ) {
+
+          for ( let [ columnName, columnData ] of Object.entries(vm.columns) ) {
+
+            columnData.active = userSettings.activeColumns.includes( columnName );
+
+          }
+
+        }
+
+      }
+
+    }
+
+    function saveUserSettings() {
+
+      const activeColumns = [];
+      for( let column in vm.columns ) {
+        
+        if( vm.columns[ column ].active ) {
+          activeColumns.push( column );
+        }
+
+      }
+
+      const userSettings = SettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
+
+      SettingsSvc.save( 
+        __USER_SETTINGS_SUBKEY__, 
+        userSettings ? Object.assign( userSettings, { activeColumns: activeColumns } ) : { activeColumns: activeColumns }
+      );
+
+    }
+
+    function breakdownPallet( pallet ) {
+      pallet.breakdown( !pallet.isBrokendown ).then( refreshPalletsList );
     }
 
     // Initialize the page

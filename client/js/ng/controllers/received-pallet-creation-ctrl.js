@@ -40,7 +40,7 @@ angular.module('myApp').controller('ReceivedPalletCreationCtrl', [ 'AddPalletGro
       vm.createReceivedPallets = createReceivedPallets;
       vm.setPalletCategories = ( ) => vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
       vm.clearPalletUnits = ( ) => vm.inputs.pallets.forEach( p => delete p.units );
-      vm.addPallet = () => addPalletWithData( { } );
+      vm.addPallet = () => addPalletWithData( { hasProblem: false } );
       vm.addPalletGroup = addPalletGroup;
       vm.removePallet = removePallet;
 
