@@ -1,35 +1,50 @@
 <div class="container" ng-controller="ReceivedPalletCreationCtrl as $ctrl">
 
-  <h2>New Received Pallet</h2>
+  <h2>New Received Pallets</h2>
 
-  <div class="row well">
+  <div class="row well" ng-repeat="pallet in $ctrl.inputs.pallets track by $index">
 
-    <div class="col-xs-12">
-      <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $ctrl.validator.invalidHandle }">
-        <label for="handleInput">Pallet ID</label>
-        <input type="text" class="form-control" id="handleInput" ng-model="$ctrl.inputs.handle" autocomplete="off" ng-change="$ctrl.inputs.handle && $ctrl.refreshValidator()">
-        <span class="text-danger h4" ng-show="$ctrl.validator.invalidHandle">No pallet ID submitted.</span>
+    <section class="col-xs-12 row">
+      <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidHandle }">
+        <label for="handleInput-{{$index}}">Pallet ID</label>
+        <input type="text" class="form-control" id="handleInput-{{$index}}" ng-model="pallet.handle" autocomplete="off" ng-change="pallet.handle && $ctrl.refreshValidator()">
+        <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].invalidHandle">No pallet ID submitted.</span>
       </div>
-      <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $ctrl.validator.invalidCategory }">
-        <label for="categoryInput">Category</label>
-        <select class="form-control" id="categoryInput" ng-model="$ctrl.inputs.category">
+      <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidCategory }">
+        <label for="categoryInput-{{$index}}">Category</label>
+        <select class="form-control" id="categoryInput-{{$index}}" ng-model="pallet.category">
           <option ng-repeat="cat in $ctrl.inputs.categoryOptions">{{cat}}</option>
         </select>
-        <span class="text-danger h4" ng-show="$ctrl.validator.invalidCategory">No category submitted.</span>
+        <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].invalidCategory">No category submitted.</span>
       </div>
-      <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $ctrl.validator.invalidUnits }">
-        <label for="unitsInput">Units</label>
-        <input type="number" class="form-control" id="unitsInput" ng-model="$ctrl.inputs.units" autocomplete="off" ng-change="$ctrl.inputs.units && $ctrl.refreshValidator()">
-        <span class="text-danger h4" ng-show="$ctrl.validator.invalidUnits">Invalid units submitted.</span>
+      <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidUnits }">
+        <label for="unitsInput-{{$index}}">Units</label>
+        <input type="number" class="form-control" id="unitsInput-{{$index}}" ng-model="pallet.units" autocomplete="off" ng-change="pallet.units && $ctrl.refreshValidator()">
+        <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].invalidUnits">Invalid units submitted.</span>
       </div>
-      <div class="form-group col-xs-12" ng-class="{ 'has-error' : $ctrl.validator.invalidNote }">
-        <label for="noteInput">Note</label>
-        <input type="textarea" class="form-control" id="noteInput" ng-model="$ctrl.inputs.note" autocomplete="off" ng-change="$ctrl.inputs.note && $ctrl.refreshValidator()">
-        <span class="text-danger h4" ng-show="$ctrl.validator.invalidNote">Invalid note submitted.</span>
+      <div class="form-group col-xs-12" ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidNote }">
+        <label for="noteInput-{{$index}}">Note</label>
+        <input type="textarea" class="form-control" id="noteInput-{{$index}}" ng-model="pallet.note" autocomplete="off" ng-change="pallet.note && $ctrl.refreshValidator()">
+        <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].invalidNote">Invalid note submitted.</span>
       </div>
+    </section>
+
+    <div class="col-xs-12 text-center">
+      <button class="btn btn-danger btn-sm" ng-click="$ctrl.removePallet($index)">Remove</button>
     </div>
 
-    <button class="btn btn-success" ng-click="$ctrl.createReceivedPallets()">Create</button>
-    <span class="text-danger h4" ng-hide="$ctrl.validator.isValid()">Check for input errors.</span>
+  </div>
+
+  <div class="col-xs-12" style="display:flex;">
+    <div style="margin-left:5px;">
+      <button class="btn btn-primary" ng-click="$ctrl.addPallet()">New Pallet</button>
+    </div>
+    <div style="margin-left:5px;">
+      <button class="btn btn-primary" ng-click="$ctrl.addPalletGroup()">New Pallet Group</button>
+    </div>
+    <div style="margin-left:auto;">
+      <button class="btn btn-success" ng-click="$ctrl.createReceivedPallets()">Create</button>
+    </div>
+  </div>
 
 </div>
