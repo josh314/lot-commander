@@ -397,6 +397,15 @@ class InventoryCommander {
 
       await shipment.edit( editDocument );
 
+      // if a category change, propagate to the pallets
+      if( editDocument.category ) {
+
+        for( let palletId of shipment.palletsReceived ) {
+          await this.editReceivedPallet( palletId, { category: editDocument.category } );
+        }
+
+      }
+
       return { shipment, edits };
     }
     catch(e) {
@@ -568,10 +577,13 @@ class InventoryCommander {
       throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
     }
 
+    const basePalletObject = {
+      shipment: shipment._id,
+      category: shipment.category
+    };
+
     const palletData = Object.assign(
-      {
-        shipment: shipment._id
-      },
+      basePalletObject,
       _palletData
     );
 

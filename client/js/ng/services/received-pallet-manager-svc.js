@@ -96,7 +96,7 @@ angular.module('myApp').factory('ReceivedPalletFactory', [ '$q',
 
       if( !pallet.cost && pallet.shipment && pallet.shipment.cost ) {
 
-        pallet.cost = pallet.shipment.cost / pallet.shipment.palletsReceived.length;
+        pallet.cost = pallet.shipment.cost / pallet.shipment.palletsExpected.length;
 
       }
 
