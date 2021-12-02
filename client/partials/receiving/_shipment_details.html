@@ -333,6 +333,7 @@
           <th>Anonymous?</th>
           <th>Expected?</th>
           <th>Problem?</th>
+          <th>Brokendown?</th>
           <th>Note</th>
           <th></th>
           <th></th>
@@ -356,6 +357,9 @@
                     <option ng-value="false">No</option>
                 </select>
               </span>
+            </td>
+            <td>
+              <span class="glyphicon glyphicon-ok" ng-show="pallet.isBrokendown"></span>
             </td>
             <td>
               <span ng-hide="pallet.isEditing">
