@@ -13,17 +13,21 @@
           <input class="form-control" name="palletHandleFilter" ng-model="$ctrl.filter.handle" ng-keyup="$ctrl.refreshPalletsList()">
         </div>
         <div class="form-group col-xs-12 col-sm-6">
+          <label for="categoryFilter">Category</label>
+          <select class="form-control" name="categoryFilter" ng-model="$ctrl.filter.category" ng-change="$ctrl.refreshPalletsList()">
+            <option ng-repeat="cat in $ctrl.categoryOptions">{{ cat }}</option>
+          </select>
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="shipmentHandleFilter">Shipment ID</label>
+          <input class="form-control" name="shipmentHandleFilter" ng-model="$ctrl.filter.shipmentHandle" ng-keyup="$ctrl.refreshPalletsList()">
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
           <label for="palletStatusFilter">Status</label>
           <select class="form-control" name="palletStatusFilter" ng-model="$ctrl.filter.status" ng-change="$ctrl.refreshPalletsList()">
             <option>not brokendown</option>
             <option>brokendown</option>
             <option>all</option>
-          </select>
-        </div>
-        <div class="form-group col-xs-12 col-sm-6">
-          <label for="categoryFilter">Category</label>
-          <select class="form-control" name="categoryFilter" ng-model="$ctrl.filter.category" ng-change="$ctrl.refreshPalletsList()">
-            <option ng-repeat="cat in $ctrl.categoryOptions">{{ cat }}</option>
           </select>
         </div>
       </fieldset>

@@ -64,11 +64,13 @@ function routes({ eventsDb, inventoryCommander }) {
   router.get(
     '/',
     auth.isAuthorized( 'VIEW_RECEIVED_PALLET' ),
+    resolveShipmentIds,
     listReceivedPallets
   );
   router.get(
     '/count',
     auth.isAuthorized( 'VIEW_RECEIVED_PALLET' ),
+    resolveShipmentIds,
     countReceivedPallets
   );
   router.get(
@@ -101,11 +103,33 @@ function routes({ eventsDb, inventoryCommander }) {
 
 
   /*******************************************
-   * Define Handlers
+   * Define Handlers & Middleware 
    * ===============
    * 
    ****/
 
+  async function resolveShipmentIds( req, _res, next ) {
+
+    try {
+
+      if( req.query.shipment_handle ) {
+
+        const filterParams = { handle: new RegExp( req.query.shipment_handle, 'i'), includeClosed: true };
+
+        const shipments = await inventoryCommander.listIncomingShipments( { filterParams } );
+
+        req.query.shipment = shipments.map( s => s._id );
+
+      }
+
+      next();
+
+    }
+    catch (e) {
+      next( e );
+    }
+
+  }
 
   async function listReceivedPallets( req, res ) {
 
@@ -128,7 +152,7 @@ function routes({ eventsDb, inventoryCommander }) {
       populate: helpers.populationPathsFromQuery( req.query )
     };
 
-    const pallets = await inventoryCommander.listReceivedPallets(query);
+    const pallets = await inventoryCommander.listReceivedPallets( query );
 
     res.json( { pallets } );
   }

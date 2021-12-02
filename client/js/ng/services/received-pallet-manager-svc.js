@@ -30,6 +30,11 @@ const queryParams = ( params ) => {
     delete qp.populateShipment;
   }
 
+  if( qp.shipmentHandle ) {
+    qp.shipment_handle = qp.shipmentHandle;
+    delete qp.shipmentHandle;
+  }
+
   return qp;
 };
 
