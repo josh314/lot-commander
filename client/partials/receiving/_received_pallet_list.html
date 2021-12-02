@@ -20,6 +20,12 @@
             <option>all</option>
           </select>
         </div>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="categoryFilter">Category</label>
+          <select class="form-control" name="categoryFilter" ng-model="$ctrl.filter.category" ng-change="$ctrl.refreshPalletsList()">
+            <option ng-repeat="cat in $ctrl.categoryOptions">{{ cat }}</option>
+          </select>
+        </div>
       </fieldset>
     </div>
 

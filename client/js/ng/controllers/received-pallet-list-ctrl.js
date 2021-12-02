@@ -6,8 +6,8 @@ const __PAGE_SIZE__ = 25;
 const __USER_SETTINGS_SUBKEY__ = 'received-pallet-list-page';
 
 /******************* Shipment List Page Controller *************************/
-angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'navigate', 'sessionTimeout', 'SettingsSvc', 'ReceivedPalletManagerSvc',
-  function( navigate, sessionTimeout, SettingsSvc, ReceivedPalletManagerSvc ) {
+angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'navigate', 'palletCategories', 'sessionTimeout', 'SettingsSvc', 'ReceivedPalletManagerSvc',
+  function( navigate, palletCategories, sessionTimeout, SettingsSvc, ReceivedPalletManagerSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -17,6 +17,7 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'navigate', 'sess
       populateShipment: true,
       status: 'not brokendown'
     };
+    vm.categoryOptions = [ "" ].concat( palletCategories );
     vm.pallets = [];
     vm.sortOpts = {
       key: 'createdAt',

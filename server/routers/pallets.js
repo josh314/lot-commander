@@ -36,6 +36,10 @@ const listPalletsFilterParamsFromQueryParams = ( qp ) => {
     fp.isAnonymous = !!parseInt(qp.is_anonymous);
   }
 
+  if( qp.category ) {
+    fp.category = qp.category;
+  }
+
   // TODO: category
   return fp;
 };

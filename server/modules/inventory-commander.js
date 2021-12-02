@@ -165,7 +165,7 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
   return filter;
 };
 
-const palletQueryFilter = ( { handle, isBrokendown, isAnonymous, hasProblem, shipment } ) => {
+const palletQueryFilter = ( { handle, isBrokendown, isAnonymous, hasProblem, shipment, category } ) => {
   const filter = {
     isDeleted: false,
   };
@@ -188,6 +188,10 @@ const palletQueryFilter = ( { handle, isBrokendown, isAnonymous, hasProblem, shi
 
   if( isAnonymous !== undefined ) {
     filter.isAnonymous = isAnonymous;
+  }
+
+  if( category ) {
+    filter.category = category;
   }
 
   return filter;

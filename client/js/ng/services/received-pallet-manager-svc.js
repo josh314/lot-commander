@@ -10,24 +10,24 @@ import * as api from '../../api';
 
 const queryParams = ( params ) => {
 
-  const qp = {
-    is_deleted: 0
-  };
+  const qp = Object.assign( {}, params );
 
-  if( params.handle ) {
-    qp.handle = params.handle;
+  if( qp.status ) {
+
+    if( qp.status === 'not brokendown' ) {
+      qp.is_brokendown = 0;
+    }
+    else if ( qp.status === 'brokendown' ) {
+      qp.is_brokendown = 1;
+    }
+
+    delete qp.status;
+
   }
 
-  
-  if( params.status === 'not brokendown' ) {
-    qp.is_brokendown = 0;
-  }
-  else if ( params.status === 'brokendown' ) {
-    qp.is_brokendown = 1;
-  }
-
-  if( params.populateShipment ) {
+  if( qp.populateShipment ) {
     qp.populate_shipment = 1;
+    delete qp.populateShipment;
   }
 
   return qp;
