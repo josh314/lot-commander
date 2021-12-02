@@ -94,6 +94,12 @@ angular.module('myApp').factory('ReceivedPalletFactory', [ '$q',
 
       pallet.breakdown = isBrokendown => $q.when( api.breakdownReceivedPallet( pallet._id, isBrokendown ) );
 
+      if( !pallet.cost && pallet.shipment && pallet.shipment.cost ) {
+
+        pallet.cost = pallet.shipment.cost / pallet.shipment.palletsReceived.length;
+
+      }
+
       return pallet;
     }
 

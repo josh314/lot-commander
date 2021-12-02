@@ -6,11 +6,14 @@ const __PAGE_SIZE__ = 25;
 const __USER_SETTINGS_SUBKEY__ = 'received-pallet-list-page';
 
 /******************* Shipment List Page Controller *************************/
-angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'navigate', 'palletCategories', 'sessionTimeout', 'SettingsSvc', 'ReceivedPalletManagerSvc',
-  function( navigate, palletCategories, sessionTimeout, SettingsSvc, ReceivedPalletManagerSvc ) {
+angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'LoggedInUser', 'navigate', 'palletCategories', 'sessionTimeout', 'SettingsSvc', 'ReceivedPalletManagerSvc',
+  function( LoggedInUser, navigate, palletCategories, sessionTimeout, SettingsSvc, ReceivedPalletManagerSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
+
+    // Permissions
+    vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
 
     vm.filter = {
       handle: '',
@@ -81,7 +84,14 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'navigate', 'pall
         active: false,
         optionAvailable: true,
         noSort: true,
-      }
+      },
+      cost: {
+        displayName: 'Cost',
+        active: false,
+        optionAvailable: vm.showPurchasingData,
+        transform: _ => _ ? _.toFixed(2) : '',
+        noSort: true,
+      },
     };
 
     vm.showColumnOptions = false;
