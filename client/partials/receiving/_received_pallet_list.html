@@ -42,7 +42,7 @@
         <ul class="dropdown-menu">
           <li ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable" ng-click="$ctrl.toggleColumnActive( columnKey )">
             <a><label for="{{columnKey}}ColumnDisplayToggleInput">
-              <input type="checkbox" id="{{columnKey}}ColumnDisplayToggleInput" ng-model="$ctrl.columns[columnKey].active"> {{ columnData.displayName}}
+              <input type="checkbox" id="{{columnKey}}ColumnDisplayToggleInput" ng-model="$ctrl.columns[columnKey].active" ng-click="$event.stopPropagation();"> {{ columnData.displayName}}
             </label></a>
           </li>
         </ul>
