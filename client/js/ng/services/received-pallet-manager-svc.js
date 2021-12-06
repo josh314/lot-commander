@@ -87,7 +87,7 @@ angular.module('myApp').factory('ReceivedPalletFactory', [ '$q',
     function ReceivedPallet( _data ) {
 
       const pallet = Object.assign(
-        { showNote: false },
+        { showNote: false, isExpected: false },
         _data,
         [ 'brokendownDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
       );

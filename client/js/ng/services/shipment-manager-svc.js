@@ -98,8 +98,8 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'S
 
 
 /******************* Constructor for Shipment Objects *************************/
-angular.module('myApp').factory('ShipmentFactory', [ '$q', 'UtilitiesSvc',
-  function( $q, UtilitiesSvc ) {
+angular.module('myApp').factory('ShipmentFactory', [ '$q', 'ReceivedPalletFactory', 'UtilitiesSvc',
+  function( $q, ReceivedPalletFactory, UtilitiesSvc ) {
     const datify = dString => dString ? new Date( dString ) : null;
 
     const buildAnonymousPalletHandle = ( shipmentHandle , number ) => `${ shipmentHandle }_${ number }`; 
@@ -109,7 +109,10 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'UtilitiesSvc',
       const shipment = Object.assign(
         {},
         _data,
-        [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
+        [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {}),
+        {
+          palletsReceived: _data.palletsReceived.map( _ => ReceivedPalletFactory( _ ) )
+        }
       );
 
       shipment.palletsReceived.forEach( pr => {
@@ -128,7 +131,6 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'UtilitiesSvc',
 
       });
 
-    
       shipment.isComplete = function() {
         return shipment.palletsExpected.every( pe => pe.isReceived );
       };
