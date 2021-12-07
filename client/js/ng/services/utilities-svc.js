@@ -4,7 +4,8 @@ import angular from 'angular';
 angular.module('myApp').factory( 'UtilitiesSvc', [ function( ) {
 
   return {
-    humanReadableFileSize: humanReadableFileSize
+    humanReadableFileSize,
+    prettifyDate
   };
 
   function humanReadableFileSize( size ) {
@@ -20,5 +21,7 @@ angular.module('myApp').factory( 'UtilitiesSvc', [ function( ) {
     }
 
   }
+
+  function prettifyDate (dt) { return dt && dt.toLocaleDateString(); }
 
 }]);

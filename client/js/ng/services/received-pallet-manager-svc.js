@@ -43,8 +43,8 @@ const queryParams = ( params ) => {
 //
 // This service provides some utility functionality to the pallets API and UI
 //
-angular.module('myApp').service('ReceivedPalletManagerSvc', [ '$q', '$stateParams', 'ReceivedPalletFactory',
-  function( $q, $stateParams, ReceivedPalletFactory ) {
+angular.module('myApp').service('ReceivedPalletManagerSvc', [ '$q', '$stateParams', 'ReceivedPalletFactory', 'ReceivedPalletListColumns',
+  function( $q, $stateParams, ReceivedPalletFactory, ReceivedPalletListColumns ) {
 
     const _palletId = () =>  $stateParams.palletId;
 
@@ -75,7 +75,9 @@ angular.module('myApp').service('ReceivedPalletManagerSvc', [ '$q', '$stateParam
 
       count: filter => $q.when( api.countReceivedPallets( queryParams( filter ) ) ),
 
-      create: pallets => $q.when( api.createReceivedPallets( pallets ) )
+      create: pallets => $q.when( api.createReceivedPallets( pallets ) ),
+
+      getListColumns: () => ReceivedPalletListColumns(),
     };
   }
 ]);
@@ -106,3 +108,82 @@ angular.module('myApp').factory('ReceivedPalletFactory', [ '$q',
     return ReceivedPallet;
   }
 ]);
+
+angular.module('myApp').factory( 'ReceivedPalletListColumns', [ 'LoggedInUser', 'UtilitiesSvc', function( LoggedInUser, UtilitiesSvc ) {
+
+  const showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+
+  const __COLUMNS__ = {
+    handle: {
+      displayName: 'Pallet ID',
+      defaultSortAscending: true,
+      active: true,
+      optionAvailable: true
+    },
+    shipment: {
+      displayName: 'Shipment',
+      active: true,
+      optionAvailable: true,
+      noSort: true
+    },
+    category: {
+      displayName: 'Category',
+      defaultSortAscending: true,
+      active: true,
+      optionAvailable: true
+    },
+    createdAt: {
+      displayName: 'Created',
+      defaultSortAscending: false,
+      transform: UtilitiesSvc.prettifyDate.bind( UtilitiesSvc ),
+      active: true,
+      optionAvailable: true
+    },
+    breakdown: {
+      displayName: 'Mark As Breakdown',
+      active: true,
+      optionAvailable: true,
+      noSort: true,
+    },
+    brokendownDate: {
+      displayName: 'Brokendown on',
+      transform: UtilitiesSvc.prettifyDate.bind( UtilitiesSvc ),
+      active: false,
+      optionAvailable: true
+    },
+    hasProblem: {
+      displayName: 'Problem?',
+      active: false,
+      optionAvailable: true,
+      noSort: true,
+    },
+    note: {
+      displayName: 'Note',
+      active: false,
+      optionAvailable: true,
+      noSort: true,
+    },
+    cost: {
+      displayName: 'Cost',
+      active: false,
+      optionAvailable: showPurchasingData,
+      transform: _ => _ ? _.toFixed(2) : '',
+      noSort: true,
+    },
+  };
+
+  function Factory( ) {
+
+    const columns = {};
+    for( let [ _cname, _cdata] of Object.entries( __COLUMNS__ ) ) {
+      columns[ _cname ] = Object.assign( {}, _cdata );
+    }
+
+    return columns;
+  }
+
+
+  return Factory;
+
+}]);
+

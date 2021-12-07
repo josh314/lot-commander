@@ -1,7 +1,5 @@
 import angular from 'angular';
 
-const prettifyDate = dt => dt && dt.toLocaleDateString();
-
 const __PAGE_SIZE__ = 25;
 const __USER_SETTINGS_SUBKEY__ = 'received-pallet-list-page';
 
@@ -35,64 +33,7 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'LoggedInUser', '
       maxSize: 8
     };
 
-    vm.columns = {
-      handle: {
-        displayName: 'Pallet ID',
-        defaultSortAscending: true,
-        active: true,
-        optionAvailable: true
-      },
-      shipment: {
-        displayName: 'Shipment',
-        active: true,
-        optionAvailable: true,
-        noSort: true
-      },
-      category: {
-        displayName: 'Category',
-        defaultSortAscending: true,
-        active: true,
-        optionAvailable: true
-      },
-      createdAt: {
-        displayName: 'Created',
-        defaultSortAscending: false,
-        transform: prettifyDate,
-        active: true,
-        optionAvailable: true
-      },
-      breakdown: {
-        displayName: 'Mark As Breakdown',
-        active: true,
-        optionAvailable: true,
-        noSort: true,
-      },
-      brokendownDate: {
-        displayName: 'Brokendown on',
-        transform: prettifyDate,
-        active: false,
-        optionAvailable: true
-      },
-      hasProblem: {
-        displayName: 'Problem?',
-        active: false,
-        optionAvailable: true,
-        noSort: true,
-      },
-      note: {
-        displayName: 'Note',
-        active: false,
-        optionAvailable: true,
-        noSort: true,
-      },
-      cost: {
-        displayName: 'Cost',
-        active: false,
-        optionAvailable: vm.showPurchasingData,
-        transform: _ => _ ? _.toFixed(2) : '',
-        noSort: true,
-      },
-    };
+    vm.columns = ReceivedPalletManagerSvc.getListColumns();
 
     vm.showColumnOptions = false;
     vm.toggleShowColumnOptions = () => vm.showColumnOptions = !vm.showColumnOptions;
