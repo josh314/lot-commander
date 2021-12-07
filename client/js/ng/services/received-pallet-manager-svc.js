@@ -94,7 +94,14 @@ angular.module('myApp').factory('ReceivedPalletFactory', [ '$q',
         [ 'brokendownDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
       );
 
-      pallet.breakdown = isBrokendown => $q.when( api.breakdownReceivedPallet( pallet._id, isBrokendown ) );
+      pallet.breakdown = isBrokendown => $q.when( api.breakdownReceivedPallet( pallet._id, isBrokendown ) ).then( resp => {
+
+        if( !resp || !resp.pallet ) return;
+
+        pallet.isBrokendown = resp.pallet.isBrokendown;
+        pallet.brokendownDate = resp.pallet.brokendownDate && datify( resp.pallet.brokendownDate );
+
+      } );
 
       if( !pallet.cost && pallet.shipment && pallet.shipment.cost ) {
 

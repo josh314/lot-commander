@@ -40,7 +40,6 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'LoggedInUser', '
     vm.toggleColumnActive = toggleColumnActive;
     vm.sortListBy = sortListBy;
     vm.refreshPalletsList = refreshPalletsList;
-    vm.breakdownPallet = breakdownPallet;
 
     vm.createPallet = () => navigate.receivedPalletCreation();
 
@@ -142,10 +141,6 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'LoggedInUser', '
         userSettings ? Object.assign( userSettings, { activeColumns: activeColumns } ) : { activeColumns: activeColumns }
       );
 
-    }
-
-    function breakdownPallet( pallet ) {
-      pallet.breakdown( !pallet.isBrokendown ).then( refreshPalletsList );
     }
 
     // Initialize the page

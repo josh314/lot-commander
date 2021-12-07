@@ -91,7 +91,7 @@
               <span ng-show="pallet.note">[<a href ng-hide="pallet.showNote" ng-click="pallet.toggleShowNote()">Show</a><a href ng-show="pallet.showNote" ng-click="pallet.toggleShowNote()">Hide</a>]</span>
             </span>
             <span ng-switch-when="breakdown">
-              <button type="button" class="btn btn-xs" ng-class="{ 'btn-danger': !pallet.isBrokendown, 'btn-success': pallet.isBrokendown }" ng-click="$ctrl.breakdownPallet( pallet )">
+              <button type="button" class="btn btn-xs" ng-class="{ 'btn-danger': !pallet.isBrokendown, 'btn-success': pallet.isBrokendown }" ng-click="pallet.breakdown( !pallet.isBrokendown )">
                 {{ pallet.isBrokendown ? 'Undo breakdown' : 'Breakdown' }}
               </button>
             </span>

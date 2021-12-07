@@ -271,26 +271,18 @@ function routes({ eventsDb, inventoryCommander }) {
         const isBrokendown = req.body.isBrokendown;
         const palletId = req.params.palletId;
   
-        if( isBrokendown ) {
+        const fn = isBrokendown ? inventoryCommander.breakdownReceivedPallet.bind( inventoryCommander ) : inventoryCommander.unbreakdownReceivedPallet.bind( inventoryCommander );
 
-          const { pallet } = await inventoryCommander.breakdownReceivedPallet( palletId );
+        const { pallet } = await fn( palletId );
 
-          if( pallet ) {
-            eventsDb.breakdownReceivedPallet( { user: req.user, palletId } );
-          }
+        if( pallet ) {
 
-        }
-        else {
-
-          const { pallet } = await inventoryCommander.unbreakdownReceivedPallet( palletId, { deletePallets: true } );
-
-          if( pallet ) {
-            eventsDb.unbreakdownReceivedPallet( { user: req.user, palletId } );
-          }
+          isBrokendown ? eventsDb.breakdownReceivedPallet( { user: req.user, palletId } ) : eventsDb.unbreakdownReceivedPallet( { user: req.user, palletId } );
 
         }
 
-        res.json( { success: true } );
+
+        res.json( { success: true, pallet } );
 
       }
       else {
