@@ -31,7 +31,7 @@
           <div ng-hide="$ctrl.isEditing[ 'cost' ]">
             <dt>Cost<span ng-hide="!$ctrl.showEditControls"> (<a href ng-click="$ctrl.openEdit( 'cost' )">edit</a>)</span></dt>
             <dd ng-hide="$ctrl.isEditing[ 'cost' ]">
-              {{ $ctrl.shipment.cost || '----' }}
+              {{ $ctrl.displayAsMoney( $ctrl.shipment.cost ) || '----' }}
             </dd>
           </div>
           <div ng-show="$ctrl.isEditing[ 'cost' ]">
@@ -359,7 +359,9 @@
               </span>
             </td>
             <td>
-              <span class="glyphicon glyphicon-ok" ng-show="pallet.isBrokendown"></span>
+              <button type="button" class="btn btn-xs" ng-class="{ 'btn-danger': !pallet.isBrokendown, 'btn-success': pallet.isBrokendown }" ng-click="pallet.breakdown( !pallet.isBrokendown )">
+                {{ pallet.isBrokendown ? 'Undo breakdown' : 'Breakdown' }}
+              </button>
             </td>
             <td>
               <span ng-hide="pallet.isEditing">

@@ -1,12 +1,8 @@
 import angular from 'angular';
 
-function htmlifyText( txt ) {
-  return txt ? txt.split("\n").join('<br/>') : txt;
-}
-
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'focus', 'LoggedInUser', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc',
-  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, focus, LoggedInUser, ManifestFileHandlerSvc, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc ) {
+angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'focus', 'LoggedInUser', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
+  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, focus, LoggedInUser, ManifestFileHandlerSvc, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
 
     /****************************************************
      * View variables
@@ -60,7 +56,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
     vm.viewHistory = viewHistory;
 
-    vm.htmlifyText = htmlifyText;
+    vm.htmlifyText = UtilitiesSvc.htmlifyText;
+    vm.displayAsMoney = UtilitiesSvc.displayAsMoney;
 
     /****************************************************
      * Functions
@@ -475,7 +472,7 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
 
       const savePallet = saveFn[ _type ]( _shipment );
 
-      const pallet = Object.assign({}, _data, { shipment: _shipment });
+      const pallet = Object.assign( _data, { shipment: _shipment } );
 
       if( _type === 'received' ) {
         pallet.showNote = false;
