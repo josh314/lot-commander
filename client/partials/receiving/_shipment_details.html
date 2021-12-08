@@ -40,6 +40,18 @@
               <input ng-model="$ctrl.editValue[ 'cost' ]" />
             </dd>
           </div>
+          <div ng-hide="$ctrl.isEditing[ 'transportationCost' ]">
+            <dt>Transportation Cost<span ng-hide="!$ctrl.showEditControls"> (<a href ng-click="$ctrl.openEdit( 'transportationCost' )">edit</a>)</span></dt>
+            <dd ng-hide="$ctrl.isEditing[ 'transportationCost' ]">
+              {{ $ctrl.displayAsMoney( $ctrl.shipment.transportationCost ) || '----' }}
+            </dd>
+          </div>
+          <div ng-show="$ctrl.isEditing[ 'transportationCost' ]">
+            <dt>Transportation Cost (<a href ng-click="$ctrl.saveEdit( 'transportationCost' )" style="color: red">save</a> or <a href ng-click="$ctrl.closeEdit( 'transportationCost' )" style="color: red">cancel edit</a>)</dt>
+            <dd ng-show="$ctrl.isEditing[ 'transportationCost' ]">
+              <input ng-model="$ctrl.editValue[ 'transportationCost' ]" />
+            </dd>
+          </div>
         </div>
         <div ng-hide="$ctrl.isEditing[ 'source' ]">
           <dt>Source<span ng-hide="!$ctrl.showEditControls"> (<a href ng-click="$ctrl.openEdit( 'source' )">edit</a>)</span></dt>

@@ -4,6 +4,7 @@ const incomingShipmentSchema = mongoose.Schema({
   handle: String,
   vendor: String,
   cost: Number,
+  transportationCost: Number,
   source: String,
   category: String,
   totalUnits: Number,

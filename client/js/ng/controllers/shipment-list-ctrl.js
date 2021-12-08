@@ -73,9 +73,15 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
       },
       cost: {
         displayName: 'Cost',
-        defaultSortAscending: true,
         active: false,
-        optionAvailable: vm.showPurchasingData
+        optionAvailable: vm.showPurchasingData,
+        noSort: true,
+      },
+      transportationCost: {
+        displayName: 'Transportation Cost',
+        active: false,
+        optionAvailable: vm.showPurchasingData,
+        noSort: true,
       },
       source: {
         displayName: 'Source',

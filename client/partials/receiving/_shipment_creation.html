@@ -133,13 +133,17 @@
 
     <fieldset class="col-xs-12 box-border">
       <legend class="box-border">Shipping</legend>
-      <div class="col-xs-12 col-sm-6">
+      <div class="col-xs-12 col-sm-4">
         <div class="form-group">
           <label for="carrierInput">Carrier</label>
           <input type="text" class="form-control" id="carrierInput" ng-model="$ctrl.inputs.carrier" autocomplete="off">
         </div>
       </div>
-      <div class="col-xs-12 col-sm-6">
+      <div class="form-group col-xs-12 col-sm-4">
+        <label for="transpotationCostInput">Transportation Cost</label>
+        <input type="number" class="form-control" id="transpotationCostInput" ng-model="$ctrl.inputs.transportationCost" min="0">
+      </div>
+      <div class="col-xs-12 col-sm-4">
         <div class="form-group">
           <label for="arrivalDateInput">Arrival Date</label>
           <input type="date" class="form-control" id="arrivalDateInput" ng-model="$ctrl.inputs.arrivalDate"/>
