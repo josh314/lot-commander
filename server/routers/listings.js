@@ -55,6 +55,7 @@ function routes({ listings, lotdb, shopifyGql }) {
   
   router.post(
     '/',
+    auth.isAuthorized( 'SUBMIT_SHOPIFY_LISTING' ),
     express.json(),
     ( req, res, next ) => {
       const marketplace = req.body.listing.marketplace;
