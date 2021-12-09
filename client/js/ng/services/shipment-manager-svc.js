@@ -98,8 +98,8 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'S
 
 
 /******************* Constructor for Shipment Objects *************************/
-angular.module('myApp').factory('ShipmentFactory', [ '$q', 'ReceivedPalletFactory', 'UtilitiesSvc',
-  function( $q, ReceivedPalletFactory, UtilitiesSvc ) {
+angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPalletFactory', 'UtilitiesSvc',
+  function( $q, InventoryPalletFactory, UtilitiesSvc ) {
     const datify = dString => dString ? new Date( dString ) : null;
 
     const buildAnonymousPalletHandle = ( shipmentHandle , number ) => `${ shipmentHandle }_${ number }`; 
@@ -111,7 +111,7 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'ReceivedPalletFactor
         _data,
         [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {}),
         {
-          palletsReceived: _data.palletsReceived.map( _ => ReceivedPalletFactory( _ ) )
+          palletsReceived: _data.palletsReceived.map( _ => InventoryPalletFactory( _ ) )
         }
       );
 
@@ -217,7 +217,7 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'ReceivedPalletFactor
 
       shipment.editExpectedPallet = ( _palletId, _data ) => $q.when( api.editIncomingShipmentPallet( shipment._id, _palletId, _data ) );
     
-      shipment.editReceivedPallet = ( _palletId, _data ) => $q.when( api.editReceivedPallet( _palletId, _data ) );
+      shipment.editReceivedPallet = ( _palletId, _data ) => $q.when( api.editInventoryPallet( _palletId, _data ) );
     
       // Shipment close/reopen
 

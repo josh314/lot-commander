@@ -1,6 +1,6 @@
-<div class="container" ng-controller="ReceivedPalletCreationCtrl as $ctrl">
+<div class="container" ng-controller="InventoryPalletCreationCtrl as $ctrl">
 
-  <h2>New Received Pallets</h2>
+  <h2>New Inventory Pallet</h2>
 
   <div class="row well" ng-repeat="pallet in $ctrl.inputs.pallets track by $index">
 
@@ -55,7 +55,7 @@
       <button class="btn btn-primary" ng-click="$ctrl.addPalletGroup()">New Pallet Group</button>
     </div>
     <div style="margin-left:auto;">
-      <button class="btn btn-success" ng-click="$ctrl.createReceivedPallets()">Create</button>
+      <button class="btn btn-success" ng-click="$ctrl.createInventoryPallets()">Create</button>
     </div>
   </div>
 

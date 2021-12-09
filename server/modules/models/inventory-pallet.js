@@ -26,6 +26,10 @@ const inventoryPalletSchema = mongoose.Schema({
  ******/
 inventoryPalletSchema.pre( 'save', function(next) {
 
+  if( typeof this.isReceived !== 'boolean' ) {
+    this.isReceived = false;
+  }
+
   if( typeof this.hasProblem !== 'boolean' ) {
     this.hasProblem = false;
   }

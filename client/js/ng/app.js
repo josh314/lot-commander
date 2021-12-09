@@ -51,8 +51,8 @@ const stateData = [
   { name: "main.receiving.shipment-details", url: '/shipments/{shipmentId}', templateUrl: '/partials/receiving/_shipment_details.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
   { name: "main.receiving.shipment-receiving", url: '/shipments/{shipmentId}/receive', templateUrl: '/partials/receiving/_shipment_receiving.html', userPermission: 'RECEIVE_INCOMING_SHIPMENT' },
   { name: "main.receiving.shipment-clean-manifest", url: '/shipments/{shipmentId}/manifests/clean', templateUrl: '/partials/_clean_manifest.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
-  { name: "main.receiving.received-pallet-list", navName: "Pallets", navParent: 'Receiving', url: '/pallets', templateUrl: '/partials/receiving/_received_pallet_list.html', userPermission: 'VIEW_RECEIVED_PALLET' },
-  { name: "main.receiving.received-pallet-creation", url: '/pallets/create', templateUrl: '/partials/receiving/_received_pallet_creation.html', userPermission: 'CREATE_RECEIVED_PALLET' },
+  { name: "main.receiving.inventory-pallet-list", navName: "Pallets", navParent: 'Receiving', url: '/pallets', templateUrl: '/partials/receiving/_inventory_pallet_list.html', userPermission: 'VIEW_INVENTORY_PALLET' },
+  { name: "main.receiving.inventory-pallet-creation", url: '/pallets/create', templateUrl: '/partials/receiving/_inventory_pallet_creation.html', userPermission: 'CREATE_INVENTORY_PALLET' },
 
   //Manual Inventory
   { name: "main.manual-inventory", navName: 'Inventory', url: "/manual-inventory", templateUrl: 'partials/_manual_inventory.html', userPermission: 'VIEW_MANUAL_INVENTORY' },

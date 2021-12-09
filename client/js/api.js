@@ -560,21 +560,21 @@ export function reopenIncomingShipment( shipmentId ){
 
 // Pallet endpoints
 
-export function listReceivedPallets( qp ) {
+export function listInventoryPallets( qp ) {
   return axios({
     method: 'get',
     url: `/api/pallets/?${qs.stringify(qp)}`,
   })
     .then( resp => resp.data.pallets );
 }
-export function countReceivedPallets( qp ) {
+export function countInventoryPallets( qp ) {
   return axios({
     method: 'get',
     url: `/api/pallets/count/?${qs.stringify(qp)}`,
   })
     .then( resp => resp.data.count );
 }
-export function createReceivedPallets( pallets ) {
+export function createInventoryPallets( pallets ) {
   return axios({
     method: 'post',
     url: `/api/pallets/`,
@@ -582,7 +582,7 @@ export function createReceivedPallets( pallets ) {
   })
     .then( resp => resp.data );
 }
-export function editReceivedPallet( palletId, _data ) {
+export function editInventoryPallet( palletId, _data ) {
   return axios({
     method: 'patch',
     url: `/api/pallets/${ palletId }`,
@@ -590,7 +590,7 @@ export function editReceivedPallet( palletId, _data ) {
   })
     .then( resp => resp.data );
 }
-export function breakdownReceivedPallet( palletId, isBrokendown = true ) {
+export function breakdownInventoryPallet( palletId, isBrokendown = true ) {
   return axios({
     method: 'put',
     url: `/api/pallets/${ palletId }/is-brokendown`,

@@ -39,12 +39,12 @@ const queryParams = ( params ) => {
 };
 
 
-/******************* Received Pallet Manager Service *************************/
+/******************* Inventory Pallet Manager Service *************************/
 //
 // This service provides some utility functionality to the pallets API and UI
 //
-angular.module('myApp').service('ReceivedPalletManagerSvc', [ '$q', '$stateParams', 'ReceivedPalletFactory', 'ReceivedPalletListColumns',
-  function( $q, $stateParams, ReceivedPalletFactory, ReceivedPalletListColumns ) {
+angular.module('myApp').service('InventoryPalletManagerSvc', [ '$q', '$stateParams', 'InventoryPalletFactory', 'InventoryPalletListColumns',
+  function( $q, $stateParams, InventoryPalletFactory, InventoryPalletListColumns ) {
 
     const _palletId = () =>  $stateParams.palletId;
 
@@ -63,30 +63,30 @@ angular.module('myApp').service('ReceivedPalletManagerSvc', [ '$q', '$stateParam
           query.sort_dir = sort.ascending ? 1 : -1;
         }
 
-        return $q.when( api.listReceivedPallets( query ) ).then( pallets => {
+        return $q.when( api.listInventoryPallets( query ) ).then( pallets => {
           if( !pallets ) {
             return [];
           }
 
-          return pallets.map( data => ReceivedPalletFactory( data ) );
+          return pallets.map( data => InventoryPalletFactory( data ) );
 
         });
       },
 
-      count: filter => $q.when( api.countReceivedPallets( queryParams( filter ) ) ),
+      count: filter => $q.when( api.countInventoryPallets( queryParams( filter ) ) ),
 
-      create: pallets => $q.when( api.createReceivedPallets( pallets ) ),
+      create: pallets => $q.when( api.createInventoryPallets( pallets ) ),
 
-      getListColumns: () => ReceivedPalletListColumns(),
+      getListColumns: () => InventoryPalletListColumns(),
     };
   }
 ]);
 
-angular.module('myApp').factory('ReceivedPalletFactory', [ '$q',
+angular.module('myApp').factory('InventoryPalletFactory', [ '$q',
   function( $q ) {
     const datify = dString => dString ? new Date( dString ) : null;
 
-    function ReceivedPallet( _data ) {
+    function InventoryPallet( _data ) {
 
       const pallet = Object.assign(
         { showNote: false, isExpected: false },
@@ -94,7 +94,7 @@ angular.module('myApp').factory('ReceivedPalletFactory', [ '$q',
         [ 'brokendownDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
       );
 
-      pallet.breakdown = isBrokendown => $q.when( api.breakdownReceivedPallet( pallet._id, isBrokendown ) ).then( resp => {
+      pallet.breakdown = isBrokendown => $q.when( api.breakdownInventoryPallet( pallet._id, isBrokendown ) ).then( resp => {
 
         if( !resp || !resp.pallet ) return;
 
@@ -112,11 +112,11 @@ angular.module('myApp').factory('ReceivedPalletFactory', [ '$q',
       return pallet;
     }
 
-    return ReceivedPallet;
+    return InventoryPallet;
   }
 ]);
 
-angular.module('myApp').factory( 'ReceivedPalletListColumns', [ 'LoggedInUser', 'UtilitiesSvc', function( LoggedInUser, UtilitiesSvc ) {
+angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser', 'UtilitiesSvc', function( LoggedInUser, UtilitiesSvc ) {
 
   const showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
 

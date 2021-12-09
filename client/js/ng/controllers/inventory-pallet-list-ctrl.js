@@ -1,11 +1,11 @@
 import angular from 'angular';
 
 const __PAGE_SIZE__ = 25;
-const __USER_SETTINGS_SUBKEY__ = 'received-pallet-list-page';
+const __USER_SETTINGS_SUBKEY__ = 'inventory-pallet-list-page';
 
-/******************* Shipment List Page Controller *************************/
-angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'LoggedInUser', 'navigate', 'palletCategories', 'sessionTimeout', 'SettingsSvc', 'ReceivedPalletManagerSvc',
-  function( LoggedInUser, navigate, palletCategories, sessionTimeout, SettingsSvc, ReceivedPalletManagerSvc ) {
+/******************* Pallets List Page Controller *************************/
+angular.module('myApp').controller('InventoryPalletListCtrl', [ 'LoggedInUser', 'navigate', 'palletCategories', 'sessionTimeout', 'SettingsSvc', 'InventoryPalletManagerSvc',
+  function( LoggedInUser, navigate, palletCategories, sessionTimeout, SettingsSvc, InventoryPalletManagerSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -33,7 +33,7 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'LoggedInUser', '
       maxSize: 8
     };
 
-    vm.columns = ReceivedPalletManagerSvc.getListColumns();
+    vm.columns = InventoryPalletManagerSvc.getListColumns();
 
     vm.showColumnOptions = false;
     vm.toggleShowColumnOptions = () => vm.showColumnOptions = !vm.showColumnOptions;
@@ -41,7 +41,7 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'LoggedInUser', '
     vm.sortListBy = sortListBy;
     vm.refreshPalletsList = refreshPalletsList;
 
-    vm.createPallet = () => navigate.receivedPalletCreation();
+    vm.createPallet = () => navigate.inventoryPalletCreation();
 
     function init() {
       loadUserSettings();
@@ -81,7 +81,7 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'LoggedInUser', '
 
       const filter = vm.filter;
 
-      return ReceivedPalletManagerSvc.count( filter ).then( count => {
+      return InventoryPalletManagerSvc.count( filter ).then( count => {
         vm.pagination.totalItems = count;
 
         const pagedQueryOptions = {
@@ -91,7 +91,7 @@ angular.module('myApp').controller('ReceivedPalletListCtrl', [ 'LoggedInUser', '
           page: vm.pagination.current,
         };
 
-        return ReceivedPalletManagerSvc.list( pagedQueryOptions ).then( pallets => {
+        return InventoryPalletManagerSvc.list( pagedQueryOptions ).then( pallets => {
 
           pallets.forEach( p => {
             p.toggleShowNote = () => p.showNote = !p.showNote;

@@ -1,6 +1,6 @@
 import angular from 'angular';
 
-class ReceivedPalletValidator {
+class InventoryPalletValidator {
   constructor( inputs ) {
     if( inputs ) {
       this.pallets = inputs.pallets.map( p => ({ invalidHandle: !p.handle }) );
@@ -21,23 +21,23 @@ class ReceivedPalletValidator {
   }
 }
 
-/******************* Received Pallet Creation Page Controller *************************/
-angular.module('myApp').controller('ReceivedPalletCreationCtrl', [ 'AddPalletGroupParamsModalSvc', 'messageModal', 'navigate', 'palletCategories', 'sessionTimeout', 'ReceivedPalletManagerSvc',
-  function( AddPalletGroupParamsModalSvc, messageModal, navigate, palletCategories, sessionTimeout, ReceivedPalletManagerSvc ) {
+/******************* Inventory Pallet Creation Page Controller *************************/
+angular.module('myApp').controller('InventoryPalletCreationCtrl', [ 'AddPalletGroupParamsModalSvc', 'messageModal', 'navigate', 'palletCategories', 'sessionTimeout', 'InventoryPalletManagerSvc',
+  function( AddPalletGroupParamsModalSvc, messageModal, navigate, palletCategories, sessionTimeout, InventoryPalletManagerSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
 
     function init() {
 
-      vm.validator = new ReceivedPalletValidator();
+      vm.validator = new InventoryPalletValidator();
       vm.inputs = {
         categoryOptions: [ "" ].concat( palletCategories ),
         pallets: [  ]
       };
 
       vm.refreshValidator = refreshValidator;
-      vm.createReceivedPallets = createReceivedPallets;
+      vm.createInventoryPallets = createInventoryPallets;
       vm.setPalletCategories = ( ) => vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
       vm.clearPalletUnits = ( ) => vm.inputs.pallets.forEach( p => delete p.units );
       vm.addPallet = () => addPalletWithData( { hasProblem: false } );
@@ -47,10 +47,10 @@ angular.module('myApp').controller('ReceivedPalletCreationCtrl', [ 'AddPalletGro
     }
 
     function refreshValidator() {
-      vm.validator = new ReceivedPalletValidator( vm.inputs );
+      vm.validator = new InventoryPalletValidator( vm.inputs );
     }
 
-    function createReceivedPallets() {
+    function createInventoryPallets() {
 
       refreshValidator();
 
@@ -58,8 +58,8 @@ angular.module('myApp').controller('ReceivedPalletCreationCtrl', [ 'AddPalletGro
 
         const request = vm.inputs.pallets;
 
-        ReceivedPalletManagerSvc.create( request )
-          .then( _ => navigate.receivedPalletList() )
+        InventoryPalletManagerSvc.create( request )
+          .then( _ => navigate.inventoryPalletList() )
           .catch( e => {
             messageModal.launch({header: 'Error', body: e.message, type: 'error'});
           });
