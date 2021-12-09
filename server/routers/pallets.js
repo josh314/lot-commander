@@ -28,6 +28,10 @@ const listPalletsFilterParamsFromQueryParams = ( qp ) => {
     fp.hasProblem = !!parseInt(qp.has_problem);
   }
 
+  if( qp.is_received ) {
+    fp.isReceived = !!parseInt(qp.is_received);
+  }
+
   if( qp.is_brokendown ) {
     fp.isBrokendown = !!parseInt(qp.is_brokendown);
   }
@@ -63,42 +67,42 @@ function routes({ eventsDb, inventoryCommander }) {
   // view pallet(s)
   router.get(
     '/',
-    auth.isAuthorized( 'VIEW_RECEIVED_PALLET' ),
+    auth.isAuthorized( 'VIEW_INVENTORY_PALLET' ),
     resolveShipmentIds,
-    listReceivedPallets
+    listInventoryPallets
   );
   router.get(
     '/count',
-    auth.isAuthorized( 'VIEW_RECEIVED_PALLET' ),
+    auth.isAuthorized( 'VIEW_INVENTORY_PALLET' ),
     resolveShipmentIds,
-    countReceivedPallets
+    countInventoryPallets
   );
   router.get(
     '/:palletId',
-    auth.isAuthorized( 'VIEW_RECEIVED_PALLET' ),
-    getReceivedPalletById
+    auth.isAuthorized( 'VIEW_INVENTORY_PALLET' ),
+    getInventoryPalletById
   );
 
   // Edit/create pallet
   router.post(
     '/',
-    auth.isAuthorized( 'CREATE_RECEIVED_PALLET' ),
-    createReceivedPallets
+    auth.isAuthorized( 'CREATE_INVENTORY_PALLET' ),
+    createInventoryPallets
   );
   router.patch(
     '/:palletId',
-    auth.isAuthorized( 'EDIT_RECEIVED_PALLET' ),
-    editReceivedPallet
+    auth.isAuthorized( 'EDIT_INVENTORY_PALLET' ),
+    editInventoryPallet
   );
   router.put(
     '/:palletId/is-brokendown',
-    auth.isAuthorized( 'EDIT_RECEIVED_PALLET' ),
-    breakdownReceivedPallet
+    auth.isAuthorized( 'EDIT_INVENTORY_PALLET' ),
+    breakdownInventoryPallet
   );
   router.delete(
     '/:palletId',
-    auth.isAuthorized( 'EDIT_RECEIVED_PALLET' ),
-    deleteReceivedPallet
+    auth.isAuthorized( 'EDIT_INVENTORY_PALLET' ),
+    deleteInventoryPallet
   );
 
 
@@ -131,7 +135,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
   }
 
-  async function listReceivedPallets( req, res ) {
+  async function listInventoryPallets( req, res ) {
 
     const numPage = parseInt( req.query.num ) || 10;
     const page = parseInt( req.query.page ) || 1;
@@ -152,29 +156,29 @@ function routes({ eventsDb, inventoryCommander }) {
       populate: helpers.populationPathsFromQuery( req.query )
     };
 
-    const pallets = await inventoryCommander.listReceivedPallets( query );
+    const pallets = await inventoryCommander.listInventoryPallets( query );
 
     res.json( { pallets } );
   }
 
-  async function countReceivedPallets( req, res ) {
+  async function countInventoryPallets( req, res ) {
   
-    const count = await inventoryCommander.countReceivedPallets( listPalletsFilterParamsFromQueryParams( req.query ) );
+    const count = await inventoryCommander.countInventoryPallets( listPalletsFilterParamsFromQueryParams( req.query ) );
 
     res.json({ count: count });
     
   }
 
-  async function createReceivedPallets( req, res, next  ) {
+  async function createInventoryPallets( req, res, next  ) {
 
     try {
       
-      const { pallets } = await inventoryCommander.createReceivedPallets( req.body.pallets );
+      const { pallets } = await inventoryCommander.createInventoryPallets( req.body.pallets );
 
       if( pallets ) {
 
         for( let pallet of pallets ) {
-          eventsDb.createReceivedPallet( { user: req.user, palletId: pallet._id } );
+          eventsDb.createInventoryPallet( { user: req.user, palletId: pallet._id } );
         }
         
       }
@@ -189,14 +193,14 @@ function routes({ eventsDb, inventoryCommander }) {
 
   }
 
-  async function getReceivedPalletById( req, res, next ) {
+  async function getInventoryPalletById( req, res, next ) {
 
     try {
 
       const palletId = req.params.palletId;
       const populate = helpers.populationPathsFromQuery( req.query );
 
-      const pallet = await inventoryCommander.getReceivedPalletById( palletId, { populate } );
+      const pallet = await inventoryCommander.getInventoryPalletById( palletId, { populate } );
 
       res.json( { pallet } );
     }
@@ -206,16 +210,16 @@ function routes({ eventsDb, inventoryCommander }) {
 
   }
 
-  async function deleteReceivedPallet( req, res, next ) {
+  async function deleteInventoryPallet( req, res, next ) {
 
     try {
 
       const palletId = req.params.palletId;
 
-      const { pallet } = await inventoryCommander.deleteReceivedPallet( palletId );
+      const { pallet } = await inventoryCommander.deleteInventoryPallet( palletId );
 
       if( pallet ) {
-        eventsDb.deleteReceivedPallet( { user: req.user, palletId: pallet._id } );
+        eventsDb.deleteInventoryPallet( { user: req.user, palletId: pallet._id } );
       }
 
       res.json( { success: true } );
@@ -226,14 +230,14 @@ function routes({ eventsDb, inventoryCommander }) {
 
   }
 
-  async function editReceivedPallet( req, res, next ){
+  async function editInventoryPallet( req, res, next ){
 
     try {
 
       const palletId = req.params.palletId;
       const editDocument = req.body;
 
-      const { pallet, edits } = await inventoryCommander.editReceivedPallet( palletId, editDocument );
+      const { pallet, edits } = await inventoryCommander.editInventoryPallet( palletId, editDocument );
 
       if( pallet ) {
 
@@ -247,7 +251,7 @@ function routes({ eventsDb, inventoryCommander }) {
             edit
           );
 
-          eventsDb.editReceivedPallet( eventData );
+          eventsDb.editInventoryPallet( eventData );
 
         }
 
@@ -262,7 +266,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
   }
 
-  async function breakdownReceivedPallet( req, res, next ){
+  async function breakdownInventoryPallet( req, res, next ){
 
     try {
 
@@ -271,13 +275,13 @@ function routes({ eventsDb, inventoryCommander }) {
         const isBrokendown = req.body.isBrokendown;
         const palletId = req.params.palletId;
   
-        const fn = isBrokendown ? inventoryCommander.breakdownReceivedPallet.bind( inventoryCommander ) : inventoryCommander.unbreakdownReceivedPallet.bind( inventoryCommander );
+        const fn = isBrokendown ? inventoryCommander.breakdownInventoryPallet.bind( inventoryCommander ) : inventoryCommander.unbreakdownInventoryPallet.bind( inventoryCommander );
 
         const { pallet } = await fn( palletId );
 
         if( pallet ) {
 
-          isBrokendown ? eventsDb.breakdownReceivedPallet( { user: req.user, palletId } ) : eventsDb.unbreakdownReceivedPallet( { user: req.user, palletId } );
+          isBrokendown ? eventsDb.breakdownInventoryPallet( { user: req.user, palletId } ) : eventsDb.unbreakdownInventoryPallet( { user: req.user, palletId } );
 
         }
 

@@ -165,7 +165,7 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
   return filter;
 };
 
-const palletQueryFilter = ( { handle, isBrokendown, isAnonymous, hasProblem, shipment, category } ) => {
+const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, hasProblem, shipment, category } ) => {
   const filter = {
     isDeleted: false,
   };
@@ -176,6 +176,10 @@ const palletQueryFilter = ( { handle, isBrokendown, isAnonymous, hasProblem, shi
 
   if( shipment ) {
     filter.shipment = shipment;
+  }
+
+  if( isReceived !== undefined ) {
+    filter.isReceived = isReceived;
   }
 
   if( hasProblem !== undefined ) {
@@ -255,14 +259,14 @@ class InventoryCommander {
 
     const pkg = require('./models/package');
     const incomingShipment = require('./models/incoming-shipment');
-    const receivedPallet = require('./models/received-pallet');
+    const inventoryPallet = require('./models/inventory-pallet');
     const bundle = require('./models/bundle');
 
     // initialize models
     this.IncomingShipment = mongooseConnection.model('IncomingShipment', incomingShipment.schema);
     this.Package = mongooseConnection.model('Package', pkg.schema);
     this.Bundle = mongooseConnection.model('Bundle', bundle.schema);
-    this.ReceivedPallet = mongooseConnection.model('ReceivedPallet', receivedPallet.schema);
+    this.InventoryPallet = mongooseConnection.model('InventoryPallet', inventoryPallet.schema);
   }
 
   //=====================================================
@@ -401,7 +405,7 @@ class InventoryCommander {
       if( editDocument.category ) {
 
         for( let palletId of shipment.palletsReceived ) {
-          await this.editReceivedPallet( palletId, { category: editDocument.category } );
+          await this.editInventoryPallet( palletId, { category: editDocument.category } );
         }
 
       }
@@ -444,7 +448,7 @@ class InventoryCommander {
       throw new ChildResourceNotFoundError( {
         parentType: 'incoming shipment',
         parentId: shipmentId,
-        childType: 'received pallet',
+        childType: 'inventory pallet',
         childId: palletId
       } );
     }
@@ -469,7 +473,7 @@ class InventoryCommander {
       throw new ChildResourceNotFoundError( {
         parentType: 'incoming shipment',
         parentId: shipmentId,
-        childType: 'received pallet',
+        childType: 'inventory pallet',
         childId: palletId
       } );
     }
@@ -578,6 +582,7 @@ class InventoryCommander {
     }
 
     const basePalletObject = {
+      isReceived: true,
       shipment: shipment._id,
       category: shipment.category
     };
@@ -587,7 +592,7 @@ class InventoryCommander {
       _palletData
     );
 
-    const { pallets: [ pallet ] } = await this.createReceivedPallets( palletData ); 
+    const { pallets: [ pallet ] } = await this.createInventoryPallets( palletData ); 
 
     await shipment.receivePallet( pallet._id );
 
@@ -595,11 +600,11 @@ class InventoryCommander {
   }
 
   //==========================================================
-  // Received Pallets
+  // Inventory Pallets
   //
 
 
-  listReceivedPallets( { num, skip, sort, sortDir, filterParams, populate = [] } ) {
+  listInventoryPallets( { num, skip, sort, sortDir, filterParams, populate = [] } ) {
 
     const filter = palletQueryFilter(filterParams);
 
@@ -622,7 +627,7 @@ class InventoryCommander {
       sortParams.handle = 1;
     }
     
-    let q = this.ReceivedPallet.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
+    let q = this.InventoryPallet.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
 
     for( let path of populate ) {
 
@@ -634,27 +639,27 @@ class InventoryCommander {
 
   }
 
-  countReceivedPallets( filterParams ) {
+  countInventoryPallets( filterParams ) {
 
     const filter = palletQueryFilter(filterParams);
 
-    return this.ReceivedPallet.countDocuments( filter );
+    return this.InventoryPallet.countDocuments( filter );
 
   }
 
-  async createReceivedPallets( _data ) {
+  async createInventoryPallets( _data ) {
 
     if( Array.isArray( _data ) ) {
-      const pallets  = await this.ReceivedPallet.create(_data);
+      const pallets  = await this.InventoryPallet.create(_data);
       return { pallets  };
     }
 
-    const pallet = await ( new this.ReceivedPallet( _data ) ).save();
+    const pallet = await ( new this.InventoryPallet( _data ) ).save();
     return { pallets : [ pallet ] };
 
   }
 
-  getReceivedPalletById( palletId, { populate, includeDeleted = false } = {}) {
+  getInventoryPalletById( palletId, { populate, includeDeleted = false } = {}) {
 
     let objectId;
 
@@ -671,7 +676,7 @@ class InventoryCommander {
       findDoc.isDeleted = false;
     }
 
-    let q = this.ReceivedPallet.findOne( findDoc );
+    let q = this.InventoryPallet.findOne( findDoc );
 
     if( populate ) {
 
@@ -687,12 +692,12 @@ class InventoryCommander {
 
   }
 
-  async deleteReceivedPallet( palletId ) {
+  async deleteInventoryPallet( palletId ) {
 
-    const pallet = await this.getReceivedPalletById( palletId );
+    const pallet = await this.getInventoryPalletById( palletId );
 
     if( !pallet ) {
-      throw new ResourceNotFoundError( { type: 'received pallet', id: palletId } );
+      throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
     }
 
     if( pallet.isDeleted ) {
@@ -704,12 +709,12 @@ class InventoryCommander {
     return { pallet };
   }
 
-  async editReceivedPallet( palletId, _editDocument ) {
+  async editInventoryPallet( palletId, _editDocument ) {
 
-    const pallet = await this.getReceivedPalletById( palletId );
+    const pallet = await this.getInventoryPalletById( palletId );
 
     if( !pallet ) {
-      throw new ResourceNotFoundError( { type: 'received pallet', id: palletId } );
+      throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
     }
 
     try { 
@@ -735,12 +740,12 @@ class InventoryCommander {
 
   }
 
-  async breakdownReceivedPallet( palletId ) {
+  async breakdownInventoryPallet( palletId ) {
 
-    const pallet = await this.getReceivedPalletById( palletId );
+    const pallet = await this.getInventoryPalletById( palletId );
 
     if( !pallet ) {
-      throw new ResourceNotFoundError( { type: 'received pallet', id: palletId } );
+      throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
     }
 
     if( pallet.isBrokendown ) {
@@ -753,12 +758,12 @@ class InventoryCommander {
 
   }
 
-  async unbreakdownReceivedPallet( palletId ) {
+  async unbreakdownInventoryPallet( palletId ) {
 
-    const pallet = await this.getReceivedPalletById( palletId );
+    const pallet = await this.getInventoryPalletById( palletId );
 
     if( !pallet ) {
-      throw new ResourceNotFoundError( { type: 'received pallet', id: palletId } );
+      throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
     }
 
     if( !pallet.isBrokendown ) {
@@ -783,7 +788,7 @@ class InventoryCommander {
 
     if( found ) {
 
-      var { pallet } = await this.deleteReceivedPallet( palletId );
+      var { pallet } = await this.deleteInventoryPallet( palletId );
 
       await shipment.removePalletReceived( palletId );
     }
@@ -965,7 +970,7 @@ class InventoryCommander {
 
   }
 
-  async addPackageReceivedPallet( pkgId, palletId ) {
+  async addPackageInventoryPallet( pkgId, palletId ) {
 
     const pkg = await this.getPackageById( pkgId );
 
@@ -973,10 +978,10 @@ class InventoryCommander {
       throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
     }
 
-    const pallet = await this.getReceivedPalletById( palletId );
+    const pallet = await this.getInventoryPalletById( palletId );
 
     if( !pallet ) {
-      throw new ResourceNotFoundError( { type: 'received Pallet', id: palletId } );
+      throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
     }
 
     try {
@@ -1189,7 +1194,7 @@ class InventoryCommander {
   //
   //
 
-  async getReceivedPalletInventory( { date } ) {
+  async aggregateInventoryPallets( { date } ) {
 
     let matchDoc;
     if( date ) {
@@ -1224,7 +1229,7 @@ class InventoryCommander {
 
     }
 
-    return this.ReceivedPallet.aggregate()
+    return this.InventoryPallet.aggregate()
       .match( matchDoc )
       .group( {
         _id: "$category",

@@ -285,10 +285,10 @@ function routes( { eventsDb, inventoryCommander } ) {
 
       for( let palletId of pallets ) {
 
-        const { package: pkg, pallet } = await inventoryCommander.addPackageReceivedPallet( pkgId, palletId );
+        const { package: pkg, pallet } = await inventoryCommander.addPackageInventoryPallet( pkgId, palletId );
 
         if( pkg && pallet ) {
-          eventsDb.addPackageReceivedPallet( { user: req.user, packageId: pkgId, palletId } );
+          eventsDb.addPackageInventoryPallet( { user: req.user, packageId: pkgId, palletId } );
         }
 
       }

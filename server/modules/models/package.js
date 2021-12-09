@@ -22,7 +22,7 @@ const packageSchema = mongoose.Schema({
   deletedDate: Date,
   pallets: [ {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'ReceivedPallet'
+    ref: 'InventoryPallet'
   } ],
   bundles: [ {
     type: mongoose.Schema.Types.ObjectId,

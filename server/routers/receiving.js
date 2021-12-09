@@ -301,7 +301,7 @@ function routes({ eventsDb, inventoryCommander }) {
       if( pallets && deletePallets ) {
 
         for( const p of pallets ) {
-          eventsDb.deleteReceivedPallet( { user: req.user, shipmentId: shipment && shipment._id, palletId: p._id } );
+          eventsDb.deleteInventoryPallet( { user: req.user, shipmentId: shipment && shipment._id, palletId: p._id } );
         }
 
       }
@@ -584,7 +584,7 @@ function routes({ eventsDb, inventoryCommander }) {
           if( pallets ) {
 
             for( const p of pallets ) {
-              eventsDb.deleteReceivedPallet( { user: req.user, shipmentId: shipment && shipment._id, palletId: p._id } );
+              eventsDb.deleteInventoryPallet( { user: req.user, shipmentId: shipment && shipment._id, palletId: p._id } );
             }
 
           }
@@ -618,7 +618,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
       if( shipment && pallet ) {
 
-        eventsDb.createReceivedPallet( {
+        eventsDb.createInventoryPallet( {
           user: req.user,
           palletId: pallet._id,
           shipmentId: shipment._id
@@ -649,7 +649,7 @@ function routes({ eventsDb, inventoryCommander }) {
  
       if( shipment && pallet ) {
 
-        eventsDb.deleteReceivedPallet( {
+        eventsDb.deleteInventoryPallet( {
           user: req.user,
           palletId: pallet._id,
           shipmentId: shipment._id

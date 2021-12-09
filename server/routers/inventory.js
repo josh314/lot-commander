@@ -22,7 +22,7 @@ function routes({ inventoryCommander }) {
   router.get(
     '/pallets',
     auth.isAuthorized( 'VIEW_RECEIVED_PALLET' ),
-    getReceivedPalletInventory
+    aggregateInventoryPallets
   );
   router.get(
     '/packages',
@@ -43,7 +43,7 @@ function routes({ inventoryCommander }) {
    ****/
 
 
-  async function getReceivedPalletInventory( req, res, _next ) {
+  async function aggregateInventoryPallets( req, res, _next ) {
 
     const options = {};
 
@@ -51,7 +51,7 @@ function routes({ inventoryCommander }) {
       options.date = new Date( req.query.date );
     }
 
-    const inventory = await inventoryCommander.getReceivedPalletInventory( options );
+    const inventory = await inventoryCommander.aggregateInventoryPallets( options );
 
     res.json( { inventory } );
   }

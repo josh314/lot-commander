@@ -18,9 +18,9 @@ const incomingShipmentRef = {
   ref: 'IncomingShipment'
 };
 
-const receivedPalletRef = {
+const inventoryPalletRef = {
   type: mongoose.Schema.Types.ObjectId,
-  ref: 'ReceivedPallet'
+  ref: 'InventoryPallet'
 };
 
 const packageRef = {
@@ -143,29 +143,29 @@ const reopenIncomingShipmentEventSchema = new mongoose.Schema(
 );
 
 /************************************************
- * Received Pallet Events
+ * Inventory Pallet Events
  * 
  ****/
 
-const createReceivedPalletEventSchema = new mongoose.Schema(
+const createInventoryPalletEventSchema = new mongoose.Schema(
   {
-    pallet: receivedPalletRef,
+    pallet: inventoryPalletRef,
     shipment: incomingShipmentRef,
   },
   discriminatorOpts
 );
 
-const deleteReceivedPalletEventSchema = new mongoose.Schema(
+const deleteInventoryPalletEventSchema = new mongoose.Schema(
   {
-    pallet: receivedPalletRef,
+    pallet: inventoryPalletRef,
     shipment: incomingShipmentRef,
   },
   discriminatorOpts
 );
 
-const editReceivedPalletEventSchema = new mongoose.Schema(
+const editInventoryPalletEventSchema = new mongoose.Schema(
   {
-    pallet: receivedPalletRef,
+    pallet: inventoryPalletRef,
     shipment: incomingShipmentRef,
     path: String,
     oldValue: mongoose.Mixed,
@@ -174,17 +174,17 @@ const editReceivedPalletEventSchema = new mongoose.Schema(
   discriminatorOpts
 );
 
-const breakdownReceivedPalletEventSchema = new mongoose.Schema(
+const breakdownInventoryPalletEventSchema = new mongoose.Schema(
   {
-    pallet: receivedPalletRef,
+    pallet: inventoryPalletRef,
     shipment: incomingShipmentRef,
   },
   discriminatorOpts
 );
 
-const unbreakdownReceivedPalletEventSchema = new mongoose.Schema(
+const unbreakdownInventoryPalletEventSchema = new mongoose.Schema(
   {
-    pallet: receivedPalletRef,
+    pallet: inventoryPalletRef,
     shipment: incomingShipmentRef,
   },
   discriminatorOpts
@@ -233,10 +233,10 @@ const deletePackageEventSchema = new mongoose.Schema(
   discriminatorOpts
 );
 
-const addPackageReceivedPalletEventSchema = new mongoose.Schema(
+const addPackageInventoryPalletEventSchema = new mongoose.Schema(
   {
     package: packageRef,
-    pallet: receivedPalletRef
+    pallet: inventoryPalletRef
   },
   discriminatorOpts
 );
@@ -304,18 +304,18 @@ class EventsDbClient {
     this.CloseIncomingShipmentEvent = this.Event.discriminator( 'close-incoming-shipment', closeIncomingShipmentEventSchema );
     this.ReopenIncomingShipmentEvent = this.Event.discriminator( 'reopen-incoming-shipment', reopenIncomingShipmentEventSchema );
 
-    this.CreateReceivedPalletEvent = this.Event.discriminator( 'create-received-pallet', createReceivedPalletEventSchema );
-    this.DeleteReceivedPalletEvent = this.Event.discriminator( 'delete-received-pallet', deleteReceivedPalletEventSchema );
-    this.EditReceivedPalletEvent = this.Event.discriminator( 'edit-received-pallet', editReceivedPalletEventSchema );
-    this.BreakdownReceivedPalletEvent = this.Event.discriminator( 'breakdown-received-pallet', breakdownReceivedPalletEventSchema );
-    this.UnbreakdownReceivedPalletEvent = this.Event.discriminator( 'unbreakdown-received-pallet', unbreakdownReceivedPalletEventSchema );
+    this.CreateInventoryPalletEvent = this.Event.discriminator( 'create-inventory-pallet', createInventoryPalletEventSchema );
+    this.DeleteInventoryPalletEvent = this.Event.discriminator( 'delete-inventory-pallet', deleteInventoryPalletEventSchema );
+    this.EditInventoryPalletEvent = this.Event.discriminator( 'edit-inventory-pallet', editInventoryPalletEventSchema );
+    this.BreakdownInventoryPalletEvent = this.Event.discriminator( 'breakdown-inventory-pallet', breakdownInventoryPalletEventSchema );
+    this.UnbreakdownInventoryPalletEvent = this.Event.discriminator( 'unbreakdown-inventory-pallet', unbreakdownInventoryPalletEventSchema );
 
     this.CreatePackageEvent = this.Event.discriminator( 'create-package', createPackageEventSchema );
     this.EditPackageEvent = this.Event.discriminator( 'edit-package', editPackageEventSchema );
     this.FinishPackageEvent = this.Event.discriminator( 'finish-package', finishPackageEventSchema );
     this.ReopenPackageEvent = this.Event.discriminator( 'reopen-package', reopenPackageEventSchema );
     this.DeletePackageEvent = this.Event.discriminator( 'delete-package', deletePackageEventSchema );
-    this.AddPackageReceivedPalletEvent = this.Event.discriminator( 'add-package-received-pallet', addPackageReceivedPalletEventSchema );
+    this.AddPackageInventoryPalletEvent = this.Event.discriminator( 'add-package-inventory-pallet', addPackageInventoryPalletEventSchema );
 
     this.CreateBundleEvent = this.Event.discriminator( 'create-bundle', createBundleEventSchema );
     this.EditBundleEvent = this.Event.discriminator( 'edit-bundle', editBundleEventSchema );
@@ -325,9 +325,9 @@ class EventsDbClient {
     // TODO:
     // add/remove documents
     // change documents to restricted
-    // edit received pallets
+    // edit inventory pallets
     // undelete shipment
-    // undelete received pallets
+    // undelete inventory pallets
 
   }
 
@@ -505,31 +505,31 @@ class EventsDbClient {
    ****/
 
 
-  createReceivedPallet( { user, palletId, shipmentId } ) {
+  createInventoryPallet( { user, palletId, shipmentId } ) {
 
     if( !palletId ) {
       return Promise.resolve( null );
     }
 
-    const e = new this.CreateReceivedPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
+    const e = new this.CreateInventoryPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
 
     return e.save();
 
   }
 
-  deleteReceivedPallet( { user, palletId, shipmentId } ) {
+  deleteInventoryPallet( { user, palletId, shipmentId } ) {
 
     if( !palletId ) {
       return Promise.resolve( null );
     }
 
-    const e = new this.DeleteReceivedPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
+    const e = new this.DeleteInventoryPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
 
     return e.save();
 
   }
 
-  editReceivedPallet( { user, palletId, shipmentId, path, oldValue, newValue } ) {
+  editInventoryPallet( { user, palletId, shipmentId, path, oldValue, newValue } ) {
 
     if( !palletId || !path ) {
       return Promise.resolve( null );
@@ -544,31 +544,31 @@ class EventsDbClient {
       newValue: newValue
     };
 
-    const e = new this.EditReceivedPalletEvent( eventData );
+    const e = new this.EditInventoryPalletEvent( eventData );
 
     return e.save();
 
   }
 
-  breakdownReceivedPallet( { user, palletId, shipmentId } ) {
+  breakdownInventoryPallet( { user, palletId, shipmentId } ) {
 
     if( !palletId ) {
       return Promise.resolve( null );
     }
 
-    const e = new this.BreakdownReceivedPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
+    const e = new this.BreakdownInventoryPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
 
     return e.save();
 
   }
 
-  unbreakdownReceivedPallet( { user, palletId, shipmentId } ) {
+  unbreakdownInventoryPallet( { user, palletId, shipmentId } ) {
 
     if( !palletId ) {
       return Promise.resolve( null );
     }
 
-    const e = new this.UnbreakdownReceivedPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
+    const e = new this.UnbreakdownInventoryPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
 
     return e.save();
 
@@ -648,13 +648,13 @@ class EventsDbClient {
 
   }
 
-  addPackageReceivedPallet( { user, packageId, palletId } ) {
+  addPackageInventoryPallet( { user, packageId, palletId } ) {
 
     if( !packageId || !palletId ) {
       return Promise.resolve( null );
     }
 
-    const e = new this.AddPackageReceivedPalletEvent( { user: user && user._id , package: packageId, pallet: palletId } );
+    const e = new this.AddPackageInventoryPalletEvent( { user: user && user._id , package: packageId, pallet: palletId } );
 
     return e.save();
 

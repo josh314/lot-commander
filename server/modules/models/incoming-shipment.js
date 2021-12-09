@@ -20,7 +20,7 @@ const incomingShipmentSchema = mongoose.Schema({
   } ],
   palletsReceived: [ {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'ReceivedPallet'
+    ref: 'InventoryPallet'
   } ],
   notes: String,
   isClosed: Boolean,
