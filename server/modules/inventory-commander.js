@@ -404,7 +404,9 @@ class InventoryCommander {
       // if a category change, propagate to the pallets
       if( editDocument.category ) {
 
-        for( let palletId of shipment.palletsReceived ) {
+        const palletsToUpdate = shipment.palletsReceived.concat( shipment.palletsConsolidated );
+
+        for( let palletId of palletsToUpdate ) {
           await this.editInventoryPallet( palletId, { category: editDocument.category } );
         }
 
@@ -599,6 +601,77 @@ class InventoryCommander {
     return { shipment, pallet };
   }
 
+
+  async deleteIncomingShipmentPalletReceived( shipmentId, palletId ) {
+
+    const shipment = await this.getIncomingShipmentById( shipmentId );
+
+    if( !shipment ) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    const found = shipment.palletsReceived.includes( mongoose.Types.ObjectId(palletId) );
+
+    if( found ) {
+
+      var { pallet } = await this.deleteInventoryPallet( palletId );
+
+      await shipment.removePalletReceived( palletId );
+    }
+
+    // eslint-disable-next-line block-scoped-var
+    return { shipment, pallet };
+
+  }
+
+  async addIncomingShipmentPalletConsolidated( shipmentId, _palletData ) {
+
+    const shipment = await this.getIncomingShipmentById( shipmentId );
+
+    if( !shipment ) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    const basePalletObject = {
+      isReceived: false,
+      shipment: shipment._id,
+      category: shipment.category
+    };
+
+    const palletData = Object.assign(
+      basePalletObject,
+      _palletData
+    );
+
+    const { pallets: [ pallet ] } = await this.createInventoryPallets( palletData ); 
+
+    await shipment.addPalletConsolidated( pallet._id );
+
+    return { shipment, pallet };
+  }
+
+  async deleteIncomingShipmentPalletConsolidated( shipmentId, palletId ) {
+
+    const shipment = await this.getIncomingShipmentById( shipmentId );
+
+    if( !shipment ) {
+      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    const found = shipment.palletsConsolidated.includes( mongoose.Types.ObjectId(palletId) );
+
+    if( found ) {
+
+      var { pallet } = await this.deleteInventoryPallet( palletId );
+
+      await shipment.removePalletConsolidated( palletId );
+    }
+
+    // eslint-disable-next-line block-scoped-var
+    return { shipment, pallet };
+
+  }
+
   //==========================================================
   // Inventory Pallets
   //
@@ -773,28 +846,6 @@ class InventoryCommander {
     await pallet.unbreakdown();
 
     return { pallet };
-
-  }
-
-  async deleteIncomingShipmentReceivedPallet( shipmentId, palletId ) {
-
-    const shipment = await this.getIncomingShipmentById( shipmentId );
-
-    if( !shipment ) {
-      throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
-    }
-
-    const found = shipment.palletsReceived.includes( mongoose.Types.ObjectId(palletId) );
-
-    if( found ) {
-
-      var { pallet } = await this.deleteInventoryPallet( palletId );
-
-      await shipment.removePalletReceived( palletId );
-    }
-
-    // eslint-disable-next-line block-scoped-var
-    return { shipment, pallet };
 
   }
 

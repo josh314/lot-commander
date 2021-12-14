@@ -385,7 +385,7 @@
               </span>
             </td>
             <td>
-              <button type="button" class="btn btn-danger btn-xs" ng-click="$ctrl.unreceivePallet($index)" ng-show="pallet.isEditing">
+              <button type="button" class="btn btn-danger btn-xs" ng-click="$ctrl.unreceivePallet( pallet )" ng-show="pallet.isEditing">
                 <!-- <span class="glyphicon glyphicon-remove"></span> -->
                 Delete
               </button>
@@ -401,6 +401,97 @@
 
       <div class="text-center">
         <button type="button" class="btn btn-sm btn-primary" ng-click="$ctrl.printShipmentLabels('received')">Print Received Pallet Labels</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="row well" ng-show="$ctrl.showReceiveControls">
+
+    <div style="display: flex; align-items: center;">
+      <span class="h2">Consolidated Pallets</span>
+    </div>
+
+    <div ng-show="$ctrl.shipment.isReceived">
+
+      <div 
+        style="
+          margin-bottom: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: space-evenly;
+        "
+      >
+
+        <div 
+          style="
+            flex-grow: 1;
+            display: flex;
+            justify-content: center
+          "
+        >
+          <div>
+            <button class="btn btn-primary" ng-click="$ctrl.newConsolidatedPallet()">New Consolidated Pallet</button>
+          </div>
+        </div>
+
+      </div>
+
+      <table class="table table-striped" ng-show="$ctrl.shipment.palletsConsolidated.length">
+
+        <thead><tr>
+          <th>Handle</th>
+          <th>Problem?</th>
+          <th>Brokendown?</th>
+          <th>Note</th>
+          <th></th>
+          <th></th>
+        </tr></thead>
+
+        <tbody>
+          <tr ng-repeat="pallet in $ctrl.shipment.palletsConsolidated track by $index">
+            <td><span ng-show="pallet.isEditing"><input ng-model="pallet.editValues.handle"></span><span ng-hide="pallet.isEditing">{{pallet.handle}}</span></td>
+
+            <td>
+              <span ng-hide="pallet.isEditing"><span class="glyphicon glyphicon-alert" ng-show="pallet.hasProblem"></span></span>
+              <span ng-show="pallet.isEditing">
+                <select ng-model="pallet.editValues.hasProblem">
+                    <option ng-value="true">Yes</option>
+                    <option ng-value="false">No</option>
+                </select>
+              </span>
+            </td>
+            <td>
+              <button type="button" class="btn btn-xs" ng-class="{ 'btn-danger': !pallet.isBrokendown, 'btn-success': pallet.isBrokendown }" ng-click="pallet.breakdown( !pallet.isBrokendown )">
+                {{ pallet.isBrokendown ? 'Undo breakdown' : 'Breakdown' }}
+              </button>
+            </td>
+            <td>
+              <span ng-hide="pallet.isEditing">
+                <span ng-show="pallet.showNote">{{pallet.note}}</span>
+                <span ng-show="pallet.note">[<a href ng-hide="pallet.showNote" ng-click="pallet.toggleShowNote()">Show</a><a href ng-show="pallet.showNote" ng-click="pallet.toggleShowNote()">Hide</a>]</span>
+              </span>
+              <span ng-show="pallet.isEditing">
+                <textarea ng-model="pallet.editValues.note"></textarea>
+              </span>
+            </td>
+            <td>
+              <button type="button" class="btn btn-danger btn-xs" ng-click="$ctrl.removeConsolidatedPallet( pallet )" ng-show="pallet.isEditing">
+                <!-- <span class="glyphicon glyphicon-remove"></span> -->
+                Delete
+              </button>
+            </td>
+            <td>
+              <span ng-hide="pallet.isEditing">(<a href ng-click="pallet.openEdit()">edit</a>)</span>
+              <span ng-show="pallet.isEditing">(<a href ng-click="$ctrl.savePalletEdit(pallet)" style="color: red">save</a> or <a href ng-click="pallet.closeEdit()" style="color: red">cancel edit</a>)</span>
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+
+      <div class="text-center">
+        <button type="button" class="btn btn-sm btn-primary" ng-click="$ctrl.printShipmentLabels('consolidated')">Print Consolidated Pallet Labels</button>
       </div>
 
     </div>

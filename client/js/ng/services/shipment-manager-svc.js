@@ -35,6 +35,10 @@ const queryParams = ( params ) => {
     qp.populate_pallets_received = 1;
   }
 
+  if( params.populatePalletsConsolidated ) {
+    qp.populate_pallets_consolidated = 1;
+  }
+
   return qp;
 };
 
@@ -111,10 +115,12 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPalletFacto
         _data,
         [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {}),
         {
-          palletsReceived: _data.palletsReceived.map( _ => InventoryPalletFactory( _ ) )
+          palletsReceived: _data.palletsReceived.map( _ => InventoryPalletFactory( _ ) ),
+          palletsConsolidated: _data.palletsConsolidated.map( _ => InventoryPalletFactory( _ ) )
         }
       );
 
+      // Mark received pallets as expected if applicable
       shipment.palletsReceived.forEach( pr => {
 
         if( angular.isString(pr) ) { // is an unpopulated Mongo ObjectId
@@ -215,9 +221,13 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPalletFacto
 
       shipment.unreceivePallet = palletId => $q.when( api.unreceiveIncomingShipmentPallet( shipment._id, palletId ) );
 
-      shipment.editExpectedPallet = ( _palletId, _data ) => $q.when( api.editIncomingShipmentPallet( shipment._id, _palletId, _data ) );
-    
       shipment.editReceivedPallet = ( _palletId, _data ) => $q.when( api.editInventoryPallet( _palletId, _data ) );
+
+      shipment.addConsolidatedPallet = _data => $q.when( api.addIncomingShipmentPalletConsolidated( shipment._id, _data ) );
+
+      shipment.removeConsolidatedPallet = palletId => $q.when( api.removeIncomingShipmentPalletConsolidated( shipment._id, palletId ) );
+    
+      shipment.editConsolidatedPallet = shipment.editReceivedPallet;
     
       // Shipment close/reopen
 

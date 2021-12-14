@@ -210,7 +210,7 @@ export function generateLotManifest( lotId, save = true, bstock = false ) {
 
 
 /*************************************************
-* Reports
+* Auctions
 * =======
 *
 ************/
@@ -557,8 +557,29 @@ export function reopenIncomingShipment( shipmentId ){
     .then( resp => resp.data );
 }
 
+export function addIncomingShipmentPalletConsolidated( shipmentId, _data ) {
+  return axios({
+    method: 'post',
+    url: `/api/receiving/${ shipmentId }/pallets-consolidated`,
+    data: _data
+  })
+    .then( resp => resp.data );
+}
 
-// Pallet endpoints
+export function removeIncomingShipmentPalletConsolidated( shipmentId, palletId ) {
+  return axios({
+    method: 'delete',
+    url: `/api/receiving/${ shipmentId }/pallets-consolidated/${ palletId }`,
+  })
+    .then( resp => resp.data );
+}
+
+
+/*************************************************
+* Pallets
+* ======
+*
+************/
 
 export function listInventoryPallets( qp ) {
   return axios({

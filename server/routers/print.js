@@ -5,6 +5,31 @@ const print = require(path.join(__basedir, __config.modulesPath, 'print'));
 
 module.exports = routes;
 
+
+/**********************************************
+ * helpers
+ * =======
+ * 
+ **********/
+
+function getPalletList( shipment, type ) {
+
+  let pallets;
+
+  if( type === 'expected' ) {
+    pallets = shipment.palletsExpected;
+  }
+  else if( type === 'consolidated' ) {
+    pallets = shipment.palletsConsolidated;
+  }
+  else {
+    pallets = shipment.palletsReceived;
+  }
+
+  return pallets;
+}
+
+
 /**********************************************
  * Routes function for export
  * ==========================
@@ -54,7 +79,7 @@ function routes({ inventoryCommander, lotdb }) {
 
         if(shipment) {
 
-          const pallets = req.params.palletList === 'expected' ? shipment.palletsExpected : shipment.palletsReceived;
+          const pallets = getPalletList( shipment, req.paramas.palletList );
 
           print.createBarcodeLabels( pallets.map( p => p.handle ) ).pipe(res);
 
@@ -81,7 +106,7 @@ function routes({ inventoryCommander, lotdb }) {
 
         }
 
-        const pallets = req.params.palletList === 'expected' ? shipment.palletsExpected : shipment.palletsReceived;
+        const pallets = getPalletList( shipment, req.paramas.palletList );
 
         const pallet = pallets.id( palletId );
 

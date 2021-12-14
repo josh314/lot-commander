@@ -162,6 +162,20 @@ function routes({ eventsDb, inventoryCommander }) {
     auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' ),
     closeIncomingShipment
   );
+
+  // Consolidated pallets 
+  router.post(
+    '/:shipmentId/pallets-consolidated', 
+    auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
+    addIncomingShipmentPalletConsolidated
+  );
+  router.delete(
+    '/:shipmentId/pallets-consolidated/:palletId',
+    auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
+    removeIncomingShipmentPalletConsolidated
+  );
+
+  
   
   /*******************************************
    * Define Handlers
@@ -644,7 +658,63 @@ function routes({ eventsDb, inventoryCommander }) {
       const shipmentId = req.params.shipmentId;
       const palletId = req.params.palletId;
 
-      const { shipment, pallet } = await inventoryCommander.deleteIncomingShipmentReceivedPallet( shipmentId, palletId );
+      const { shipment, pallet } = await inventoryCommander.deleteIncomingShipmentPalletReceived( shipmentId, palletId );
+
+ 
+      if( shipment && pallet ) {
+
+        eventsDb.deleteInventoryPallet( {
+          user: req.user,
+          palletId: pallet._id,
+          shipmentId: shipment._id
+        } );
+
+      }
+
+      res.json( { success: true } );
+    }
+    catch(e) {
+      return next(e);
+    }
+  }
+
+  // Consolidated pallets
+
+  async function addIncomingShipmentPalletConsolidated( req, res, next ) {
+
+    try {
+
+      const shipmentId = req.params.shipmentId;
+      const palletData = req.body;
+
+      const { shipment, pallet } = await inventoryCommander.addIncomingShipmentPalletConsolidated( shipmentId, palletData );
+
+      if( shipment && pallet ) {
+
+        eventsDb.createInventoryPallet( {
+          user: req.user,
+          palletId: pallet._id,
+          shipmentId: shipment._id
+        } );
+        
+      }
+
+      res.json( { success: true } );
+    }
+    catch(e) {
+      return next(e);
+    }
+    
+  }
+
+  async function removeIncomingShipmentPalletConsolidated( req, res, next ) {
+
+    try {
+
+      const shipmentId = req.params.shipmentId;
+      const palletId = req.params.palletId;
+
+      const { shipment, pallet } = await inventoryCommander.deleteIncomingShipmentPalletConsolidated( shipmentId, palletId );
 
  
       if( shipment && pallet ) {

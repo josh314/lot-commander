@@ -51,6 +51,9 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
     vm.unreceivePallet = unreceivePallet;
     vm.receiveAnonymousPallet = receiveAnonymousPallet;
 
+    vm.newConsolidatedPallet = newConsolidatedPallet;
+    vm.removeConsolidatedPallet = removeConsolidatedPallet;
+
     vm.closeShipment = closeShipment;
     vm.reopenShipment = reopenShipment;
 
@@ -337,13 +340,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
       }
     }
 
-    function unreceivePallet( idx ) {
-
-      const pallet = vm.shipment.palletsReceived[idx];
-
-      if( !pallet ) {
-        return;
-      }
+    function unreceivePallet( pallet ) {
 
       return vm.shipment.unreceivePallet( pallet._id ).then( _response => {
         return loadShipment();
@@ -377,6 +374,37 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
       });
 
     }
+
+
+    /*******************************************************
+     * Consolidation
+     * =============
+     *
+     *******/
+
+    function newConsolidatedPallet() {
+
+      const palletNumber = vm.shipment.palletsConsolidated.length + 1;
+
+      const _data = {
+        handle: `${ vm.shipment.handle }__con${ palletNumber }`,
+        category: vm.shipment.category
+      };
+
+      return vm.shipment.addConsolidatedPallet( _data ).then( _response => {
+        return loadShipment();
+      } );
+
+    }
+
+    function removeConsolidatedPallet( pallet ) {
+
+      return vm.shipment.removeConsolidatedPallet( pallet._id ).then( _response => {
+        return loadShipment();
+      });
+
+    }
+
 
     /*******************************************************
      * Labels
@@ -424,12 +452,13 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
      *******/
 
     function loadShipment() {
-      return ShipmentManagerSvc.loadShipment( { populate: [ 'pallets_received' ] } ).then( shipment => {
+      return ShipmentManagerSvc.loadShipment( { populate: [ 'pallets_received', 'pallets_consolidated' ] } ).then( shipment => {
 
         Object.assign(vm.shipment, shipment);
 
         vm.shipment.palletsReceived = shipment.palletsReceived.map( p => DisplayPalletFactory( shipment, 'received', p ) );
         vm.shipment.palletsExpected = shipment.palletsExpected.map( p => DisplayPalletFactory( shipment, 'expected', p ) );
+        vm.shipment.palletsConsolidated = shipment.palletsConsolidated.map( p => DisplayPalletFactory( shipment, 'consolidated', p ) );
 
       });
     }
@@ -453,6 +482,7 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
     const saveFn = {
       expected: _shipment => _shipment.editExpectedPallet.bind( _shipment ),
       received: _shipment => _shipment.editReceivedPallet.bind( _shipment ),
+      consolidated: _shipment => _shipment.editConsolidatedPallet.bind( _shipment ),
     };
 
     const editFields = {
@@ -466,6 +496,12 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
         'hasProblem',
         'note'
       ],
+      consolidated: [
+        'handle',
+        'units',
+        'hasProblem',
+        'note'
+      ]
     };
 
     function DisplayPallet( _shipment, _type, _data ) {
@@ -474,7 +510,7 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
 
       const pallet = Object.assign( _data, { shipment: _shipment } );
 
-      if( _type === 'received' ) {
+      if( _type === 'received' || _type === 'consolidated' ) {
         pallet.showNote = false;
         pallet.toggleShowNote = function() { this.showNote = !this.showNote; };
       }
