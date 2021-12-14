@@ -43,8 +43,8 @@ const queryParams = ( params ) => {
 //
 // This service provides some utility functionality to the pallets API and UI
 //
-angular.module('myApp').service('InventoryPalletManagerSvc', [ '$q', '$stateParams', 'InventoryPalletFactory', 'InventoryPalletListColumns',
-  function( $q, $stateParams, InventoryPalletFactory, InventoryPalletListColumns ) {
+angular.module('myApp').service('InventoryPalletManagerSvc', [ '$q', '$stateParams', 'InventoryPallet', 'InventoryPalletListColumns',
+  function( $q, $stateParams, InventoryPallet, InventoryPalletListColumns ) {
 
     const _palletId = () =>  $stateParams.palletId;
 
@@ -68,7 +68,7 @@ angular.module('myApp').service('InventoryPalletManagerSvc', [ '$q', '$statePara
             return [];
           }
 
-          return pallets.map( data => InventoryPalletFactory( data ) );
+          return pallets.map( data => new InventoryPallet( data ) );
 
         });
       },
@@ -82,34 +82,42 @@ angular.module('myApp').service('InventoryPalletManagerSvc', [ '$q', '$statePara
   }
 ]);
 
-angular.module('myApp').factory('InventoryPalletFactory', [ '$q',
+angular.module('myApp').factory('InventoryPallet', [ '$q',
   function( $q ) {
     const datify = dString => dString ? new Date( dString ) : null;
 
-    function InventoryPallet( _data ) {
+    class InventoryPallet {
 
-      const pallet = Object.assign(
-        { showNote: false, isExpected: false },
-        _data,
-        [ 'brokendownDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
-      );
+      constructor( _data ) {
 
-      pallet.breakdown = isBrokendown => $q.when( api.breakdownInventoryPallet( pallet._id, isBrokendown ) ).then( resp => {
 
-        if( !resp || !resp.pallet ) return;
+        Object.assign( this,
+          { showNote: false, isExpected: false },
+          _data,
+          [ 'brokendownDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
+        );
 
-        pallet.isBrokendown = resp.pallet.isBrokendown;
-        pallet.brokendownDate = resp.pallet.brokendownDate && datify( resp.pallet.brokendownDate );
+        if( !this.cost && this.shipment && this.shipment.cost ) {
 
-      } );
+          this.cost = this.shipment.cost / this.shipment.palletsExpected.length;
 
-      if( !pallet.cost && pallet.shipment && pallet.shipment.cost ) {
-
-        pallet.cost = pallet.shipment.cost / pallet.shipment.palletsExpected.length;
+        }
 
       }
 
-      return pallet;
+      breakdown( isBrokendown ) {
+
+        return $q.when( api.breakdownInventoryPallet( this._id, isBrokendown ) ).then( resp => {
+
+          if( !resp || !resp.pallet ) return;
+
+          this.isBrokendown = resp.pallet.isBrokendown;
+          this.brokendownDate = resp.pallet.brokendownDate && datify( resp.pallet.brokendownDate );
+
+        } );
+
+      }
+
     }
 
     return InventoryPallet;

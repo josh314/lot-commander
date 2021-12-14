@@ -102,8 +102,8 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'S
 
 
 /******************* Constructor for Shipment Objects *************************/
-angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPalletFactory', 'UtilitiesSvc',
-  function( $q, InventoryPalletFactory, UtilitiesSvc ) {
+angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'UtilitiesSvc',
+  function( $q, InventoryPallet, UtilitiesSvc ) {
     const datify = dString => dString ? new Date( dString ) : null;
 
     const buildAnonymousPalletHandle = ( shipmentHandle , number ) => `${ shipmentHandle }_${ number }`; 
@@ -115,8 +115,8 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPalletFacto
         _data,
         [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {}),
         {
-          palletsReceived: _data.palletsReceived.map( _ => InventoryPalletFactory( _ ) ),
-          palletsConsolidated: _data.palletsConsolidated.map( _ => InventoryPalletFactory( _ ) )
+          palletsReceived: _data.palletsReceived.map( _ => new InventoryPallet( _ ) ),
+          palletsConsolidated: _data.palletsConsolidated.map( _ => new InventoryPallet( _ ) )
         }
       );
 
