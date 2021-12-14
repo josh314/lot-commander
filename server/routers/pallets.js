@@ -215,8 +215,23 @@ function routes({ eventsDb, inventoryCommander }) {
     try {
 
       const palletId = req.params.palletId;
+      const _pallet = await inventoryCommander.getInventoryPalletById( palletId );
 
-      const { pallet } = await inventoryCommander.deleteInventoryPallet( palletId );
+      let $promise;
+      if( _pallet.shipment ) {
+
+        $promise = _pallet.isReceived ?
+          inventoryCommander.deleteIncomingShipmentPalletReceived( _pallet.shipment, palletId ) :
+          inventoryCommander.deleteIncomingShipmentPalletConsolidated( _pallet.shipment, palletId );
+
+      }
+      else {
+
+        $promise = inventoryCommander.deleteInventoryPallet( palletId );
+
+      }
+
+      const { pallet } = await $promise;
 
       if( pallet ) {
         eventsDb.deleteInventoryPallet( { user: req.user, palletId: pallet._id } );
