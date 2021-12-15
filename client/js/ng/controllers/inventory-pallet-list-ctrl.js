@@ -4,8 +4,8 @@ const __PAGE_SIZE__ = 25;
 const __USER_SETTINGS_SUBKEY__ = 'inventory-pallet-list-page';
 
 /******************* Pallets List Page Controller *************************/
-angular.module('myApp').controller('InventoryPalletListCtrl', [ 'LoggedInUser', 'navigate', 'palletCategories', 'sessionTimeout', 'SettingsSvc', 'InventoryPalletManagerSvc',
-  function( LoggedInUser, navigate, palletCategories, sessionTimeout, SettingsSvc, InventoryPalletManagerSvc ) {
+angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPalletManagerSvc', 'LoggedInUser', 'navigate', 'palletCategories', 'sessionTimeout', 'SettingsSvc',
+  function( InventoryPalletManagerSvc, LoggedInUser, navigate, palletCategories, sessionTimeout, SettingsSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;

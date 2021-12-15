@@ -619,6 +619,15 @@ export function breakdownInventoryPallet( palletId, isBrokendown = true ) {
   })
     .then( resp => resp.data );
 }
+export function deleteInventoryPallet( palletId ) {
+  return axios({
+    method: 'delete',
+    url: `/api/pallets/${ palletId }`
+  })
+    .then( resp => resp.data );
+}
+
+
 
 
 /*************************************************

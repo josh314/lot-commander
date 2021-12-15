@@ -18,7 +18,7 @@ angular.module('myApp').factory( 'UtilitiesSvc', [ function( ) {
 
   }
 
-  function prettifyDate (dt) { return dt && dt.toLocaleDateString(); }
+  function prettifyDate (dt) { return dt && dt.toLocaleDateString ? dt.toLocaleDateString() : dt; }
 
 
   const currencyFormatter = new Intl.NumberFormat('en-US', {

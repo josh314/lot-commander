@@ -43,8 +43,8 @@ const queryParams = ( params ) => {
 //
 // This service provides some utility functionality to the pallets API and UI
 //
-angular.module('myApp').service('InventoryPalletManagerSvc', [ '$q', '$stateParams', 'InventoryPallet', 'InventoryPalletListColumns',
-  function( $q, $stateParams, InventoryPallet, InventoryPalletListColumns ) {
+angular.module('myApp').service('InventoryPalletManagerSvc', [ '$q', '$stateParams', 'InventoryPallet', 'InventoryPalletDetailsModalSvc', 'InventoryPalletListColumns',
+  function( $q, $stateParams, InventoryPallet, InventoryPalletDetailsModalSvc, InventoryPalletListColumns ) {
 
     const _palletId = () =>  $stateParams.palletId;
 
@@ -78,12 +78,14 @@ angular.module('myApp').service('InventoryPalletManagerSvc', [ '$q', '$statePara
       create: pallets => $q.when( api.createInventoryPallets( pallets ) ),
 
       getListColumns: () => InventoryPalletListColumns(),
+
+      details: pallet => InventoryPalletDetailsModalSvc.launch( pallet ),
     };
   }
 ]);
 
-angular.module('myApp').factory('InventoryPallet', [ '$q',
-  function( $q ) {
+angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetailsModalSvc',
+  function( $q, InventoryPalletDetailsModalSvc ) {
     const datify = dString => dString ? new Date( dString ) : null;
 
     class InventoryPallet {
@@ -116,6 +118,58 @@ angular.module('myApp').factory('InventoryPallet', [ '$q',
 
         } );
 
+      }
+
+      delete( ) {
+
+        return $q.when( api.deleteInventoryPallet( this._id ) ).then( resp => {
+
+          if( !resp || !resp.pallet ) return;
+
+          this.isDeleted = resp.pallet.isDeleted;
+          this.deletedDate = resp.pallet.deletedDate && datify( resp.pallet.deletedDate );
+
+        } );
+
+      }
+
+      edit( _data ) {
+
+        const editFields = [
+          'handle',
+          'category',
+          'units',
+          'cost',
+          'hasProblem',
+          'note',
+          'shipment'
+        ];
+
+        const editDoc = {};
+
+        for( let f of editFields ) {
+          editDoc[ f ] = _data[ f ];
+        }
+
+        return $q.when( api.editInventoryPallet( this._id, editDoc ) ).then( resp => {
+
+          if( !resp || !resp.pallet ) return;
+
+          for( let [ modifiedField, newValue ] of Object.entries( editDoc ) ) {
+            this[ modifiedField ] = newValue;
+          }
+
+          return this;
+        } );
+
+      }
+
+      save() {
+        return $q.when( api.editInventoryPallet( this._id, this ) );
+      }
+
+      detailsModal() {
+        InventoryPalletDetailsModalSvc.launch( this );
       }
 
     }
@@ -202,3 +256,61 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
 
 }]);
 
+angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal', function( $uibModal ) {
+
+  return {
+    launch: launch,
+  };
+
+  function launch( pallet ) {
+
+    const modalInstance = $uibModal.open({
+      templateUrl: '/partials/modals/_inventory_pallet_details_modal.html',
+      size: 'lg',
+      backdrop: 'static',
+
+      resolve: {
+        pallet: function () {
+          return pallet;
+        }
+      },
+
+      controller: [ '$scope', 'LoggedInUser', 'pallet', 'palletCategories', function( $scope, LoggedInUser, pallet, palletCategories ){
+
+        const vm = this;
+        vm.inputs = Object.assign( { isBrokendown: false, hasProblem: false }, pallet );
+        vm.categoryOptions = [ "" ].concat( palletCategories );
+        vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+        vm.showBrokendownDate = pallet.isBrokendown;
+
+        vm.save = () => {
+
+          let newBrokendownStatus = null;
+          if( pallet.isBrokendown !== vm.inputs.isBrokendown ) {
+            newBrokendownStatus = vm.inputs.isBrokendown;
+            delete vm.inputs.isBrokendown;
+          }
+
+          Object.assign( pallet, vm.inputs );
+
+          pallet.save().then( _ => {
+
+            if( newBrokendownStatus !== null ) {
+              return pallet.breakdown( newBrokendownStatus );
+            }
+
+          })
+            .then( _ => $scope.$close() );
+        };
+
+      }],
+      controllerAs: '$ctrl'
+
+    });
+
+
+    return modalInstance.result.then(function(){}, function(){});
+  }
+
+
+}] );

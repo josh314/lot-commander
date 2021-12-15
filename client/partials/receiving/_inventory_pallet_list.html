@@ -75,6 +75,7 @@
           </span>
           <span ng-show="columnData.noSort">{{columnData.displayName}}</span>
         </th>
+        <th><!-- View/Edit button column --></th>
       </tr></thead>
   
       <tbody>
@@ -97,6 +98,10 @@
             </span>
             <span ng-switch-default>{{ columnData.transform ? columnData.transform( pallet[ columnKey ] ) : pallet[ columnKey ] }}</span>
           </td>
+          <td>
+            <button class="btn btn-xs btn-success" ng-click="pallet.detailsModal()">View/Edit</button>
+          </td>
+          <td>
         </tr>
       </tbody>
   

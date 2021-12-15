@@ -1,0 +1,59 @@
+<div class="modal-header">
+	<h3 class="modal-title">Pallet Details</h3>
+</div>
+<div class="modal-body">
+	<div class="row">
+    <div class="form-group col-xs-12 col-sm-6">
+      <label for="handleInput">Handle</label>
+      <input class="form-control" type="text" id="handleInput" ng-model="$ctrl.inputs.handle">
+    </div>
+    <div class="form-group col-xs-12 col-sm-6">
+      <label for="shipmentInput">Shipment</label>
+      <input class="form-control" type="text" id="shipmentInput" ng-model="$ctrl.inputs.shipment.handle" disabled>
+    </div>
+    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showPurchasingData">
+      <label for="costInput">Cost</label>
+      <input class="form-control" type="number" id="costInput" ng-model="$ctrl.inputs.cost">
+    </div>
+    <div class="form-group col-xs-12 col-sm-6" >
+      <label for="unitsInput">Units</label>
+      <input class="form-control" type="number" id="unitsInput" ng-model="$ctrl.inputs.units">
+    </div>
+    <div class="form-group col-xs-12 col-sm-6">
+      <label for="categoryInput">Category</label>
+      <select class="form-control" id="categoryInput" ng-model="$ctrl.inputs.category">
+        <option ng-repeat="option in $ctrl.categoryOptions">{{ option }}</option>
+      </select>
+    </div>
+    <div class="form-group col-xs-12 col-sm-6">
+      <label for="hasProblemInput">Has problem?</label>
+      <select class="form-control" id="hasProblemInput" ng-model="$ctrl.inputs.hasProblem">
+        <option ng-value="true">yes</option>
+        <option ng-value="false">no</option>
+      </select>
+    </div>
+    <div class="form-group col-xs-12 col-sm-6">
+      <label for="createdAtInput">Created date</label>
+      <input class="form-control" type="date" id="createdAtInput" ng-model="$ctrl.inputs.createdAt" disabled>
+    </div>
+    <div class="form-group col-xs-12 col-sm-6">
+      <label for="isBrokendownInput">Broken down?</label>
+      <select class="form-control" id="isBrokendownInput" ng-model="$ctrl.inputs.isBrokendown">
+        <option ng-value="true">yes</option>
+        <option ng-value="false">no</option>
+      </select>
+    </div>
+    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showBrokendownDate">
+      <label for="isBrokendownInput">Breakdown date</label>
+      <input class="form-control" type="date" id="brokendownDateInput" ng-model="$ctrl.inputs.brokendownDate" disabled>
+    </div>
+    <div class="form-group col-xs-12">
+      <label for="noteInput">Note</label>
+      <textarea class="form-control" rows=2 id="noteInput" ng-model="$ctrl.inputs.note"></textarea>
+    </div>
+	</div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="$ctrl.save()">Save</button>
+    <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+</div>
