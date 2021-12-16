@@ -133,7 +133,7 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
 
       }
 
-      edit( _data ) {
+      _generateEditDocument( _data ) {
 
         const editFields = [
           'handle',
@@ -141,8 +141,7 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
           'units',
           'cost',
           'hasProblem',
-          'note',
-          'shipment'
+          'note'
         ];
 
         const editDoc = {};
@@ -150,6 +149,13 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
         for( let f of editFields ) {
           editDoc[ f ] = _data[ f ];
         }
+
+        return editDoc;
+      }
+
+      edit( _data ) {
+
+        const editDoc = this._generateEditDocument( _data );
 
         return $q.when( api.editInventoryPallet( this._id, editDoc ) ).then( resp => {
 
@@ -165,7 +171,11 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
       }
 
       save() {
-        return $q.when( api.editInventoryPallet( this._id, this ) );
+
+        const editDoc = this._generateEditDocument( this );
+
+        return $q.when( api.editInventoryPallet( this._id, editDoc ) );
+
       }
 
       detailsModal() {
@@ -291,16 +301,16 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
             delete vm.inputs.isBrokendown;
           }
 
-          Object.assign( pallet, vm.inputs );
+          const isChanged = Object.keys( _key => vm.inputs[ _key ] !== pallet[ _key ] );
+          if( isChanged ) {
+            Object.assign( pallet, vm.inputs );
+          }
 
-          pallet.save().then( _ => {
+          const breakdownPromise = newBrokendownStatus !== null ? pallet.breakdown( newBrokendownStatus ) : Promise.resolve( null );
+          const savePromise = isChanged ? pallet.save() : Promise.resolve( null );
 
-            if( newBrokendownStatus !== null ) {
-              return pallet.breakdown( newBrokendownStatus );
-            }
+          Promise.allSettled( [ breakdownPromise, savePromise ] ).then( _ => $scope.$close() );
 
-          })
-            .then( _ => $scope.$close() );
         };
 
       }],

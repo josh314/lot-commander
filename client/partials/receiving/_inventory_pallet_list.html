@@ -75,12 +75,14 @@
           </span>
           <span ng-show="columnData.noSort">{{columnData.displayName}}</span>
         </th>
-        <th><!-- View/Edit button column --></th>
       </tr></thead>
   
       <tbody>
         <tr ng-repeat="pallet in $ctrl.pallets">
           <td ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable && columnData.active" ng-switch="columnKey">
+            <span ng-switch-when="handle">
+              <a href ng-click="pallet.detailsModal()">{{pallet.handle}}</a>
+            </span>
             <span ng-switch-when="shipment">
               <a ng-href="/receiving/shipments/{{pallet.shipment._id}}">{{ pallet.shipment.handle }}</a>
             </span>
@@ -97,9 +99,6 @@
               </button>
             </span>
             <span ng-switch-default>{{ columnData.transform ? columnData.transform( pallet[ columnKey ] ) : pallet[ columnKey ] }}</span>
-          </td>
-          <td>
-            <button class="btn btn-xs btn-success" ng-click="pallet.detailsModal()">View/Edit</button>
           </td>
           <td>
         </tr>
