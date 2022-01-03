@@ -603,6 +603,13 @@ export function createInventoryPallets( pallets ) {
   })
     .then( resp => resp.data );
 }
+export function aggregateInventoryPallets() {
+  return axios({
+    method: 'get',
+    url: `/api/pallets/aggregate/`,
+  })
+    .then( resp => resp.data.pallets );
+}
 export function editInventoryPallet( palletId, _data ) {
   return axios({
     method: 'patch',

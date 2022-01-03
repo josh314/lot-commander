@@ -78,6 +78,12 @@ function routes({ eventsDb, inventoryCommander }) {
     countInventoryPallets
   );
   router.get(
+    '/aggregate',
+    auth.isAuthorized( 'VIEW_INVENTORY_PALLET' ),
+    resolveShipmentIds,
+    aggregateInventoryPallets
+  );
+  router.get(
     '/:palletId',
     auth.isAuthorized( 'VIEW_INVENTORY_PALLET' ),
     getInventoryPalletById
@@ -167,6 +173,19 @@ function routes({ eventsDb, inventoryCommander }) {
 
     res.json({ count: count });
     
+  }
+
+  async function aggregateInventoryPallets( req, res, _next ) {
+
+    const options = {};
+
+    if( req.query.date ) {
+      options.date = new Date( req.query.date );
+    }
+
+    const inventory = await inventoryCommander.aggregateInventoryPallets( options );
+
+    res.json( { pallets: inventory } );
   }
 
   async function createInventoryPallets( req, res, next  ) {
