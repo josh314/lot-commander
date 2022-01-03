@@ -2,6 +2,10 @@ import angular from 'angular';
 
 const __PAGE_SIZE__ = 25;
 const __USER_SETTINGS_SUBKEY__ = 'inventory-pallet-list-page';
+const __DISPLAY_MODE_LIST__ = '__DISPLAY_MODE_LIST__';
+const __DISPLAY_MODE_AGGREGATE__ = '__DISPLAY_MODE_AGGREGATE__';
+
+
 
 /******************* Pallets List Page Controller *************************/
 angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPalletManagerSvc', 'LoggedInUser', 'navigate', 'palletCategories', 'sessionTimeout', 'SettingsSvc',
@@ -9,6 +13,13 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
     sessionTimeout.timeoutExpired();
 
     const vm = this;
+    vm.displayModes = {
+      LIST: __DISPLAY_MODE_LIST__,
+      AGGREGATE: __DISPLAY_MODE_AGGREGATE__,
+    };
+    vm.displayModeActive = vm.displayModes.LIST;
+    vm.displayModeActiveIs = str => str === vm.displayModeActive;
+    vm.setDisplayModeActive = str => (vm.displayModeActive = str) && refreshPalletsData();
 
     // Permissions
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
@@ -19,7 +30,8 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
       status: 'not brokendown'
     };
     vm.categoryOptions = [ "" ].concat( palletCategories );
-    vm.pallets = [];
+    vm.palletsList = [];
+    vm.palletsAggregation = [];
     vm.sortOpts = {
       key: 'createdAt',
       ascending: true
@@ -39,13 +51,22 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
     vm.toggleShowColumnOptions = () => vm.showColumnOptions = !vm.showColumnOptions;
     vm.toggleColumnActive = toggleColumnActive;
     vm.sortListBy = sortListBy;
-    vm.refreshPalletsList = refreshPalletsList;
+    vm.refreshPalletsData = refreshPalletsData;
 
     vm.createPallet = () => navigate.inventoryPalletCreation();
 
     function init() {
       loadUserSettings();
-      refreshPalletsList();
+      refreshPalletsData();
+    }
+
+    function refreshPalletsData() {
+      if( vm.displayModeActive === __DISPLAY_MODE_LIST__ ) {
+        refreshPalletsList();
+      }
+      else if ( vm.displayModeActive === __DISPLAY_MODE_AGGREGATE__ ) {
+        refreshPalletsAggregation();
+      }
     }
 
     function toggleColumnActive( columnKey ) {
@@ -97,9 +118,17 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
             p.toggleShowNote = () => p.showNote = !p.showNote;
           });
 
-          vm.pallets = pallets;
+          vm.palletsList = pallets;
         });
 
+      });
+
+    }
+
+    function refreshPalletsAggregation() {
+
+      return InventoryPalletManagerSvc.aggregate(  ).then( pallets => {
+        vm.palletsAggregation = pallets;
       });
 
     }

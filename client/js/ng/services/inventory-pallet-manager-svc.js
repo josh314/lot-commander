@@ -75,6 +75,8 @@ angular.module('myApp').service('InventoryPalletManagerSvc', [ '$q', '$statePara
 
       count: filter => $q.when( api.countInventoryPallets( queryParams( filter ) ) ),
 
+      aggregate: () => $q.when( api.aggregateInventoryPallets( ) ),
+
       create: pallets => $q.when( api.createInventoryPallets( pallets ) ),
 
       getListColumns: () => InventoryPalletListColumns(),
