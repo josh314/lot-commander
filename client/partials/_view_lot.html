@@ -122,7 +122,7 @@
   </div>
 
 
-  <div class="add-image-widget">
+  <div class="well-tabs">
     <h4>Add an image (use any option below)</h4>
 
 
@@ -131,7 +131,7 @@
       <li role="presentation" ng-class="{ active: addLotImageMethodIs( 'url' ) }" ng-click="setAddLotImageMethod( 'url' )"><a> URL submission </a></li>
       <li role="presentation" ng-class="{ active: addLotImageMethodIs( 'clone' ) }" ng-click="setAddLotImageMethod( 'clone' )"><a> Clone Recent </a></li>
     </ul>
-    <div class="well add-image-widget__content">
+    <div class="well well-tabs__content">
 
       <div ng-show="addLotImageMethodIs( 'file' )">
           <div class="form-group">
