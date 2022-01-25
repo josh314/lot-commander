@@ -583,11 +583,21 @@ class InventoryCommander {
       throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
     }
 
+    // search for an expected pallet in this shipment with matching handle to the one being received
+    const correspondingPalletExpected = shipment.getPalletExpectedByHandle( _palletData.handle );
+
     const basePalletObject = {
       isReceived: true,
       shipment: shipment._id,
-      category: shipment.category
     };
+
+    // use corresponding expected pallet's category or shipment's category
+    if( correspondingPalletExpected && correspondingPalletExpected.category ) {
+      basePalletObject.category = correspondingPalletExpected.category;
+    }
+    else if ( shipment.category ) {
+      basePalletObject.category = shipment.category;
+    }
 
     const palletData = Object.assign(
       basePalletObject,
