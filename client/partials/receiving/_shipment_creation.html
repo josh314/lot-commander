@@ -81,9 +81,9 @@
         <span class="text-danger h4" ng-show="$ctrl.validator.invalidSource">No source submitted.</span>
       </div>
       <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $ctrl.validator.invalidCategory }">
-        <label for="categoryInput">Category</label>
+        <label for="categoryInput">Shipment-level Category</label>
         <select class="form-control" id="categoryInput" ng-model="$ctrl.inputs.category" ng-change="$ctrl.setPalletCategories()">
-          <option ng-repeat="cat in $ctrl.inputs.categoryOptions">{{cat}}</option>
+          <option ng-repeat="cat in $ctrl.inputs.categoryOptions" ng-value="cat.value">{{cat.displayName}}</option>
         </select>
         <span class="text-danger h4" ng-show="$ctrl.validator.invalidCategory">No category submitted.</span>
       </div>
@@ -103,8 +103,8 @@
             <td ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidHandle }"><input class="form-control" ng-model="pallet.handle"/></td>
             <td><input class="form-control" type="number" min="0" ng-model="pallet.units" ng-disabled="$ctrl.inputs.totalUnits"/></td>
             <td>
-              <select class="form-control" ng-model="pallet.category" ng-disabled="$ctrl.inputs.category">
-                <option ng-repeat="cat in $ctrl.inputs.categoryOptions">{{cat}}</option>
+              <select class="form-control" ng-model="pallet.category" ng-change="$ctrl.clearShipmentCategory()">
+                <option ng-repeat="cat in $ctrl.inputs.categoryOptions" ng-value="cat.value">{{cat.displayName}}</option>
               </select>
             </td>
             <td class="text-center" style="vertical-align: middle;"><button type="submit" class="btn btn-danger btn-xs" ng-click="$ctrl.removePallet($index)"><span class="glyphicon glyphicon-remove"></span></button></td>

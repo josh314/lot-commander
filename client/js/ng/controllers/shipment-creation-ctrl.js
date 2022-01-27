@@ -30,7 +30,8 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
 
     const vm = this;
     vm.inputs = {
-      categoryOptions: [ "" ].concat( palletCategories ),
+      categoryOptions: [ { displayName: "none", value: null } ].concat( palletCategories.map( _ => ( { displayName: _, value: _ } ) ) ),
+      category: null,
       documentToAdd: initDocumentToAdd(),
       documents: [],
       pallets: [],
@@ -42,7 +43,12 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
     vm.addDocument = addDocument;
     vm.removeDocument = removeDocument;
     vm.hasManifest = hasManifest;
-    vm.setPalletCategories = ( ) => vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
+    vm.clearShipmentCategory = ( ) => vm.inputs.category = null;
+    vm.setPalletCategories = ( ) => {
+      if( vm.inputs.category ) {
+        vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
+      }
+    };
     vm.clearPalletUnits = ( ) => vm.inputs.pallets.forEach( p => delete p.units );
     vm.addPallet = () => addPallet({ category: vm.inputs.category });
     vm.removePallet = removePallet;
