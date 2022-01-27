@@ -589,6 +589,7 @@ class InventoryCommander {
     const basePalletObject = {
       isReceived: true,
       shipment: shipment._id,
+      isAnonymous: correspondingPalletExpected ? correspondingPalletExpected.isAnonymous : false,
     };
 
     // use corresponding expected pallet's category or shipment's category
