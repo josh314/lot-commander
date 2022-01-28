@@ -7,6 +7,7 @@ const incomingShipmentSchema = mongoose.Schema({
   transportationCost: Number,
   source: String,
   category: String,
+  condition: String,
   totalUnits: Number,
   carrier: String,
   arrivalDateExpected: Date,
@@ -16,6 +17,7 @@ const incomingShipmentSchema = mongoose.Schema({
     handle: String,
     units: Number,
     category: String,
+    condition: String,
     isAnonymous: Boolean
   } ],
   palletsReceived: [ {
@@ -58,6 +60,12 @@ incomingShipmentSchema.pre( 'save', function(next) {
   if( this.category ) { // set pallet categories from shipment-level category
 
     this.palletsExpected.forEach( p => p.category = this.category );
+
+  }
+
+  if( this.condition ) { // set pallet conditions from shipment-level condition
+
+    this.palletsExpected.forEach( p => p.condition = this.condition );
 
   }
 

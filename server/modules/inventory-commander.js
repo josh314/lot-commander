@@ -165,7 +165,7 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
   return filter;
 };
 
-const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, hasProblem, shipment, category } ) => {
+const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, hasProblem, shipment, category, condition } ) => {
   const filter = {
     isDeleted: false,
   };
@@ -196,6 +196,10 @@ const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, has
 
   if( category ) {
     filter.category = category;
+  }
+
+  if( condition ) {
+    filter.condition = condition;
   }
 
   return filter;
@@ -401,13 +405,24 @@ class InventoryCommander {
 
       await shipment.edit( editDocument );
 
-      // if a category change, propagate to the pallets
+      // if a category change (besides the removal of category), propagate to the pallets
       if( editDocument.category ) {
 
         const palletsToUpdate = shipment.palletsReceived.concat( shipment.palletsConsolidated );
 
         for( let palletId of palletsToUpdate ) {
           await this.editInventoryPallet( palletId, { category: editDocument.category } );
+        }
+
+      }
+
+      // if a condition change (besides the removal of condition), propagate to the pallets
+      if( editDocument.condition ) {
+
+        const palletsToUpdate = shipment.palletsReceived.concat( shipment.palletsConsolidated );
+
+        for( let palletId of palletsToUpdate ) {
+          await this.editInventoryPallet( palletId, { condition: editDocument.condition } );
         }
 
       }
@@ -600,6 +615,14 @@ class InventoryCommander {
       basePalletObject.category = shipment.category;
     }
 
+    // use corresponding expected pallet's condition or shipment's condition
+    if( correspondingPalletExpected && correspondingPalletExpected.condition ) {
+      basePalletObject.condition = correspondingPalletExpected.condition;
+    }
+    else if ( shipment.condition ) {
+      basePalletObject.condition = shipment.condition;
+    }
+
     const palletData = Object.assign(
       basePalletObject,
       _palletData
@@ -646,7 +669,8 @@ class InventoryCommander {
     const basePalletObject = {
       isReceived: false,
       shipment: shipment._id,
-      category: shipment.category
+      category: shipment.category,
+      condition: shipment.condition,
     };
 
     const palletData = Object.assign(

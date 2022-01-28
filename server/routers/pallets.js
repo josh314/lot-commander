@@ -44,7 +44,10 @@ const listPalletsFilterParamsFromQueryParams = ( qp ) => {
     fp.category = qp.category;
   }
 
-  // TODO: category
+  if( qp.condition ) {
+    fp.condition = qp.condition;
+  }
+
   return fp;
 };
 

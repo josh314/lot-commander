@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const inventoryPalletSchema = mongoose.Schema({
   handle: String,
   category: String,
+  condition: String,
   cost: Number,
   units: Number,
   hasProblem: Boolean,
