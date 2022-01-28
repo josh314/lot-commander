@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'focus', 'LoggedInUser', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
-  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, focus, LoggedInUser, ManifestFileHandlerSvc, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
+angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'focus', 'InventoryPalletDetailsModalSvc', 'LoggedInUser', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
+  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, focus, InventoryPalletDetailsModalSvc, LoggedInUser, ManifestFileHandlerSvc, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
 
     /****************************************************
      * View variables
@@ -388,12 +388,25 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
       const _data = {
         handle: `${ vm.shipment.handle }__con${ palletNumber }`,
-        category: vm.shipment.category
+        isAnonymous: false,
+        category: vm.shipment.category,
+        shipment: vm.shipment,
       };
 
-      return vm.shipment.addConsolidatedPallet( _data ).then( _response => {
-        return loadShipment();
-      } );
+      InventoryPalletDetailsModalSvc.launch( _data ).then(result => {
+
+        const pallet = Object.assign( {}, result );
+        delete pallet.shipment;
+
+        if( pallet.isBrokendown ) {
+          pallet.brokendownDate = new Date();
+        }
+
+        return vm.shipment.addConsolidatedPallet( pallet ).then( _response => {
+          return loadShipment();
+        } );
+      });
+
 
     }
 

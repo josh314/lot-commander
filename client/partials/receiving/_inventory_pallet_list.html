@@ -89,7 +89,7 @@
           <tr ng-repeat="pallet in $ctrl.palletsList">
             <td ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable && columnData.active" ng-switch="columnKey">
               <span ng-switch-when="handle">
-                <a href ng-click="pallet.detailsModal()">{{pallet.handle}}</a>
+                <a href ng-click="$ctrl.showPalletDetails( pallet )">{{pallet.handle}}</a>
               </span>
               <span ng-switch-when="shipment">
                 <a ng-href="/receiving/shipments/{{pallet.shipment._id}}">{{ pallet.shipment.handle }}</a>

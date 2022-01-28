@@ -52,6 +52,7 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
     vm.toggleColumnActive = toggleColumnActive;
     vm.sortListBy = sortListBy;
     vm.refreshPalletsData = refreshPalletsData;
+    vm.showPalletDetails = showPalletDetails;
 
     vm.createPallet = () => navigate.inventoryPalletCreation();
 
@@ -170,6 +171,10 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
         userSettings ? Object.assign( userSettings, { activeColumns: activeColumns } ) : { activeColumns: activeColumns }
       );
 
+    }
+
+    function showPalletDetails( pallet ) {
+      pallet.detailsModal().then( refreshPalletsList );
     }
 
     // Initialize the page

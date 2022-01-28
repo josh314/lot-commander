@@ -7,7 +7,7 @@
       <label for="handleInput">Handle</label>
       <input class="form-control" type="text" id="handleInput" ng-model="$ctrl.inputs.handle">
     </div>
-    <div class="form-group col-xs-12 col-sm-6">
+    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showShipment">
       <label for="shipmentInput">Shipment</label>
       <input class="form-control" type="text" id="shipmentInput" ng-model="$ctrl.inputs.shipment.handle" disabled>
     </div>
@@ -38,7 +38,7 @@
         <option ng-value="false">no</option>
       </select>
     </div>
-    <div class="form-group col-xs-12 col-sm-6">
+    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showCreatedAtDate">
       <label for="createdAtInput">Created date</label>
       <input class="form-control" type="date" id="createdAtInput" ng-model="$ctrl.inputs.createdAt" disabled>
     </div>
@@ -60,6 +60,6 @@
 	</div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="$ctrl.save()">Save</button>
+    <button class="btn btn-primary" type="button" ng-click="$ctrl.finish()">Save</button>
     <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
 </div>

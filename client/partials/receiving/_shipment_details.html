@@ -430,6 +430,7 @@
 
         <thead><tr>
           <th>Handle</th>
+          <th>Category</th>
           <th>Problem?</th>
           <th>Brokendown?</th>
           <th>Note</th>
@@ -440,6 +441,9 @@
           <tr ng-repeat="pallet in $ctrl.shipment.palletsConsolidated track by $index">
             <td>
               <span><a href ng-click="pallet.detailsModal()">{{pallet.handle}}</a></span>
+            </td>
+            <td>
+              {{ pallet.category }}
             </td>
             <td>
               <span class="glyphicon glyphicon-alert" ng-show="pallet.hasProblem"></span>

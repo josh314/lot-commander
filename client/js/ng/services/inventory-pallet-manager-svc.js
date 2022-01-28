@@ -176,12 +176,38 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
 
         const editDoc = this._generateEditDocument( this );
 
-        return $q.when( api.editInventoryPallet( this._id, editDoc ) );
+        if( this._id ) {
+          return $q.when( api.editInventoryPallet( this._id, editDoc ) );
+        }
+        else {
+          return $q.when( api.createInventoryPallets( [ editDoc ] ) );
+        }
 
       }
 
       detailsModal() {
-        InventoryPalletDetailsModalSvc.launch( this );
+
+        return InventoryPalletDetailsModalSvc.launch( this ).then( details => {
+
+          let newBrokendownStatus = null;
+          if( this.isBrokendown !== details.isBrokendown ) {
+            newBrokendownStatus = details.isBrokendown;
+            delete details.isBrokendown;
+          }
+
+
+          const isChanged = Object.keys( _key => details[ _key ] !== this[ _key ] );
+          if( isChanged ) {
+            Object.assign( this, details );
+          }
+
+          const breakdownPromise = newBrokendownStatus !== null ? this.breakdown( newBrokendownStatus ) : Promise.resolve( null );
+          const savePromise = isChanged ? this.save() : Promise.resolve( null );
+
+          return Promise.allSettled( [ breakdownPromise, savePromise ] );
+
+        } );
+
       }
 
     }
@@ -294,25 +320,11 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         vm.categoryOptions = [ "" ].concat( palletCategories );
         vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
         vm.showBrokendownDate = pallet.isBrokendown;
+        vm.showCreatedAtDate = !!pallet.createdAt;
+        vm.showShipment = !!pallet.shipment;
 
-        vm.save = () => {
-
-          let newBrokendownStatus = null;
-          if( pallet.isBrokendown !== vm.inputs.isBrokendown ) {
-            newBrokendownStatus = vm.inputs.isBrokendown;
-            delete vm.inputs.isBrokendown;
-          }
-
-          const isChanged = Object.keys( _key => vm.inputs[ _key ] !== pallet[ _key ] );
-          if( isChanged ) {
-            Object.assign( pallet, vm.inputs );
-          }
-
-          const breakdownPromise = newBrokendownStatus !== null ? pallet.breakdown( newBrokendownStatus ) : Promise.resolve( null );
-          const savePromise = isChanged ? pallet.save() : Promise.resolve( null );
-
-          Promise.allSettled( [ breakdownPromise, savePromise ] ).then( _ => $scope.$close() );
-
+        vm.finish = () => {
+          return $scope.$close( vm.inputs );
         };
 
       }],
@@ -320,8 +332,7 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
 
     });
 
-
-    return modalInstance.result.then(function(){}, function(){});
+    return modalInstance.result;
   }
 
 
