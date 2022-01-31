@@ -8,8 +8,8 @@ const __DISPLAY_MODE_AGGREGATE__ = '__DISPLAY_MODE_AGGREGATE__';
 
 
 /******************* Pallets List Page Controller *************************/
-angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPalletManagerSvc', 'LoggedInUser', 'navigate', 'palletCategories', 'sessionTimeout', 'SettingsSvc',
-  function( InventoryPalletManagerSvc, LoggedInUser, navigate, palletCategories, sessionTimeout, SettingsSvc ) {
+angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPalletManagerSvc', 'LoggedInUser', 'navigate', 'palletProperties', 'sessionTimeout', 'SettingsSvc',
+  function( InventoryPalletManagerSvc, LoggedInUser, navigate, palletProperties, sessionTimeout, SettingsSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -29,7 +29,8 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
       populateShipment: true,
       status: 'not brokendown'
     };
-    vm.categoryOptions = [ "" ].concat( palletCategories );
+    vm.categoryOptions = [ "" ].concat( palletProperties.category );
+    vm.conditionOptions = [ "" ].concat( palletProperties.condition );
     vm.palletsList = [];
     vm.palletsAggregation = [];
     vm.sortOpts = {

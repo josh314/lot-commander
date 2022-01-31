@@ -75,19 +75,27 @@
 
     <fieldset class="col-xs-12 box-border">
       <legend class="box-border">Inventory</legend>
-      <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $ctrl.validator.invalidSource }">
+      <p>Note that shipment-level properties are inherited by each pallet.</p>
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.invalidSource }">
         <label for="sourceInput">Source</label>
         <input type="text" class="form-control" id="sourceInput" ng-model="$ctrl.inputs.source" autocomplete="off">
         <span class="text-danger h4" ng-show="$ctrl.validator.invalidSource">No source submitted.</span>
       </div>
-      <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $ctrl.validator.invalidCategory }">
-        <label for="categoryInput">Shipment-level Category</label>
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.invalidCategory }">
+        <label for="categoryInput">Shipment Category</label>
         <select class="form-control" id="categoryInput" ng-model="$ctrl.inputs.category" ng-change="$ctrl.setPalletCategories()">
           <option ng-repeat="cat in $ctrl.inputs.categoryOptions" ng-value="cat.value">{{cat.displayName}}</option>
         </select>
         <span class="text-danger h4" ng-show="$ctrl.validator.invalidCategory">No category submitted.</span>
       </div>
-      <div class="form-group col-xs-12 col-sm-4">
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.invalidCondition }">
+        <label for="conditionInput">Shipment Condition</label>
+        <select class="form-control" id="conditionInput" ng-model="$ctrl.inputs.condition" ng-change="$ctrl.setPalletConditions()">
+          <option ng-repeat="condition in $ctrl.inputs.conditionOptions" ng-value="condition.value">{{cat.displayName}}</option>
+        </select>
+        <span class="text-danger h4" ng-show="$ctrl.validator.invalidCondition">No condition submitted.</span>
+      </div>
+      <div class="form-group col-xs-12 col-sm-6">
         <label for="totalUnitsInput">Total Units</label>
         <input type="number" min="0" class="form-control" id="totalUnitsInput" ng-model="$ctrl.inputs.totalUnits" ng-change="$ctrl.clearPalletUnits()">
       </div>
@@ -96,6 +104,7 @@
           <th>Pallet ID</th>
           <th>Units</th>
           <th>Category</th>
+          <th>Condition</th>
           <th class="text-center">Remove</th>
         </tr></thead>
         <tbody>	
@@ -105,6 +114,11 @@
             <td>
               <select class="form-control" ng-model="pallet.category" ng-change="$ctrl.clearShipmentCategory()">
                 <option ng-repeat="cat in $ctrl.inputs.categoryOptions" ng-value="cat.value">{{cat.displayName}}</option>
+              </select>
+            </td>
+            <td>
+              <select class="form-control" ng-model="pallet.condition" ng-change="$ctrl.clearShipmentCondition()">
+                <option ng-repeat="condition in $ctrl.inputs.conditionOptions" ng-value="condition.value">{{condition.displayName}}</option>
               </select>
             </td>
             <td class="text-center" style="vertical-align: middle;"><button type="submit" class="btn btn-danger btn-xs" ng-click="$ctrl.removePallet($index)"><span class="glyphicon glyphicon-remove"></span></button></td>

@@ -17,6 +17,13 @@
         </select>
         <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].invalidCategory">No category submitted.</span>
       </div>
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidCondition }">
+        <label for="conditionInput-{{$index}}">Condition</label>
+        <select class="form-control" id="conditionInput-{{$index}}" ng-model="pallet.condition">
+          <option ng-repeat="cat in $ctrl.inputs.conditionOptions">{{cat}}</option>
+        </select>
+        <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].invalidCondition">No condition submitted.</span>
+      </div>
       <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidCost }">
         <label for="costInput-{{$index}}">Cost</label>
         <input type="number" class="form-control" id="costInput-{{$index}}" ng-model="pallet.cost" autocomplete="off" ng-change="pallet.cost && $ctrl.refreshValidator()">

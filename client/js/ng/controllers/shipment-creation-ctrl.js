@@ -24,14 +24,16 @@ class ShipmentValidator {
 }
 
 /******************* Shipment Creation Page Controller *************************/
-angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletCategories', 'PalletsFromManifestModalSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
-  function( FileModelSvc, ManifestFileHandlerSvc, messageModal, navigate, palletCategories, PalletsFromManifestModalSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
+angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletProperties', 'PalletsFromManifestModalSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
+  function( FileModelSvc, ManifestFileHandlerSvc, messageModal, navigate, palletProperties, PalletsFromManifestModalSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
     vm.inputs = {
-      categoryOptions: [ { displayName: "none", value: null } ].concat( palletCategories.map( _ => ( { displayName: _, value: _ } ) ) ),
+      categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
+      conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) ),
       category: null,
+      condition: null,
       documentToAdd: initDocumentToAdd(),
       documents: [],
       pallets: [],
@@ -49,8 +51,14 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
         vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
       }
     };
+    vm.clearShipmentCondition = ( ) => vm.inputs.condition = null;
+    vm.setPalletConditions = ( ) => {
+      if( vm.inputs.condition ) {
+        vm.inputs.pallets.forEach( p => p.condition = vm.inputs.condition );
+      }
+    };
     vm.clearPalletUnits = ( ) => vm.inputs.pallets.forEach( p => delete p.units );
-    vm.addPallet = () => addPallet({ category: vm.inputs.category });
+    vm.addPallet = () => addPallet({ category: vm.inputs.category, condition: vm.inputs.condition });
     vm.removePallet = removePallet;
     vm.addAnonymousPallets = addAnonymousPallets;
     vm.importPalletsFromManifest = importPalletsFromManifest;
@@ -171,7 +179,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
 
       const anonPallets = [];
       for( let idx=0; idx<numAnonPalletsToAdd; idx++) {
-        addPallet( { handle: handleFn( idx ), category: vm.inputs.category, isAnonymous: true } );
+        addPallet( { handle: handleFn( idx ), category: vm.inputs.category, condition: vm.inputs.condition, isAnonymous: true } );
       }
 
       vm.inputs.pallets = vm.inputs.pallets.concat(anonPallets);
@@ -190,6 +198,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
       // TODO: date transformations? timezone stuff?
 
       delete shipment.categoryOptions;
+      delete shipment.conditionOptions;
 
       return shipment;
     }
@@ -202,7 +211,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
 
         ManifestFileHandlerSvc.launchFileParsingOptionsModal( parseOptions => {
 
-          PalletsFromManifestModalSvc.launch( manifestDocument.file, parseOptions, palletNames => palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category } ) ));
+          PalletsFromManifestModalSvc.launch( manifestDocument.file, parseOptions, palletNames => palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category, condition: vm.inputs.condition } ) ));
 
         });
 

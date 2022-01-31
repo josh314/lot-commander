@@ -24,7 +24,14 @@
       <select class="form-control" id="categoryInput" ng-model="$ctrl.inputs.category">
         <option ng-repeat="option in $ctrl.categoryOptions">{{ option }}</option>
       </select>
-    </div><div class="form-group col-xs-12 col-sm-6">
+    </div>
+    <div class="form-group col-xs-12 col-sm-6">
+      <label for="conditionInput">Condition</label>
+      <select class="form-control" id="conditionInput" ng-model="$ctrl.inputs.condition">
+        <option ng-repeat="option in $ctrl.conditionOptions">{{ option }}</option>
+      </select>
+    </div>
+    <div class="form-group col-xs-12 col-sm-6">
       <label for="isAnonymousI disablednput">Anonymous?</label>
       <select class="form-control" id="isAnonymousI disablednput" ng-model="$ctrl.inputs.isAnonymous" disabled>
         <option ng-value="true">yes</option>

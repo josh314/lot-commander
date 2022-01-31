@@ -140,6 +140,7 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
         const editFields = [
           'handle',
           'category',
+          'condition',
           'units',
           'cost',
           'hasProblem',
@@ -196,7 +197,7 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
           }
 
 
-          const isChanged = Object.keys( _key => details[ _key ] !== this[ _key ] );
+          const isChanged = Object.keys( details ).some( _key => details[ _key ] !== this[ _key ] );
           if( isChanged ) {
             Object.assign( this, details );
           }
@@ -235,6 +236,12 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
     },
     category: {
       displayName: 'Category',
+      defaultSortAscending: true,
+      active: true,
+      optionAvailable: true
+    },
+    condition: {
+      displayName: 'Condition',
       defaultSortAscending: true,
       active: true,
       optionAvailable: true
@@ -313,11 +320,12 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         }
       },
 
-      controller: [ '$scope', 'LoggedInUser', 'pallet', 'palletCategories', function( $scope, LoggedInUser, pallet, palletCategories ){
+      controller: [ '$scope', 'LoggedInUser', 'pallet', 'palletProperties', function( $scope, LoggedInUser, pallet, palletProperties ){
 
         const vm = this;
         vm.inputs = Object.assign( { isBrokendown: false, hasProblem: false }, pallet );
-        vm.categoryOptions = [ "" ].concat( palletCategories );
+        vm.categoryOptions = [ "" ].concat( palletProperties.category );
+        vm.conditionOptions = [ "" ].concat( palletProperties.condition );
         vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
         vm.showBrokendownDate = pallet.isBrokendown;
         vm.showCreatedAtDate = !!pallet.createdAt;

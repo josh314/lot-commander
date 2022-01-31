@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'focus', 'InventoryPalletDetailsModalSvc', 'LoggedInUser', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletCategories', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
-  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, focus, InventoryPalletDetailsModalSvc, LoggedInUser, ManifestFileHandlerSvc, messageModal, navigate, palletCategories, PrintSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
+angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'focus', 'InventoryPalletDetailsModalSvc', 'LoggedInUser', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletProperties', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
+  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, focus, InventoryPalletDetailsModalSvc, LoggedInUser, ManifestFileHandlerSvc, messageModal, navigate, palletProperties, PrintSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
 
     /****************************************************
      * View variables
@@ -18,7 +18,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
     vm.showHistoryControls = LoggedInUser.hasPermission('VIEW_EVENTS');
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
     vm.showRestrictedDocuments = vm.showPurchasingData;
-    vm.categoryOptions = [ "" ].concat( palletCategories );
+    vm.categoryOptions = [ "" ].concat( palletProperties.category );
+    vm.conditionOptions = [ "" ].concat( palletProperties.condition );
 
     vm.removeShipment = removeShipment;
 

@@ -79,6 +79,20 @@
             </select>
           </dd>
         </div>
+        <div ng-hide="$ctrl.isEditing[ 'condition' ]">
+          <dt>Condition<span ng-hide="!$ctrl.showEditControls"> (<a href ng-click="$ctrl.openEdit( 'condition' )">edit</a>)</span></dt>
+          <dd ng-hide="$ctrl.isEditing[ 'condition' ]">
+            {{ $ctrl.shipment.condition || '----' }}
+          </dd>
+        </div>
+        <div ng-show="$ctrl.isEditing[ 'condition' ]">
+          <dt>Condition (<a href ng-click="$ctrl.saveEdit( 'condition' )" style="color: red">save</a> or <a href ng-click="$ctrl.closeEdit( 'condition' )" style="color: red">cancel edit</a>)</dt>
+          <dd ng-show="$ctrl.isEditing[ 'condition' ]">
+            <select ng-model="$ctrl.editValue[ 'condition' ]">
+              <option ng-repeat="cat in $ctrl.conditionOptions">{{cat}}</option>
+            </select>
+          </dd>
+        </div>
         <div ng-hide="$ctrl.isEditing[ 'totalUnits' ]">
           <dt>Total Units<span ng-show="$ctrl.showEditControls && (!$ctrl.shipment.getTotalUnits() || $ctrl.shipment.getTotalUnits() === $ctrl.shipment.totalUnits)"> (<a href ng-click="$ctrl.openEdit( 'totalUnits' )">edit</a>)</span></dt>
           <dd ng-hide="$ctrl.isEditing[ 'totalUnits' ]">
@@ -235,6 +249,7 @@
         <th>Anonymous?</th>
         <th ng-hide="$ctrl.shipment.totalUnits">Units</th>
         <th>Category</th>
+        <th>Condition</th>
         <th>Received?</th>
         <th ng-show="$ctrl.showEditControls"></th>
         <th ng-show="$ctrl.showEditControls"></th>
@@ -255,6 +270,14 @@
               </select>
             </span>
             <span ng-hide="pallet.isEditing">{{pallet.category}}</span>
+          </td>
+          <td>
+            <span ng-show="pallet.isEditing">
+              <select ng-model="pallet.editValues.condition">
+                <option ng-repeat="condition in $ctrl.conditionOptions">{{condition}}</option>
+              </select>
+            </span>
+            <span ng-hide="pallet.isEditing">{{pallet.condition}}</span>
           </td>
           <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isReceived"></span></td>
           <td ng-show="$ctrl.showEditControls">
@@ -431,6 +454,7 @@
         <thead><tr>
           <th>Handle</th>
           <th>Category</th>
+          <th>Condition</th>
           <th>Problem?</th>
           <th>Brokendown?</th>
           <th>Note</th>
@@ -444,6 +468,9 @@
             </td>
             <td>
               {{ pallet.category }}
+            </td>
+            <td>
+              {{ pallet.condition }}
             </td>
             <td>
               <span class="glyphicon glyphicon-alert" ng-show="pallet.hasProblem"></span>

@@ -22,8 +22,8 @@ class InventoryPalletValidator {
 }
 
 /******************* Inventory Pallet Creation Page Controller *************************/
-angular.module('myApp').controller('InventoryPalletCreationCtrl', [ 'AddPalletGroupParamsModalSvc', 'messageModal', 'navigate', 'palletCategories', 'sessionTimeout', 'InventoryPalletManagerSvc',
-  function( AddPalletGroupParamsModalSvc, messageModal, navigate, palletCategories, sessionTimeout, InventoryPalletManagerSvc ) {
+angular.module('myApp').controller('InventoryPalletCreationCtrl', [ 'AddPalletGroupParamsModalSvc', 'messageModal', 'navigate', 'palletProperties', 'sessionTimeout', 'InventoryPalletManagerSvc',
+  function( AddPalletGroupParamsModalSvc, messageModal, navigate, palletProperties, sessionTimeout, InventoryPalletManagerSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -32,13 +32,15 @@ angular.module('myApp').controller('InventoryPalletCreationCtrl', [ 'AddPalletGr
 
       vm.validator = new InventoryPalletValidator();
       vm.inputs = {
-        categoryOptions: [ "" ].concat( palletCategories ),
+        categoryOptions: [ "" ].concat( palletProperties.category ),
+        conditionOptions: [ "" ].concat( palletProperties.condition ),
         pallets: [  ]
       };
 
       vm.refreshValidator = refreshValidator;
       vm.createInventoryPallets = createInventoryPallets;
       vm.setPalletCategories = ( ) => vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
+      vm.setPalletConditions = ( ) => vm.inputs.pallets.forEach( p => p.condition = vm.inputs.condition );
       vm.clearPalletUnits = ( ) => vm.inputs.pallets.forEach( p => delete p.units );
       vm.addPallet = () => addPalletWithData( { hasProblem: false } );
       vm.addPalletGroup = addPalletGroup;
@@ -75,7 +77,7 @@ angular.module('myApp').controller('InventoryPalletCreationCtrl', [ 'AddPalletGr
     function addPalletGroup() {
       AddPalletGroupParamsModalSvc.launch().then( params => {
         for( let i=0; i<params.numPallets; i++ ) {
-          addPalletWithData( { handle: `${params.handlePrefix}_${i+1}`, category: params.category } );
+          addPalletWithData( { handle: `${params.handlePrefix}_${i+1}`, category: params.category, condition: params.condition } );
         }
       } );
     }
@@ -91,7 +93,7 @@ angular.module('myApp').controller('InventoryPalletCreationCtrl', [ 'AddPalletGr
   }
 ]);
 
-angular.module('myApp').factory( 'AddPalletGroupParamsModalSvc', [ '$uibModal', 'palletCategories', function( $uibModal, palletCategories ) {
+angular.module('myApp').factory( 'AddPalletGroupParamsModalSvc', [ '$uibModal', 'palletProperties', function( $uibModal, palletProperties ) {
 
   return {
     launch: launch,
@@ -107,7 +109,8 @@ angular.module('myApp').factory( 'AddPalletGroupParamsModalSvc', [ '$uibModal', 
 
         const vm = this;
         vm.inputs = {};
-        vm.categoryOptions = palletCategories;
+        vm.categoryOptions = palletProperties.category;
+        vm.conditionOptions = palletProperties.condition;
 
         vm.validate = () => vm.inputs.handlePrefix && vm.inputs.numPallets > 0;
 

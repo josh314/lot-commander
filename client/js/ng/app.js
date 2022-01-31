@@ -160,12 +160,20 @@ angular.module('myApp').constant('lotCategories', [
   },
 ]);
 
-angular.module('myApp').constant('palletCategories', [
-  "general merchandise",
-  "cosmetics",
-  "personal care",
-  "clothing"
-]);
+angular.module('myApp').constant('palletProperties', {
+  category: [
+    "general merchandise",
+    "cosmetics",
+    "personal care",
+    "clothing"
+  ],
+  condition: [
+    'shelf-pull',
+    'salvage',
+    'case-packed',
+    'customer returns'
+  ]
+});
 
 //************************************************************************
 //********************* Config Block *************************************

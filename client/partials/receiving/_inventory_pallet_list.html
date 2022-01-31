@@ -27,6 +27,12 @@
             </select>
           </div>
           <div class="form-group col-xs-12 col-sm-6">
+            <label for="conditionFilter">Condition</label>
+            <select class="form-control" name="conditionFilter" ng-model="$ctrl.filter.condition" ng-change="$ctrl.refreshPalletsData()">
+              <option ng-repeat="condition in $ctrl.conditionOptions">{{ condition }}</option>
+            </select>
+          </div>
+          <div class="form-group col-xs-12 col-sm-6">
             <label for="shipmentHandleFilter">Shipment ID</label>
             <input class="form-control" name="shipmentHandleFilter" ng-model="$ctrl.filter.shipmentHandle" ng-keyup="$ctrl.refreshPalletsData()">
           </div>
