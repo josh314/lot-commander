@@ -47,6 +47,23 @@ inventoryPalletSchema.pre( 'save', function(next) {
     this.isDeleted = false;
   }
 
+  // In the below, we normalize falsy properties for the string-valued fields. This actually completely removes the property
+  if( !this.handle ) {
+    this.handle = undefined;
+  }
+
+  if( !this.category ) {
+    this.category = undefined;
+  }
+
+  if( !this.condition ) {
+    this.condition = undefined;
+  }
+
+  if( !this.note ) {
+    this.note = undefined;
+  }
+
   next();
 } );
 

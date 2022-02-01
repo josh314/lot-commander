@@ -62,10 +62,20 @@ incomingShipmentSchema.pre( 'save', function(next) {
     this.palletsExpected.forEach( p => p.category = this.category );
 
   }
+  else {
+
+    this.category = undefined; // just remove any falsy values from the document
+
+  }
 
   if( this.condition ) { // set pallet conditions from shipment-level condition
 
     this.palletsExpected.forEach( p => p.condition = this.condition );
+
+  }
+  else {
+
+    this.condition = undefined; // just remove any falsy values from the document
 
   }
 
