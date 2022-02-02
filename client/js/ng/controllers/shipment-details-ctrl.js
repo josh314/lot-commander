@@ -18,8 +18,10 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
     vm.showHistoryControls = LoggedInUser.hasPermission('VIEW_EVENTS');
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
     vm.showRestrictedDocuments = vm.showPurchasingData;
-    vm.categoryOptions = [ "" ].concat( palletProperties.category );
-    vm.conditionOptions = [ "" ].concat( palletProperties.condition );
+
+
+    vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );
+    vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) );
 
     vm.removeShipment = removeShipment;
 
@@ -148,6 +150,10 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
     /* eslint-disable angular/controller-as-vm */
     function startExpectedPallet() {
       this.isStarted = true;
+      this.data = {
+        category: vm.shipment.category || null,
+        condition: vm.shipment.condition || 'shelf-pull'
+      };
       focus('add-expected-pallet-input');
     }
 
@@ -503,7 +509,8 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
       expected: [
         'handle',
         'units',
-        'category'
+        'category',
+        'condition',
       ],
       received: [
         'handle',

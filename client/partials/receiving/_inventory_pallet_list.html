@@ -125,17 +125,17 @@
     <div class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.AGGREGATE">
       <table class="table table-striped">
         <thead><tr>
-          <th>Category</th>
+          <th>Type</th>
           <th>Count</th>
           <th></th>
         </tr></thead>
         <tbody>	
-          <tr ng-repeat="entry in $ctrl.palletsAggregation">
+          <tr ng-repeat="group in $ctrl.palletsAggregation">
             <td>
-              <span>{{ entry.category }}</span>
+              <span>{{ group.title }}</span>
             </td>
             <td>
-              <span>{{ entry.count }}</span>
+              <span>{{ group.count }}</span>
             </td>
             <td>
             </td>

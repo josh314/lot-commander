@@ -1315,18 +1315,49 @@ class InventoryCommander {
 
     }
 
-    return this.InventoryPallet.aggregate()
+    const groups = await this.InventoryPallet.aggregate()
       .match( matchDoc )
       .group( {
-        _id: "$category",
+        _id: {
+          "category": "$category",
+          "condition": "$condition"
+        },
         count: { $sum: 1 }
-      } )
-      .project( {
-        _id: 0,
-        category: "$_id",
-        count: "$count"
       } );
-    // TODO: sort
+
+    const groupTitleMap = groups.map( _grp => {
+
+      const res = {
+        count: _grp.count
+      };
+
+      if( _grp._id.category ) {
+        res.category = _grp._id.category;
+      }
+
+      if( _grp._id.condition ) {
+        res.condition = _grp._id.condition;
+      }
+
+      return res;
+    })
+      .reduce( ( acc, grp ) => {
+
+        // title = "category:condition", "uncategorized:condition" or "category"
+        const title = `${ grp.category ? grp.category : 'uncategorized' }${ grp.condition ? ` -- ${grp.condition}` : '' }`;
+
+        const existingGrp = acc.get(title);
+        if( existingGrp ) {
+          existingGrp.count += grp.count;
+        }
+        else {
+          acc.set( title, Object.assign( { title }, grp ) );
+        }
+
+        return acc;
+      }, new Map());
+
+    return [ ...groupTitleMap.values() ].sort( (a,b) => a.title < b.title ? -1 : 1 );
 
   }
 

@@ -302,7 +302,12 @@
           <td><input type="number" ng-model="$ctrl.addExpectedPallet.data.units"></td>
           <td>
             <select ng-model="$ctrl.addExpectedPallet.data.category">
-              <option ng-repeat="cat in $ctrl.categoryOptions">{{cat}}</option>
+              <option ng-repeat="option in $ctrl.categoryOptions" ng-value="option.value">{{ option.displayName }}</option>
+            </select>
+          </td>
+          <td>
+            <select ng-model="$ctrl.addExpectedPallet.data.condition">
+              <option ng-repeat="option in $ctrl.conditionOptions" ng-value="option.value">{{ option.displayName }}</option>
             </select>
           </td>
           <td></td>

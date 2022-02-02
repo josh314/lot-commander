@@ -33,7 +33,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
       categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
       conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) ),
       category: null,
-      condition: null,
+      condition: 'shelf-pull',
       documentToAdd: initDocumentToAdd(),
       documents: [],
       pallets: [],
@@ -153,7 +153,11 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
     }
 
     function addPallet( data ) {
+
+      data.condition = data.condition || 'shelf-pull';
+
       vm.inputs.pallets.push( data );
+      
     }
 
     function addAnonymousPallets() {

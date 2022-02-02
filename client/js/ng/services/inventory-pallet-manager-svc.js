@@ -323,9 +323,9 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
       controller: [ '$scope', 'LoggedInUser', 'pallet', 'palletProperties', function( $scope, LoggedInUser, pallet, palletProperties ){
 
         const vm = this;
-        vm.inputs = Object.assign( { isBrokendown: false, hasProblem: false }, pallet );
-        vm.categoryOptions = [ "" ].concat( palletProperties.category );
-        vm.conditionOptions = [ "" ].concat( palletProperties.condition );
+        vm.inputs = Object.assign( { isBrokendown: false, hasProblem: false, category: null, condition: 'shelf-pull' }, pallet );
+        vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );
+        vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) );
         vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
         vm.showBrokendownDate = pallet.isBrokendown;
         vm.showCreatedAtDate = !!pallet.createdAt;
