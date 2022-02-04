@@ -266,7 +266,7 @@
           <td>
             <span ng-show="pallet.isEditing">
               <select ng-model="pallet.editValues.category">
-                <option ng-repeat="cat in $ctrl.categoryOptions">{{cat}}</option>
+                <option ng-repeat="option in $ctrl.categoryOptions" ng-value="option.value">{{option.displayName}}</option>
               </select>
             </span>
             <span ng-hide="pallet.isEditing">{{pallet.category}}</span>
@@ -274,7 +274,7 @@
           <td>
             <span ng-show="pallet.isEditing">
               <select ng-model="pallet.editValues.condition">
-                <option ng-repeat="condition in $ctrl.conditionOptions">{{condition}}</option>
+                <option ng-repeat="option in $ctrl.conditionOptions" ng-value="option.value">{{option.displayName}}</option>
               </select>
             </span>
             <span ng-hide="pallet.isEditing">{{pallet.condition}}</span>

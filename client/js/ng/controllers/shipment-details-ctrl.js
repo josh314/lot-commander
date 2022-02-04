@@ -553,6 +553,12 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
         for( let field of editFields[ _type ] ) {
           res[ field ] = this[ field ];
         }
+        if( !res.condition ) {
+          res.condition = null;
+        }
+        if( !res.category ) {
+          res.category = null;
+        }
         return res;
       };
 
