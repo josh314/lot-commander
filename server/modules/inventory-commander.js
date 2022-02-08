@@ -1327,7 +1327,8 @@ class InventoryCommander {
           "category": "$category",
           "condition": "$condition"
         },
-        count: { $sum: 1 }
+        count: { $sum: 1 },
+        cost: { $sum: "$cost" }
       } );
 
     const groupTitleMap = groups.map( _grp => {
@@ -1335,6 +1336,10 @@ class InventoryCommander {
       const res = {
         count: _grp.count
       };
+
+      if( _grp.cost ) {
+        res.cost = `${_grp.cost.toFixed(2)}`;
+      }
 
       if( _grp._id.category ) {
         res.category = _grp._id.category;
@@ -1354,6 +1359,7 @@ class InventoryCommander {
         const existingGrp = acc.get(title);
         if( existingGrp ) {
           existingGrp.count += grp.count;
+          existingGrp.cost += grp.cost;
         }
         else {
           acc.set( title, Object.assign( { title }, grp ) );

@@ -127,6 +127,7 @@
         <thead><tr>
           <th>Type</th>
           <th>Count</th>
+          <th ng-show="$ctrl.showPurchasingData">Total Cost</th>
           <th></th>
         </tr></thead>
         <tbody>	
@@ -136,6 +137,9 @@
             </td>
             <td>
               <span>{{ group.count }}</span>
+            </td>
+            <td>
+              <span>{{ group.cost }}</span>
             </td>
             <td>
             </td>
