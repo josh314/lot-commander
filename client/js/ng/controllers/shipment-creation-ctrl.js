@@ -45,6 +45,8 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
     vm.addDocument = addDocument;
     vm.removeDocument = removeDocument;
     vm.hasManifest = hasManifest;
+    vm.setPalletCosts = setPalletCosts;
+    vm.setShipmentCost = setShipmentCost;
     vm.clearShipmentCategory = ( ) => vm.inputs.category = null;
     vm.setPalletCategories = ( ) => {
       if( vm.inputs.category ) {
@@ -63,6 +65,31 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
     vm.addAnonymousPallets = addAnonymousPallets;
     vm.importPalletsFromManifest = importPalletsFromManifest;
     vm.createShipment = createShipment;
+
+    function setPalletCosts() {
+
+      if( vm.inputs.cost && vm.inputs.pallets.length ) {
+
+        const perPalletCost = vm.inputs.cost / vm.inputs.pallets.length;
+
+        vm.inputs.pallets.forEach( p => p.cost = perPalletCost );
+
+      }
+
+    }
+
+    function setShipmentCost() {
+
+      vm.inputs.cost = vm.inputs.pallets.reduce( ( sum, p ) => {
+
+        if( p.cost ) {
+          sum += p.cost;
+        }
+
+        return sum;
+      } , 0 );
+
+    }
 
     function initDocumentToAdd() {
       return {
@@ -109,6 +136,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
       if( vm.validator.pallets ) {
         vm.validator.pallets.splice( idx, 1 );
       }
+      setPalletCosts();
     }
 
     function refreshValidator() {
@@ -157,6 +185,8 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
       data.condition = data.condition || 'shelf-pull';
 
       vm.inputs.pallets.push( data );
+
+      setPalletCosts();
       
     }
 

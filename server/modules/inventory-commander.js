@@ -607,6 +607,11 @@ class InventoryCommander {
       isAnonymous: correspondingPalletExpected ? correspondingPalletExpected.isAnonymous : false,
     };
 
+    // use corresponding expected pallet's cost
+    if( correspondingPalletExpected && correspondingPalletExpected.cost ) {
+      basePalletObject.cost = correspondingPalletExpected.cost;
+    }
+
     // use corresponding expected pallet's category or shipment's category
     if( correspondingPalletExpected && correspondingPalletExpected.category ) {
       basePalletObject.category = correspondingPalletExpected.category;

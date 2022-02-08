@@ -247,6 +247,7 @@
       <thead><tr>
         <th>Handle</th>
         <th>Anonymous?</th>
+        <th ng-show="$ctrl.showPurchasingData">Cost</th>
         <th ng-hide="$ctrl.shipment.totalUnits">Units</th>
         <th>Category</th>
         <th>Condition</th>
@@ -256,11 +257,17 @@
       </tr></thead>
       <tbody>	
         <tr ng-repeat="pallet in $ctrl.shipment.palletsExpected track by $index">
-          <td><span ng-show="pallet.isEditing"><input ng-model="pallet.editValues.handle"></span><span ng-hide="pallet.isEditing">{{pallet.handle}}</span></td>
+          <td><span ng-show="pallet.isEditing"><input ng-model="pallet.editValues.handle" size="12"></span><span ng-hide="pallet.isEditing">{{pallet.handle}}</span></td>
           <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isAnonymous"></span></td>
+          <td ng-show="$ctrl.showPurchasingData">
+            <span ng-show="pallet.isEditing">
+              <input type="number" ng-model="pallet.editValues.cost" style="width:80px;">
+            </span>
+            <span ng-hide="pallet.isEditing">{{pallet.cost}}</span></td>
+          </td>
           <td ng-hide="$ctrl.shipment.totalUnits">
             <span ng-show="pallet.isEditing">
-              <input type="number" ng-model="pallet.editValues.units" ng-disabled="$ctrl.shipment.totalUnits">
+              <input type="number" ng-model="pallet.editValues.units" ng-disabled="$ctrl.shipment.totalUnits" style="width:80px;">
             </span>
             <span ng-hide="pallet.isEditing">{{pallet.units}}</span></td>
           <td>
@@ -292,14 +299,15 @@
           </td>
         </tr>
         <tr ng-show="$ctrl.addExpectedPallet.isStarted">
-          <td><input id="add-expected-pallet-input" ng-model="$ctrl.addExpectedPallet.data.handle"></td>
+          <td><input id="add-expected-pallet-input" ng-model="$ctrl.addExpectedPallet.data.handle" size="12"></td>
           <td>
             <select ng-model="$ctrl.addExpectedPallet.data.isAnonymous">
               <option ng-value="true">Yes</option>
               <option ng-value="false">No</option>
             </select>
           </td>
-          <td><input type="number" ng-model="$ctrl.addExpectedPallet.data.units"></td>
+          <td><input type="number" ng-model="$ctrl.addExpectedPallet.data.cost" style="width:80px;"></td>
+          <td><input type="number" ng-model="$ctrl.addExpectedPallet.data.units" style="width:80px;"></td>
           <td>
             <select ng-model="$ctrl.addExpectedPallet.data.category">
               <option ng-repeat="option in $ctrl.categoryOptions" ng-value="option.value">{{ option.displayName }}</option>

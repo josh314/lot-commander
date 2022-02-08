@@ -400,6 +400,14 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
         shipment: vm.shipment,
       };
 
+      if( vm.shipment.cost && vm.shipment.palletsExpected.length ) {
+
+        const costPerPallet = vm.shipment.cost / vm.shipment.palletsExpected.length;
+
+        _data.cost = costPerPallet;
+
+      }
+
       InventoryPalletDetailsModalSvc.launch( _data ).then(result => {
 
         const pallet = Object.assign( {}, result );
@@ -511,6 +519,7 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
         'units',
         'category',
         'condition',
+        'cost'
       ],
       received: [
         'handle',

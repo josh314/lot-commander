@@ -15,6 +15,7 @@ const incomingShipmentSchema = mongoose.Schema({
   isReceived: Boolean,
   palletsExpected: [ {
     handle: String,
+    cost: Number,
     units: Number,
     category: String,
     condition: String,
@@ -86,6 +87,32 @@ incomingShipmentSchema.pre( 'save', function(next) {
     }
 
   });
+
+
+  // data integrity check that shipment cost and totalPalletCost agree. Complicated by the fact that any or all values could be null/undef
+  const totalPalletCost = this.palletsExpected.reduce( ( sum, _pallet ) => {
+
+    if( _pallet.cost ) {
+      sum += _pallet.cost;
+    }
+
+    return sum;
+  }, 0 );
+
+  if( totalPalletCost ) {
+
+    if( !this.cost || Math.abs( this.cost - totalPalletCost ) > 10 ) {
+      this.cost = totalPalletCost;
+    }
+
+  }
+  else if( this.cost && this.palletsExpected.length ) {
+
+    const costPerPallet = this.cost / this.palletsExpected.length;
+
+    this.palletsExpected.forEach( p => p.cost = costPerPallet );
+
+  }
 
   next();
 } );
