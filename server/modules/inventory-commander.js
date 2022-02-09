@@ -1338,7 +1338,7 @@ class InventoryCommander {
       };
 
       if( _grp.cost ) {
-        res.cost = `${_grp.cost.toFixed(2)}`;
+        res.cost = _grp.cost;
       }
 
       if( _grp._id.category ) {

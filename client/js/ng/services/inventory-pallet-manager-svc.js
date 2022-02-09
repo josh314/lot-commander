@@ -281,7 +281,7 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
       displayName: 'Cost',
       active: false,
       optionAvailable: showPurchasingData,
-      transform: _ => _ ? _.toFixed(2) : '',
+      transform: _ => _ ? `$${_.toFixed(2)}` : '',
       noSort: true,
     },
   };

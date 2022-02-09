@@ -130,7 +130,7 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
     function refreshPalletsAggregation() {
 
       return InventoryPalletManagerSvc.aggregate(  ).then( pallets => {
-        vm.palletsAggregation = pallets;
+        vm.palletsAggregation = pallets.map( _p => Object.assign( {}, _p, { cost: _p.cost && `$${_p.cost.toFixed(2)}`}));
       });
 
     }
