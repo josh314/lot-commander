@@ -65,6 +65,10 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
     vm.htmlifyText = UtilitiesSvc.htmlifyText;
     vm.displayAsMoney = UtilitiesSvc.displayAsMoney;
 
+    vm.expectedPalletsSectionTitle = () => `Expected Pallets${vm.shipment &&vm.shipment.palletsExpected && vm.shipment.palletsExpected.length ? ` (${vm.shipment.palletsExpected.length})`: ''}`;
+    vm.receivedPalletsSectionTitle = () => `Received Pallets${vm.shipment &&vm.shipment.palletsReceived && vm.shipment.palletsReceived.length ? ` (${vm.shipment.palletsReceived.length})`: ''}`;
+    vm.consolidatedPalletsSectionTitle = () => `Consolidated Pallets${vm.shipment &&vm.shipment.palletsConsolidated && vm.shipment.palletsConsolidated.length ? ` (${vm.shipment.palletsConsolidated.length})`: ''}`;
+
     /****************************************************
      * Functions
      * =========

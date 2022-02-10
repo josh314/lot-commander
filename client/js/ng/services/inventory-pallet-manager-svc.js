@@ -101,12 +101,6 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
           [ 'brokendownDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
         );
 
-        if( !this.cost && this.shipment && this.shipment.cost ) {
-
-          this.cost = this.shipment.cost / this.shipment.palletsExpected.length;
-
-        }
-
       }
 
       breakdown( isBrokendown ) {
@@ -281,7 +275,7 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
       displayName: 'Cost',
       active: false,
       optionAvailable: showPurchasingData,
-      transform: _ => _ ? `$${_.toFixed(2)}` : '',
+      transform: UtilitiesSvc.displayAsMoney.bind( UtilitiesSvc ),
       noSort: true,
     },
   };

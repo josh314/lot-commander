@@ -75,7 +75,7 @@
           <dt>Category (<a href ng-click="$ctrl.saveEdit( 'category' )" style="color: red">save</a> or <a href ng-click="$ctrl.closeEdit( 'category' )" style="color: red">cancel edit</a>)</dt>
           <dd ng-show="$ctrl.isEditing[ 'category' ]">
             <select ng-model="$ctrl.editValue[ 'category' ]">
-              <option ng-repeat="cat in $ctrl.categoryOptions">{{cat}}</option>
+              <option ng-repeat="option in $ctrl.categoryOptions" ng-value="option.value">{{option.displayName}}</option>
             </select>
           </dd>
         </div>
@@ -89,7 +89,7 @@
           <dt>Condition (<a href ng-click="$ctrl.saveEdit( 'condition' )" style="color: red">save</a> or <a href ng-click="$ctrl.closeEdit( 'condition' )" style="color: red">cancel edit</a>)</dt>
           <dd ng-show="$ctrl.isEditing[ 'condition' ]">
             <select ng-model="$ctrl.editValue[ 'condition' ]">
-              <option ng-repeat="cat in $ctrl.conditionOptions">{{cat}}</option>
+              <option ng-repeat="option in $ctrl.conditionOptions" ng-value="option.value">{{option.displayName}}</option>
             </select>
           </dd>
         </div>
@@ -242,7 +242,7 @@
     </div>
   </div>
   <div class="row well">
-    <h2>Expected Pallets</h2>
+    <h2>{{ $ctrl.expectedPalletsSectionTitle() }}</h2>
     <table class="table table-striped">
       <thead><tr>
         <th>Handle</th>
@@ -263,7 +263,7 @@
             <span ng-show="pallet.isEditing">
               <input type="number" ng-model="pallet.editValues.cost" style="width:80px;">
             </span>
-            <span ng-hide="pallet.isEditing">{{pallet.cost}}</span></td>
+            <span ng-hide="pallet.isEditing">{{ $ctrl.displayAsMoney( pallet.cost ) }}</span></td>
           </td>
           <td ng-hide="$ctrl.shipment.totalUnits">
             <span ng-show="pallet.isEditing">
@@ -334,7 +334,7 @@
   <div class="row well" ng-show="$ctrl.showReceiveControls">
 
     <div style="display: flex; align-items: center;">
-      <span class="h2">Receiving</span>
+      <span class="h2">{{ $ctrl.receivedPalletsSectionTitle() }}</span>
 
       <span style="margin-left: auto; margin-right: 40px;" ng-hide="$ctrl.shipment.isReceived" ><button type="button" class="btn btn-sm btn-primary" ng-click="$ctrl.receiveShipment()">Start Receiving</button></span>
       <span style="margin-left: auto; margin-right: 40px" ng-show="$ctrl.shipment.isReceived"><button type="button" class="btn btn-sm btn-warning" ng-click="$ctrl.unreceiveShipment()">Cancel Receiving</button></span>
@@ -434,7 +434,7 @@
   <div class="row well" ng-show="$ctrl.showReceiveControls">
 
     <div style="display: flex; align-items: center;">
-      <span class="h2">Consolidated Pallets</span>
+      <span class="h2">{{ $ctrl.consolidatedPalletsSectionTitle() }}</span>
     </div>
 
     <div ng-show="$ctrl.shipment.isReceived">

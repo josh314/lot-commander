@@ -8,8 +8,8 @@ const __DISPLAY_MODE_AGGREGATE__ = '__DISPLAY_MODE_AGGREGATE__';
 
 
 /******************* Pallets List Page Controller *************************/
-angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPalletManagerSvc', 'LoggedInUser', 'navigate', 'palletProperties', 'sessionTimeout', 'SettingsSvc',
-  function( InventoryPalletManagerSvc, LoggedInUser, navigate, palletProperties, sessionTimeout, SettingsSvc ) {
+angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPalletManagerSvc', 'LoggedInUser', 'navigate', 'palletProperties', 'sessionTimeout', 'SettingsSvc', 'UtilitiesSvc',
+  function( InventoryPalletManagerSvc, LoggedInUser, navigate, palletProperties, sessionTimeout, SettingsSvc, UtilitiesSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -130,7 +130,7 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
     function refreshPalletsAggregation() {
 
       return InventoryPalletManagerSvc.aggregate(  ).then( pallets => {
-        vm.palletsAggregation = pallets.map( _p => Object.assign( {}, _p, { cost: _p.cost && `$${_p.cost.toFixed(2)}`}));
+        vm.palletsAggregation = pallets.map( _p => Object.assign( {}, _p, { cost: UtilitiesSvc.displayAsMoney( _p.cost ) }));
       });
 
     }
