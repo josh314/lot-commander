@@ -74,12 +74,12 @@ function routes({ inventoryCommander, lotdb }) {
   function incomingShipmentLabels(req, res, next) {
     const shipmentId = req.params.shipmentId;
 
-    inventoryCommander.getIncomingShipmentById( shipmentId )
+    inventoryCommander.getIncomingShipmentById( shipmentId, { populate: [ 'palletsExpected', 'palletsReceived', 'palletsConsolidated' ] } )
       .then( shipment => {
 
         if(shipment) {
 
-          const pallets = getPalletList( shipment, req.paramas.palletList );
+          const pallets = getPalletList( shipment, req.params.palletList );
 
           print.createBarcodeLabels( pallets.map( p => p.handle ) ).pipe(res);
 
@@ -106,7 +106,7 @@ function routes({ inventoryCommander, lotdb }) {
 
         }
 
-        const pallets = getPalletList( shipment, req.paramas.palletList );
+        const pallets = getPalletList( shipment, req.params.palletList );
 
         const pallet = pallets.id( palletId );
 
