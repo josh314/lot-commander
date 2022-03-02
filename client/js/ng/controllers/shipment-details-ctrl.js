@@ -32,7 +32,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
     vm.saveEdit = saveShipmentEdit;
     vm.savePalletEdit = savePalletEdit;
 
-    vm.documentToUploadIsRestricted = true;
+    vm.documentToUploadIsRestricted = vm.showRestrictedDocuments;
     vm.removeDocument = removeDocument;
     vm.uploadDocument = uploadDocument;
     vm.isManifestFile = isManifestFile;
