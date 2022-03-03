@@ -3,7 +3,8 @@ const Promise = require('bluebird');
 
 const {
   ResourceNotFoundError,
-  ChildResourceNotFoundError
+  ChildResourceNotFoundError,
+  IllegalActionError
 } = require('../errors');
 
 /************************************************
@@ -313,7 +314,13 @@ class InventoryCommander {
 
   }
 
-  createIncomingShipment( _data ) {
+  async createIncomingShipment( _data ) {
+
+    const existingShipment = await this.getIncomingShipmentByHandle( _data.handle );
+
+    if( existingShipment ) {
+      throw new IllegalActionError(`Shipment with handle ${_data.handle} already exists.`);
+    }
 
     const data = Object.assign(
       {
@@ -340,6 +347,30 @@ class InventoryCommander {
     }
 
     const findDoc = { _id: objectId };
+
+    if( !includeDeleted ) {
+      findDoc.isDeleted = false;
+    }
+
+    let q = this.IncomingShipment.findOne( findDoc );
+
+    if( populate ) {
+
+      for( let path of populate ) {
+
+        q = q.populate( path );
+
+      }
+
+    }
+
+    return q.exec();
+
+  }
+
+  getIncomingShipmentByHandle( handle, { populate, includeDeleted = false } = {} ) {
+
+    const findDoc = { handle };
 
     if( !includeDeleted ) {
       findDoc.isDeleted = false;
@@ -592,10 +623,18 @@ class InventoryCommander {
 
   async receiveIncomingShipmentPallet( shipmentId, _palletData ) {
 
-    const shipment = await this.getIncomingShipmentById( shipmentId );
+    const shipment = await this.getIncomingShipmentById( shipmentId, { populate: [ 'palletsReceived', 'palletsConsolidated' ] } );
 
     if( !shipment ) {
       throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    const existingPallets = shipment.palletsReceived.concat( shipment.palletsConsolidated );
+
+    const duplicatePallet = existingPallets.find( _pr => _pr.handle === _palletData.handle );
+
+    if( duplicatePallet ) {
+      throw new IllegalActionError(`A pallet with the handle ${_palletData.handle} already exists for the shipment ${shipmentId}.`);
     }
 
     // search for an expected pallet in this shipment with matching handle to the one being received
@@ -665,10 +704,18 @@ class InventoryCommander {
 
   async addIncomingShipmentPalletConsolidated( shipmentId, _palletData ) {
 
-    const shipment = await this.getIncomingShipmentById( shipmentId );
+    const shipment = await this.getIncomingShipmentById( shipmentId, { populate: [ 'palletsReceived', 'palletsConsolidated' ] } );
 
     if( !shipment ) {
       throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
+    }
+
+    const existingPallets = shipment.palletsReceived.concat( shipment.palletsConsolidated );
+
+    const duplicatePallet = existingPallets.find( _pr => _pr.handle === _palletData.handle );
+
+    if( duplicatePallet ) {
+      throw new IllegalActionError(`A pallet with the handle ${_palletData.handle} already exists for the shipment ${shipmentId}.`);
     }
 
     const basePalletObject = {
