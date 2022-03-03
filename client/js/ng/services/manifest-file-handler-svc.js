@@ -145,7 +145,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
 
     }
 
-    function launchFileParsingOptionsModal( cb ) {
+    function launchFileParsingOptionsModal( filename, cb ) {
 
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_parse_manifest_file_options_modal.html',
@@ -154,6 +154,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
         controller: function () {
 
           const vm = this;
+          vm.filename = filename;
           vm.options = {
             noHeaderRow: false,
             skipFirstRows: 0

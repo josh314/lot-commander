@@ -13,6 +13,12 @@
   <div class="row" ng-show="!$ctrl.palletsStaged">
     <div class="col-xs-6 row">
       <div class="form-group col-xs-12">
+        <label>Manifest File</label>
+        <input class="form-control" ng-model="$ctrl.manifestFilename" disabled/>
+      </div>
+    </div>
+    <div class="col-xs-6 row">
+      <div class="form-group col-xs-12">
         <label>Pallet ID column</label>
         <select class="form-control" ng-model="$ctrl.palletIdColumn">
           <option ng-repeat="columnName in $ctrl.columnNames">{{ columnName }}</option>
@@ -44,7 +50,7 @@
 <div class="modal-footer">
 
     <!-- Visible before pallet ID column chosen -->
-    <button class="btn btn-primary" type="button" ng-click="$ctrl.stagePallets()"  ng-show="!$ctrl.palletsStaged">Preview pallets</button>
+    <button class="btn btn-primary" type="button" ng-click="$ctrl.stagePallets()"  ng-show="!$ctrl.palletsStaged" ng-disabled="!$ctrl.palletIdColumn">Preview pallets</button>
 
     <!-- Visible after pallet ID column chosen  -->
     <button class="btn btn-primary" type="button" ng-click="$close( $ctrl.palletNames )" ng-show="$ctrl.palletsStaged">Create</button>

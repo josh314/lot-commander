@@ -32,6 +32,7 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
   function modalCtrl( manifestFile, parseOptions, ManifestFileHandlerSvc ) {
 
     const vm = this;
+    vm.manifestFilename = manifestFile.name;
     vm.palletsStaged = false;
     vm.columnNames = [];
     vm.palletIdColumn = '';
@@ -51,8 +52,14 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
     }
 
     function stagePallets() {
-      vm.palletNames = vm.manifest.getUniqueValuesInColumnAllSheets( vm.palletIdColumn );
-      vm.palletsStaged = true;
+
+      if( vm.palletIdColumn ) {
+
+        vm.palletNames = vm.manifest.getUniqueValuesInColumnAllSheets( vm.palletIdColumn );
+        vm.palletsStaged = true;
+
+      }
+
     }
 
     function deletePallet( palletName ) {

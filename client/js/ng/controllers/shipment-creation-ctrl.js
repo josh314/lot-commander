@@ -44,7 +44,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
     vm.refreshValidator = refreshValidator;
     vm.addDocument = addDocument;
     vm.removeDocument = removeDocument;
-    vm.hasManifest = hasManifest;
+    vm.hasUnimportedManifest = hasUnimportedManifest;
     vm.setPalletCosts = setPalletCosts;
     vm.setShipmentCost = setShipmentCost;
     vm.clearShipmentCategory = ( ) => vm.inputs.category = null;
@@ -127,8 +127,8 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
 
     }
 
-    function hasManifest() {
-      return vm.inputs.documents.some( d => ManifestFileHandlerSvc.isManifestFile( d.name ) );
+    function hasUnimportedManifest() {
+      return vm.inputs.documents.some( d => ManifestFileHandlerSvc.isManifestFile( d.name ) && !d.isImported );
     }
 
     function removePallet( idx ) {
@@ -153,8 +153,8 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
           if( result && result.shipment ) {
             return result.shipment;
           }
-          else {
-            throw new Error('Server error.');
+          else if ( result && result.error ) {
+            throw new Error(result.message);
           }
         })
           .then( async (shipment) => {
@@ -239,13 +239,19 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
 
     function importPalletsFromManifest() {
 
-      const manifestDocument = vm.inputs.documents.find( d => ManifestFileHandlerSvc.isManifestFile( d.name ) );
+      const manifestDocument = vm.inputs.documents.find( d => ManifestFileHandlerSvc.isManifestFile( d.name ) && !d.isImported );
 
       if( manifestDocument ) {
 
-        ManifestFileHandlerSvc.launchFileParsingOptionsModal( parseOptions => {
+        ManifestFileHandlerSvc.launchFileParsingOptionsModal( manifestDocument.name, parseOptions => {
 
-          PalletsFromManifestModalSvc.launch( manifestDocument.file, parseOptions, palletNames => palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category, condition: vm.inputs.condition } ) ));
+          PalletsFromManifestModalSvc.launch( manifestDocument.file, parseOptions, palletNames => {
+
+            palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category, condition: vm.inputs.condition } ) );
+
+            manifestDocument.isImported = true;
+
+          });
 
         });
 
