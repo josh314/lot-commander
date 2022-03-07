@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'focus', 'InventoryPalletDetailsModalSvc', 'LoggedInUser', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletProperties', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
-  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, focus, InventoryPalletDetailsModalSvc, LoggedInUser, ManifestFileHandlerSvc, messageModal, navigate, palletProperties, PrintSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
+angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'FileModelSvc', 'focus', 'InventoryPalletDetailsModalSvc', 'LoggedInUser', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletProperties', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
+  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, FileModelSvc, focus, InventoryPalletDetailsModalSvc, LoggedInUser, ManifestFileHandlerSvc, messageModal, navigate, palletProperties, PrintSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
 
     /****************************************************
      * View variables
@@ -248,13 +248,25 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
         vm.noFileSelected = false;
       }
 
-      const document = vm.documentToUpload;
+      const documentToUpload = vm.documentToUpload;
       const isRestricted = !!vm.documentToUploadIsRestricted;
 
+      const duplicateDocument = vm.documents.find( _d => _d.name === documentToUpload.name );
+
+      if( duplicateDocument ) {
+        messageModal.launch(
+          { header: 'Error', body: 'This document has already been uploaded.', type: 'error' },
+          null,
+          _ => FileModelSvc.startReset()
+        );
+        return;
+      }
+
       vm.waitingForResponse = true;
-      vm.shipment.uploadShipmentDocument( document, isRestricted ).then( _ => {
+      vm.shipment.uploadShipmentDocument( documentToUpload, isRestricted ).then( _ => {
         updateDocumentList();
         vm.waitingForResponse = false;
+        FileModelSvc.startReset();
       });
 
     }

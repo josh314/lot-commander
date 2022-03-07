@@ -6,14 +6,31 @@ class ShipmentValidator {
     if( inputs ) {
       this.invalidHandle = !inputs.handle;
       this.pallets = inputs.pallets.map( p => ({ invalidHandle: !p.handle }) );
+
+      for( let i=0; i<inputs.pallets.length; i++ ) {
+
+        for( let j=0; j<inputs.pallets.length; j++ ) {
+
+          if( i!==j && inputs.pallets[i].handle === inputs.pallets[j].handle ) {
+
+            this.pallets[i].invalidHandle = true;
+            this.pallets[i].duplicateHandle = true;
+
+          }
+
+        }
+
+      }
+
     }
     else {
       this.clean = true;
+      this.pallets = [];
     }
   }
 
   arePalletsValid() {
-    const isPalletValid = p => !p.invalidHandle;
+    const isPalletValid = p => !( p.invalidHandle || p.duplicateHandle );
 
     return this.pallets.every( isPalletValid );
   }
@@ -42,6 +59,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
     vm.validator = new ShipmentValidator();
 
     vm.refreshValidator = refreshValidator;
+    vm.checkShipmentHandle = checkShipmentHandle;
     vm.addDocument = addDocument;
     vm.removeDocument = removeDocument;
     vm.hasUnimportedManifest = hasUnimportedManifest;
@@ -104,6 +122,17 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
         return;
       }
 
+      const duplicateDocument = vm.inputs.documents.find( d => d.name === vm.inputs.documentToAdd.file.name );
+
+      if( duplicateDocument ) {
+        messageModal.launch(
+          { header: 'Error', body: 'This document has already been uploaded.', type: 'error' },
+          null,
+          _ => FileModelSvc.startReset()
+        );
+        return;
+      }
+
       const documentToAdd = {
         file: vm.inputs.documentToAdd.file,
         name: vm.inputs.documentToAdd.file.name,
@@ -137,6 +166,23 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
         vm.validator.pallets.splice( idx, 1 );
       }
       setPalletCosts();
+    }
+
+    function checkShipmentHandle() {
+
+      if( vm.inputs.handle ) {
+        ShipmentManagerSvc.loadShipmentByHandle( { handle: vm.inputs.handle } ).then( shipment => {
+
+          vm.validator.duplicateHandle = !!shipment;
+          vm.validator.invalidHandle = vm.validator.duplicateHandle;
+          vm.validator.clean = false;
+
+        });
+      }
+      else {
+        vm.validator = new ShipmentValidator( vm.inputs );
+      }
+
     }
 
     function refreshValidator() {
