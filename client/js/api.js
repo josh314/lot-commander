@@ -406,6 +406,23 @@ export function getIncomingShipmentById( shipmentId, { populate = [] } = {} ) {
 }
 
 
+export function getIncomingShipmentByHandle( handle, { populate = [] } = {} ) {
+
+  let populateStr;
+  if( populate && populate.length ) {
+
+    populateStr = '?' + populate.map( s => `populate_${s}=1` ).join('&');
+
+  }
+
+  return axios({
+    method: 'get',
+    url: `/api/receiving/by-handle/${ handle }${ populateStr || '' }`,
+  })
+    .then( resp => resp.data );
+}
+
+
 export function removeIncomingShipment( shipmentId ) {
   return axios({
     method: 'delete',

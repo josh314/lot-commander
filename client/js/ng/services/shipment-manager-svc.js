@@ -65,6 +65,15 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'S
         return ShipmentFactory( resp.shipment );
       }),
 
+      loadShipmentByHandle: ( { handle, populate = [] } = {} ) => $q.when( api.getIncomingShipmentByHandle( handle , { populate: populate } ) ).then( resp => {
+
+        if( !resp || !resp.shipment ) {
+          return null;
+        }
+
+        return ShipmentFactory( resp.shipment );
+      }),
+
       buildAnonymousPalletHandle( shipmentHandle, number ) {
         return ShipmentFactory.buildAnonymousPalletHandle( shipmentHandle, number );
       },

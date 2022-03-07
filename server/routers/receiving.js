@@ -74,6 +74,11 @@ function routes({ eventsDb, inventoryCommander }) {
     countIncomingShipments
   );
   router.get(
+    '/by-handle/:shipmentHandle',
+    auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' ),
+    getIncomingShipmentByHandle
+  );
+  router.get(
     '/:shipmentId',
     auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' ),
     getIncomingShipmentById
@@ -225,6 +230,23 @@ function routes({ eventsDb, inventoryCommander }) {
       const populate = helpers.populationPathsFromQuery( req.query );
 
       const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId, { populate } );
+
+      res.json( { shipment } );
+    }
+    catch(e) {
+      return next( e );
+    }
+
+  }
+
+  async function getIncomingShipmentByHandle( req, res, next ) {
+
+    try {
+
+      const shipmentHandle = req.params.shipmentHandle;
+      const populate = helpers.populationPathsFromQuery( req.query );
+
+      const shipment = await inventoryCommander.getIncomingShipmentByHandle( shipmentHandle, { populate } );
 
       res.json( { shipment } );
     }
