@@ -41,6 +41,9 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
     vm.removeExpectedPallet = removeExpectedPallet;
     vm.addExpectedPallet = {
       isStarted: false,
+      emptyHandle: false,
+      duplicateHandle: false,
+      validate: validExpectedPallet,
       start: startExpectedPallet,
       close: closeExpectedPallet,
       save: saveExpectedPallet,
@@ -151,9 +154,11 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
     }
 
 
+    // These functions are methods of the `vm.addExpectedPallet` object defined above. `this` refers to `vm.addExpectedPallet`
     /* eslint-disable angular/controller-as-vm */
     function startExpectedPallet() {
       this.isStarted = true;
+      this.errors = {};
       this.data = {
         category: vm.shipment.category || null,
         condition: vm.shipment.condition || 'shelf-pull'
@@ -163,7 +168,30 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
     function closeExpectedPallet() {
       this.isStarted = false;
+      this.errors = {};
       this.data = {};
+    }
+
+    function validExpectedPallet() {
+
+      if( !vm.shipment.validatePalletHandle( 'expected' )( this.data.handle ) ) {
+
+        if( this.data.handle ) {
+          this.errors.emptyHandle = false;
+          this.errors.duplicateHandle = true;
+        }
+        else {
+          this.errors.emptyHandle = true;
+          this.errors.duplicateHandle = false;
+        }
+        return false;
+      }
+      else {
+        this.errors.duplicateHandle = this.errors.emptyHandle = false;
+      }
+
+      return true;
+
     }
 
     function saveExpectedPallet() {
@@ -176,7 +204,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
       }
 
-      if( !vm.shipment.validatePalletHandle( 'expected' )( this.data.handle ) ) {
+      if( !this.validate() ) {
         return;
       }
 
@@ -202,8 +230,10 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
     function savePalletEdit( pallet ) {
 
-      pallet.saveEdit().then( _ => {
-        loadShipment();
+      pallet.saveEdit().then( result => {
+        if( result ) {
+          loadShipment();
+        }
       });
 
     }
@@ -554,13 +584,41 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
 
       const savePallet = saveFn[ _type ]( _shipment );
 
-      const pallet = Object.assign( _data, { shipment: _shipment } );
+      const pallet = Object.assign( _data, { shipment: _shipment, _type } );
 
       if( _type === 'received' || _type === 'consolidated' ) {
         pallet.showNote = false;
         pallet.toggleShowNote = function() { this.showNote = !this.showNote; };
       }
 
+      pallet.validate = function() {
+
+        if( !this.editValues.handle ) {
+          this.errors.emptyHandle = true;
+          return false;
+        }
+        else {
+          this.errors.emptyHandle = false;
+        }
+
+        if( _type === 'expected' ) {
+
+          if( _shipment && _shipment.palletsExpected ) {
+
+            this.errors.duplicateHandle = !! _shipment.palletsExpected.find( _ => (_.handle === this.editValues.handle) && ( _._id !== this._id ) );
+
+            if( this.errors.duplicateHandle ) {
+
+              return false;
+
+            }
+
+          }
+
+        }
+
+        return true;
+      };
       
       pallet.isEdited = function( ) {
 
@@ -589,15 +647,22 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
 
       pallet.openEdit = function( ) {
         this.editValues = this.cloneEditFields();
+        this.errors = {};
         this.isEditing = true;
       };
       
       pallet.closeEdit = function( ) {
         this.isEditing = false;
+        this.errors = {};
         delete this.editValues;
       };
       
       pallet.saveEdit = function( ) {
+
+        if( !this.validate() ) {
+          return Promise.resolve( false );
+        }
+
         this.isEditing = false;
         let p;
 
@@ -612,14 +677,16 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
           p = shipmentEditCategoryPromise.then( _ => savePallet( this._id, this.editValues ) )
             .then( resp => {
               if( resp.success ) {
-                return Object.assign( this, this.editValues );
+                Object.assign( this, this.editValues );
+                return true;
               }
               else {
                 throw new Error(resp.error);
               }
             })
             .catch( _e => {
-              return messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
+              messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
+              return false;
             });
 
         }
@@ -629,7 +696,10 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
 
         }
 
-        return p.then( _ => this.closeEdit() );
+        return p.then( result => {
+          this.closeEdit();
+          return result;
+        });
       };
 
       return pallet;

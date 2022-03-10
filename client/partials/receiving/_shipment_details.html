@@ -257,22 +257,29 @@
       </tr></thead>
       <tbody>	
         <tr ng-repeat="pallet in $ctrl.shipment.palletsExpected track by $index">
-          <td><span ng-show="pallet.isEditing"><input ng-model="pallet.editValues.handle" size="12"></span><span ng-hide="pallet.isEditing">{{pallet.handle}}</span></td>
+          <td>
+            <span ng-show="pallet.isEditing" ng-class="{ 'has-error' : pallet.errors.emptyHandle || pallet.errors.duplicateHandle }">
+              <input class="form-control" ng-model="pallet.editValues.handle" size="12" ng-change="pallet.validate()">
+              <span class="text-danger h6" ng-show="pallet.errors.duplicateHandle">Duplicate handle</span>
+              <span class="text-danger h6" ng-show="pallet.errors.emptyHandle">Missing handle</span>
+            </span>
+            <span ng-hide="pallet.isEditing">{{pallet.handle}}</span>
+          </td>
           <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isAnonymous"></span></td>
           <td ng-show="$ctrl.showPurchasingData">
             <span ng-show="pallet.isEditing">
-              <input type="number" ng-model="pallet.editValues.cost" style="width:80px;">
+              <input class="form-control" type="number" ng-model="pallet.editValues.cost" style="width:80px;">
             </span>
             <span ng-hide="pallet.isEditing">{{ $ctrl.displayAsMoney( pallet.cost ) }}</span></td>
           </td>
           <td ng-hide="$ctrl.shipment.totalUnits">
             <span ng-show="pallet.isEditing">
-              <input type="number" ng-model="pallet.editValues.units" ng-disabled="$ctrl.shipment.totalUnits" style="width:80px;">
+              <input class="form-control" type="number" ng-model="pallet.editValues.units" ng-disabled="$ctrl.shipment.totalUnits" style="width:80px;">
             </span>
             <span ng-hide="pallet.isEditing">{{pallet.units}}</span></td>
           <td>
             <span ng-show="pallet.isEditing">
-              <select ng-model="pallet.editValues.category">
+              <select class="form-control" ng-model="pallet.editValues.category">
                 <option ng-repeat="option in $ctrl.categoryOptions" ng-value="option.value">{{option.displayName}}</option>
               </select>
             </span>
@@ -280,7 +287,7 @@
           </td>
           <td>
             <span ng-show="pallet.isEditing">
-              <select ng-model="pallet.editValues.condition">
+              <select class="form-control" ng-model="pallet.editValues.condition">
                 <option ng-repeat="option in $ctrl.conditionOptions" ng-value="option.value">{{option.displayName}}</option>
               </select>
             </span>
@@ -299,22 +306,26 @@
           </td>
         </tr>
         <tr ng-show="$ctrl.addExpectedPallet.isStarted">
-          <td><input id="add-expected-pallet-input" ng-model="$ctrl.addExpectedPallet.data.handle" size="12"></td>
+          <td ng-class="{ 'has-error' : $ctrl.addExpectedPallet.errors.emptyHandle || $ctrl.addExpectedPallet.errors.duplicateHandle }">
+            <input class="form-control" id="add-expected-pallet-input" ng-model="$ctrl.addExpectedPallet.data.handle" size="12" ng-change="$ctrl.addExpectedPallet.validate()">
+            <span class="text-danger h6" ng-show="$ctrl.addExpectedPallet.errors.duplicateHandle">Duplicate handle</span>
+            <span class="text-danger h6" ng-show="$ctrl.addExpectedPallet.errors.emptyHandle">Missing handle</span>
+          </td>
           <td>
-            <select ng-model="$ctrl.addExpectedPallet.data.isAnonymous">
+            <select class="form-control" ng-model="$ctrl.addExpectedPallet.data.isAnonymous">
               <option ng-value="true">Yes</option>
               <option ng-value="false">No</option>
             </select>
           </td>
-          <td><input type="number" ng-model="$ctrl.addExpectedPallet.data.cost" style="width:80px;"></td>
-          <td><input type="number" ng-model="$ctrl.addExpectedPallet.data.units" style="width:80px;"></td>
+          <td><input class="form-control" type="number" ng-model="$ctrl.addExpectedPallet.data.cost" style="width:80px;"></td>
+          <td><input class="form-control" type="number" ng-model="$ctrl.addExpectedPallet.data.units" style="width:80px;"></td>
           <td>
-            <select ng-model="$ctrl.addExpectedPallet.data.category">
+            <select class="form-control" ng-model="$ctrl.addExpectedPallet.data.category">
               <option ng-repeat="option in $ctrl.categoryOptions" ng-value="option.value">{{ option.displayName }}</option>
             </select>
           </td>
           <td>
-            <select ng-model="$ctrl.addExpectedPallet.data.condition">
+            <select class="form-control" ng-model="$ctrl.addExpectedPallet.data.condition">
               <option ng-repeat="option in $ctrl.conditionOptions" ng-value="option.value">{{ option.displayName }}</option>
             </select>
           </td>
