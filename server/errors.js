@@ -17,14 +17,15 @@ class MyError extends Error {
 }
 
 class ClientError extends MyError {
-  constructor(message) {
+  constructor( message, code ) {
     super(message);
+    this.code = code;
   }
 }
 
 class IllegalActionError extends ClientError {
-  constructor(message) {
-    super(`Illegal action: ${message}`);
+  constructor( message, code ) {
+    super( `Illegal action: ${message}`, code );
   }
 }
 

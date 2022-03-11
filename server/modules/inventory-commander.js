@@ -634,7 +634,7 @@ class InventoryCommander {
     const duplicatePallet = existingPallets.find( _pr => _pr.handle === _palletData.handle );
 
     if( duplicatePallet ) {
-      throw new IllegalActionError(`A pallet with the handle ${_palletData.handle} already exists for the shipment ${shipmentId}.`);
+      throw new IllegalActionError( `A pallet with the handle '${_palletData.handle}' already exists for the shipment ${shipmentId}.`, 'DUPLICATE_PALLET_HANDLE' );
     }
 
     // search for an expected pallet in this shipment with matching handle to the one being received

@@ -264,7 +264,8 @@ class Server {
       console.error(err);
 
       const response = {
-        error: true
+        error: true,
+        code: err.code
       };
 
       if( err instanceof ClientError ) {
