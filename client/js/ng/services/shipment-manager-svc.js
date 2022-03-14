@@ -179,11 +179,8 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
         if( type === 'expected' ) {
           pallets = shipment.palletsExpected;
         }
-        else if( type === 'received' ) {
-          pallets = shipment.palletsReceived;
-        }
         else {
-          return false;
+          pallets = shipment.palletsReceived.concat( shipment.palletsConsolidated );
         }
 
         if( pallets.find( p => p.handle === handle ) ) {

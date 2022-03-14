@@ -8,8 +8,8 @@ const __DISPLAY_MODE_AGGREGATE__ = '__DISPLAY_MODE_AGGREGATE__';
 
 
 /******************* Pallets List Page Controller *************************/
-angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPalletManagerSvc', 'LoggedInUser', 'navigate', 'palletProperties', 'sessionTimeout', 'SettingsSvc', 'UtilitiesSvc',
-  function( InventoryPalletManagerSvc, LoggedInUser, navigate, palletProperties, sessionTimeout, SettingsSvc, UtilitiesSvc ) {
+angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPalletManagerSvc', 'LoggedInUser', 'navigate', 'palletProperties', 'sessionTimeout', 'SettingsSvc', 'ShipmentManagerSvc', 'UtilitiesSvc',
+  function( InventoryPalletManagerSvc, LoggedInUser, navigate, palletProperties, sessionTimeout, SettingsSvc, ShipmentManagerSvc, UtilitiesSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -174,7 +174,14 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
 
     }
 
-    function showPalletDetails( pallet ) {
+    async function showPalletDetails( pallet ) {
+
+      if( pallet.shipment ) {
+        const shipment = await ShipmentManagerSvc.loadShipment( { shipmentId: pallet.shipment._id, populate: [ 'palletsReceived', 'palletsConsolidated' ]  } );
+        pallet.shipment = shipment;
+
+      }
+
       pallet.detailsModal().then( refreshPalletsList );
     }
 

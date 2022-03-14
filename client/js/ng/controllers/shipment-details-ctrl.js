@@ -364,13 +364,19 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
     function receivePallet() {
 
+      const duplicatePalletMessageObj = { header: 'Error', html: `<p>Duplicate pallet handle: <strong class="h4 text-danger">${vm.receivedPalletId}</strong></p>`, type: 'error' };
+
       if( vm.receivedPalletId ) {
 
         const found = vm.shipment.palletsReceived.find( p => p.handle === vm.receivedPalletId );
 
         if( found ) {
           AudioAlertSvc.warning();
-          vm.receivedPalletId = '';
+          messageModal.launch(
+            duplicatePalletMessageObj,
+            null,
+            _ => vm.receivedPalletId = ''
+          );
           return;
         }
 
@@ -383,6 +389,20 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
         }
 
         return vm.shipment.receivePallet( { handle: vm.receivedPalletId } ).then( _response => {
+
+          if( _response.error ) {
+
+            AudioAlertSvc.warning();
+
+            let messageObj = _response.code === 'DUPLICATE_PALLET_HANDLE' ? duplicatePalletMessageObj : { header: 'Error', body: `Server error.`, type: 'error' };
+
+            messageModal.launch(
+              messageObj,
+              null,
+              _ => vm.receivedPalletId = ''
+            );
+
+          }
 
           vm.receivedPalletId = '';
 
@@ -464,6 +484,23 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
         }
 
         return vm.shipment.addConsolidatedPallet( pallet ).then( _response => {
+
+          const duplicatePalletMessageObj = { header: 'Error', html: `<p>Duplicate pallet handle: <strong class="h4 text-danger">${pallet.handle}</strong></p>`, type: 'error' };
+
+          if( _response.error ) {
+
+            AudioAlertSvc.warning();
+
+            let messageObj = _response.code === 'DUPLICATE_PALLET_HANDLE' ? duplicatePalletMessageObj : { header: 'Error', body: `Server error.`, type: 'error' };
+
+            messageModal.launch(
+              messageObj,
+              null,
+              _ => vm.receivedPalletId = ''
+            );
+
+          }
+
           return loadShipment();
         } );
       });

@@ -201,7 +201,8 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
 
           return Promise.allSettled( [ breakdownPromise, savePromise ] );
 
-        } );
+        } )
+          .catch( e => e ? console.error(e) : console.log('Pallet edit canceled.') );
 
       }
 
@@ -318,12 +319,28 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
 
         const vm = this;
         vm.inputs = Object.assign( { isBrokendown: false, hasProblem: false, category: null, condition: 'shelf-pull' }, pallet );
+        vm.errors = {};
         vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );
         vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) );
         vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
         vm.showBrokendownDate = pallet.isBrokendown;
         vm.showCreatedAtDate = !!pallet.createdAt;
         vm.showShipment = !!pallet.shipment;
+
+        vm.validate = () => {
+
+          vm.errors.emptyHandle = !vm.inputs.handle;
+
+          const shipment = pallet.shipment;
+
+          if( shipment ) {
+
+            vm.errors.duplicateHandle = !! shipment.palletsReceived.concat( shipment.palletsConsolidated ).find( _p => _p.handle === vm.inputs.handle && _p._id !== pallet._id );
+
+          }
+
+          return Object.values( vm.errors ).every( value => !value );
+        };
 
         vm.finish = () => {
           return $scope.$close( vm.inputs );

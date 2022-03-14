@@ -3,9 +3,11 @@
 </div>
 <div class="modal-body">
 	<div class="row">
-    <div class="form-group col-xs-12 col-sm-6">
+    <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.errors.emptyHandle || $ctrl.errors.duplicateHandle }">
       <label for="handleInput">Handle</label>
-      <input class="form-control" type="text" id="handleInput" ng-model="$ctrl.inputs.handle">
+      <input class="form-control" type="text" id="handleInput" ng-model="$ctrl.inputs.handle" ng-change="$ctrl.validate()">
+      <span class="text-danger h4" ng-show="$ctrl.errors.duplicateHandle">Duplicate handle</span>
+      <span class="text-danger h4" ng-show="$ctrl.errors.emptyHandle">Missing handle</span>
     </div>
     <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showShipment">
       <label for="shipmentInput">Shipment</label>
@@ -67,6 +69,6 @@
 	</div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="$ctrl.finish()">Save</button>
+    <button class="btn btn-primary" type="button" ng-click="$ctrl.finish()" ng-disabled="!$ctrl.validate()">Save</button>
     <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
 </div>
