@@ -250,6 +250,51 @@ const bundleQueryFilter = ( { handle, pkg, isPacked } ) => {
   return filter;
 };
 
+//Note: that this only supports two levels of the path, i.e. 'shipment' & 'shipment.palletsReceived'.
+// If we have a reason to go deeper, we'll need to put together some sort of recursive solution.
+function appendPopulationQueries( query, populationPaths ) {
+
+  const populationSets = populationPaths.reduce( ( acc, path ) => {
+
+    const dotIdx = path.indexOf('.');
+
+    const { parentPath, childPath } = dotIdx > -1 ? { parentPath: path.slice( 0, dotIdx ), childPath: path.slice( dotIdx + 1 ) } : { parentPath: path };
+
+    if( !acc.has( parentPath ) ) {
+
+      acc.set( parentPath, new Set() );
+
+    }
+      
+    acc.get( parentPath ).add( childPath );
+
+    return acc;
+  }, new Map() );
+
+
+  const pathObjects = [];
+  for( let [ parentPath, childPathSet ]  of populationSets.entries() ) {
+    // filter out empty childpaths. this removes, e.g. 'shipment' if 'shipment.palletsReceived' exists 
+    const _childPathList = [ ...childPathSet ].filter(_=>_);
+
+    if( _childPathList.length ) {
+
+      // for each child path, add a two level deep population object
+      _childPathList.forEach( _cp => pathObjects.push( { path: parentPath, populate: { path: _cp } } ) );
+
+    }
+    else { // if no child paths at all, add a one-level deep population object
+      pathObjects.push( { path: parentPath } );
+    }
+  }
+
+  for( let _po of pathObjects ) {
+    query = query.populate( _po );
+  }
+
+  return query;
+}
+
 /************************************************
  * 
  * Public Database Client
@@ -296,9 +341,9 @@ class InventoryCommander {
     
     let q = this.IncomingShipment.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
 
-    for( let path of populate ) {
+    if( populate ) {
 
-      q = q.populate( path );
+      q = appendPopulationQueries( q, populate );
 
     }
 
@@ -319,7 +364,7 @@ class InventoryCommander {
     const existingShipment = await this.getIncomingShipmentByHandle( _data.handle );
 
     if( existingShipment ) {
-      throw new IllegalActionError(`Shipment with handle ${_data.handle} already exists.`);
+      throw new IllegalActionError(`Shipment with handle ${_data.handle} already exists.`, 'DUPLICATE_SHIPMENT_HANDLE');
     }
 
     const data = Object.assign(
@@ -356,11 +401,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      for( let path of populate ) {
-
-        q = q.populate( path );
-
-      }
+      q = appendPopulationQueries( q, populate );
 
     }
 
@@ -715,7 +756,7 @@ class InventoryCommander {
     const duplicatePallet = existingPallets.find( _pr => _pr.handle === _palletData.handle );
 
     if( duplicatePallet ) {
-      throw new IllegalActionError(`A pallet with the handle ${_palletData.handle} already exists for the shipment ${shipmentId}.`);
+      throw new IllegalActionError(`A pallet with the handle ${_palletData.handle} already exists for the shipment ${shipmentId}.`, 'DUPLICATE_PALLET_HANDLE' );
     }
 
     const basePalletObject = {
@@ -789,9 +830,9 @@ class InventoryCommander {
     
     let q = this.InventoryPallet.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
 
-    for( let path of populate ) {
+    if( populate ) {
 
-      q = q.populate( path );
+      q = appendPopulationQueries( q, populate );
 
     }
 
@@ -840,11 +881,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      for( let path of populate ) {
-
-        q = q.populate( path );
-
-      }
+      q = appendPopulationQueries( q, populate );
 
     }
 
@@ -871,10 +908,25 @@ class InventoryCommander {
 
   async editInventoryPallet( palletId, _editDocument ) {
 
-    const pallet = await this.getInventoryPalletById( palletId );
+    const pallet = await this.getInventoryPalletById( palletId, { populate: [ 'shipment', 'shipment.palletsReceived', 'shipment.palletsConsolidated' ] } );
+    const shipment = pallet.shipment;
 
     if( !pallet ) {
       throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
+    }
+
+    if( _editDocument.handle ) {
+
+      if( shipment ) {
+
+        const duplicatePallet = shipment.palletsReceived.concat( shipment.palletsConsolidated ).find( _p => _p.handle === _editDocument.handle && _p._id.toString() !== pallet._id.toString() );
+
+        if( duplicatePallet ) {
+          throw new IllegalActionError( `A pallet with the handle '${_editDocument.handle}' already exists for the shipment ${shipment._id}.`, 'DUPLICATE_PALLET_HANDLE' );
+        }
+
+      }
+
     }
 
     try { 
@@ -958,9 +1010,9 @@ class InventoryCommander {
 
     let q = this.Package.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
 
-    for( let path of populate ) {
+    if( populate ) {
 
-      q = q.populate( path );
+      q = appendPopulationQueries( q, populate );
 
     }
 
@@ -1008,11 +1060,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      for( let path of populate ) {
-
-        q = q.populate( path );
-
-      }
+      q = appendPopulationQueries( q, populate );
 
     }
 
@@ -1190,9 +1238,9 @@ class InventoryCommander {
 
     let q = this.Bundle.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
 
-    for( let path of populate ) {
+    if( populate ) {
 
-      q = q.populate( path );
+      q = appendPopulationQueries( q, populate );
 
     }
 
@@ -1240,11 +1288,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      for( let path of populate ) {
-
-        q = q.populate( path );
-
-      }
+      q = appendPopulationQueries( q, populate );
 
     }
 
