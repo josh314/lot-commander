@@ -142,7 +142,7 @@ function routes({ eventsDb, inventoryCommander }) {
   router.patch(
     '/:shipmentId/documents/:documentName', 
     auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' ),
-    editIncomingShipmentDocumentRestrictionStatus
+    editIncomingShipmentDocumentProperties
   );
 
   // Receiving shipments/pallets
@@ -455,39 +455,46 @@ function routes({ eventsDb, inventoryCommander }) {
   //==================
   // document handlers
 
-  async function listIncomingShipmentDocuments( req, res ) {
+  async function listIncomingShipmentDocuments( req, res, next ) {
 
-    const opts = {
-      folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)(req.params.shipmentId),
-      num: req.query.num ? parseInt(req.query.num) + 1 : undefined,
-      continuationToken: req.query.continuation_token
-    };
+    try {
 
-    const result = await documentSvc.list( opts );
+      const opts = {
+        folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)(req.params.shipmentId),
+        num: req.query.num ? parseInt(req.query.num) + 1 : undefined,
+        continuationToken: req.query.continuation_token
+      };
 
-    if( result && result.documents ) {
+      const result = await documentSvc.list( opts );
 
-      result.documents = (await Promise.map(
-        result.documents,
-        async (doc) => {
+      if( result && result.documents ) {
 
-          const docTags = await documentSvc.getDocumentTags( { 
-            folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)(req.params.shipmentId),
-            name: doc.name
-          } );
-          
-          const kv = docTags.TagSet.find( _ => _.Key === 'permission' );
+        result.documents = (await Promise.map(
+          result.documents,
+          async (doc) => {
 
-          doc.permission = kv && kv.Value;
+            const docTags = await documentSvc.getDocumentTags( {
+              folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)(req.params.shipmentId),
+              name: doc.name
+            } );
 
-          return doc;
-        }
-      ))
-        .filter( doc => req.user.isAuthorized(doc.permission) );
+            // docTags.Tagset is an array of objects with props Key, Value, i.e. docTags.Tagset = [ { Key: ..., Value: ...}, ... ]
+            for( let { Key, Value } of docTags.TagSet ) {
+              doc[ Key ] = Value;
+            }
 
+            return doc;
+          }
+        ))
+          .filter( doc => req.user.isAuthorized(doc.permission) );
+
+      }
+
+      res.json( result );
     }
-
-    res.json( result );
+    catch(e) {
+      next( e );
+    }
   }
 
   async function getIncomingShipmentDocument( req, res ) {
@@ -540,16 +547,20 @@ function routes({ eventsDb, inventoryCommander }) {
 
           const readStream = fs.createReadStream(f.path);
   
-          const storePromise = await documentSvc.store( {
+          const tags = {
+            permission: fields.isRestricted === 'true' || fields.documentType === 'invoice' ? __RESTRICTED_DOCUMENT_PERMISSION__ : '',
+            documentType: fields.documentType || '',
+          };
+
+          await documentSvc.store( {
             readStream: readStream,
             folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)( req.params.shipmentId ),
             name: documentName,
-            permission: fields.isRestricted === 'true' ? __RESTRICTED_DOCUMENT_PERMISSION__ : null,
+            tags
           } );
 
           console.log(`Unlinking temp file ${f.path}`);
           fs.promises.unlink(f.path);
-          await storePromise;
           res.json( { success: true } );
         }
         else {
@@ -565,26 +576,39 @@ function routes({ eventsDb, inventoryCommander }) {
 
   }
 
-  function editIncomingShipmentDocumentRestrictionStatus( req, res ) {
+  function editIncomingShipmentDocumentProperties( req, res, next ) {
 
-    if( !req.body || !('isRestricted' in req.body) ) {
-      res.json({ error: true, message: `Invalid request.` });
+    try {
+
+      if( !req.body ) {
+        throw new InvalidRequestError();
+      }
+
+      const documentName = req.params.documentName;
+
+      const newTags = {};
+      if( 'isRestricted' in req.body ) {
+        newTags.permission = req.body.isRestricted ? __RESTRICTED_DOCUMENT_PERMISSION__ : '';
+      }
+      if( 'documentType' in req.body ) {
+        newTags.documentType = req.body.documentType || '';
+      }
+
+      if( !Object.entries(newTags).length ) {
+        throw new InvalidRequestError();
+      }
+
+      documentSvc.addDocumentTags({
+        folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)( req.params.shipmentId ),
+        name: documentName,
+        tags: newTags
+      })
+        .then( _ => res.json( { success: true } ) );
+
     }
-
-    const documentName = req.params.documentName;
-
-    documentSvc.setDocumentTags({
-      folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)( req.params.shipmentId ),
-      name: documentName,
-      tagset: [
-        {
-          Key: 'permission',
-          Value: req.body.isRestricted ? __RESTRICTED_DOCUMENT_PERMISSION__ : ''
-        }
-      ]
-    })
-      .then( _ => res.json( { success: true } ) )
-      .catch( e => console.log(e) || res.json({ error: true, message: `Unable to update object: '${documentName}'` }) );
+    catch(e) {
+      next( e );
+    }
 
   }
 
