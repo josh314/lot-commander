@@ -65,7 +65,7 @@ angular.module('myApp').controller('CleanManifestCtrl', [ 'ManifestFileHandlerSv
 
         ManifestFileHandlerSvc.createFile( outputFilename, function( file ) {
 
-          ShipmentManagerSvc.uploadShipmentDocument( { shipmentId: vm.shipmentId, file, isRestricted: true } ).then( _ => navigate.shipmentDetails( vm.shipmentId ) );
+          ShipmentManagerSvc.uploadShipmentDocument( { shipmentId: vm.shipmentId, file, documentType: 'manifest', isRestricted: true } ).then( _ => navigate.shipmentDetails( vm.shipmentId ) );
 
         });
 

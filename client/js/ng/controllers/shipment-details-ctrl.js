@@ -22,6 +22,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
     vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );
     vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) );
+    vm.documentTypeOptions = ShipmentManagerSvc.shipmentDocumentTypes.map( _ => _ === '' ? { displayName: 'none', value: _ } : { displayName: _, value: _ } );
 
     vm.removeShipment = removeShipment;
 
@@ -32,7 +33,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
     vm.saveEdit = saveShipmentEdit;
     vm.savePalletEdit = savePalletEdit;
 
-    vm.documentToUploadIsRestricted = vm.showRestrictedDocuments;
+    vm.preloadDocument = preloadDocument;
+    vm.documentToAdd = initDocumentToAdd();
     vm.removeDocument = removeDocument;
     vm.uploadDocument = uploadDocument;
     vm.isManifestFile = isManifestFile;
@@ -248,15 +250,46 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
       vm.waitingForResponse = true;
 
-      vm.shipment.listShipmentDocuments().then( documents => {
+      vm.shipment.listShipmentDocuments().then( resp => {
 
+        if( resp.error ) {
+          vm.waitingForResponse = false;
+          return messageModal.launch({header: 'Failure', body: 'Server Error: documents unavailable', type: 'error'});
+        }
+
+        const documents = resp.documents;
         if( documents ) {
 
           documents.forEach( doc => {
 
             doc.isRestricted = doc.permission === 'VIEW_PURCHASING_DATA';
 
-            doc.updateRestrictionStatus = () => vm.shipment.updateDocumentRestrictionStatus( doc.name, doc.isRestricted ).then( updateDocumentList );
+            doc.updateRestrictionStatus = () => vm.shipment.updateDocumentProperties( doc.name, { isRestricted: doc.isRestricted } ).then( updateDocumentList );
+
+            doc.updateDocumentType = oldDocumentType => {
+
+              if( doc.documentType !== 'manifest' ) {
+                return vm.shipment.updateDocumentProperties( doc.name, { documentType: doc.documentType } ).then( updateDocumentList );
+              }
+              else if( !ManifestFileHandlerSvc.isManifestFile( doc.name ) ) {
+
+                ConfirmationModal.launch({
+                  header: 'Filetype mismatch',
+                  body: 'File extension is unexpected for a manifest. Proceed anyway?',
+                }).then( isConfirmed => {
+
+                  if( isConfirmed ) {
+                    return vm.shipment.updateDocumentProperties( doc.name, { documentType: doc.documentType } ).then( updateDocumentList );
+                  }
+                  else {
+                    doc.documentType = oldDocumentType;
+                  }
+
+                });
+
+              }
+
+            };
 
           });
 
@@ -269,8 +302,37 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
     }
 
-    function uploadDocument() {
-      if(!vm.documentToUpload) {
+    function initDocumentToAdd() {
+      return {
+        file: null,
+        isRestricted: vm.showRestrictedDocuments,
+        documentType: ''
+      };
+    }
+
+    function isManifestFile( _document ) {
+      return _document.documentType === 'manifest' && ManifestFileHandlerSvc.isManifestFile( _document.name );
+    }
+
+    function preloadDocument( $event ) {
+
+      const file = $event.target.files[0];
+
+      if( file ) {
+
+        if( ManifestFileHandlerSvc.isManifestFile( file.name ) ) {
+          vm.documentToAdd.documentType = 'manifest';
+        }
+        else if ( vm.documentToAdd.documentType === 'manifest' ) {
+          vm.documentToAdd.documentType = null;
+        }
+
+      }
+
+    }
+
+    async function uploadDocument() {
+      if(!vm.documentToAdd.file) {
         vm.noFileSelected = true;
         return;
       }
@@ -278,24 +340,43 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
         vm.noFileSelected = false;
       }
 
-      const documentToUpload = vm.documentToUpload;
-      const isRestricted = !!vm.documentToUploadIsRestricted;
-
-      const duplicateDocument = vm.documents.find( _d => _d.name === documentToUpload.name );
+      const duplicateDocument = vm.documents.find( _d => _d.name === vm.documentToAdd.file.name );
 
       if( duplicateDocument ) {
         messageModal.launch(
           { header: 'Error', body: 'This document has already been uploaded.', type: 'error' },
           null,
-          _ => FileModelSvc.startReset()
+          () => {
+            vm.documentToAdd = initDocumentToAdd();
+            FileModelSvc.startReset();
+          }
         );
         return;
       }
 
+      if( vm.documentToAdd.documentType === 'manifest' && !ManifestFileHandlerSvc.isManifestFile( vm.documentToAdd.file.name ) ) {
+        const isConfirmed = await ConfirmationModal.launch({
+          header: 'Filetype mismatch',
+          body: 'File extension is unexpected for a manifest. Proceed anyway?',
+        });
+
+        if( !isConfirmed ) {
+          return;
+        }
+
+      }
+
       vm.waitingForResponse = true;
-      vm.shipment.uploadShipmentDocument( documentToUpload, isRestricted ).then( _ => {
+      vm.shipment.uploadShipmentDocument(
+        vm.documentToAdd.file,
+        {
+          isRestricted: vm.documentToAdd.isRestricted,
+          documentType: vm.documentToAdd.documentType
+        }
+      ).then( _ => {
         updateDocumentList();
         vm.waitingForResponse = false;
+        vm.documentToAdd = initDocumentToAdd();
         FileModelSvc.startReset();
       });
 
@@ -311,13 +392,9 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
       });
     }
 
-    function isManifestFile( documentName ) {
-      return ManifestFileHandlerSvc.isManifestFile( documentName );
-    }
-
     function cleanManifest( _document ) {
 
-      ManifestFileHandlerSvc.launchFileParsingOptionsModal( options => {
+      ManifestFileHandlerSvc.launchFileParsingOptionsModal( _document.name, options => {
 
         vm.shipment.getShipmentDocument( _document.name ).then( data => {
 

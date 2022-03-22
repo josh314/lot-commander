@@ -41,14 +41,17 @@ class ShipmentValidator {
 }
 
 /******************* Shipment Creation Page Controller *************************/
-angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletProperties', 'PalletsFromManifestModalSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
-  function( FileModelSvc, ManifestFileHandlerSvc, messageModal, navigate, palletProperties, PalletsFromManifestModalSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
+angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal', 'FileModelSvc', 'LoggedInUser', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletProperties', 'PalletsFromManifestModalSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
+  function( ConfirmationModal, FileModelSvc, LoggedInUser, ManifestFileHandlerSvc, messageModal, navigate, palletProperties, PalletsFromManifestModalSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
+    vm.showRestrictedDocuments = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+
     vm.inputs = {
       categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
       conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) ),
+      documentTypeOptions: ShipmentManagerSvc.shipmentDocumentTypes.map( _ => _ === '' ? { displayName: 'none', value: _ } : { displayName: _, value: _ } ),
       category: null,
       condition: 'shelf-pull',
       documentToAdd: initDocumentToAdd(),
@@ -60,9 +63,11 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
 
     vm.refreshValidator = refreshValidator;
     vm.checkShipmentHandle = checkShipmentHandle;
+    vm.isManifestFile = isManifestFile;
+    vm.preloadDocument = preloadDocument;
     vm.addDocument = addDocument;
+    vm.validateDocumentType = validateDocumentType;
     vm.removeDocument = removeDocument;
-    vm.hasUnimportedManifest = hasUnimportedManifest;
     vm.setPalletCosts = setPalletCosts;
     vm.setShipmentCost = setShipmentCost;
     vm.clearShipmentCategory = ( ) => vm.inputs.category = null;
@@ -112,11 +117,33 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
     function initDocumentToAdd() {
       return {
         file: null,
-        isRestricted: true
+        isRestricted: vm.showRestrictedDocuments,
+        documentType: ''
       };
     }
 
-    function addDocument() {
+    function isManifestFile( _document ) {
+      return _document.documentType === 'manifest' && ManifestFileHandlerSvc.isManifestFile( _document.name );
+    }
+
+    function preloadDocument( $event ) {
+
+      const file = $event.target.files[0];
+
+      if( file ) {
+
+        if( ManifestFileHandlerSvc.isManifestFile( file.name ) ) {
+          vm.inputs.documentToAdd.documentType = 'manifest';
+        }
+        else if ( vm.inputs.documentToAdd.documentType === 'manifest' ) {
+          vm.inputs.documentToAdd.documentType = null;
+        }
+
+      }
+
+    }
+
+    async function addDocument() {
 
       if( !vm.inputs.documentToAdd.file ) {
         return;
@@ -133,10 +160,23 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
         return;
       }
 
+      if( vm.inputs.documentToAdd.documentType === 'manifest' && !ManifestFileHandlerSvc.isManifestFile( vm.inputs.documentToAdd.file.name ) ) {
+        const isConfirmed = await ConfirmationModal.launch({
+          header: 'Filetype mismatch',
+          body: 'File extension is unexpected for a manifest. Proceed anyway?',
+        });
+
+        if( !isConfirmed ) {
+          return;
+        }
+
+      }
+
       const documentToAdd = {
         file: vm.inputs.documentToAdd.file,
         name: vm.inputs.documentToAdd.file.name,
         size: UtilitiesSvc.humanReadableFileSize( vm.inputs.documentToAdd.file.size ),
+        documentType: vm.inputs.documentToAdd.documentType,
         isRestricted: vm.inputs.documentToAdd.isRestricted,
       };
       delete vm.inputs.documentToAdd;
@@ -144,6 +184,24 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
       vm.inputs.documents.push( documentToAdd );
       vm.inputs.documentToAdd = initDocumentToAdd();
       FileModelSvc.startReset();
+    }
+
+    function validateDocumentType( _document, oldDocumentType ) {
+
+      if( _document.documentType === 'manifest' && !ManifestFileHandlerSvc.isManifestFile( _document.file.name ) ) {
+
+        ConfirmationModal.launch({
+          header: 'Filetype mismatch',
+          body: 'File extension is unexpected for a manifest. Proceed anyway?',
+        }).then( isConfirmed => {
+
+          if( !isConfirmed ) {
+            _document.documentType = oldDocumentType;
+          }
+
+        });
+
+      }
     }
 
     function removeDocument( documentName ) {
@@ -154,10 +212,6 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
         vm.inputs.documents.splice( foundIdx, 1 );
       }
 
-    }
-
-    function hasUnimportedManifest() {
-      return vm.inputs.documents.some( d => ManifestFileHandlerSvc.isManifestFile( d.name ) && !d.isImported );
     }
 
     function removePallet( idx ) {
@@ -189,11 +243,38 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
       vm.validator = new ShipmentValidator( vm.inputs );
     }
 
-    function createShipment() {
+    async function createShipment() {
 
       refreshValidator();
 
       if( vm.validator.isValid() ) {
+
+        // if there is no invoice document, ask for confirmation
+        if( vm.showRestrictedDocuments && ! vm.inputs.documents.some( _document => _document.documentType === 'invoice' ) ) {
+          const isConfirmed = await ConfirmationModal.launch({
+            header: 'No invoice',
+            body: 'There is no invoice document for this shipment. Proceed anyway?',
+          });
+
+          if( !isConfirmed ) {
+            return;
+          }
+
+        }
+
+        // if there are unimported manifest files, ask for confirmation
+        if( vm.inputs.documents.some( _document => isManifestFile( _document ) && !_document.isImported ) ) {
+          const isConfirmed = await ConfirmationModal.launch({
+            header: 'Unimported manifest',
+            body: 'There are manifest files still available for import. Proceed anyway?',
+          });
+
+          if( !isConfirmed ) {
+            return;
+          }
+
+        }
+
         ShipmentManagerSvc.createShipment( shipmentRequest() ).then( result => {
 
           if( result && result.shipment ) {
@@ -210,6 +291,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
               await ShipmentManagerSvc.uploadShipmentDocument( {
                 shipmentId: shipment._id,
                 file: _document.file,
+                documentType: _document.documentType,
                 isRestricted: _document.isRestricted || false
               } );
 
@@ -283,11 +365,9 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'FileModelSvc', 'Ma
       return shipment;
     }
 
-    function importPalletsFromManifest() {
+    function importPalletsFromManifest( manifestDocument ) {
 
-      const manifestDocument = vm.inputs.documents.find( d => ManifestFileHandlerSvc.isManifestFile( d.name ) && !d.isImported );
-
-      if( manifestDocument ) {
+      if( manifestDocument && manifestDocument.documentType === 'manifest' && !manifestDocument.isImported ) {
 
         ManifestFileHandlerSvc.launchFileParsingOptionsModal( manifestDocument.name, parseOptions => {
 

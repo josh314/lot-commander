@@ -188,28 +188,32 @@
   </div>
   <div class="row well" ng-show="$ctrl.showEditControls || ($ctrl.documents && $ctrl.documents.length)">
 
-    <div class="row" style="display: flex; align-items: center; justify-content: center;" ng-show="$ctrl.showEditControls">
-      <div class="form-group" ng-class="{ 'has-error' : $ctrl.noFileSelected }">
-        <label for="fileInput">Upload Document File</label>
-        <div class="input-group">
-          <span class="input-group-addon" ng-show="$ctrl.showRestrictedDocuments">
-            <label for="documentToUploadIsRestrictedInput">Restricted document
-              <input type="checkbox" id="documentToUploadIsRestrictedInput" ng-model="$ctrl.documentToUploadIsRestricted">
-            </label>
-          </span>
-          <input type="file" class="form-control" id="fileInput" required file-model="$ctrl.documentToUpload">
-          <div class="input-group-btn">
-            <button type="button" class="btn btn-primary" ng-click="$ctrl.uploadDocument()">Upload</button>
-          </div><!-- /btn-group -->
-        </div><!-- /input-group -->
+      <div class="col-xs-12 row" ng-show="$ctrl.showEditControls">
+
+        <div class="form-group col-xs-12 col-sm-6">
+          <label>File</label>
+          <input type="file" class="form-control" id="fileInput" required file-model="$ctrl.documentToAdd.file" ng-upload-change="$ctrl.preloadDocument( $event )">
+        </div>
+
+        <div class="form-group col-xs-12 col-sm-6">
+          <label>Document Type</label>
+          <select class="form-control" ng-model="$ctrl.documentToAdd.documentType">
+            <option ng-repeat="option in $ctrl.documentTypeOptions" ng-value="option.value">{{option.displayName}}</option>
+          </select>
+        </div>
+
+
+      <div class="col-xs-12 row text-center">
+        <button type="button" class="btn btn-primary" ng-click="$ctrl.uploadDocument()">Upload file</button>
       </div>
     </div>
 
-    <div class="row" ng-show="$ctrl.waitingForResponse || ($ctrl.documents && $ctrl.documents.length)">
+    <div class="col-xs-12 row" ng-show="$ctrl.waitingForResponse || ($ctrl.documents && $ctrl.documents.length)">
       <table class="table table-striped" ng-hide="$ctrl.waitingForResponse">
         <thead>
           <th>Name</th>
           <th>Size</th>
+          <th>Type</th>
           <th ng-show="$ctrl.showRestrictedDocuments">Restricted?</th>
           <th></th>
           <th ng-show="$ctrl.showEditControls">Remove</th>
@@ -218,6 +222,11 @@
           <tr ng-repeat="document in $ctrl.documents track by $index">
             <td><a ng-href="/api/receiving/{{ $ctrl.shipment._id }}/documents/{{ document.name }}" target="_self" download>{{ document.name }}</a></td>
             <td>{{ document.displaySize }}</td>
+            <td>
+              <select ng-model="document.documentType" ng-change="document.updateDocumentType( '{{ document.documentType }}' )">
+                <option ng-repeat="option in $ctrl.documentTypeOptions" ng-value="option.value">{{ option.displayName }}</option>
+              </select>
+            </td>
             <td ng-show="$ctrl.showRestrictedDocuments">
               <select ng-model="document.isRestricted" ng-change="document.updateRestrictionStatus()">
                 <option ng-value="true">Yes</option>
@@ -225,7 +234,7 @@
               </select>
             </td>
             <td>
-              <button class="btn btn-xs btn-success" ng-click="$ctrl.cleanManifest( document )" ng-show="$ctrl.isManifestFile( document.name )">Clean</button>
+              <button class="btn btn-xs btn-success" ng-click="$ctrl.cleanManifest( document )" ng-show="$ctrl.isManifestFile( document )">Clean</button>
             </td>
             <td ng-show="$ctrl.showEditControls">
               <button type="button" class="btn btn-danger btn-xs" ng-click="$ctrl.removeDocument( document.name )">

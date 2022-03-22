@@ -46,12 +46,23 @@ const queryParams = ( params ) => {
 //
 // This service provides some utility functionality to the shipments API and UI
 //
-angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'ShipmentFactory',
-  function( $q, $stateParams, ShipmentFactory ) {
+angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'LoggedInUser', 'ShipmentFactory',
+  function( $q, $stateParams, LoggedInUser, ShipmentFactory ) {
 
     const _shipmentId = () =>  $stateParams.shipmentId;
 
+    const shipmentDocumentTypes = [ '', 'invoice', 'manifest', 'BOL' ].filter( _ => {
+
+      if( _ === 'invoice' && !LoggedInUser.hasPermission('VIEW_PURCHASING_DATA') ) {
+        return false;
+      }
+
+      return true;
+    } );
+
     return {
+
+      shipmentDocumentTypes: shipmentDocumentTypes,
 
       createShipment: ( shipment ) => $q.when( api.createIncomingShipment( shipment ) ),
 
@@ -101,7 +112,7 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'S
 
       countShipments: filter => $q.when( api.countIncomingShipments( queryParams( filter ) ) ),
 
-      uploadShipmentDocument: ( { shipmentId, file, isRestricted } ) => $q.when( api.uploadIncomingShipmentDocument( shipmentId || _shipmentId(), file, isRestricted ) ),
+      uploadShipmentDocument: ( { shipmentId, file, documentType, isRestricted } ) => $q.when( api.uploadIncomingShipmentDocument( shipmentId || _shipmentId(), file, { documentType, isRestricted } ) ),
 
     };
 
@@ -204,14 +215,28 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
 
       shipment.listShipmentDocuments = ( ) => $q.when( api.listIncomingShipmentDocuments( shipment._id ) ).then( resp => {
 
-        return resp && resp.documents ? resp.documents.map( d => Object.assign( d, { displaySize: UtilitiesSvc.humanReadableFileSize(d.size) } )  ) : [];
+        if( !resp ) {
+          throw new Error( { error: true, message: 'Server error.' } );
+        }
+        else if ( resp.error ) {
+          return resp;
+        }
+        else {
+
+          const documents = resp.documents || [];
+
+          return {
+            documents: documents.map( d => Object.assign( d, { displaySize: UtilitiesSvc.humanReadableFileSize(d.size), documentType: d.documentType || '' } )  )
+          };
+        }
+
       });
 
       shipment.getShipmentDocument = documentName => $q.when( api.getIncomingShipmentDocument( shipment._id, documentName ) );
 
-      shipment.uploadShipmentDocument = ( file, isRestricted ) => $q.when( api.uploadIncomingShipmentDocument( shipment._id, file, isRestricted ) );
+      shipment.uploadShipmentDocument = ( file, { documentType, isRestricted } ) => $q.when( api.uploadIncomingShipmentDocument( shipment._id, file, { documentType, isRestricted } ) );
 
-      shipment.updateDocumentRestrictionStatus = ( documentName, isRestricted ) => $q.when( api.updateIncomingShipmentDocumentRestrictionStatus( shipment._id, documentName, isRestricted ) );
+      shipment.updateDocumentProperties = ( documentName, { documentType, isRestricted } ) => $q.when( api.updateIncomingShipmentDocumentProperties( shipment._id, documentName, { documentType, isRestricted } ) );
 
       shipment.removeShipmentDocument = documentName => $q.when( api.removeIncomingShipmentDocument( shipment._id, documentName ) );
 

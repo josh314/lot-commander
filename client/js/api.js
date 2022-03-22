@@ -491,11 +491,14 @@ export function removeIncomingShipmentDocument( shipmentId, documentName ) {
     .then( resp => resp.data );
 }
 
-export function uploadIncomingShipmentDocument( shipmentId, _document, isRestricted ) {
+export function uploadIncomingShipmentDocument( shipmentId, _document, { documentType, isRestricted }) {
 
   const fd = new FormData();
   fd.append('file', _document);
   fd.append('isRestricted', isRestricted);
+  if( documentType ) {
+    fd.append('documentType', documentType);
+  }
 
   return axios({
     method: 'put',
@@ -505,12 +508,13 @@ export function uploadIncomingShipmentDocument( shipmentId, _document, isRestric
     .then( resp => resp.data );
 }
 
-export function updateIncomingShipmentDocumentRestrictionStatus( shipmentId, documentName, isRestricted ) {
+export function updateIncomingShipmentDocumentProperties( shipmentId, documentName, { documentType, isRestricted } ) {
   return axios({
     method: 'patch',
     url: `/api/receiving/${ shipmentId }/documents/${ documentName }`,
     data: {
-      isRestricted: isRestricted
+      isRestricted,
+      documentType
     }
   })
     .then( resp => resp.data );
