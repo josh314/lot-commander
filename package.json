@@ -1,6 +1,6 @@
 {
   "name": "lot-commander",
-  "version": "4.4.2",
+  "version": "4.5.0",
   "private": true,
   "description": "For building manifests by storing scanned barcodes and matching with product data on export.",
   "main": "server/index.js",
