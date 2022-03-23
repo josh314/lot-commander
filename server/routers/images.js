@@ -58,6 +58,7 @@ function routes( { lotdb } ) {
     const s3Location = decodeURIComponent(req.query.s3);
     const imgResp = await imageServer.get( { s3Location: s3Location } );
     if(imgResp && imgResp.Body) {
+      res.header( 'Content-Disposition', `filename="${imageServer.imageName(s3Location)}"` );
       res.send(imgResp.Body);
     }
     else {

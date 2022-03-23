@@ -102,7 +102,9 @@
 				<h4>Images</h4>
 			</div>
 			<div class="col-xs-12 col-sm-4" ng-repeat="image in images">
-				<img ng-src="{{getImageLink(image)}}" class="img-thumbnail primary-image" width="240" height="auto">
+        <a ng-href="{{image.s3}}">
+          <img ng-src="{{getImageLink(image)}}" class="img-thumbnail primary-image" width="240" height="auto">
+        </a>
 				<!-- Checkbox to make primary -->
 				<div class="row">
 					<div class="form-group col-xs-3">
