@@ -6,8 +6,8 @@ const __PAGE_SIZE__ = 10;
 const __USER_SETTINGS_SUBKEY__ = 'shipment-list-page';
 
 /******************* Shipment List Page Controller *************************/
-angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'navigate', 'sessionTimeout', 'SettingsSvc', 'ShipmentManagerSvc',
-  function(LoggedInUser, navigate, sessionTimeout, SettingsSvc, ShipmentManagerSvc ) {
+angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'navigate', 'sessionTimeout', 'SettingsSvc', 'ShipmentManagerSvc', 'UtilitiesSvc',
+  function( LoggedInUser, navigate, sessionTimeout, SettingsSvc, ShipmentManagerSvc, UtilitiesSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -76,6 +76,7 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
         active: false,
         optionAvailable: vm.showPurchasingData,
         noSort: true,
+        transform: UtilitiesSvc.displayAsMoney.bind( UtilitiesSvc ),
       },
       transportationCost: {
         displayName: 'Transportation Cost',

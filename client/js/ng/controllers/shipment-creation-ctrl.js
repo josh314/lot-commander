@@ -57,7 +57,8 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
       documentToAdd: initDocumentToAdd(),
       documents: [],
       pallets: [],
-      numAnonymousPallet: ''
+      numAnonymousPallet: '',
+      palletLevelCosts: false
     };
     vm.validator = new ShipmentValidator();
 
@@ -91,11 +92,15 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
 
     function setPalletCosts() {
 
-      if( vm.inputs.cost && vm.inputs.pallets.length ) {
+      if( ! vm.inputs.palletLevelCosts ) {
 
-        const perPalletCost = vm.inputs.cost / vm.inputs.pallets.length;
+        if( vm.inputs.cost && vm.inputs.pallets.length ) {
 
-        vm.inputs.pallets.forEach( p => p.cost = perPalletCost );
+          const perPalletCost = vm.inputs.cost / vm.inputs.pallets.length;
+
+          vm.inputs.pallets.forEach( p => p.cost = perPalletCost );
+
+        }
 
       }
 
@@ -111,6 +116,8 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
 
         return sum;
       } , 0 );
+
+      vm.inputs.palletLevelCosts = true;
 
     }
 

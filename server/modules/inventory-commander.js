@@ -550,7 +550,7 @@ class InventoryCommander {
 
   async editIncomingShipmentExpectedPallet( shipmentId, palletId, _editDocument ) {
 
-    const shipment = await this.getIncomingShipmentById( shipmentId );
+    const shipment = await this.getIncomingShipmentById( shipmentId, { populate: [ 'palletsReceived' ] } );
 
     if( !shipment ) {
       throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
@@ -578,7 +578,23 @@ class InventoryCommander {
       return acc;
     }, {});
 
-    await shipment.editPalletExpected( palletId, editDocument );
+    const editedPallet = await shipment.editPalletExpected( palletId, editDocument );
+
+    if( shipment.palletsReceived ) {
+
+      const associatedPalletReceived = shipment.palletsReceived.find( pr => pr.handle === editedPallet.handle );
+
+      if( associatedPalletReceived ) {
+
+        const palletReceivedEditDoc = Object.assign( {}, JSON.parse( JSON.stringify( editedPallet ) ) );
+
+        delete palletReceivedEditDoc._id;
+
+        associatedPalletReceived.edit( palletReceivedEditDoc );
+
+      }
+
+    }
 
     return { shipment, pallet, edits };
   }

@@ -26,6 +26,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
     vm.removeShipment = removeShipment;
 
+    vm.arePalletCostsAveraged = arePalletCostsAveraged;
+
     vm.editValue = {};
     vm.isEditing = {};
     vm.openEdit = openShipmentEdit;
@@ -80,6 +82,15 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
      *
      ****/
 
+    function arePalletCostsAveraged() {
+      if( !vm.shipment.palletsExpected || !vm.shipment.palletsExpected.length ) {
+        return true;
+      }
+
+      let firstPalletCost = vm.shipment.palletsExpected[0].cost;
+      return vm.shipment.palletsExpected.every( p => p.cost === firstPalletCost );
+    }
+
     function openShipmentEdit( key ) {
       vm.isEditing[ key ] = true;
       vm.editValue[ key ] = vm.shipment[ key ];
@@ -95,32 +106,46 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
       let p; // will be set to a promise
 
       if( vm.editValue[ key ] !== vm.shipment[ key ] ) {
-        p = vm.shipment.editShipment( { [ key ]: vm.editValue[ key ] } )
-          .then( resp => {
-            if( resp.success ) {
 
-              if( key === 'category' && vm.editValue.category ) { /* The second condition allows blanking the shipment category without blanking the pallet categories */
-                vm.shipment.palletsExpected.forEach( p => p.category = vm.editValue.category );
+        if( key === 'cost' ) {
+
+          if( angular.isArray(vm.shipment.palletsExpected) && arePalletCostsAveraged() ) {
+
+            const palletCost = vm.editValue.cost / vm.shipment.palletsExpected.length;
+
+            p = Promise.all( vm.shipment.palletsExpected.map( p => vm.shipment.editExpectedPallet( p._id, { cost: palletCost } ) ) ).then( loadShipment );
+
+          }
+
+        }
+        else {
+
+          p = vm.shipment.editShipment( { [ key ]: vm.editValue[ key ] } )
+            .then( resp => {
+              if( resp.success ) {
+
+                if( key === 'category' && vm.editValue.category ) { /* The second condition allows blanking the shipment category without blanking the pallet categories */
+                  vm.shipment.palletsExpected.forEach( p => p.category = vm.editValue.category );
+                }
+
+                if( key === 'totalUnits' ) {
+                  vm.shipment.palletsExpected.forEach( p => delete p.units );
+                }
+
+                return vm.shipment[ key ] = vm.editValue[ key ];
               }
-
-              if( key === 'totalUnits' ) {
-                vm.shipment.palletsExpected.forEach( p => delete p.units );
+              else {
+                throw new Error(resp.error);
               }
+            })
+            .catch( _e => {
+              return messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
+            });
 
-              return vm.shipment[ key ] = vm.editValue[ key ]; 
-            }
-            else {
-              throw new Error(resp.error);
-            }
-          })
-          .catch( _e => {
-            return messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
-          });
-      }
-      else {
-        p = Promise.resolve( true );
+        }
       }
 
+      p = p || Promise.resolve( true ); // default placeholder promise if p is not defined above
       p.then( _ => vm.closeEdit( key ) ); // close edit when done
     }
 

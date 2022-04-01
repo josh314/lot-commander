@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const incomingShipmentSchema = mongoose.Schema({
   handle: String,
   vendor: String,
-  cost: Number,
   transportationCost: Number,
   source: String,
   category: String,
@@ -35,7 +34,32 @@ const incomingShipmentSchema = mongoose.Schema({
   isDeleted: Boolean,
   deletedDate: Date
   // TODO: manifests
-}, { collection: 'incoming-shipments', timestamps: true });
+}, { collection: 'incoming-shipments', timestamps: true, toJSON: { virtuals: true } });
+
+
+/***********************
+ * IncomingShipment virtuals
+ *
+ ******/
+incomingShipmentSchema.virtual( 'cost' )
+  .get( function() {
+
+    if( Array.isArray(this.palletsExpected) ) {
+
+      return this.palletsExpected.reduce( ( sum, _pallet ) => {
+
+        if( _pallet.cost ) {
+          sum += _pallet.cost;
+        }
+
+        return sum;
+      }, 0 );
+
+    }
+
+  } );
+//TODO?: setter that distributes cost over the palletsExpected?
+
 
 /***********************
  * IncomingShipment pre-save hook
@@ -88,32 +112,6 @@ incomingShipmentSchema.pre( 'save', function(next) {
 
   });
 
-
-  // data integrity check that shipment cost and totalPalletCost agree. Complicated by the fact that any or all values could be null/undef
-  const totalPalletCost = this.palletsExpected.reduce( ( sum, _pallet ) => {
-
-    if( _pallet.cost ) {
-      sum += _pallet.cost;
-    }
-
-    return sum;
-  }, 0 );
-
-  if( totalPalletCost ) {
-
-    if( !this.cost || Math.abs( this.cost - totalPalletCost ) > 10 ) {
-      this.cost = totalPalletCost;
-    }
-
-  }
-  else if( this.cost && this.palletsExpected.length ) {
-
-    const costPerPallet = this.cost / this.palletsExpected.length;
-
-    this.palletsExpected.forEach( p => p.cost = costPerPallet );
-
-  }
-
   next();
 } );
 
@@ -154,7 +152,7 @@ incomingShipmentSchema.methods.editPalletExpected = async function( palletId, da
 
     await this.save();
   }
-  return this;
+  return pallet;
 };
 
 incomingShipmentSchema.methods.receive = function() {

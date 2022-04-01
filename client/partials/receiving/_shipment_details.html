@@ -29,7 +29,7 @@
             </dd>
           </div>
           <div ng-hide="$ctrl.isEditing[ 'cost' ]">
-            <dt>Cost<span ng-hide="!$ctrl.showEditControls"> (<a href ng-click="$ctrl.openEdit( 'cost' )">edit</a>)</span></dt>
+            <dt>Cost<span ng-hide="!$ctrl.showEditControls || !$ctrl.arePalletCostsAveraged()"> (<a href ng-click="$ctrl.openEdit( 'cost' )">edit</a>)</span></dt>
             <dd ng-hide="$ctrl.isEditing[ 'cost' ]">
               {{ $ctrl.displayAsMoney( $ctrl.shipment.cost ) || '----' }}
             </dd>

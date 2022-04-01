@@ -22,7 +22,8 @@
       </div>
       <div class="form-group col-xs-12 col-sm-6">
         <label for="costInput">Cost</label>
-        <input type="number" class="form-control" id="costInput" ng-model="$ctrl.inputs.cost" min="0" ng-change="$ctrl.setPalletCosts()">
+        <input type="number" class="form-control" id="costInput" ng-model="$ctrl.inputs.cost" min="0" ng-change="$ctrl.setPalletCosts()" ng-disabled="$ctrl.inputs.palletLevelCosts">
+        <span ng-show="$ctrl.inputs.palletLevelCosts">Shipment cost set by total pallet costs.</span>
       </div>
     </fieldset>
 
