@@ -5,26 +5,27 @@
   <div class="row well" ng-repeat="pallet in $ctrl.inputs.pallets track by $index">
 
     <section class="col-xs-12 row">
-      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidHandle }">
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].duplicateHandle || $ctrl.validator.pallets[$index].emptyHandle }" >
         <label for="handleInput-{{$index}}">Pallet ID</label>
         <input type="text" class="form-control" id="handleInput-{{$index}}" ng-model="pallet.handle" autocomplete="off" ng-change="pallet.handle && $ctrl.refreshValidator()">
-        <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].invalidHandle">No pallet ID submitted.</span>
+        <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].emptyHandle">No pallet ID submitted.</span>
+        <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].duplicateHandle">Duplicate pallet ID</span>
       </div>
       <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidCategory }">
         <label for="categoryInput-{{$index}}">Category</label>
         <select class="form-control" id="categoryInput-{{$index}}" ng-model="pallet.category">
-          <option ng-repeat="cat in $ctrl.inputs.categoryOptions">{{cat}}</option>
+          <option ng-repeat="option in $ctrl.inputs.categoryOptions" ng-value="option.value">{{ option.displayName }}</option>
         </select>
         <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].invalidCategory">No category submitted.</span>
       </div>
       <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidCondition }">
         <label for="conditionInput-{{$index}}">Condition</label>
         <select class="form-control" id="conditionInput-{{$index}}" ng-model="pallet.condition">
-          <option ng-repeat="cat in $ctrl.inputs.conditionOptions">{{cat}}</option>
+          <option ng-repeat="option in $ctrl.inputs.conditionOptions" ng-value="option.value">{{ option.displayName }}</option>
         </select>
         <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].invalidCondition">No condition submitted.</span>
       </div>
-      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidCost }">
+      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidCost }" ng-show="$ctrl.showPurchasingData">
         <label for="costInput-{{$index}}">Cost</label>
         <input type="number" class="form-control" id="costInput-{{$index}}" ng-model="pallet.cost" autocomplete="off" ng-change="pallet.cost && $ctrl.refreshValidator()">
         <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].invalidCost">Invalid cost submitted.</span>

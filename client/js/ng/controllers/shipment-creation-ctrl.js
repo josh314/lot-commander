@@ -4,7 +4,12 @@ import angular from 'angular';
 class ShipmentValidator {
   constructor( inputs ) {
     if( inputs ) {
+
+      this.checkCosts = inputs.checkCosts;
+
       this.invalidHandle = !inputs.handle;
+      this.invalidCost = this.checkCosts && !inputs.cost;
+
       this.pallets = inputs.pallets.map( p => ({ invalidHandle: !p.handle }) );
 
       for( let i=0; i<inputs.pallets.length; i++ ) {
@@ -20,6 +25,8 @@ class ShipmentValidator {
 
         }
 
+        this.pallets[i].invalidCost = inputs.checkCosts ? !(inputs.pallets[i].cost > 0) : false;
+
       }
 
     }
@@ -30,13 +37,18 @@ class ShipmentValidator {
   }
 
   arePalletsValid() {
-    const isPalletValid = p => !( p.invalidHandle || p.duplicateHandle );
+    const isPalletValid = p => {
+
+      const validHandle = !( p.invalidHandle || p.duplicateHandle );
+
+      return !p.invalidCost && validHandle;
+    };
 
     return this.pallets.every( isPalletValid );
   }
 
   isValid() {
-    return this.clean || ( !this.invalidHandle && this.arePalletsValid() );
+    return this.clean || ( !this.invalidCost && !this.invalidHandle && this.arePalletsValid() );
   }
 }
 
@@ -47,6 +59,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
 
     const vm = this;
     vm.showRestrictedDocuments = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+    vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
 
     vm.inputs = {
       categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
@@ -58,7 +71,8 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
       documents: [],
       pallets: [],
       numAnonymousPallet: '',
-      palletLevelCosts: false
+      palletLevelCosts: false,
+      checkCosts: vm.showPurchasingData
     };
     vm.validator = new ShipmentValidator();
 
@@ -104,6 +118,8 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
 
       }
 
+      refreshValidator( vm.inputs );
+
     }
 
     function setShipmentCost() {
@@ -117,8 +133,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
         return sum;
       } , 0 );
 
-      vm.inputs.palletLevelCosts = true;
-
+      refreshValidator( vm.inputs );
     }
 
     function initDocumentToAdd() {
@@ -226,7 +241,14 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
       if( vm.validator.pallets ) {
         vm.validator.pallets.splice( idx, 1 );
       }
-      setPalletCosts();
+
+      if( vm.inputs.palletLevelCosts ) {
+        setShipmentCost();
+      }
+      else {
+        setPalletCosts();
+      }
+
     }
 
     function checkShipmentHandle() {
@@ -321,7 +343,9 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
 
       vm.inputs.pallets.push( data );
 
-      setPalletCosts();
+      if( !vm.inputs.palletLevelCosts ) {
+        setPalletCosts();
+      }
       
     }
 

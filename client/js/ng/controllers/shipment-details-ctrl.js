@@ -47,6 +47,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
       isStarted: false,
       emptyHandle: false,
       duplicateHandle: false,
+      invalidCost: false,
       validate: validExpectedPallet,
       start: startExpectedPallet,
       close: closeExpectedPallet,
@@ -211,13 +212,15 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
           this.errors.emptyHandle = true;
           this.errors.duplicateHandle = false;
         }
-        return false;
+
       }
       else {
         this.errors.duplicateHandle = this.errors.emptyHandle = false;
       }
 
-      return true;
+      this.errors.invalidCost = vm.showPurchasingData ? !( this.data.cost > 0 ) : false;
+
+      return Object.values( this.errors ).some( _ => _ ) ? false : true;
 
     }
 
@@ -257,7 +260,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
     function savePalletEdit( pallet ) {
 
-      pallet.saveEdit().then( result => {
+      pallet.saveEdit( false ).then( result => {
         if( result ) {
           loadShipment();
         }
@@ -669,9 +672,9 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
         Object.assign(vm.shipment, shipment);
 
-        vm.shipment.palletsReceived = shipment.palletsReceived.map( p => DisplayPalletFactory( shipment, 'received', p ) );
-        vm.shipment.palletsExpected = shipment.palletsExpected.map( p => DisplayPalletFactory( shipment, 'expected', p ) );
-        vm.shipment.palletsConsolidated = shipment.palletsConsolidated.map( p => DisplayPalletFactory( shipment, 'consolidated', p ) );
+        vm.shipment.palletsReceived = shipment.palletsReceived.map( p => DisplayPalletFactory( p, { shipment, type: 'received', checkCost: vm.showPurchasingData } ) );
+        vm.shipment.palletsExpected = shipment.palletsExpected.map( p => DisplayPalletFactory( p, { shipment, type: 'expected', checkCost: vm.showPurchasingData } ) );
+        vm.shipment.palletsConsolidated = shipment.palletsConsolidated.map( p => DisplayPalletFactory( p, { shipment, type: 'consolidated', checkCost: vm.showPurchasingData } ) );
 
       });
     }
@@ -719,49 +722,39 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
       ]
     };
 
-    function DisplayPallet( _shipment, _type, _data ) {
+    function DisplayPallet( _data, { shipment, type, checkCost } ) {
 
-      const savePallet = saveFn[ _type ]( _shipment );
+      const savePallet = saveFn[ type ]( shipment );
 
-      const pallet = Object.assign( _data, { shipment: _shipment, _type } );
+      const pallet = Object.assign( _data, { shipment } );
 
-      if( _type === 'received' || _type === 'consolidated' ) {
+      if( type === 'received' || type === 'consolidated' ) {
         pallet.showNote = false;
         pallet.toggleShowNote = function() { this.showNote = !this.showNote; };
       }
 
-      pallet.validate = function() {
+      pallet.validate = function( ) {
 
-        if( !this.editValues.handle ) {
-          this.errors.emptyHandle = true;
-          return false;
-        }
-        else {
-          this.errors.emptyHandle = false;
-        }
+        this.errors.emptyHandle = !this.editValues.handle;
 
-        if( _type === 'expected' ) {
+        this.errors.invalidCost = checkCost ? ! ( this.editValues.cost > 0 ) : false;
 
-          if( _shipment && _shipment.palletsExpected ) {
+        if( type === 'expected' ) {
 
-            this.errors.duplicateHandle = !! _shipment.palletsExpected.find( _ => (_.handle === this.editValues.handle) && ( _._id !== this._id ) );
+          if( shipment && shipment.palletsExpected ) {
 
-            if( this.errors.duplicateHandle ) {
-
-              return false;
-
-            }
+            this.errors.duplicateHandle = !! shipment.palletsExpected.find( _ => (_.handle === this.editValues.handle) && ( _._id !== this._id ) );
 
           }
 
         }
 
-        return true;
+        return Object.values( this.errors ).some( _ => _ ) ? false : true;
       };
       
       pallet.isEdited = function( ) {
 
-        for( let field of editFields[ _type ] ) {
+        for( let field of editFields[ type ] ) {
           if( this.editValues[ field ] !== this[ field ] ) {
             return true;
           }
@@ -772,7 +765,7 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
 
       pallet.cloneEditFields = function() {
         const res = {};
-        for( let field of editFields[ _type ] ) {
+        for( let field of editFields[ type ] ) {
           res[ field ] = this[ field ];
         }
         if( !res.condition ) {
@@ -808,8 +801,8 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
         if( pallet.isEdited() ) {
 
           /* eslint-disable indent */
-          const shipmentEditCategoryPromise = _shipment.category && this.editValues.category !== _shipment.category ?
-                                                _shipment.editShipment( { category: '' } ) :
+          const shipmentEditCategoryPromise = shipment.category && this.editValues.category !== shipment.category ?
+                                                shipment.editShipment( { category: '' } ) :
                                                 Promise.resolve( true );
           /* eslint-enable indent */
 

@@ -276,10 +276,11 @@
           </td>
           <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isAnonymous"></span></td>
           <td ng-show="$ctrl.showPurchasingData">
-            <span ng-show="pallet.isEditing">
-              <input class="form-control" type="number" ng-model="pallet.editValues.cost" style="width:80px;">
+            <span ng-show="pallet.isEditing" ng-class="{ 'has-error' : pallet.errors.invalidCost }">
+              <input class="form-control" type="number" ng-model="pallet.editValues.cost" style="width:80px;" ng-change="pallet.validate()">
+              <span class="text-danger h6" ng-show="pallet.errors.invalidCost">Invalid cost</span>
             </span>
-            <span ng-hide="pallet.isEditing">{{ $ctrl.displayAsMoney( pallet.cost ) }}</span></td>
+            <span ng-hide="pallet.isEditing">{{ $ctrl.displayAsMoney( pallet.cost ) }}</span>
           </td>
           <td ng-hide="$ctrl.shipment.totalUnits">
             <span ng-show="pallet.isEditing">
@@ -326,7 +327,10 @@
               <option ng-value="false">No</option>
             </select>
           </td>
-          <td><input class="form-control" type="number" ng-model="$ctrl.addExpectedPallet.data.cost" style="width:80px;"></td>
+          <td ng-class="{ 'has-error' : $ctrl.addExpectedPallet.errors.invalidCost }">
+            <input class="form-control" type="number" ng-model="$ctrl.addExpectedPallet.data.cost" style="width:80px;" ng-change="$ctrl.addExpectedPallet.validate()">
+            <span class="text-danger h6" ng-show="$ctrl.addExpectedPallet.errors.invalidCost">Invalid cost</span>
+          </td>
           <td><input class="form-control" type="number" ng-model="$ctrl.addExpectedPallet.data.units" style="width:80px;"></td>
           <td>
             <select class="form-control" ng-model="$ctrl.addExpectedPallet.data.category">

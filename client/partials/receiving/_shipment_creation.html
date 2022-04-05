@@ -13,17 +13,29 @@
       </div>
     </div>
 
-    <fieldset class="col-xs-12 box-border">
+    <fieldset class="col-xs-12 box-border" ng-show="$ctrl.showPurchasingData">
       <legend class="box-border">Purchase</legend>
-      <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.invalidVendor }">
-        <label for="vendorInput">Vendor</label>
-        <input type="text" class="form-control" id="vendorInput" ng-model="$ctrl.inputs.vendor" autocomplete="off">
-        <span class="text-danger h4" ng-show="$ctrl.validator.invalidVendor">No vendor submitted.</span>
+      <div class="row">
+        <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.invalidVendor }">
+          <label for="vendorInput">Vendor</label>
+          <input type="text" class="form-control" id="vendorInput" ng-model="$ctrl.inputs.vendor" autocomplete="off">
+          <span class="text-danger h4" ng-show="$ctrl.validator.invalidVendor">No vendor submitted.</span>
+        </div>
       </div>
-      <div class="form-group col-xs-12 col-sm-6">
-        <label for="costInput">Cost</label>
-        <input type="number" class="form-control" id="costInput" ng-model="$ctrl.inputs.cost" min="0" ng-change="$ctrl.setPalletCosts()" ng-disabled="$ctrl.inputs.palletLevelCosts">
-        <span ng-show="$ctrl.inputs.palletLevelCosts">Shipment cost set by total pallet costs.</span>
+      <div class="row">
+        <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.invalidCost }">
+          <label for="costInput">Cost</label>
+          <input type="number" class="form-control" id="costInput" ng-model="$ctrl.inputs.cost" min="0" ng-change="$ctrl.setPalletCosts()" ng-disabled="$ctrl.inputs.palletLevelCosts">
+          <span ng-show="$ctrl.inputs.palletLevelCosts">Shipment cost set by total pallet costs.</span>
+          <span class="text-danger h4" ng-show="$ctrl.validator.invalidCost">No cost submitted.</span>
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="costTypeInput">Cost Type</label>
+          <select class="form-control" id="costTypeInput" ng-model="$ctrl.inputs.palletLevelCosts">
+            <option ng-value="false">Average cost over pallets</option>
+            <option ng-value="true">Set individual pallet costs</option>
+          </select>
+        </div>
       </div>
     </fieldset>
 
@@ -135,7 +147,10 @@
               <input class="form-control" ng-model="pallet.handle" ng-change="$ctrl.refreshValidator()"/>
               <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].duplicateHandle">Duplicate pallet ID</span>
             </td>
-            <td><input class="form-control" type="number" min="0" ng-model="pallet.cost"  ng-change="$ctrl.setShipmentCost()" /></td>
+            <td ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].invalidCost }">
+              <input class="form-control" type="number" min="0" ng-model="pallet.cost"  ng-change="$ctrl.setShipmentCost()" ng-disabled="!$ctrl.inputs.palletLevelCosts"/>
+              <span class="text-danger h4" ng-show="$ctrl.validator.pallets[$index].invalidCost">Missing cost data</span>
+            </td>
             <td><input class="form-control" type="number" min="0" ng-model="pallet.units" ng-disabled="$ctrl.inputs.totalUnits"/></td>
             <td>
               <select class="form-control" ng-model="pallet.category" ng-change="$ctrl.clearShipmentCategory()">

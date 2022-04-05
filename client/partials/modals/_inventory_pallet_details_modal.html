@@ -13,9 +13,10 @@
       <label for="shipmentInput">Shipment</label>
       <input class="form-control" type="text" id="shipmentInput" ng-model="$ctrl.inputs.shipment.handle" disabled>
     </div>
-    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showPurchasingData">
+    <div class="form-group col-xs-12 col-sm-6"  ng-class="{ 'has-error' : $ctrl.errors.invalidCost }" ng-show="$ctrl.showPurchasingData">
       <label for="costInput">Cost</label>
-      <input class="form-control" type="number" id="costInput" ng-model="$ctrl.inputs.cost">
+      <input class="form-control" type="number" id="costInput" ng-model="$ctrl.inputs.cost" ng-change="$ctrl.validate()">
+      <span class="text-danger h6" ng-show="$ctrl.errors.invalidCost">Invalid cost</span>
     </div>
     <div class="form-group col-xs-12 col-sm-6" >
       <label for="unitsInput">Units</label>

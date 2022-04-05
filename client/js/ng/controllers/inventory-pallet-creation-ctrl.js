@@ -3,7 +3,25 @@ import angular from 'angular';
 class InventoryPalletValidator {
   constructor( inputs ) {
     if( inputs ) {
-      this.pallets = inputs.pallets.map( p => ({ invalidHandle: !p.handle }) );
+
+      this.pallets = inputs.pallets.map( p => ({ emptyHandle: !p.handle }) );
+
+      for( let i=0; i<inputs.pallets.length; i++ ) {
+
+        for( let j=0; j<inputs.pallets.length; j++ ) {
+
+          if( i!==j && inputs.pallets[i].handle === inputs.pallets[j].handle ) {
+
+            this.pallets[i].duplicateHandle = true;
+
+          }
+
+        }
+
+        this.pallets[i].invalidCost = inputs.checkCosts ? !(inputs.pallets[i].cost > 0) : false;
+
+      }
+
     }
     else {
       this.clean = true;
@@ -11,7 +29,12 @@ class InventoryPalletValidator {
   }
 
   arePalletsValid() {
-    const isPalletValid = p => !p.invalidHandle;
+    const isPalletValid = p => {
+
+      const validHandle = !( p.emptyHandle || p.duplicateHandle );
+
+      return !p.invalidCost && validHandle;
+    };
 
     return this.pallets.every( isPalletValid );
   }
@@ -22,19 +45,21 @@ class InventoryPalletValidator {
 }
 
 /******************* Inventory Pallet Creation Page Controller *************************/
-angular.module('myApp').controller('InventoryPalletCreationCtrl', [ 'AddPalletGroupParamsModalSvc', 'messageModal', 'navigate', 'palletProperties', 'sessionTimeout', 'InventoryPalletManagerSvc',
-  function( AddPalletGroupParamsModalSvc, messageModal, navigate, palletProperties, sessionTimeout, InventoryPalletManagerSvc ) {
+angular.module('myApp').controller('InventoryPalletCreationCtrl', [ 'AddPalletGroupParamsModalSvc', 'LoggedInUser', 'messageModal', 'navigate', 'palletProperties', 'sessionTimeout', 'InventoryPalletManagerSvc',
+  function( AddPalletGroupParamsModalSvc, LoggedInUser, messageModal, navigate, palletProperties, sessionTimeout, InventoryPalletManagerSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
+    vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
 
     function init() {
 
       vm.validator = new InventoryPalletValidator();
       vm.inputs = {
-        categoryOptions: [ "" ].concat( palletProperties.category ),
-        conditionOptions: [ "" ].concat( palletProperties.condition ),
-        pallets: [  ]
+        categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
+        conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) ),
+        pallets: [  ],
+        checkCosts: vm.showPurchasingData
       };
 
       vm.refreshValidator = refreshValidator;
@@ -42,7 +67,7 @@ angular.module('myApp').controller('InventoryPalletCreationCtrl', [ 'AddPalletGr
       vm.setPalletCategories = ( ) => vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
       vm.setPalletConditions = ( ) => vm.inputs.pallets.forEach( p => p.condition = vm.inputs.condition );
       vm.clearPalletUnits = ( ) => vm.inputs.pallets.forEach( p => delete p.units );
-      vm.addPallet = () => addPalletWithData( { hasProblem: false } );
+      vm.addPallet = () => addPalletWithData( { hasProblem: false, category: null, condition: null } );
       vm.addPalletGroup = addPalletGroup;
       vm.removePallet = removePallet;
 
