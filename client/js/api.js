@@ -624,10 +624,10 @@ export function createInventoryPallets( pallets ) {
   })
     .then( resp => resp.data );
 }
-export function aggregateInventoryPallets() {
+export function aggregateInventoryPallets( date ) {
   return axios({
     method: 'get',
-    url: `/api/pallets/aggregate/`,
+    url: `/api/pallets/aggregate/${ date ? `?date=${date}` : '' }`,
   })
     .then( resp => resp.data.pallets );
 }

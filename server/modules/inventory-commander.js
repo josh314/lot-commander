@@ -1402,16 +1402,11 @@ class InventoryCommander {
           { // was created by date
             createdAt: { $lte: date }
           },
-          { // either never deleted or deleted after date
-            $or: [ 
-              { isDeleted: false },
-              { deletedDate: { $gte: date } }
-            ] 
-          },
+          { isDeleted: false }, // not deleted
           { // either never brokendown or brokendown after date
             $or: [
               { isBrokendown: false },
-              { breakdownDate: { $gte: date } }
+              { brokendownDate: { $gte: date } }
             ]
           }
         ]

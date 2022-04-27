@@ -1,8 +1,8 @@
 {
   "name": "lot-commander",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "private": true,
-  "description": "For building manifests by storing scanned barcodes and matching with product data on export.",
+  "description": "Multi-purpose inventory management services for product lots.",
   "main": "server/index.js",
   "scripts": {
     "build-client-dev": "webpack --config webpack.dev.js",

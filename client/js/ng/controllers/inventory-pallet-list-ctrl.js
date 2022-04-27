@@ -1,11 +1,11 @@
 import angular from 'angular';
+import dayjs from 'dayjs';
 
 const __PAGE_SIZE__ = 25;
 const __USER_SETTINGS_SUBKEY__ = 'inventory-pallet-list-page';
 const __DISPLAY_MODE_LIST__ = '__DISPLAY_MODE_LIST__';
 const __DISPLAY_MODE_AGGREGATE__ = '__DISPLAY_MODE_AGGREGATE__';
-
-
+const __TODAY__ = dayjs().startOf('day');
 
 /******************* Pallets List Page Controller *************************/
 angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPalletManagerSvc', 'LoggedInUser', 'navigate', 'palletProperties', 'sessionTimeout', 'SettingsSvc', 'ShipmentManagerSvc', 'UtilitiesSvc',
@@ -24,6 +24,12 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
     // Permissions
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
 
+    // aggregation options
+    vm.aggregationReportDate = __TODAY__.toDate();
+    vm.aggregationReportMinDate = dayjs('2021-01-01').format('YYYY-MM-DD');
+    vm.aggregationReportMaxDate = __TODAY__.format('YYYY-MM-DD');
+    
+    // list mode options
     vm.filter = {
       handle: '',
       populateShipment: true,
@@ -129,8 +135,14 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
 
     function refreshPalletsAggregation() {
 
-      return InventoryPalletManagerSvc.aggregate(  ).then( pallets => {
+      const date = dayjs( vm.aggregationReportDate ).endOf('day').format();
+
+      return InventoryPalletManagerSvc.aggregate( date ).then( pallets => {
+
         vm.palletsAggregation = pallets.map( _p => Object.assign( {}, _p, { cost: UtilitiesSvc.displayAsMoney( _p.cost ) }));
+
+        vm.aggregationTotal = UtilitiesSvc.displayAsMoney( pallets.reduce( ( total, _p ) => _p.cost ? total + _p.cost : total , 0 ) );
+
       });
 
     }

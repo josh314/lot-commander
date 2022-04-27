@@ -79,6 +79,7 @@
       <table class="table table-striped">
     
         <thead><tr>
+          <th>#</th>
           <th ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable && columnData.active">
             <span ng-click="$ctrl.sortListBy(columnKey)" style="cursor: pointer;" ng-hide="columnData.noSort">
               {{columnData.displayName}}
@@ -93,6 +94,7 @@
     
         <tbody>
           <tr ng-repeat="pallet in $ctrl.palletsList">
+            <td>{{$index+1}}</td>
             <td ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable && columnData.active" ng-switch="columnKey">
               <span ng-switch-when="handle">
                 <a href ng-click="$ctrl.showPalletDetails( pallet )">{{pallet.handle}}</a>
@@ -123,6 +125,49 @@
     </div>
 
     <div class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.AGGREGATE">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center;" class="hidden-xs">
+
+        <div class="form-group">
+          <label for="reportDateSearchInput">Report Date (end of day)</label>
+          <input 
+            type="date"
+            class="form-control"
+            id="reportDateSearchInput"
+            ng-model="$ctrl.aggregationReportDate"
+            min="{{ $ctrl.aggregationReportMinDate }}"
+            max="{{ $ctrl.aggregationReportMaxDate }}"
+            ng-change="$ctrl.refreshPalletsData()"
+          />
+        </div>
+
+        <div ng-show="$ctrl.showPurchasingData">
+          <span class="h3">Total cost across all groups: {{ $ctrl.aggregationTotal || '---'}}</span>
+        </div>
+
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-direction: column;" class="visible-xs-block">
+
+        <div class="form-group">
+          <label for="reportDateSearchInput">Report Date (end of day)</label>
+          <input 
+            type="date"
+            class="form-control"
+            id="reportDateSearchInput"
+            ng-model="$ctrl.aggregationReportDate"
+            min="{{ $ctrl.aggregationReportMinDate }}"
+            max="{{ $ctrl.aggregationReportMaxDate }}"
+            ng-change="$ctrl.refreshPalletsData()"
+          />
+        </div>
+
+        <div ng-show="$ctrl.showPurchasingData">
+          <span class="h4">Total cost across all groups: {{ $ctrl.aggregationTotal || '---'}}</span>
+        </div>
+
+      </div>
+      
       <table class="table table-striped">
         <thead><tr>
           <th>Type</th>
