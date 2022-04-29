@@ -88,6 +88,7 @@ function routes({
     require('./events')( eventsDbClient )
   );
   router.use('/api/manual-inventory', require('./manual-inventory')( { manualInventoryDb: manualInventoryDbClient } ) );
+  router.use('/api/documents', require('./documents')( ) );
 
   // Shipping rates on Shopify store
   

@@ -465,60 +465,6 @@ export function editIncomingShipmentPallet( shipmentId, palletId, _data ) {
     .then( resp => resp.data );
 }
 
-// Incoming Shipment documents
-export function listIncomingShipmentDocuments( shipmentId ) {
-  return axios({
-    method: 'get',
-    url: `/api/receiving/${ shipmentId }/documents`,
-  })
-    .then( resp => resp.data );
-}
-
-export function getIncomingShipmentDocument( shipmentId, documentName ) {
-  return axios({
-    method: 'get',
-    url: `/api/receiving/${ shipmentId }/documents/${ documentName }`,
-    responseType: 'arraybuffer'
-  })
-    .then( resp => resp.data );
-}
-
-export function removeIncomingShipmentDocument( shipmentId, documentName ) {
-  return axios({
-    method: 'delete',
-    url: `/api/receiving/${ shipmentId }/documents/${ documentName }`,
-  })
-    .then( resp => resp.data );
-}
-
-export function uploadIncomingShipmentDocument( shipmentId, _document, { documentType, isRestricted }) {
-
-  const fd = new FormData();
-  fd.append('file', _document);
-  fd.append('isRestricted', isRestricted);
-  if( documentType ) {
-    fd.append('documentType', documentType);
-  }
-
-  return axios({
-    method: 'put',
-    url: `/api/receiving/${ shipmentId }/documents/${ _document.name }`,
-    data: fd
-  })
-    .then( resp => resp.data );
-}
-
-export function updateIncomingShipmentDocumentProperties( shipmentId, documentName, { documentType, isRestricted } ) {
-  return axios({
-    method: 'patch',
-    url: `/api/receiving/${ shipmentId }/documents/${ documentName }`,
-    data: {
-      isRestricted,
-      documentType
-    }
-  })
-    .then( resp => resp.data );
-}
 
 // Receiving shipments/pallets
 export function receiveIncomingShipment( shipmentId ) {
@@ -591,6 +537,67 @@ export function removeIncomingShipmentPalletConsolidated( shipmentId, palletId )
   return axios({
     method: 'delete',
     url: `/api/receiving/${ shipmentId }/pallets-consolidated/${ palletId }`,
+  })
+    .then( resp => resp.data );
+}
+
+
+/*************************************************
+* Documents
+* =========
+*
+************/
+
+export function listObjectDocuments( objectId, objectType ) {
+  return axios({
+    method: 'get',
+    url: `/api/documents/${ objectId }?object_type=${ objectType }`,
+  })
+    .then( resp => resp.data );
+}
+
+export function getObjectDocument( objectId, objectType, documentName ) {
+  return axios({
+    method: 'get',
+    url: `/api/documents/${ objectId }/${ documentName }?object_type=${ objectType }`,
+    responseType: 'arraybuffer'
+  })
+    .then( resp => resp.data );
+}
+
+export function removeObjectDocument( objectId, objectType, documentName ) {
+  return axios({
+    method: 'delete',
+    url: `/api/documents/${ objectId }/${ documentName }?object_type=${ objectType }`,
+  })
+    .then( resp => resp.data );
+}
+
+export function uploadObjectDocument( objectId, objectType, _document, { documentType, isRestricted }) {
+
+  const fd = new FormData();
+  fd.append('file', _document);
+  fd.append('isRestricted', isRestricted);
+  if( documentType ) {
+    fd.append('documentType', documentType);
+  }
+
+  return axios({
+    method: 'put',
+    url: `/api/documents/${ objectId }/${ _document.name }?object_type=${ objectType }`,
+    data: fd
+  })
+    .then( resp => resp.data );
+}
+
+export function updateObjectDocumentProperties( objectId, objectType, documentName, { documentType, isRestricted } ) {
+  return axios({
+    method: 'patch',
+    url: `/api/documents/${ objectId }/${ documentName }?object_type=${ objectType }`,
+    data: {
+      isRestricted,
+      documentType
+    }
   })
     .then( resp => resp.data );
 }

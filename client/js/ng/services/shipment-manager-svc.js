@@ -112,7 +112,7 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'L
 
       countShipments: filter => $q.when( api.countIncomingShipments( queryParams( filter ) ) ),
 
-      uploadShipmentDocument: ( { shipmentId, file, documentType, isRestricted } ) => $q.when( api.uploadIncomingShipmentDocument( shipmentId || _shipmentId(), file, { documentType, isRestricted } ) ),
+      uploadShipmentDocument: ( { shipmentId, file, documentType, isRestricted } ) => $q.when( api.uploadObjectDocument( shipmentId || _shipmentId(), file, { documentType, isRestricted } ) ),
 
     };
 
@@ -213,7 +213,7 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
 
       // Shipment document functions
 
-      shipment.listShipmentDocuments = ( ) => $q.when( api.listIncomingShipmentDocuments( shipment._id ) ).then( resp => {
+      shipment.listShipmentDocuments = ( ) => $q.when( api.listObjectDocuments( shipment._id, 'shipment' ) ).then( resp => {
 
         if( !resp ) {
           throw new Error( { error: true, message: 'Server error.' } );
@@ -232,13 +232,13 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
 
       });
 
-      shipment.getShipmentDocument = documentName => $q.when( api.getIncomingShipmentDocument( shipment._id, documentName ) );
+      shipment.getShipmentDocument = documentName => $q.when( api.getObjectDocument( shipment._id, 'shipment', documentName ) );
 
-      shipment.uploadShipmentDocument = ( file, { documentType, isRestricted } ) => $q.when( api.uploadIncomingShipmentDocument( shipment._id, file, { documentType, isRestricted } ) );
+      shipment.uploadShipmentDocument = ( file, { documentType, isRestricted } ) => $q.when( api.uploadObjectDocument( shipment._id, 'shipment', file, { documentType, isRestricted } ) );
 
-      shipment.updateDocumentProperties = ( documentName, { documentType, isRestricted } ) => $q.when( api.updateIncomingShipmentDocumentProperties( shipment._id, documentName, { documentType, isRestricted } ) );
+      shipment.updateDocumentProperties = ( documentName, { documentType, isRestricted } ) => $q.when( api.updateObjectDocumentProperties( shipment._id, 'shipment', documentName, { documentType, isRestricted } ) );
 
-      shipment.removeShipmentDocument = documentName => $q.when( api.removeIncomingShipmentDocument( shipment._id, documentName ) );
+      shipment.removeShipmentDocument = documentName => $q.when( api.removeObjectDocument( shipment._id, 'shipment', documentName ) );
 
       // Shipment pallet functions
 

@@ -3,11 +3,6 @@ const express = require('express');
 const auth = require('../auth');
 const helpers = require('../helpers');
 const { InvalidRequestError } = require('../errors');
-const documentSvc = require('../modules/document-svc');
-
-const fs = require('fs');
-const formidable = require('formidable');
-const Promise = require('bluebird');
 
 module.exports = routes;
 
@@ -43,9 +38,6 @@ const listShipmentsFilterParamsFromQueryParams = ( qp ) => {
 
   return fp;
 };
-
-const __SHIPMENT_DOCUMENTS_FOLDER_PREFIX__ = 'incoming-shipment';
-const __RESTRICTED_DOCUMENT_PERMISSION__ = 'VIEW_PURCHASING_DATA';
 
 /**********************************************
  * Routes function for export
@@ -116,33 +108,6 @@ function routes({ eventsDb, inventoryCommander }) {
     '/:shipmentId/pallets/:palletId',
     auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' ),
     editIncomingShipmentPallet
-  );
-
-  // Incoming Shipment documents
-  router.get(
-    '/:shipmentId/documents',
-    auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' ),
-    listIncomingShipmentDocuments
-  );
-  router.get(
-    '/:shipmentId/documents/:documentName', 
-    auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' ),
-    getIncomingShipmentDocument
-  );
-  router.delete(
-    '/:shipmentId/documents/:documentName', 
-    auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' ),
-    removeIncomingShipmentDocument
-  );
-  router.put(
-    '/:shipmentId/documents/:documentName', 
-    auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' ),
-    uploadIncomingShipmentDocument
-  );
-  router.patch(
-    '/:shipmentId/documents/:documentName', 
-    auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' ),
-    editIncomingShipmentDocumentProperties
   );
 
   // Receiving shipments/pallets
@@ -448,166 +413,6 @@ function routes({ eventsDb, inventoryCommander }) {
 
       return next( e );
 
-    }
-
-  }
-
-  //==================
-  // document handlers
-
-  async function listIncomingShipmentDocuments( req, res, next ) {
-
-    try {
-
-      const opts = {
-        folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)(req.params.shipmentId),
-        num: req.query.num ? parseInt(req.query.num) + 1 : undefined,
-        continuationToken: req.query.continuation_token
-      };
-
-      const result = await documentSvc.list( opts );
-
-      if( result && result.documents ) {
-
-        result.documents = (await Promise.map(
-          result.documents,
-          async (doc) => {
-
-            const docTags = await documentSvc.getDocumentTags( {
-              folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)(req.params.shipmentId),
-              name: doc.name
-            } );
-
-            // docTags.Tagset is an array of objects with props Key, Value, i.e. docTags.Tagset = [ { Key: ..., Value: ...}, ... ]
-            for( let { Key, Value } of docTags.TagSet ) {
-              doc[ Key ] = Value;
-            }
-
-            return doc;
-          }
-        ))
-          .filter( doc => req.user.isAuthorized(doc.permission) );
-
-      }
-
-      res.json( result );
-    }
-    catch(e) {
-      next( e );
-    }
-  }
-
-  async function getIncomingShipmentDocument( req, res ) {
-  
-    const documentName = req.params.documentName;
-
-    const stream = documentSvc.get( { 
-      folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)( req.params.shipmentId ),
-      name: documentName
-    } );
-
-    stream.on('error', _e => {
-      res.json({ error: true, message: `Unable to get object: '${documentName}'` });
-    });
-
-    stream.pipe(res);
-
-  }
-
-  function removeIncomingShipmentDocument( req, res ) {
-    
-    const documentName = req.params.documentName;
-
-    documentSvc.remove({
-      folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)( req.params.shipmentId ),
-      name: documentName
-    })
-      .then( _ => res.json( { success: true } ) )
-      .catch( _ => res.json({ error: true, message: `Unable to delete object: '${documentName}'` }) );
-
-  }
-
-  function uploadIncomingShipmentDocument( req, res, next ) {
-
-    const documentName = req.params.documentName;
-
-    const form = new formidable.IncomingForm();
-    form.parse(req, async function (err, fields, files) {
-      if( err ) {
-        next(err);
-      }
-
-      try {
-
-        const file = Object.entries(files)[0];
-
-        if(file) {
-
-          const [ _, f ] = file;
-
-          const readStream = fs.createReadStream(f.path);
-  
-          const tags = {
-            permission: fields.isRestricted === 'true' || fields.documentType === 'invoice' ? __RESTRICTED_DOCUMENT_PERMISSION__ : '',
-            documentType: fields.documentType || '',
-          };
-
-          await documentSvc.store( {
-            readStream: readStream,
-            folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)( req.params.shipmentId ),
-            name: documentName,
-            tags
-          } );
-
-          console.log(`Unlinking temp file ${f.path}`);
-          fs.promises.unlink(f.path);
-          res.json( { success: true } );
-        }
-        else {
-          res.json( { error: true, message: 'No file uploaded.' } );
-        }
-
-
-      }
-      catch (e) {
-        next(e);
-      }
-    });
-
-  }
-
-  function editIncomingShipmentDocumentProperties( req, res, next ) {
-
-    try {
-
-      if( !req.body ) {
-        throw new InvalidRequestError();
-      }
-
-      const documentName = req.params.documentName;
-
-      const newTags = {};
-      if( 'isRestricted' in req.body ) {
-        newTags.permission = req.body.isRestricted ? __RESTRICTED_DOCUMENT_PERMISSION__ : '';
-      }
-      if( 'documentType' in req.body ) {
-        newTags.documentType = req.body.documentType || '';
-      }
-
-      if( !Object.entries(newTags).length ) {
-        throw new InvalidRequestError();
-      }
-
-      documentSvc.addDocumentTags({
-        folder: documentSvc.folder(__SHIPMENT_DOCUMENTS_FOLDER_PREFIX__)( req.params.shipmentId ),
-        name: documentName,
-        tags: newTags
-      })
-        .then( _ => res.json( { success: true } ) );
-
-    }
-    catch(e) {
-      next( e );
     }
 
   }
