@@ -23,7 +23,7 @@ angular.module('myApp').controller('UploadLotManifestCtrl', ['$state', '$statePa
       const manifestFileExtension = manifest.name.split(".").pop();
       const validFileExtensions = ['xls', 'xlsx', 'xlsm'];
       if(validFileExtensions.includes(manifestFileExtension)) {
-        const uploadUrl = `/api/db/upload-lot-manifest/${$stateParams.lotId}`;
+        const uploadUrl = `/api/lots/${$stateParams.lotId}/upload-manifest`;
 
         fileUpload.uploadFileToUrl(manifest, uploadUrl).then(resp=>{
           if(!resp.data.error) {

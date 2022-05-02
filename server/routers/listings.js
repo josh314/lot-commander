@@ -114,7 +114,7 @@ function routes({ listings, lotdb, shopifyGql }) {
 
       // wait for submission to finish then update the lot
       const submittedListingResponse = await respPromise;
-      lotdb.updateLot( submittedListingResponse.lot );
+      lotdb.editLot( submittedListingResponse.lot );
     }
     catch(e) {
 

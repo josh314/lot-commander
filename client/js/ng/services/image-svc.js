@@ -2,16 +2,16 @@ import angular from "angular";
 import * as Promise from "bluebird";
 
 import errorImg from '../../../030-warning.svg';
+import * as api from '../../api';
 
 const urls = {
   upload: '/api/image/upload',
-  setPrimary: '/api/image/primary',
   remove: '/api/image/remove',
 };
 
 //************* Images service
-angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$timeout', '$window', 'fileUpload', 
-  function($http, $localStorage, $timeout, $window, fileUpload){
+angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$timeout', '$window', 'fileUpload',
+  function( $http, $localStorage, $q, $timeout, $window, fileUpload ){
     const svc = this;
 
     /**
@@ -85,7 +85,7 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$timeout
     };
 
     svc.updateLotPrimaryImage = (lot, image) => {
-      return $http.post(urls.setPrimary, {lotId: lot._id, primaryImage: image});
+      return $q.when( api.setPrimaryLotImage( lot._id, image ) );
     };
 
     svc.removeLotImage = async (lot, image) => {      

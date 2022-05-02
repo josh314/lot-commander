@@ -22,10 +22,10 @@ angular.module('myApp').controller('ScanCtrl', [ '$http', 'AudioAlertSvc', 'focu
     vm.loadedImages = {};
 
     const save = () => {
-      return LotSvc.saveManifest().then( resp => {
+      return LotSvc.saveManifest().then( manifest => {
 
-        if( resp && resp[0] ) {
-          lotStore.manifestId = resp[0]._id;
+        if( manifest ) {
+          lotStore.manifestId = manifest._id;
         }
 
       });

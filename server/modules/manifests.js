@@ -171,7 +171,7 @@ async function generateLotManifest( lotId, opts = {} ) {
 
     if( buildManifestResponse.data.submitted ) {
 
-      lotDb.updateLot({ _id: lotId, manifestFileLocation: buildManifestResponse.data.link });
+      lotDb.editLot({ _id: lotId, manifestFileLocation: buildManifestResponse.data.link });
 
       return {
         lotId: lotId,

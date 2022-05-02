@@ -27,10 +27,6 @@ function routes( { lotdb } ) {
     upload
   );
   router.post(
-    '/primary',
-    lotdb.setPrimaryImage
-  );
-  router.post(
     '/remove',
     removeImage
   );

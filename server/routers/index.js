@@ -30,28 +30,10 @@ function routes({
 
   const router = new express.Router();
 
-  // =====================================
-  // USERS SECTION =======================
-  // =====================================
   router.use('/api/users', require('./users')( { users: userDbClient } ) );
-  // we will want this protected so you have to be logged in to visit
-  // we will use route middleware to verify this (the isLoggedIn function)
-  // router.get('/api/users/all', users.api.isManager, users.api.getAllUsers);
-  // router.post('/api/users/new', users.api.canCreateNewUsers, users.api.createUser);
-  // router.post('/api/users/change-password', auth.isLoggedIn, users.api.changeUserPassword);
-  // router.get('/api/users/get/:username', users.api.isLoggedIn , users.api.getUserInfo );
-  // router.post('/api/users/edit-role', users.api.isManager, users.api.editUserRole);
 
-  // lot database api
-  router.post('/api/db/get', express.json(), lotdb.getLots);
-  router.get('/api/db/get/:lotId', lotdb.getLotByIdApi);
-  router.post('/api/db/get-by-handle', lotdb.getLotByHandleApi);
-  router.post('/api/db/new-lot', lotdb.newLot);
-  router.post('/api/db/edit-lot/:lotId', lotdb.editLotMetadata);
-  router.post('/api/db/delete-lot', lotdb.deleteLot);
-  router.post('/api/db/save-manifest', lotdb.saveManifest);
-  router.get('/api/db/manifest/:manifestId', lotdb.getManifest);
-  router.post('/api/db/upload-lot-manifest/:lotId', lotdb.uploadManifest);
+  // lots api
+  router.use('/api/lots', require( './lots' )( { lotdb } ) );
 
   // bstock db api
   router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);

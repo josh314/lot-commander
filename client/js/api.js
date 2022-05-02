@@ -1,24 +1,19 @@
 import qs from 'querystring';
 import axios from 'axios';
 
-
 /*************************************************
 * Lot-db and Manifest-db
 * ======================
 *
 ************/
 
-export function listLots( query ) {
+export function listLots( queryParams ) {
 
   return axios({
-    method: 'post',
-    url: '/api/db/get',
-    data: query
+    method: 'get',
+    url: `/api/lots/?${ queryParams ? qs.stringify( queryParams ) : ''}`
   })
-    .then(resp=>{
-      const lots = resp.data;
-      return lots;
-    });
+    .then( resp => resp.data && resp.data.lots );
 
 }
 
@@ -29,14 +24,10 @@ export function getLotByHandle( handle ) {
   }
 
   return axios({
-    method: 'post',
-    url: '/api/db/get-by-handle',
-    data: { handle: handle }
+    method: 'get',
+    url: `/api/lots/by-handle/${handle}`
   })
-    .then(resp=>{
-      const lot = resp.data;
-      return lot;
-    });
+    .then( resp => resp.data && resp.data.lot );
 
 }
 
@@ -48,12 +39,9 @@ export function getLot( lotId ) {
 
   return axios({
     method: 'get',
-    url: `/api/db/get/${ lotId }`
+    url: `/api/lots/${ lotId }`
   })
-    .then(resp=>{
-      const lot = resp.data;
-      return lot;
-    });
+    .then( resp => resp.data && resp.data.lot );
 
 }
 
@@ -65,11 +53,9 @@ export function getManifest( manifestId ) {
 
   return axios({
     method: 'get',
-    url: `/api/db/manifest/${ manifestId }`
+    url: `/api/lots/manifest/${ manifestId }`
   })
-    .then(resp=>{
-      return resp.data.manifest;
-    });
+    .then( resp => resp.data && resp.data.manifest );
 
 }
 
@@ -80,9 +66,7 @@ export function import3rdPartyManifestBlock( { lot, blockId } ) {
     url: `/api/db/import-3p-manifest-block`,
     data: { lot, blockId }
   })
-    .then(resp=>{
-      return resp.data;
-    });
+    .then( resp => resp.data );
 
 }
 
@@ -90,12 +74,10 @@ export function createLot( data ) {
 
   return axios({
     method: 'post',
-    url: `/api/db/new-lot`,
+    url: `/api/lots/`,
     data: data
   })
-    .then(resp=>{
-      return resp.data;
-    });
+    .then( resp => resp.data && resp.data.lot );
 
 }
 
@@ -106,13 +88,10 @@ export function deleteLot( lotId ) {
   }
 
   return axios({
-    method: 'post',
-    url: `/api/db/delete-lot`,
-    data: { lotId }
+    method: 'delete',
+    url: `/api/lots/${ lotId }`
   })
-    .then(resp=>{
-      return resp.data;
-    });
+    .then( resp => resp.data );
 
 }
 
@@ -123,13 +102,11 @@ export function editLot( lotId, data ) {
   }
 
   return axios({
-    method: 'post',
-    url: `/api/db/edit-lot/${ lotId }`,
+    method: 'patch',
+    url: `/api/lots/${ lotId }`,
     data: data
   })
-    .then(resp=>{
-      return resp.data;
-    });
+    .then( resp => resp.data && resp.data.lot );
 
 }
 
@@ -141,13 +118,22 @@ export function saveLotManifest( lot ) {
 
   return axios({
     method: 'post',
-    url: `/api/db/save-manifest`,
+    url: `/api/lots/${lot._id}/manifest`,
     data: { lot }
   })
-    .then(resp=>{
-      return resp.data;
-    });
+    .then( resp => resp.data && resp.data.manifest );
 
+}
+
+export function setPrimaryLotImage( lotId, image ) {
+  return axios({
+    method: 'post',
+    url: `/api/lots/${lotId}/primary-image`,
+    data: {
+      image: image
+    }
+  })
+    .then( resp => resp.data );
 }
 
 /*************************************************
