@@ -55,7 +55,6 @@
     "jsbarcode": "^3.11.0",
     "less": "^2.7.3",
     "less-loader": "^5.0.0",
-    "lot-db": "git+ssh://git@gitlab.com/josh314/lot-db.git#1.4.0",
     "manifests-db": "git+ssh://git@gitlab.com/josh314/manifests-db.git#1.0.0",
     "mini-css-extract-plugin": "^0.7.0",
     "moment": "^2.21.0",

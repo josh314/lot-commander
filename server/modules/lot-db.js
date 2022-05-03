@@ -2,9 +2,9 @@ const {
   IllegalActionError
 } = require('../errors');
 
-const libLotDb = require('lot-db');
-
+const libLotDb = require('./lot-db-client');
 const lotdbClient = new libLotDb.Client({ connection: __mongooseConnection }); 
+
 
 function getLotById( lotId ) {
   return lotdbClient.getLotById( lotId );
@@ -80,11 +80,5 @@ module.exports = {
   markAsListed,
 
   // Export data types
-  lotStatusEnum: lotdbClient.LotModel.statusEnum,
-  lotTypeEnum: lotdbClient.LotModel.typeEnum,
-  marketplaceEnum: lotdbClient.LotModel.marketplaceEnum,
-  packagingTypeEnum: lotdbClient.LotModel.packagingTypeEnum,
-  weightUnitsEnum: lotdbClient.LotModel.weightUnitsEnum,
-  lengthUnitsEnum: lotdbClient.LotModel.lengthUnitsEnum,
-
+  enums: lotdbClient.enums,
 };
