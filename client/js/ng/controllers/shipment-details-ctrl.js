@@ -17,6 +17,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
     vm.showReceiveControls = LoggedInUser.hasPermission('RECEIVE_INCOMING_SHIPMENT');
     vm.showHistoryControls = LoggedInUser.hasPermission('VIEW_EVENTS');
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+    vm.showTransportationCost = LoggedInUser.hasPermission('VIEW_TRANSPORTATION_COST');
     vm.showRestrictedDocuments = vm.showPurchasingData;
 
 

@@ -40,6 +40,8 @@
               <input ng-model="$ctrl.editValue[ 'cost' ]" />
             </dd>
           </div>
+        </div>
+        <div ng-show="$ctrl.showTransportationCost">
           <div ng-hide="$ctrl.isEditing[ 'transportationCost' ]">
             <dt>Transportation Cost<span ng-hide="!$ctrl.showEditControls"> (<a href ng-click="$ctrl.openEdit( 'transportationCost' )">edit</a>)</span></dt>
             <dd ng-hide="$ctrl.isEditing[ 'transportationCost' ]">

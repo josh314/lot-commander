@@ -10,6 +10,7 @@ const __USER_ROLE_PERMISSIONS__ = {
   __AUCTIONS__: [ 'LIST_AUCTIONS', 'SUBMIT_AUCTION'],
   __EVENTS__: [ 'VIEW_EVENTS' ],
   __FULFILLMENT__: [ 'LIST_ORDERS', 'VIEW_ORDER'],
+  __LOTS__: [ 'VIEW_LOT', 'EDIT_LOT', 'CREATE_LOT' ],
   __MANUAL_INVENTORY__: [ 'VIEW_MANUAL_INVENTORY', 'CREATE_MANUAL_INVENTORY', 'DELETE_MANUAL_INVENTORY'],
   __PRECEIVING__: [ 'CREATE_INCOMING_SHIPMENT', 'EDIT_INCOMING_SHIPMENT' ],
   __PURCHASING__: [ 'VIEW_PURCHASING_DATA' ],
@@ -18,12 +19,21 @@ const __USER_ROLE_PERMISSIONS__ = {
   __SHIPPING_RATES__: [ 'EDIT_STORE_SHIPPING_RATES', 'VIEW_STORE_SHIPPING_RATES' ],
   __SHOPIFY__: [ 'SUBMIT_SHOPIFY_LISTING' ],
   __TOOLS__: [ 'COUNTER_TOOL' ],
+  __TRANSPORTATION__: [ 'VIEW_TRANSPORTATION_COST' ],
   __USERS__: [ 'CREATE_USER', 'EDIT_USER_ROLES', 'ENABLE_USER', 'VIEW_USER' ],
 };
 
 const superuserRoles = () => Object.keys( __USER_ROLE_PERMISSIONS__ );
 
-const userRoleHasPermission = permission => role => !permission || __USER_ROLE_PERMISSIONS__[ role ].includes( permission );
+const userRoleHasPermission = permission => role => {
+
+  if( !permission ) {
+    return true;
+  }
+
+  return __USER_ROLE_PERMISSIONS__[ role ] ? __USER_ROLE_PERMISSIONS__[ role ].includes( permission ) : false;
+
+};
 
 //=======================================
 //=======================================
@@ -81,9 +91,15 @@ userSchema.methods.isAuthorized = function( permission ) {
 userSchema.methods.getPermissionSet = function() {
   const roles = this.isSuperuser ? superuserRoles() : this.roles;
   return roles.reduce( (permissions, role) => {
-    for( let p of __USER_ROLE_PERMISSIONS__[ role ] ) {
-      permissions.add(p);
+
+    if( Array.isArray( __USER_ROLE_PERMISSIONS__[ role ] ) ) {
+
+      for( let p of __USER_ROLE_PERMISSIONS__[ role ] ) {
+        permissions.add(p);
+      }
+
     }
+
     return permissions;
   }, new Set());
 };
