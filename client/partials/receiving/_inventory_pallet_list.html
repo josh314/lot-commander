@@ -90,6 +90,7 @@
             </span>
             <span ng-show="columnData.noSort">{{columnData.displayName}}</span>
           </th>
+          <th></th>
         </tr></thead>
     
         <tbody>
@@ -116,7 +117,7 @@
               </span>
               <span ng-switch-default>{{ columnData.transform ? columnData.transform( pallet[ columnKey ] ) : pallet[ columnKey ] }}</span>
             </td>
-            <td>
+            <td><button class="btn btn-xs btn-primary" ng-click="$ctrl.createLotFromPallet( pallet )">Make Lot</button></td>
           </tr>
         </tbody>
     

@@ -22,6 +22,7 @@ const lotSchema = mongoose.Schema({
   },
   description: String,
   type: { type: String, enum: typeEnum },
+  category: String,
   totalUnits: Number,
   estimatedRetailValue: Number,
   status: { type: String, enum: statusEnum, required: true },
