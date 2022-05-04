@@ -47,7 +47,7 @@ angular.module('myApp').controller('CleanManifestCtrl', [ 'ManifestFileHandlerSv
 
     function startManifestDownload() {
 
-      const fileNameParts = vm.manifestFile.name.split('.');
+      const fileNameParts = ManifestFileHandlerSvc.getActiveManifestFilename().split('.');
       fileNameParts.pop();
       const outputFilename = fileNameParts.concat( [ 'cleaned', 'xlsx' ] ).join('.');
 
