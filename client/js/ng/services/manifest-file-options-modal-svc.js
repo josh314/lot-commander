@@ -6,7 +6,7 @@ angular.module('myApp').factory( 'ManifestFileOptionsModal', [ '$uibModal', func
 
   return {
 
-    launch: function( { filename, sheetNames }, ctrlFn, dismissFn ) {
+    launch: function( { filename, sheetNames }, ctrlFn ) {
 
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_manifest_file_options_modal.html',
@@ -32,7 +32,7 @@ angular.module('myApp').factory( 'ManifestFileOptionsModal', [ '$uibModal', func
 
       });
 
-      modalInstance.result.then(ctrlFn || function(){}, dismissFn || function(){});
+      return modalInstance.result.then( ctrlFn || function(){}, _ => null );
     }
 
   };

@@ -5,11 +5,36 @@ export class Manifest {
     this.sheets = [];
     this.activeSheet = null;
   }
+
   addSheet(sheet) {
-    this.sheets.push(sheet);
+    this.sheets.push( sheet );
+    sheet.setManifest( this );
     if(this.sheets.length===1) {
       this.activeSheet = this.sheets[0];
     }
+  }
+
+  /* eslint-disable angular/typecheck-array */
+  addSheets( sheets ) {
+    if( Array.isArray( sheets ) ) {
+      for( const s of sheets ) {
+        this.addSheet( s );
+      }
+    }
+  }
+  /* eslint-enable */
+
+  mergeManifests( manifest ) {
+    manifest.sheets.forEach( s => this.addSheet( s ) );
+    return this;
+  }
+
+  selectAllColumnsAllSheets() {
+    this.sheets.forEach( s => s.selectAllColumns() );
+  }
+
+  deselectAllColumnsAllSheets() {
+    this.sheets.forEach( s => s.deselectAllColumns() );
   }
 
   setStandardColumnAllSheets(columnName, standardColumnName) {
@@ -89,7 +114,8 @@ export class Manifest {
   deleteSheet(sheet) {
     const idx = this.sheets.findIndex( s => s == sheet );
     if(idx >= 0) {
-      this.sheets.splice(idx, 1);
+      const removed = this.sheets.splice(idx, 1);
+      removed.forEach( _s => _s.unsetManifest() );
       this.activeSheet = this.sheets[0];
     }
   }
@@ -98,13 +124,15 @@ export class Manifest {
 
     const sheet = this.getActiveSheet();
 
-    const newSheets = sheet.splitByColumn( column );
+    const newSheets = sheet.splitByColumnValues( column );
+    this.addSheets( newSheets );
 
-    for( const s of newSheets ) {
-      this.addSheet( s );
-    }
     this.setActiveSheet( newSheets[0].name );
+    this.deleteSheet( sheet );
 
+    return newSheets;
+  }
+    this.setActiveSheet( newSheets[0].name );
 
     this.deleteSheet( sheet );
 

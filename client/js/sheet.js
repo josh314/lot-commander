@@ -191,10 +191,12 @@ export class Sheet {
       return r;
     });
 
+    // Assign columns if provided or extract from rows
     if( columns ) {
       this.columns = columns;
     }
     else if( this.rows && this.rows[0] ) {
+
       const columnRenameMapping = {};
 
       const rowMetadataFields = new Set( [ 'idx', 'editing' ] );
@@ -220,6 +222,7 @@ export class Sheet {
           }
         });
       }
+      this.selectAllColumns();
 
     }
     else {
@@ -227,6 +230,32 @@ export class Sheet {
     }
 
     this.updateColumnTitleOptions();
+
+  }
+
+  getManifest() {
+    return this.manifest;
+  }
+
+  setManifest( _manifest ) {
+    return this.manifest = _manifest;
+  }
+
+  unsetManifest() {
+    if( this.manifest ) {
+      delete this.manifest;
+    }
+  }
+
+  selectAllColumns() {
+
+    this.columns.forEach( c => c.select() );
+
+  }
+
+  deselectAllColumns() {
+
+    this.columns.forEach( c => c.deselect() );
 
   }
 
@@ -453,10 +482,9 @@ export class Sheet {
     return this.rows.map( filter ).map( hack );
   }
 
-  splitByColumn( column ) {
+  splitByColumnValues( column ) {
 
     const commonOpts = {
-      manifest: this.manifest,
       standardBarcodeColumnName: __STANDARD_MANIFEST_BARCODE_COLUMN__,
       standardColumnNames: __STANDARD_MANIFEST_COLUMNS__,
       skipFirstRows: false,

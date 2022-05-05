@@ -7,14 +7,13 @@ angular.module('myApp').controller('CleanManifestCtrl', [ 'ManifestFileHandlerSv
 
     const vm = this;
 
-    vm.manifest = ManifestFileHandlerSvc.getActiveManifest() || null;
     vm.noFileSelected = false;
     vm.manifestFile = null;
     vm.noHeaderRow = false;
     vm.skipFirstRows = 0;
     vm.shipmentId = ShipmentManagerSvc.getShipmentId();
 
-    vm.loadManifest = loadManifest;
+    vm.loadManifestFromSelectedFile = loadManifestFromSelectedFile;
     vm.toggleSelect = column => column.toggleSelect;
     vm.getActiveSheet = () => vm.manifest ? vm.manifest.getActiveSheet(): null;
     vm.setActiveSheet = sheetName => vm.manifest ? vm.manifest.setActiveSheet(sheetName): null;
@@ -25,9 +24,16 @@ angular.module('myApp').controller('CleanManifestCtrl', [ 'ManifestFileHandlerSv
     vm.startManifestDownload = startManifestDownload;
     vm.saveToShipment = saveToShipment;
 
-    //////////
 
-    function loadManifest() {
+    // Initialization
+    loadActiveManifest();
+
+    /***************************************************
+     * Controller methods
+     *
+     *************/
+
+    function loadManifestFromSelectedFile() {
 
       if(!vm.manifestFile) {
         vm.noFileSelected = true;
@@ -37,8 +43,16 @@ angular.module('myApp').controller('CleanManifestCtrl', [ 'ManifestFileHandlerSv
         vm.noFileSelected = false;
       }
 
-      ManifestFileHandlerSvc.parseFile( vm.manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( manifest => vm.manifest = manifest );
+      ManifestFileHandlerSvc.parseFile( vm.manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( loadActiveManifest );
       
+    }
+
+    function loadActiveManifest() {
+      const manifest = ManifestFileHandlerSvc.getActiveManifest();
+      if( manifest ) {
+        manifest.deselectAllColumnsAllSheets();
+        vm.manifest = manifest;
+      }
     }
 
     function createSalePriceColumn() {
@@ -63,7 +77,7 @@ angular.module('myApp').controller('CleanManifestCtrl', [ 'ManifestFileHandlerSv
         fileNameParts.pop();
         const outputFilename = fileNameParts.concat( [ 'cleaned', 'xlsx' ] ).join('.');
 
-        ManifestFileHandlerSvc.createFile( outputFilename, function( file ) {
+        ManifestFileHandlerSvc.createFileFromModal( outputFilename ).then( file => {
 
           ShipmentManagerSvc.uploadShipmentDocument( { shipmentId: vm.shipmentId, file, documentType: 'manifest', isRestricted: true } ).then( _ => navigate.shipmentDetails( vm.shipmentId ) );
 
