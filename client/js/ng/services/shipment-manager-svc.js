@@ -112,7 +112,7 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'L
 
       countShipments: filter => $q.when( api.countIncomingShipments( queryParams( filter ) ) ),
 
-      uploadShipmentDocument: ( { shipmentId, file, documentType, isRestricted } ) => $q.when( api.uploadObjectDocument( shipmentId || _shipmentId(), file, { documentType, isRestricted } ) ),
+      uploadShipmentDocument: ( { shipmentId, file, documentType, isRestricted } ) => $q.when( api.uploadObjectDocument( shipmentId || _shipmentId(), 'shipment', file, { documentType, isRestricted } ) ),
 
     };
 
