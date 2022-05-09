@@ -536,6 +536,45 @@ export class Sheet {
 
   }
 
+  extractByColumnValue( column, value ) {
+
+    const commonOpts = {
+      standardBarcodeColumnName: __STANDARD_MANIFEST_BARCODE_COLUMN__,
+      standardColumnNames: __STANDARD_MANIFEST_COLUMNS__,
+      skipFirstRows: false,
+      noHeaderRow: false,
+    };
+
+    const group = [];
+
+    for( let r of this.rows ) {
+
+      if( r[ column ] === value ) {
+
+        group.push( r );
+        delete r[ column ];
+
+      }
+
+    }
+
+    const clonedColumns = this.columns.filter( _c => _c.name !== column ).map( _c => new Column( { name: _c.name, displayName: _c.displayName, selected: _c.selected } ) );
+
+    const opts = Object.assign(
+      commonOpts,
+      {
+        name: `${value}`.slice(0,31), // there's a max number of characters for a sheet name
+        rows: group,
+        columns: clonedColumns
+      },
+    );
+
+    const s = new Sheet( opts );
+
+    return s;
+
+  }
+
   isEditing( row, column ) {
     return row.editing.has( column.name );
   }

@@ -132,10 +132,16 @@ export class Manifest {
 
     return newSheets;
   }
-    this.setActiveSheet( newSheets[0].name );
 
-    this.deleteSheet( sheet );
+  extractFromActiveSheetByColumnValue( column, value ) {
 
+    const sheet = this.getActiveSheet().extractByColumnValue( column, value );
+
+    const manifest = new Manifest();
+
+    manifest.addSheet( sheet );
+
+    return manifest;
   }
 
   createSalePriceColumnFromRetailPrices( discountFactor, priceType ) {

@@ -86,8 +86,8 @@ angular.module('myApp').service('InventoryPalletManagerSvc', [ '$q', '$statePara
   }
 ]);
 
-angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetailsModalSvc',
-  function( $q, InventoryPalletDetailsModalSvc ) {
+angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetailsModalSvc', 'UtilitiesSvc',
+  function( $q, InventoryPalletDetailsModalSvc, UtilitiesSvc ) {
     const datify = dString => dString ? new Date( dString ) : null;
 
     class InventoryPallet {
@@ -224,6 +224,40 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
         };
 
         return _data;
+      }
+
+      listDocuments( ) {
+        return $q.when( api.listObjectDocuments( this._id, this.isReceived ? 'received-pallet' : 'consolidated-pallet' ) ).then( resp => {
+
+          if( !resp ) {
+            throw new Error( { error: true, message: 'Server error.' } );
+          }
+          else if ( resp.error ) {
+            return resp;
+          }
+          else {
+
+            const documents = resp.documents || [];
+
+            return {
+              documents: documents.map( d => Object.assign( d, { displaySize: UtilitiesSvc.humanReadableFileSize(d.size), documentType: d.documentType || '' } )  )
+            };
+          }
+
+        });
+      }
+
+      getDocument( documentName ) {
+        return $q.when( api.getObjectDocument( this._id, this.isReceived ? 'received-pallet' : 'consolidated-pallet', documentName ) );
+      }
+      uploadDocument( file, { documentType, isRestricted } ) {
+        return $q.when( api.uploadObjectDocument( this._id, this.isReceived ? 'received-pallet' : 'consolidated-pallet', file, { documentType, isRestricted } ) );
+      }
+      updateDocumentProperties( documentName, { documentType, isRestricted } ) {
+        return $q.when( api.updateObjectDocumentProperties( this._id, this.isReceived ? 'received-pallet' : 'consolidated-pallet', documentName, { documentType, isRestricted } ) );
+      }
+      removeDocument( documentName ) {
+        return $q.when( api.removeObjectDocument( this._id, this.isReceived ? 'received-pallet' : 'consolidated-pallet', documentName ) );
       }
 
     }

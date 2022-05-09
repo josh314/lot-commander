@@ -38,6 +38,8 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
       launchFileParsingOptionsModal,
       parse,
       parseFile,
+      createFileFromExtractByColumnValue,
+      downloadFileFromExtractByColumnValue,
     };
 
     function getActiveManifest() {
@@ -185,6 +187,34 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
       });
 
       modalInstance.result.then( cb || function(){}, function(){} );
+    }
+
+    function loadNewManifestFromExtractByColumnValue( { documentName, data, column, splitValue, sheetName } ) {
+
+      parse( data, documentName, { noHeaderRow: false, skipFirstRows: 0 } );
+
+      const manifest = getActiveManifest();
+      manifest.setActiveSheet( sheetName );
+
+      const newManifest = manifest.extractFromActiveSheetByColumnValue( column, splitValue );
+      setActiveManifest( newManifest );
+
+    }
+
+    function createFileFromExtractByColumnValue( { documentName, data, column, splitValue, sheetName } ) {
+
+      loadNewManifestFromExtractByColumnValue( { documentName, data, column, splitValue, sheetName } );
+      const newFilename = `${splitValue} - ${documentName}`;
+      return createFile( newFilename, getActiveManifest() );
+
+    }
+
+    function downloadFileFromExtractByColumnValue( { documentName, data, column, splitValue, sheetName } ) {
+
+      loadNewManifestFromExtractByColumnValue( { documentName, data, column, splitValue, sheetName } );
+      const newFilename = `${splitValue} - ${documentName}`;
+      downloadFile( newFilename );
+
     }
 
   }
