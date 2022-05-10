@@ -293,12 +293,12 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
             doc.isRestricted = doc.permission === 'VIEW_PURCHASING_DATA';
 
-            doc.updateRestrictionStatus = () => vm.shipment.updateDocumentProperties( doc.name, { isRestricted: doc.isRestricted } ).then( updateDocumentList );
+            doc.updateRestrictionStatus = () => vm.shipment.updateShipmentDocumentProperties( doc.name, { isRestricted: doc.isRestricted } ).then( updateDocumentList );
 
             doc.updateDocumentType = oldDocumentType => {
 
               if( doc.documentType !== 'manifest' ) {
-                return vm.shipment.updateDocumentProperties( doc.name, { documentType: doc.documentType } ).then( updateDocumentList );
+                return vm.shipment.updateShipmentDocumentProperties( doc.name, { documentType: doc.documentType } ).then( updateDocumentList );
               }
               else if( !ManifestFileHandlerSvc.isManifestFile( doc.name ) ) {
 
@@ -308,7 +308,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
                 }).then( isConfirmed => {
 
                   if( isConfirmed ) {
-                    return vm.shipment.updateDocumentProperties( doc.name, { documentType: doc.documentType } ).then( updateDocumentList );
+                    return vm.shipment.updateShipmentDocumentProperties( doc.name, { documentType: doc.documentType } ).then( updateDocumentList );
                   }
                   else {
                     doc.documentType = oldDocumentType;
@@ -732,6 +732,12 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
       if( type === 'received' || type === 'consolidated' ) {
         pallet.showNote = false;
         pallet.toggleShowNote = function() { this.showNote = !this.showNote; };
+      }
+
+      if( type === 'expected' ) {
+        shipment.listExpectedPalletDocuments( pallet._id ).then( documents => {
+          pallet.documents = documents || [];
+        });
       }
 
       pallet.validate = function( ) {

@@ -4,6 +4,8 @@ const auth = require('../auth');
 const helpers = require('../helpers');
 const { InvalidRequestError } = require('../errors');
 
+const documentSvc = require('../modules/document-svc');
+
 module.exports = routes;
 
 /**********************************************
@@ -479,16 +481,41 @@ function routes({ eventsDb, inventoryCommander }) {
       const shipmentId = req.params.shipmentId;
       const palletData = req.body;
 
-      const { shipment, pallet } = await inventoryCommander.receiveIncomingShipmentPallet( shipmentId, palletData );
+      const { shipment, palletReceived, palletExpected } = await inventoryCommander.receiveIncomingShipmentPallet( shipmentId, palletData );
 
-      if( shipment && pallet ) {
+      if( !palletReceived ) {
+        throw new Error('Failed.')
+      }
+
+      if( shipment ) {
 
         eventsDb.createInventoryPallet( {
           user: req.user,
-          palletId: pallet._id,
+          palletId: palletReceived._id,
           shipmentId: shipment._id
         } );
         
+      }
+
+      if( palletExpected ) {
+
+        const srcFolder = documentSvc.folder( 'incoming-shipment-expected-pallet' )( palletExpected._id );
+        const result = await documentSvc.list( { folder: srcFolder } );
+
+        if( result && result.documents ) {
+
+          for( let document of result.documents ) {
+
+            await documentSvc.clone( {
+              srcFolder,
+              destFolder: documentSvc.folder( 'inventory-pallet' )( palletReceived._id ),
+              name: document.name
+            } );
+
+          }
+
+        }
+
       }
 
       res.json( { success: true } );

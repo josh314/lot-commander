@@ -101,6 +101,7 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
           [ 'brokendownDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
         );
 
+        this.refreshDocuments();
       }
 
       breakdown( isBrokendown ) {
@@ -258,6 +259,23 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
       }
       removeDocument( documentName ) {
         return $q.when( api.removeObjectDocument( this._id, this.isReceived ? 'received-pallet' : 'consolidated-pallet', documentName ) );
+      }
+
+      refreshDocuments() {
+        this.listDocuments().then( resp => {
+          this.documents = (resp && resp.documents) ? resp.documents : [];
+        } );
+      }
+
+      getManifestMetadata() {
+        if( this.documents ) {
+          const manifest = this.documents.find( _d => _d.documentType === 'manifest' );
+          return manifest;
+        }
+      }
+
+      hasManifest() {
+        return !!this.getManifestMetadata();
       }
 
     }

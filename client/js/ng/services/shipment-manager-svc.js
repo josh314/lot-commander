@@ -236,7 +236,7 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
 
       shipment.uploadShipmentDocument = ( file, { documentType, isRestricted } ) => $q.when( api.uploadObjectDocument( shipment._id, 'shipment', file, { documentType, isRestricted } ) );
 
-      shipment.updateDocumentProperties = ( documentName, { documentType, isRestricted } ) => $q.when( api.updateObjectDocumentProperties( shipment._id, 'shipment', documentName, { documentType, isRestricted } ) );
+      shipment.updateShipmentDocumentProperties = ( documentName, { documentType, isRestricted } ) => $q.when( api.updateObjectDocumentProperties( shipment._id, 'shipment', documentName, { documentType, isRestricted } ) );
 
       shipment.removeShipmentDocument = documentName => $q.when( api.removeObjectDocument( shipment._id, 'shipment', documentName ) );
 
@@ -260,6 +260,33 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
     
       shipment.editConsolidatedPallet = shipment.editReceivedPallet;
     
+      shipment.listExpectedPalletDocuments = palletId => $q.when( api.listObjectDocuments( palletId, 'shipment-expected-pallet' ) ).then( resp => {
+
+        if( !resp ) {
+          throw new Error( { error: true, message: 'Server error.' } );
+        }
+        else if ( resp.error ) {
+          return resp;
+        }
+        else {
+
+          const documents = resp.documents || [];
+
+          return {
+            documents: documents.map( d => Object.assign( d, { displaySize: UtilitiesSvc.humanReadableFileSize(d.size), documentType: d.documentType || '' } )  )
+          };
+        }
+
+      });
+
+      shipment.getExpectedPalletDocument = ( palletId, documentName ) => $q.when( api.getObjectDocument( palletId, 'shipment-expected-pallet', documentName ) );
+
+      shipment.uploadExpectedPalletDocument = ( palletId, file, { documentType, isRestricted } ) => $q.when( api.uploadObjectDocument( palletId, 'shipment-expected-pallet', file, { documentType, isRestricted } ) );
+
+      shipment.updateExpectedPalletDocumentProperties = ( palletId, documentName, { documentType, isRestricted } ) => $q.when( api.updateObjectDocumentProperties( palletId, 'shipment-expected-pallet', documentName, { documentType, isRestricted } ) );
+
+      shipment.removeExpectedPalletDocument = ( palletId, documentName ) => $q.when( api.removeObjectDocument( palletId, 'shipment-expected-pallet', documentName ) );
+
       // Shipment close/reopen
 
       shipment.close = ( ) => $q.when( api.closeIncomingShipment( shipment._id ) );

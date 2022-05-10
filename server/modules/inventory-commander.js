@@ -733,7 +733,7 @@ class InventoryCommander {
 
     await shipment.receivePallet( pallet._id );
 
-    return { shipment, pallet };
+    return { shipment, palletReceived: pallet, palletExpected: correspondingPalletExpected };
   }
 
 

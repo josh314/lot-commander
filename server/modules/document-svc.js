@@ -10,6 +10,7 @@ const __EXPRESSHOP_DOCUMENTS_BUCKET__ = 'expresshop-documents';
 module.exports = {
   folder: type => id => `${type}-${id}`,
   addDocumentTags,
+  clone,
   get,
   getDocumentTags,
   list,
@@ -91,6 +92,15 @@ async function list({ num, bucket, folder, continuationToken }) {
   return result;
 }
 
+function clone( { bucket, srcFolder, destFolder, name } ) {
+  // TODO: metadata, ACL
+  return s3.copyObject({
+    Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
+    CopySource: `${__EXPRESSHOP_DOCUMENTS_BUCKET__}/${srcFolder}/${name}`,
+    Key: `${destFolder}/${name}`
+  })
+    .promise();
+}
 
 function getDocumentTags( { bucket, folder, name } ) {
   return s3.getObjectTagging({
