@@ -1,9 +1,10 @@
 import * as xlsx from 'xlsx';
 
 export class Manifest {
-  constructor() {
+  constructor( sheets ) {
     this.sheets = [];
     this.activeSheet = null;
+    this.addSheets( sheets );
   }
 
   addSheet(sheet) {

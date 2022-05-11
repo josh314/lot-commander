@@ -78,6 +78,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
     vm.receivedPalletsSectionTitle = () => `Received Pallets${vm.shipment &&vm.shipment.palletsReceived && vm.shipment.palletsReceived.length ? ` (${vm.shipment.palletsReceived.length})`: ''}`;
     vm.consolidatedPalletsSectionTitle = () => `Consolidated Pallets${vm.shipment &&vm.shipment.palletsConsolidated && vm.shipment.palletsConsolidated.length ? ` (${vm.shipment.palletsConsolidated.length})`: ''}`;
 
+    vm.createPalletManifests = createPalletManifestsFromShipmentStandardManifest;
+
     /****************************************************
      * Functions
      * =========
@@ -425,6 +427,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
       ManifestFileHandlerSvc.launchFileParsingOptionsModal( _document.name, options => {
 
+        options.renameStandardColumns = true;
+
         vm.shipment.getShipmentDocument( _document.name ).then( data => {
 
           ManifestFileHandlerSvc.parse( data, _document.name, options );
@@ -437,6 +441,49 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
 
     }
 
+
+    async function createPalletManifestsFromShipmentStandardManifest( _document ) {
+
+      const data = await vm.shipment.getShipmentDocument( _document.name );
+
+      const files = await ManifestFileHandlerSvc.splitStandardManifestByPallet( data );
+
+      const uploads = [];
+      for ( let file of files ) {
+
+        const match = file.name.match( /(.*)\.xlsx/ );
+
+        if( match ) {
+
+          const palletHandle = match[1];
+
+          const expectedPallet = vm.shipment.palletsExpected.find( _p => _p.handle === palletHandle );
+          const receivedPallet = vm.shipment.palletsReceived.find( _p => _p.handle === palletHandle );
+
+
+          if( expectedPallet ) {
+
+            uploads.push(
+              vm.shipment.uploadExpectedPalletDocument( expectedPallet._id, file, { documentType: 'manifest', isRestricted: false } )
+            );
+
+          }
+
+          if( receivedPallet ) {
+
+            uploads.push(
+              receivedPallet.uploadDocument( file, { documentType: 'manifest', isRestricted: false } )
+            );
+
+          }
+
+        }
+
+      }
+
+      return Promise.all( uploads ).then(console.log).then( _ => navigate.reload() );
+
+    }
 
     /*******************************************************
      * Receiving
@@ -735,8 +782,8 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
       }
 
       if( type === 'expected' ) {
-        shipment.listExpectedPalletDocuments( pallet._id ).then( documents => {
-          pallet.documents = documents || [];
+        shipment.listExpectedPalletDocuments( pallet._id ).then( resp => {
+          pallet.documents = resp && resp.documents ? resp.documents : [];
         });
       }
 
@@ -839,6 +886,17 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
           this.closeEdit();
           return result;
         });
+      };
+
+      pallet.getManifestMetadata = () => {
+        if( pallet.documents ) {
+          const manifest = pallet.documents.find( _d => _d.documentType === 'manifest' );
+          return manifest;
+        }
+      };
+
+      pallet.hasManifest = () => {
+        return !!pallet.getManifestMetadata();
       };
 
       return pallet;

@@ -218,6 +218,7 @@
           <th>Type</th>
           <th ng-show="$ctrl.showRestrictedDocuments">Restricted?</th>
           <th></th>
+          <th></th>
           <th ng-show="$ctrl.showEditControls">Remove</th>
         </thead>
         <tbody>
@@ -240,6 +241,9 @@
             <td>
               <button class="btn btn-xs btn-success" ng-click="$ctrl.cleanManifest( document )" ng-show="$ctrl.isManifestFile( document )">Clean</button>
             </td>
+            <td>
+              <button class="btn btn-xs btn-warning" ng-click="$ctrl.createPalletManifests( document )" ng-show="$ctrl.isManifestFile( document )">Magic</button>
+            </td>
             <td ng-show="$ctrl.showEditControls">
               <button type="button" class="btn btn-danger btn-xs" ng-click="$ctrl.removeDocument( document.name )">
                 <span class="glyphicon glyphicon-remove"></span>
@@ -254,6 +258,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Expected Pallets section -->
   <div class="row well">
     <h2>{{ $ctrl.expectedPalletsSectionTitle() }}</h2>
     <table class="table table-striped">
@@ -265,6 +271,7 @@
         <th>Category</th>
         <th>Condition</th>
         <th>Received?</th>
+        <th></th>
         <th ng-show="$ctrl.showEditControls"></th>
         <th ng-show="$ctrl.showEditControls"></th>
       </tr></thead>
@@ -308,6 +315,11 @@
             <span ng-hide="pallet.isEditing">{{pallet.condition}}</span>
           </td>
           <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isReceived"></span></td>
+          <td>
+            <span ng-show="pallet.hasManifest()">
+              <a ng-href="/api/documents/{{ pallet._id }}/{{ pallet.getManifestMetadata().name }}?object_type=shipment-expected-pallet" target="_self" download><button class="btn btn-xs btn-primary">Manifest</button></a>
+            </span>
+          </td>
           <td ng-show="$ctrl.showEditControls">
             <button type="button" class="btn btn-danger btn-xs" ng-click="$ctrl.removeExpectedPallet($index)" ng-show="pallet.isEditing">
               <!-- <span class="glyphicon glyphicon-remove"></span> -->
@@ -359,6 +371,8 @@
       <button class="btn btn-sm btn-primary" ng-click="$ctrl.printShipmentLabels('expected')">Print Expected Pallet Labels</button>
     </div>
   </div>
+
+  <!-- Received pallets section -->
   <div class="row well" ng-show="$ctrl.showReceiveControls">
 
     <div style="display: flex; align-items: center;">
@@ -412,6 +426,7 @@
           <th>Brokendown?</th>
           <th>Note</th>
           <th></th>
+          <th></th>
         </tr></thead>
 
         <tbody>
@@ -441,6 +456,11 @@
               </td>
             </td>
             <td>
+              <span ng-show="pallet.hasManifest()">
+                <a ng-href="/api/documents/{{ pallet._id }}/{{ pallet.getManifestMetadata().name }}?object_type=received-pallet" target="_self" download><button class="btn btn-xs btn-primary">Manifest</button></a>
+              </span>
+            </td>
+            <td>
               <button type="button" class="btn btn-danger btn-xs" ng-click="$ctrl.unreceivePallet( pallet )">
                 <!-- <span class="glyphicon glyphicon-remove"></span> -->
                 Delete
@@ -459,6 +479,7 @@
     </div>
   </div>
 
+  <!-- Consolidated pallets section -->
   <div class="row well" ng-show="$ctrl.showReceiveControls">
 
     <div style="display: flex; align-items: center;">

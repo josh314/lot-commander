@@ -40,6 +40,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
       parseFile,
       createFileFromExtractByColumnValue,
       downloadFileFromExtractByColumnValue,
+      splitStandardManifestByPallet,
     };
 
     function getActiveManifest() {
@@ -70,15 +71,15 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
       return manifestExtensions.includes( path.extname( filename ) );
     }
 
-    function parseFile( file, { noHeaderRow, skipFirstRows } = {} ) {
+    function parseFile( file, { noHeaderRow, skipFirstRows, renameStandardColumns } = {} ) {
 
       return $q.when( readFile( file ) ).then( reader => {
-        return parse( reader.result, file.name, { noHeaderRow, skipFirstRows } );
+        return parse( reader.result, file.name, { noHeaderRow, skipFirstRows, renameStandardColumns } );
       });
 
     }
 
-    function parse( data, filename, { noHeaderRow, skipFirstRows } = {} ) {
+    function parse( data, filename, { noHeaderRow, skipFirstRows, renameStandardColumns } = {} ) {
 
       const wb = xlsx.read( new Uint8Array( data ) , { type: 'array' } );
 
@@ -90,7 +91,8 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
           name: name,
           data: data,
           noHeaderRow: noHeaderRow || false,
-          skipFirstRows: skipFirstRows || 0
+          skipFirstRows: skipFirstRows || 0,
+          renameStandardColumns
         };
         _activeManifest.addSheet( new Sheet( sheetOpts ) );
       }
@@ -215,6 +217,21 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
       const newFilename = `${splitValue} - ${documentName}`;
       downloadFile( newFilename );
 
+    }
+
+    function splitStandardManifestByPallet( data ) {
+
+      parse( data, 'temp.xlsx', { noHeaderRow: false, skipFirstRows: 0 } );
+      const manifest = getActiveManifest();
+
+      const splitSheets = manifest.splitActiveSheetByColumn( 'Pallet ID' );
+
+      const splitManifests = splitSheets.map( s => {
+        const manifest = new Manifest( [ s ] );
+        return createFile( `${manifest.activeSheet.name}.xlsx`, manifest );
+      });
+
+      return splitManifests;
     }
 
   }

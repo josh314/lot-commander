@@ -156,7 +156,7 @@ class Column {
 // Main class
 
 export class Sheet {
-  constructor( { manifest, name, skipFirstRows, noHeaderRow, data, rows, columns } ) {
+  constructor( { manifest, name, skipFirstRows, noHeaderRow, data, rows, columns, renameStandardColumns } ) {
 
     this.manifest = manifest;
     this.name = name;
@@ -209,12 +209,14 @@ export class Sheet {
       this.columns = Object.entries( this.rows[0] ).filter( _ => ! rowMetadataFields.has( _[0] ) ).map( kv => {
         let [ name, _ ] = kv;
 
-        // Rename column if it matches a standard column name
-        const matchedStandardColumn = __STANDARD_MANIFEST_COLUMNS__.find( column => column === name );
-        if( matchedStandardColumn ) {
-          const newName = '__' + matchedStandardColumn;
-          columnRenameMapping[name] = newName;
-          name = newName;
+        if( renameStandardColumns ) {
+          // Rename column if it matches a standard column name
+          const matchedStandardColumn = __STANDARD_MANIFEST_COLUMNS__.find( column => column === name );
+          if( matchedStandardColumn ) {
+            const newName = '__' + matchedStandardColumn;
+            columnRenameMapping[name] = newName;
+            name = newName;
+          }
         }
 
         return new Column( { name: name } );

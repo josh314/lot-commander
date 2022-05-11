@@ -44,7 +44,7 @@ angular.module('myApp').controller('CleanManifestCtrl', [ 'ConfirmationModal', '
         vm.noFileSelected = false;
       }
 
-      ManifestFileHandlerSvc.parseFile( vm.manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows } ).then( loadActiveManifest );
+      ManifestFileHandlerSvc.parseFile( vm.manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows, renameStandardColumns: true } ).then( loadActiveManifest );
       
     }
 
@@ -58,8 +58,8 @@ angular.module('myApp').controller('CleanManifestCtrl', [ 'ConfirmationModal', '
 
     async function removeRow( sheet, idx ) {
 
-      const msg = `Remove row #${idx}? This can't be undone.`
-      // TODO: ask for confirmation!!
+      const msg = `Remove row #${idx}? This can't be undone.`;
+
       const isConfirmed = await ConfirmationModal.launch({
         header: 'Remove Row',
         body: msg
