@@ -24,6 +24,10 @@ export class Manifest {
   }
   /* eslint-enable */
 
+  removeRow( sheet, idx ) {
+    sheet.removeRow( idx );
+  }
+
   mergeManifests( manifest ) {
     manifest.sheets.forEach( s => this.addSheet( s ) );
     return this;

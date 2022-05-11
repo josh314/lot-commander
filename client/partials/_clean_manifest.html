@@ -79,6 +79,7 @@
               <option ng-repeat="opt in column.nameOptions">{{ opt }}</option>
             </select>
           </th>
+          <th></th>
         </thead>
         <tbody>
 
@@ -109,6 +110,12 @@
               </div>
             </td>
             
+            <td>
+              <button class="btn btn-xs btn-danger" ng-click="$ctrl.removeRow( sheet, row.idx )">
+                <span class="glyphicon glyphicon-remove"></span>
+              </button>
+            </td>
+
           </tr>
 
         </tbody>

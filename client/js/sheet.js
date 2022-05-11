@@ -2,6 +2,7 @@ import * as xlsx from 'xlsx';
 
 // CONSTANTS
 
+const __STANDARD_MANIFEST_PALLET_ID_COLUMN__ = 'Pallet ID';
 const __STANDARD_MANIFEST_BARCODE_COLUMN__ = 'UPC/EAN/GTIN';
 const __STANDARD_MANIFEST_QUANTITY_COLUMN__ = 'Quantity';
 const __STANDARD_MANIFEST_UNIT_COST_COLUMN__ = 'Unit Cost'; // our cost per unit
@@ -9,6 +10,7 @@ const __STANDARD_MANIFEST_TOTAL_COST_COLUMN__ = 'Cost'; // our total cost for th
 const __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__ = 'Unit Retail Price'; // estimated retail unit price
 const __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ = 'Retail Price';  // estimated retail value of line item
 const __STANDARD_MANIFEST_DISPLAY_COLUMNS__ = [
+  __STANDARD_MANIFEST_PALLET_ID_COLUMN__,
   __STANDARD_MANIFEST_BARCODE_COLUMN__,
   __STANDARD_MANIFEST_QUANTITY_COLUMN__,
   __STANDARD_MANIFEST_UNIT_COST_COLUMN__,
@@ -83,6 +85,10 @@ class Column {
 
   isStandardColumn() {
     return __STANDARD_MANIFEST_COLUMNS__.includes( this.displayName );
+  }
+
+  isPalletIdColumn() {
+    return this.displayName === __STANDARD_MANIFEST_PALLET_ID_COLUMN__;
   }
 
   isBarcodeColumn() {
@@ -231,6 +237,10 @@ export class Sheet {
 
     this.updateColumnTitleOptions();
 
+  }
+
+  removeRow( idx ) {
+    this.rows.splice( idx, 1 );
   }
 
   getManifest() {

@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /******************* Manifest Cleaner Controller *************************/
-angular.module('myApp').controller('CleanManifestCtrl', [ 'ManifestFileHandlerSvc', 'ManifestSalePriceColumnModalSvc', 'navigate', 'sessionTimeout', 'ShipmentManagerSvc',
-  function( ManifestFileHandlerSvc, ManifestSalePriceColumnModalSvc, navigate, sessionTimeout, ShipmentManagerSvc ) {
+angular.module('myApp').controller('CleanManifestCtrl', [ 'ConfirmationModal', 'ManifestFileHandlerSvc', 'ManifestSalePriceColumnModalSvc', 'navigate', 'sessionTimeout', 'ShipmentManagerSvc',
+  function( ConfirmationModal, ManifestFileHandlerSvc, ManifestSalePriceColumnModalSvc, navigate, sessionTimeout, ShipmentManagerSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -14,6 +14,7 @@ angular.module('myApp').controller('CleanManifestCtrl', [ 'ManifestFileHandlerSv
     vm.shipmentId = ShipmentManagerSvc.getShipmentId();
 
     vm.loadManifestFromSelectedFile = loadManifestFromSelectedFile;
+    vm.removeRow = removeRow;
     vm.toggleSelect = column => column.toggleSelect;
     vm.getActiveSheet = () => vm.manifest ? vm.manifest.getActiveSheet(): null;
     vm.setActiveSheet = sheetName => vm.manifest ? vm.manifest.setActiveSheet(sheetName): null;
@@ -52,6 +53,23 @@ angular.module('myApp').controller('CleanManifestCtrl', [ 'ManifestFileHandlerSv
       if( manifest ) {
         manifest.deselectAllColumnsAllSheets();
         vm.manifest = manifest;
+      }
+    }
+
+    async function removeRow( sheet, idx ) {
+
+      const msg = `Remove row #${idx}? This can't be undone.`
+      // TODO: ask for confirmation!!
+      const isConfirmed = await ConfirmationModal.launch({
+        header: 'Remove Row',
+        body: msg
+      });
+
+      if( !isConfirmed ) {
+        return;
+      }
+      else if( vm.manifest ) {
+        vm.manifest.removeRow( sheet, idx );
       }
     }
 
