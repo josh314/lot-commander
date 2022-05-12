@@ -1,25 +1,27 @@
 import angular from 'angular';
 
 /***************** Modal Controller ************************/
-angular.module('myApp').controller('ShippingItemsModalCtrl', [ '$uibModalInstance', 'dbEnums', 'shippingItems',
-  function( $uibModalInstance, dbEnums, shippingItems ){
+angular.module('myApp').controller('ShippingItemsModalCtrl', [ '$uibModalInstance', 'shippingItems', 'ShippingItemsSvc',
+  function( $uibModalInstance, shippingItems, ShippingItemsSvc ){
     // copy shippingItems so we can edit the copy without affecting the original
     const _shippingItems = shippingItems ? JSON.parse( JSON.stringify( shippingItems ) ) : [];
+    const weightUnitsEnum = ShippingItemsSvc.weightUnitsEnum;
+    const lengthUnitsEnum = ShippingItemsSvc.lengthUnitsEnum;
 
     const vm = this;
 
-    vm.weightUnitsEnum = dbEnums.weightUnits;
-    vm.lengthUnitsEnum = dbEnums.lengthUnits;
+    vm.weightUnitsEnum = weightUnitsEnum;
+    vm.lengthUnitsEnum = lengthUnitsEnum;
 
     vm.shippingItems = _shippingItems;
     vm.errorStyles = vm.shippingItems.map( _ => ({}) );
 
     vm.addItem = () => {
       const newItem = {
-        weightUnits: dbEnums.weightUnits[0],
-        heightUnits: dbEnums.lengthUnits[0],
-        lengthUnits: dbEnums.lengthUnits[0],
-        widthUnits: dbEnums.lengthUnits[0],
+        weightUnits: weightUnitsEnum[0],
+        heightUnits: lengthUnitsEnum[0],
+        lengthUnits: lengthUnitsEnum[0],
+        widthUnits: lengthUnitsEnum[0],
       };
       _shippingItems.push(newItem);
     };
@@ -29,59 +31,7 @@ angular.module('myApp').controller('ShippingItemsModalCtrl', [ '$uibModalInstanc
       vm.errorStyles.splice(itemIndex, 1);
     };
 
-    vm.presets = [
-      {
-        name: '24x18x12',
-        weightUnits: dbEnums.weightUnits[0],
-        height: 24,
-        heightUnits: 'inches',
-        length: 18,
-        lengthUnits: 'inches',
-        width: 12,
-        widthUnits: 'inches',
-      },
-      {
-        name: '22x22x22',
-        weightUnits: dbEnums.weightUnits[0],
-        height: 22,
-        heightUnits: 'inches',
-        length: 22,
-        lengthUnits: 'inches',
-        width: 22,
-        widthUnits: 'inches',
-      },
-      {
-        name: '16x14x12',
-        weightUnits: dbEnums.weightUnits[0],
-        height: 16,
-        heightUnits: 'inches',
-        length: 14,
-        lengthUnits: 'inches',
-        width: 12,
-        widthUnits: 'inches',
-      },
-      {
-        name: '12x10x6',
-        weightUnits: dbEnums.weightUnits[0],
-        height: 12,
-        heightUnits: 'inches',
-        length: 10,
-        lengthUnits: 'inches',
-        width: 6,
-        widthUnits: 'inches',
-      },
-      {
-        name: 'pallet',
-        weight: 2000,
-        weightUnits: dbEnums.weightUnits[0],
-        height: 60,
-        heightUnits: 'inches',
-        length: 48,
-        lengthUnits: 'inches',
-        width: 48,
-        widthUnits: 'inches',
-      }
-    ];
+    vm.presets = ShippingItemsSvc.presets;
 
     vm.addPresetItem = (index) => {
       const newItem = JSON.parse( JSON.stringify(vm.presets[index]) );
