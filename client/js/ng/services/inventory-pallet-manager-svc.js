@@ -207,26 +207,7 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
 
       }
 
-      generateLotData() {
-
-        const handle = `${ this.shipment && this.shipment.handle ? `${this.shipment.handle}__` : '' }${this.handle}`;
-
-        const title = `Pallet ${this.handle}`;
-
-        const _data = {
-          // TODO: marketplace, status
-          handle,
-          listingData: {
-            title,
-          },
-          packagingType: 'pallets:bulky',
-          category: this.category,
-          type: this.condition,
-        };
-
-        return _data;
-      }
-
+      // Pallet documents
       listDocuments( ) {
         return $q.when( api.listObjectDocuments( this._id, this.isReceived ? 'received-pallet' : 'consolidated-pallet' ) ).then( resp => {
 

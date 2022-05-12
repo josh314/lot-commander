@@ -125,6 +125,24 @@ export function saveLotManifest( lot ) {
 
 }
 
+export function uploadLotManifestFile( lotId, file ) {
+
+  if( !lotId ) {
+    throw new Error('Must supply lot ID.');
+  }
+
+  const fd = new FormData();
+  fd.append( 'file', file ); // type File object
+
+  return axios({
+    method: 'post',
+    url: `/api/lots/${ lotId }/upload-manifest`,
+    data: fd
+  })
+    .then( resp => resp.data  );
+
+}
+
 export function setPrimaryLotImage( lotId, image ) {
   return axios({
     method: 'post',

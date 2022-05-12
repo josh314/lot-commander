@@ -20,6 +20,8 @@ angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
 
       getLotStore: () => lotStore,
 
+      getLotByHandle: handle => $q.when( api.getLotByHandle( handle ) ),
+
       getManifest: manifestId => $q.when( api.getManifest( manifestId ) ),
 
       import3rdPartyManifestBlock: ( lot, blockId ) => $q.when( api.import3rdPartyManifestBlock({ lot, blockId }) ),

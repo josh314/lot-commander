@@ -8,8 +8,8 @@ const __DISPLAY_MODE_AGGREGATE__ = '__DISPLAY_MODE_AGGREGATE__';
 const __TODAY__ = dayjs().startOf('day');
 
 /******************* Pallets List Page Controller *************************/
-angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPalletManagerSvc', 'LoggedInUser', 'LotSvc', 'navigate', 'palletProperties', 'sessionTimeout', 'SettingsSvc', 'ShipmentManagerSvc', 'UtilitiesSvc',
-  function( InventoryPalletManagerSvc, LoggedInUser, LotSvc, navigate, palletProperties, sessionTimeout, SettingsSvc, ShipmentManagerSvc, UtilitiesSvc ) {
+angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPalletManagerSvc', 'LoggedInUser', 'PalletLotSvc', 'navigate', 'palletProperties', 'sessionTimeout', 'SettingsSvc', 'ShipmentManagerSvc', 'UtilitiesSvc',
+  function( InventoryPalletManagerSvc, LoggedInUser, PalletLotSvc, navigate, palletProperties, sessionTimeout, SettingsSvc, ShipmentManagerSvc, UtilitiesSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -198,18 +198,9 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
       pallet.detailsModal().then( refreshPalletsList );
     }
 
-    async function createLotFromPallet( pallet ) {
+    function createLotFromPallet( pallet ) {
 
-      const newLotData = pallet.generateLotData();
-
-      const lot = await LotSvc.create( newLotData );
-
-      if( lot ) {
-
-        navigate.viewLot( lot._id );
-
-      }
-
+      return PalletLotSvc.createLot( pallet );
       // TODO: handle error if lot not created. Particular issue is if the auto-generated handle is a dupe
 
     }
