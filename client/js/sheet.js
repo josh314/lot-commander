@@ -238,7 +238,7 @@ export class Sheet {
     }
 
     this.updateColumnTitleOptions();
-
+    this.cleanBarcodeColumn();
   }
 
   removeRow( idx ) {
@@ -276,6 +276,7 @@ export class Sheet {
       column.select();
     }
     this.updateColumnTitleOptions();
+    this.cleanBarcodeColumn();
   }
 
   updateColumnTitleOptions() {
@@ -371,7 +372,7 @@ export class Sheet {
 
       const barcode = `${ row[ column.name ] }`; // ensure the barcode is a string
       
-      if( barcode && isNumericString( barcode) && barcode.length >= 12 ) { //filter out malformed
+      if( barcode && isNumericString( barcode ) && barcode.length >= 12 ) { //filter out malformed
 
         isValid = true;
 
@@ -384,6 +385,22 @@ export class Sheet {
     return isValid;
   }
 
+  cleanBarcodeColumn() {
+    const barcodeColumn = this.getBarcodeColumn();
+    if(barcodeColumn) {
+      for(const r of this.rows) {
+        try {
+
+          r[barcodeColumn.name] = `${ r[barcodeColumn.name] }`.replace(/\D/g, ''); // ensure the barcode is a string then remove non-digits
+
+        }
+        catch(e) {
+          console.log(e);
+          console.log(r);
+        }
+      }
+    }
+  }
   
   prependUpcZeros() {
     const barcodeColumn = this.getBarcodeColumn();
