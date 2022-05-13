@@ -1,8 +1,21 @@
 import angular from 'angular';
 
 /****************** Edit Lot Modal Controller ***********************/
-angular.module('myApp').controller( 'EditLotModalCtrl', [ 'dbEnums', 'ListingsSvc', 'lot', 'packagingTypeInfoModal', 'shippingItemsModal',
-  function( dbEnums, ListingsSvc, lot, packagingTypeInfoModal, shippingItemsModal ){
+angular.module('myApp').controller( 'EditLotModalCtrl', [
+
+  'dbEnums',
+  'ListingsSvc',
+  'lot',
+  'ModalSvc',
+
+  function(
+
+    dbEnums,
+    ListingsSvc,
+    lot,
+    ModalSvc,
+
+  ){
 
     const vm = this;
 
@@ -13,7 +26,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [ 'dbEnums', 'ListingsSv
     vm.packagingTypeEnum = dbEnums.packagingType;
     // vm.selectedListing = 'bstock';
     vm.marketplaces = [undefined].concat( dbEnums.marketplaces );
-    vm.openPackagingTypeInfo = packagingTypeInfoModal;
+    vm.openPackagingTypeInfo = ModalSvc.packagingTypeInfo.bind( ModalSvc );
     vm.titleTooLong = {};
 
     // VM methods
@@ -42,8 +55,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [ 'dbEnums', 'ListingsSv
 
     function editShippingItems() {
 
-      shippingItemsModal
-        .launch()
+      ModalSvc.shippingItems()
         .then(shippingItems => {
           if(shippingItems) {
             vm.lot.shippingItems = shippingItems;

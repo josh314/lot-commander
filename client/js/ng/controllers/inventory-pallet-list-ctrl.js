@@ -8,8 +8,34 @@ const __DISPLAY_MODE_AGGREGATE__ = '__DISPLAY_MODE_AGGREGATE__';
 const __TODAY__ = dayjs().startOf('day');
 
 /******************* Pallets List Page Controller *************************/
-angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPalletManagerSvc', 'LoggedInUser', 'PalletLotSvc', 'navigate', 'palletProperties', 'sessionTimeout', 'SettingsSvc', 'ShipmentManagerSvc', 'UtilitiesSvc', 'WaitingModalSvc',
-  function( InventoryPalletManagerSvc, LoggedInUser, PalletLotSvc, navigate, palletProperties, sessionTimeout, SettingsSvc, ShipmentManagerSvc, UtilitiesSvc, WaitingModalSvc ) {
+angular.module('myApp').controller( 'InventoryPalletListCtrl', [
+
+  'InventoryPalletManagerSvc',
+  'LoggedInUser',
+  'ModalSvc',
+  'navigate',
+  'PalletLotSvc',
+  'palletProperties',
+  'sessionTimeout',
+  'SettingsSvc',
+  'ShipmentManagerSvc',
+  'UtilitiesSvc',
+
+  function(
+
+    InventoryPalletManagerSvc,
+    LoggedInUser,
+    ModalSvc,
+    navigate,
+    PalletLotSvc,
+    palletProperties,
+    sessionTimeout,
+    SettingsSvc,
+    ShipmentManagerSvc,
+    UtilitiesSvc,
+
+  ) {
+
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -200,7 +226,7 @@ angular.module('myApp').controller('InventoryPalletListCtrl', [ 'InventoryPallet
 
     function createLotFromPallet( pallet ) {
 
-      WaitingModalSvc.launch( {
+      ModalSvc.wait( {
         waitFor: PalletLotSvc.createLot( pallet ), 
         delay: 2000
       } )

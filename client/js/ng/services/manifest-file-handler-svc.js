@@ -19,9 +19,19 @@ const readFile = (file = {}, method = 'readAsArrayBuffer') => {
 };
 
 /******************* Manifest File Handler service ******************************/
-angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 'ManifestFileOptionsModal',
+angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
 
-  function( $q, $uibModal, ManifestFileOptionsModal ) {
+  '$q',
+  '$uibModal',
+  'ModalSvc',
+  
+  function(
+
+    $q,
+    $uibModal,
+    ModalSvc,
+
+  ) {
 
     let _activeManifest = null;
     let _activeManifestFilename = null;
@@ -103,7 +113,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [ '$q', '$uibModal', 
 
     function loadFileOptions( filename ) {
 
-      return ManifestFileOptionsModal.launch(
+      return ModalSvc.manifestFileOptions(
         // modal data
         {
           filename,

@@ -1,8 +1,23 @@
 import angular from 'angular';
 
 /******************* Upload 3rd Part Manifest Controller *************************/
-angular.module('myApp').controller('UploadLotManifestCtrl', ['$state', '$stateParams', 'fileUpload', 'messageModal', 'sessionTimeout', 
-  function($state, $stateParams, fileUpload, messageModal, sessionTimeout) {
+angular.module('myApp').controller( 'UploadLotManifestCtrl', [
+
+  '$state',
+  '$stateParams',
+  'fileUpload',
+  'ModalSvc',
+  'sessionTimeout',
+
+  function(
+
+    $state,
+    $stateParams,
+    fileUpload,
+    ModalSvc,
+    sessionTimeout,
+
+  ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -27,17 +42,17 @@ angular.module('myApp').controller('UploadLotManifestCtrl', ['$state', '$statePa
 
         fileUpload.uploadFileToUrl(manifest, uploadUrl).then(resp=>{
           if(!resp.data.error) {
-            messageModal.launch({header: 'Status', body: 'Submission successful.', type: 'success'});
+            ModalSvc.message({header: 'Status', body: 'Submission successful.', type: 'success'});
             $state.go('main.lots.view', { lotId: $stateParams.lotId });
           }
           else {
-            messageModal.launch({header: 'Submission failed', body: resp.data.error, type: 'error'});
+            ModalSvc.message({header: 'Submission failed', body: resp.data.error, type: 'error'});
           }
         });
         vm.waitingForResponse = true;
       }
       else {
-        messageModal.launch({
+        ModalSvc.message({
           header: 'Input Error.',
           body: `Incorrect file type. Only these file extensions are accepted: ${validFileExtensions}`,
           type: 'error'

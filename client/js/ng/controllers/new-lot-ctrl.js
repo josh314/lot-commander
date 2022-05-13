@@ -1,8 +1,29 @@
 import angular from 'angular';
 
 /******************* New Lot Controller *************************/
-angular.module('myApp').controller('NewLotCtrl', [ 'dbEnums', 'listingBuilder', 'lotCategories', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'packagingTypeInfoModal', 'sessionTimeout',
-  function( dbEnums, listingBuilder, lotCategories, lotStore, LotSvc, messageModal, navigate, packagingTypeInfoModal, sessionTimeout ) {
+angular.module('myApp').controller( 'NewLotCtrl', [
+
+  'dbEnums',
+  'listingBuilder',
+  'lotCategories',
+  'lotStore',
+  'LotSvc',
+  'ModalSvc',
+  'navigate',
+  'sessionTimeout',
+
+  function(
+
+    dbEnums,
+    listingBuilder,
+    lotCategories,
+    lotStore,
+    LotSvc,
+    ModalSvc,
+    navigate,
+    sessionTimeout,
+
+  ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -19,7 +40,7 @@ angular.module('myApp').controller('NewLotCtrl', [ 'dbEnums', 'listingBuilder', 
       destinationMarketplace: 'wholesaleninjas',
     };
     vm.willUploadManifest = false;
-    vm.openPackagingTypeInfo = packagingTypeInfoModal;
+    vm.openPackagingTypeInfo = ModalSvc.packagingTypeInfo.bind( ModalSvc );
 
     vm.setHandleForCategory = setHandleForCategory;
     vm.startQuickLot = startQuickLot;
@@ -94,7 +115,7 @@ angular.module('myApp').controller('NewLotCtrl', [ 'dbEnums', 'listingBuilder', 
           console.error( resp.error );
         }
         else if ( resp.lotExists ) {
-          messageModal.launch({header: 'Error', body: `A lot with handle ${vm.newLot.handle} already exists.`, type: 'error'});
+          ModalSvc.message({ header: 'Error', body: `A lot with handle ${vm.newLot.handle} already exists.`, type: 'error' });
         }
         else{
           const lot = resp;

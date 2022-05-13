@@ -43,8 +43,23 @@ const queryParams = ( params ) => {
 //
 // This service provides some utility functionality to the pallets API and UI
 //
-angular.module('myApp').service('InventoryPalletManagerSvc', [ '$q', '$stateParams', 'InventoryPallet', 'InventoryPalletDetailsModalSvc', 'InventoryPalletListColumns',
-  function( $q, $stateParams, InventoryPallet, InventoryPalletDetailsModalSvc, InventoryPalletListColumns ) {
+angular.module('myApp').service( 'InventoryPalletManagerSvc', [
+
+  '$q',
+  '$stateParams',
+  'InventoryPallet',
+  'ModalSvc',
+  'InventoryPalletListColumns',
+
+  function(
+
+    $q,
+    $stateParams,
+    InventoryPallet,
+    ModalSvc,
+    InventoryPalletListColumns,
+
+  ) {
 
     const _palletId = () =>  $stateParams.palletId;
 
@@ -81,13 +96,26 @@ angular.module('myApp').service('InventoryPalletManagerSvc', [ '$q', '$statePara
 
       getListColumns: () => InventoryPalletListColumns(),
 
-      details: pallet => InventoryPalletDetailsModalSvc.launch( pallet ),
+      details: pallet => ModalSvc.inventoryPalletDetails( pallet ),
     };
   }
 ]);
 
-angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetailsModalSvc', 'UtilitiesSvc',
-  function( $q, InventoryPalletDetailsModalSvc, UtilitiesSvc ) {
+/*********************** InventoryPallet class */
+angular.module('myApp').factory( 'InventoryPallet', [
+
+  '$q',
+  'ModalSvc',
+  'UtilitiesSvc',
+
+  function(
+
+    $q,
+    ModalSvc,
+    UtilitiesSvc,
+
+  ) {
+
     const datify = dString => dString ? new Date( dString ) : null;
 
     class InventoryPallet {
@@ -183,7 +211,7 @@ angular.module('myApp').factory('InventoryPallet', [ '$q', 'InventoryPalletDetai
 
       detailsModal() {
 
-        return InventoryPalletDetailsModalSvc.launch( this ).then( details => {
+        return ModalSvc.inventoryPalletDetails( this ).then( details => {
 
           let newBrokendownStatus = null;
           if( this.isBrokendown !== details.isBrokendown ) {
@@ -348,66 +376,3 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
   return Factory;
 
 }]);
-
-angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal', function( $uibModal ) {
-
-  return {
-    launch: launch,
-  };
-
-  function launch( pallet ) {
-
-    const modalInstance = $uibModal.open({
-      templateUrl: '/partials/modals/_inventory_pallet_details_modal.html',
-      size: 'lg',
-      backdrop: 'static',
-
-      resolve: {
-        pallet: function () {
-          return pallet;
-        }
-      },
-
-      controller: [ '$scope', 'LoggedInUser', 'pallet', 'palletProperties', function( $scope, LoggedInUser, pallet, palletProperties ){
-
-        const vm = this;
-        vm.inputs = Object.assign( { isBrokendown: false, hasProblem: false, category: null, condition: 'shelf-pull' }, pallet );
-        vm.errors = {};
-        vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );
-        vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) );
-        vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
-        vm.showBrokendownDate = pallet.isBrokendown;
-        vm.showCreatedAtDate = !!pallet.createdAt;
-        vm.showShipment = !!pallet.shipment;
-
-        vm.validate = () => {
-
-          vm.errors.emptyHandle = !vm.inputs.handle;
-
-          vm.errors.invalidCost = vm.showPurchasingData ? !( vm.inputs.cost > 0 ) : false;
-
-          const shipment = pallet.shipment;
-
-          if( shipment ) {
-
-            vm.errors.duplicateHandle = !! shipment.palletsReceived.concat( shipment.palletsConsolidated ).find( _p => _p.handle === vm.inputs.handle && _p._id !== pallet._id );
-
-          }
-
-          return Object.values( vm.errors ).every( value => !value );
-        };
-
-        vm.finish = () => {
-          return $scope.$close( vm.inputs );
-        };
-
-      }],
-      controllerAs: '$ctrl'
-
-    });
-
-    return modalInstance.result;
-  }
-
-
-}] );

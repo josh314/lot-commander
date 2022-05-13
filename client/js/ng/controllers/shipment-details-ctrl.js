@@ -1,17 +1,15 @@
 import angular from 'angular';
 
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [
+angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
   'AudioAlertSvc',
-  'ConfirmationModal',
   'DisplayPalletFactory',
   'FileModelSvc',
   'focus',
-  'InventoryPalletDetailsModalSvc',
   'LoggedInUser',
   'ManifestFileHandlerSvc',
-  'messageModal',
+  'ModalSvc',
   'navigate',
   'PalletLotSvc',
   'palletProperties',
@@ -19,19 +17,16 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
   'sessionTimeout',
   'ShipmentManagerSvc',
   'UtilitiesSvc',
-  'WaitingModalSvc',
 
   function (
 
     AudioAlertSvc,
-    ConfirmationModal,
     DisplayPalletFactory,
     FileModelSvc,
     focus,
-    InventoryPalletDetailsModalSvc,
     LoggedInUser,
     ManifestFileHandlerSvc,
-    messageModal,
+    ModalSvc,
     navigate,
     PalletLotSvc,
     palletProperties,
@@ -39,7 +34,6 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
     sessionTimeout,
     ShipmentManagerSvc,
     UtilitiesSvc,
-    WaitingModalSvc
 
   ) {
 
@@ -183,7 +177,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
               }
             })
             .catch( _e => {
-              return messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
+              return ModalSvc.message( { header: 'Failure', body: 'Server Error', type: 'error' } );
             });
 
         }
@@ -195,7 +189,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
 
     function removeShipment() {
 
-      ConfirmationModal.launch({ header: "Delete Shipment", body: "Really delete this shipment?" }).then( result => {
+      ModalSvc.confirm( { header: "Delete Shipment", body: "Really delete this shipment?" } ).then( result => {
         if( result ) {
           return vm.shipment.removeShipment().then( _ => {
             navigate.shipmentList();
@@ -220,7 +214,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
 
         })
         .catch( _e => {
-          return messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
+          return ModalSvc.message( { header: 'Failure', body: 'Server Error', type: 'error' } );
         });
     }
 
@@ -295,7 +289,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
 
         })
         .catch( _e => {
-          return messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
+          return ModalSvc.message( { header: 'Failure', body: 'Server Error', type: 'error' } );
         });
 
     }
@@ -325,7 +319,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
 
         if( resp.error ) {
           vm.waitingForResponse = false;
-          return messageModal.launch({header: 'Failure', body: 'Server Error: documents unavailable', type: 'error'});
+          return ModalSvc.message( { header: 'Failure', body: 'Server Error: documents unavailable', type: 'error' } );
         }
 
         const documents = resp.documents;
@@ -344,7 +338,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
               }
               else if( !ManifestFileHandlerSvc.isManifestFile( doc.name ) ) {
 
-                ConfirmationModal.launch({
+                ModalSvc.confirm({
                   header: 'Filetype mismatch',
                   body: 'File extension is unexpected for a manifest. Proceed anyway?',
                 }).then( isConfirmed => {
@@ -414,7 +408,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
       const duplicateDocument = vm.documents.find( _d => _d.name === vm.documentToAdd.file.name );
 
       if( duplicateDocument ) {
-        messageModal.launch(
+        ModalSvc.message(
           { header: 'Error', body: 'This document has already been uploaded.', type: 'error' },
           null,
           () => {
@@ -426,7 +420,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
       }
 
       if( vm.documentToAdd.documentType === 'manifest' && !ManifestFileHandlerSvc.isManifestFile( vm.documentToAdd.file.name ) ) {
-        const isConfirmed = await ConfirmationModal.launch({
+        const isConfirmed = await ModalSvc.confirm({
           header: 'Filetype mismatch',
           body: 'File extension is unexpected for a manifest. Proceed anyway?',
         });
@@ -527,7 +521,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
 
     function createPalletLot( pallet ) {
 
-      WaitingModalSvc.launch( {
+      ModalSvc.wait( {
         waitFor: PalletLotSvc.createLot( pallet ),
         delay: 2000
       } )
@@ -576,7 +570,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
 
         if( found ) {
           AudioAlertSvc.warning();
-          messageModal.launch(
+          ModalSvc.message(
             duplicatePalletMessageObj,
             null,
             _ => vm.receivedPalletId = ''
@@ -600,7 +594,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
 
             let messageObj = _response.code === 'DUPLICATE_PALLET_HANDLE' ? duplicatePalletMessageObj : { header: 'Error', body: `Server error.`, type: 'error' };
 
-            messageModal.launch(
+            ModalSvc.message(
               messageObj,
               null,
               _ => vm.receivedPalletId = ''
@@ -678,7 +672,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
 
       }
 
-      InventoryPalletDetailsModalSvc.launch( _data ).then(result => {
+      ModalSvc.inventoryPalletDetails( _data ).then(result => {
 
         const pallet = Object.assign( {}, result );
         delete pallet.shipment;
@@ -697,7 +691,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
 
             let messageObj = _response.code === 'DUPLICATE_PALLET_HANDLE' ? duplicatePalletMessageObj : { header: 'Error', body: `Server error.`, type: 'error' };
 
-            messageModal.launch(
+            ModalSvc.message(
               messageObj,
               null,
               _ => vm.receivedPalletId = ''
@@ -791,8 +785,8 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [
   }]);
 
 /******************* Constructor for Pallet Objects *************************/
-angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal', 
-  function( messageModal ) {
+angular.module('myApp').factory( 'DisplayPalletFactory', [ 'ModalSvc',
+  function( ModalSvc ) {
 
     const saveFn = {
       expected: _shipment => _shipment.editExpectedPallet.bind( _shipment ),
@@ -922,7 +916,7 @@ angular.module('myApp').factory('DisplayPalletFactory', [ 'messageModal',
               }
             })
             .catch( _e => {
-              messageModal.launch({header: 'Failure', body: 'Server Error', type: 'error'});
+              ModalSvc.message( { header: 'Failure', body: 'Server Error', type: 'error' } );
               return false;
             });
 

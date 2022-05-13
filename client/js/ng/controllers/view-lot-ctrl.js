@@ -1,8 +1,38 @@
 import angular from 'angular';
 
 /******************* View Lot Controller *************************/
-angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'ConfirmationModal', 'ImageSvc', 'listingsBoilerplate', 'ListingsSvc', 'LoggedInUser', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'PrintSvc', 'sessionTimeout', 'shippingItemsModal',
-  function( $scope, $uibModal, ConfirmationModal, ImageSvc, listingsBoilerplate, ListingsSvc, LoggedInUser, lotStore, LotSvc, messageModal, navigate, PrintSvc, sessionTimeout, shippingItemsModal ) {
+angular.module('myApp').controller( 'ViewLotCtrl', [
+
+  '$scope',
+  '$uibModal',
+  'ImageSvc',
+  'listingsBoilerplate',
+  'ListingsSvc',
+  'LoggedInUser',
+  'lotStore',
+  'LotSvc',
+  'ModalSvc',
+  'navigate',
+  'PrintSvc',
+  'sessionTimeout',
+
+  function(
+
+    $scope,
+    $uibModal,
+    ImageSvc,
+    listingsBoilerplate,
+    ListingsSvc,
+    LoggedInUser,
+    lotStore,
+    LotSvc,
+    ModalSvc,
+    navigate,
+    PrintSvc,
+    sessionTimeout,
+
+  ) {
+
     sessionTimeout.timeoutExpired();
 
     $scope.showCreateListingButton = LoggedInUser.hasPermission('SUBMIT_AUCTION') || LoggedInUser.hasPermission('SUBMIT_SHOPIFY_LISTING');
@@ -36,7 +66,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
         navigate.reload();
       }
       else {
-        messageModal.launch({header: 'Error', body: resp.error, type: 'error'});
+        ModalSvc.message( { header: 'Error', body: resp.error, type: 'error' } );
       }
     };
     $scope.uploadImages = async () => { 
@@ -60,7 +90,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
           navigate.reload();
         }
         else {
-          messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
+          ModalSvc.message( { header: 'Error', body: resp.data.error, type: 'error' } );
         }
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
@@ -98,7 +128,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
         navigate.imageEditor();
       }
       else {
-        messageModal.launch({header: 'Error', body: 'This image cannot be edited.', type: 'error'});
+        ModalSvc.message( { header: 'Error', body: 'This image cannot be edited.', type: 'error' } );
       }
     };
 
@@ -131,7 +161,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
       LotSvc.import3rdPartyManifestBlock( { lot: lotStore, blockId: $scope.searchBlockId } ).then( resp => {
 
         if(resp.data.error) {
-          messageModal.launch({header: 'Error', body: resp.data.error, type: 'error'});
+          ModalSvc.message( { header: 'Error', body: resp.data.error, type: 'error' } );
         }
         $scope.waitingForResponse = false;
         navigate.reload();
@@ -176,7 +206,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
       }
       else {
         const msg = `Must input the following data before submission: ${missingFields}`;
-        messageModal.launch({Header: 'Incomplete Lot', body: msg , type: 'error'});
+        ModalSvc.message( { Header: 'Incomplete Lot', body: msg , type: 'error' } );
       }
     };
 
@@ -203,8 +233,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
     };
 
     const editShippingItems = function() {
-      return shippingItemsModal
-        .launch()
+      return ModalSvc.shippingItems()
         .then(shippingItems => {
           if(shippingItems) {
             lotStore.shippingItems = shippingItems;
@@ -273,7 +302,7 @@ angular.module('myApp').controller('ViewLotCtrl', [ '$scope', '$uibModal', 'Conf
 
       const imgUrl = event.target.currentSrc;
 
-      ConfirmationModal.launch({
+      ModalSvc.confirm({
         header: "Add Image",
         body: "Add this as a lot image?",
         html: `<img src="${ imgUrl }" />`

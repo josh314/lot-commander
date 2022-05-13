@@ -1,35 +1,18 @@
 import angular from 'angular';
 
-angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', function( $uibModal ) {
+angular.module('myApp').controller( 'PalletsFromManifestModalCtrl', [
 
-  return {
-    launch: launch,
-  };
+  'manifestFile',
+  'parseOptions',
+  'ManifestFileHandlerSvc',
 
-  // launches the modal
-  function launch( manifestFile, parseOptions, cb ) {
+  function(
 
-    const modalInstance = $uibModal.open({
-      templateUrl: '/partials/modals/_pallets_expected_from_manifest_modal.html',
-      size: 'lg',
-      backdrop: 'static',
-      resolve: {
-        manifestFile: function () {
-          return manifestFile;
-        },
-        parseOptions: function() {
-          return parseOptions;
-        }
-      },
-      controller: [ 'manifestFile', 'parseOptions', 'ManifestFileHandlerSvc', modalCtrl ],
-      controllerAs: '$ctrl'
-    });
-
-    modalInstance.result.then( cb || function(){}, function(){} );
-  }
-
-  // The modal controller
-  function modalCtrl( manifestFile, parseOptions, ManifestFileHandlerSvc ) {
+    manifestFile,
+    parseOptions,
+    ManifestFileHandlerSvc,
+  
+  ) {
 
     const vm = this;
     vm.manifestFilename = manifestFile.name;
@@ -83,4 +66,4 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
 
   }
 
-}]);
+]);

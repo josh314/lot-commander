@@ -53,8 +53,32 @@ class ShipmentValidator {
 }
 
 /******************* Shipment Creation Page Controller *************************/
-angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal', 'FileModelSvc', 'LoggedInUser', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletProperties', 'PalletsFromManifestModalSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
-  function( ConfirmationModal, FileModelSvc, LoggedInUser, ManifestFileHandlerSvc, messageModal, navigate, palletProperties, PalletsFromManifestModalSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
+angular.module('myApp').controller( 'ShipmentCreationCtrl', [
+
+  'FileModelSvc',
+  'LoggedInUser',
+  'ManifestFileHandlerSvc',
+  'ModalSvc',
+  'navigate',
+  'palletProperties',
+  'sessionTimeout',
+  'ShipmentManagerSvc',
+  'UtilitiesSvc',
+
+  function(
+
+    FileModelSvc,
+    LoggedInUser,
+    ManifestFileHandlerSvc,
+    ModalSvc,
+    navigate,
+    palletProperties,
+    sessionTimeout,
+    ShipmentManagerSvc,
+    UtilitiesSvc,
+
+  ) {
+
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -174,7 +198,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
       const duplicateDocument = vm.inputs.documents.find( d => d.name === vm.inputs.documentToAdd.file.name );
 
       if( duplicateDocument ) {
-        messageModal.launch(
+        ModalSvc.message(
           { header: 'Error', body: 'This document has already been uploaded.', type: 'error' },
           null,
           _ => FileModelSvc.startReset()
@@ -183,7 +207,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
       }
 
       if( vm.inputs.documentToAdd.documentType === 'manifest' && !ManifestFileHandlerSvc.isManifestFile( vm.inputs.documentToAdd.file.name ) ) {
-        const isConfirmed = await ConfirmationModal.launch({
+        const isConfirmed = await ModalSvc.confirm({
           header: 'Filetype mismatch',
           body: 'File extension is unexpected for a manifest. Proceed anyway?',
         });
@@ -212,7 +236,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
 
       if( _document.documentType === 'manifest' && !ManifestFileHandlerSvc.isManifestFile( _document.file.name ) ) {
 
-        ConfirmationModal.launch({
+        ModalSvc.confirm({
           header: 'Filetype mismatch',
           body: 'File extension is unexpected for a manifest. Proceed anyway?',
         }).then( isConfirmed => {
@@ -280,10 +304,12 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
 
         // if there is no invoice document, ask for confirmation
         if( vm.showRestrictedDocuments && ! vm.inputs.documents.some( _document => _document.documentType === 'invoice' ) ) {
-          const isConfirmed = await ConfirmationModal.launch({
+
+          const isConfirmed = await ModalSvc.confirm({
             header: 'No invoice',
             body: 'There is no invoice document for this shipment. Proceed anyway?',
           });
+
 
           if( !isConfirmed ) {
             return;
@@ -293,7 +319,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
 
         // if there are unimported manifest files, ask for confirmation
         if( vm.inputs.documents.some( _document => isManifestFile( _document ) && !_document.isImported ) ) {
-          const isConfirmed = await ConfirmationModal.launch({
+          const isConfirmed = await ModalSvc.confirm({
             header: 'Unimported manifest',
             body: 'There are manifest files still available for import. Proceed anyway?',
           });
@@ -330,7 +356,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
           })
           .then( shipment => navigate.shipmentDetails( shipment._id ) )
           .catch( e => {
-            messageModal.launch({header: 'Error', body: e.message, type: 'error'});
+            ModalSvc.message( { header: 'Error', body: e.message, type: 'error' } );
           });
 
       }
@@ -402,7 +428,7 @@ angular.module('myApp').controller('ShipmentCreationCtrl', [ 'ConfirmationModal'
 
         ManifestFileHandlerSvc.launchFileParsingOptionsModal( manifestDocument.name, parseOptions => {
 
-          PalletsFromManifestModalSvc.launch( manifestDocument.file, parseOptions, palletNames => {
+          ModalSvc.palletsFromManifest( manifestDocument.file, parseOptions, palletNames => {
 
             palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category, condition: vm.inputs.condition } ) );
 

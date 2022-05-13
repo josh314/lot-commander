@@ -1,8 +1,29 @@
 import angular from 'angular';
 
 /******************* Submit Listing Controller *************************/
-angular.module('myApp').controller('SubmitListingCtrl', [ 'bstockFormConstants', 'dbEnums', 'ListingsSvc', 'lotStore', 'LotSvc', 'messageModal', 'navigate', 'sessionTimeout',
-  function( bstockFormConstants, dbEnums, ListingsSvc, lotStore, LotSvc, messageModal, navigate, sessionTimeout ) {
+angular.module('myApp').controller( 'SubmitListingCtrl', [
+
+  'bstockFormConstants',
+  'dbEnums',
+  'ListingsSvc',
+  'lotStore',
+  'LotSvc',
+  'ModalSvc',
+  'navigate',
+  'sessionTimeout',
+
+  function(
+
+    bstockFormConstants,
+    dbEnums,
+    ListingsSvc,
+    lotStore,
+    LotSvc,
+    ModalSvc,
+    navigate,
+    sessionTimeout,
+
+  ) {
     sessionTimeout.timeoutExpired();
 
     if(!lotStore._id) {
@@ -240,10 +261,10 @@ angular.module('myApp').controller('SubmitListingCtrl', [ 'bstockFormConstants',
       ListingsSvc.submitLotListing( lotStore._id, vm.listing, vm.inputs.publish ).then(resp=>{
         console.log(resp);
         if(resp.error) {
-          messageModal.launch({header: 'Error', body: resp.error, type: 'error'});
+          ModalSvc.message( { header: 'Error', body: resp.error, type: 'error' } );
         }
         else {
-          messageModal.launch({header: 'Status', body: 'Listing submitted. Submission may take several minutes. Return to lot page to view results.', type: 'success'});
+          ModalSvc.message( { header: 'Status', body: 'Listing submitted. Submission may take several minutes. Return to lot page to view results.', type: 'success' } );
           navigate.listLots();
         }
       })

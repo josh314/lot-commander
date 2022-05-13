@@ -1,8 +1,22 @@
 import angular from 'angular';
 
 /******************* Create User Controller ********************/
-angular.module('myApp').controller('CreateUserCtrl', [ 'messageModal', 'navigate', 'sessionTimeout', 'UserSvc',
-  function( messageModal, navigate, sessionTimeout, UserSvc ) {
+angular.module('myApp').controller( 'CreateUserCtrl', [
+
+  'ModalSvc',
+  'navigate',
+  'sessionTimeout',
+  'UserSvc',
+
+  function(
+
+    ModalSvc,
+    navigate,
+    sessionTimeout,
+    UserSvc,
+
+  ) {
+
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -47,7 +61,7 @@ angular.module('myApp').controller('CreateUserCtrl', [ 'messageModal', 'navigate
       return UserSvc.create( newUserData ).then( resp => {
 
         if(resp.success) {
-          return messageModal.launch(
+          return ModalSvc.message(
             {header: 'Success', body: `User "${vm.form.username}" successfully created`, type: 'info'},
             navigateToHome,
             navigateToHome
@@ -60,14 +74,14 @@ angular.module('myApp').controller('CreateUserCtrl', [ 'messageModal', 'navigate
           return;
         }
         else if ( resp.message === 'UNAUTHORIZED' ) {
-          return messageModal.launch(
+          return ModalSvc.message(
             {header: 'Failure', body: `An error occured. Please try again later.`, type: 'error'},
             navigateToHome,
             navigateToHome
           );
         }
         else {
-          return messageModal.launch(
+          return ModalSvc.message(
             {header: 'Failure', body: `Unauthorized to create user.`, type: 'error'},
             navigateToHome,
             navigateToHome

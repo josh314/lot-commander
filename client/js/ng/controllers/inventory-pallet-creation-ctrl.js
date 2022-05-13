@@ -45,8 +45,27 @@ class InventoryPalletValidator {
 }
 
 /******************* Inventory Pallet Creation Page Controller *************************/
-angular.module('myApp').controller('InventoryPalletCreationCtrl', [ 'AddPalletGroupParamsModalSvc', 'LoggedInUser', 'messageModal', 'navigate', 'palletProperties', 'sessionTimeout', 'InventoryPalletManagerSvc',
-  function( AddPalletGroupParamsModalSvc, LoggedInUser, messageModal, navigate, palletProperties, sessionTimeout, InventoryPalletManagerSvc ) {
+angular.module('myApp').controller( 'InventoryPalletCreationCtrl', [
+
+  'AddPalletGroupParamsModalSvc',
+  'LoggedInUser',
+  'ModalSvc',
+  'navigate',
+  'palletProperties',
+  'sessionTimeout',
+  'InventoryPalletManagerSvc',
+
+  function(
+
+    AddPalletGroupParamsModalSvc,
+    LoggedInUser,
+    ModalSvc,
+    navigate,
+    palletProperties,
+    sessionTimeout,
+    InventoryPalletManagerSvc,
+
+  ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -88,7 +107,7 @@ angular.module('myApp').controller('InventoryPalletCreationCtrl', [ 'AddPalletGr
         InventoryPalletManagerSvc.create( request )
           .then( _ => navigate.inventoryPalletList() )
           .catch( e => {
-            messageModal.launch({header: 'Error', body: e.message, type: 'error'});
+            ModalSvc.message( { header: 'Error', body: e.message, type: 'error' } );
           });
 
       }

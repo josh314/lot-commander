@@ -1,8 +1,26 @@
 import angular from 'angular';
 
 /******************* Manifest Cleaner Controller *************************/
-angular.module('myApp').controller('CleanManifestCtrl', [ 'ConfirmationModal', 'ManifestFileHandlerSvc', 'ManifestSalePriceColumnModalSvc', 'navigate', 'sessionTimeout', 'ShipmentManagerSvc',
-  function( ConfirmationModal, ManifestFileHandlerSvc, ManifestSalePriceColumnModalSvc, navigate, sessionTimeout, ShipmentManagerSvc ) {
+angular.module('myApp').controller( 'CleanManifestCtrl', [
+
+  'ManifestFileHandlerSvc',
+  'ManifestSalePriceColumnModalSvc',
+  'ModalSvc',
+  'navigate',
+  'sessionTimeout',
+  'ShipmentManagerSvc',
+
+  function(
+
+    ManifestFileHandlerSvc,
+    ManifestSalePriceColumnModalSvc,
+    ModalSvc,
+    navigate,
+    sessionTimeout,
+    ShipmentManagerSvc,
+
+  ) {
+
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -60,7 +78,7 @@ angular.module('myApp').controller('CleanManifestCtrl', [ 'ConfirmationModal', '
 
       const msg = `Remove row #${idx}? This can't be undone.`;
 
-      const isConfirmed = await ConfirmationModal.launch({
+      const isConfirmed = await ModalSvc.confirm({
         header: 'Remove Row',
         body: msg
       });

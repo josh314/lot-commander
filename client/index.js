@@ -19,7 +19,6 @@ import "./js/ng/app";
 // Angular services
 
 import "./js/ng/services/audio-alert-svc.js";
-import "./js/ng/services/confirmation-modal-svc.js";
 import "./js/ng/services/events-svc.js";
 import "./js/ng/services/file-upload-svc.js";
 import "./js/ng/services/focus-svc.js";
@@ -33,21 +32,16 @@ import "./js/ng/services/lot-store-svc.js";
 import "./js/ng/services/lot-svc.js";
 import "./js/ng/services/manual-inventory-svc.js";
 import "./js/ng/services/manifest-file-handler-svc.js";
-import "./js/ng/services/manifest-file-options-modal-svc.js";
-import "./js/ng/services/message-modal-svc.js";
+import "./js/ng/services/modal-svc.js";
 import "./js/ng/services/navigate-svc.js";
-import "./js/ng/services/packaging-type-info-modal-svc.js";
 import "./js/ng/services/pallet-lot-svc.js";
-import "./js/ng/services/pallets-from-manifest-modal-svc.js";
 import "./js/ng/services/print-svc.js";
 import "./js/ng/services/session-timeout-svc.js";
 import "./js/ng/services/settings-svc.js";
 import "./js/ng/services/shipment-manager-svc.js";
-import "./js/ng/services/shipping-items-modal-svc.js";
 import "./js/ng/services/shipping-items-svc.js";
 import "./js/ng/services/user-svc.js";
 import "./js/ng/services/utilities-svc.js";
-import "./js/ng/services/waiting-modal-svc.js";
 
 
 // Angular directives
@@ -79,6 +73,7 @@ import "./js/ng/controllers/logout-ctrl.js";
 import "./js/ng/controllers/manual-inventory-ctrl.js";
 import "./js/ng/controllers/navbar-ctrl.js";
 import "./js/ng/controllers/new-lot-ctrl.js";
+import "./js/ng/controllers/pallets-from-manifest-modal-ctrl.js";
 import "./js/ng/controllers/past-image-gallery-modal-ctrl.js";
 import "./js/ng/controllers/reports-ctrl.js";
 import "./js/ng/controllers/root-ctrl.js";

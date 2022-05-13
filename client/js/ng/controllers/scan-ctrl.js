@@ -1,8 +1,32 @@
 import angular from 'angular';
 
 /******************* Scanning Page Controller *************************/
-angular.module('myApp').controller('ScanCtrl', [ '$http', 'AudioAlertSvc', 'focus', 'ImageSvc', 'lotStore', 'LotSvc', 'navigate', 'sessionTimeout', 'shippingItemsModal',
-  function( $http, AudioAlertSvc, focus, ImageSvc, lotStore, LotSvc, navigate, sessionTimeout, shippingItemsModal ) {
+angular.module('myApp').controller( 'ScanCtrl', [
+
+  '$http',
+  'AudioAlertSvc',
+  'focus',
+  'ImageSvc',
+  'lotStore',
+  'LotSvc',
+  'ModalSvc',
+  'navigate',
+  'sessionTimeout',
+
+  function(
+
+    $http,
+    AudioAlertSvc,
+    focus,
+    ImageSvc,
+    lotStore,
+    LotSvc,
+    ModalSvc,
+    navigate,
+    sessionTimeout,
+
+  ) {
+
     sessionTimeout.timeoutExpired();
     focus('barcodeInput');
 
@@ -85,8 +109,7 @@ angular.module('myApp').controller('ScanCtrl', [ '$http', 'AudioAlertSvc', 'focu
     }
 
     function editShippingItems() {
-      return shippingItemsModal
-        .launch()
+      return ModalSvc.shippingItems()
         .then(shippingItems => {
           if(shippingItems) {
             lotStore.shippingItems = shippingItems;

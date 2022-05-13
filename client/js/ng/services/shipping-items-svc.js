@@ -1,6 +1,6 @@
 import angular from 'angular';
 
-/***************** Modal Controller ************************/
+/***************** Utility Constants and function for Shipping Items ************************/
 angular.module('myApp').service('ShippingItemsSvc', [ 'dbEnums', function( dbEnums ){
 
   const presets = [
