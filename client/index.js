@@ -47,6 +47,7 @@ import "./js/ng/services/shipping-items-modal-svc.js";
 import "./js/ng/services/shipping-items-svc.js";
 import "./js/ng/services/user-svc.js";
 import "./js/ng/services/utilities-svc.js";
+import "./js/ng/services/waiting-modal-svc.js";
 
 
 // Angular directives
