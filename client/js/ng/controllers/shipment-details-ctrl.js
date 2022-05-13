@@ -1,8 +1,47 @@
 import angular from 'angular';
 
 /******************* Shipment Details Page Controller *************************/
-angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'ConfirmationModal', 'DisplayPalletFactory', 'FileModelSvc', 'focus', 'InventoryPalletDetailsModalSvc', 'LoggedInUser', 'ManifestFileHandlerSvc', 'messageModal', 'navigate', 'palletProperties', 'PrintSvc', 'sessionTimeout', 'ShipmentManagerSvc', 'UtilitiesSvc',
-  function( AudioAlertSvc, ConfirmationModal, DisplayPalletFactory, FileModelSvc, focus, InventoryPalletDetailsModalSvc, LoggedInUser, ManifestFileHandlerSvc, messageModal, navigate, palletProperties, PrintSvc, sessionTimeout, ShipmentManagerSvc, UtilitiesSvc ) {
+angular.module('myApp').controller('ShipmentDetailsCtrl', [
+
+  'AudioAlertSvc',
+  'ConfirmationModal',
+  'DisplayPalletFactory',
+  'FileModelSvc',
+  'focus',
+  'InventoryPalletDetailsModalSvc',
+  'LoggedInUser',
+  'ManifestFileHandlerSvc',
+  'messageModal',
+  'navigate',
+  'PalletLotSvc',
+  'palletProperties',
+  'PrintSvc',
+  'sessionTimeout',
+  'ShipmentManagerSvc',
+  'UtilitiesSvc',
+  'WaitingModalSvc',
+
+  function (
+
+    AudioAlertSvc,
+    ConfirmationModal,
+    DisplayPalletFactory,
+    FileModelSvc,
+    focus,
+    InventoryPalletDetailsModalSvc,
+    LoggedInUser,
+    ManifestFileHandlerSvc,
+    messageModal,
+    navigate,
+    PalletLotSvc,
+    palletProperties,
+    PrintSvc,
+    sessionTimeout,
+    ShipmentManagerSvc,
+    UtilitiesSvc,
+    WaitingModalSvc
+
+  ) {
 
     /****************************************************
      * View variables
@@ -79,6 +118,7 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
     vm.consolidatedPalletsSectionTitle = () => `Consolidated Pallets${vm.shipment &&vm.shipment.palletsConsolidated && vm.shipment.palletsConsolidated.length ? ` (${vm.shipment.palletsConsolidated.length})`: ''}`;
 
     vm.createPalletManifests = createPalletManifestsFromShipmentStandardManifest;
+    vm.createPalletLot = createPalletLot;
 
     /****************************************************
      * Functions
@@ -482,6 +522,17 @@ angular.module('myApp').controller('ShipmentDetailsCtrl', [ 'AudioAlertSvc', 'Co
       }
 
       return Promise.all( uploads ).then(console.log).then( _ => navigate.reload() );
+
+    }
+
+    function createPalletLot( pallet ) {
+
+      WaitingModalSvc.launch( {
+        waitFor: PalletLotSvc.createLot( pallet ),
+        delay: 2000
+      } )
+        .then( lot => navigate.viewLot( lot._id ), console.log('dismissed') );
+      // TODO: handle error if lot not created. Particular issue is if the auto-generated handle is a dupe
 
     }
 

@@ -427,6 +427,7 @@
           <th>Note</th>
           <th></th>
           <th></th>
+          <th></th>
         </tr></thead>
 
         <tbody>
@@ -458,6 +459,11 @@
             <td>
               <span ng-show="pallet.hasManifest()">
                 <a ng-href="/api/documents/{{ pallet._id }}/{{ pallet.getManifestMetadata().name }}?object_type=received-pallet" target="_self" download><button class="btn btn-xs btn-primary">Manifest</button></a>
+              </span>
+            </td>
+            <td>
+              <span>
+                <button class="btn btn-xs btn-success" ng-click="$ctrl.createPalletLot( pallet )">Make Lot</button>
               </span>
             </td>
             <td>
