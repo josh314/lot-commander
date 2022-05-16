@@ -35,8 +35,15 @@
       </select>
     </div>
     <div class="form-group col-xs-12 col-sm-6">
-      <label for="isAnonymousI disablednput">Anonymous?</label>
-      <select class="form-control" id="isAnonymousI disablednput" ng-model="$ctrl.inputs.isAnonymous" disabled>
+      <label for="toBeListedInput">To Be Listed?</label>
+      <select class="form-control" id="toBeListedInput" ng-model="$ctrl.inputs.toBeListed">
+        <option ng-value="true">yes</option>
+        <option ng-value="false">no</option>
+      </select>
+    </div>
+    <div class="form-group col-xs-12 col-sm-6">
+      <label for="isAnonymousInput">Anonymous?</label>
+      <select class="form-control" id="isAnonymousInput" ng-model="$ctrl.inputs.isAnonymous" disabled>
         <option ng-value="true">yes</option>
         <option ng-value="false">no</option>
       </select>

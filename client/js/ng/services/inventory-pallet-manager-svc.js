@@ -166,6 +166,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
           'condition',
           'units',
           'cost',
+          'toBeListed',
           'hasProblem',
           'note'
         ];

@@ -800,7 +800,8 @@ angular.module('myApp').factory( 'DisplayPalletFactory', [ 'ModalSvc',
         'units',
         'category',
         'condition',
-        'cost'
+        'cost',
+        'toBeListed',
       ],
       received: [
         'handle',

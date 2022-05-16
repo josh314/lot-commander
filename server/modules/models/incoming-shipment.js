@@ -18,7 +18,8 @@ const incomingShipmentSchema = mongoose.Schema({
     units: Number,
     category: String,
     condition: String,
-    isAnonymous: Boolean
+    isAnonymous: Boolean,
+    toBeListed: Boolean,
   } ],
   palletsReceived: [ {
     type: mongoose.Schema.Types.ObjectId,

@@ -265,13 +265,13 @@
     <table class="table table-striped">
       <thead><tr>
         <th>Handle</th>
-        <th>Anonymous?</th>
+        <!-- <th>Anonymous?</th> -->
         <th ng-show="$ctrl.showPurchasingData">Cost</th>
         <th ng-hide="$ctrl.shipment.totalUnits">Units</th>
         <th>Category</th>
         <th>Condition</th>
+        <th>To Be Listed</th>
         <th>Received?</th>
-        <th></th>
         <th ng-show="$ctrl.showEditControls"></th>
         <th ng-show="$ctrl.showEditControls"></th>
       </tr></thead>
@@ -285,7 +285,7 @@
             </span>
             <span ng-hide="pallet.isEditing">{{pallet.handle}}</span>
           </td>
-          <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isAnonymous"></span></td>
+          <!-- <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isAnonymous"></span></td> -->
           <td ng-show="$ctrl.showPurchasingData">
             <span ng-show="pallet.isEditing" ng-class="{ 'has-error' : pallet.errors.invalidCost }">
               <input class="form-control" type="number" ng-model="pallet.editValues.cost" style="width:80px;" ng-change="pallet.validate()">
@@ -314,6 +314,17 @@
             </span>
             <span ng-hide="pallet.isEditing">{{pallet.condition}}</span>
           </td>
+          <td>
+            <span ng-show="pallet.isEditing">
+              <select class="form-control" ng-model="pallet.editValues.toBeListed">
+                <option ng-value="false">No</option>
+                <option ng-value="true">Yes</option>
+              </select>
+            </span>
+            <span ng-hide="pallet.isEditing">
+              <span class="glyphicon glyphicon-ok" ng-show="pallet.toBeListed"></span>
+            </span>
+          </td>
           <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isReceived"></span></td>
           <td>
             <span ng-show="pallet.hasManifest()">
@@ -337,12 +348,12 @@
             <span class="text-danger h6" ng-show="$ctrl.addExpectedPallet.errors.duplicateHandle">Duplicate handle</span>
             <span class="text-danger h6" ng-show="$ctrl.addExpectedPallet.errors.emptyHandle">Missing handle</span>
           </td>
-          <td>
+          <!-- <td>
             <select class="form-control" ng-model="$ctrl.addExpectedPallet.data.isAnonymous">
               <option ng-value="true">Yes</option>
               <option ng-value="false">No</option>
             </select>
-          </td>
+          </td> -->
           <td ng-class="{ 'has-error' : $ctrl.addExpectedPallet.errors.invalidCost }">
             <input class="form-control" type="number" ng-model="$ctrl.addExpectedPallet.data.cost" style="width:80px;" ng-change="$ctrl.addExpectedPallet.validate()">
             <span class="text-danger h6" ng-show="$ctrl.addExpectedPallet.errors.invalidCost">Invalid cost</span>
@@ -356,6 +367,12 @@
           <td>
             <select class="form-control" ng-model="$ctrl.addExpectedPallet.data.condition">
               <option ng-repeat="option in $ctrl.conditionOptions" ng-value="option.value">{{ option.displayName }}</option>
+            </select>
+          </td>
+          <td>
+            <select class="form-control" ng-model="$ctrl.addExpectedPallet.data.toBeListed">
+              <option ng-value="false">No</option>
+              <option ng-value="true">Yes</option>
             </select>
           </td>
           <td></td>
@@ -420,7 +437,7 @@
 
         <thead><tr>
           <th>Handle</th>
-          <th>Anonymous?</th>
+          <!-- <th>Anonymous?</th> -->
           <th>Expected?</th>
           <th>Problem?</th>
           <th>Brokendown?</th>
@@ -436,9 +453,9 @@
               <span><a href ng-click="pallet.detailsModal()">{{pallet.handle}}</a></span>
             </td>
 
-            <td>
+            <!-- <td>
               <span class="glyphicon glyphicon-ok" ng-show="pallet.isAnonymous"></span>
-            </td>
+            </td> -->
             <td>
               <span class="glyphicon glyphicon-ok" ng-show="pallet.isExpected"></span>
               <span class="glyphicon glyphicon-remove" ng-hide="pallet.isExpected"></span>
@@ -462,7 +479,7 @@
               </span>
             </td>
             <td>
-              <span>
+              <span ng-show="pallet.toBeListed">
                 <button class="btn btn-xs btn-success" ng-click="$ctrl.createPalletLot( pallet )">Make Lot</button>
               </span>
             </td>

@@ -701,6 +701,7 @@ class InventoryCommander {
       isReceived: true,
       shipment: shipment._id,
       isAnonymous: correspondingPalletExpected ? correspondingPalletExpected.isAnonymous : false,
+      toBeListed: correspondingPalletExpected ? correspondingPalletExpected.toBeListed : false,
     };
 
     // use corresponding expected pallet's cost

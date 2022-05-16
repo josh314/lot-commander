@@ -139,6 +139,7 @@
           <th>Units</th>
           <th>Category</th>
           <th>Condition</th>
+          <th>To be listed?</th>
           <th class="text-center">Remove</th>
         </tr></thead>
         <tbody>	
@@ -160,6 +161,12 @@
             <td>
               <select class="form-control" ng-model="pallet.condition" ng-change="$ctrl.clearShipmentCondition()">
                 <option ng-repeat="condition in $ctrl.inputs.conditionOptions" ng-value="condition.value">{{condition.displayName}}</option>
+              </select>
+            </td>
+            <td>
+              <select class="form-control" ng-model="pallet.toBeListed">
+                <option ng-value="true">yes</option>
+                <option ng-value="false">no</option>
               </select>
             </td>
             <td class="text-center" style="vertical-align: middle;"><button type="submit" class="btn btn-danger btn-xs" ng-click="$ctrl.removePallet($index)"><span class="glyphicon glyphicon-remove"></span></button></td>

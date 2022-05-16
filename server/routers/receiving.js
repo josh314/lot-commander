@@ -484,7 +484,7 @@ function routes({ eventsDb, inventoryCommander }) {
       const { shipment, palletReceived, palletExpected } = await inventoryCommander.receiveIncomingShipmentPallet( shipmentId, palletData );
 
       if( !palletReceived ) {
-        throw new Error('Failed.')
+        throw new Error('Failed.');
       }
 
       if( shipment ) {

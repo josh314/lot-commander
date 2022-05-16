@@ -366,6 +366,7 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
     function addPallet( data ) {
 
       data.condition = data.condition || 'shelf-pull';
+      data.toBeListed = data.toBeListed || false;
 
       vm.inputs.pallets.push( data );
 

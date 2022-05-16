@@ -9,6 +9,7 @@ const inventoryPalletSchema = mongoose.Schema({
   hasProblem: Boolean,
   note: String,
   isAnonymous: Boolean,
+  toBeListed: Boolean,
   isBrokendown: Boolean,
   brokendownDate: Date,
   shipment: {
@@ -37,6 +38,10 @@ inventoryPalletSchema.pre( 'save', function(next) {
 
   if( typeof this.isAnonymous !== 'boolean' ) {
     this.isAnonymous = false;
+  }
+
+  if( typeof this.toBeListed !== 'boolean' ) {
+    this.toBeListed = false;
   }
 
   if( typeof this.isBrokendown !== 'boolean' ) {

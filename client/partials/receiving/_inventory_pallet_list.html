@@ -117,7 +117,11 @@
               </span>
               <span ng-switch-default>{{ columnData.transform ? columnData.transform( pallet[ columnKey ] ) : pallet[ columnKey ] }}</span>
             </td>
-            <td><button class="btn btn-xs btn-primary" ng-click="$ctrl.createLotFromPallet( pallet )">Make Lot</button></td>
+            <td>
+              <span ng-show="pallet.toBeListed">
+                <button class="btn btn-xs btn-primary" ng-click="$ctrl.createLotFromPallet( pallet )">Make Lot</button>
+              </span>
+            </td>
           </tr>
         </tbody>
     
