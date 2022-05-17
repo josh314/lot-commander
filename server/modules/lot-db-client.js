@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const Promise = require('bluebird');
 
 /*********************************************************
@@ -7,49 +6,10 @@ const Promise = require('bluebird');
 **********************************************************
 **********************************************************/
 
-exports.Client = function( opts={} ) {
+exports.Client = function( { Lot } ) {
 
-  let mongooseConn;
-
-  if(!opts.connection && !(opts.host && opts.port)){
-    throw new Error('Initialize with an options object with either `connection` or `host` and `port` fields');
-  }
-
-  if(opts.connection) {
-    console.log(`Using existing connection for lot-db.`);
-    mongooseConn = opts.connection;
-  }
-  else {
-    const mongoUserStr = opts.auth && opts.auth.user && opts.auth.pwd ? `${opts.auth.user}:${opts.auth.pwd}@` : '';
-    const optionsStr = opts.options ? `?${require('querystring').stringify(opts.options)}` : '';
-
-    let connectionStr;
-    if(opts.atlas) {
-      connectionStr = `mongodb+srv://${mongoUserStr}${opts.host}/${opts.db}${optionsStr}`;
-    }
-    else {
-      connectionStr = `mongodb://${mongoUserStr}${opts.host}:${opts.port}/${opts.db}${optionsStr}`;
-    }
-
-    console.log(`Connecting to lot-db: ${connectionStr}`);
-    const mongooseConnOpts = {
-      // useMongoClient: true,
-      keepAlive: 300000,
-      connectTimeoutMS: 30000,
-      socketTimeoutMS: 300000,
-      autoIndex: false,
-      useNewUrlParser: true,
-    };
-    mongooseConn = mongoose.createConnection(connectionStr, mongooseConnOpts); // connect to our database
-  }
-
-  const lot = require( '../models/lot' );
-  const LotModel = mongooseConn.model( 'Lot', lot.schema );
-  this.LotModel = LotModel;
-  this.enums = lot.enums;
-
-  this.closeConn = function() { mongooseConn.close(); };
-
+  this.LotModel = Lot;
+  this.enums = Lot.enums;
 
   this.getLots = function(query, opts={}) {
     const sortOpts = opts.sort || { createdAt: -1 };
@@ -140,22 +100,22 @@ exports.Client = function( opts={} ) {
   });
 
   this.getLotById = Promise.method(function(lotId) {
-    return LotModel.findOne({ _id: lotId });
+    return this.LotModel.findOne({ _id: lotId });
   });
 
   this.getLotByHandle = Promise.method(function(lotHandle) {
-    return LotModel.findOne({ handle: lotHandle });
+    return this.LotModel.findOne({ handle: lotHandle });
   });
 
   this.deleteLot = Promise.method(function(lotId) {
-    return LotModel.remove({_id: lotId});
+    return this.LotModel.remove({_id: lotId});
   });
 
   this.addImage = Promise.method(function(lotId, metadata){
     if(!lotId) {
       throw new Error('No lot ID submitted.');
     }
-    return LotModel.findOne({ _id: lotId }).then(lot=>{
+    return this.LotModel.findOne({ _id: lotId }).then(lot=>{
       if(!lot) {
         return { error: "Lot ID not found." };
       }
@@ -181,7 +141,7 @@ exports.Client = function( opts={} ) {
     if(!lotId) {
       throw new Error('No lot ID submitted.');
     }
-    return LotModel.findOne({ _id: lotId }).then(lot=>{
+    return this.LotModel.findOne({ _id: lotId }).then(lot=>{
       if(!lot) {
         return { error: "Lot ID not found." };
       }
@@ -213,7 +173,7 @@ exports.Client = function( opts={} ) {
     if(!lotId) {
       throw new Error('No lot ID submitted.');
     }
-    return LotModel.findOne({ _id: lotId }).then(lot=>{
+    return this.LotModel.findOne({ _id: lotId }).then(lot=>{
       if(!lot) {
         return { error: "Lot ID not found." };
       }
@@ -240,7 +200,7 @@ exports.Client = function( opts={} ) {
     if(!manifestData) {
       throw new Error("No manifest data submitted.");
     }
-    return LotModel.findOne({ _id: lotId }).then(lot=>{
+    return this.LotModel.findOne({ _id: lotId }).then(lot=>{
       if(!lot) {
         return { error: "Lot ID not found." };
       }

@@ -2,83 +2,84 @@ const {
   IllegalActionError
 } = require('../errors');
 
-const libLotDb = require('./lot-db-client');
-const lotdbClient = new libLotDb.Client({ connection: __mongooseConnection }); 
+module.exports = function( lotdbClient ) {
 
 
-function getLotById( lotId ) {
-  return lotdbClient.getLotById( lotId );
-}
-
-function getLotByHandle( handle ) {
-  return lotdbClient.getLotByHandle( handle );
-}
-
-function listLots( query, opts ) {
-  return lotdbClient.getLots( query, opts );
-}
-
-async function createLot( _data ) {
-
-  const existingLot = await lotdbClient.getLotByHandle( _data.handle );
-
-  if( existingLot ) {
-    throw new IllegalActionError(`Lot with handle ${ _data.handle } already exists.`, 'DUPLICATE_LOT_HANDLE');
+  function getLotById( lotId ) {
+    return lotdbClient.getLotById( lotId );
   }
 
-  console.log(`Submitting new lot with data:`);
-  console.log(`${JSON.stringify( _data, null, 2 )}`);
+  function getLotByHandle( handle ) {
+    return lotdbClient.getLotByHandle( handle );
+  }
 
-  _data.listings = [{ platform: 'bstock', body: ''}];
+  function listLots( query, opts ) {
+    return lotdbClient.getLots( query, opts );
+  }
 
-  return lotdbClient.submitNewLot( _data );
+  async function createLot( _data ) {
 
-}
+    const existingLot = await lotdbClient.getLotByHandle( _data.handle );
 
-function editLot( _data ) {
-  return lotdbClient.updateLot( _data );
-}
+    if( existingLot ) {
+      throw new IllegalActionError(`Lot with handle ${ _data.handle } already exists.`, 'DUPLICATE_LOT_HANDLE');
+    }
 
-function setPrimaryImage( lotId, image ) {
-  return lotdbClient.setPrimaryImage( lotId, image );
-}
+    console.log(`Submitting new lot with data:`);
+    console.log(`${JSON.stringify( _data, null, 2 )}`);
 
-function addImage(lotId, imageMetadata) {
-  return lotdbClient.addImage(lotId, imageMetadata);
-}
+    _data.listings = [{ platform: 'bstock', body: ''}];
 
-function removeImage(lotId, image) {
-  return lotdbClient.removeImage(lotId, image);
-}
+    return lotdbClient.submitNewLot( _data );
 
-function markAsListed(lotId) {
-  const data = {
-    _id: lotId,
-    status: 'Listed'
+  }
+
+  function editLot( _data ) {
+    return lotdbClient.updateLot( _data );
+  }
+
+  function setPrimaryImage( lotId, image ) {
+    return lotdbClient.setPrimaryImage( lotId, image );
+  }
+
+  function addImage (lotId, imageMetadata ) {
+    return lotdbClient.addImage( lotId, imageMetadata );
+  }
+
+  function removeImage( lotId, image ) {
+    return lotdbClient.removeImage( lotId, image );
+  }
+
+  function markAsListed( lotId ) {
+    const data = {
+      _id: lotId,
+      status: 'Listed'
+    };
+    return lotdbClient.updateLot( data );
+  }
+
+  function deleteLot( lotId ) {
+    return lotdbClient.deleteLot( lotId );
+  }
+
+
+  return {
+
+    // other functionality
+    listLots,
+    getLotById,
+    getLotByHandle,
+    deleteLot,
+    createLot,
+    editLot,
+    setPrimaryImage,
+
+    addImage,
+    removeImage,
+    markAsListed,
+
+    // Export data types
+    enums: lotdbClient.enums,
   };
-  return lotdbClient.updateLot(data);
-}
 
-function deleteLot( lotId ) {
-  return lotdbClient.deleteLot( lotId );
-}
-
-
-module.exports = {
-
-  // other functionality
-  listLots,
-  getLotById,
-  getLotByHandle,
-  deleteLot,
-  createLot,
-  editLot,
-  setPrimaryImage,
-
-  addImage,
-  removeImage,
-  markAsListed,
-
-  // Export data types
-  enums: lotdbClient.enums,
 };

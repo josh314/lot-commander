@@ -1,7 +1,5 @@
 const { ClientError } = require('../errors');
 
-const manifests = require('./manifests');
-
 const conditionBoilerplateListItems = [
   'Have retail stickers such as price tags or discount/store labels.', 
   'Items may be out of box or in open boxes.',
@@ -10,12 +8,14 @@ const conditionBoilerplateListItems = [
 
 
 class Client {
-  constructor( { bstock, shopify } ) {
+  constructor( { bstock, shopify, manifests } ) {
 
     this.submitFn = {
       bstock: bstock.submitListing,
       wholesaleninjas: shopify.submitListing.bind( shopify ),
     };
+
+    this.manifests = manifests;
 
   }
 
@@ -87,7 +87,7 @@ class Client {
     try {
 
       if(!listing.lot.manifestFileLocation && !listing.lot.unmanifested ) {
-        const generatedManifestResponse = await manifests.generateLotManifest( lotId , { save: true } );
+        const generatedManifestResponse = await this.manifests.generateLotManifest( lotId , { save: true } );
         listing.lot.manifestFileLocation = generatedManifestResponse.manifest;
       }
 

@@ -4,14 +4,14 @@ const path = require('path');
 const fs = require('fs');
 const readFile = Promise.promisify(fs.readFile);
 
-const manifests = require(path.join(__basedir, __config.modulesPath, 'manifests'));
 const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
 const shopifyApi = require('shopify/lib/api');
 
 class Client {
-  constructor( { config, shopifyGql } ) {
+  constructor( { config, shopifyGql, manifests } ) {
     this.shopifyClient = new shopifyApi.Client( config );
     this.shopifyGql = shopifyGql;
+    this.manifests = manifests;
   }
 
   async addImage( productId, imageObj ) {
@@ -40,7 +40,7 @@ class Client {
     try {
 
       // Start the manifest promise if applicable
-      const manifestP = listing.lot.unmanifested ? null : manifests.getManifestItemsForLot(listing.lot, { refreshProductData: listing.refreshProductData });
+      const manifestP = listing.lot.unmanifested ? null : this.manifests.getManifestItemsForLot(listing.lot, { refreshProductData: listing.refreshProductData });
       const manifestItems = await manifestP;
 
       const product = {

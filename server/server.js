@@ -199,6 +199,25 @@ class Server {
 
     // Initialize database and APi clients to serve as dependencies for the routers
 
+    const EventsDb = require('./modules/events-db');
+    const eventsDbClient = new EventsDb.Client( this.mongooseConnection );
+
+    const shopifyDumpDbClient = new ShopifyDumpDbClient( this.mongoClient.db('ehdb') );
+
+    const ModelCommander = require('./models');
+    const models = new ModelCommander( this.mongooseConnection );
+
+    const LotDbClient = require('./modules/lot-db-client').Client;
+    const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'))( new LotDbClient( models ) );
+
+    const InventoryCommander = require('./modules/inventory-commander');
+    const inventoryCommander = new InventoryCommander( models );
+
+    const ManualInventoryDb = require('./modules/manual-inventory-db');
+    const manualInventoryDbClient = new ManualInventoryDb.Client( { mongooseConnection: this.mongooseConnection } );
+
+    const manifests = require('./modules/manifests')( { lotdb } );
+
     const bstock = require( './modules/bstock' );
 
     const ShopifyGql = require( './modules/shopify-gql' );
@@ -211,26 +230,11 @@ class Server {
     const shopify = new Shopify( {
       config: __config.shopify.store,
       shopifyGql: shopifyGqlClient,
+      manifests
     } );
 
     const ListingsSubmitter = require( './modules/listings-submitter' );
-    const listingsSubmitter = new ListingsSubmitter( { bstock, shopify } );
-
-    const EventsDb = require('./modules/events-db');
-    const eventsDbClient = new EventsDb.Client( this.mongooseConnection );
-
-    const shopifyDumpDbClient = new ShopifyDumpDbClient( this.mongoClient.db('ehdb') );
-
-    const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
-
-    const ModelCommander = require('./models');
-    const models = new ModelCommander( this.mongooseConnection );
-
-    const InventoryCommander = require('./modules/inventory-commander');
-     const inventoryCommander = new InventoryCommander( models );
-
-    const ManualInventoryDb = require('./modules/manual-inventory-db');
-    const manualInventoryDbClient = new ManualInventoryDb.Client( { mongooseConnection: this.mongooseConnection } );
+    const listingsSubmitter = new ListingsSubmitter( { bstock, shopify, manifests } );
 
     const routerOpts = {
       bstock,
@@ -238,6 +242,7 @@ class Server {
       inventoryCommander,
       listings: listingsSubmitter,
       lotdb,
+      manifests,
       manualInventoryDbClient,
       shopifyDumpDb: shopifyDumpDbClient,
       shopifyGql: shopifyGqlClient,
