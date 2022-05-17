@@ -50,7 +50,7 @@ function routes({
   router.use('/api/listings', require('./listings')( { listings, lotdb, shopifyGql } ));
   router.use('/api/image', require('./images')( { lotdb } ) );
   router.use('/api/print', require('./print')( { inventoryCommander, lotdb: lotdb } ) );
-  router.use('/api/manifests', require('./manifests'));
+  router.use('/api/manifests', require('./manifests')( { manifests } ) );
   router.use(
     '/api/reports',
     auth.isAuthorized('VIEW_REPORT'),
@@ -73,7 +73,7 @@ function routes({
   router.use('/api/documents', require('./documents')( ) );
 
   // Shipping rates on Shopify store
-  
+
   // dynamically created JS scripts for the client
   router.use('/build', require('./script-builder')( { bstock, listings, lotdb, quickLots }) );
 
@@ -81,8 +81,8 @@ function routes({
   router.use( express.static(path.join(__basedir, __config.imgPath)) );
 
   //default route. the front-end rendering will all hit this.
-  router.get('*', 
-    (req,res) => res.render('main.hbs', { 
+  router.get('*',
+    (req,res) => res.render('main.hbs', {
       title: "Lot Commander",
       description: "App for creating and managing product lots and associated manifests.",
     })
