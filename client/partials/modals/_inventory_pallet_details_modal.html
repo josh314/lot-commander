@@ -9,6 +9,10 @@
       <span class="text-danger h4" ng-show="$ctrl.errors.duplicateHandle">Duplicate handle</span>
       <span class="text-danger h4" ng-show="$ctrl.errors.emptyHandle">Missing handle</span>
     </div>
+    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showDeveloper">
+      <label for="_idInput">_id (development use only)</label>
+      <input class="form-control" type="text" id="_idInput" ng-model="$ctrl.inputs._id" disabled>
+    </div>
     <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showShipment">
       <label for="shipmentInput">Shipment</label>
       <input class="form-control" type="text" id="shipmentInput" ng-model="$ctrl.inputs.shipment.handle" disabled>

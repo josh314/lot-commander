@@ -234,7 +234,9 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         vm.errors = {};
         vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );
         vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) );
+
         vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+        vm.showDeveloper = LoggedInUser.hasPermission('DEVELOPER');
         vm.showBrokendownDate = pallet.isBrokendown;
         vm.showCreatedAtDate = !!pallet.createdAt;
         vm.showShipment = !!pallet.shipment;

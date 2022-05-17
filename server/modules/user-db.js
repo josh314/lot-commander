@@ -8,6 +8,7 @@ const bcrypt   = require('bcrypt-nodejs');
 
 const __USER_ROLE_PERMISSIONS__ = {
   __AUCTIONS__: [ 'LIST_AUCTIONS', 'SUBMIT_AUCTION'],
+  __DEVELOPER__: [ 'DEVELOPER' ],
   __EVENTS__: [ 'VIEW_EVENTS' ],
   __FULFILLMENT__: [ 'LIST_ORDERS', 'VIEW_ORDER'],
   __LOTS__: [ 'VIEW_LOT', 'EDIT_LOT', 'CREATE_LOT' ],
