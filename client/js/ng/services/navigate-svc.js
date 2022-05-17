@@ -5,45 +5,101 @@ import angular from 'angular';
 * Used for navigating around the app. Mostly just wraps the $state service
 *
 ************/
-angular.module('myApp').factory( 'navigate', [ '$state', function( $state ){
+angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', function( $anchorScroll, $state ){
 
-  const home = () => $state.go( 'main.home' );
+  const home = () => {
+    $anchorScroll();
+    $state.go( 'main.home' );
+  };
 
-  const viewLot = lotId => $state.go( 'main.lots.view', { lotId: lotId } );
+  const viewLot = lotId => {
+    $anchorScroll();
+    $state.go( 'main.lots.view', { lotId: lotId } );
+  };
 
-  const scanLot = lotId => $state.go( 'main.lots.scan', { lotId: lotId } );
+  const scanLot = lotId => {
+    $anchorScroll();
+    $state.go( 'main.lots.scan', { lotId: lotId } );
+  };
 
   const editLotManifest = () => $state.go( 'main.lots.edit-manifest' );
 
-  const listLots = () => $state.go( 'main.lots.list' );
+  const listLots = () => {
+    $anchorScroll();
+    $state.go( 'main.lots.list' );
+  };
 
-  const lotGallery = lotId => $state.go( 'main.lots.gallery', { lotId: lotId } );
+  const lotGallery = lotId => {
+    $anchorScroll();
+    $state.go( 'main.lots.gallery', { lotId: lotId } );
+  };
 
-  const reload = () => $state.reload();
+  const reload = scrollToTop => {
+    if( scrollToTop ) {
+      $anchorScroll();
+    }
+    $state.reload();
+  };
 
-  const shipmentCreation = () => $state.go( 'main.receiving.shipment-creation');
+  const shipmentCreation = () => {
+    $anchorScroll();
+    $state.go( 'main.receiving.shipment-creation');
+  };
 
-  const shipmentDetails = shipmentId => $state.go( 'main.receiving.shipment-details', { shipmentId: shipmentId } );
+  const shipmentDetails = shipmentId => {
+    $anchorScroll();
+    $state.go( 'main.receiving.shipment-details', { shipmentId: shipmentId } );
+  };
 
-  const shipmentList = () => $state.go( 'main.receiving.shipment-list' );
+  const shipmentList = () => {
+    $anchorScroll();
+    $state.go( 'main.receiving.shipment-list' );
+  };
 
-  const shipmentReceiving = shipmentId  => $state.go( 'main.receiving.shipment-receiving', { shipmentId: shipmentId } );
+  const shipmentReceiving = shipmentId  => {
+    $anchorScroll();
+    $state.go( 'main.receiving.shipment-receiving', { shipmentId: shipmentId } );
+  };
 
-  const shipmentCleanManifest = shipmentId  => $state.go( 'main.receiving.shipment-clean-manifest', { shipmentId: shipmentId } );
+  const shipmentCleanManifest = shipmentId  => {
+    $anchorScroll();
+    $state.go( 'main.receiving.shipment-clean-manifest', { shipmentId: shipmentId } );
+  };
 
-  const inventoryPalletCreation = () => $state.go( 'main.receiving.inventory-pallet-creation');
+  const inventoryPalletCreation = () => {
+    $anchorScroll();
+    $state.go( 'main.receiving.inventory-pallet-creation');
+  };
 
-  const inventoryPalletList = () => $state.go( 'main.receiving.inventory-pallet-list' );
+  const inventoryPalletList = () => {
+    $anchorScroll();
+    $state.go( 'main.receiving.inventory-pallet-list' );
+  };
 
-  const cleanManifest = () => $state.go( 'main.manifests.clean' );
+  const cleanManifest = () => {
+    $anchorScroll();
+    $state.go( 'main.manifests.clean' );
+  };
 
-  const history = ( species, id ) => $state.go( 'main.history', { species: species, id: id } );
+  const history = ( species, id ) => {
+    $anchorScroll();
+    $state.go( 'main.history', { species: species, id: id } );
+  };
 
-  const submitListing = () => $state.go( 'main.lots.submit-listing' );
+  const submitListing = () => {
+    $anchorScroll();
+    $state.go( 'main.lots.submit-listing' );
+  };
 
-  const imageEditor = () => $state.go( 'main.lots.image-editor' );
+  const imageEditor = () => {
+    $anchorScroll();
+    $state.go( 'main.lots.image-editor' );
+  };
 
-  const uploadLotManifest = lotId => $state.go('main.lots.upload-manifest', { lotId: lotId });
+  const uploadLotManifest = lotId => {
+    $anchorScroll();
+    $state.go('main.lots.upload-manifest', { lotId: lotId });
+  };
 
   return {
     cleanManifest: cleanManifest,
