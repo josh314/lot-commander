@@ -7,7 +7,7 @@ const Promise = require('bluebird');
 **********************************************************
 **********************************************************/
 
-exports.Client = function(opts={}) {
+exports.Client = function( opts={} ) {
 
   let mongooseConn;
 
@@ -43,7 +43,7 @@ exports.Client = function(opts={}) {
     mongooseConn = mongoose.createConnection(connectionStr, mongooseConnOpts); // connect to our database
   }
 
-  const lot = require( './models/lot' );
+  const lot = require( '../models/lot' );
   const LotModel = mongooseConn.model( 'Lot', lot.schema );
   this.LotModel = LotModel;
   this.enums = lot.enums;

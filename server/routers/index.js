@@ -4,7 +4,6 @@ const express = require('express');
 const auth = require('../auth');
 
 const quickLots = require(path.join(__basedir, __config.modulesPath, 'quick-lots'));
-const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
 const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
@@ -22,6 +21,7 @@ function routes({
   eventsDbClient,
   inventoryCommander,
   listings,
+  lotdb,
   manualInventoryDbClient,
   shopifyDumpDb,
   shopifyGql,

@@ -221,8 +221,13 @@ class Server {
 
     const shopifyDumpDbClient = new ShopifyDumpDbClient( this.mongoClient.db('ehdb') );
 
+    const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'));
+
+    const ModelCommander = require('./models');
+    const models = new ModelCommander( this.mongooseConnection );
+
     const InventoryCommander = require('./modules/inventory-commander');
-    const inventoryCommander = new InventoryCommander( { mongooseConnection: this.mongooseConnection } );
+     const inventoryCommander = new InventoryCommander( models );
 
     const ManualInventoryDb = require('./modules/manual-inventory-db');
     const manualInventoryDbClient = new ManualInventoryDb.Client( { mongooseConnection: this.mongooseConnection } );
@@ -232,6 +237,7 @@ class Server {
       eventsDbClient,
       inventoryCommander,
       listings: listingsSubmitter,
+      lotdb,
       manualInventoryDbClient,
       shopifyDumpDb: shopifyDumpDbClient,
       shopifyGql: shopifyGqlClient,

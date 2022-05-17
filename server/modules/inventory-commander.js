@@ -304,19 +304,19 @@ function appendPopulationQueries( query, populationPaths ) {
 
 
 class InventoryCommander {
-  constructor({ mongooseConnection }) {
-    this.conn = mongooseConnection;
-
-    const pkg = require('./models/package');
-    const incomingShipment = require('./models/incoming-shipment');
-    const inventoryPallet = require('./models/inventory-pallet');
-    const bundle = require('./models/bundle');
-
+  constructor( { 
+    IncomingShipment,
+    Package,
+    Bundle,
+    InventoryPallet,
+  }) {
+    
     // initialize models
-    this.IncomingShipment = mongooseConnection.model('IncomingShipment', incomingShipment.schema);
-    this.Package = mongooseConnection.model('Package', pkg.schema);
-    this.Bundle = mongooseConnection.model('Bundle', bundle.schema);
-    this.InventoryPallet = mongooseConnection.model('InventoryPallet', inventoryPallet.schema);
+    this.IncomingShipment = IncomingShipment;
+    this.Package = Package;
+    this.Bundle = Bundle;
+    this.InventoryPallet = InventoryPallet;
+
   }
 
   //=====================================================
