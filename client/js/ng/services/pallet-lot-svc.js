@@ -26,6 +26,7 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'LotSvc', 'ShippingItemsSvc',
       const _data = {
         // TODO: estimatedRetailValue (can read this from a standard manifest),
         handle: handleToSubmit,
+        pallet: pallet._id,
         listingData: {
           title,
         },

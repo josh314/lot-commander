@@ -16,6 +16,10 @@ const inventoryPalletSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'IncomingShipment'
   },
+  lot: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Lot'
+  },
   isReceived: Boolean,
   isDeleted: Boolean,
   deletedDate: Date

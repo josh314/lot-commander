@@ -20,6 +20,10 @@ const lotSchema = mongoose.Schema({
     required: true,
     unique: true
   },
+  pallet: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'InventoryPallet'
+  },
   description: String,
   type: { type: String, enum: typeEnum },
   category: String,

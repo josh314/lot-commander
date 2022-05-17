@@ -100,7 +100,7 @@ exports.Client = function( { Lot } ) {
   });
 
   this.getLotById = Promise.method(function(lotId) {
-    return this.LotModel.findOne({ _id: lotId });
+    return this.LotModel.findOne({ _id: lotId }).populate('pallet');
   });
 
   this.getLotByHandle = Promise.method(function(lotHandle) {

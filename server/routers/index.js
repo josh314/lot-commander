@@ -22,6 +22,7 @@ function routes({
   inventoryCommander,
   listings,
   lotdb,
+  manifests,
   manualInventoryDbClient,
   shopifyDumpDb,
   shopifyGql,
@@ -33,7 +34,7 @@ function routes({
   router.use('/api/users', require('./users')( { users: userDbClient } ) );
 
   // lots api
-  router.use('/api/lots', require( './lots' )( { lotdb } ) );
+  router.use('/api/lots', require( './lots' )( { inventoryCommander, lotdb } ) );
 
   // bstock db api
   router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);

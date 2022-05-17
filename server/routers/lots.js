@@ -52,7 +52,7 @@ function listLotsFilterParamsFromQueryParams( qp ) {
  *
  **********/
 
-function routes({ lotdb }) {
+function routes({ inventoryCommander, lotdb }) {
   const router = new express.Router();
 
   /*******************************************
@@ -127,7 +127,7 @@ function routes({ lotdb }) {
   /*******************************************
    * Define Handlers
    * ===============
-   * 
+   *
    ****/
 
   async function listLots( req, res, next ) {
@@ -226,6 +226,12 @@ function routes({ lotdb }) {
 
       const data = req.body;
       const lot = await lotdb.createLot( data );
+
+      if( lot && data.pallet ) {
+
+        await inventoryCommander.editInventoryPallet( data.pallet, { lot: lot._id } );
+
+      }
 
       res.json({ lot });
 
@@ -364,7 +370,7 @@ function routes({ lotdb }) {
   /**************************************
    * Return routes
    * =============
-   * 
+   *
    ************/
   return router;
 
