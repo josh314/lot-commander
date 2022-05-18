@@ -544,6 +544,7 @@
           <th>Brokendown?</th>
           <th>Note</th>
           <th></th>
+          <th></th>
         </tr></thead>
 
         <tbody>
@@ -567,6 +568,11 @@
             </td>
             <td>
               <span class="glyphicon glyphicon-ok" ng-show="pallet.note"></span>
+            </td>
+            <td>
+              <span ng-show="pallet.toBeListed">
+                <button class="btn btn-xs btn-success" ng-click="$ctrl.createPalletLot( pallet )">Make Lot</button>
+              </span>
             </td>
             <td>
               <button type="button" class="btn btn-danger btn-xs" ng-click="$ctrl.removeConsolidatedPallet( pallet )">

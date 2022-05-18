@@ -39,6 +39,14 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'LotSvc', 'ShippingItemsSvc',
         status
       };
 
+      if( pallet.units ) {
+        _data.totalUnits = pallet.units;
+      }
+
+      if( pallet.retailValue ) {
+        _data.estimatedRetailValue = pallet.retailValue;
+      }
+
       const lot = await LotSvc.create( _data );
 
       if( lot && pallet.hasManifest() ) {

@@ -704,6 +704,16 @@ class InventoryCommander {
       toBeListed: correspondingPalletExpected ? correspondingPalletExpected.toBeListed : false,
     };
 
+    // use corresponding expected pallet's units
+    if( correspondingPalletExpected && correspondingPalletExpected.units ) {
+      basePalletObject.units = correspondingPalletExpected.units;
+    }
+
+    // use corresponding expected pallet's retailValue
+    if( correspondingPalletExpected && correspondingPalletExpected.retailValue ) {
+      basePalletObject.retailValue = correspondingPalletExpected.retailValue;
+    }
+
     // use corresponding expected pallet's cost
     if( correspondingPalletExpected && correspondingPalletExpected.cost ) {
       basePalletObject.cost = correspondingPalletExpected.cost;

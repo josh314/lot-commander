@@ -6,6 +6,7 @@ const inventoryPalletSchema = mongoose.Schema({
   condition: String,
   cost: Number,
   units: Number,
+  retailValue: Number,
   hasProblem: Boolean,
   note: String,
   isAnonymous: Boolean,
