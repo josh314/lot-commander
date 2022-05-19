@@ -714,6 +714,11 @@ class InventoryCommander {
       basePalletObject.retailValue = correspondingPalletExpected.retailValue;
     }
 
+    // use corresponding expected pallet's salePrice
+    if( correspondingPalletExpected && correspondingPalletExpected.salePrice ) {
+      basePalletObject.salePrice = correspondingPalletExpected.salePrice;
+    }
+
     // use corresponding expected pallet's cost
     if( correspondingPalletExpected && correspondingPalletExpected.cost ) {
       basePalletObject.cost = correspondingPalletExpected.cost;

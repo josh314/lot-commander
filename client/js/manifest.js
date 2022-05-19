@@ -155,4 +155,13 @@ export class Manifest {
     }
   }
 
+  standardTotals() {
+    const sheet = this.sheets[0];
+
+    if( sheet ) {
+      return sheet.standardTotals();
+    }
+
+  }
+
 }

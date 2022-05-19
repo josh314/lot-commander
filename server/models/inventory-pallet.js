@@ -7,6 +7,7 @@ const inventoryPalletSchema = mongoose.Schema({
   cost: Number,
   units: Number,
   retailValue: Number,
+  salePrice: Number,
   hasProblem: Boolean,
   note: String,
   isAnonymous: Boolean,

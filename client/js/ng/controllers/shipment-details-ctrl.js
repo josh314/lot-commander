@@ -111,7 +111,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     vm.receivedPalletsSectionTitle = () => `Received Pallets${vm.shipment &&vm.shipment.palletsReceived && vm.shipment.palletsReceived.length ? ` (${vm.shipment.palletsReceived.length})`: ''}`;
     vm.consolidatedPalletsSectionTitle = () => `Consolidated Pallets${vm.shipment &&vm.shipment.palletsConsolidated && vm.shipment.palletsConsolidated.length ? ` (${vm.shipment.palletsConsolidated.length})`: ''}`;
 
-    vm.createPalletManifests = createPalletManifestsFromShipmentStandardManifest;
+    vm.createPalletManifests = _document => ModalSvc.wait( { waitFor: createPalletManifestsFromShipmentStandardManifest( _document ) }).then( _ => navigate.reload ());
     vm.createPalletLot = createPalletLot;
 
     /****************************************************
@@ -308,7 +308,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     /*******************************************************
      * Documents
      * =========
-     * 
+     *
      *******/
 
     function updateDocumentList() {
@@ -480,42 +480,77 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
       const data = await vm.shipment.getShipmentDocument( _document.name );
 
-      const files = await ManifestFileHandlerSvc.splitStandardManifestByPallet( data );
+      const manifests = await ManifestFileHandlerSvc.splitStandardManifestByPallet( data );
 
       const uploads = [];
-      for ( let file of files ) {
+      for ( let m of manifests ) {
+
+        const file = m.file;
+        const summary = m.summary;
 
         const match = file.name.match( /(.*)\.xlsx/ );
+
+        let expectedPallet;
+        let receivedPallet;
 
         if( match ) {
 
           const palletHandle = match[1];
 
-          const expectedPallet = vm.shipment.palletsExpected.find( _p => _p.handle === palletHandle );
-          const receivedPallet = vm.shipment.palletsReceived.find( _p => _p.handle === palletHandle );
+          expectedPallet = vm.shipment.palletsExpected.find( _p => _p.handle === palletHandle );
+          receivedPallet = vm.shipment.palletsReceived.find( _p => _p.handle === palletHandle );
+
+        }
 
 
-          if( expectedPallet ) {
+        if( expectedPallet ) {
+
+          uploads.push(
+            vm.shipment.uploadExpectedPalletDocument( expectedPallet._id, file, { documentType: 'manifest', isRestricted: false } )
+          );
+
+          if( summary ) {
+
+            const expectedPalletEditDoc = {
+              units: summary.quantity || undefined,
+              retailValue: summary.retailValue || undefined,
+              salePrice: summary.salePrice || undefined,
+            };
 
             uploads.push(
-              vm.shipment.uploadExpectedPalletDocument( expectedPallet._id, file, { documentType: 'manifest', isRestricted: false } )
-            );
-
-          }
-
-          if( receivedPallet ) {
-
-            uploads.push(
-              receivedPallet.uploadDocument( file, { documentType: 'manifest', isRestricted: false } )
+              vm.shipment.editExpectedPallet( expectedPallet._id, expectedPalletEditDoc )
             );
 
           }
 
         }
 
+        if( receivedPallet ) {
+
+          uploads.push(
+            receivedPallet.uploadDocument( file, { documentType: 'manifest', isRestricted: false } )
+          );
+
+          if( summary ) {
+
+            const receivedPalletEditDoc = {
+              units: summary.quantity || undefined,
+              retailValue: summary.retailValue || undefined,
+              salePrice: summary.salePrice || undefined,
+            };
+
+            uploads.push(
+              receivedPallet.edit( receivedPalletEditDoc )
+            );
+
+          }
+
+        }
+
+
       }
 
-      return Promise.all( uploads ).then(console.log).then( _ => navigate.reload() );
+      return Promise.all( uploads );
 
     }
 
@@ -533,7 +568,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     /*******************************************************
      * Receiving
      * =========
-     * 
+     *
      *******/
 
     function receiveShipment() {
@@ -757,7 +792,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     /*******************************************************
      * Initialization
      * ==============
-     * 
+     *
      *******/
 
     function loadShipment() {
@@ -851,7 +886,7 @@ angular.module('myApp').factory( 'DisplayPalletFactory', [ 'ModalSvc',
 
         return Object.values( this.errors ).some( _ => _ ) ? false : true;
       };
-      
+
       pallet.isEdited = function( ) {
 
         for( let field of editFields[ type ] ) {
@@ -882,13 +917,13 @@ angular.module('myApp').factory( 'DisplayPalletFactory', [ 'ModalSvc',
         this.errors = {};
         this.isEditing = true;
       };
-      
+
       pallet.closeEdit = function( ) {
         this.isEditing = false;
         this.errors = {};
         delete this.editValues;
       };
-      
+
       pallet.saveEdit = function( ) {
 
         if( !this.validate() ) {

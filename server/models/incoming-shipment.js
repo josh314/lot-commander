@@ -17,6 +17,7 @@ const incomingShipmentSchema = mongoose.Schema({
     cost: Number,
     units: Number,
     retailValue: Number,
+    salePrice: Number,
     category: String,
     condition: String,
     isAnonymous: Boolean,

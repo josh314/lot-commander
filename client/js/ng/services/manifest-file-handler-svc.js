@@ -24,7 +24,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
   '$q',
   '$uibModal',
   'ModalSvc',
-  
+
   function(
 
     $q,
@@ -134,7 +134,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
 
           return manifestOptions;
         }
-    
+
       );
 
     }
@@ -193,7 +193,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
             noHeaderRow: false,
             skipFirstRows: 0
           };
-          
+
         },
         controllerAs: '$ctrl'
       });
@@ -238,7 +238,14 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
 
       const splitManifests = splitSheets.map( s => {
         const manifest = new Manifest( [ s ] );
-        return createFile( `${manifest.activeSheet.name}.xlsx`, manifest );
+
+        const res = {
+          summary: manifest.standardTotals(),
+          file: createFile( `${manifest.activeSheet.name}.xlsx`, manifest )
+        };
+
+        return res;
+
       });
 
       return splitManifests;

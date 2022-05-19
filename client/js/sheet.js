@@ -162,10 +162,6 @@ export class Sheet {
     this.name = name;
     this.rawData = data;
 
-    this.getBarcodeColumn = function() {
-      return this.columns.find( column => column.isBarcodeColumn() );
-    };
-
     const sheetParseOpts = {
       blankRows: true,
       defVal: '',
@@ -257,6 +253,38 @@ export class Sheet {
     if( this.manifest ) {
       delete this.manifest;
     }
+  }
+
+  getBarcodeColumn() {
+    return this.columns.find( column => column.isBarcodeColumn() );
+  }
+
+  getQuantityColumn() {
+    return this.columns.find( column => column.isQuantityColumn() );
+  }
+
+  getUnitCostColumn() {
+    return this.columns.find( column => column.isUnitCostColumn() );
+  }
+
+  getTotalCostColumn() {
+    return this.columns.find( column => column.isTotalCostColumn() );
+  }
+
+  getUnitRetailPriceColumn() {
+    return this.columns.find( column => column.isUnitRetailPriceColumn() );
+  }
+
+  getTotalRetailPriceColumn() {
+    return this.columns.find( column => column.isTotalRetailPriceColumn() );
+  }
+
+  getUnitSalePriceColumn() {
+    return this.columns.find( column => column.isUnitSalePriceColumn() );
+  }
+
+  getTotalSalePriceColumn() {
+    return this.columns.find( column => column.isTotalSalePriceColumn() );
   }
 
   selectAllColumns() {
@@ -352,7 +380,7 @@ export class Sheet {
     try {
 
       const barcode = `${ row[ column.name ] }`; // ensure the barcode is a string
-      
+
       if( barcode && isNumericString( barcode ) && validateCheckDigit( barcode ) ) { //filter out malformed
 
         isValid = true;
@@ -371,7 +399,7 @@ export class Sheet {
     try {
 
       const barcode = `${ row[ column.name ] }`; // ensure the barcode is a string
-      
+
       if( barcode && isNumericString( barcode ) && barcode.length >= 12 ) { //filter out malformed
 
         isValid = true;
@@ -401,7 +429,7 @@ export class Sheet {
       }
     }
   }
-  
+
   prependUpcZeros() {
     const barcodeColumn = this.getBarcodeColumn();
     if(barcodeColumn) {
@@ -411,7 +439,7 @@ export class Sheet {
           r[barcodeColumn.name] = `${ r[barcodeColumn.name] }`; // ensure the barcode is a string
 
           if( validateCheckDigit( r[barcodeColumn.name] ) && r[barcodeColumn.name].length < 12 ) {
-            
+
             r[barcodeColumn.name] =  `${ '0'.repeat( 12 - r[barcodeColumn.name].length ) }${r[barcodeColumn.name]}`;
 
           }
@@ -471,7 +499,7 @@ export class Sheet {
     }, {});
 
     const out = {};
-    
+
     const outputColumnNames = this.columns.filter( c => c.isSelected() ).map( c => c.displayName );
     outputColumnNames.sort((a, b) => {
       const aIndex = __STANDARD_MANIFEST_COLUMNS__.indexOf(a);
@@ -699,6 +727,85 @@ export class Sheet {
 
     this.rows.forEach( cb );
 
+  }
+
+  numRows() {
+    return this.rows.length;
+  }
+
+  numColumns() {
+    return this.columns.length;
+  }
+
+  sumColumnValues( columnName ) {
+
+    let total = 0;
+    for( let r of this.rows ) {
+
+      total = Number.isFinite( r[ columnName ] ) ? total + r[ columnName ] : total;
+
+    }
+
+    return total;
+  }
+
+  sumTotalValueFromUnitColumnValues( unitValueColumnName ) {
+
+    let total = 0;
+
+    const quantityColumn = this.getQuantityColumn();
+
+    if( quantityColumn ) {
+
+      for( let r of this.rows ) {
+
+        total = Number.isFinite( r[ unitValueColumnName ]) && Number.isFinite( r[ quantityColumn.displayName ] ) ? total + r[ unitValueColumnName ]*r[ quantityColumn.displayName ] : total;
+
+      }
+
+    }
+
+    return total;
+
+  }
+
+  standardTotals() {
+    const res = {};
+
+    const quantityColumn = this.getQuantityColumn();
+    if( quantityColumn ) {
+      res.quantity = this.sumColumnValues( quantityColumn.displayName );
+    }
+
+    const unitCostColumn = this.getUnitCostColumn();
+    const totalCostColumn = this.getTotalCostColumn();
+    if( unitCostColumn ) {
+      res.cost = this.sumTotalValueFromUnitColumnValues( unitCostColumn.displayName );
+    }
+    else if( totalCostColumn ) {
+      res.cost = this.sumColumnValues( totalCostColumn.displayName );
+    }
+
+    const unitRetailPriceColumn = this.getUnitRetailPriceColumn();
+    const totalRetailPriceColumn = this.getTotalRetailPriceColumn();
+    if( unitRetailPriceColumn ) {
+      res.retailValue = this.sumTotalValueFromUnitColumnValues( unitRetailPriceColumn.displayName );
+    }
+    else if( totalRetailPriceColumn ) {
+      res.retailValue = this.sumColumnValues( totalRetailPriceColumn.displayName );
+    }
+
+    const unitSalePriceColumn = this.getUnitSalePriceColumn();
+    const totalSalePriceColumn = this.getTotalSalePriceColumn();
+    if( unitSalePriceColumn ) {
+      res.salePrice = this.sumTotalValueFromUnitColumnValues( unitSalePriceColumn.displayName );
+    }
+    else if( totalSalePriceColumn ) {
+      res.salePrice = this.sumColumnValues( totalSalePriceColumn.displayName );
+    }
+
+
+    return res;
   }
 
 }
