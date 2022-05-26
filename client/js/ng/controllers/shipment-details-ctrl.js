@@ -796,7 +796,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
      *******/
 
     function loadShipment() {
-      return ShipmentManagerSvc.loadShipment( { populate: [ 'pallets_received', 'pallets_consolidated' ] } ).then( shipment => {
+      return ShipmentManagerSvc.loadShipment( { populate: [ 'pallets_received', 'pallets_consolidated' ], hydratePalletObjects: true } ).then( shipment => {
 
         Object.assign(vm.shipment, shipment);
 

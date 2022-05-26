@@ -5,7 +5,7 @@ import * as api from '../../api';
 /***************************************
  * Helpers
  * =======
- * 
+ *
  ******/
 
 const queryParams = ( params ) => {
@@ -68,21 +68,21 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'L
 
       getShipmentId: () => _shipmentId(),
 
-      loadShipment: ( { shipmentId, populate = [] } = {} ) => $q.when( api.getIncomingShipmentById( shipmentId || _shipmentId(), { populate: populate } ) ).then( resp => {
+      loadShipment: ( { shipmentId, populate = [], hydratePalletObjects = false } = {} ) => $q.when( api.getIncomingShipmentById( shipmentId || _shipmentId(), { populate: populate } ) ).then( resp => {
         if( !resp || !resp.shipment ) {
           return null;
         }
 
-        return ShipmentFactory( resp.shipment );
+        return ShipmentFactory( resp.shipment, hydratePalletObjects );
       }),
 
-      loadShipmentByHandle: ( { handle, populate = [] } = {} ) => $q.when( api.getIncomingShipmentByHandle( handle , { populate: populate } ) ).then( resp => {
+      loadShipmentByHandle: ( { handle, populate = [], hydratePalletObjects = false } = {} ) => $q.when( api.getIncomingShipmentByHandle( handle , { populate: populate } ) ).then( resp => {
 
         if( !resp || !resp.shipment ) {
           return null;
         }
 
-        return ShipmentFactory( resp.shipment );
+        return ShipmentFactory( resp.shipment, hydratePalletObjects );
       }),
 
       buildAnonymousPalletHandle( shipmentHandle, number ) {
@@ -90,16 +90,16 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'L
       },
 
       listShipments: ( { filter, sort, num, page } ) => {
-        
+
         const query = { num, page };
 
         Object.assign( query, queryParams(filter) );
-  
+
         if( sort.key ) {
           query.sort = sort.key;
           query.sort_dir = sort.ascending ? 1 : -1;
         }
-  
+
         return $q.when( api.listIncomingShipments( query ) ).then( resp => {
           if( !resp || !resp.shipments ) {
             return [];
@@ -126,19 +126,25 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
   function( $q, InventoryPallet, UtilitiesSvc ) {
     const datify = dString => dString ? new Date( dString ) : null;
 
-    const buildAnonymousPalletHandle = ( shipmentHandle , number ) => `${ shipmentHandle }_${ number }`; 
+    const buildAnonymousPalletHandle = ( shipmentHandle , number ) => `${ shipmentHandle }_${ number }`;
 
-    function Shipment( _data ) {
+    function Shipment( _data, hydratePalletObjects = false ) {
 
       const shipment = Object.assign(
         {},
         _data,
-        [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {}),
-        {
-          palletsReceived: _data.palletsReceived.map( _ => new InventoryPallet( _ ) ),
-          palletsConsolidated: _data.palletsConsolidated.map( _ => new InventoryPallet( _ ) )
-        }
+        [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
       );
+
+      if( hydratePalletObjects ) {
+        Object.assign(
+          shipment,
+          {
+            palletsReceived: _data.palletsReceived.map( _ => new InventoryPallet( _ ) ),
+            palletsConsolidated: _data.palletsConsolidated.map( _ => new InventoryPallet( _ ) )
+          }
+        );
+      }
 
       // Mark received pallets as expected if applicable
       shipment.palletsReceived.forEach( pr => {
@@ -162,11 +168,11 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
       };
 
       shipment.hasAnonymousPallets = () => shipment.palletsExpected.some( pe => pe.isAnonymous );
-    
+
       shipment.noUnexpectedPallets = function() {
         return shipment.palletsReceived.every( pr => pr.isExpected );
       };
-    
+
       shipment.hasProblem = function() {
         return shipment.palletsReceived.some( pr => pr.hasProblem );
       };
@@ -174,7 +180,7 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
       shipment.getTotalUnits = function() { return this.totalUnits || this.palletsExpected.reduce( (total, p) => total + (p.units || 0) , 0); };
 
       shipment.getNextAnonymousPalletExpected = () => shipment.palletsExpected.find( pe => pe.isAnonymous && !pe.isReceived );
-    
+
       shipment.getNumAnonyomusPalletExpected = () => shipment.palletsExpected.reduce( (_num, p) => _num + ( p.isAnonymous ? 1 : 0 ) , 0);
       shipment.getNumAnonyomusPalletReceived = () => shipment.palletsReceived.reduce( (_num, p) => _num + ( p.isAnonymous ? 1 : 0 ) , 0);
 
@@ -257,9 +263,9 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
       shipment.addConsolidatedPallet = _data => $q.when( api.addIncomingShipmentPalletConsolidated( shipment._id, _data ) );
 
       shipment.removeConsolidatedPallet = palletId => $q.when( api.removeIncomingShipmentPalletConsolidated( shipment._id, palletId ) );
-    
+
       shipment.editConsolidatedPallet = shipment.editReceivedPallet;
-    
+
       shipment.listExpectedPalletDocuments = palletId => $q.when( api.listObjectDocuments( palletId, 'shipment-expected-pallet' ) ).then( resp => {
 
         if( !resp ) {
