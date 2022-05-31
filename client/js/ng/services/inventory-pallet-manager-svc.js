@@ -5,7 +5,7 @@ import * as api from '../../api';
 /***************************************
  * Helpers
  * =======
- * 
+ *
  ******/
 
 const queryParams = ( params ) => {
@@ -25,9 +25,32 @@ const queryParams = ( params ) => {
 
   }
 
+  if( "toBeListed" in qp ) {
+
+    if( qp.toBeListed !== null ) {
+      qp.to_be_listed = qp.toBeListed ? 1 : 0;
+    }
+
+    delete qp.toBeListed;
+  }
+
+  if( "isListed" in qp ) {
+
+    if( qp.isListed !== null ) {
+      qp.is_listed = qp.isListed ? 1 : 0;
+    }
+
+    delete qp.isListed;
+  }
+
   if( qp.populateShipment ) {
     qp.populate_shipment = 1;
     delete qp.populateShipment;
+  }
+
+  if( qp.populateLot ) {
+    qp.populate_lot = 1;
+    delete qp.populateLot;
   }
 
   if( qp.shipmentHandle ) {
@@ -65,7 +88,7 @@ angular.module('myApp').service( 'InventoryPalletManagerSvc', [
 
     return {
       list: ( { filter, sort, num, page } ) => {
-          
+
         const query = {
           num,
           page
@@ -310,6 +333,12 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
     shipment: {
       displayName: 'Shipment',
       active: true,
+      optionAvailable: true,
+      noSort: true
+    },
+    lot: {
+      displayName: 'Lot',
+      active: false,
       optionAvailable: true,
       noSort: true
     },

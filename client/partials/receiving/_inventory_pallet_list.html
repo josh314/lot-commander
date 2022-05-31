@@ -44,6 +44,22 @@
               <option>all</option>
             </select>
           </div>
+          <div class="form-group col-xs-12 col-sm-6">
+            <label for="palletToBeListedFilter">To Be Listed</label>
+            <select class="form-control" name="palletToBeListedFilter" ng-model="$ctrl.filter.toBeListed" ng-change="$ctrl.refreshPalletsData()">
+              <option ng-value="null"></option>
+              <option ng-value="true">yes</option>
+              <option ng-value="false">no</option>
+            </select>
+          </div>
+          <div class="form-group col-xs-12 col-sm-6">
+            <label for="palletIsListedFilter">Is Listed?</label>
+            <select class="form-control" name="palletIsListedFilter" ng-model="$ctrl.filter.isListed" ng-change="$ctrl.refreshPalletsData()">
+              <option ng-value="null"></option>
+              <option ng-value="true">yes</option>
+              <option ng-value="false">no</option>
+            </select>
+          </div>
         </fieldset>
       </div>
 
@@ -68,74 +84,25 @@
         ng-model="$ctrl.pagination.current"
         ng-change="$ctrl.pagination.pageChange()"
         class="pagination-sm pull-right"
-    
+
         max-size="$ctrl.pagination.maxSize"
         boundary-links="true"
         boundary-link-numbers="true"
         force-ellipses="true"></ul>
-    
+
       </div>
-    
-      <table class="table table-striped">
-    
-        <thead><tr>
-          <th>#</th>
-          <th ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable && columnData.active">
-            <span ng-click="$ctrl.sortListBy(columnKey)" style="cursor: pointer;" ng-hide="columnData.noSort">
-              {{columnData.displayName}}
-              <span ng-show="columnKey === $ctrl.sortOpts.key">
-                <span class="glyphicon glyphicon-triangle-bottom" ng-hide="$ctrl.sortOpts.ascending" style="font-size: .75em"></span>
-                <span class="glyphicon glyphicon-triangle-top" ng-show="$ctrl.sortOpts.ascending" style="font-size: .75em"></span>
-              </span>
-            </span>
-            <span ng-show="columnData.noSort">{{columnData.displayName}}</span>
-          </th>
-          <th></th>
-        </tr></thead>
-    
-        <tbody>
-          <tr ng-repeat="pallet in $ctrl.palletsList">
-            <td>{{$index+1}}</td>
-            <td ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable && columnData.active" ng-switch="columnKey">
-              <span ng-switch-when="handle">
-                <a href ng-click="$ctrl.showPalletDetails( pallet )">{{pallet.handle}}</a>
-              </span>
-              <span ng-switch-when="shipment">
-                <a ng-href="/receiving/shipments/{{pallet.shipment._id}}">{{ pallet.shipment.handle }}</a>
-              </span>
-              <span ng-switch-when="hasProblem">
-                <span class="glyphicon glyphicon-alert" ng-show="pallet.hasProblem"></span>
-              </span>
-              <span ng-switch-when="note">
-                <span ng-show="pallet.showNote">{{pallet.note}}</span>
-                <span ng-show="pallet.note">[<a href ng-hide="pallet.showNote" ng-click="pallet.toggleShowNote()">Show</a><a href ng-show="pallet.showNote" ng-click="pallet.toggleShowNote()">Hide</a>]</span>
-              </span>
-              <span ng-switch-when="breakdown">
-                <button type="button" class="btn btn-xs" ng-class="{ 'btn-danger': !pallet.isBrokendown, 'btn-success': pallet.isBrokendown }" ng-click="pallet.breakdown( !pallet.isBrokendown )">
-                  {{ pallet.isBrokendown ? 'Undo breakdown' : 'Breakdown' }}
-                </button>
-              </span>
-              <span ng-switch-default>{{ columnData.transform ? columnData.transform( pallet[ columnKey ] ) : pallet[ columnKey ] }}</span>
-            </td>
-            <td>
-              <span ng-show="pallet.toBeListed">
-                <button class="btn btn-xs btn-primary" ng-click="$ctrl.createLotFromPallet( pallet )">Make Lot</button>
-              </span>
-            </td>
-          </tr>
-        </tbody>
-    
-      </table>
+
+      <ng-include src="'/partials/receiving/_inventory_pallet_list_table.html'"></ng-include>
 
     </div>
 
     <div class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.AGGREGATE">
-      
+
       <div style="display: flex; justify-content: space-between; align-items: center;" class="hidden-xs">
 
         <div class="form-group">
           <label for="reportDateSearchInput">Report Date (end of day)</label>
-          <input 
+          <input
             type="date"
             class="form-control"
             id="reportDateSearchInput"
@@ -156,7 +123,7 @@
 
         <div class="form-group">
           <label for="reportDateSearchInput">Report Date (end of day)</label>
-          <input 
+          <input
             type="date"
             class="form-control"
             id="reportDateSearchInput"
@@ -172,7 +139,7 @@
         </div>
 
       </div>
-      
+
       <table class="table table-striped">
         <thead><tr>
           <th>Type</th>
@@ -180,7 +147,7 @@
           <th ng-show="$ctrl.showPurchasingData">Total Cost</th>
           <th></th>
         </tr></thead>
-        <tbody>	
+        <tbody>
           <tr ng-repeat="group in $ctrl.palletsAggregation">
             <td>
               <span>{{ group.title }}</span>

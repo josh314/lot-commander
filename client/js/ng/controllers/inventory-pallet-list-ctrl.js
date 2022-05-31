@@ -49,17 +49,22 @@ angular.module('myApp').controller( 'InventoryPalletListCtrl', [
 
     // Permissions
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+    vm.allowShipmentNavigation = LoggedInUser.hasPermission('VIEW_INCOMING_SHIPMENT');
+    vm.allowLotNavigation = LoggedInUser.hasPermission('VIEW_LOT');
 
     // aggregation options
     vm.aggregationReportDate = __TODAY__.toDate();
     vm.aggregationReportMinDate = dayjs('2021-01-01').format('YYYY-MM-DD');
     vm.aggregationReportMaxDate = __TODAY__.format('YYYY-MM-DD');
-    
+
     // list mode options
     vm.filter = {
       handle: '',
       populateShipment: true,
-      status: 'not brokendown'
+      populateLot: true,
+      status: 'not brokendown',
+      toBeListed: null,
+      isListed: null,
     };
     vm.categoryOptions = [ "" ].concat( palletProperties.category );
     vm.conditionOptions = [ "" ].concat( palletProperties.condition );
@@ -197,7 +202,7 @@ angular.module('myApp').controller( 'InventoryPalletListCtrl', [
 
       const activeColumns = [];
       for( let column in vm.columns ) {
-        
+
         if( vm.columns[ column ].active ) {
           activeColumns.push( column );
         }
@@ -206,8 +211,8 @@ angular.module('myApp').controller( 'InventoryPalletListCtrl', [
 
       const userSettings = SettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
 
-      SettingsSvc.save( 
-        __USER_SETTINGS_SUBKEY__, 
+      SettingsSvc.save(
+        __USER_SETTINGS_SUBKEY__,
         userSettings ? Object.assign( userSettings, { activeColumns: activeColumns } ) : { activeColumns: activeColumns }
       );
 
@@ -227,7 +232,7 @@ angular.module('myApp').controller( 'InventoryPalletListCtrl', [
     function createLotFromPallet( pallet ) {
 
       ModalSvc.wait( {
-        waitFor: PalletLotSvc.createLot( pallet ), 
+        waitFor: PalletLotSvc.createLot( pallet ),
         delay: 2000
       } )
         .then( lot => navigate.viewLot( lot._id ), console.log('dismissed') );

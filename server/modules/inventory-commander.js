@@ -166,7 +166,7 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
   return filter;
 };
 
-const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, hasProblem, shipment, category, condition } ) => {
+const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, hasProblem, toBeListed, isListed, shipment, category, condition } ) => {
   const filter = {
     isDeleted: false,
   };
@@ -193,6 +193,14 @@ const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, has
 
   if( isAnonymous !== undefined ) {
     filter.isAnonymous = isAnonymous;
+  }
+
+  if( toBeListed !== undefined ) {
+    filter.toBeListed = toBeListed;
+  }
+
+  if( isListed !== undefined ) {
+    filter.lot = { $exists: isListed };
   }
 
   if( category ) {

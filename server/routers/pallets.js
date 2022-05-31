@@ -9,7 +9,7 @@ module.exports = routes;
 /**********************************************
  * Helpers
  * =======
- * 
+ *
  *********/
 
 const listPalletsFilterParamsFromQueryParams = ( qp ) => {
@@ -48,6 +48,14 @@ const listPalletsFilterParamsFromQueryParams = ( qp ) => {
     fp.condition = qp.condition;
   }
 
+  if( qp.to_be_listed ) {
+    fp.toBeListed = !!parseInt(qp.to_be_listed);
+  }
+
+  if( qp.is_listed ) {
+    fp.isListed = !!parseInt(qp.is_listed);
+  }
+
   return fp;
 };
 
@@ -55,7 +63,7 @@ const listPalletsFilterParamsFromQueryParams = ( qp ) => {
 /**********************************************
  * Routes function for export
  * ==========================
- * 
+ *
  **********/
 
 function routes({ eventsDb, inventoryCommander }) {
@@ -64,7 +72,7 @@ function routes({ eventsDb, inventoryCommander }) {
   /*******************************************
    * Register route handlers
    * ======
-   * 
+   *
    ****/
 
   // view pallet(s)
@@ -116,9 +124,9 @@ function routes({ eventsDb, inventoryCommander }) {
 
 
   /*******************************************
-   * Define Handlers & Middleware 
+   * Define Handlers & Middleware
    * ===============
-   * 
+   *
    ****/
 
   async function resolveShipmentIds( req, _res, next ) {
@@ -148,7 +156,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
     const numPage = parseInt( req.query.num ) || 10;
     const page = parseInt( req.query.page ) || 1;
-  
+
     const query = {
       // paging
       skip: ( page - 1 ) * numPage,
@@ -171,11 +179,11 @@ function routes({ eventsDb, inventoryCommander }) {
   }
 
   async function countInventoryPallets( req, res ) {
-  
+
     const count = await inventoryCommander.countInventoryPallets( listPalletsFilterParamsFromQueryParams( req.query ) );
 
     res.json({ count: count });
-    
+
   }
 
   async function aggregateInventoryPallets( req, res, _next ) {
@@ -194,7 +202,7 @@ function routes({ eventsDb, inventoryCommander }) {
   async function createInventoryPallets( req, res, next  ) {
 
     try {
-      
+
       const { pallets } = await inventoryCommander.createInventoryPallets( req.body.pallets );
 
       if( pallets ) {
@@ -202,7 +210,7 @@ function routes({ eventsDb, inventoryCommander }) {
         for( let pallet of pallets ) {
           eventsDb.createInventoryPallet( { user: req.user, palletId: pallet._id } );
         }
-        
+
       }
 
       res.json( { pallets } );
@@ -311,7 +319,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
         const isBrokendown = req.body.isBrokendown;
         const palletId = req.params.palletId;
-  
+
         const fn = isBrokendown ? inventoryCommander.breakdownInventoryPallet.bind( inventoryCommander ) : inventoryCommander.unbreakdownInventoryPallet.bind( inventoryCommander );
 
         const { pallet } = await fn( palletId );
@@ -340,7 +348,7 @@ function routes({ eventsDb, inventoryCommander }) {
   /**************************************
    * Return routes
    * =============
-   * 
+   *
    ************/
   return router;
 
