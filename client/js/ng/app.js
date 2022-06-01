@@ -53,6 +53,7 @@ const stateData = [
   { name: "main.receiving.shipment-clean-manifest", url: '/shipments/{shipmentId}/manifests/clean', templateUrl: '/partials/_clean_manifest.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
   { name: "main.receiving.inventory-pallet-list", navName: "Pallets", navParent: 'Receiving', url: '/pallets', templateUrl: '/partials/receiving/_inventory_pallet_list.html', userPermission: 'VIEW_INVENTORY_PALLET' },
   { name: "main.receiving.inventory-pallet-creation", url: '/pallets/create', templateUrl: '/partials/receiving/_inventory_pallet_creation.html', userPermission: 'CREATE_INVENTORY_PALLET' },
+  { name: "main.receiving.inventory-pallets-to-be-listed", navName: "Pallets to be listed", navParent: 'Receiving', url: '/pallets-to-be-listed', templateUrl: '/partials/receiving/_inventory_pallets_to_be_listed.html', userPermission: 'VIEW_INVENTORY_PALLET' },
 
   //Manual Inventory
   { name: "main.manual-inventory", navName: 'Inventory', url: "/manual-inventory", templateUrl: 'partials/_manual_inventory.html', userPermission: 'VIEW_MANUAL_INVENTORY' },

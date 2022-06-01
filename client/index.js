@@ -66,6 +66,7 @@ import "./js/ng/controllers/history-ctrl.js";
 import "./js/ng/controllers/image-editor-ctrl.js";
 import "./js/ng/controllers/inventory-pallet-creation-ctrl.js";
 import "./js/ng/controllers/inventory-pallet-list-ctrl.js";
+import "./js/ng/controllers/inventory-pallets-to-be-listed-ctrl.js";
 import "./js/ng/controllers/list-lots-ctrl.js";
 import "./js/ng/controllers/list-manifests-ctrl.js";
 import "./js/ng/controllers/list-users-ctrl.js";
