@@ -6,6 +6,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
   'bstockFormConstants',
   'dbEnums',
   'ListingsSvc',
+  'LoggedInUser',
   'lotStore',
   'LotSvc',
   'ModalSvc',
@@ -17,6 +18,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
     bstockFormConstants,
     dbEnums,
     ListingsSvc,
+    LoggedInUser,
     lotStore,
     LotSvc,
     ModalSvc,
@@ -30,13 +32,34 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       navigate.listLots();
     }
 
+    function userHasMarketplacePermission( marketplace ) {
+
+      if( marketplace === 'wholesaleninjas' ) {
+        return LoggedInUser.hasPermission( 'SUBMIT_SHOPIFY_LISTING' );
+      }
+
+      if( marketplace === 'bstock' ) {
+        return LoggedInUser.hasPermission( 'SUBMIT_AUCTION' );
+      }
+
+      return false;
+
+    }
+
     const vm = this;
     vm.waitingForResponse = false;
     vm.lot = lotStore;
 
     // Form dropdown values
     vm.formOptions = {
-      marketplaces: ['wholesaleninjas', 'bstock'],
+      marketplaces: (function(){
+        const opts = [
+          'wholesaleninjas',
+          'bstock'
+        ];
+
+        return opts.filter( userHasMarketplacePermission );
+      })(),
       bstock: {
         constants: bstockFormConstants,
         categories: Object.keys(bstockFormConstants.category),
@@ -165,7 +188,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
     const estimatedRetailValue = lotStore.getEstimatedRetailValue();
     //Form default values
     vm.listing = {
-      marketplace: vm.lot.destinationMarketplace || 'wholesaleninjas',
+      marketplace: userHasMarketplacePermission( vm.lot.destinationMarketplace ) ? vm.lot.destinationMarketplace : vm.formOptions.marketplaces[0],
       // bstock defaults
       auctionStartPrice: '300',
       shopifyPrice: estimatedRetailValue ? (.2*parseFloat(estimatedRetailValue)).toFixed(2) : '',
@@ -230,6 +253,9 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       }
       else if(vm.listing.marketplace=='wholesaleninjas') {
         return validateShopifyListingOptions();
+      }
+      else {
+        return false;
       }
     }
 

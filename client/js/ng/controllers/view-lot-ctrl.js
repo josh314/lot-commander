@@ -35,7 +35,19 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     sessionTimeout.timeoutExpired();
 
-    $scope.showCreateListingButton = LoggedInUser.hasPermission('SUBMIT_AUCTION') || LoggedInUser.hasPermission('SUBMIT_SHOPIFY_LISTING');
+    function userHasMarketplacePermission( marketplace ) {
+
+      if( marketplace === 'wholesaleninjas' ) {
+        return LoggedInUser.hasPermission( 'SUBMIT_SHOPIFY_LISTING' );
+      }
+
+      if( marketplace === 'bstock' ) {
+        return LoggedInUser.hasPermission( 'SUBMIT_AUCTION' );
+      }
+
+      return false;
+
+    }
 
     $scope.lot = lotStore;
     $scope.listingsBoilerplate = listingsBoilerplate;
@@ -60,7 +72,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     };
 
     // Manage images
-    $scope.updatePrimaryImage = async (image) => { 
+    $scope.updatePrimaryImage = async (image) => {
       const resp = await ImageSvc.updateLotPrimaryImage($scope.lot, image);
       if(!resp.error) {
         navigate.reload();
@@ -69,7 +81,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
         ModalSvc.message( { header: 'Error', body: resp.error, type: 'error' } );
       }
     };
-    $scope.uploadImages = async () => { 
+    $scope.uploadImages = async () => {
       const resp = await ImageSvc.uploadLotImages($scope.lot, $scope.imagesToUpload);
       if(resp.error) {
         console.log(resp);
@@ -183,6 +195,13 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     };
 
     $scope.configureListingForSubmission = function() {
+
+      if( !userHasMarketplacePermission( $scope.lot.destinationMarketplace ) ) {
+        let msg = `User is not authorized to submit to marketplace: ${$scope.lot.destinationMarketplace}. Choose another marketplace.`;
+        ModalSvc.message( { header: 'Unauthorized marketplace', body: msg , type: 'error' } );
+        return;
+      }
+
       const missingFields = [];
       if(!$scope.lot.listingData.title) {
         missingFields.push('title');
@@ -205,8 +224,8 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
         navigate.submitListing();
       }
       else {
-        const msg = `Must input the following data before submission: ${missingFields}`;
-        ModalSvc.message( { Header: 'Incomplete Lot', body: msg , type: 'error' } );
+        let msg = `Must input the following data before submission: ${missingFields}`;
+        ModalSvc.message( { header: 'Incomplete Lot', body: msg , type: 'error' } );
       }
     };
 
@@ -293,7 +312,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     };
 
     $scope.cloneImageFromUrl = () => {
-      
+
       return cloneImageFromUrl( $scope.imageUrlToClone );
 
     };
@@ -319,7 +338,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     };
 
     function cloneImageFromUrl( url ) {
-          
+
       if( !url ) { // TODO: check if valid URL
         return;
       }

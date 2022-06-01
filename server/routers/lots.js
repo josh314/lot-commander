@@ -67,60 +67,60 @@ function routes({ inventoryCommander, lotdb }) {
   // View lot data endpoints
   router.get(
     '/',
-    // auth.isAuthorized( 'VIEW_LOT' ),
+    auth.isAuthorized( 'VIEW_LOT' ),
     listLots
   );
   router.get(
     '/count',
-    // auth.isAuthorized( 'VIEW_LOT' ),
+    auth.isAuthorized( 'VIEW_LOT' ),
     countLots
   );
   router.get(
     '/by-handle/:handle',
-    // auth.isAuthorized( 'VIEW_LOT' ),
+    auth.isAuthorized( 'VIEW_LOT' ),
     getLotByHandle
   );
   router.get(
     '/:lotId',
-    // auth.isAuthorized( 'VIEW_LOT' ),
+    auth.isAuthorized( 'VIEW_LOT' ),
     getLotById
   );
   router.get(
     '/manifest/:manifestId',
-    // auth.isAuthorized( 'VIEW_LOT??' ),
+    auth.isAuthorized( 'VIEW_LOT' ),
     getManifest
   );
 
   // Create, edit, delete
   router.post(
     '/',
-    // auth.isAuthorized( 'CREATE_LOT??' ),
+    auth.isAuthorized( 'CREATE_LOT' ),
     createLot
   );
   router.delete(
     '/:lotId',
-    // auth.isAuthorized( 'DELETE_LOT' ),
+    auth.isAuthorized( 'DELETE_LOT' ),
     deleteLot
   );
   router.patch(
     '/:lotId',
-    // auth.isAuthorized( 'EDIT_LOT' ),
+    auth.isAuthorized( 'EDIT_LOT' ),
     editLot
   );
   router.post(
     '/:lotId/manifest/',
-    // auth.isAuthorized( 'EDIT_LOT??' ),
+    auth.isAuthorized( 'EDIT_LOT' ),
     saveManifest
   );
 
   router.post(
     '/:lotId/primary-image/',
-    // auth.isAuthorized( 'EDIT_LOT??' ),
+    auth.isAuthorized( 'EDIT_LOT' ),
     setPrimaryImage
   );
   router.post(
     '/:lotId/upload-manifest',
-    // auth.isAuthorized( 'EDIT_LOT??' ),
+    auth.isAuthorized( 'EDIT_LOT' ),
     uploadManifest
   );
 
