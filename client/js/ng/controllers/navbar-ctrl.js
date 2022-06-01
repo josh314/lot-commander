@@ -6,7 +6,25 @@ angular.module('myApp').controller('NavbarCtrl', [ 'LoggedInUser', 'navbarData',
 
   const vm = this;
 
-  const userPermissionFilter =  _ => _.userPermission ?  LoggedInUser.hasPermission( _.userPermission ) : true;
+  // assume permissions are either strings or object with a single key ( 'and'/'or' ) at each level with values arrays of strings or similar objects
+  const isPermitted = permission => {
+    if(angular.isString( permission ) ) {
+      return LoggedInUser.hasPermission( permission );
+    }
+    else  if( angular.isObject( permission ) ) {
+
+      if( permission[ 'or' ] ) {
+        return permission[ 'or' ].reduce( ( acc, _ ) => acc || isPermitted( _ ) , false );
+      }
+      else if( permission[ 'and' ] ) {
+        return permission[ 'and' ].reduce( ( acc, _ ) => acc && isPermitted( _ ) , true );
+      }
+
+    }
+    
+  };
+
+  const userPermissionFilter =  _ => _.userPermission ? isPermitted( _.userPermission ) : true;
 
   const userPermittedNavItems =
     navbarData.navItems
