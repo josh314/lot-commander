@@ -992,6 +992,28 @@ class InventoryCommander {
 
   }
 
+  async unlinkInventoryPalletLot( palletId ) {
+
+    const pallet = await this.getInventoryPalletById( palletId );
+
+    if( !pallet ) {
+      throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
+    }
+
+    try{
+
+      await pallet.unlinkLot( );
+
+      return { pallet };
+
+    }
+    catch(e) {
+      console.error(e);
+      return {};
+    }
+
+  }
+
   async breakdownInventoryPallet( palletId ) {
 
     const pallet = await this.getInventoryPalletById( palletId );

@@ -12,6 +12,9 @@ exports.Client = function( { Lot } ) {
   this.enums = Lot.enums;
 
   this.getLots = function(query, opts={}) {
+
+    Object.assign( query, { isDeleted: false } );
+
     const sortOpts = opts.sort || { createdAt: -1 };
     if(opts.limit) {
       return this.LotModel.find(query).sort(sortOpts).limit(opts.limit);
@@ -108,7 +111,11 @@ exports.Client = function( { Lot } ) {
   });
 
   this.deleteLot = Promise.method(function(lotId) {
-    return this.LotModel.remove({_id: lotId});
+    return this.LotModel.findOneAndUpdate(
+      { _id: lotId },
+      { $set: { isDeleted: true } },
+      { new: true }
+    );
   });
 
   this.addImage = Promise.method(function(lotId, metadata){

@@ -84,6 +84,8 @@ const lotSchema = mongoose.Schema({
     lengthUnits: { type: String, enum: lengthUnitsEnum },
   }],
 
+  isDeleted: Boolean,
+
 }, {collection: 'lots', timestamps: true, strict: true});
 
 

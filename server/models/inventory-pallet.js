@@ -83,6 +83,11 @@ inventoryPalletSchema.methods.edit = function( data ) {
   return this.save();
 };
 
+inventoryPalletSchema.methods.unlinkLot = function() {
+  this.lot = undefined;
+  return this.save();
+};
+
 inventoryPalletSchema.methods.breakdown = function() {
   this.isBrokendown = true;
   this.brokendownDate = new Date();

@@ -247,10 +247,13 @@ function routes({ inventoryCommander, lotdb }) {
 
     try {
 
-      await lotdb.deleteLot( lotId );
-      await imageServer.deleteLotImages( lotId );
+      const lot = await lotdb.deleteLot( lotId );
+      // await imageServer.deleteLotImages( lotId );
+      if( lot.pallet ) {
+        await inventoryCommander.unlinkInventoryPalletLot( lot.pallet );
+      }
 
-      res.json({ success: true });
+      res.json( { success: true } );
 
     }
     catch (e) {
