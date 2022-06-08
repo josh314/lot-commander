@@ -5,7 +5,7 @@
 	<div class="row">
     <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.errors.emptyHandle || $ctrl.errors.duplicateHandle }">
       <label for="handleInput">Handle</label>
-      <input class="form-control" type="text" id="handleInput" ng-model="$ctrl.inputs.handle" ng-change="$ctrl.validate()">
+      <input class="form-control" type="text" id="handleInput" ng-model="$ctrl.inputs.handle" ng-change="$ctrl.validate()" ng-disabled="$ctrl.disableEditing">
       <span class="text-danger h4" ng-show="$ctrl.errors.duplicateHandle">Duplicate handle</span>
       <span class="text-danger h4" ng-show="$ctrl.errors.emptyHandle">Missing handle</span>
     </div>
@@ -14,41 +14,44 @@
       <input class="form-control" type="text" id="_idInput" ng-model="$ctrl.inputs._id" disabled>
     </div>
     <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showShipment">
-      <label for="shipmentInput">Shipment</label>
+      <label for="shipmentInput" style="display: flex; justify-content: space-between;">
+        <span>Shipment</span>
+        <small ng-show="$ctrl.allowShipmentNavigation"><a href ng-click="$ctrl.navigateToShipment()">view shipment details</a></small>
+      </label>
       <input class="form-control" type="text" id="shipmentInput" ng-model="$ctrl.inputs.shipment.handle" disabled>
     </div>
     <div class="form-group col-xs-12 col-sm-6"  ng-class="{ 'has-error' : $ctrl.errors.invalidCost }" ng-show="$ctrl.showPurchasingData">
       <label for="costInput">Cost</label>
-      <input class="form-control" type="number" id="costInput" ng-model="$ctrl.inputs.cost" ng-change="$ctrl.validate()">
+      <input class="form-control" type="number" id="costInput" ng-model="$ctrl.inputs.cost" ng-change="$ctrl.validate()" ng-disabled="$ctrl.disableEditing">
       <span class="text-danger h6" ng-show="$ctrl.errors.invalidCost">Invalid cost</span>
     </div>
     <div class="form-group col-xs-12 col-sm-6" >
       <label for="unitsInput">Units</label>
-      <input class="form-control" type="number" id="unitsInput" ng-model="$ctrl.inputs.units">
+      <input class="form-control" type="number" id="unitsInput" ng-model="$ctrl.inputs.units" ng-disabled="$ctrl.disableEditing">
     </div>
     <div class="form-group col-xs-12 col-sm-6" >
       <label for="retailValueInput">Retail Value</label>
-      <input class="form-control" type="number" id="retailValueInput" ng-model="$ctrl.inputs.retailValue">
+      <input class="form-control" type="number" id="retailValueInput" ng-model="$ctrl.inputs.retailValue" ng-disabled="$ctrl.disableEditing">
     </div>
     <div class="form-group col-xs-12 col-sm-6" >
       <label for="salePriceInput">Sale Price</label>
-      <input class="form-control" type="number" id="salePriceInput" ng-model="$ctrl.inputs.salePrice">
+      <input class="form-control" type="number" id="salePriceInput" ng-model="$ctrl.inputs.salePrice" ng-disabled="$ctrl.disableEditing">
     </div>
     <div class="form-group col-xs-12 col-sm-6">
       <label for="categoryInput">Category</label>
-      <select class="form-control" id="categoryInput" ng-model="$ctrl.inputs.category">
+      <select class="form-control" id="categoryInput" ng-model="$ctrl.inputs.category" ng-disabled="$ctrl.disableEditing">
         <option ng-repeat="option in $ctrl.categoryOptions" ng-value="option.value">{{ option.displayName }}</option>
       </select>
     </div>
     <div class="form-group col-xs-12 col-sm-6">
       <label for="conditionInput">Condition</label>
-      <select class="form-control" id="conditionInput" ng-model="$ctrl.inputs.condition">
+      <select class="form-control" id="conditionInput" ng-model="$ctrl.inputs.condition" ng-disabled="$ctrl.disableEditing">
         <option ng-repeat="option in $ctrl.conditionOptions" ng-value="option.value">{{ option.displayName }}</option>
       </select>
     </div>
     <div class="form-group col-xs-12 col-sm-6">
       <label for="toBeListedInput">To Be Listed?</label>
-      <select class="form-control" id="toBeListedInput" ng-model="$ctrl.inputs.toBeListed">
+      <select class="form-control" id="toBeListedInput" ng-model="$ctrl.inputs.toBeListed" ng-disabled="$ctrl.disableEditing">
         <option ng-value="true">yes</option>
         <option ng-value="false">no</option>
       </select>
@@ -62,7 +65,7 @@
     </div>
     <div class="form-group col-xs-12 col-sm-6">
       <label for="hasProblemInput">Has problem?</label>
-      <select class="form-control" id="hasProblemInput" ng-model="$ctrl.inputs.hasProblem">
+      <select class="form-control" id="hasProblemInput" ng-model="$ctrl.inputs.hasProblem" ng-disabled="$ctrl.disableEditing">
         <option ng-value="true">yes</option>
         <option ng-value="false">no</option>
       </select>
@@ -73,7 +76,7 @@
     </div>
     <div class="form-group col-xs-12 col-sm-6">
       <label for="isBrokendownInput">Broken down?</label>
-      <select class="form-control" id="isBrokendownInput" ng-model="$ctrl.inputs.isBrokendown">
+      <select class="form-control" id="isBrokendownInput" ng-model="$ctrl.inputs.isBrokendown" ng-disabled="$ctrl.disableEditing">
         <option ng-value="true">yes</option>
         <option ng-value="false">no</option>
       </select>
@@ -84,11 +87,16 @@
     </div>
     <div class="form-group col-xs-12">
       <label for="noteInput">Note</label>
-      <textarea class="form-control" rows=2 id="noteInput" ng-model="$ctrl.inputs.note"></textarea>
+      <textarea class="form-control" rows=2 id="noteInput" ng-model="$ctrl.inputs.note"></textarea ng-disabled="$ctrl.disableEditing">
     </div>
 	</div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="$ctrl.finish()" ng-disabled="!$ctrl.validate()">Save</button>
-    <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+    <span ng-hide="$ctrl.disableEditing">
+      <button class="btn btn-primary" type="button" ng-click="$ctrl.finish()" ng-disabled="!$ctrl.validate()">Save</button>
+      <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+    </span>
+    <span ng-show="$ctrl.disableEditing">
+      <button class="btn btn-warning" type="button" ng-click="$dismiss()">Close</button>
+    </span>
 </div>

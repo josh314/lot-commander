@@ -227,7 +227,7 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         }
       },
 
-      controller: [ '$scope', 'LoggedInUser', 'pallet', 'palletProperties', function( $scope, LoggedInUser, pallet, palletProperties ){
+      controller: [ '$scope', 'LoggedInUser', 'navigate', 'pallet', 'palletProperties', function( $scope, LoggedInUser, navigate, pallet, palletProperties ){
 
         const vm = this;
         vm.inputs = Object.assign( { isBrokendown: false, hasProblem: false, category: null, condition: 'shelf-pull' }, pallet );
@@ -235,6 +235,8 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );
         vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) );
 
+        vm.disableEditing = ! LoggedInUser.hasPermission( 'EDIT_INVENTORY_PALLET' );
+        vm.allowShipmentNavigation = LoggedInUser.hasPermission( 'VIEW_INCOMING_SHIPMENT' );
         vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
         vm.showDeveloper = LoggedInUser.hasPermission('DEVELOPER');
         vm.showBrokendownDate = pallet.isBrokendown;
@@ -260,6 +262,13 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
 
         vm.finish = () => {
           return $scope.$close( vm.inputs );
+        };
+
+        vm.navigateToShipment = () => {
+          if( vm.inputs.shipment._id ) {
+            navigate.shipmentDetails( vm.inputs.shipment._id );
+            $scope.$close( vm.inputs );
+          }
         };
 
       }],

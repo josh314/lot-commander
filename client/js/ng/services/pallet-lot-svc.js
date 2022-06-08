@@ -30,7 +30,7 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'LotSvc', 'ShippingItemsSvc',
         listingData: {
           title,
         },
-        packagingType: packagingType || 'pallets:bulky',
+        packagingType: packagingType || 'pallets',
         category: pallet.category,
         type: pallet.condition,
         shippingItems: [ ShippingItemsSvc.getPreset( 'pallet' ) ],

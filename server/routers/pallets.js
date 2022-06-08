@@ -78,13 +78,13 @@ function routes({ eventsDb, inventoryCommander }) {
   // view pallet(s)
   router.get(
     '/',
-    auth.isAuthorized( 'VIEW_INVENTORY_PALLET' ),
+    setListAuthFromQueryParam,
     resolveShipmentIds,
     listInventoryPallets
   );
   router.get(
     '/count',
-    auth.isAuthorized( 'VIEW_INVENTORY_PALLET' ),
+    setListAuthFromQueryParam,
     resolveShipmentIds,
     countInventoryPallets
   );
@@ -128,6 +128,15 @@ function routes({ eventsDb, inventoryCommander }) {
    * ===============
    *
    ****/
+
+  function setListAuthFromQueryParam( req, res, next ) {
+    if( req.query.to_be_listed ) {
+      return auth.isAuthorized( 'LIST_INVENTORY_PALLETS_TO_BE_LISTED' )( req, res, next );
+    }
+    else {
+      return auth.isAuthorized( 'LIST_INVENTORY_PALLETS' )( req, res, next );
+    }
+  }
 
   async function resolveShipmentIds( req, _res, next ) {
 

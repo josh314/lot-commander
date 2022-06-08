@@ -11,6 +11,7 @@ angular.module('myApp').factory('LoggedInUser', ['$cookies', function($cookies){
     hasPermission: ( permission ) => {
       const user = get();
       return user ? user.permissions.includes( permission ) : false;
-    }
+    },
+    listPermissions: () => get() ? get().permissions: [],
   };
 }]);

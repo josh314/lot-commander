@@ -3,7 +3,6 @@ import angular from 'angular';
 /******************* View Lot Controller *************************/
 angular.module('myApp').controller( 'ViewLotCtrl', [
 
-  '$scope',
   '$uibModal',
   'ImageSvc',
   'listingsBoilerplate',
@@ -18,7 +17,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
   function(
 
-    $scope,
     $uibModal,
     ImageSvc,
     listingsBoilerplate,
@@ -49,16 +47,47 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     }
 
-    $scope.lot = lotStore;
-    $scope.listingsBoilerplate = listingsBoilerplate;
-    $scope.waitingForResponse = false;
+    const vm = this;
 
-    $scope.showShippingItems = false;
-    $scope.toggleShowShippingItems = () => $scope.showShippingItems = !$scope.showShippingItems;
+    vm.showEditingControls = LoggedInUser.hasPermission( 'EDIT_LOT' );
+    vm.showDeleteButton = LoggedInUser.hasPermission( 'DELETE_LOT' );
+    vm.waitingForResponse = false;
 
-    $scope.addLotImageMethod = 'file';
-    $scope.setAddLotImageMethod = s => $scope.addLotImageMethod = s;
-    $scope.addLotImageMethodIs = s => ( $scope.addLotImageMethod === s );
+    vm.listingsBoilerplate = listingsBoilerplate;
+
+    // images methods
+    vm.getImageLink = getImageLink;
+    vm.updatePrimaryImage = updatePrimaryImage;
+    vm.uploadImages = uploadImages;
+    vm.removeImage = removeImage;
+    vm.editImage = editImage;
+
+    vm.addLotImageMethod = 'file';
+    vm.setAddLotImageMethod = s => vm.addLotImageMethod = s;
+    vm.addLotImageMethodIs = s => ( vm.addLotImageMethod === s );
+
+    // Lot editing
+    vm.editLot = editLot;
+    vm.editShippingItems = editShippingItems;
+    vm.deleteLot = deleteLot;
+
+    // shipping items display
+    vm.showShippingItems = false;
+    vm.toggleShowShippingItems = () => vm.showShippingItems = !vm.showShippingItems;
+
+    vm.configureListingForSubmission = configureListingForSubmission;
+    vm.scanItems = scanItems;
+    vm.editManifest = editManifest;
+    vm.linkManifestBlock = linkManifestBlock;
+    vm.readableDate = readableDate;
+    vm.openGallery = openGallery;
+    vm.printLabels = printLabels;
+    vm.generateManifestFileForScannedInventory = generateManifestFileForScannedInventory;
+    vm.openRecentImageGallery = openRecentImageGallery;
+    vm.confirmAddLotImage = confirmAddLotImage;
+    vm.cloneImageFromSelectedUrl = () => cloneImageFromUrl( vm.imageUrlToClone );
+
+    vm.lot = lotStore;
 
     const initializeAllThumbnailImages = () => {
       for(let i=0; i<lotStore.inventory.length; i++) {
@@ -67,37 +96,37 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       }
     };
 
-    $scope.getImageLink = function(image) {
+    function getImageLink(image) {
       return image.s3 ? `/api/image/?s3=${encodeURIComponent(image.s3)}` : image.filename;
-    };
+    }
 
     // Manage images
-    $scope.updatePrimaryImage = async (image) => {
-      const resp = await ImageSvc.updateLotPrimaryImage($scope.lot, image);
+    async function updatePrimaryImage(image) {
+      const resp = await ImageSvc.updateLotPrimaryImage(lotStore, image);
       if(!resp.error) {
         navigate.reload();
       }
       else {
         ModalSvc.message( { header: 'Error', body: resp.error, type: 'error' } );
       }
-    };
-    $scope.uploadImages = async () => {
-      const resp = await ImageSvc.uploadLotImages($scope.lot, $scope.imagesToUpload);
+    }
+    async function uploadImages() {
+      const resp = await ImageSvc.uploadLotImages(lotStore, vm.imagesToUpload);
       if(resp.error) {
         console.log(resp);
       }
       else {
         navigate.reload();
       }
-    };
-    $scope.removeImage = (image) => {
+    }
+    function removeImage(image) {
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_remove_image_modal.html',
         size: 'lg',
       });
 
       modalInstance.result.then(async function () {
-        const resp = await ImageSvc.removeLotImage($scope.lot, image);
+        const resp = await ImageSvc.removeLotImage(lotStore, image);
         if(!resp.data.error) {
           navigate.reload();
         }
@@ -107,9 +136,20 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
       });
-    };
+    }
 
-    $scope.editLot = function() {
+
+    function editImage( image ) {
+      if(image.s3) {
+        ImageSvc.setStore(image);
+        navigate.imageEditor();
+      }
+      else {
+        ModalSvc.message( { header: 'Error', body: 'This image cannot be edited.', type: 'error' } );
+      }
+    }
+
+    function editLot() {
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_edit_lot_modal.html',
         size: 'lg',
@@ -132,19 +172,10 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
       });
-    };
+    }
 
-    $scope.editImage = (image) => {
-      if(image.s3) {
-        ImageSvc.setStore(image);
-        navigate.imageEditor();
-      }
-      else {
-        ModalSvc.message( { header: 'Error', body: 'This image cannot be edited.', type: 'error' } );
-      }
-    };
 
-    $scope.scanItems = function() {
+    function scanItems() {
       let manP;
       if( lotStore.manifestId ) {
         manP = LotSvc.getManifest( lotStore.manifestId ).then( manifest => {
@@ -154,9 +185,9 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
       manP ? manP.then( _ => navigate.scanLot() ) : navigate.scanLot();
 
-    };
+    }
 
-    $scope.editManifest = function() {
+    function editManifest() {
       let manP;
       if(lotStore.manifestId) {
         manP = LotSvc.getManifest( lotStore.manifestId ).then( manifest => {
@@ -166,27 +197,27 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
       manP ? manP.then( _ => navigate.editLotManifest() ) : navigate.editLotManifest();
 
-    };
+    }
 
-    $scope.linkManifestBlock = function() {
-      $scope.waitingForResponse = true;
-      LotSvc.import3rdPartyManifestBlock( { lot: lotStore, blockId: $scope.searchBlockId } ).then( resp => {
+    function linkManifestBlock() {
+      vm.waitingForResponse = true;
+      LotSvc.import3rdPartyManifestBlock( { lot: lotStore, blockId: vm.searchBlockId } ).then( resp => {
 
         if(resp.data.error) {
           ModalSvc.message( { header: 'Error', body: resp.data.error, type: 'error' } );
         }
-        $scope.waitingForResponse = false;
+        vm.waitingForResponse = false;
         navigate.reload();
 
       });
-    };
+    }
 
     const validateShippingItems = () => {
-      if(!$scope.lot.shippingItems || $scope.lot.shippingItems.length <=0 ) {
+      if(!lotStore.shippingItems || lotStore.shippingItems.length <=0 ) {
         return false;
       }
 
-      return $scope.lot.shippingItems.every(item => {
+      return lotStore.shippingItems.every(item => {
         return parseInt(item.weight) && item.weightUnits &&
           parseInt(item.height) && item.heightUnits &&
           parseInt(item.length) && item.lengthUnits &&
@@ -194,28 +225,28 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       });
     };
 
-    $scope.configureListingForSubmission = function() {
+    function configureListingForSubmission() {
 
-      if( !userHasMarketplacePermission( $scope.lot.destinationMarketplace ) ) {
-        let msg = `User is not authorized to submit to marketplace: ${$scope.lot.destinationMarketplace}. Choose another marketplace.`;
+      if( !userHasMarketplacePermission( lotStore.destinationMarketplace ) ) {
+        let msg = `User is not authorized to submit to marketplace: ${lotStore.destinationMarketplace}. Choose another marketplace.`;
         ModalSvc.message( { header: 'Unauthorized marketplace', body: msg , type: 'error' } );
         return;
       }
 
       const missingFields = [];
-      if(!$scope.lot.listingData.title) {
+      if(!lotStore.listingData.title) {
         missingFields.push('title');
       }
-      if(!$scope.lot.listingData.body) {
+      if(!lotStore.listingData.body) {
         missingFields.push('body');
       }
-      if(!$scope.lot.getHandle()) {
+      if(!lotStore.getHandle()) {
         missingFields.push('handle');
       }
-      if(!$scope.lot.numBoxes && !validateShippingItems() ) {
+      if(!lotStore.numBoxes && !validateShippingItems() ) {
         missingFields.push('shipping items');
       }
-      if($scope.images.length <= 0) {
+      if(vm.images.length <= 0) {
         missingFields.push('images');
       }
 
@@ -227,9 +258,9 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
         let msg = `Must input the following data before submission: ${missingFields}`;
         ModalSvc.message( { header: 'Incomplete Lot', body: msg , type: 'error' } );
       }
-    };
+    }
 
-    $scope.deleteLot = function(lotId) {
+    function deleteLot(lotId) {
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_delete_lot_modal.html',
         size: 'lg',
@@ -241,17 +272,17 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
       });
-    };
+    }
 
-    $scope.readableDate = function(date) {
+    function readableDate(date) {
       return (new Date(date)).toLocaleString();
-    };
+    }
 
-    $scope.openGallery = function() {
+    function openGallery() {
       navigate.lotGallery( lotStore._id );
-    };
+    }
 
-    const editShippingItems = function() {
+    function editShippingItems() {
       return ModalSvc.shippingItems()
         .then(shippingItems => {
           if(shippingItems) {
@@ -264,10 +295,9 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
             return false;
           }
         });
-    };
-    $scope.editShippingItems = editShippingItems;
+    }
 
-    $scope.printLabels = function() {
+    function printLabels() {
       const isPrinting = PrintSvc.printLotLabels( lotStore );
       if(!isPrinting) {
         editShippingItems().then(isEdited=>{
@@ -276,18 +306,18 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           }
         });
       }
-    };
+    }
 
-    $scope.generateManifestFileForScannedInventory = function() {
+    function generateManifestFileForScannedInventory() {
 
-      LotSvc.generateManifest( $scope.lot._id, true, false ).then( () => {
+      LotSvc.generateManifest( lotStore._id, true, false ).then( () => {
         navigate.reload();
       });
 
-    };
+    }
 
 
-    $scope.openRecentImageGallery = function() {
+    function openRecentImageGallery() {
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_past_images_gallery_modal.html',
         size: 'lg',
@@ -309,15 +339,9 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
       });
-    };
+    }
 
-    $scope.cloneImageFromUrl = () => {
-
-      return cloneImageFromUrl( $scope.imageUrlToClone );
-
-    };
-
-    $scope.confirmAddLotImage = ( event ) =>{
+    function confirmAddLotImage( event ) {
 
       const imgUrl = event.target.currentSrc;
 
@@ -335,7 +359,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
       } );
 
-    };
+    }
 
     function cloneImageFromUrl( url ) {
 
@@ -354,10 +378,10 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
       LotSvc.load()
         .then( lot =>{
-          $scope.images = lot.images;
+          vm.images = lot.images;
           initializeAllThumbnailImages( lot );
         })
-        .then( _ => $scope.titleTooLong = ListingsSvc.isTitleTooLong($scope.lot.listingData.title) );
+        .then( _ => vm.titleTooLong = ListingsSvc.isTitleTooLong(lotStore.listingData.title) );
 
     }
 

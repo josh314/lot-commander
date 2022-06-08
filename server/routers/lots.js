@@ -67,12 +67,12 @@ function routes({ inventoryCommander, lotdb }) {
   // View lot data endpoints
   router.get(
     '/',
-    auth.isAuthorized( 'VIEW_LOT' ),
+    auth.isAuthorized( 'LIST_LOTS' ),
     listLots
   );
   router.get(
     '/count',
-    auth.isAuthorized( 'VIEW_LOT' ),
+    auth.isAuthorized( 'LIST_LOTS' ),
     countLots
   );
   router.get(
