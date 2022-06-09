@@ -1,4 +1,4 @@
-import * as xlsx from 'xlsx';
+import * as xlsx from 'xlsx-js-style';
 
 export class Manifest {
   constructor( sheets ) {
@@ -98,13 +98,24 @@ export class Manifest {
     }
   }
 
-  createExcelWorkbook() {
+  createExcelWorkbook( isPretty ) {
     const wb = xlsx.utils.book_new();
     for( const displaySheet of this.sheets ) {
-      const ws = xlsx.utils.json_to_sheet(
-        displaySheet.getOutput(),
-        {}
-      );
+
+      let ws;
+
+      if( isPretty ) {
+        ws = xlsx.utils.aoa_to_sheet(
+          displaySheet.getPrettyOutput(),
+          {}
+        );
+      }
+      else {
+        ws = xlsx.utils.json_to_sheet(
+          displaySheet.getBasicOutput(),
+          {}
+        );
+      }
       xlsx.utils.book_append_sheet(wb, ws, displaySheet.name);
 
       ws['!cols'] = displaySheet.columns.filter( c => c.selected ).map( c => {

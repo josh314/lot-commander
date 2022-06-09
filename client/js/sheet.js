@@ -1,5 +1,4 @@
-import * as xlsx from 'xlsx';
-
+import * as xlsx from 'xlsx-js-style';
 // CONSTANTS
 
 const __STANDARD_MANIFEST_PALLET_ID_COLUMN__ = 'Pallet ID';
@@ -27,6 +26,45 @@ const __STANDARD_MANIFEST_COLUMNS__ = __STANDARD_MANIFEST_DISPLAY_COLUMNS__.conc
   __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__,
   __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__,
 ]);
+
+const __PRETTY_MANIFEST_CELL_CURRENCY_FORMAT_CODE__ = 7;
+const __PRETTY_MANIFEST_CELL_HIGHTLIGHT_COLOR__ = 'FFFF66';
+const __PRETTY_MANIFEST_HIGHLIGHTED_CELL_SETTINGS__ = {
+  font: {
+    bold: true
+  },
+  fill: {
+    fgColor: {
+      rgb: __PRETTY_MANIFEST_CELL_HIGHTLIGHT_COLOR__
+    }
+  },
+  border: {
+    top: {
+      style: "thin",
+      color: {
+        rgb: "000000"
+      }
+    },
+    bottom: {
+      style: "thin",
+      color: {
+        rgb: "000000"
+      }
+    },
+    left: {
+      style: "thin",
+      color: {
+        rgb: "000000"
+      }
+    },
+    right: {
+      style: "thin",
+      color: {
+        rgb: "000000"
+      }
+    },
+  }
+};
 
 // Helpers
 
@@ -533,10 +571,144 @@ export class Sheet {
     return row;
   }
 
-  getOutput() {
+  getBasicOutput() {
     const filter = this.filterRowDataForOutput.bind(this);
     const hack = this.upcColumnHack.bind(this);
     return this.rows.map( filter ).map( hack );
+  }
+
+  isNumericalColumnName( columnName ) {
+    switch ( columnName ) {
+      case __STANDARD_MANIFEST_QUANTITY_COLUMN__:
+      case __STANDARD_MANIFEST_UNIT_COST_COLUMN__:
+      case __STANDARD_MANIFEST_TOTAL_COST_COLUMN__:
+      case __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__:
+      case __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__:
+      case __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__:
+      case __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  isCurrencyColumnName( columnName ) {
+    switch ( columnName ) {
+      case __STANDARD_MANIFEST_UNIT_COST_COLUMN__:
+      case __STANDARD_MANIFEST_TOTAL_COST_COLUMN__:
+      case __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__:
+      case __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__:
+      case __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__:
+      case __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  getPrettyTotalsRowArray( headerRowArray ) {
+
+    const totals = this.standardTotals();
+
+    const totalsRowArray = [];
+
+    const quantityIdx = headerRowArray.findIndex( _ => _.v === __STANDARD_MANIFEST_QUANTITY_COLUMN__ );
+    if( quantityIdx > -1 && totals.quantity ) {
+      totalsRowArray[ quantityIdx ] = {
+        v: totals.quantity,
+        t: 'n',
+        s: __PRETTY_MANIFEST_HIGHLIGHTED_CELL_SETTINGS__,
+      };
+    }
+
+    const totalRetailValueIdx = headerRowArray.findIndex( _ => _.v === __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ );
+    if( totalRetailValueIdx > -1 && totals.retailValue ) {
+      totalsRowArray[ totalRetailValueIdx ] = {
+        v: totals.retailValue,
+        t: 'n',
+        s: Object.assign( {}, __PRETTY_MANIFEST_HIGHLIGHTED_CELL_SETTINGS__, { numFmt: __PRETTY_MANIFEST_CELL_CURRENCY_FORMAT_CODE__ } ),
+      };
+    }
+
+    return totalsRowArray;
+
+  }
+
+  jsonToStyledAoa( rows ) {
+
+    const headerRowArray = [];
+    // const columnNames = Object.keys( rows[0] );
+    for( let key of Object.keys( rows[0] ) ) {
+      headerRowArray.push({
+        v: key,
+        s: __PRETTY_MANIFEST_HIGHLIGHTED_CELL_SETTINGS__,
+      });
+    }
+
+    const dataRowsJson = rows.splice(1, rows.length);
+
+    if( dataRowsJson.length && dataRowsJson[0][ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ] ) {
+      //sort descending by total retail price if available
+      dataRowsJson.sort( (a,b) => {
+        if ( a[ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ] && b[ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ] ) {
+          return b[ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ] - a[ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ];
+        }
+        else if ( a[ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ] ) {
+          return -1;
+        }
+        else if ( b[ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ] ) {
+          return +1;
+        }
+        else {
+          return 0;
+        }
+      });
+    }
+
+    const dataRowsAoa = [];
+
+    for( let row of dataRowsJson ) {
+
+      const cellArray = [];
+
+      for( let [ key, value ] of Object.entries( row ) ) {
+
+        const cell = {
+          v: value,
+          s: {}
+        };
+
+        if( this.isNumericalColumnName( key ) ) {
+          cell.t = 'n';
+        }
+
+        if( this.isCurrencyColumnName( key ) ) {
+          cell.s.numFmt = __PRETTY_MANIFEST_CELL_CURRENCY_FORMAT_CODE__; // numbers formatted like currency with $'s, commas and two place decimals
+        }
+
+        cellArray.push( cell );
+
+      }
+
+      dataRowsAoa.push( cellArray );
+
+    }
+
+    const totalsRowArray = this.getPrettyTotalsRowArray( headerRowArray );
+
+    const res = [ headerRowArray ].concat( dataRowsAoa );
+    if( totalsRowArray.length ) {
+      res.push( totalsRowArray );
+    }
+
+    return res;
+  }
+
+  getPrettyOutput() {
+    const filter = this.filterRowDataForOutput.bind(this);
+    const hack = this.upcColumnHack.bind(this);
+    const rows = this.rows.map( filter ).map( hack );
+    return this.jsonToStyledAoa( rows );
   }
 
   splitByColumnValues( column ) {

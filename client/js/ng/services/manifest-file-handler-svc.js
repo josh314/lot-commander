@@ -2,7 +2,7 @@ import angular from 'angular';
 
 import * as path from 'path';
 
-import * as xlsx from 'xlsx';
+import * as xlsx from 'xlsx-js-style';
 
 import { Sheet } from '../../sheet';
 import { Manifest } from '../../manifest';
@@ -139,7 +139,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
 
     }
 
-    function downloadFile( filename ) {
+    function downloadFile( filename, isPretty = false ) {
 
       loadFileOptions( filename ).then( options => {
 
@@ -147,7 +147,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
           return;
         }
 
-        const wb = _activeManifest.createExcelWorkbook();
+        const wb = _activeManifest.createExcelWorkbook( isPretty );
         xlsx.writeFile( wb, options.filename, { compression: true } );
 
       });
@@ -169,9 +169,9 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
 
     }
 
-    function createFile( filename, manifest ) {
+    function createFile( filename, manifest, isPretty = false ) {
 
-      const wb = manifest.createExcelWorkbook();
+      const wb = manifest.createExcelWorkbook( isPretty );
       const wbout = xlsx.write( wb, { type: 'array', compression: true } );
       const file = new File( [ wbout ], filename );
 
@@ -241,7 +241,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
 
         const res = {
           summary: manifest.standardTotals(),
-          file: createFile( `${manifest.activeSheet.name}.xlsx`, manifest )
+          file: createFile( `${manifest.activeSheet.name}.xlsx`, manifest, true )
         };
 
         return res;
