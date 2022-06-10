@@ -1,6 +1,25 @@
 import qs from 'querystring';
 import axios from 'axios';
 
+
+/*************************************************
+* Helpers & util
+* ======================
+*
+************/
+
+function getPopulateString( populateArray = [] ) {
+
+  let populateStr = '';
+  if( populateArray && populateArray.length ) {
+
+    populateStr += '?' + populateArray.map( s => `populate_${s}=1` ).join('&');
+
+  }
+
+  return populateStr;
+}
+
 /*************************************************
 * Lot-db and Manifest-db
 * ======================
@@ -389,18 +408,13 @@ export function createIncomingShipment( shipment ) {
   return axios({
     method: 'post',
     url: `/api/receiving/`,
-    data: shipment 
+    data: shipment
   })
     .then( resp => resp.data );
 }
 export function getIncomingShipmentById( shipmentId, { populate = [] } = {} ) {
 
-  let populateStr;
-  if( populate && populate.length ) {
-
-    populateStr = '?' + populate.map( s => `populate_${s}=1` ).join('&');
-
-  }
+  const populateStr = getPopulateString( populate );
 
   return axios({
     method: 'get',
@@ -412,12 +426,7 @@ export function getIncomingShipmentById( shipmentId, { populate = [] } = {} ) {
 
 export function getIncomingShipmentByHandle( handle, { populate = [] } = {} ) {
 
-  let populateStr;
-  if( populate && populate.length ) {
-
-    populateStr = '?' + populate.map( s => `populate_${s}=1` ).join('&');
-
-  }
+  const populateStr = getPopulateString( populate );
 
   return axios({
     method: 'get',
@@ -613,6 +622,16 @@ export function updateObjectDocumentProperties( objectId, objectType, documentNa
 *
 ************/
 
+export function getInventoryPallet( palletId,  { populate = [] } = {} ) {
+
+  const populateStr = getPopulateString( populate );
+
+  return axios({
+    method: 'get',
+    url: `/api/pallets/${ palletId }${ populateStr || '' }`
+  })
+    .then( resp => resp.data );
+}
 export function listInventoryPallets( qp ) {
   return axios({
     method: 'get',
@@ -631,7 +650,7 @@ export function createInventoryPallets( pallets ) {
   return axios({
     method: 'post',
     url: `/api/pallets/`,
-    data: { pallets } 
+    data: { pallets }
   })
     .then( resp => resp.data );
 }

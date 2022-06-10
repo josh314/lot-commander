@@ -3,7 +3,7 @@
 		<div class="col-xs-12">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<h3 class="panel-title">Lot Details</h3> 
+					<h3 class="panel-title">Lot Details</h3>
 				</div>
 				<div class="panel-body">
 					<b>Handle: </b>{{ $ctrl.lot.getHandle() }}<br>
@@ -43,6 +43,7 @@
             </div>
           </div>
 					<b>Status: </b>{{ $ctrl.lot.getStatus() }}<br>
+          <span ng-show="$ctrl.lot.pallet"><b>Pallet: </b> <a ng-click="$ctrl.showPalletDetails()">{{ $ctrl.lot.pallet.handle }}</a><br></span>
 					<div class="row">
 						<div class="col-xs-12">
 							<h4>Listing Data</h4>
@@ -199,7 +200,7 @@
 			<div class="col-xs-12" ng-hide="$ctrl.lot.manifestId">
 				No scanned items.
 			</div>
-			<div class="col-xs-12"> 
+			<div class="col-xs-12">
 				<table class="table table-striped" ng-show="$ctrl.lot.manifestId">
 					<thead><tr>
 						<th>Image</th>

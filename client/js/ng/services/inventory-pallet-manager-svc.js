@@ -87,6 +87,9 @@ angular.module('myApp').service( 'InventoryPalletManagerSvc', [
     const _palletId = () =>  $stateParams.palletId;
 
     return {
+
+      get: ( palletId, { populate = [] } ) => $q.when( api.getInventoryPallet( palletId, { populate } ) ).then( resp => new InventoryPallet( resp.pallet ) ),
+
       list: ( { filter, sort, num, page } ) => {
 
         const query = {

@@ -24,7 +24,7 @@ angular.module('myApp').factory('ModalSvc', [
   ){
 
     return {
-      
+
       confirm: ConfirmationModal.launch.bind( ConfirmationModal ),
       inventoryPalletDetails: InventoryPalletDetailsModalSvc.launch.bind( InventoryPalletDetailsModalSvc ),
       manifestFileOptions: ManifestFileOptionsModal.launch.bind( ManifestFileOptionsModal ),
@@ -251,7 +251,7 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
 
           const shipment = pallet.shipment;
 
-          if( shipment ) {
+          if( shipment && shipment.palletsReceived && shipment.palletsConsolidated ) {
 
             vm.errors.duplicateHandle = !! shipment.palletsReceived.concat( shipment.palletsConsolidated ).find( _p => _p.handle === vm.inputs.handle && _p._id !== pallet._id );
 
@@ -288,7 +288,7 @@ angular.module('myApp').factory( 'shippingItemsModal', [ '$uibModal', 'lotStore'
 
     return {
       launch: function() {
-        
+
         const modalInstance = $uibModal.open({
           templateUrl: '/partials/modals/_shipping_items_modal.html',
           size: 'lg',

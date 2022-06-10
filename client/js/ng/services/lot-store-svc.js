@@ -40,6 +40,9 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       this.packagingType = undefined;
       this.shippingItems = [];
 
+      // link to pallet
+      this.pallet = undefined;
+
     };
     this.reset();
 
@@ -129,6 +132,9 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       }
       if(_lot.shippingItems) {
         this.setShippingItems(_lot.shippingItems);
+      }
+      if(_lot.pallet) {
+        this.pallet = _lot.pallet;
       }
     };
 

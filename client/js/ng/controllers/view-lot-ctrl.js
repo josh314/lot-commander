@@ -5,6 +5,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
   '$uibModal',
   'ImageSvc',
+  'InventoryPalletManagerSvc',
   'listingsBoilerplate',
   'ListingsSvc',
   'LoggedInUser',
@@ -19,6 +20,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     $uibModal,
     ImageSvc,
+    InventoryPalletManagerSvc,
     listingsBoilerplate,
     ListingsSvc,
     LoggedInUser,
@@ -86,6 +88,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     vm.openRecentImageGallery = openRecentImageGallery;
     vm.confirmAddLotImage = confirmAddLotImage;
     vm.cloneImageFromSelectedUrl = () => cloneImageFromUrl( vm.imageUrlToClone );
+    vm.showPalletDetails = showPalletDetails;
 
     vm.lot = lotStore;
 
@@ -372,6 +375,10 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
         navigate.reload();
       });
 
+    }
+
+    function showPalletDetails() {
+      InventoryPalletManagerSvc.get( vm.lot.pallet._id, { populate: [ 'shipment' ] } ).then( pallet => pallet.detailsModal() );
     }
 
     function init() {
