@@ -7,23 +7,90 @@ const bcrypt   = require('bcrypt-nodejs');
 //=======================================
 
 const __USER_ROLE_PERMISSIONS__ = {
-  __AUCTIONS__: [ 'LIST_AUCTIONS', 'SUBMIT_AUCTION'],
-  __DEVELOPER__: [ 'DEVELOPER' ],
-  __EVENTS__: [ 'VIEW_EVENTS' ],
-  __FULFILLMENT__: [ 'LIST_ORDERS', 'VIEW_ORDER'],
-  __LOTS__: [ 'VIEW_LOT', 'LIST_LOTS', 'EDIT_LOT', 'CREATE_LOT', 'DELETE_LOT' ],
-  __MANIFESTS__ : [ 'CLEAN_MANIFEST', 'VIEW_MANIFEST' ],
-  __MANUAL_INVENTORY__: [ 'VIEW_MANUAL_INVENTORY', 'CREATE_MANUAL_INVENTORY', 'DELETE_MANUAL_INVENTORY' ],
-  __PALLET_LOTS__: [ 'VIEW_LOT', 'LIST_LOTS', 'CREATE_LOT', 'EDIT_LOT', 'VIEW_INVENTORY_PALLET', 'LIST_INVENTORY_PALLETS_TO_BE_LISTED', 'CLEAN_MANIFEST' ],
-  __PRECEIVING__: [ 'CREATE_INCOMING_SHIPMENT', 'EDIT_INCOMING_SHIPMENT' ],
-  __PURCHASING__: [ 'VIEW_PURCHASING_DATA' ],
-  __RECEIVING__: [ 'VIEW_INCOMING_SHIPMENT', 'RECEIVE_INCOMING_SHIPMENT', 'VIEW_INVENTORY_PALLET', 'EDIT_INVENTORY_PALLET', 'CREATE_INVENTORY_PALLET', 'LIST_INVENTORY_PALLETS' ],
-  __REPORTS__: [ 'VIEW_REPORT' ],
-  __SHIPPING_RATES__: [ 'EDIT_STORE_SHIPPING_RATES', 'VIEW_STORE_SHIPPING_RATES' ],
-  __SHOPIFY__: [ 'SUBMIT_SHOPIFY_LISTING' ],
-  __TOOLS__: [ 'COUNTER_TOOL' ],
-  __TRANSPORTATION__: [ 'VIEW_TRANSPORTATION_COST' ],
-  __USERS__: [ 'CREATE_USER', 'EDIT_USER_ROLES', 'ENABLE_USER', 'VIEW_USER' ],
+  __AUCTIONS__: [
+    'LIST_AUCTIONS',
+    'SUBMIT_AUCTION'
+  ],
+  __COUNTERS__: [
+    'VIEW_COUNTER',
+    'LIST_COUNTERS',
+    'EDIT_COUNTER',
+    'CREATE_COUNTER',
+    'DELETE_COUNTER'
+  ],
+  __DEVELOPER__: [
+    'DEVELOPER'
+  ],
+  __EVENTS__: [
+    'VIEW_EVENTS'
+  ],
+  __FULFILLMENT__: [
+    'LIST_ORDERS',
+    'VIEW_ORDER'
+  ],
+  __LOTS__: [
+    'VIEW_LOT',
+    'LIST_LOTS',
+    'EDIT_LOT',
+    'CREATE_LOT',
+    'DELETE_LOT'
+  ],
+  __MANIFESTS__ : [
+    'CLEAN_MANIFEST',
+    'VIEW_MANIFEST'
+  ],
+  __MANUAL_INVENTORY__: [
+    'VIEW_MANUAL_INVENTORY',
+    'CREATE_MANUAL_INVENTORY',
+    'DELETE_MANUAL_INVENTORY'
+  ],
+  __PALLET_LOTS__: [
+    'VIEW_LOT',
+    'LIST_LOTS',
+    'CREATE_LOT',
+    'EDIT_LOT',
+    'VIEW_INVENTORY_PALLET',
+    'LIST_INVENTORY_PALLETS_TO_BE_LISTED',
+    'CLEAN_MANIFEST',
+    'EDIT_COUNTER'
+  ],
+  __PRECEIVING__: [
+    'CREATE_INCOMING_SHIPMENT',
+    'EDIT_INCOMING_SHIPMENT'
+  ],
+  __PURCHASING__: [
+    'VIEW_PURCHASING_DATA'
+  ],
+  __RECEIVING__: [
+    'VIEW_INCOMING_SHIPMENT',
+    'RECEIVE_INCOMING_SHIPMENT',
+    'VIEW_INVENTORY_PALLET',
+    'EDIT_INVENTORY_PALLET',
+    'CREATE_INVENTORY_PALLET',
+    'LIST_INVENTORY_PALLETS'
+  ],
+  __REPORTS__: [
+    'VIEW_REPORT'
+  ],
+  __SHIPPING_RATES__: [
+    'EDIT_STORE_SHIPPING_RATES',
+    'VIEW_STORE_SHIPPING_RATES'
+  ],
+  __SHOPIFY__: [
+    'SUBMIT_SHOPIFY_LISTING'
+  ],
+  __TOOLS__: [
+    'COUNTER_TOOL'
+  ],
+  __TRANSPORTATION__: [
+    'VIEW_TRANSPORTATION_COST'
+  ],
+  __USERS__: [
+    'CREATE_USER',
+    'EDIT_USER_ROLES',
+    'ENABLE_USER',
+    'VIEW_USER'
+  ],
 };
 
 const superuserRoles = () => Object.keys( __USER_ROLE_PERMISSIONS__ );
@@ -162,7 +229,7 @@ class Client {
     newUser.roles = roles;
     newUser.isSuperuser = false;
     newUser.isDisabled = false;
-  
+
     // save the user
     return newUser.save();
   }
@@ -170,17 +237,17 @@ class Client {
   count( { isDisabled, isSuperuser } ) {
 
     const query = {};
-  
+
     if( isDisabled !== undefined ) {
       query.isDisabled = isDisabled;
     }
-  
+
     if( isSuperuser !== undefined ) {
       query.isSuperuser = isSuperuser;
     }
-  
+
     const q = this.User.countDocuments( query );
-  
+
     return q;
   }
 
@@ -195,29 +262,29 @@ class Client {
   list( { num, skip, sort, sortDir, isDisabled, isSuperuser } ) {
 
     const query = {};
-  
+
     if( isDisabled !== undefined ) {
       query.isDisabled = isDisabled;
     }
-  
+
     if( isSuperuser !== undefined ) {
       query.isSuperuser = isSuperuser;
     }
-  
+
     let sortField;
     if ( sort == 'username' ) {
       sortField = 'local.username';
     }
     else {
       sortField = 'lastName';
-    } 
-  
+    }
+
     const sortParams = {
       [ sortField ] : sortDir || 1
     };
-    
+
     const q = this.User.find( query ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
-  
+
     return q.then( users => users.map( user => user.getPublicInfo() ) );
   }
 }

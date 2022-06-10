@@ -18,6 +18,7 @@ const productData = require(path.join(__basedir, __config.modulesPath, 'product-
 //routes
 function routes({
   bstock,
+  countCommander,
   eventsDbClient,
   inventoryCommander,
   listings,
@@ -72,6 +73,8 @@ function routes({
   );
   router.use('/api/manual-inventory', require('./manual-inventory')( { manualInventoryDb: manualInventoryDbClient } ) );
   router.use('/api/documents', require('./documents')( ) );
+
+  router.use('/api/counters', require('./counters')( { countCommander } ) );
 
   // Shipping rates on Shopify store
 

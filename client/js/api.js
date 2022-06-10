@@ -842,3 +842,32 @@ export function editStoreMultipleShippingRates( rates = [ /* { id, rate }: { pro
     .then( resp => resp.data.rates );
 
 }
+
+/*************************************************
+* Counters
+* ================
+*
+************/
+
+export function getCounter( handle ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/counters/${ handle }`
+  })
+    .then( resp => resp.data.counter );
+
+}
+
+export function incrementCounter( handle, increment ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/counters/${ handle }`,
+    data: {
+      increment
+    }
+  })
+    .then( resp => resp.data.counter );
+
+}

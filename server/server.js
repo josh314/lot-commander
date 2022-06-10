@@ -207,11 +207,15 @@ class Server {
     const ModelCommander = require('./models');
     const models = new ModelCommander( this.mongooseConnection );
 
+    
     const LotDbClient = require('./modules/lot-db-client').Client;
     const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'))( new LotDbClient( models ) );
 
     const InventoryCommander = require('./modules/inventory-commander');
     const inventoryCommander = new InventoryCommander( models );
+
+    const CountCommander = require('./modules/count-commander');
+    const countCommander = new CountCommander( models.Counter );
 
     const ManualInventoryDb = require('./modules/manual-inventory-db');
     const manualInventoryDbClient = new ManualInventoryDb.Client( { mongooseConnection: this.mongooseConnection } );
@@ -238,6 +242,7 @@ class Server {
 
     const routerOpts = {
       bstock,
+      countCommander,
       eventsDbClient,
       inventoryCommander,
       listings: listingsSubmitter,

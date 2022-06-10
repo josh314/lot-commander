@@ -19,6 +19,7 @@ import "./js/ng/app";
 // Angular services
 
 import "./js/ng/services/audio-alert-svc.js";
+import "./js/ng/services/counter-svc.js";
 import "./js/ng/services/events-svc.js";
 import "./js/ng/services/file-upload-svc.js";
 import "./js/ng/services/focus-svc.js";

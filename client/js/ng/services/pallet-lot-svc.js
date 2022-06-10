@@ -3,14 +3,16 @@ import angular from 'angular';
 import * as api from '../../api';
 
 /******************* Service for creating lots from pallets ***/
-angular.module('myApp').factory( 'PalletLotSvc', [ 'LotSvc', 'ShippingItemsSvc',
-  function( LotSvc, ShippingItemsSvc ) {
+angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'ShippingItemsSvc',
+  function( CounterSvc, LotSvc, ShippingItemsSvc ) {
 
     return {
       createLot
     };
 
     async function createLot( pallet, { handle, marketplace, status, packagingType } = {} ) {
+
+      const palletLotCounter = await CounterSvc.incrementPalletLotCounter();
 
       // TODO: check the title for dupes
       const handleToSubmit = handle || `${ pallet.shipment && pallet.shipment.handle ? `${pallet.shipment.handle} - ` : '' }${pallet.handle}`;
@@ -21,7 +23,7 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'LotSvc', 'ShippingItemsSvc',
         throw new Error(`Lot with handle '${handleToSubmit}' already exists.`);
       }
 
-      const title = `Pallet ${pallet.handle}`;
+      const title = `Pallet ${palletLotCounter.count}`;
 
       const _data = {
         // TODO: estimatedRetailValue (can read this from a standard manifest),

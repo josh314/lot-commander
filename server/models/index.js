@@ -5,6 +5,7 @@ const incomingShipment = require('./incoming-shipment');
 const inventoryPallet = require('./inventory-pallet');
 const bundle = require('./bundle');
 const lot = require('./lot');
+const counter = require('./counter');
 
 
 class ModelCommander {
@@ -18,6 +19,7 @@ class ModelCommander {
     this.Bundle = mongooseConnection.model('Bundle', bundle.schema);
     this.InventoryPallet = mongooseConnection.model('InventoryPallet', inventoryPallet.schema);
     this.Lot = mongooseConnection.model( 'Lot', lot.schema );
+    this.Counter = mongooseConnection.model( 'Counter', counter.schema );
     this.Lot.enums = lot.enums;
 
   }
