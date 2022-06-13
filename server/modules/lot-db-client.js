@@ -29,6 +29,11 @@ exports.Client = function( { Lot } ) {
     if(!lot.status) {
       lot.status = this.enums.status[0];
     }
+    
+    if( typeof lot.isDeleted !== 'boolean' ) {
+      lot.isDeleted = false;
+    }
+
     const newLot = new this.LotModel(lot);
     return newLot.save();
   });

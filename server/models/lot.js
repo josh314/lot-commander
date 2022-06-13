@@ -89,6 +89,20 @@ const lotSchema = mongoose.Schema({
 }, {collection: 'lots', timestamps: true, strict: true});
 
 
+
+/***********************
+ *  pre-save hook
+ * 
+ ******/
+lotSchema.pre( 'save', function(next) {
+
+  if( typeof this.isDeleted !== 'boolean' ) {
+    this.isDeleted = false;
+  }
+
+  next();
+} );
+
 module.exports = {
   schema: lotSchema,
   enums: {
