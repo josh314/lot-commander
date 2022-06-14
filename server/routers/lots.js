@@ -13,7 +13,6 @@ const {
 } = require('../errors');
 
 const manifestSvc = require(path.join(__basedir, __config.modulesPath, 'manifest-svc'));
-const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 
 module.exports = routes;

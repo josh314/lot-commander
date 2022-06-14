@@ -96,7 +96,7 @@ export function createLot( data ) {
     url: `/api/lots/`,
     data: data
   })
-    .then( resp => resp.data && resp.data.lot );
+    .then( resp => resp.data );
 
 }
 

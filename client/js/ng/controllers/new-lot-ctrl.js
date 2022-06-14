@@ -112,13 +112,11 @@ angular.module('myApp').controller( 'NewLotCtrl', [
       }
       LotSvc.create( vm.newLot ).then( resp => {
         if( resp.error ) {
-          console.error( resp.error );
+          console.error( resp );
+          ModalSvc.message({ header: 'Error', body: resp.message, type: 'error' });
         }
-        else if ( resp.lotExists ) {
-          ModalSvc.message({ header: 'Error', body: `A lot with handle ${vm.newLot.handle} already exists.`, type: 'error' });
-        }
-        else{
-          const lot = resp;
+        else {
+          const lot = resp.lot;
           lotStore.save(lot);
           if(lot.unmanifested) {
             navigate.viewLot( lotStore._id );
