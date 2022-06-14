@@ -27,24 +27,24 @@
         <th></th> <!-- save -->
         <th></th> <!-- revert -->
       </tr></thead>
-  
+
       <tbody>
-        <tr ng-repeat="displayRate in $ctrl.visibleDisplayRates">
-          <td>{{ displayRate.name }}</td>
+        <tr ng-repeat="$displayRate in $ctrl.visibleDisplayRates">
+          <td>{{ $displayRate.name }}</td>
           <td >
-            <div class="form-group" ng-class="{ 'has-error' : displayRate.isDirty() }">
-            <input type="number" id="rate-input-{{$index}}" class="form-control" ng-model="displayRate.displayValue" ng-keyup="$event.keyCode == 13 && $ctrl.saveRate( displayRate.gid ) && $ctrl.focusOnRate( $index + 1 )"/>
+            <div class="form-group" ng-class="{ 'has-error' : $displayRate.isDirty() }">
+            <input type="number" id="rate-input-{{$index}}" class="form-control" ng-model="{{ $displayRate.displayValue | currency }}" ng-keyup="$event.keyCode == 13 && $ctrl.saveRate( $displayRate.gid ) && $ctrl.focusOnRate( $index + 1 )"/>
             </div>
           </td>
           <td>
-            <button tabIndex="-1" class="btn btn-xs btn-success" ng-click="$ctrl.saveRate( displayRate.gid )">Save</button>
+            <button tabIndex="-1" class="btn btn-xs btn-success" ng-click="$ctrl.saveRate( $displayRate.gid )">Save</button>
           </td>
           <td>
-            <button tabIndex="-1" class="btn btn-xs btn-warning" ng-click="$ctrl.revertRate( displayRate )">Revert</button>
+            <button tabIndex="-1" class="btn btn-xs btn-warning" ng-click="$ctrl.revertRate( $displayRate )">Revert</button>
           </td>
         </tr>
       </tbody>
-  
+
     </table>
     <div class="col-xs-12" ng-show="$ctrl.waitingForResponse">
       <div class="center-block loader"></div>
@@ -53,6 +53,6 @@
 
   </div>
 
-  
+
 
 </div>
