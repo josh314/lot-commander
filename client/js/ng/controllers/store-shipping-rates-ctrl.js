@@ -5,11 +5,11 @@ class DisplayRate {
     this.gid = gid;
     this.name = name;
     this.rate = rate;
-    this.displayValue = rate || '';
+    this.displayValue = typeof rate === 'number' ? this.rate : '';
   }
 
   isDirty() {
-    return this.displayValue !== (this.rate || '');
+    return (this.displayValue !== this.rate) && (this.displayValue !== '');
   }
 
   revert() {
