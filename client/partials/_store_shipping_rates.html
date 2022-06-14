@@ -33,7 +33,7 @@
           <td>{{ $displayRate.name }}</td>
           <td >
             <div class="form-group" ng-class="{ 'has-error' : $displayRate.isDirty() }">
-            <input type="number" id="rate-input-{{$index}}" class="form-control" ng-model="{{ $displayRate.displayValue | currency }}" ng-keyup="$event.keyCode == 13 && $ctrl.saveRate( $displayRate.gid ) && $ctrl.focusOnRate( $index + 1 )"/>
+            <input type="number" id="rate-input-{{$index}}" class="form-control" ng-model="$displayRate.displayValue" ng-keyup="$event.keyCode == 13 && $ctrl.saveRate( $displayRate.gid ) && $ctrl.focusOnRate( $index + 1 )"/>
             </div>
           </td>
           <td>
