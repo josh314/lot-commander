@@ -1,5 +1,6 @@
 const Promise = require('bluebird');
 
+
 /*********************************************************
 **********************************************************
 ************** Constructor function **********************
@@ -108,11 +109,11 @@ exports.Client = function( { Lot } ) {
   });
 
   this.getLotById = Promise.method(function(lotId) {
-    return this.LotModel.findOne({ _id: lotId }).populate('pallet');
+    return this.LotModel.findOne({ _id: lotId, isDeleted: false }).populate('pallet');
   });
 
   this.getLotByHandle = Promise.method(function(lotHandle) {
-    return this.LotModel.findOne({ handle: lotHandle });
+    return this.LotModel.findOne({ handle: lotHandle, isDeleted: false });
   });
 
   this.deleteLot = Promise.method(function(lotId) {

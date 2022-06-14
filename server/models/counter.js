@@ -1,7 +1,12 @@
 const mongoose = require('mongoose');
 
 const counterSchema = mongoose.Schema({
-  handle: { type: String, required: true, unique: true },
+  handle: {
+    type: String,
+    index: true, // This is safe since there will be very few counters
+    required: true,
+    unique: true
+  },
   count: { type: Number, required: true },
 }, { collection: 'counters', timestamps: true });
 

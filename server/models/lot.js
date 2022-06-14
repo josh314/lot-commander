@@ -16,9 +16,7 @@ const lengthUnitsEnum = [ 'inches', 'feet', 'centimeters' ];
 const lotSchema = mongoose.Schema({
   handle: {
     type: String,
-    // index: true,
-    required: true,
-    unique: true
+    required: true
   },
   pallet: {
     type: mongoose.Schema.Types.ObjectId,
