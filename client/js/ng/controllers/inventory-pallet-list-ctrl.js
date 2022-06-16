@@ -64,7 +64,7 @@ angular.module('myApp').controller( 'InventoryPalletListCtrl', [
       populateLot: true,
       status: 'not brokendown',
       toBeListed: null,
-      isListed: null,
+      hasLot: null,
     };
     vm.categoryOptions = [ "" ].concat( palletProperties.category );
     vm.conditionOptions = [ "" ].concat( palletProperties.condition );

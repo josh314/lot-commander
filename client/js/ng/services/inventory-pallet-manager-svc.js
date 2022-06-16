@@ -34,13 +34,13 @@ const queryParams = ( params ) => {
     delete qp.toBeListed;
   }
 
-  if( "isListed" in qp ) {
+  if( "hasLot" in qp ) {
 
-    if( qp.isListed !== null ) {
-      qp.is_listed = qp.isListed ? 1 : 0;
+    if( qp.hasLot !== null ) {
+      qp.has_lot = qp.hasLot ? 1 : 0;
     }
 
-    delete qp.isListed;
+    delete qp.hasLot;
   }
 
   if( qp.populateShipment ) {

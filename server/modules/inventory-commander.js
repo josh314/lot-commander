@@ -10,7 +10,7 @@ const {
 /************************************************
  * Helpers
  * =======
- * 
+ *
  *********/
 
 const awaitingShipmentFilter = { isReceived: false };
@@ -39,7 +39,7 @@ const hasProblemShipmentFilter = {
       return true;
     }
 
-    return expected.some( pe => { 
+    return expected.some( pe => {
       return !received.find( pr => pr.handle === pe.handle );
     } );
   }
@@ -67,7 +67,7 @@ const noProblemShipmentFilter = {
       return false;
     }
 
-    return expected.every( pe => { 
+    return expected.every( pe => {
       return !!received.find( pr => pr.handle === pe.handle );
     } );
   }
@@ -76,8 +76,8 @@ const noProblemShipmentFilter = {
 const awaitingOrHasProblemShipmentFilter = ( hasProblemDateArrivedStart ) => ({
   $or: [
     awaitingShipmentFilter,
-    hasProblemDateArrivedStart ? 
-      Object.assign( hasProblemShipmentFilter, { arrivalDate: { $gt: new Date(hasProblemDateArrivedStart) } } ) : 
+    hasProblemDateArrivedStart ?
+      Object.assign( hasProblemShipmentFilter, { arrivalDate: { $gt: new Date(hasProblemDateArrivedStart) } } ) :
       hasProblemShipmentFilter
   ]
 });
@@ -166,7 +166,7 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
   return filter;
 };
 
-const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, hasProblem, toBeListed, isListed, shipment, category, condition } ) => {
+const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, hasProblem, toBeListed, hasLot, shipment, category, condition } ) => {
   const filter = {
     isDeleted: false,
   };
@@ -199,8 +199,8 @@ const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, has
     filter.toBeListed = toBeListed;
   }
 
-  if( isListed !== undefined ) {
-    filter.lot = { $exists: isListed };
+  if( hasLot !== undefined ) {
+    filter.lot = { $exists: hasLot }; // i.e. tests (non-)existence of the `lot` field based on the value of the boolean vriable hasLot
   }
 
   if( category ) {
@@ -273,7 +273,7 @@ function appendPopulationQueries( query, populationPaths ) {
       acc.set( parentPath, new Set() );
 
     }
-      
+
     acc.get( parentPath ).add( childPath );
 
     return acc;
@@ -282,7 +282,7 @@ function appendPopulationQueries( query, populationPaths ) {
 
   const pathObjects = [];
   for( let [ parentPath, childPathSet ]  of populationSets.entries() ) {
-    // filter out empty childpaths. this removes, e.g. 'shipment' if 'shipment.palletsReceived' exists 
+    // filter out empty childpaths. this removes, e.g. 'shipment' if 'shipment.palletsReceived' exists
     const _childPathList = [ ...childPathSet ].filter(_=>_);
 
     if( _childPathList.length ) {
@@ -304,21 +304,21 @@ function appendPopulationQueries( query, populationPaths ) {
 }
 
 /************************************************
- * 
+ *
  * Public Database Client
  * ======================
- * 
+ *
  ****/
 
 
 class InventoryCommander {
-  constructor( { 
+  constructor( {
     IncomingShipment,
     Package,
     Bundle,
     InventoryPallet,
   }) {
-    
+
     // initialize models
     this.IncomingShipment = IncomingShipment;
     this.Package = Package;
@@ -342,11 +342,11 @@ class InventoryCommander {
     else {
       sortField = 'createdAt';
     }
-  
+
     const sortParams = {
       [ sortField ] : sortDir || 1
     };
-    
+
     let q = this.IncomingShipment.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
 
     if( populate ) {
@@ -356,7 +356,7 @@ class InventoryCommander {
     }
 
     return q.exec();
-  
+
   }
 
   countIncomingShipments( filterParams ) {
@@ -442,7 +442,7 @@ class InventoryCommander {
   }
 
   async deleteIncomingShipment( shipmentId, { deletePallets } = {}) {
- 
+
     const shipment = await this.getIncomingShipmentById( shipmentId, deletePallets ? { populate: [ 'palletsReceived' ] } : {} );
 
     if( !shipment || shipment.isDeleted ) {
@@ -452,7 +452,7 @@ class InventoryCommander {
     let pallets;
     if( deletePallets ) {
 
-      pallets = await Promise.all( 
+      pallets = await Promise.all(
         Promise.map( shipment.palletsReceived, pallet => pallet.delete() )
       );
 
@@ -628,7 +628,7 @@ class InventoryCommander {
   async unreceiveIncomingShipment( shipmentId, { deletePallets } = {}) {
 
     const shipment = await this.getIncomingShipmentById( shipmentId, deletePallets ? { populate: [ 'palletsReceived' ] } : {} );
-    
+
     if( !shipment ) {
       throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
     }
@@ -640,7 +640,7 @@ class InventoryCommander {
     let pallets;
     if( deletePallets ) {
 
-      pallets = await Promise.all( 
+      pallets = await Promise.all(
         Promise.map( shipment.palletsReceived, pallet => pallet.delete() )
       );
 
@@ -753,7 +753,7 @@ class InventoryCommander {
       _palletData
     );
 
-    const { pallets: [ pallet ] } = await this.createInventoryPallets( palletData ); 
+    const { pallets: [ pallet ] } = await this.createInventoryPallets( palletData );
 
     await shipment.receivePallet( pallet._id );
 
@@ -811,7 +811,7 @@ class InventoryCommander {
       _palletData
     );
 
-    const { pallets: [ pallet ] } = await this.createInventoryPallets( palletData ); 
+    const { pallets: [ pallet ] } = await this.createInventoryPallets( palletData );
 
     await shipment.addPalletConsolidated( pallet._id );
 
@@ -867,7 +867,7 @@ class InventoryCommander {
     if( sortField !== 'handle' ) {
       sortParams.handle = 1;
     }
-    
+
     let q = this.InventoryPallet.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
 
     if( populate ) {
@@ -969,14 +969,14 @@ class InventoryCommander {
 
     }
 
-    try { 
-      const edits = Object.keys( _editDocument ).map( _key => ({ path: _key, oldValue: pallet[ _key ], newValue: _editDocument[ _key ] }) ).filter( x => x.oldValue !== x.newValue ); 
+    try {
+      const edits = Object.keys( _editDocument ).map( _key => ({ path: _key, oldValue: pallet[ _key ], newValue: _editDocument[ _key ] }) ).filter( x => x.oldValue !== x.newValue );
 
       if( edits.length <= 0 ) {
         return {};
       }
 
-      const editDocument = edits.reduce( (acc, _) => { 
+      const editDocument = edits.reduce( (acc, _) => {
         acc[_.path] = _.newValue;
         return acc;
       }, {});
@@ -1148,21 +1148,21 @@ class InventoryCommander {
   }
 
   async editPackage( pkgId, _editDocument ) {
-    
+
     const pkg = await this.getPackageById( pkgId );
 
     if( !pkg ) {
       throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
     }
 
-    try { 
-      const edits = Object.keys( _editDocument ).map( _key => ({ path: _key, oldValue: pkg[ _key ], newValue: _editDocument[ _key ] }) ).filter( x => x.oldValue !== x.newValue ); 
+    try {
+      const edits = Object.keys( _editDocument ).map( _key => ({ path: _key, oldValue: pkg[ _key ], newValue: _editDocument[ _key ] }) ).filter( x => x.oldValue !== x.newValue );
 
       if( edits.length <= 0 ) {
         return {};
       }
 
-      const editDocument = edits.reduce( (acc, _) => { 
+      const editDocument = edits.reduce( (acc, _) => {
         acc[_.path] = _.newValue;
         return acc;
       }, {});
@@ -1180,7 +1180,7 @@ class InventoryCommander {
 
   async finishPackage( pkgId ) {
 
-    // TODO: link/unlink bundles, sub-packages, components 
+    // TODO: link/unlink bundles, sub-packages, components
 
     const pkg = await this.getPackageById( pkgId );
 
@@ -1200,7 +1200,7 @@ class InventoryCommander {
 
   async reopenPackage( pkgId ) {
 
-    // TODO: link/unlink bundles, sub-packages, components 
+    // TODO: link/unlink bundles, sub-packages, components
 
     const pkg = await this.getPackageById( pkgId );
 
@@ -1249,7 +1249,7 @@ class InventoryCommander {
     if( !pkg ) {
       throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
     }
-    
+
     if( pkg.isShipped ) {
       return {};
     }
@@ -1267,7 +1267,7 @@ class InventoryCommander {
     if( !pkg ) {
       throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
     }
-    
+
     if( !pkg.isShipped ) {
       return {};
     }
@@ -1376,21 +1376,21 @@ class InventoryCommander {
   }
 
   async editBundle( bundleId, _editDocument ) {
-    
+
     const bundle = await this.getBundleById( bundleId );
 
     if( !bundle ) {
       throw new ResourceNotFoundError( { type: 'bundle', id: bundleId } );
     }
 
-    try { 
-      const edits = Object.keys( _editDocument ).map( _key => ({ path: _key, oldValue: bundle[ _key ], newValue: _editDocument[ _key ] }) ).filter( x => x.oldValue !== x.newValue ); 
+    try {
+      const edits = Object.keys( _editDocument ).map( _key => ({ path: _key, oldValue: bundle[ _key ], newValue: _editDocument[ _key ] }) ).filter( x => x.oldValue !== x.newValue );
 
       if( edits.length <= 0 ) {
         return {};
       }
 
-      const editDocument = edits.reduce( (acc, _) => { 
+      const editDocument = edits.reduce( (acc, _) => {
         acc[_.path] = _.newValue;
         return acc;
       }, {});
@@ -1531,10 +1531,10 @@ class InventoryCommander {
             finishedDate: { $lte: date },
           },
           { // either never deleted or deleted after date
-            $or: [ 
+            $or: [
               { isDeleted: false },
               { deletedDate: { $gte: date } }
-            ] 
+            ]
           },
           { // either never shipped or shipped after date
             $or: [

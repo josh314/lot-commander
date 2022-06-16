@@ -42,7 +42,7 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
       populateShipment: true,
       populateLot: true,
       status: 'not brokendown',
-      isListed: false,
+      hasLot: false,
       toBeListed: true
     };
     vm.categoryOptions = [ "" ].concat( palletProperties.category );

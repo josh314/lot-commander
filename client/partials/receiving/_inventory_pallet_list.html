@@ -53,9 +53,9 @@
             </select>
           </div>
           <div class="form-group col-xs-12 col-sm-6">
-            <label for="palletIsListedFilter">Is Listed?</label>
-            <select class="form-control" name="palletIsListedFilter" ng-model="$ctrl.filter.isListed" ng-change="$ctrl.refreshPalletsData()">
-              <option ng-value="null"></option>
+            <label for="pallethasLotFilter">Lot created?</label>
+            <select class="form-control" name="pallethasLotFilter" ng-model="$ctrl.filter.hasLot" ng-change="$ctrl.refreshPalletsData()">
+              <option ng-value="null">any</option>
               <option ng-value="true">yes</option>
               <option ng-value="false">no</option>
             </select>

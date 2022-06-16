@@ -52,8 +52,8 @@ const listPalletsFilterParamsFromQueryParams = ( qp ) => {
     fp.toBeListed = !!parseInt(qp.to_be_listed);
   }
 
-  if( qp.is_listed ) {
-    fp.isListed = !!parseInt(qp.is_listed);
+  if( qp.has_lot ) {
+    fp.hasLot = !!parseInt(qp.has_lot);
   }
 
   return fp;
