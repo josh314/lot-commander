@@ -630,6 +630,15 @@ export class Sheet {
       };
     }
 
+    const totalSalePriceIdx = headerRowArray.findIndex( _ => _.v === __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__ );
+    if( totalSalePriceIdx > -1 && totals.salePrice ) {
+      totalsRowArray[ totalSalePriceIdx ] = {
+        v: totals.salePrice,
+        t: 'n',
+        s: Object.assign( {}, __PRETTY_MANIFEST_HIGHLIGHTED_CELL_SETTINGS__, { numFmt: __PRETTY_MANIFEST_CELL_CURRENCY_FORMAT_CODE__ } ),
+      };
+    }
+
     return totalsRowArray;
 
   }

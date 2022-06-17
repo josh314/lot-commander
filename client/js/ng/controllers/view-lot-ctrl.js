@@ -35,20 +35,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     sessionTimeout.timeoutExpired();
 
-    function userHasMarketplacePermission( marketplace ) {
-
-      if( marketplace === 'wholesaleninjas' ) {
-        return LoggedInUser.hasPermission( 'SUBMIT_SHOPIFY_LISTING' );
-      }
-
-      if( marketplace === 'bstock' ) {
-        return LoggedInUser.hasPermission( 'SUBMIT_AUCTION' );
-      }
-
-      return false;
-
-    }
-
     const vm = this;
 
     vm.showEditingControls = LoggedInUser.hasPermission( 'EDIT_LOT' );
@@ -230,7 +216,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     function configureListingForSubmission() {
 
-      if( !userHasMarketplacePermission( lotStore.destinationMarketplace ) ) {
+      if( !LoggedInUser.hasMarketplacePermission( lotStore.destinationMarketplace ) ) {
         let msg = `User is not authorized to submit to marketplace: ${lotStore.destinationMarketplace}. Choose another marketplace.`;
         ModalSvc.message( { header: 'Unauthorized marketplace', body: msg , type: 'error' } );
         return;

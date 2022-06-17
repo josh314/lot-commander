@@ -32,116 +32,141 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       navigate.listLots();
     }
 
-    function userHasMarketplacePermission( marketplace ) {
+    const vm = this;
+    init();
 
-      if( marketplace === 'wholesaleninjas' ) {
-        return LoggedInUser.hasPermission( 'SUBMIT_SHOPIFY_LISTING' );
+    function init() {
+
+      vm.waitingForResponse = false;
+      vm.lot = lotStore;
+
+      // Form options
+      vm.formOptions = {
+        marketplaces: (function(){
+          const opts = [
+            'wholesaleninjas',
+            'bstock'
+          ];
+
+          return opts.filter( _ => LoggedInUser.hasMarketplacePermission( _ ) );
+        })(),
+        bstock: {
+          constants: bstockFormConstants,
+          categories: Object.keys(bstockFormConstants.category),
+          conditions: Object.keys(bstockFormConstants.condition),
+          packagings: Object.keys(bstockFormConstants.packaging),
+          shippingChargeTypes: Object.keys(bstockFormConstants.shippingChargeType),
+          shippingAllowedDestinations: Object.keys(bstockFormConstants.shippingAllowedDestinations),
+        },
+        shopify: {
+          packagingTypes: dbEnums.packagingType,
+          collections: [ 'lots', 'pallets', 'truckloads', 'cases' ].map( _ => ({ name: _, selected: false }) ),
+          guarantee: [
+            {
+              value: 'standard',
+              label: 'Standard (95%)'
+            },
+            {
+              value: 'as-is',
+              label: 'None (sold as-is)'
+            },
+            {
+              value: 'complete',
+              label: 'Complete (100%)'
+            },
+          ]
+        }
+      };
+
+      // Default collection selections
+      if( isBoxedLot() ) {
+        const lotCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'lots' );
+        lotCollectionOption.selected = true;
+      }
+      if( isPallet() ) {
+        const palletCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'pallets' );
+        palletCollectionOption.selected = true;
       }
 
-      if( marketplace === 'bstock' ) {
-        return LoggedInUser.hasPermission( 'SUBMIT_AUCTION' );
-      }
+      vm.inputErrors = {
+        noMarketplace: false,
+        bstock: {
+          invalidAuctionPrice: false,
+          noChargeType: false,
+          invalidShippingCharge: false,
+          noCarrier: false,
+          noBstockCondition: false,
+          noBstockCategory: false,
+          noBstockPackaging: false,
+          bstockTitleTooLong: false,
+        },
+        shopify: {
+          invalidPrice: false,
+          invalidShippingRate: false,
+          invalidAdditionalTags: false,
+          invalidInventory: false,
+          invalidUnitCount: false,
+          invalidEstimatedRetailValue: false,
+          noPackagingType: false,
+        },
+      };
 
-      return false;
+      vm.inputs = {
+        totalUnits: vm.lot.totalUnits,
+        publish: false,
+        shopify: {
+          shippingRate: '',
+          additionalTags: (function(){
+            const tags = [ ];
+            const handleTags = {
+              'PC': 'personal care',
+              'GM': 'general merchandise',
+              'VT': 'vitamins',
+              'NP': 'nail polish',
+              'CS': 'cosmetics',
+              'AP': 'clothing'
+            };
+
+            const match = vm.lot.handle.match(/^([a-zA-Z]{2})/);
+            if(match && match[1] && handleTags[match[1]]) {
+              tags.push(handleTags[match[1]]);
+            }
+            return tags.join(', ');
+          })(),
+          packagingType: lotStore.packagingType,
+          guarantee: { value: 'standard' },
+        }
+      };
+
+      vm.submitListing = submitListing;
+      vm.backToLotDetails = backToLotDetails;
+
+      const estimatedRetailValue = lotStore.getEstimatedRetailValue();
+      //Form default values
+      vm.listing = {
+        marketplace: LoggedInUser.hasMarketplacePermission( vm.lot.destinationMarketplace ) ? vm.lot.destinationMarketplace : vm.formOptions.marketplaces[0],
+        // bstock defaults
+        auctionStartPrice: '300',
+        shopifyPrice: estimatedRetailValue ? (.2*parseFloat(estimatedRetailValue)).toFixed(2) : '',
+        condition: ({'shelf-pull': 'Shelf Pulls','customer returns': 'Customer Returns','salvage': 'Salvage'})[vm.lot.type] || '',
+        packaging: 'Original',
+        shipping: {
+          allowedDestinations: bstockFormConstants.shippingAllowedDestinations['Continental US only (Alaska and Hawaii excluded)'],
+          chargeType: bstockFormConstants.shippingChargeType['Fixed Cost'],
+          charge: '90',
+          carrier: 'UPS',
+          notes: 'Lot will ship within one business day after confirmed payment.'
+        },
+        //shopify defaults
+        shopifyInventory: 1,
+        shopifyTags: [],
+        refreshProductData: false,
+        estimatedRetailValue: estimatedRetailValue,
+      };
 
     }
 
-    const vm = this;
-    vm.waitingForResponse = false;
-    vm.lot = lotStore;
-
-    // Form dropdown values
-    vm.formOptions = {
-      marketplaces: (function(){
-        const opts = [
-          'wholesaleninjas',
-          'bstock'
-        ];
-
-        return opts.filter( userHasMarketplacePermission );
-      })(),
-      bstock: {
-        constants: bstockFormConstants,
-        categories: Object.keys(bstockFormConstants.category),
-        conditions: Object.keys(bstockFormConstants.condition),
-        packagings: Object.keys(bstockFormConstants.packaging),
-        shippingChargeTypes: Object.keys(bstockFormConstants.shippingChargeType),
-        shippingAllowedDestinations: Object.keys(bstockFormConstants.shippingAllowedDestinations),
-      },
-      shopify: {
-        packagingTypes: dbEnums.packagingType,
-        collections: [ 'lots', 'pallets', 'truckloads', 'cases' ].map( _ => ({ name: _, selected: false }) ),
-        guarantee: [
-          {
-            value: 'standard',
-            label: 'Standard (95%)'
-          },
-          {
-            value: 'as-is',
-            label: 'None (sold as-is)'
-          },
-          {
-            value: 'complete',
-            label: 'Complete (100%)'
-          },
-        ]
-      }
-    };
-
-    vm.inputErrors = {
-      noMarketplace: false,
-      bstock: {
-        invalidAuctionPrice: false,
-        noChargeType: false,
-        invalidShippingCharge: false,
-        noCarrier: false,
-        noBstockCondition: false,
-        noBstockCategory: false,
-        noBstockPackaging: false,
-        bstockTitleTooLong: false,
-      },
-      shopify: {
-        invalidPrice: false,
-        invalidShippingRate: false,
-        invalidAdditionalTags: false,
-        invalidInventory: false,
-        invalidUnitCount: false,
-        invalidEstimatedRetailValue: false,
-        noPackagingType: false,
-      },
-    };
-
-    vm.inputs = {
-      totalUnits: vm.lot.totalUnits,
-      publish: false,
-      shopify: {
-        shippingRate: '', 
-        additionalTags: (function(){
-          const tags = [ ];
-          const handleTags = {
-            'PC': 'personal care',
-            'GM': 'general merchandise',
-            'VT': 'vitamins',
-            'NP': 'nail polish',
-            'CS': 'cosmetics',
-            'AP': 'clothing'
-          };
-
-          const match = vm.lot.handle.match(/^([a-zA-Z]{2})/);
-          if(match && match[1] && handleTags[match[1]]) {
-            tags.push(handleTags[match[1]]);
-          }
-          return tags.join(', ');
-        })(),
-        packagingType: lotStore.packagingType,
-        guarantee: { value: 'standard' },
-      }
-    };
-
-    vm.submitListing = submitListing;
-    vm.backToLotDetails = backToLotDetails;
-
-    const conditionTag = lotType => {
+    function conditionTag( lotType ) {
       let cond;
       if( lotType === 'customer returns' ) {
         cond = 'returns';
@@ -157,9 +182,9 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       }
 
       return cond ? `condition:${ cond }` : null;
-    };
+    }
 
-    const getShopifyTags = () => {
+    function getShopifyTags() {
       const tags = vm.inputs.shopify.additionalTags ? vm.inputs.shopify.additionalTags.split(',').map(_=>_.trim()) : [];
       if(vm.lot.unmanifested) {
         tags.push('unmanifested');
@@ -181,32 +206,10 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       });
 
       return tags.filter( _ => _ ).join(', ');// remove any empty tags then join as a CSV string before returning
-    };
+    }
 
-    const isBoxedLot = () => lotStore.packagingType === 'box lot';
-
-    const estimatedRetailValue = lotStore.getEstimatedRetailValue();
-    //Form default values
-    vm.listing = {
-      marketplace: userHasMarketplacePermission( vm.lot.destinationMarketplace ) ? vm.lot.destinationMarketplace : vm.formOptions.marketplaces[0],
-      // bstock defaults
-      auctionStartPrice: '300',
-      shopifyPrice: estimatedRetailValue ? (.2*parseFloat(estimatedRetailValue)).toFixed(2) : '',
-      condition: ({'shelf-pull': 'Shelf Pulls','customer returns': 'Customer Returns','salvage': 'Salvage'})[vm.lot.type] || '',
-      packaging: 'Original',
-      shipping: {
-        allowedDestinations: bstockFormConstants.shippingAllowedDestinations['Continental US only (Alaska and Hawaii excluded)'],
-        chargeType: bstockFormConstants.shippingChargeType['Fixed Cost'],
-        charge: '90',
-        carrier: 'UPS',
-        notes: 'Lot will ship within one business day after confirmed payment.'
-      },
-      //shopify defaults
-      shopifyInventory: 1,
-      shopifyTags: [],
-      refreshProductData: false,
-      estimatedRetailValue: estimatedRetailValue,
-    };
+    function isBoxedLot() { return lotStore.packagingType === 'box lot'; }
+    function isPallet() { return !!lotStore.packagingType.match(/pallet/); }
 
     function validateBstockListingOptions() {
       vm.inputErrors.bstock.invalidAuctionPrice = (vm.listing.auctionStartPrice && vm.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;
