@@ -6,6 +6,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
   'dbEnums',
   'ListingsSvc',
   'lot',
+  'palletProperties',
   'ModalSvc',
 
   function(
@@ -13,6 +14,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
     dbEnums,
     ListingsSvc,
     lot,
+    palletProperties,
     ModalSvc,
 
   ){
@@ -22,6 +24,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
     // VM data
     vm.lot = JSON.parse( JSON.stringify( lot ) );// deep clone of lot so edits are emphemeral before save
     vm.lotStatusEnum = dbEnums.lotStatus;
+    vm.lotCategoryOptions = [''].concat(palletProperties.category);
     vm.lotTypeEnum = dbEnums.lotType;
     vm.packagingTypeEnum = dbEnums.packagingType;
     // vm.selectedListing = 'bstock';

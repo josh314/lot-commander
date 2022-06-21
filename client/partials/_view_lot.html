@@ -8,7 +8,8 @@
 				<div class="panel-body">
 					<b>Handle: </b>{{ $ctrl.lot.getHandle() }}<br>
 					<b>Description: </b>{{ $ctrl.lot.getDescription() }}<br>
-					<b>Type: </b>{{ $ctrl.lot.getType() }}<br>
+					<b>Category: </b>{{ $ctrl.lot.getCategory() }}<br>
+					<b>Condition: </b>{{ $ctrl.lot.getType() }}<br>
 					<b>Manifested: </b>{{ $ctrl.lot.unmanifested ? 'No' : 'Yes' }}<br>
 					<span ng-hide="$ctrl.lot.unmanifested">
 					<b>Scanned SKU count: </b>{{ $ctrl.lot.getNumSku() }}<br>

@@ -52,6 +52,9 @@ exports.Client = function( { Lot } ) {
     if('description' in lot) {
       updateDocument.description = lot.description;
     }
+    if('category' in lot) {
+      updateDocument.category = lot.category;
+    }
     if(lot.type) {
       updateDocument.type = lot.type;
     }

@@ -153,8 +153,11 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
       modalInstance.result.then( lot => {
 
-        LotSvc.edit( lot._id, lot ).then( lot =>{
-          console.log( lot );
+        if( !lot.category ) {
+          lot.category = '';
+        }
+
+        LotSvc.edit( lot._id, lot ).then( _lot =>{
           navigate.reload();
         });
 

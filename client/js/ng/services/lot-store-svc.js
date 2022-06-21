@@ -55,6 +55,7 @@ angular.module('myApp').service('lotStore', ['dbEnums',
 
     // metadata
     this.setDescription = function(_description) { this.description = _description; };
+    this.setCategory = function(_category) { this.category = _category; };
     this.setType = function(_type) { this.type = _type; };
     this.setStatus = function(_status) { this.status = _status; };
 
@@ -87,6 +88,9 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       }
       if(_lot.type) {
         this.setType(_lot.type);
+      }
+      if( 'category' in _lot ) {
+        this.setCategory(_lot.category);
       }
       if(_lot.inventory) {
         this.setInventory(_lot.inventory);
@@ -196,6 +200,7 @@ angular.module('myApp').service('lotStore', ['dbEnums',
     this.getHandle = function() { return this.handle; };
     this.getInventory = function() { return this.inventory; };
     this.getDescription = function() { return this.description; };
+    this.getCategory = function() { return this.category; };
     this.getType = function() { return this.type; };
     this.getStatus = function() { return this.status; };
     this.getListings = function() { return this.listings; };
