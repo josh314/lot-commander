@@ -513,6 +513,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
           if( summary ) {
 
             const expectedPalletEditDoc = {
+              category: summary.category || undefined,
               units: summary.quantity || undefined,
               retailValue: summary.retailValue || undefined,
               salePrice: summary.salePrice || undefined,
@@ -535,6 +536,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
           if( summary ) {
 
             const receivedPalletEditDoc = {
+              category: summary.category || undefined,
               units: summary.quantity || undefined,
               retailValue: summary.retailValue || undefined,
               salePrice: summary.salePrice || undefined,

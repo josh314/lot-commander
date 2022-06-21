@@ -942,6 +942,18 @@ export class Sheet {
 
   }
 
+  getUniformCategory() {
+
+    const firstRowCategory = this.rows[0]['Category'];
+    let allCategoriesSame = false;
+
+    if( firstRowCategory ) {
+      allCategoriesSame = this.rows.every( r => r['Category'] === firstRowCategory );
+    }
+
+    return allCategoriesSame ? firstRowCategory : null;
+  }
+
   standardTotals() {
     const res = {};
 
@@ -977,6 +989,10 @@ export class Sheet {
       res.salePrice = this.sumColumnValues( totalSalePriceColumn.displayName );
     }
 
+    const sheetCategory = this.getUniformCategory();
+    if( sheetCategory ) {
+      res.category = sheetCategory;
+    }
 
     return res;
   }
