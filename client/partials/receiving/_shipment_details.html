@@ -166,7 +166,7 @@
       <div style="flex-grow: 1"></div>
 
       <!-- Status Badges -->
-      <div 
+      <div
         style="
           display:  flex;
           flex-direction: column;
@@ -242,7 +242,7 @@
               <button class="btn btn-xs btn-success" ng-click="$ctrl.cleanManifest( document )" ng-show="$ctrl.isManifestFile( document )">Clean</button>
             </td>
             <td>
-              <button class="btn btn-xs btn-warning" ng-click="$ctrl.createPalletManifests( document )" ng-show="$ctrl.isManifestFile( document )">Magic</button>
+              <button class="btn btn-xs btn-warning" ng-click="$ctrl.createPalletManifests( document )" ng-show="$ctrl.isManifestFile( document )">Create pallet manifests</button>
             </td>
             <td ng-show="$ctrl.showEditControls">
               <button type="button" class="btn btn-danger btn-xs" ng-click="$ctrl.removeDocument( document.name )">
@@ -271,11 +271,11 @@
         <th>Category</th>
         <th>Condition</th>
         <th>To Be Listed</th>
-        <th>Received?</th>
+        <th ng-hide="$ctrl.somePalletsEditing( $ctrl.shipment.palletsExpected )">Received?</th>
         <th ng-show="$ctrl.showEditControls"></th>
         <th ng-show="$ctrl.showEditControls"></th>
       </tr></thead>
-      <tbody>	
+      <tbody>
         <tr ng-repeat="pallet in $ctrl.shipment.palletsExpected track by $index">
           <td>
             <span ng-show="pallet.isEditing" ng-class="{ 'has-error' : pallet.errors.emptyHandle || pallet.errors.duplicateHandle }">
@@ -325,8 +325,10 @@
               <span class="glyphicon glyphicon-ok" ng-show="pallet.toBeListed"></span>
             </span>
           </td>
-          <td><span class="glyphicon glyphicon-ok" ng-show="pallet.isReceived"></span></td>
-          <td>
+          <td ng-hide="$ctrl.somePalletsEditing( $ctrl.shipment.palletsExpected )">
+            <span class="glyphicon glyphicon-ok" ng-show="pallet.isReceived"></span>
+          </td>
+          <td ng-hide="$ctrl.somePalletsEditing( $ctrl.shipment.palletsExpected )">
             <span ng-show="pallet.hasManifest()">
               <a ng-href="/api/documents/{{ pallet._id }}/{{ pallet.getManifestMetadata().name }}?object_type=shipment-expected-pallet" target="_self" download><button class="btn btn-xs btn-primary">Manifest</button></a>
             </span>
@@ -402,7 +404,7 @@
 
     <div ng-show="$ctrl.shipment.isReceived">
 
-      <div 
+      <div
         style="
           margin-bottom: 10px;
           display: flex;
@@ -419,7 +421,7 @@
         </div>
 
 
-        <div 
+        <div
           style="
             flex-grow: 1;
             display: flex;
@@ -480,7 +482,7 @@
             </td>
             <td>
               <span ng-show="pallet.toBeListed">
-                <button class="btn btn-xs btn-success" ng-click="$ctrl.createPalletLot( pallet )">Make Lot</button>
+                <button class="btn btn-xs btn-success" ng-click="$ctrl.createPalletLot( pallet )" ng-disabled="pallet.lot">Make Lot</button>
               </span>
             </td>
             <td>
@@ -511,7 +513,7 @@
 
     <div ng-show="$ctrl.shipment.isReceived">
 
-      <div 
+      <div
         style="
           margin-bottom: 10px;
           display: flex;
@@ -520,7 +522,7 @@
         "
       >
 
-        <div 
+        <div
           style="
             flex-grow: 1;
             display: flex;
@@ -571,7 +573,7 @@
             </td>
             <td>
               <span ng-show="pallet.toBeListed">
-                <button class="btn btn-xs btn-success" ng-click="$ctrl.createPalletLot( pallet )">Make Lot</button>
+                <button class="btn btn-xs btn-success" ng-click="$ctrl.createPalletLot( pallet )" ng-disabled="pallet.lot">Make Lot</button>
               </span>
             </td>
             <td>

@@ -118,6 +118,11 @@ function routes({ inventoryCommander, lotdb }) {
     setPrimaryImage
   );
   router.post(
+    '/:lotId/upload-manifest/:filename',
+    auth.isAuthorized( 'EDIT_LOT' ),
+    uploadManifest
+  );
+  router.post(
     '/:lotId/upload-manifest',
     auth.isAuthorized( 'EDIT_LOT' ),
     uploadManifest
@@ -326,6 +331,7 @@ function routes({ inventoryCommander, lotdb }) {
 
   function uploadManifest( req, res, next ) {
     const lotId = req.params.lotId;
+    const filename = req.params.filename;
     const form = new formidable.IncomingForm();
     form.parse( req, async function ( _err, _fields, files ) {
       try {
@@ -339,7 +345,7 @@ function routes({ inventoryCommander, lotdb }) {
             throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
           }
 
-          const s3Key = `${ lotId }/${ lot.handle }${ path.extname(f.name)  }`;
+          const s3Key = filename ? `${ lotId }/${ filename }` : `${ lotId }/${ lot.handle }${ path.extname(f.name)  }`;
 
           const storePromise = manifestSvc.put( readStream, s3Key , true).then(resp=>{
             if(resp && resp.data) {

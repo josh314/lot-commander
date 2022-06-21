@@ -7,8 +7,29 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
   function( CounterSvc, LotSvc, ModalSvc, ShippingItemsSvc ) {
 
     return {
-      createLot
+      createLot,
+      createLotWithUi
     };
+
+    async function createLotWithUi( pallet, { handle, marketplace, status, packagingType } = {} ) {
+
+      if( !pallet.hasManifest() ) {
+        const isConfirmed = await ModalSvc.confirm({
+          header: 'Unmanifested pallet',
+          body: 'This pallet has no manifest. Proceed anyway?',
+        });
+
+        if( !isConfirmed ) {
+          return;
+        }
+      }
+
+      return ModalSvc.wait( {
+        waitFor: createLot( pallet, { handle, marketplace, status, packagingType } ),
+        delay: 2000
+      } );
+
+    }
 
     async function createLot( pallet, { handle, marketplace, status, packagingType } = {} ) {
 
@@ -68,9 +89,10 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
 
           const arrayBuffer = await pallet.getDocument( manifest.name );
 
-          const file = new File( [ arrayBuffer ] , manifest.name );
+          const manifestFilename = `pallet-${ palletLotCounter.count }.xlsx`;
+          const file = new File( [ arrayBuffer ] , manifestFilename );
 
-          await api.uploadLotManifestFile( lot._id, file );
+          await api.uploadLotManifestFile( lot._id, file, manifestFilename );
 
         }
 

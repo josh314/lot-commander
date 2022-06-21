@@ -12,7 +12,6 @@ angular.module('myApp').controller( 'InventoryPalletListCtrl', [
 
   'InventoryPalletManagerSvc',
   'LoggedInUser',
-  'ModalSvc',
   'navigate',
   'PalletLotSvc',
   'palletProperties',
@@ -25,7 +24,6 @@ angular.module('myApp').controller( 'InventoryPalletListCtrl', [
 
     InventoryPalletManagerSvc,
     LoggedInUser,
-    ModalSvc,
     navigate,
     PalletLotSvc,
     palletProperties,
@@ -231,10 +229,8 @@ angular.module('myApp').controller( 'InventoryPalletListCtrl', [
 
     function createLotFromPallet( pallet ) {
 
-      ModalSvc.wait( {
-        waitFor: PalletLotSvc.createLot( pallet ),
-        delay: 2000
-      } )
+
+      PalletLotSvc.createLotWithUi( pallet )
         .then( lot => navigate.viewLot( lot._id ), console.log('dismissed') );
       // TODO: handle error if lot not created. Particular issue is if the auto-generated handle is a dupe
 

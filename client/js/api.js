@@ -144,7 +144,7 @@ export function saveLotManifest( lot ) {
 
 }
 
-export function uploadLotManifestFile( lotId, file ) {
+export function uploadLotManifestFile( lotId, file, filename ) {
 
   if( !lotId ) {
     throw new Error('Must supply lot ID.');
@@ -153,9 +153,11 @@ export function uploadLotManifestFile( lotId, file ) {
   const fd = new FormData();
   fd.append( 'file', file ); // type File object
 
+  const url = filename ? `/api/lots/${ lotId }/upload-manifest/${ filename }` : `/api/lots/${ lotId }/upload-manifest`;
+
   return axios({
     method: 'post',
-    url: `/api/lots/${ lotId }/upload-manifest`,
+    url,
     data: fd
   })
     .then( resp => resp.data  );

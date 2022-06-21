@@ -87,6 +87,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
       close: closeExpectedPallet,
       save: saveExpectedPallet,
     };
+    vm.somePalletsEditing = ( pallets ) => pallets.some( p => p.isEditing );
 
     vm.printShipmentLabels = printShipmentLabels;
 
@@ -556,10 +557,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
     function createPalletLot( pallet ) {
 
-      ModalSvc.wait( {
-        waitFor: PalletLotSvc.createLot( pallet ),
-        delay: 2000
-      } )
+      PalletLotSvc.createLotWithUi( pallet )
         .then( lot => navigate.viewLot( lot._id ), console.log('dismissed') );
       // TODO: handle error if lot not created. Particular issue is if the auto-generated handle is a dupe
 
