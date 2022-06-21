@@ -1,0 +1,67 @@
+<div class="modal-header">
+	<h3 class="modal-title">Merge sheet options</h3>
+</div>
+
+<div class="modal-body">
+
+	<div class="row">
+
+
+    <div class="form-group col-xs-12">
+      <label for="mergedSheetNameInput">Merged Sheet Name</label>
+      <input type="text" id="mergedSheetNameInput" class="form-control" ng-model="$ctrl.inputs.mergedSheetName">
+    </div>
+
+
+    <div class="form-group col-xs-12">
+      <label for="sheetColumnNameInput">Sheet column name</label>
+      <select class="form-control" ng-model="$ctrl.inputs.sheetColumnName">
+        <option ng-repeat="$column in $ctrl.inputs.sheetColumnOptions">{{ $column }}</option>
+      </select>
+    </div>
+
+
+    <div class="form-group col-xs-12">
+
+      <label>Sheet name transformations</label>
+
+      <div class="form-group"
+          ng-repeat="$transformPair in $ctrl.inputs.sheetnameTransforms track by $index"
+          style="display: flex; align-items: center; justify-content: space-around;">
+
+        <div class="">
+          <input type="text" id="" class="form-control" ng-model="$transformPair.sheetname" disabled>
+        </div>
+
+        <div style="font-size: x-large;">
+          <span class="glyphicon glyphicon-arrow-right"></span>
+        </div>
+        <div class="" ng-switch="$ctrl.inputs.sheetColumnName">
+
+          <span ng-switch-when="Category">
+            <select class="form-control" ng-model="$transformPair.transformValue">
+              <option ng-repeat="$category in $ctrl.inputs.palletCategoryOptions">{{ $category }}</option>
+            </select>
+          </span>
+
+          <span ng-switch-default>
+            <input type="text" id="" class="form-control" ng-model="$transformPair.transformValue">
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+	</div>
+
+</div>
+
+<div class="modal-footer">
+
+    <button class="btn btn-primary" type="button" ng-click="$close($ctrl.compileOptions())">Continue</button>
+
+    <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+
+</div>

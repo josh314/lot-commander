@@ -1,31 +1,19 @@
 import * as xlsx from 'xlsx-js-style';
-// CONSTANTS
-
-const __STANDARD_MANIFEST_PALLET_ID_COLUMN__ = 'Pallet ID';
-const __STANDARD_MANIFEST_BARCODE_COLUMN__ = 'UPC/EAN/GTIN';
-const __STANDARD_MANIFEST_QUANTITY_COLUMN__ = 'Quantity';
-const __STANDARD_MANIFEST_UNIT_COST_COLUMN__ = 'Unit Cost'; // our cost per unit
-const __STANDARD_MANIFEST_TOTAL_COST_COLUMN__ = 'Cost'; // our total cost for the line item (unit price * quantity)
-const __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__ = 'Unit Retail Price'; // estimated retail unit price
-const __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ = 'Retail Price';  // estimated retail value of line item
-const __STANDARD_MANIFEST_DISPLAY_COLUMNS__ = [
+import {
   __STANDARD_MANIFEST_PALLET_ID_COLUMN__,
   __STANDARD_MANIFEST_BARCODE_COLUMN__,
   __STANDARD_MANIFEST_QUANTITY_COLUMN__,
+  __STANDARD_MANIFEST_CATEGORY_COLUMN__,
   __STANDARD_MANIFEST_UNIT_COST_COLUMN__,
   __STANDARD_MANIFEST_TOTAL_COST_COLUMN__,
   __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__,
   __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__,
-  'Description',
-  'Image',
-];
-
-const __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__ = 'Unit Sale Price'; // what we are selling it for per unit
-const __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__ = 'Sale Price';  // what we are selling the line item for
-const __STANDARD_MANIFEST_COLUMNS__ = __STANDARD_MANIFEST_DISPLAY_COLUMNS__.concat([
   __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__,
   __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__,
-]);
+  __STANDARD_MANIFEST_COLUMNS__,
+  __STANDARD_MANIFEST_DISPLAY_COLUMNS__,
+} from './manifest-constants';
+// CONSTANTS
 
 const __PRETTY_MANIFEST_CELL_CURRENCY_FORMAT_CODE__ = 7;
 const __PRETTY_MANIFEST_CELL_HIGHTLIGHT_COLOR__ = 'FFFF66';
@@ -113,7 +101,7 @@ function addCheckDigit(barcode) {
 
 
 // Column class
-class Column {
+export class Column {
 
   constructor( { name, displayName, selected } ) {
     this.name = name;
@@ -135,6 +123,10 @@ class Column {
 
   isQuantityColumn() {
     return this.displayName === __STANDARD_MANIFEST_QUANTITY_COLUMN__;
+  }
+
+  isCategoryColumn() {
+    return this.displayName === __STANDARD_MANIFEST_CATEGORY_COLUMN__;
   }
 
   isCostColumn() {

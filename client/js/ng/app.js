@@ -176,6 +176,25 @@ angular.module('myApp').constant('palletProperties', {
   ]
 });
 
+import {
+  __STANDARD_MANIFEST_PALLET_ID_COLUMN__,
+  __STANDARD_MANIFEST_BARCODE_COLUMN__,
+  __STANDARD_MANIFEST_QUANTITY_COLUMN__,
+  __STANDARD_MANIFEST_CATEGORY_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_COST_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_COST_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_COLUMNS__,
+  __STANDARD_MANIFEST_DISPLAY_COLUMNS__,
+} from '../manifest-constants';
+angular.module('myApp').constant( 'StandardManifestColumnsConst', {
+  columns: __STANDARD_MANIFEST_COLUMNS__,
+  displayColumns: __STANDARD_MANIFEST_DISPLAY_COLUMNS__,
+});
+
 //************************************************************************
 //********************* Config Block *************************************
 //************************************************************************

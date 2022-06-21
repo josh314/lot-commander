@@ -6,6 +6,7 @@ angular.module('myApp').factory('ModalSvc', [
   'ConfirmationModal',
   'InventoryPalletDetailsModalSvc',
   'ManifestFileOptionsModal',
+  'MergeSheetsOptionsModalSvc',
   'messageModal',
   'PalletsFromManifestModalSvc',
   'shippingItemsModal',
@@ -16,6 +17,7 @@ angular.module('myApp').factory('ModalSvc', [
     ConfirmationModal,
     InventoryPalletDetailsModalSvc,
     ManifestFileOptionsModal,
+    MergeSheetsOptionsModalSvc,
     messageModal,
     PalletsFromManifestModalSvc,
     shippingItemsModal,
@@ -28,6 +30,7 @@ angular.module('myApp').factory('ModalSvc', [
       confirm: ConfirmationModal.launch.bind( ConfirmationModal ),
       inventoryPalletDetails: InventoryPalletDetailsModalSvc.launch.bind( InventoryPalletDetailsModalSvc ),
       manifestFileOptions: ManifestFileOptionsModal.launch.bind( ManifestFileOptionsModal ),
+      mergeSheetsOptions: MergeSheetsOptionsModalSvc.launch.bind( MergeSheetsOptionsModalSvc ),
       message: messageModal.launch.bind( messageModal ),
       packagingTypeInfo: packagingTypeInfoModal,
       palletsFromManifest: PalletsFromManifestModalSvc.launch.bind( PalletsFromManifestModalSvc ),
@@ -348,3 +351,53 @@ angular.module('myApp').factory( 'PalletsFromManifestModalSvc', [ '$uibModal', f
   }
 
 }]);
+
+
+/********************* Merge sheets options modal **************************/
+angular.module('myApp').factory( 'MergeSheetsOptionsModalSvc', [ '$uibModal', function( $uibModal ) {
+
+  return {
+
+    launch: function( sheetnames ) {
+
+      const modalInstance = $uibModal.open({
+        templateUrl: '/partials/modals/_merge_sheets_options_modal.html',
+        size: 'lg',
+        backdrop: 'static',
+        resolve: {
+          sheetnames: function () {
+            return JSON.parse( JSON.stringify( sheetnames ) );
+          },
+        },
+        controller:  [ 'palletProperties', 'sheetnames', 'StandardManifestColumnsConst', function( palletProperties, sheetnames, StandardManifestColumnsConst ){
+
+          const vm = this;
+          vm.inputs = {
+            mergedSheetName: 'Data',
+            sheetColumnOptions: [ 'Sheet' ].concat( StandardManifestColumnsConst.displayColumns ),
+            palletCategoryOptions: [''].concat( palletProperties.category ),
+            sheetColumnName: 'Category',
+            sheetnameTransforms: sheetnames.map( sn => ( { sheetname: sn, transformValue: '' } ) ),
+          };
+
+          vm.compileOptions = () => {
+
+            return {
+              mergedSheetName: vm.inputs.mergedSheetName,
+              sheetColumnName: vm.inputs.sheetColumnName,
+              sheetnameTransformMap: new Map( vm.inputs.sheetnameTransforms.map( obj => [ obj.sheetname, obj.transformValue ] ) ),
+            };
+
+          };
+
+        }],
+        controllerAs: '$ctrl'
+      });
+
+      return modalInstance.result;
+    }
+
+  };
+
+}]);
+

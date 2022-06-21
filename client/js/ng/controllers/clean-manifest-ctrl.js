@@ -43,6 +43,16 @@ angular.module('myApp').controller( 'CleanManifestCtrl', [
     vm.startManifestDownload = startManifestDownload;
     vm.saveToShipment = saveToShipment;
 
+    vm.mergeSheets = () => {
+
+      const sheetnames = vm.manifest.sheets.map( s => s.name );
+
+      ModalSvc.mergeSheetsOptions( sheetnames ).then( ( { mergedSheetName, sheetColumnName, sheetnameTransformMap } ) => {
+        vm.manifest.mergeAllSheets( { mergedSheetName, sheetColumnName, sheetnameTransformMap } );
+      } );
+
+    };
+
 
     // Initialization
     loadActiveManifest();
@@ -63,7 +73,7 @@ angular.module('myApp').controller( 'CleanManifestCtrl', [
       }
 
       ManifestFileHandlerSvc.parseFile( vm.manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows, renameStandardColumns: true } ).then( loadActiveManifest );
-      
+
     }
 
     function loadActiveManifest() {

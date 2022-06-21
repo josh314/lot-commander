@@ -1,10 +1,15 @@
 import * as xlsx from 'xlsx-js-style';
+import { Column, Sheet } from './sheet';
 
 export class Manifest {
   constructor( sheets ) {
+    this.clearSheets();
+    this.addSheets( sheets );
+  }
+
+  clearSheets() {
     this.sheets = [];
     this.activeSheet = null;
-    this.addSheets( sheets );
   }
 
   addSheet(sheet) {
@@ -31,6 +36,70 @@ export class Manifest {
 
   mergeManifests( manifest ) {
     manifest.sheets.forEach( s => this.addSheet( s ) );
+    return this;
+  }
+
+  mergeAllSheets( { mergedSheetName = 'Data', sheetColumnName = 'Sheet', sheetnameTransformMap } = {}) {
+
+    const newSheetColumnsMap = new Map();
+    const sheetColumn = new Column( {
+      name: 'Sheet',
+      displayName: sheetColumnName,
+    } );
+    newSheetColumnsMap.set( sheetColumn.displayName, sheetColumn );
+
+    // dedup columns of all sheets
+    for( let _sheet of this.sheets ) {
+
+      for( let _column of _sheet.columns ) {
+
+        const existingColumn = newSheetColumnsMap.get( _column.displayName );
+        if( !existingColumn ) {
+          newSheetColumnsMap.set( _column.displayName, _column );
+        }
+
+      }
+
+    }
+    const newSheetColumns = [ ... newSheetColumnsMap.values() ];
+
+    const newSheetRows = [];
+    for( let _sheet of this.sheets ) {
+
+      for( let _row of _sheet.rows ) {
+
+        newSheetRows.push( Object.assign( { [sheetColumn.name]: _sheet.name }, _row ) );
+
+      }
+
+    }
+
+    if( sheetnameTransformMap ) {
+
+      newSheetRows.forEach( r => {
+
+        if( sheetnameTransformMap.get( r[ 'Sheet' ] ) ) {
+          r[ 'Sheet' ] = sheetnameTransformMap.get( r[ 'Sheet' ] );
+        }
+
+      });
+
+    }
+
+    // create new Sheet with combined data
+    const newSheet = new Sheet( {
+      name: mergedSheetName,
+      manifest: this,
+      rows: newSheetRows,
+      columns: newSheetColumns
+    } );
+
+    this.clearSheets();
+    this.addSheet( newSheet );
+    if( sheetColumn.isStandardColumn() && !sheetColumn.isRetailPriceColumn() && !sheetColumn.isCostColumn() ) {
+      sheetColumn.select();
+    }
+
     return this;
   }
 

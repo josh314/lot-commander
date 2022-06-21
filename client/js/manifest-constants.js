@@ -1,0 +1,27 @@
+export const __STANDARD_MANIFEST_PALLET_ID_COLUMN__ = 'Pallet ID';
+export const __STANDARD_MANIFEST_BARCODE_COLUMN__ = 'UPC/EAN/GTIN';
+export const __STANDARD_MANIFEST_QUANTITY_COLUMN__ = 'Quantity';
+export const __STANDARD_MANIFEST_CATEGORY_COLUMN__ = 'Category';
+export const __STANDARD_MANIFEST_UNIT_COST_COLUMN__ = 'Unit Cost'; // our cost per unit
+export const __STANDARD_MANIFEST_TOTAL_COST_COLUMN__ = 'Cost'; // our total cost for the line item (unit price * quantity)
+export const __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__ = 'Unit Retail Price'; // estimated retail unit price
+export const __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ = 'Retail Price';  // estimated retail value of line item
+export const __STANDARD_MANIFEST_DISPLAY_COLUMNS__ = [
+  __STANDARD_MANIFEST_PALLET_ID_COLUMN__,
+  __STANDARD_MANIFEST_BARCODE_COLUMN__,
+  __STANDARD_MANIFEST_QUANTITY_COLUMN__,
+  __STANDARD_MANIFEST_CATEGORY_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_COST_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_COST_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__,
+  'Description',
+  'Image',
+];
+
+export const __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__ = 'Unit Sale Price'; // what we are selling it for per unit
+export const __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__ = 'Sale Price';  // what we are selling the line item for
+export const __STANDARD_MANIFEST_COLUMNS__ = __STANDARD_MANIFEST_DISPLAY_COLUMNS__.concat([
+  __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__,
+]);

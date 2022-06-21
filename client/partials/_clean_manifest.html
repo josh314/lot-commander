@@ -49,6 +49,9 @@
         <p class="text-center">
           <button class="btn btn-primary" ng-click="$ctrl.createSalePriceColumn()">Create Sale Price Column</button>
         </p>
+        <p class="text-center">
+          <button class="btn btn-primary" ng-click="$ctrl.mergeSheets()">Merge Sheets</button>
+        </p>
       </div>
     </div>
     <div class="manifest-table-container col-xs-12 well" ng-repeat="sheet in $ctrl.manifest.sheets" ng-show="$ctrl.getActiveSheet() == sheet" >
@@ -62,7 +65,7 @@
             <div class="text-center" style="margin-bottom: 3px;" ng-show="column.isBarcodeColumn()">
               <button class="btn btn-xs btn-primary" ng-click="$ctrl.getActiveSheet().prependUpcZeros()">Prepend zeros</button>
             </div>
-            <div class="text-center" style="margin-bottom: 3px;" ng-show="column.isStandardColumn()">
+            <div class="text-center" style="margin-bottom: 3px;" ng-show="$ctrl.manifest.sheets.length > 1 && column.isStandardColumn()">
               <button class="btn btn-xs btn-primary" ng-click="$ctrl.manifest.setStandardColumnAllSheets(column.name, column.displayName)">Use for all sheets</button>
             </div>
             <div class="text-center" style="margin-bottom: 3px;">
@@ -109,7 +112,7 @@
                 <input ng-model="row[column.name]" ng-keyup="$event.keyCode == 13 && sheet.endCellEdit( row, column )"/>
               </div>
             </td>
-            
+
             <td>
               <button class="btn btn-xs btn-danger" ng-click="$ctrl.removeRow( sheet, row.idx )">
                 <span class="glyphicon glyphicon-remove"></span>
