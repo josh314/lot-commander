@@ -1,5 +1,7 @@
 import angular from 'angular';
 
+const __PAGE_SIZE__ = 25;
+
 /******************* Lot List Page Controller *************************/
 angular.module('myApp').controller('ListLotsCtrl', [ 'dbEnums', 'lotStore', 'LotSvc', 'navigate', 'sessionTimeout',
   function( dbEnums, lotStore, LotSvc, navigate, sessionTimeout ) {
@@ -7,37 +9,70 @@ angular.module('myApp').controller('ListLotsCtrl', [ 'dbEnums', 'lotStore', 'Lot
 
     const vm = this;
 
+    vm.pagination = {
+      current: 1,
+      totalItems: 0,
+      pageSize: __PAGE_SIZE__,
+      pageChange: refreshLotsList,
+      maxSize: 5
+    };
+
+    // list options
+    vm.filter = {
+      status: 'All',
+      handle: '',
+    };
+    vm.sortOpts = {
+      key: 'createdAt',
+      ascending: false
+    };
+
     vm.lots = [];
     vm.statusOptions = dbEnums.lotStatus;
-    vm.lotStatus = 'All';
     vm.marketplaces = [undefined].concat(dbEnums.marketplaces);
 
     vm.saveLot = saveLot;
     vm.scanItems = scanItems;
-    vm.update = updateLotList;
+    vm.refreshLotsList = refreshLotsList;
     vm.viewLot = viewLot;
 
-    function updateLotList() {
-      //TODO: incorporate search/sort options
-      const query = {
-        status: vm.lotStatus==='All' ? undefined : vm.lotStatus,
-        handle: vm.lotHandle,
-        endDate: vm.endDate,
-        startDate: vm.startDate,
+    init();
+
+    function init() {
+      // loadUserSettings();
+      refreshLotsList();
+    }
+
+    function refreshLotsList() {
+
+      const filter = {
+        status: vm.filter.status==='All' ? undefined : vm.filter.status,
+        handle: vm.filter.handle,
       };
 
-      LotSvc.list( query ).then( lots => {
+      return LotSvc.count( filter ).then( resp => {
+        vm.pagination.totalItems = resp.count;
 
-        lots.forEach( lot =>{
-          lot.readableUpdatedAt = (new Date(lot.updatedAt)).toLocaleString();
-          lot.readableCreatedAt = (new Date(lot.createdAt)).toLocaleString();
+        const pagedQueryOptions = {
+          filter,
+          sort: vm.sortOpts,
+          num: __PAGE_SIZE__,
+          page: vm.pagination.current,
+        };
+
+        return LotSvc.list( pagedQueryOptions ).then( lots => {
+
+          lots.forEach( lot =>{
+            lot.readableUpdatedAt = (new Date(lot.updatedAt)).toLocaleString();
+            lot.readableCreatedAt = (new Date(lot.createdAt)).toLocaleString();
+          });
+
+          vm.lots = lots;
         });
-        vm.lots = lots;
 
       });
 
     }
-    updateLotList();
 
     function scanItems( lotId ) {
       const targetLot = vm.lots.find(lot => lot._id === lotId);

@@ -13,8 +13,12 @@ module.exports = function( lotdbClient ) {
     return lotdbClient.getLotByHandle( handle );
   }
 
-  function listLots( query, opts ) {
-    return lotdbClient.getLots( query, opts );
+  function listLots( query ) {
+    return lotdbClient.listLots( query );
+  }
+
+  function countLots( query ) {
+    return lotdbClient.countLots( query );
   }
 
   async function createLot( _data ) {
@@ -66,6 +70,7 @@ module.exports = function( lotdbClient ) {
   return {
 
     // other functionality
+    countLots,
     listLots,
     getLotById,
     getLotByHandle,

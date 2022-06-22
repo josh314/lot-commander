@@ -7,30 +7,68 @@ const Promise = require('bluebird');
 **********************************************************
 **********************************************************/
 
+
+const lotQueryFilter = ( { handle, status } ) => {
+  const filter = {
+    isDeleted: false,
+  };
+
+  if ( handle ) {
+    filter.handle = handle;
+  }
+
+  if( status ) {
+    filter.status = status;
+  }
+
+  return filter;
+};
+
+
 exports.Client = function( { Lot } ) {
 
   this.LotModel = Lot;
   this.enums = Lot.enums;
 
-  this.getLots = function(query, opts={}) {
+  this.countLots = function( filterParams ) {
 
-    Object.assign( query, { isDeleted: false } );
+    const filter = lotQueryFilter( filterParams );
 
-    const sortOpts = opts.sort || { createdAt: -1 };
-    if(opts.limit) {
-      return this.LotModel.find(query).sort(sortOpts).limit(opts.limit);
+    return this.LotModel.countDocuments( filter );
+  };
+
+
+  this.listLots = function( { num, skip, sort, sortDir, filterParams } ) {
+
+    const filter = lotQueryFilter( filterParams );
+
+    let sortField;
+    if ( sort ) {
+      sortField = sort;
     }
     else {
-      return this.LotModel.find(query).sort(sortOpts);
+      sortField = 'createdAt';
     }
-  };
+
+    const sortParams = {
+      [ sortField ] : sortDir || 1
+    };
+
+    if( sortField !== 'createdAt' ) {
+      sortParams.createdAt = -1;
+    }
+
+    const q = this.LotModel.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
+    return q.exec();
+
+  }
 
   this.submitNewLot = Promise.method(function(lot) {
     //TODO: validation -> needs handle
     if(!lot.status) {
       lot.status = this.enums.status[0];
     }
-    
+
     if( typeof lot.isDeleted !== 'boolean' ) {
       lot.isDeleted = false;
     }

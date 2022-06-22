@@ -138,15 +138,24 @@ function routes({ inventoryCommander, lotdb }) {
 
     try {
 
-      console.log('Lot list requested.');
-      const opts = {
-        sort: { createdAt: -1 },
-        limit: 100,
+      const numPage = parseInt( req.query.num ) || 10;
+      const page = parseInt( req.query.page ) || 1;
+
+      const query = {
+        // paging
+        skip: ( page - 1 ) * numPage,
+        num: numPage,
+
+        // sorting
+        sort: req.query.sort,
+        sortDir: req.query.sort_dir ? parseInt(req.query.sort_dir) : undefined,
+
+        // filters
+        filterParams: listLotsFilterParamsFromQueryParams( req.query ),
+
       };
 
-      const query = listLotsFilterParamsFromQueryParams( req.query );
-
-      const lots = await lotdb.listLots(query, opts);
+      const lots = await lotdb.listLots( query );
 
       res.json( { lots } );
 

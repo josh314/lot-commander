@@ -1,21 +1,37 @@
-<div class="container" ng-controller="ListLotsCtrl as ctrl">
+<div class="container" ng-controller="ListLotsCtrl as $ctrl">
 	<div class="row well">
 		<h2>Lots</h2>
 		<fieldset class="col-xs-12 box-border">
 			<legend class="box-border">Filter</legend>
 			<div class="form-group col-xs-12 col-sm-6">
 				<label for="lotHandleFilter">Handle</label>
-				<input class="form-control" name="lotHandleFilter" ng-model="ctrl.lotHandle" ng-keyup="ctrl.update()">
+				<input class="form-control" name="lotHandleFilter" ng-model="$ctrl.filter.handle" ng-keyup="$ctrl.refreshLotsList()">
 			</div>
 			<div class="form-group col-xs-12 col-sm-6">
 				<label for="lotStatusFilter">Status</label>
-				<select class="form-control" name="lotStatusFilter" ng-model="ctrl.lotStatus" ng-change="ctrl.update()">
-					<option ng-repeat="status in ['All'].concat( ctrl.statusOptions )">{{status}}</option>
+				<select class="form-control" name="lotStatusFilter" ng-model="$ctrl.filter.status" ng-change="$ctrl.refreshLotsList()">
+					<option ng-repeat="status in ['All'].concat( $ctrl.statusOptions )">{{status}}</option>
 				</select>
 			</div>
 		</fieldset>
+
+
+    <ul uib-pagination
+      total-items="$ctrl.pagination.totalItems"
+      items-per-page="$ctrl.pagination.pageSize"
+      ng-model="$ctrl.pagination.current"
+      ng-change="$ctrl.pagination.pageChange()"
+      class="pagination-sm pull-right"
+
+      max-size="$ctrl.pagination.maxSize"
+      boundary-links="true"
+      boundary-link-numbers="true"
+      force-ellipses="true"></ul>
+
+
 		<table class="table table-striped">
 			<thead><tr>
+        <th></th>
 				<th>Handle</th>
 				<th>Total Units</th>
 				<th>Created</th>
@@ -26,22 +42,32 @@
 				<th></th>
 			</tr></thead>
 			<tbody>	
-				<tr ng-repeat="lot in ctrl.lots">
+				<tr ng-repeat="lot in $ctrl.lots">
+
+          <td>{{$index+1}}</td>
+
 					<td><a ng-href="lots/view/{{lot._id}}">{{lot.handle}}</a></td>
-				    <td>{{lot.totalUnits ? lot.totalUnits : '---'}}</td>
-				    <td>{{lot.readableCreatedAt}}</td>
-				    <td>{{lot.readableUpdatedAt}}</td>
-				    <td>{{lot.status}}</td>
-				    <td>
-			    		<select ng-model="lot.destinationMarketplace" ng-change="ctrl.saveLot(lot)">
-			    			<option ng-repeat="marketplace in ctrl.marketplaces">{{ marketplace }}</option>
-				    	</select>
-				    </td>
-            <td>
-              <span>
-                <button class="btn btn-success btn-xs" ng-click="ctrl.scanItems( lot._id )" ng-disabled="lot.unmanifested">Scan Items</button>
-              </span>
-            </td>
+
+          <td>{{lot.totalUnits ? lot.totalUnits : '---'}}</td>
+
+          <td>{{lot.readableCreatedAt}}</td>
+
+          <td>{{lot.readableUpdatedAt}}</td>
+
+          <td>{{lot.status}}</td>
+
+          <td>
+            <select ng-model="lot.destinationMarketplace" ng-change="$ctrl.saveLot(lot)">
+              <option ng-repeat="marketplace in $ctrl.marketplaces">{{ marketplace }}</option>
+            </select>
+          </td>
+
+          <td>
+            <span>
+              <button class="btn btn-success btn-xs" ng-click="$ctrl.scanItems( lot._id )" ng-disabled="lot.unmanifested">Scan Items</button>
+            </span>
+          </td>
+
 				</tr>
 			</tbody>
 		</table>
