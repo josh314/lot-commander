@@ -116,23 +116,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
         publish: false,
         shopify: {
           shippingRate: '',
-          additionalTags: (function(){
-            const tags = [ ];
-            const handleTags = {
-              'PC': 'personal care',
-              'GM': 'general merchandise',
-              'VT': 'vitamins',
-              'NP': 'nail polish',
-              'CS': 'cosmetics',
-              'AP': 'clothing'
-            };
-
-            const match = vm.lot.handle.match(/^([a-zA-Z]{2})/);
-            if(match && match[1] && handleTags[match[1]]) {
-              tags.push(handleTags[match[1]]);
-            }
-            return tags.join(', ');
-          })(),
+          additionalTags: defaultTags( lotStore ),
           packagingType: lotStore.packagingType,
           guarantee: { value: 'standard' },
         }
@@ -163,6 +147,31 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
         refreshProductData: false,
         estimatedRetailValue: estimatedRetailValue,
       };
+
+    }
+
+    function defaultTags( lot ) {
+
+      const tags = [ ];
+      const handleTags = {
+        'PC': 'personal care',
+        'GM': 'general merchandise',
+        'VT': 'vitamins',
+        'NP': 'nail polish',
+        'CS': 'cosmetics',
+        'AP': 'clothing'
+      };
+
+      const match = lot.handle.match(/^([a-zA-Z]{2})/);
+      if(match && match[1] && handleTags[match[1]]) {
+        tags.push(handleTags[match[1]]);
+      }
+
+      if( lot.category && !tags.find( _tag => _tag === lot.category ) ) {
+        tags.push( lot.category );
+      }
+
+      return tags.join(', ');
 
     }
 

@@ -237,11 +237,13 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
       const splitSheets = manifest.splitActiveSheetByColumn( 'Pallet ID' );
 
       const splitManifests = splitSheets.map( s => {
+        const palletName = s.name;
+        s.name = 'Data';
         const manifest = new Manifest( [ s ] );
 
         const res = {
           summary: manifest.standardTotals(),
-          file: createFile( `${manifest.activeSheet.name}.xlsx`, manifest, true )
+          file: createFile( `${ palletName }.xlsx`, manifest, true )
         };
 
         return res;

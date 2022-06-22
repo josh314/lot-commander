@@ -87,7 +87,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
       close: closeExpectedPallet,
       save: saveExpectedPallet,
     };
-    vm.somePalletsEditing = ( pallets ) => pallets.some( p => p.isEditing );
+    vm.somePalletsEditing = ( pallets ) => pallets ? pallets.some( p => p.isEditing ) : false;
 
     vm.printShipmentLabels = printShipmentLabels;
 
