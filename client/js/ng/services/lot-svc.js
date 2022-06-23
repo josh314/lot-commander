@@ -10,6 +10,8 @@ angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
 
       cloneImages: ( lotId, images ) => $q.when( api.cloneImages( lotId, images ) ),
 
+      count: query => $q.when( api.countLots( query ) ),
+
       create: data => $q.when( api.createLot( data ) ),
 
       delete: lotId => $q.when( api.deleteLot( lotId ) ),
@@ -26,7 +28,29 @@ angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
 
       import3rdPartyManifestBlock: ( lot, blockId ) => $q.when( api.import3rdPartyManifestBlock({ lot, blockId }) ),
 
-      list: query => $q.when( api.listLots( query ) ),
+      list: ( { filter, sort, num, page } ) => {
+
+        const query = {
+          num,
+          page
+        };
+
+        Object.assign( query, filter );
+
+        if( sort.key ) {
+          query.sort = sort.key;
+          query.sort_dir = sort.ascending ? 1 : -1;
+        }
+
+        return $q.when( api.listLots( query ) ).then( lots => {
+          if( !lots ) {
+            return [];
+          }
+
+          return lots;
+
+        });
+      },
 
       load: () => $q.when( api.getLot( $stateParams.lotId ) ).then( async (lot) => {
 
@@ -57,7 +81,7 @@ angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
         return $q.when( api.saveLotManifest( lotStore ) );
 
       }
-    
+
     };
 
   }

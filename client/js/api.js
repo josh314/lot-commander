@@ -36,6 +36,16 @@ export function listLots( queryParams ) {
 
 }
 
+export function countLots( queryParams ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/lots/count?${ queryParams ? qs.stringify( queryParams ) : ''}`
+  })
+    .then( resp => resp.data );
+
+}
+
 export function getLotByHandle( handle ) {
 
   if(!handle) {
