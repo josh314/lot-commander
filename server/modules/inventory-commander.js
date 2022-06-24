@@ -1585,6 +1585,103 @@ class InventoryCommander {
 
   }
 
+  async aggregatePurchases( { startDate, endDate } ) {
+
+    let shipmentMatchDoc;
+
+    if( startDate || endDate ) {
+
+      shipmentMatchDoc = {
+        $and: [
+          { isDeleted: false }
+        ]
+      };
+
+      if( startDate ) {
+
+        shipmentMatchDoc.$and.push(
+          { createdAt: { $gte: startDate } }
+        );
+
+      }
+
+
+      if( endDate ) {
+
+        shipmentMatchDoc.$and.push(
+          { createdAt: { $lte: endDate } }
+        );
+
+      }
+
+    }
+    else {
+
+      shipmentMatchDoc = {
+        isDeleted: false,
+      };
+
+    }
+
+    const groups = await this.IncomingShipment.aggregate()
+      .match( shipmentMatchDoc )
+      .unwind( 'palletsExpected' )
+      .group( {
+        _id: {
+          "category": "$palletsExpected.category",
+          "condition": "$palletsExpected.condition"
+        },
+        units: { $sum: "$palletsExpected.units" },
+        count: { $sum: 1 },
+        cost: { $sum: "$palletsExpected.cost" }
+      } );
+
+    const groupTitleMap = groups.map( _grp => {
+
+      const res = {
+        count: _grp.count
+      };
+
+      if( _grp.cost ) {
+        res.cost = _grp.cost;
+      }
+
+      if( _grp.units ) {
+        res.units = _grp.units;
+      }
+
+      if( _grp._id.category ) {
+        res.category = _grp._id.category;
+      }
+
+      if( _grp._id.condition ) {
+        res.condition = _grp._id.condition;
+      }
+
+      return res;
+    })
+      .reduce( ( acc, grp ) => {
+
+        // title = "category:condition", "uncategorized:condition" or "category"
+        const title = `${ grp.category ? grp.category : 'uncategorized' }${ grp.condition ? ` -- ${grp.condition}` : '' }`;
+
+        const existingGrp = acc.get(title);
+        if( existingGrp ) {
+          existingGrp.count += grp.count;
+          existingGrp.cost += grp.cost;
+        }
+        else {
+          acc.set( title, Object.assign( { title }, grp ) );
+        }
+
+        return acc;
+      }, new Map());
+  
+    return [ ...groupTitleMap.values() ].sort( (a,b) => a.title < b.title ? -1 : 1 );
+  
+
+  }
+
 }
 
 module.exports = InventoryCommander;

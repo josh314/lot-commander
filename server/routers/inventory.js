@@ -1,6 +1,8 @@
 const express = require('express');
+const dayjs = require('dayjs');
 
 const auth = require('../auth');
+
 
 module.exports = routes;
 
@@ -13,7 +15,7 @@ module.exports = routes;
 function routes({ inventoryCommander }) {
   const router = new express.Router();
 
-  /*******************************************
+  /******************************************
    * Register route handlers
    * ======
    * 
@@ -33,6 +35,11 @@ function routes({ inventoryCommander }) {
     '/bundles',
     auth.isAuthorized( 'VIEW_BUNDLE' ),
     getBundleInventory
+  );
+  router.get(
+    '/purchases',
+    // TODO: auth
+    getPurchaseAggregation
   );
 
 
@@ -80,6 +87,24 @@ function routes({ inventoryCommander }) {
     const inventory = await inventoryCommander.getBundleInventory( options );
 
     res.json( { inventory } );
+  }
+
+  async function getPurchaseAggregation( req, res, _next ) {
+
+    const options = {};
+
+    if( req.query.start_date ) {
+      options.startDate = dayjs( req.query.start_date ).startOf('day').toDate();
+    }
+
+    if( req.query.end_date ) {
+      options.endDate = dayjs( req.query.end_date ).endOf('day').toDate();
+    }
+
+    const purchases = await inventoryCommander.aggregatePurchases( options );
+
+    res.json( { purchases } );
+
   }
 
 
