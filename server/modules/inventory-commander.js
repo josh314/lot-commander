@@ -1585,7 +1585,7 @@ class InventoryCommander {
 
   }
 
-  async aggregatePurchases( { startDate, endDate } ) {
+  async aggregateExpectedPallets( { startDate, endDate } ) {
 
     let shipmentMatchDoc;
 

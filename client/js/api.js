@@ -566,6 +566,19 @@ export function removeIncomingShipmentPalletConsolidated( shipmentId, palletId )
     .then( resp => resp.data );
 }
 
+export function aggregateExpectedPallets( startDate, endDate ) {
+
+  const queryParams = {
+    start_date: startDate,
+    end_date:  endDate
+  };
+
+  return axios({
+    method: 'get',
+    url: `/api/inventory/expected-pallets?${ qs.stringify( queryParams ) }`,
+  })
+    .then( resp => resp.data && resp.data.pallets );
+}
 
 /*************************************************
 * Documents

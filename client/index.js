@@ -77,6 +77,7 @@ import "./js/ng/controllers/navbar-ctrl.js";
 import "./js/ng/controllers/new-lot-ctrl.js";
 import "./js/ng/controllers/pallets-from-manifest-modal-ctrl.js";
 import "./js/ng/controllers/past-image-gallery-modal-ctrl.js";
+import "./js/ng/controllers/purchase-aggregation-ctrl.js";
 import "./js/ng/controllers/reports-ctrl.js";
 import "./js/ng/controllers/root-ctrl.js";
 import "./js/ng/controllers/scan-ctrl.js";

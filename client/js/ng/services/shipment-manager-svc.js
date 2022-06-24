@@ -114,6 +114,8 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'L
 
       uploadShipmentDocument: ( { shipmentId, file, documentType, isRestricted } ) => $q.when( api.uploadObjectDocument( shipmentId || _shipmentId(), 'shipment', file, { documentType, isRestricted } ) ),
 
+      aggregateExpectedPallets: ( startDate, endDate ) => $q.when( api.aggregateExpectedPallets( startDate, endDate ) ),
+
     };
 
 

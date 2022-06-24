@@ -37,9 +37,9 @@ function routes({ inventoryCommander }) {
     getBundleInventory
   );
   router.get(
-    '/purchases',
-    // TODO: auth
-    getPurchaseAggregation
+    '/expected-pallets',
+    auth.isAuthorized( 'VIEW_PURCHASE_DATA' ),
+    getExpectedPalletsAggregation
   );
 
 
@@ -89,7 +89,7 @@ function routes({ inventoryCommander }) {
     res.json( { inventory } );
   }
 
-  async function getPurchaseAggregation( req, res, _next ) {
+  async function getExpectedPalletsAggregation( req, res, _next ) {
 
     const options = {};
 
@@ -101,9 +101,9 @@ function routes({ inventoryCommander }) {
       options.endDate = dayjs( req.query.end_date ).endOf('day').toDate();
     }
 
-    const purchases = await inventoryCommander.aggregatePurchases( options );
+    const pallets = await inventoryCommander.aggregateExpectedPallets( options );
 
-    res.json( { purchases } );
+    res.json( { pallets } );
 
   }
 
