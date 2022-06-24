@@ -1,0 +1,30 @@
+<table class="table table-striped">
+  <thead><tr>
+    <th>Type</th>
+    <th>Count</th>
+    <th ng-show="$ctrl.showPurchasingData">Total Cost</th>
+    <th></th>
+  </tr></thead>
+  <tbody>
+    <tr ng-repeat="group in $ctrl.palletsAggregation">
+      <td>
+        <span>{{ group.title }}</span>
+      </td>
+      <td>
+        <span>{{ group.count }}</span>
+      </td>
+      <td ng-show="$ctrl.showPurchasingData">
+        <span>{{ group.cost }}</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="border-top: solid thin;"><strong>Total</strong></td>
+      <td style="border-top: solid thin;">
+        <strong><span>{{ $ctrl.aggregationTotalCount }}</span></strong>
+      </td>
+      <td style="border-top: solid thin;" ng-show="$ctrl.showPurchasingData">
+        <strong><span>{{ $ctrl.aggregationTotalCost }}</span></strong>
+      </td>
+    </tr>
+  </tbody>
+</table>

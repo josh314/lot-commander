@@ -51,7 +51,7 @@ const stateData = [
   { name: "main.receiving.shipment-details", url: '/shipments/{shipmentId}', templateUrl: '/partials/receiving/_shipment_details.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
   { name: "main.receiving.shipment-receiving", url: '/shipments/{shipmentId}/receive', templateUrl: '/partials/receiving/_shipment_receiving.html', userPermission: 'RECEIVE_INCOMING_SHIPMENT' },
   { name: "main.receiving.shipment-clean-manifest", url: '/shipments/{shipmentId}/manifests/clean', templateUrl: '/partials/_clean_manifest.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
-  { name: "main.receiving.inventory-pallet-list", navName: "Pallets", navParent: 'Receiving', url: '/pallets', templateUrl: '/partials/receiving/_inventory_pallet_list.html', userPermission: 'LIST_INVENTORY_PALLETS' },
+  { name: "main.receiving.inventory-pallet-view", navName: "Pallets", navParent: 'Receiving', url: '/pallets', templateUrl: '/partials/receiving/_inventory_pallet_view.html', userPermission: 'LIST_INVENTORY_PALLETS' },
   { name: "main.receiving.inventory-pallet-creation", url: '/pallets/create', templateUrl: '/partials/receiving/_inventory_pallet_creation.html', userPermission: 'CREATE_INVENTORY_PALLET' },
   { name: "main.receiving.inventory-pallets-to-be-listed", navName: "Pallets to be listed", navParent: 'Receiving', url: '/pallets-to-be-listed', templateUrl: '/partials/receiving/_inventory_pallets_to_be_listed.html', userPermission: 'LIST_INVENTORY_PALLETS_TO_BE_LISTED' },
 

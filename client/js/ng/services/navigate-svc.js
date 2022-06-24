@@ -1,7 +1,7 @@
 import angular from 'angular';
 
 /****************** Navigate Service *****************************
-* 
+*
 * Used for navigating around the app. Mostly just wraps the $state service
 *
 ************/
@@ -71,9 +71,9 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     $state.go( 'main.receiving.inventory-pallet-creation');
   };
 
-  const inventoryPalletList = () => {
+  const inventoryPalletView = () => {
     $anchorScroll();
-    $state.go( 'main.receiving.inventory-pallet-list' );
+    $state.go( 'main.receiving.inventory-pallet-view' );
   };
 
   const cleanManifest = () => {
@@ -110,7 +110,7 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     listLots: listLots,
     lotGallery: lotGallery,
     inventoryPalletCreation: inventoryPalletCreation,
-    inventoryPalletList: inventoryPalletList,
+    inventoryPalletView: inventoryPalletView,
     reload: reload,
     shipmentCleanManifest: shipmentCleanManifest,
     shipmentCreation: shipmentCreation,

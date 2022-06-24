@@ -105,7 +105,7 @@ angular.module('myApp').controller( 'InventoryPalletCreationCtrl', [
         const request = vm.inputs.pallets;
 
         InventoryPalletManagerSvc.create( request )
-          .then( _ => navigate.inventoryPalletList() )
+          .then( _ => navigate.inventoryPalletView() )
           .catch( e => {
             ModalSvc.message( { header: 'Error', body: e.message, type: 'error' } );
           });

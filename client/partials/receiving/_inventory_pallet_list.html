@@ -1,170 +1,85 @@
-<div class="container" ng-controller="InventoryPalletListCtrl as $ctrl">
-  <h2>Inventory Pallets</h2>
+<div style="display: flex; flex-direction: column">
 
-  <div class="well-tabs">
+  <div>
+    <button class="btn btn-primary pull-right" ng-click="$ctrl.createPallet()">Create New Pallet</button>
+    <fieldset class="col-xs-12 box-border">
+      <legend class="box-border">Filter</legend>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label for="palletHandleFilter">Pallet ID</label>
+        <input class="form-control" name="palletHandleFilter" ng-model="$ctrl.filter.handle" ng-keyup="$ctrl.refreshPalletsData()">
+      </div>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label for="categoryFilter">Category</label>
+        <select class="form-control" name="categoryFilter" ng-model="$ctrl.filter.category" ng-change="$ctrl.refreshPalletsData()">
+          <option ng-repeat="cat in $ctrl.categoryOptions">{{ cat }}</option>
+        </select>
+      </div>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label for="conditionFilter">Condition</label>
+        <select class="form-control" name="conditionFilter" ng-model="$ctrl.filter.condition" ng-change="$ctrl.refreshPalletsData()">
+          <option ng-repeat="condition in $ctrl.conditionOptions">{{ condition }}</option>
+        </select>
+      </div>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label for="shipmentHandleFilter">Shipment ID</label>
+        <input class="form-control" name="shipmentHandleFilter" ng-model="$ctrl.filter.shipmentHandle" ng-keyup="$ctrl.refreshPalletsData()">
+      </div>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label for="palletStatusFilter">Status</label>
+        <select class="form-control" name="palletStatusFilter" ng-model="$ctrl.filter.status" ng-change="$ctrl.refreshPalletsData()">
+          <option>not brokendown</option>
+          <option>brokendown</option>
+          <option>all</option>
+        </select>
+      </div>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label for="palletToBeListedFilter">To Be Listed</label>
+        <select class="form-control" name="palletToBeListedFilter" ng-model="$ctrl.filter.toBeListed" ng-change="$ctrl.refreshPalletsData()">
+          <option ng-value="null"></option>
+          <option ng-value="true">yes</option>
+          <option ng-value="false">no</option>
+        </select>
+      </div>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label for="pallethasLotFilter">Lot created?</label>
+        <select class="form-control" name="pallethasLotFilter" ng-model="$ctrl.filter.hasLot" ng-change="$ctrl.refreshPalletsData()">
+          <option ng-value="null">any</option>
+          <option ng-value="true">yes</option>
+          <option ng-value="false">no</option>
+        </select>
+      </div>
+    </fieldset>
+  </div>
 
-    <div style="display: flex; justify-content: flex-end;">
-      <ul class="nav nav-tabs">
-        <li role="presentation" ng-class="{ active: $ctrl.displayModeActiveIs( $ctrl.displayModes.LIST ) }" ng-click="$ctrl.setDisplayModeActive( $ctrl.displayModes.LIST )"><a href="#"> List </a></li>
-        <li role="presentation" ng-class="{ active: $ctrl.displayModeActiveIs( $ctrl.displayModes.AGGREGATE ) }" ng-click="$ctrl.setDisplayModeActive( $ctrl.displayModes.AGGREGATE )"><a href="#">Aggregate</a></li>
+  <div style="display: flex; justify-content: space-between; align-items: baseline;">
+
+    <div class="btn-group dropdown" ng-class="{ open: $ctrl.showColumnOptions }">
+      <button type="button" class="btn btn-default dropdown-toggle" ng-click="$ctrl.toggleShowColumnOptions()">
+        Columns <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        <li ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable" ng-click="$ctrl.toggleColumnActive( columnKey )">
+          <a><label for="{{columnKey}}ColumnDisplayToggleInput">
+            <input type="checkbox" id="{{columnKey}}ColumnDisplayToggleInput" ng-model="$ctrl.columns[columnKey].active" ng-click="$event.stopPropagation();"> {{ columnData.displayName}}
+          </label></a>
+        </li>
       </ul>
     </div>
 
-    <div class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.LIST">
+    <ul uib-pagination
+    total-items="$ctrl.pagination.totalItems"
+    items-per-page="$ctrl.pagination.pageSize"
+    ng-model="$ctrl.pagination.current"
+    ng-change="$ctrl.pagination.pageChange()"
+    class="pagination-sm pull-right"
 
-      <div>
-        <button class="btn btn-primary pull-right" ng-click="$ctrl.createPallet()">Create New Pallet</button>
-        <fieldset class="col-xs-12 box-border">
-          <legend class="box-border">Filter</legend>
-          <div class="form-group col-xs-12 col-sm-6">
-            <label for="palletHandleFilter">Pallet ID</label>
-            <input class="form-control" name="palletHandleFilter" ng-model="$ctrl.filter.handle" ng-keyup="$ctrl.refreshPalletsData()">
-          </div>
-          <div class="form-group col-xs-12 col-sm-6">
-            <label for="categoryFilter">Category</label>
-            <select class="form-control" name="categoryFilter" ng-model="$ctrl.filter.category" ng-change="$ctrl.refreshPalletsData()">
-              <option ng-repeat="cat in $ctrl.categoryOptions">{{ cat }}</option>
-            </select>
-          </div>
-          <div class="form-group col-xs-12 col-sm-6">
-            <label for="conditionFilter">Condition</label>
-            <select class="form-control" name="conditionFilter" ng-model="$ctrl.filter.condition" ng-change="$ctrl.refreshPalletsData()">
-              <option ng-repeat="condition in $ctrl.conditionOptions">{{ condition }}</option>
-            </select>
-          </div>
-          <div class="form-group col-xs-12 col-sm-6">
-            <label for="shipmentHandleFilter">Shipment ID</label>
-            <input class="form-control" name="shipmentHandleFilter" ng-model="$ctrl.filter.shipmentHandle" ng-keyup="$ctrl.refreshPalletsData()">
-          </div>
-          <div class="form-group col-xs-12 col-sm-6">
-            <label for="palletStatusFilter">Status</label>
-            <select class="form-control" name="palletStatusFilter" ng-model="$ctrl.filter.status" ng-change="$ctrl.refreshPalletsData()">
-              <option>not brokendown</option>
-              <option>brokendown</option>
-              <option>all</option>
-            </select>
-          </div>
-          <div class="form-group col-xs-12 col-sm-6">
-            <label for="palletToBeListedFilter">To Be Listed</label>
-            <select class="form-control" name="palletToBeListedFilter" ng-model="$ctrl.filter.toBeListed" ng-change="$ctrl.refreshPalletsData()">
-              <option ng-value="null"></option>
-              <option ng-value="true">yes</option>
-              <option ng-value="false">no</option>
-            </select>
-          </div>
-          <div class="form-group col-xs-12 col-sm-6">
-            <label for="pallethasLotFilter">Lot created?</label>
-            <select class="form-control" name="pallethasLotFilter" ng-model="$ctrl.filter.hasLot" ng-change="$ctrl.refreshPalletsData()">
-              <option ng-value="null">any</option>
-              <option ng-value="true">yes</option>
-              <option ng-value="false">no</option>
-            </select>
-          </div>
-        </fieldset>
-      </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: baseline;">
-
-        <div class="btn-group dropdown" ng-class="{ open: $ctrl.showColumnOptions }">
-          <button type="button" class="btn btn-default dropdown-toggle" ng-click="$ctrl.toggleShowColumnOptions()">
-            Columns <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu">
-            <li ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable" ng-click="$ctrl.toggleColumnActive( columnKey )">
-              <a><label for="{{columnKey}}ColumnDisplayToggleInput">
-                <input type="checkbox" id="{{columnKey}}ColumnDisplayToggleInput" ng-model="$ctrl.columns[columnKey].active" ng-click="$event.stopPropagation();"> {{ columnData.displayName}}
-              </label></a>
-            </li>
-          </ul>
-        </div>
-
-        <ul uib-pagination
-        total-items="$ctrl.pagination.totalItems"
-        items-per-page="$ctrl.pagination.pageSize"
-        ng-model="$ctrl.pagination.current"
-        ng-change="$ctrl.pagination.pageChange()"
-        class="pagination-sm pull-right"
-
-        max-size="$ctrl.pagination.maxSize"
-        boundary-links="true"
-        boundary-link-numbers="true"
-        force-ellipses="true"></ul>
-
-      </div>
-
-      <ng-include src="'/partials/receiving/_inventory_pallet_list_table.html'"></ng-include>
-
-    </div>
-
-    <div class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.AGGREGATE">
-
-      <div style="display: flex; justify-content: space-between; align-items: center;" class="hidden-xs">
-
-        <div class="form-group">
-          <label for="reportDateSearchInput">Report Date (end of day)</label>
-          <input
-            type="date"
-            class="form-control"
-            id="reportDateSearchInput"
-            ng-model="$ctrl.aggregationReportDate"
-            min="{{ $ctrl.aggregationReportMinDate }}"
-            max="{{ $ctrl.aggregationReportMaxDate }}"
-            ng-change="$ctrl.refreshPalletsData()"
-          />
-        </div>
-
-        <div ng-show="$ctrl.showPurchasingData">
-          <span class="h3">Total cost across all groups: {{ $ctrl.aggregationTotal || '---'}}</span>
-        </div>
-
-      </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-direction: column;" class="visible-xs-block">
-
-        <div class="form-group">
-          <label for="reportDateSearchInput">Report Date (end of day)</label>
-          <input
-            type="date"
-            class="form-control"
-            id="reportDateSearchInput"
-            ng-model="$ctrl.aggregationReportDate"
-            min="{{ $ctrl.aggregationReportMinDate }}"
-            max="{{ $ctrl.aggregationReportMaxDate }}"
-            ng-change="$ctrl.refreshPalletsData()"
-          />
-        </div>
-
-        <div ng-show="$ctrl.showPurchasingData">
-          <span class="h4">Total cost across all groups: {{ $ctrl.aggregationTotal || '---'}}</span>
-        </div>
-
-      </div>
-
-      <table class="table table-striped">
-        <thead><tr>
-          <th>Type</th>
-          <th>Count</th>
-          <th ng-show="$ctrl.showPurchasingData">Total Cost</th>
-          <th></th>
-        </tr></thead>
-        <tbody>
-          <tr ng-repeat="group in $ctrl.palletsAggregation">
-            <td>
-              <span>{{ group.title }}</span>
-            </td>
-            <td>
-              <span>{{ group.count }}</span>
-            </td>
-            <td ng-show="$ctrl.showPurchasingData">
-              <span>{{ group.cost }}</span>
-            </td>
-            <td>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    max-size="$ctrl.pagination.maxSize"
+    boundary-links="true"
+    boundary-link-numbers="true"
+    force-ellipses="true"></ul>
 
   </div>
+
+  <ng-include src="'/partials/receiving/_inventory_pallet_list_table.html'"></ng-include>
 
 </div>

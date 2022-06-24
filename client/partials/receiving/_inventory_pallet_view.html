@@ -1,0 +1,48 @@
+<div class="container" ng-controller="InventoryPalletViewCtrl as $ctrl">
+  <h2>Inventory Pallets</h2>
+
+  <div class="well-tabs">
+
+    <div style="display: flex; justify-content: flex-end;">
+      <ul class="nav nav-tabs">
+        <li role="presentation" ng-class="{ active: $ctrl.displayModeActiveIs( $ctrl.displayModes.LIST ) }" ng-click="$ctrl.setDisplayModeActive( $ctrl.displayModes.LIST )"><a href="#"> List </a></li>
+        <li role="presentation" ng-class="{ active: $ctrl.displayModeActiveIs( $ctrl.displayModes.AGGREGATE ) }" ng-click="$ctrl.setDisplayModeActive( $ctrl.displayModes.AGGREGATE )"><a href="#">Aggregate</a></li>
+      </ul>
+    </div>
+
+    <div class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.LIST">
+
+      <ng-include src="'/partials/receiving/_inventory_pallet_list.html'"></ng-include>
+
+    </div>
+
+    <div class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.AGGREGATE">
+
+      <div style="display: flex; flex-direction: column">
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+
+          <div class="form-group">
+            <label for="reportDateSearchInput">Report Date (end of day)</label>
+            <input
+              type="date"
+              class="form-control"
+              id="reportDateSearchInput"
+              ng-model="$ctrl.aggregationReportDate"
+              min="{{ $ctrl.aggregationReportMinDate }}"
+              max="{{ $ctrl.aggregationReportMaxDate }}"
+              ng-change="$ctrl.refreshPalletsData()"
+            />
+          </div>
+
+        </div>
+
+        <ng-include src="'/partials/receiving/_pallet_aggregate_table.html'"></ng-include>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
