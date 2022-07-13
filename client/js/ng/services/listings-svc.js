@@ -2,7 +2,7 @@ import angular from 'angular';
 
 import * as api from '../../api';
 
-/******************* Listings Controller *************************/
+/******************* Listings Service *************************/
 angular.module('myApp').factory('ListingsSvc', [ '$q', function( $q ) {
 
   return {

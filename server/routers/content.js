@@ -7,7 +7,7 @@ module.exports = routes;
 /**********************************************
  * Routes function for export
  * ==========================
- * 
+ *
  **********/
 
 function routes({ shopifyGql }) {
@@ -16,7 +16,7 @@ function routes({ shopifyGql }) {
   /*******************************************
    * Register route handlers
    * ======
-   * 
+   *
    ****/
 
   // view bundle(s)
@@ -30,13 +30,13 @@ function routes({ shopifyGql }) {
     auth.isAuthorized( 'EDIT_STORE_CONTENT' ),
     editContent
   );
-  
+
 
 
   /*******************************************
    * Define Handlers
    * ===============
-   * 
+   *
    ****/
 
 
@@ -52,28 +52,17 @@ function routes({ shopifyGql }) {
     }
   }
 
-  // This is expecting a pretty rigid request body:
-  // {
-  //   "content" : [
-  //     {
-  //       namespace: "namespace",
-  //       key: "key",
-  //       value: "value",
-  //       type: "type" // See possible types at https://shopify.dev/apps/metafields/types
-  //     }
-  //   ]
-  // }
   async function editContent( req, res, next ) {
 
     const { content } = req.body;
 
     try {
 
-      const editPromises = content.map( c => Object.assign( c, { namespace: 'wsn_content' }) ).map( shopifyGql.setShopMetafield.bind( shopifyGql ) );
-      
-      const response = await Promise.all( editPromises );
+      const newMetafield = Object.assign( content, { namespace: 'wsn_content' });
 
-      res.json( { response } );
+      const { metafields } = await shopifyGql.setShopMetafield( newMetafield );
+
+      res.json( { metafields });
 
     }
     catch (e) {
@@ -85,7 +74,7 @@ function routes({ shopifyGql }) {
   /**************************************
    * Return routes
    * =============
-   * 
+   *
    ************/
   return router;
 

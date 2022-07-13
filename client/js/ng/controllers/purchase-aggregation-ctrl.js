@@ -7,22 +7,14 @@ const __TODAY__ = dayjs().startOf('day');
 angular.module('myApp').controller( 'PurchaseAggregationCtrl', [
 
   'LoggedInUser',
-  'navigate',
-  'PalletLotSvc',
-  'palletProperties',
   'sessionTimeout',
-  'SettingsSvc',
   'ShipmentManagerSvc',
   'UtilitiesSvc',
 
   function(
 
     LoggedInUser,
-    navigate,
-    PalletLotSvc,
-    palletProperties,
     sessionTimeout,
-    SettingsSvc,
     ShipmentManagerSvc,
     UtilitiesSvc,
 

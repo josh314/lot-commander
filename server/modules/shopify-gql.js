@@ -409,32 +409,40 @@ class Client {
 
   async setShopMetafield( { namespace, key, value, type } ) {
 
-    const resp = await this.gqlRequest( {
-      gqlQuery: `
-        mutation
-        {
-          metafieldsSet(metafields: {
-            namespace: "${ namespace }",
-            key: "${ key }",
-            ownerId: "${ this.storeId }",
-            type: "${ type }",
-            value: "${ value }"
-          }) {
-            userErrors {
-              field
-              message
-            }
-            metafields {
-              id
+    try {
+      const resp = await this.gqlRequest( {
+        gqlQuery: `
+          mutation
+          {
+            metafieldsSet(metafields: {
+              namespace: "${ namespace }",
+              key: "${ key }",
+              ownerId: "${ this.storeId }",
+              type: "${ type }",
+              value: ${ JSON.stringify(value) }
+            }) {
+              userErrors {
+                field
+                message
+              }
+              metafields {
+                id
+                namespace
+                key
+                value
+                type
+              }
             }
           }
-        }
-      `,
-      debug: false
-    });
+        `,
+        debug: false
+      });
+      console.log(resp)
+      if( resp.data.metafieldsSet.userErrors.length ) {
+        throw new Error(resp.data.metafieldsSet.userErrors);
+      }
 
-    try {
-      return resp;
+      return resp.data.metafieldsSet;
     }
     catch(e) {
       throw e;

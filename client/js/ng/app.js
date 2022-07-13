@@ -61,9 +61,10 @@ const stateData = [
   //Manual Inventory
   { name: "main.manual-inventory", navName: 'Inventory', url: "/manual-inventory", templateUrl: 'partials/_manual_inventory.html', userPermission: 'VIEW_MANUAL_INVENTORY' },
 
-  // Shipping rates
-  { name: "main.shipping-rates", abstract: true, url: '/shipping-rates', templateUrl: '/partials/_container.html' },
-  { name: "main.shipping-rates.store", navName: 'Shipping Rates', url: '/store', templateUrl: '/partials/_store_shipping_rates.html', userPermission: 'EDIT_STORE_SHIPPING_RATES' },
+  // Store
+  { name: "main.store", abstract: true, navName: 'Store', url: '/store', templateUrl: '/partials/_container.html' },
+  { name: "main.store.shipping-rates", navParent: 'Store', navName: 'Shipping Rates', url: '/shipping-rates', templateUrl: '/partials/_store_shipping_rates.html', userPermission: 'EDIT_STORE_SHIPPING_RATES' },
+  { name: "main.store.content", navParent: 'Store', navName: 'Content', url: '/content', templateUrl: '/partials/_store_content.html', userPermission: 'EDIT_STORE_CONTENT' },
 
   // users
   { name: "main.users", abstract:true, navName: "Users", url: "/users", templateUrl: 'partials/_container.html'},

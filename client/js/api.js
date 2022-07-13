@@ -915,3 +915,31 @@ export function incrementCounter( handle, increment ) {
     .then( resp => resp.data.counter );
 
 }
+
+
+/*************************************************
+* Store Content Management
+* ================
+*
+************/
+
+export function listStoreContent( ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/content/`
+  })
+    .then( resp => resp.data );
+
+}
+
+export function editStoreContent( content ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/content`,
+    data: { content }
+  })
+    .then( resp => resp.data.metafields[0] );
+
+}

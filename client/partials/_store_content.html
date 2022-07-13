@@ -1,0 +1,99 @@
+<div class="container" ng-controller="StoreContentCtrl as $ctrl">
+
+  <div class="row well">
+
+    <h2>Store Content</h2>
+
+    <!-- <fieldset class="col-xs-12 box-border">
+      <legend class="box-border">Filter</legend>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label for="productNameFilter">Product name</label>
+        <input class="form-control" name="productNameFilter" ng-model="$ctrl.filter.productName" ng-keyup="$ctrl.refreshVisibleDisplayContent()">
+      </div>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label for="includePalletsFilter">Include Pallets?</label>
+        <select class="form-control" name="includePalletsFilter" ng-model="$ctrl.filter.includePallets" ng-change="$ctrl.refreshContent()">
+          <option ng-value="false">No</option>
+          <option ng-value="true">Yes</option>
+        </select>
+      </div>
+    </fieldset> -->
+
+    <table class="table table-striped" ng-hide="$ctrl.waitingForResponse">
+
+      <thead><tr>
+        <th>Key</th>
+        <th>Type</th>
+        <th>Value</th>
+        <th></th> <!-- save -->
+        <th></th> <!-- revert -->
+      </tr></thead>
+
+      <tbody>
+        <tr ng-repeat="$displayContent in $ctrl.visibleDisplayContent" ng-switch="$displayContent.type">
+          <td>{{ $displayContent.key }}</td>
+          <td>{{ $displayContent.type }}</td>
+          <td >
+            <div class="form-group" ng-class="{ 'has-error' : $displayContent.isDirty() || !$displayContent.isValid() }">
+              <!-- booleans -->
+              <select ng-switch-when="boolean"
+                    id="content-input-{{$index}}"
+                    class="form-control"
+                    ng-model="$displayContent.displayValue"
+                  >
+                <option>true</option>
+                <option>false</option>
+              </select>
+              <!-- numbers -->
+              <!-- <input  ng-switch-when-separator="|" ng-switch-when="number_integer|number_decimal"
+                    type="number"
+                    id="content-input-{{$index}}"
+                    class="form-control"
+                    ng-model="$displayContent.displayValue"
+                    ng-keyup="$event.keyCode == 13 && $ctrl.saveContent( $displayContent.id ) && $ctrl.focusOnRate( $index + 1 )"
+                  /> -->
+              <!-- objects as JSON -->
+              <textarea ng-switch-when="json"
+                        id="content-input-{{$index}}"
+                        class="form-control"
+                        rows="{{$displayContent.displayValue.split('\n').length}}"
+                        ng-model="$displayContent.displayValue"
+                      ></textarea>
+              <span ng-switch-when="json" ng-hide="$displayContent.isValid()" class="text-danger">Not valid JSON</span>
+              <!-- multi-line text -->
+              <textarea ng-switch-when="multi_line_text_field"
+                        id="content-input-{{$index}}"
+                        class="form-control"
+                        rows="{{$displayContent.displayValue.split('\n').length}}"
+                        ng-model="$displayContent.displayValue"
+                      ></textarea>
+              <!-- Single line text  -->
+              <input ng-switch-default
+                    type="text"
+                    id="content-input-{{$index}}"
+                    class="form-control"
+                    ng-model="$displayContent.displayValue"
+                    ng-keyup="$event.keyCode == 13 && $ctrl.saveContent( $displayContent ) && $ctrl.focusOnRate( $index + 1 )"
+                  />
+            </div>
+          </td>
+          <td>
+            <button tabIndex="-1" class="btn btn-xs btn-success" ng-click="$ctrl.saveContent( $displayContent )" ng-disabled="!$displayContent.isValid()">Save</button>
+          </td>
+          <td>
+            <button tabIndex="-1" class="btn btn-xs btn-warning" ng-click="$ctrl.revertContent( $displayContent )">Revert</button>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+    <div class="col-xs-12" ng-show="$ctrl.waitingForResponse">
+      <div class="center-block loader"></div>
+      <h2 class="text-center">Please wait...</h2>
+    </div>
+
+  </div>
+
+
+
+</div>
