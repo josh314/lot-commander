@@ -72,10 +72,9 @@ class Client {
   }
 
 
-  getPage(queryType, nodeQuery, { pageSize, searchQuery, cursor, debug } = {}) {
-    const queryArgs = {
-      first: pageSize || 1,
-    };
+  getPage(queryType, nodeQuery, { pageSize, args, searchQuery, cursor, debug } = {}) {
+
+    const queryArgs = Object.assign({ first: pageSize || 1 }, args ? args : {} );
 
     if(searchQuery) {
       queryArgs.query = searchQuery;
@@ -85,19 +84,35 @@ class Client {
       queryArgs.after = cursor;
     }
 
-    const gqlQuery = `
+    const queryReturnFormat = `
+      pageInfo {
+        hasNextPage
+      }
+      edges {
+        cursor
+        node ${nodeQuery}
+      }`
+    ;
+
+    let gqlQuery;
+    if( queryType === 'shopMetafields' ) {
+      gqlQuery =`
       {
-        page: ${queryType}(${ Object.entries(queryArgs).map( ([key, val]) => `${key}: ${ typeof val === 'string' ? `"${val}"` : val }` ).join(', ') }) {
-          pageInfo {
-            hasNextPage
-          }
-          edges {
-            cursor
-            node ${nodeQuery}
+        shop{
+          page: metafields(${ Object.entries(queryArgs).map( ([key, val]) => `${key}: ${ typeof val === 'string' ? `"${val}"` : val }` ).join(', ') }) {${queryReturnFormat}
           }
         }
       }
     `;
+    }
+    else {
+      gqlQuery = `
+      {
+        page: ${queryType}(${ Object.entries(queryArgs).map( ([key, val]) => `${key}: ${ typeof val === 'string' ? `"${val}"` : val }` ).join(', ') }) {${queryReturnFormat}
+        }
+      }
+    `;
+    }
 
     return this.gqlRequest({
       debug: debug,
@@ -106,7 +121,7 @@ class Client {
 
   }
 
-  async getAll(queryType, nodeQuery, { searchQuery, debug, cursor } = {}, processNode = null) {
+  async getAll(queryType, nodeQuery, { args, searchQuery, debug, cursor } = {}, processNode = null) {
 
     let items = [];
     let getNextPage = true;
@@ -121,6 +136,7 @@ class Client {
           nodeQuery,
           {
             pageSize: 10,
+            args,
             searchQuery: searchQuery,
             debug: debug,
             cursor: cursor
@@ -141,7 +157,7 @@ class Client {
             }
           }
 
-          page = resp.data.page;                  
+          page = queryType === 'shopMetafields' ? resp.data.shop.page : resp.data.page;
           queryCost = resp.extensions.cost.requestedQueryCost;
           availableCost = resp.extensions.cost.throttleStatus.currentlyAvailable;
 
@@ -175,12 +191,45 @@ class Client {
     }
   }
 
-  async getShippingRatesTable() {
-    const resp = await this.gqlRequest( { 
+  async getShopMetafieldsByNamespace( namespace ) {
+    const resp = await this.gqlRequest( {
       gqlQuery: `
         {
           shop {
-            metafield( namespace:"wsn_shipping", key:"rate_table") {
+            metafields( namespace:"${namespace}", first: 10 ) {
+              pageInfo {
+                hasNextPage
+              }
+              edges {
+                cursor
+                node {
+                  id
+                  namespace
+                  key
+                  value
+                }
+              }
+            }
+          }
+        }
+      `,
+      debug: false
+    });
+
+    try {
+      return resp.data;
+    }
+    catch(e) {
+      throw e;
+    }
+  }
+
+  async getShopMetafield( namespace, key ) {
+    const resp = await this.gqlRequest( {
+      gqlQuery: `
+        {
+          shop {
+            metafield( namespace:"${namespace}", key:"${key}") {
               value
             }
           }
@@ -194,21 +243,25 @@ class Client {
     }
     catch(e) {
       throw e;
-    }   
+    }
+  }
+
+  async getShippingRatesTable() {
+    return this.getShopMetafield( "wsn_shipping", "rate_table" );
   }
 
   async setShippingRatesTable( rateTable ) {
 
     const tableString = JSON.stringify( rateTable );
 
-    const resp = await this.gqlRequest( { 
+    const resp = await this.gqlRequest( {
       gqlQuery: `
         mutation
         {
           metafieldsSet(metafields: {
             key: "rate_table",
             namespace: "wsn_shipping",
-            ownerId: "gid://shopify/Shop/${ this.storeId }",
+            ownerId: "${ this.storeId }",
             type: "single_line_text_field",
             value: "${ tableString }"
           }) {
@@ -230,14 +283,14 @@ class Client {
     }
     catch(e) {
       throw e;
-    }   
+    }
   }
 
   async getProductVariantShippingRate( pvid ) {
 
     const gqlPvid = productVariantId2Gid( pvid );
 
-    const resp = await this.gqlRequest( { 
+    const resp = await this.gqlRequest( {
       gqlQuery: `
         {
           productVariant(id: "${ gqlPvid }") {
@@ -257,14 +310,14 @@ class Client {
     }
     catch(e) {
       throw e;
-    }   
+    }
   }
 
   async setProductVariantShippingRate( pvid, rate ) {
 
     const gqlPvid = productVariantId2Gid( pvid );
 
-    const resp = await this.gqlRequest( { 
+    const resp = await this.gqlRequest( {
       gqlQuery: `
         mutation
         {
@@ -290,8 +343,8 @@ class Client {
     });
 
     try {
-      return { 
-        id: pvid, 
+      return {
+        id: pvid,
         rate: parseFloat( resp.data.metafieldsSet.metafields[0].value )
       };
     }
@@ -335,6 +388,57 @@ class Client {
     const result = await this.getAll( 'productVariants', productVariantFlatRateNodeQuery, { searchQuery: searchQuery, debug: debug, cursor: cursor }, processFn );
 
     return result.productVariants;
+  }
+
+  async getShopMetafields( namespace ) {
+    const metafieldNodeQuery = `{
+      id
+      namespace
+      key
+      value
+      type
+    }`;
+
+    const processFn = n => Object.assign( {}, n, { value: n.type === 'json' ? JSON.parse(n.value) : n.value });
+
+    const result = await this.getAll('shopMetafields', metafieldNodeQuery, { args: namespace ? { namespace } : {} }, processFn );
+
+    return result ? { metafields: result.shopMetafields } : result;
+
+  }
+
+  async setShopMetafield( { namespace, key, value, type } ) {
+
+    const resp = await this.gqlRequest( {
+      gqlQuery: `
+        mutation
+        {
+          metafieldsSet(metafields: {
+            namespace: "${ namespace }",
+            key: "${ key }",
+            ownerId: "${ this.storeId }",
+            type: "${ type }",
+            value: "${ value }"
+          }) {
+            userErrors {
+              field
+              message
+            }
+            metafields {
+              id
+            }
+          }
+        }
+      `,
+      debug: false
+    });
+
+    try {
+      return resp;
+    }
+    catch(e) {
+      throw e;
+    }
   }
 
 }

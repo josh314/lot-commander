@@ -59,6 +59,8 @@ function routes({
     require('./reports')( { shopifyDumpDb })
   );
 
+  router.use('/api/content', require('./content')( { shopifyGql } ) );
+
 
   // inventory commander
   router.use('/api/inventory', require('./inventory')( { inventoryCommander } ) );
