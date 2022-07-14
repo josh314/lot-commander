@@ -7,8 +7,9 @@ angular.module('myApp').factory('StoreContentSvc', [ '$q', function( $q ) {
 
   return {
 
+    get: gid => $q.when( api.getStoreContent( gid ) ),
 
-    edit: newContent  => $q.when( api.editStoreContent( newContent ) ),
+    edit: newContent => $q.when( api.editStoreContent( newContent ) ),
 
     list: () => $q.when( api.listStoreContent() ).then( content =>  {
 
@@ -16,6 +17,7 @@ angular.module('myApp').factory('StoreContentSvc', [ '$q', function( $q ) {
 
     }),
 
+    delete: gid => $q.when( api.deleteStoreContent( gid ) ),
 
   };
 

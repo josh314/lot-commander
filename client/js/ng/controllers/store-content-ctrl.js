@@ -77,6 +77,9 @@ class DisplayContent {
         return false;
       }
     }
+    if( this.type === 'boolean' ) {
+      return this.displayValue === 'true' || this.displayValue === 'false';
+    }
 
     return true;
 
@@ -88,12 +91,14 @@ class DisplayContent {
 angular.module('myApp').controller('StoreContentCtrl', [
 
   'focus',
+  'LoggedInUser',
   'StoreContentSvc',
   'sessionTimeout',
 
   function(
 
     focus,
+    LoggedInUser,
     StoreContentSvc,
     sessionTimeout
 
@@ -102,6 +107,7 @@ angular.module('myApp').controller('StoreContentCtrl', [
     sessionTimeout.timeoutExpired();
 
     const vm = this;
+    vm.showDeveloper = LoggedInUser.isDeveloper();
 
     function refreshContent() {
 
@@ -165,6 +171,20 @@ angular.module('myApp').controller('StoreContentCtrl', [
       displayContent.revert();
     }
 
+    function deleteContent( gid ) {
+      StoreContentSvc.delete( gid ).then( resp => {
+        if( resp.deletedId ) {
+
+          const idx = vm.allDisplayContent.findIndex( _r => _r.id === resp.deletedId );
+
+          if( idx >= 0 ) {
+            vm.allDisplayContent.splice( idx, 1 );
+          }
+
+        }
+      });
+    }
+
     function focusOnContent( index ) {
       focus(`content-input-${index}`);
     }
@@ -173,7 +193,34 @@ angular.module('myApp').controller('StoreContentCtrl', [
       vm.visibleDisplayContent = vm.allDisplayContent;//.filter( _dr => _dr.titleMatches( vm.filter.productName ) );
     }
 
+    function createContentMetafield( content ) {
+      return saveContent( content ).then( _ => {
+        vm.newContent = new DisplayContent();
+      });
+    }
+
     function init() {
+
+      vm.metafieldTypeOptions = [
+        'boolean',
+        'color',
+        'date',
+        'date_time',
+        'dimension',
+        'file_reference',
+        'json',
+        'multi_line_text_field',
+        'number_decimal',
+        'number_integer',
+        'page_reference',
+        'product_reference',
+        'rating',
+        'single_line_text_field',
+        'url',
+        'variant_reference',
+        'volume',
+        'weight'
+      ];
 
       vm.waitingForResponse = false;
       vm.allDisplayContent =[];
@@ -182,14 +229,17 @@ angular.module('myApp').controller('StoreContentCtrl', [
       //   includePallets: false,
       //   productName: ''
       // };
+
       vm.refreshContent = refreshContent;
       vm.refreshVisibleDisplayContent = refreshVisibleDisplayContent;
       vm.saveContent = saveContent;
       vm.revertContent = revertContent;
+      vm.deleteContent = deleteContent;
       vm.focusOnContent = focusOnContent;
+      vm.createContentMetafield = createContentMetafield;
 
       refreshContent().then( _ => focusOnContent('0') );
-
+      vm.newContent = new DisplayContent();
     }
     init();
 

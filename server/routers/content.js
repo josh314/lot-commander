@@ -25,13 +25,21 @@ function routes({ shopifyGql }) {
     auth.isAuthorized( 'VIEW_STORE_CONTENT' ),
     getAllContent
   );
+  router.get(
+    '/:id',
+    auth.isAuthorized( 'VIEW_STORE_CONTENT' ),
+    getContent
+  );
   router.post(
     '/',
     auth.isAuthorized( 'EDIT_STORE_CONTENT' ),
     editContent
   );
-
-
+  router.delete(
+    '/:id',
+    auth.isAuthorized( 'DELETE_STORE_CONTENT' ),
+    deleteContent
+  );
 
   /*******************************************
    * Define Handlers
@@ -39,6 +47,21 @@ function routes({ shopifyGql }) {
    *
    ****/
 
+  async function getContent( req, res, next ) {
+
+    try {
+
+      const gid = decodeURIComponent( req.params.id );
+
+      const { metafield } = await shopifyGql.getMetafield( gid );
+
+      res.json( { content: metafield } );
+    }
+    catch(e) {
+      return next(e);
+    }
+
+  }
 
   async function getAllContent( _req, res, next ) {
 
@@ -69,6 +92,21 @@ function routes({ shopifyGql }) {
       next( e );
     }
 
+  }
+
+  async function deleteContent( req, res, next ) {
+
+    try {
+
+      const gid = decodeURIComponent( req.params.id );
+
+      const { deletedId } = await shopifyGql.deleteMetafield( gid );
+
+      res.json( { deletedId } );
+    }
+    catch(e) {
+      return next(e);
+    }
   }
 
   /**************************************

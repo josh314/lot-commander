@@ -27,6 +27,7 @@
         <th>Value</th>
         <th></th> <!-- save -->
         <th></th> <!-- revert -->
+        <th ng-show="$ctrl.showDeveloper"></th> <!-- delete -->
       </tr></thead>
 
       <tbody>
@@ -50,7 +51,7 @@
                     id="content-input-{{$index}}"
                     class="form-control"
                     ng-model="$displayContent.displayValue"
-                    ng-keyup="$event.keyCode == 13 && $ctrl.saveContent( $displayContent.id ) && $ctrl.focusOnRate( $index + 1 )"
+                    ng-keyup="$event.keyCode == 13 && $ctrl.saveContent( $displayContent ) && $ctrl.focusOnRate( $index + 1 )"
                   /> -->
               <!-- objects as JSON -->
               <textarea ng-switch-when="json"
@@ -83,6 +84,9 @@
           <td>
             <button tabIndex="-1" class="btn btn-xs btn-warning" ng-click="$ctrl.revertContent( $displayContent )">Revert</button>
           </td>
+          <td ng-show="$ctrl.showDeveloper">
+            <button tabIndex="-1" class="btn btn-xs btn-danger" ng-click="$ctrl.deleteContent( $displayContent.id )"><span class="glyphicon glyphicon-remove"></span></button>
+          </td>
         </tr>
       </tbody>
 
@@ -94,6 +98,86 @@
 
   </div>
 
+
+  <div class="row well" ng-show="$ctrl.showDeveloper">
+
+    <h2>New Content (development use only)</h2>
+
+
+    <table class="table table-striped">
+
+      <thead><tr>
+        <th>Key</th>
+        <th>Type</th>
+        <th>Value</th>
+        <th></th> <!-- create -->
+      </tr></thead>
+
+      <tbody>
+        <!-- The new metafield-->
+        <tr ng-switch="$ctrl.newContent.type">
+          <td>
+            <input class="form-control" ng-model="$ctrl.newContent.key"/>
+          </td>
+          <td>
+            <select class="form-control" ng-model="$ctrl.newContent.type">
+              <option ng-repeat="opt in $ctrl.metafieldTypeOptions">{{ opt }}</option>
+            </select>
+          </td>
+          <td>
+            <div class="form-group" ng-class="{ 'has-error' : !$ctrl.newContent.isValid() }">
+              <!-- booleans -->
+              <select ng-switch-when="boolean"
+                    id="content-input-{{$index}}"
+                    class="form-control"
+                    ng-model="$ctrl.newContent.displayValue"
+                  >
+                <option>true</option>
+                <option>false</option>
+              </select>
+              <!-- numbers -->
+              <!-- <input  ng-switch-when-separator="|" ng-switch-when="number_integer|number_decimal"
+                    type="number"
+                    id="content-input-{{$index}}"
+                    class="form-control"
+                    ng-model="$ctrl.newContent.displayValue"
+                  /> -->
+              <!-- objects as JSON -->
+              <textarea ng-switch-when="json"
+                        id="content-input-{{$index}}"
+                        class="form-control"
+                        rows="{{$ctrl.newContent.displayValue.split('\n').length}}"
+                        ng-model="$ctrl.newContent.displayValue"
+                      ></textarea>
+              <span ng-switch-when="json" ng-hide="$ctrl.newContent.isValid()" class="text-danger">Not valid JSON</span>
+              <!-- multi-line text -->
+              <textarea ng-switch-when="multi_line_text_field"
+                        id="content-input-{{$index}}"
+                        class="form-control"
+                        rows="{{$ctrl.newContent.displayValue.split('\n').length}}"
+                        ng-model="$ctrl.newContent.displayValue"
+                      ></textarea>
+              <!-- Single line text  -->
+              <input ng-switch-default
+                    type="text"
+                    id="content-input-{{$index}}"
+                    class="form-control"
+                    ng-model="$ctrl.newContent.displayValue"
+                  />
+            </div>
+          </td>
+          <td>
+            <button tabIndex="-1" class="btn btn-xs btn-success" ng-click="$ctrl.createContentMetafield( $ctrl.newContent )" ng-disabled="!$ctrl.newContent.key || !$ctrl.newContent.isValid()">Save</button>
+          </td>
+          <td>
+            <!-- No revert button -->
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+
+  </div>
 
 
 </div>

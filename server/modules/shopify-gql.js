@@ -191,6 +191,36 @@ class Client {
     }
   }
 
+  async getMetafield( gid ) {
+
+    try {
+      const resp = await this.gqlRequest( {
+        gqlQuery: `
+          {
+            metafield( id: "${ gid }" ) {
+              id
+              namespace
+              key
+              value
+              type
+              ownerType
+              reference
+              createdAt
+              updatedAt
+            }
+          }
+        `,
+        debug: false
+      });
+
+      return resp.data;
+    }
+    catch(e) {
+      throw e;
+    }
+
+  }
+
   async getShopMetafieldsByNamespace( namespace ) {
     const resp = await this.gqlRequest( {
       gqlQuery: `
@@ -443,6 +473,38 @@ class Client {
       }
 
       return resp.data.metafieldsSet;
+    }
+    catch(e) {
+      throw e;
+    }
+  }
+
+  async deleteMetafield( gid ) {
+
+    try {
+      const resp = await this.gqlRequest( {
+        gqlQuery: `
+          mutation
+          {
+            metafieldDelete(input: {
+              id: "${ gid }"
+            }) {
+              deletedId
+              userErrors {
+                field
+                message
+              }
+            }
+          }
+        `,
+        debug: false
+      });
+
+      if( resp.data.metafieldDelete.userErrors.length ) {
+        throw new Error(resp.data.metafieldDelete.userErrors);
+      }
+
+      return resp.data.metafieldDelete;
     }
     catch(e) {
       throw e;

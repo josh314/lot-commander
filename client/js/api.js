@@ -923,6 +923,16 @@ export function incrementCounter( handle, increment ) {
 *
 ************/
 
+export function getStoreContent( gid ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/content/${ encodeURIComponent(gid) }`
+  })
+    .then( resp => resp.data );
+
+}
+
 export function listStoreContent( ) {
 
   return axios({
@@ -941,5 +951,15 @@ export function editStoreContent( content ) {
     data: { content }
   })
     .then( resp => resp.data.metafields[0] );
+
+}
+
+export function deleteStoreContent( gid ) {
+
+  return axios({
+    method: 'delete',
+    url: `/api/content/${ encodeURIComponent(gid) }`
+  })
+    .then( resp => resp.data );
 
 }
