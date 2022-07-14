@@ -241,7 +241,7 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         vm.disableEditing = ! LoggedInUser.hasPermission( 'EDIT_INVENTORY_PALLET' );
         vm.allowShipmentNavigation = LoggedInUser.hasPermission( 'VIEW_INCOMING_SHIPMENT' );
         vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
-        vm.showDeveloper = LoggedInUser.hasPermission('DEVELOPER');
+        vm.showDeveloper = LoggedInUser.isDeveloper();
         vm.showBrokendownDate = pallet.isBrokendown;
         vm.showCreatedAtDate = !!pallet.createdAt;
         vm.showShipment = !!pallet.shipment;

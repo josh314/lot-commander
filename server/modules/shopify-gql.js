@@ -437,7 +437,7 @@ class Client {
         `,
         debug: false
       });
-      console.log(resp)
+
       if( resp.data.metafieldsSet.userErrors.length ) {
         throw new Error(resp.data.metafieldsSet.userErrors);
       }

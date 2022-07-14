@@ -19,6 +19,10 @@ angular.module('myApp').factory('LoggedInUser', ['$cookies', function($cookies){
     listPermissions: () => get() ? get().permissions: [],
 
     // specialized permission functions
+    isDeveloper() {
+      const user = get();
+      return user ? !! user.isDeveloper : false;
+    },
     hasMarketplacePermission( marketplace ) {
 
       if( marketplace === 'wholesaleninjas' ) {

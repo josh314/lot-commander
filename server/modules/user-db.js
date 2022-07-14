@@ -18,9 +18,6 @@ const __USER_ROLE_PERMISSIONS__ = {
     'CREATE_COUNTER',
     'DELETE_COUNTER'
   ],
-  __DEVELOPER__: [
-    'DEVELOPER'
-  ],
   __EVENTS__: [
     'VIEW_EVENTS'
   ],
@@ -135,6 +132,7 @@ const userSchema = mongoose.Schema({
     password: String,
   },
   isSuperuser: Boolean,
+  isDeveloper: Boolean,
   isDisabled: Boolean,
 }, {collection: 'users', timestamps: true});
 
@@ -153,7 +151,7 @@ userSchema.methods.isAuthorized = function( permission ) {
   if ( this.isDisabled ) {
     return false;
   }
-  else if( this.isSuperuser ) {
+  else if( this.isSuperuser || this.isDeveloper ) {
     return true;
   }
   else if ( this.roles ) {
@@ -188,7 +186,8 @@ userSchema.methods.getPublicInfo = function() {
     username: this.local.username,
     roles: this.isSuperuser ? superuserRoles() : this.roles,
     permissions: [...this.getPermissionSet()],
-    isDisabled: this.isDisabled
+    isDisabled: this.isDisabled,
+    isDeveloper: this.isDeveloper
   };
 };
 
@@ -234,13 +233,14 @@ class Client {
     newUser.lastName = lastName;
     newUser.roles = roles;
     newUser.isSuperuser = false;
+    newUser.isDeveloper = false;
     newUser.isDisabled = false;
 
     // save the user
     return newUser.save();
   }
 
-  count( { isDisabled, isSuperuser } ) {
+  count( { isDisabled, isSuperuser, isDeveloper } ) {
 
     const query = {};
 
@@ -250,6 +250,10 @@ class Client {
 
     if( isSuperuser !== undefined ) {
       query.isSuperuser = isSuperuser;
+    }
+
+    if( isDeveloper !== undefined ) {
+      query.isDeveloper = isDeveloper;
     }
 
     const q = this.User.countDocuments( query );
@@ -265,7 +269,7 @@ class Client {
     return this.User.findById(userId);
   }
 
-  list( { num, skip, sort, sortDir, isDisabled, isSuperuser } ) {
+  list( { num, skip, sort, sortDir, isDisabled, isSuperuser, isDeveloper } ) {
 
     const query = {};
 
@@ -275,6 +279,10 @@ class Client {
 
     if( isSuperuser !== undefined ) {
       query.isSuperuser = isSuperuser;
+    }
+
+    if( isDeveloper !== undefined ) {
+      query.isDeveloper = isDeveloper;
     }
 
     let sortField;
