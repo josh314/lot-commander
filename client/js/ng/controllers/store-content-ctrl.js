@@ -5,6 +5,7 @@ import angular from 'angular';
  * =======
  *
  *********/
+const __GLOBAL_NAMESPACE__ = '<GLOBAL>';
 
 function isJsonType( type ) {
   switch( type ) {
@@ -16,6 +17,18 @@ function isJsonType( type ) {
       return true;
     default:
       return false;
+  }
+}
+
+function alphaTextCmp( a, b ) {
+  if( a < b ) {
+    return -1;
+  }
+  else if ( a > b ) {
+    return +1;
+  }
+  else {
+    return 0;
   }
 }
 
@@ -55,6 +68,18 @@ class DisplayContent {
     }
 
     this.displayValue = this.value;
+
+    if( this.key ) {
+      const [ k1, k2 ] = this.key.split('.');
+
+      if( !k2 ) {
+        this.group = __GLOBAL_NAMESPACE__;
+        this.subkey = k1;
+      }
+      else {
+        Object.assign( this, { group: k1, subkey: k2 } );
+      }
+    }
 
   }
 
@@ -181,6 +206,8 @@ angular.module('myApp').controller('StoreContentCtrl', [
             vm.allDisplayContent.splice( idx, 1 );
           }
 
+          refreshVisibleDisplayContent();
+
         }
       });
     }
@@ -190,7 +217,36 @@ angular.module('myApp').controller('StoreContentCtrl', [
     }
 
     function refreshVisibleDisplayContent() {
-      vm.visibleDisplayContent = vm.allDisplayContent;//.filter( _dr => _dr.titleMatches( vm.filter.productName ) );
+
+      const groups = [];
+
+      for( let _c of vm.allDisplayContent ) {
+
+        const group = groups.find( _g => _g.name === _c.group );
+
+        if( group ) {
+          group.content.push( _c );
+        }
+        else {
+          groups.push( { name: _c.group, content: [ _c ] } );
+        }
+      }
+
+      for( let _g of groups ) {
+        _g.content = _g.content.sort( (a,b) => alphaTextCmp( a.subkey, b.subkey ) );
+      }
+
+      vm.displayContentGroups = groups.sort( (a,b) => {
+        if( a.name === __GLOBAL_NAMESPACE__ ) {
+          return -1;
+        }
+        else if ( b.name === __GLOBAL_NAMESPACE__ ) {
+          return +1;
+        }
+        else {
+          return alphaTextCmp( a.name, b.name );
+        }
+      });
     }
 
     function createContentMetafield( content ) {
@@ -202,6 +258,8 @@ angular.module('myApp').controller('StoreContentCtrl', [
     function init() {
 
       vm.metafieldTypeOptions = [
+        'single_line_text_field',
+        'number_integer',
         'boolean',
         'color',
         'date',
@@ -211,11 +269,9 @@ angular.module('myApp').controller('StoreContentCtrl', [
         'json',
         'multi_line_text_field',
         'number_decimal',
-        'number_integer',
         'page_reference',
         'product_reference',
         'rating',
-        'single_line_text_field',
         'url',
         'variant_reference',
         'volume',
@@ -224,7 +280,7 @@ angular.module('myApp').controller('StoreContentCtrl', [
 
       vm.waitingForResponse = false;
       vm.allDisplayContent =[];
-      vm.visibleDisplayContent = [];
+      vm.displayContentGroups = [];
       // vm.filter = {
       //   includePallets: false,
       //   productName: ''
