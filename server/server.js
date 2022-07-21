@@ -1,4 +1,4 @@
-// App-wide variable refrencing project root 
+// App-wide variable refrencing project root
 global.__basedir = __dirname;
 
 //================================================
@@ -40,7 +40,7 @@ class Server {
       throw new Error('No port specified.');
     }
     this.app.set('port', process.env.PORT || port);
-  
+
 
     //=================================================
     // FAVICON ========================================
@@ -82,9 +82,9 @@ class Server {
     mongoose.promise = require('bluebird');
 
     this.mongoClient = await (async ( { host, port, dbName, user, password } ) => {
-    
+
       const location = `${host}:${ port || 27017 }/${dbName}`;
-      
+
       const MongoClient = mongoose.mongo.MongoClient;
       const client = new MongoClient(
         `mongodb://${ user && password ? `${user}:${password}@` : ''}${location}`,
@@ -159,7 +159,7 @@ class Server {
 
     // show the login form
     this.app.get('/login', function(req, res) {
-      res.render('login.hbs', { authFlash: req.session.flash }); 
+      res.render('login.hbs', { authFlash: req.session.flash });
     });
 
     this.app.post('/login', auth.authenticate({ success: '/', failure: '/login' }) );
@@ -171,7 +171,7 @@ class Server {
 
     const cookieParser = require('cookie-parser');
     this.app.use(cookieParser());
-    
+
     // set a cookie
     this.app.use(function (req, res, next) {
       // check if client sent cookie
@@ -181,7 +181,7 @@ class Server {
       }
       next();
     });
-  
+
     // //===================================================
     // // FLASH MESSAGE MIDDLEWARE =========================
     // //===================================================
@@ -207,7 +207,7 @@ class Server {
     const ModelCommander = require('./models');
     const models = new ModelCommander( this.mongooseConnection );
 
-    
+
     const LotDbClient = require('./modules/lot-db-client').Client;
     const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'))( new LotDbClient( models ) );
 
@@ -228,11 +228,13 @@ class Server {
     const shopifyGqlClient = new ShopifyGql({
       storeId: __config.shopify.store.id,
       storeName: __config.shopify.store.name,
-      accessToken: __config.shopify.store.auth.password
+      accessToken: __config.shopify.store.auth.accessToken || __config.shopify.store.auth.password
     });
     const Shopify = require( './modules/shopify' );
     const shopify = new Shopify( {
-      config: __config.shopify.store,
+      storeUrl: __config.shopify.store.url,
+      apiKey: __config.shopify.store.auth.apiKey,
+      accessToken: __config.shopify.store.auth.accessToken || __config.shopify.store.auth.password,
       shopifyGql: shopifyGqlClient,
       manifests
     } );
@@ -274,7 +276,7 @@ class Server {
     // });
 
     this.app.use( function( err, _req, res, _next ){
-      
+
       // console.error(`404: path does not exist -- ${req.originalUrl}`);
       // res.status(404).render('404', {});
       console.error(err);
@@ -285,7 +287,7 @@ class Server {
       };
 
       if( err instanceof ClientError ) {
-        response.message = err.message; 
+        response.message = err.message;
       }
       else if ( err instanceof AuthorizationError ) {
         response.message = `UNAUTHORIZED`;

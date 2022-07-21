@@ -8,8 +8,18 @@ const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-se
 const shopifyApi = require('shopify/lib/api');
 
 class Client {
-  constructor( { config, shopifyGql, manifests } ) {
-    this.shopifyClient = new shopifyApi.Client( config );
+  constructor( { storeUrl, apiVersion, apiKey, accessToken, shopifyGql, manifests } ) {
+
+    const shopifyClientOpts = {
+      url: storeUrl,
+      auth: {
+        apiKey,
+        password: accessToken
+      },
+      apiVersion
+    };
+
+    this.shopifyClient = new shopifyApi.Client( shopifyClientOpts );
     this.shopifyGql = shopifyGql;
     this.manifests = manifests;
   }
