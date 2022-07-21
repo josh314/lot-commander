@@ -1,7 +1,7 @@
 const { ClientError } = require('../errors');
 
 const conditionBoilerplateListItems = [
-  'Have retail stickers such as price tags or discount/store labels.', 
+  'Have retail stickers such as price tags or discount/store labels.',
   'Items may be out of box or in open boxes.',
   'Items expired or short-dated.',
 ];
@@ -17,6 +17,7 @@ class Client {
 
     this.manifests = manifests;
 
+    this.shopify = shopify;
   }
 
   getBodyBoilerplate(format) {
@@ -111,7 +112,7 @@ class Client {
       const idx = submittedListings.findIndex(x => x.marketplace === listing.marketplace);
       if(idx===-1){
         submittedListings.push(newSubmittedListing);
-      } 
+      }
       else {
         submittedListings.splice(idx, 1, newSubmittedListing);
       }

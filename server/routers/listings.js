@@ -38,21 +38,21 @@ module.exports = routes;
 /**********************************************
  * Routes function for export
  * ==========================
- * 
+ *
  **********/
 
-function routes({ listings, lotdb, shopifyGql }) {
+function routes({ listings, lotdb }) {
   const router = new express.Router();
 
 
   /*******************************************
    * Register route handlers
    * ======
-   * 
+   *
    ****/
 
 
-  
+
   router.post(
     '/',
     auth.isAuthorized( 'SUBMIT_SHOPIFY_LISTING' ),
@@ -89,7 +89,7 @@ function routes({ listings, lotdb, shopifyGql }) {
   /*******************************************
    * Define Handlers
    * ===============
-   * 
+   *
    ****/
 
   async function submit( req, res, next ) {
@@ -106,7 +106,7 @@ function routes({ listings, lotdb, shopifyGql }) {
         throw e;
       }
       listing.lot = lot;
-    
+
       const respPromise = listings.submit( { lotId, listing, publish } );
 
       // Submission takes a while so don't wait
@@ -121,7 +121,7 @@ function routes({ listings, lotdb, shopifyGql }) {
       return next( e );
 
     }
-  
+
   }
 
 
@@ -131,11 +131,12 @@ function routes({ listings, lotdb, shopifyGql }) {
 
       const includePallets = req.query.include_pallets ? !!parseInt(req.query.include_pallets) : false;
 
-      const rates = await shopifyGql.listProductVariantShippingRates( { includePallets } );
+      // const rates = await shopifyGql['prod'].listProductVariantShippingRates( { includePallets } );
+      const rates = await listings.shopify.shopifyGql.listProductVariantShippingRates( { includePallets } );
       rates.sort( cmpRate );
 
       res.json( { rates } );
-      
+
     }
     catch (e) {
       next( e );
@@ -149,8 +150,8 @@ function routes({ listings, lotdb, shopifyGql }) {
 
     try {
 
-      const editPromises = submittedRates.filter( _ => _.id && typeof _.rate !== 'undefined' && _.rate !== null ).map( _ => shopifyGql.setProductVariantShippingRate( _.id, _.rate ) );
-      
+      const editPromises = submittedRates.filter( _ => _.id && typeof _.rate !== 'undefined' && _.rate !== null ).map( _ => listings.shopify.shopifyGql.setProductVariantShippingRate( _.id, _.rate ) );
+
       const rates = await Promise.all( editPromises );
       rates.sort( cmpRate );
 
@@ -166,7 +167,7 @@ function routes({ listings, lotdb, shopifyGql }) {
   /**************************************
    * Return routes
    * =============
-   * 
+   *
    ************/
   return router;
 

@@ -224,18 +224,29 @@ class Server {
 
     const bstock = require( './modules/bstock' );
 
+
+    const shopifyStoreConfig = __config.shopify.stores;
+
     const ShopifyGql = require( './modules/shopify-gql' );
-    const shopifyGqlClient = new ShopifyGql({
-      storeId: __config.shopify.store.id,
-      storeName: __config.shopify.store.name,
-      accessToken: __config.shopify.store.auth.accessToken || __config.shopify.store.auth.password
-    });
+    const shopifyGqlClient = {
+      prod: new ShopifyGql({
+        storeId: shopifyStoreConfig['prod'].id,
+        storeName: shopifyStoreConfig['prod'].name,
+        accessToken: shopifyStoreConfig['prod'].auth.accessToken || shopifyStoreConfig['prod'].auth.password
+      }),
+      staging: new ShopifyGql({
+        storeId: shopifyStoreConfig['staging'].id,
+        storeName: shopifyStoreConfig['staging'].name,
+        accessToken: shopifyStoreConfig['staging'].auth.accessToken || shopifyStoreConfig['staging'].auth.password
+      }),
+    };
+
     const Shopify = require( './modules/shopify' );
     const shopify = new Shopify( {
-      storeUrl: __config.shopify.store.url,
-      apiKey: __config.shopify.store.auth.apiKey,
-      accessToken: __config.shopify.store.auth.accessToken || __config.shopify.store.auth.password,
-      shopifyGql: shopifyGqlClient,
+      storeUrl: shopifyStoreConfig['prod'].url,
+      apiKey: shopifyStoreConfig['prod'].auth.apiKey,
+      accessToken: shopifyStoreConfig['prod'].auth.accessToken || shopifyStoreConfig['prod'].auth.password,
+      shopifyGql: shopifyGqlClient['prod'],
       manifests
     } );
 

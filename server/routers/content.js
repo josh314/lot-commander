@@ -4,6 +4,15 @@ const auth = require('../auth');
 
 module.exports = routes;
 
+const getClientEnvStr = req => {
+  if( req.query.env && (req.query.env === 'prod' || req.query.env === 'staging') ) {
+    return req.query.env;
+  }
+  else {
+    return 'staging';
+  }
+};
+
 /**********************************************
  * Routes function for export
  * ==========================
@@ -51,9 +60,11 @@ function routes({ shopifyGql }) {
 
     try {
 
+      const env = getClientEnvStr( req );
+
       const gid = decodeURIComponent( req.params.id );
 
-      const { metafield } = await shopifyGql.getMetafield( gid );
+      const { metafield } = await shopifyGql[ env ].getMetafield( gid );
 
       res.json( { content: metafield } );
     }
@@ -63,10 +74,13 @@ function routes({ shopifyGql }) {
 
   }
 
-  async function getAllContent( _req, res, next ) {
+  async function getAllContent( req, res, next ) {
 
     try {
-      const { metafields } = await shopifyGql.getShopMetafields( 'wsn_content' );
+
+      const env = getClientEnvStr( req );
+
+      const { metafields } = await shopifyGql[ env ].getShopMetafields( 'wsn_content' );
 
       res.json( { content: metafields } );
     }
@@ -81,9 +95,11 @@ function routes({ shopifyGql }) {
 
     try {
 
+      const env = getClientEnvStr( req );
+
       const newMetafield = Object.assign( content, { namespace: 'wsn_content' });
 
-      const { metafields } = await shopifyGql.setShopMetafield( newMetafield );
+      const { metafields } = await shopifyGql[ env ].setShopMetafield( newMetafield );
 
       res.json( { metafields });
 
@@ -98,9 +114,11 @@ function routes({ shopifyGql }) {
 
     try {
 
+      const env = getClientEnvStr( req );
+
       const gid = decodeURIComponent( req.params.id );
 
-      const { deletedId } = await shopifyGql.deleteMetafield( gid );
+      const { deletedId } = await shopifyGql[ env ].deleteMetafield( gid );
 
       res.json( { deletedId } );
     }

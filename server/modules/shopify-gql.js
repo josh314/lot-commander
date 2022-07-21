@@ -1,5 +1,10 @@
 const axios = require('axios');
 
+const {
+  IllegalActionError
+} = require('../errors');
+
+
 // for pretty-printing in debug mode
 const _prettyPrintGqlQuery = q => {
   console.log('-----------------------------------------');
@@ -440,31 +445,41 @@ class Client {
   async setShopMetafield( { namespace, key, value, type } ) {
 
     try {
-      const resp = await this.gqlRequest( {
-        gqlQuery: `
-          mutation
-          {
-            metafieldsSet(metafields: {
-              namespace: "${ namespace }",
-              key: "${ key }",
-              ownerId: "${ this.storeId }",
-              type: "${ type }",
-              value: ${ JSON.stringify(value) }
-            }) {
-              userErrors {
-                field
-                message
-              }
-              metafields {
-                id
-                namespace
-                key
-                value
-                type
-              }
+
+      if( value === null || typeof value === 'undefined' || value === '' ) {
+        throw new IllegalActionError(`Invalid metafield value.`, 'BLANK_METAFIELD_VALUE');
+      }
+
+      // must stringify (AND quote!) numbers, and escape newlines/whitespace in strings
+      const valueStr = (typeof value  === 'number') ? `"${value}"` : JSON.stringify(value);
+
+      const requestString = `
+        mutation
+        {
+          metafieldsSet(metafields: {
+            namespace: "${ namespace }",
+            key: "${ key }",
+            ownerId: "${ this.storeId }",
+            type: "${ type }",
+            value: ${ valueStr }
+          }) {
+            userErrors {
+              field
+              message
+            }
+            metafields {
+              id
+              namespace
+              key
+              value
+              type
             }
           }
-        `,
+        }
+      `;
+
+      const resp = await this.gqlRequest( {
+        gqlQuery: requestString,
         debug: false
       });
 
