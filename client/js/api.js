@@ -923,42 +923,42 @@ export function incrementCounter( handle, increment ) {
 *
 ************/
 
-export function getStoreContent( gid ) {
+export function getStoreContent( gid, queryParams ) {
 
   return axios({
     method: 'get',
-    url: `/api/content/${ encodeURIComponent(gid) }`
+    url: `/api/content/${ encodeURIComponent(gid) }?${ queryParams ? qs.stringify( queryParams ) : ''}`
   })
     .then( resp => resp.data );
 
 }
 
-export function listStoreContent( ) {
+export function listStoreContent( queryParams ) {
 
   return axios({
     method: 'get',
-    url: `/api/content/`
+    url: `/api/content/?${ queryParams ? qs.stringify( queryParams ) : ''}`
   })
     .then( resp => resp.data );
 
 }
 
-export function editStoreContent( content ) {
+export function editStoreContent( content, queryParams ) {
 
   return axios({
     method: 'post',
-    url: `/api/content`,
+    url: `/api/content?${ queryParams ? qs.stringify( queryParams ) : ''}`,
     data: { content }
   })
     .then( resp => resp.data.metafields[0] );
 
 }
 
-export function deleteStoreContent( gid ) {
+export function deleteStoreContent( gid, queryParams ) {
 
   return axios({
     method: 'delete',
-    url: `/api/content/${ encodeURIComponent(gid) }`
+    url: `/api/content/${ encodeURIComponent(gid) }?${ queryParams ? qs.stringify( queryParams ) : ''}`
   })
     .then( resp => resp.data );
 

@@ -5,19 +5,23 @@ import * as api from '../../api';
 /******************* Store Content Service *************************/
 angular.module('myApp').factory('StoreContentSvc', [ '$q', function( $q ) {
 
+  const deleteContent = ( gid, env ) => $q.when( api.deleteStoreContent( gid, { env } ) );
+
   return {
 
-    get: gid => $q.when( api.getStoreContent( gid ) ),
+    get: ( gid, env ) => $q.when( api.getStoreContent( gid, { env } ) ),
 
-    edit: newContent => $q.when( api.editStoreContent( newContent ) ),
+    edit: ( newContent, env ) => $q.when( api.editStoreContent( newContent, { env } ) ),
 
-    list: () => $q.when( api.listStoreContent() ).then( content =>  {
+    list: ( env ) => $q.when( api.listStoreContent( { env } ) ).then( content =>  {
 
       return content;
 
     }),
 
-    delete: gid => $q.when( api.deleteStoreContent( gid ) ),
+    delete: deleteContent,
+
+    deleteMany: ( content ) => $q.when( Promise.all( content.map( _c => deleteContent( _c.gid, _c.env ) ) ) ),
 
   };
 
