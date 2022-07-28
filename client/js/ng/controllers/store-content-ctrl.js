@@ -97,6 +97,21 @@ function getDisplayType( type ) {
   }
 }
 
+function parseKey( key ) {
+
+  if( !key ) {
+    return {};
+  }
+
+  const [ k1, k2 ] = key.split('.');
+
+  const group = k2 ? k1 : __GLOBAL_NAMESPACE__;
+  const subkey = k2 ? k2 : k1;
+
+  return { group, subkey };
+
+}
+
 class DisplayContent {
   constructor( { namespace, key, type } = {} ) {
     this.id = {};
@@ -108,15 +123,7 @@ class DisplayContent {
     this.editValue = {};
 
     if( this.key ) {
-      const [ k1, k2 ] = this.key.split('.');
-
-      if( !k2 ) {
-        this.group = __GLOBAL_NAMESPACE__;
-        this.subkey = k1;
-      }
-      else {
-        Object.assign( this, { group: k1, subkey: k2 } );
-      }
+      Object.assign( this, parseKey( this.key ) );
     }
 
   }
@@ -333,8 +340,8 @@ angular.module('myApp').controller('StoreContentCtrl', [
         else {
           __ALL_CONTENT__.push( content );
         }
-        refreshDisplayContent();
 
+        refreshDisplayContent( parseKey( metafield.key ).group );
 
       } )
         .catch( e => {
@@ -371,7 +378,7 @@ angular.module('myApp').controller('StoreContentCtrl', [
           }
         }
 
-        refreshDisplayContent();
+        refreshDisplayContent( content.group );
 
       });
 
@@ -381,7 +388,7 @@ angular.module('myApp').controller('StoreContentCtrl', [
       focus(`content-input-${key}-${env}`);
     }
 
-    function refreshDisplayContent(  ) {
+    function refreshDisplayContent( defaultDisplayGroupName ) {
 
       const allDisplayContent = [];
       for( let _c of __ALL_CONTENT__ ) {
@@ -430,6 +437,14 @@ angular.module('myApp').controller('StoreContentCtrl', [
           return alphaTextCmp( a.name, b.name );
         }
       });
+
+      if( defaultDisplayGroupName ) {
+        const found = vm.displayContentGroups.find( _g => _g.name === defaultDisplayGroupName );
+        vm.displayGroup = found;
+      }
+
+      vm.displayGroup = vm.displayGroup || vm.displayContentGroups[0];
+
     }
 
     function createContentMetafield( content ) {
