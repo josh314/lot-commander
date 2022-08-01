@@ -12,6 +12,7 @@ const incomingShipmentSchema = mongoose.Schema({
   arrivalDateExpected: Date,
   arrivalDate: Date,
   isReceived: Boolean,
+  isReadyForTransportation: Boolean,
   palletsExpected: [ {
     handle: String,
     cost: Number,

@@ -149,6 +149,21 @@
             <input type="date" ng-model="$ctrl.editValue[ 'arrivalDateExpected' ]" />
           </dd>
         </div>
+        <div ng-hide="$ctrl.isEditing[ 'isReadyForTransportation' ]">
+          <dt>Is ready for transportation?<span ng-hide="!$ctrl.showEditControls"> (<a href ng-click="$ctrl.openEdit( 'isReadyForTransportation' )">edit</a>)</span></dt>
+          <dd ng-hide="$ctrl.isEditing[ 'isReadyForTransportation' ]">
+            {{ $ctrl.shipment.isReadyForTransportation ? 'yes' : 'no' }}
+          </dd>
+        </div>
+        <div ng-show="$ctrl.isEditing[ 'isReadyForTransportation' ]">
+          <dt>Is ready for transportation? (<a href ng-click="$ctrl.saveEdit( 'isReadyForTransportation' )" style="color: red">save</a> or <a href ng-click="$ctrl.closeEdit( 'isReadyForTransportation' )" style="color: red">cancel edit</a>)</dt>
+          <dd ng-show="$ctrl.isEditing[ 'isReadyForTransportation' ]">
+            <select ng-model="$ctrl.editValue[ 'isReadyForTransportation' ]">
+              <option ng-value="true">yes</option>
+              <option ng-value="false">no</option>
+            </select>
+          </dd>
+        </div>
         <div ng-hide="$ctrl.isEditing[ 'notes' ]">
           <dt>Notes<span ng-hide="!$ctrl.showEditControls"> (<a href ng-click="$ctrl.openEdit( 'notes' )">edit</a>)</span></dt>
           <dd ng-hide="$ctrl.isEditing[ 'notes' ]">

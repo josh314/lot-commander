@@ -113,6 +113,11 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
         active: true,
         optionAvailable: true
       },
+      isReadyForTransportation: {
+        displayName: 'Ready for transport?',
+        active: true,
+        optionAvailable: true
+      },
     };
     vm.toggleColumnActive = columnKey => {
 

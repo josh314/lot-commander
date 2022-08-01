@@ -84,6 +84,7 @@
               <span ng-show="shipment.hasProblem()"><span class="label label-danger">Problems</span></span>
             </span>
             <span ng-switch-when="isReceived" class="glyphicon glyphicon-ok" ng-show="shipment.isReceived"></span>
+            <span ng-switch-when="isReadyForTransportation" class="glyphicon glyphicon-ok" ng-show="shipment.isReadyForTransportation"></span>
             <span ng-switch-default>{{ columnData.transform ? columnData.transform( shipment[ columnKey ] ) : shipment[ columnKey ] }}</span>
           </td>
         </tr>
