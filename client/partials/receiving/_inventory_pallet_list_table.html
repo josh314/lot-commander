@@ -24,7 +24,7 @@
       <a href ng-click="$ctrl.showPalletDetails( pallet )">{{pallet.handle}}</a>
       </span>
       <span ng-switch-when="shipment">
-      <a ng-href="/receiving/shipments/{{pallet.shipment._id}}" ng-show="$ctrl.allowShipmentNavigation">
+      <a ng-href="/shipments/{{pallet.shipment._id}}" ng-show="$ctrl.allowShipmentNavigation">
         {{ pallet.shipment.handle }}
       </a>
       <span ng-hide="$ctrl.allowShipmentNavigation">

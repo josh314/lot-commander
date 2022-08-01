@@ -72,7 +72,7 @@
         <tr ng-repeat="shipment in ctrl.shipments">
           <td ng-repeat="(columnKey, columnData) in ctrl.columns" ng-show="columnData.optionAvailable && columnData.active" ng-switch="columnKey">
             <span ng-switch-when="handle">
-              <a ng-href="/receiving/shipments/{{shipment._id}}">{{ shipment.handle }}</a>
+              <a ng-href="/shipments/{{shipment._id}}">{{ shipment.handle }}</a>
             </span>
             <span ng-switch-when="units">{{ shipment.getTotalUnits() }}</span>
             <span ng-switch-when="status">
