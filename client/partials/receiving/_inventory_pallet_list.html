@@ -58,9 +58,9 @@
         Columns <span class="caret"></span>
       </button>
       <ul class="dropdown-menu">
-        <li ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable" ng-click="$ctrl.toggleColumnActive( columnKey )">
+        <li ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable && columnData.permitted" ng-click="$ctrl.toggleColumnActive( columnKey )">
           <a><label for="{{columnKey}}ColumnDisplayToggleInput">
-            <input type="checkbox" id="{{columnKey}}ColumnDisplayToggleInput" ng-model="$ctrl.columns[columnKey].active" ng-click="$event.stopPropagation();"> {{ columnData.displayName}}
+            <input type="checkbox" id="{{columnKey}}ColumnDisplayToggleInput" ng-model="$ctrl.columns[columnKey].active" ng-click="$event.stopPropagation();"> {{ columnData.optionName}}
           </label></a>
         </li>
       </ul>

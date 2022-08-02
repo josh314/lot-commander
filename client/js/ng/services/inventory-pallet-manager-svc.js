@@ -120,7 +120,7 @@ angular.module('myApp').service( 'InventoryPalletManagerSvc', [
 
       create: pallets => $q.when( api.createInventoryPallets( pallets ) ),
 
-      getListColumns: () => InventoryPalletListColumns(),
+      getListColumns: columnNames => InventoryPalletListColumns( columnNames ),
 
       details: pallet => ModalSvc.inventoryPalletDetails( pallet ),
     };
@@ -324,84 +324,230 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
 angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser', 'UtilitiesSvc', function( LoggedInUser, UtilitiesSvc ) {
 
-  const showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+  const showPurchasingData = LoggedInUser.hasPermission( 'VIEW_PURCHASING_DATA' );
+  const showMakeLot = LoggedInUser.hasPermission( 'CREATE_LOT' );
+  const showEditManifest = LoggedInUser.hasPermission( 'EDIT_INVENTORY_PALLET' );
+
+  // const __COLUMNS__ = {
+  //   handle: {
+  //     optionName: 'Pallet ID',
+  //     defaultSortAscending: true,
+  //     permitted: true,
+  //     defaultActive: true,
+  //     optionAvailable: true
+  //   },
+  //   shipment: {
+  //     optionName: 'Shipment',
+  //     permitted: true,
+  //     defaultActive: true,
+  //     optionAvailable: true,
+  //     noSort: true
+  //   },
+  //   lot: {
+  //     optionName: 'Lot',
+  //     permitted: true,
+  //     defaultActive: false,
+  //     optionAvailable: true,
+  //     noSort: true
+  //   },
+  //   category: {
+  //     optionName: 'Category',
+  //     defaultSortAscending: true,
+  //     permitted: true,
+  //     defaultActive: true,
+  //     optionAvailable: true
+  //   },
+  //   condition: {
+  //     optionName: 'Condition',
+  //     defaultSortAscending: true,
+  //     permitted: true,
+  //     defaultActive: true,
+  //     optionAvailable: true
+  //   },
+  //   createdAt: {
+  //     optionName: 'Created',
+  //     defaultSortAscending: false,
+  //     transform: UtilitiesSvc.prettifyDate.bind( UtilitiesSvc ),
+  //     permitted: true,
+  //     defaultActive: true,
+  //     optionAvailable: true
+  //   },
+  //   breakdown: {
+  //     optionName: 'Mark As Breakdown',
+  //     permitted: true,
+  //     defaultActive: true,
+  //     optionAvailable: true,
+  //     noSort: true,
+  //   },
+  //   brokendownDate: {
+  //     optionName: 'Brokendown on',
+  //     transform: UtilitiesSvc.prettifyDate.bind( UtilitiesSvc ),
+  //     permitted: true,
+  //     defaultActive: false,
+  //     optionAvailable: true
+  //   },
+  //   hasProblem: {
+  //     optionName: 'Problem?',
+  //     permitted: true,
+  //     defaultActive: false,
+  //     optionAvailable: true,
+  //     noSort: true,
+  //   },
+  //   note: {
+  //     optionName: 'Note',
+  //     permitted: true,
+  //     defaultActive: false,
+  //     optionAvailable: true,
+  //     noSort: true,
+  //   },
+  //   cost: {
+  //     optionName: 'Cost',
+  //     permitted: showPurchasingData,
+  //     defaultActive: false,
+  //     optionAvailable: true,
+  //     transform: UtilitiesSvc.displayAsMoney.bind( UtilitiesSvc ),
+  //     noSort: true,
+  //   },
+  //   editManifest: {
+  //     optionName: 'editMan',
+  //     permitted: showEditManifest,
+  //     defaultActive: false,
+  //     optionAvailable: false,
+  //     noSort: true,
+  //   },
+  //   makeLot: {
+  //     optionName: '',
+  //     permitted: showMakeLot,
+  //     defaultActive: true,
+  //     optionAvailable: false,
+  //     noSort: true,
+  //   },
+  // };
 
   const __COLUMNS__ = {
     handle: {
-      displayName: 'Pallet ID',
+      optionName: 'Pallet ID',
+      header: 'Pallet ID',
       defaultSortAscending: true,
-      active: true,
+      permitted: true,
+      defaultActive: true,
       optionAvailable: true
     },
     shipment: {
-      displayName: 'Shipment',
-      active: true,
+      optionName: 'Shipment',
+      header: 'Shipment',
+      permitted: true,
+      defaultActive: true,
       optionAvailable: true,
       noSort: true
     },
     lot: {
-      displayName: 'Lot',
-      active: false,
+      optionName: 'Lot',
+      header: 'Lot',
+      permitted: true,
+      defaultActive: false,
       optionAvailable: true,
       noSort: true
     },
     category: {
-      displayName: 'Category',
+      optionName: 'Category',
+      header: 'Category',
       defaultSortAscending: true,
-      active: true,
+      permitted: true,
+      defaultActive: true,
       optionAvailable: true
     },
     condition: {
-      displayName: 'Condition',
+      optionName: 'Condition',
+      header: 'Condition',
       defaultSortAscending: true,
-      active: true,
+      permitted: true,
+      defaultActive: true,
       optionAvailable: true
     },
     createdAt: {
-      displayName: 'Created',
+      optionName: 'Created',
+      header: 'Created',
       defaultSortAscending: false,
       transform: UtilitiesSvc.prettifyDate.bind( UtilitiesSvc ),
-      active: true,
+      permitted: true,
+      defaultActive: true,
       optionAvailable: true
     },
     breakdown: {
-      displayName: 'Mark As Breakdown',
-      active: true,
+      optionName: 'Mark As Breakdown',
+      header: 'Mark As Breakdown',
+      permitted: true,
+      defaultActive: true,
       optionAvailable: true,
       noSort: true,
     },
     brokendownDate: {
-      displayName: 'Brokendown on',
+      optionName: 'Brokendown on',
+      header: 'Brokendown on',
       transform: UtilitiesSvc.prettifyDate.bind( UtilitiesSvc ),
-      active: false,
+      permitted: true,
+      defaultActive: false,
       optionAvailable: true
     },
     hasProblem: {
-      displayName: 'Problem?',
-      active: false,
+      optionName: 'Problem?',
+      header: 'Problem?',
+      permitted: true,
+      defaultActive: false,
       optionAvailable: true,
       noSort: true,
     },
     note: {
-      displayName: 'Note',
-      active: false,
+      optionName: 'Note',
+      header: 'Note',
+      permitted: true,
+      defaultActive: false,
       optionAvailable: true,
       noSort: true,
     },
     cost: {
-      displayName: 'Cost',
-      active: false,
+      optionName: 'Cost',
+      header: 'Cost',
+      permitted: showPurchasingData,
+      defaultActive: false,
       optionAvailable: showPurchasingData,
       transform: UtilitiesSvc.displayAsMoney.bind( UtilitiesSvc ),
       noSort: true,
     },
+    editManifest: {
+      optionName: 'Edit Manifest',
+      header: '',
+      permitted: showEditManifest,
+      defaultActive: false,
+      optionAvailable: showEditManifest,
+      noSort: true,
+    },
+    makeLot: {
+      optionName: 'Make Lot',
+      header: '',
+      permitted: showMakeLot,
+      defaultActive: false,
+      optionAvailable: showMakeLot,
+      noSort: true,
+    },
   };
 
-  function Factory( ) {
+  function Factory( _columnNames ) {
 
     const columns = {};
-    for( let [ _cname, _cdata] of Object.entries( __COLUMNS__ ) ) {
+
+    for( let [ _cname, _cdata ] of Object.entries( __COLUMNS__ ) ) {
+
       columns[ _cname ] = Object.assign( {}, _cdata );
+
+      if( angular.isArray( _columnNames ) ) {
+        columns[ _cname ].active = __COLUMNS__[ _cname ].permitted && _columnNames.includes( _cname );
+      }
+      else {
+        columns[ _cname ].active = __COLUMNS__[ _cname ].permitted && __COLUMNS__[ _cname ].defaultActive;
+      }
+
     }
 
     return columns;
