@@ -646,7 +646,8 @@ export class Sheet {
       });
     }
 
-    const dataRowsJson = rows.splice(1, rows.length);
+    // deep copy
+    const dataRowsJson = JSON.parse( JSON.stringify( rows ) );
 
     if( dataRowsJson.length && dataRowsJson[0][ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ] ) {
       //sort descending by total retail price if available
@@ -709,6 +710,7 @@ export class Sheet {
     const filter = this.filterRowDataForOutput.bind(this);
     const hack = this.upcColumnHack.bind(this);
     const rows = this.rows.map( filter ).map( hack );
+    // TODO: remove existing header and totals rows
     return this.jsonToStyledAoa( rows );
   }
 
