@@ -210,6 +210,10 @@ export class Sheet {
 
       this.rows = xlsx.utils.sheet_to_json( this.rawData, sheetParseOpts );
 
+      if( skipLastRows > 0 ) {
+        this.rows.splice( this.rows.length - skipLastRows );
+      }
+
     }
     else {
 

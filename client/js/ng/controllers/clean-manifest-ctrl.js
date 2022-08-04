@@ -29,6 +29,7 @@ angular.module('myApp').controller( 'CleanManifestCtrl', [
     vm.manifestFile = null;
     vm.noHeaderRow = false;
     vm.skipFirstRows = 0;
+    vm.skipLastRows = 0;
     vm.shipmentId = ShipmentManagerSvc.getShipmentId();
 
     vm.loadManifestFromSelectedFile = loadManifestFromSelectedFile;
@@ -72,7 +73,14 @@ angular.module('myApp').controller( 'CleanManifestCtrl', [
         vm.noFileSelected = false;
       }
 
-      ManifestFileHandlerSvc.parseFile( vm.manifestFile, { noHeaderRow: vm.noHeaderRow, skipFirstRows: vm.skipFirstRows, renameStandardColumns: true } ).then( loadActiveManifest );
+      const parseOpts = {
+        noHeaderRow: vm.noHeaderRow,
+        skipFirstRows: vm.skipFirstRows,
+        skipLastRows: vm.skipLastRows,
+        renameStandardColumns: true
+      };
+
+      ManifestFileHandlerSvc.parseFile( vm.manifestFile, parseOpts ).then( loadActiveManifest );
 
     }
 
