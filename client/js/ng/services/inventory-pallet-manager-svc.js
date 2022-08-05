@@ -191,6 +191,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
           'category',
           'condition',
           'units',
+          'numUnitsRemoved',
           'retailValue',
           'salePrice',
           'cost',

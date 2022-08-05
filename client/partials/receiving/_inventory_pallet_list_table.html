@@ -24,7 +24,12 @@
       <td ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.active" ng-switch="columnKey">
 
         <span ng-switch-when="handle">
-          <a href ng-click="$ctrl.showPalletDetails( pallet )">{{pallet.handle}}</a>
+          <span ng-show="$ctrl.showPalletDetails">
+            <a href ng-click="$ctrl.showPalletDetails( pallet )">{{pallet.handle}}</a>
+          </span>
+          <span ng-show="!$ctrl.showPalletDetails">
+            {{pallet.handle}}
+          </span>
         </span>
 
         <span ng-switch-when="shipment">

@@ -101,9 +101,15 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     $state.go('main.lots.upload-manifest', { lotId: lotId });
   };
 
+  const editPalletManifest = () => {
+    $anchorScroll();
+    $state.go('main.inventory-pallets.edit-manifest');
+  };
+
   return {
     cleanManifest: cleanManifest,
     editLotManifest: editLotManifest,
+    editPalletManifest: editPalletManifest,
     history: history,
     home: home,
     imageEditor: imageEditor,

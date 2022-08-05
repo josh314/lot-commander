@@ -52,11 +52,12 @@ const stateData = [
   { name: "main.shipments.receiving", url: '/{shipmentId}/receive', templateUrl: '/partials/receiving/_shipment_receiving.html', userPermission: 'RECEIVE_INCOMING_SHIPMENT' },
   { name: "main.shipments.clean-manifest", url: '/{shipmentId}/manifests/clean', templateUrl: '/partials/_clean_manifest.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
 
-  // inventory pallets 
+  // inventory pallets
   { name: "main.inventory-pallets", abstract: true, navName: "Pallets", url: "/pallets", templateUrl: 'partials/_container.html'},
   { name: "main.inventory-pallets.view", navName: "All pallets", navParent: 'Pallets', url: '/list', templateUrl: '/partials/receiving/_inventory_pallet_view.html', userPermission: 'LIST_INVENTORY_PALLETS' },
   { name: "main.inventory-pallets.creation", url: '/create', templateUrl: '/partials/receiving/_inventory_pallet_creation.html', userPermission: 'CREATE_INVENTORY_PALLET' },
   { name: "main.inventory-pallets.to-be-listed", navName: "Pallets to be listed", navParent: 'Pallets', url: '/to-be-listed', templateUrl: '/partials/receiving/_inventory_pallets_to_be_listed.html', userPermission: 'LIST_INVENTORY_PALLETS_TO_BE_LISTED' },
+  { name: "main.inventory-pallets.edit-manifest", navName: "Edit manifest", navParent: 'Pallets', url: '/edit-manifest', templateUrl: '/partials/receiving/_inventory_pallet_edit_manifest.html', userPermission: '' },
 
   // Purchase aggregation
   { name: "main.purchases", navName: 'Purchases', url: "/purchases", templateUrl: 'partials/_purchase_aggregation.html', userPermission: 'VIEW_PURCHASING_DATA' },

@@ -96,15 +96,21 @@
           </dd>
         </div>
         <div ng-hide="$ctrl.isEditing[ 'totalUnits' ]">
-          <dt>Total Units<span ng-show="$ctrl.showEditControls && (!$ctrl.shipment.getTotalUnits() || $ctrl.shipment.getTotalUnits() === $ctrl.shipment.totalUnits)"> (<a href ng-click="$ctrl.openEdit( 'totalUnits' )">edit</a>)</span></dt>
+          <dt>Total units purchased<span ng-show="$ctrl.showEditControls && (!$ctrl.shipment.getTotalUnits() || $ctrl.shipment.getTotalUnits() === $ctrl.shipment.totalUnits)"> (<a href ng-click="$ctrl.openEdit( 'totalUnits' )">edit</a>)</span></dt>
           <dd ng-hide="$ctrl.isEditing[ 'totalUnits' ]">
             {{ $ctrl.shipment.getTotalUnits() || '----' }}
           </dd>
         </div>
         <div ng-show="$ctrl.isEditing[ 'totalUnits' ]">
-          <dt>Total Units (<a href ng-click="$ctrl.saveEdit( 'totalUnits' )" style="color: red">save</a> or <a href ng-click="$ctrl.closeEdit( 'totalUnits' )" style="color: red">cancel edit</a>)</dt>
+          <dt>Total units purchased (<a href ng-click="$ctrl.saveEdit( 'totalUnits' )" style="color: red">save</a> or <a href ng-click="$ctrl.closeEdit( 'totalUnits' )" style="color: red">cancel edit</a>)</dt>
           <dd ng-show="$ctrl.isEditing[ 'totalUnits' ]">
             <input ng-model="$ctrl.editValue[ 'totalUnits' ]" />
+          </dd>
+        </div>
+        <div ng-show="$ctrl.shipment.getTotalUnitsRemoved()">
+          <dt>Units removed</dt>
+          <dd>
+            {{ $ctrl.shipment.getTotalUnitsRemoved() }}
           </dd>
         </div>
         <div ng-hide="$ctrl.isEditing[ 'carrier' ]">

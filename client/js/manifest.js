@@ -172,26 +172,46 @@ export class Manifest {
     for( const displaySheet of this.sheets ) {
 
       let ws;
+      let columnHeaders;
 
       if( isPretty ) {
+
+        // Pretty output is an array of arrays of cell objects
+        const output = displaySheet.getPrettyOutput();
+
+        columnHeaders = output[0].map( _ => _.v ); // `v` is the value of the cell
+
         ws = xlsx.utils.aoa_to_sheet(
-          displaySheet.getPrettyOutput(),
+          output,
           {}
         );
+
       }
       else {
+
+        // basic output is an array of objects with keys matching the column headers
+        const output = displaySheet.getBasicOutput();
+
+        columnHeaders = Object.keys( output[0] );
+
         ws = xlsx.utils.json_to_sheet(
-          displaySheet.getBasicOutput(),
+          output,
           {}
         );
+
       }
       xlsx.utils.book_append_sheet(wb, ws, displaySheet.name);
 
-      ws['!cols'] = displaySheet.columns.filter( c => c.selected ).map( c => {
+      // this logic sets the column width based on the size of data entries
+      ws['!cols'] = columnHeaders.map( _columnDisplayName => {
+
+        const column = displaySheet.columns.find( _c => _c.displayName === _columnDisplayName );
+
         return {
-          width: displaySheet.getColumnWidth(c.name)
+          width: displaySheet.getColumnWidth( column.name )
         };
       });
+
     }
     return wb;
   }

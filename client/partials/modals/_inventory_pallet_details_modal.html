@@ -29,6 +29,10 @@
       <label for="unitsInput">Units</label>
       <input class="form-control" type="number" id="unitsInput" ng-model="$ctrl.inputs.units" ng-disabled="$ctrl.disableEditing">
     </div>
+    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.inputs.numUnitsRemoved">
+      <label for="numUnitsRemovedInput">Number of removed units</label>
+      <input class="form-control" type="number" id="numUnitsRemovedInput" ng-model="$ctrl.inputs.numUnitsRemoved" ng-disabled="$ctrl.disableEditing">
+    </div>
     <div class="form-group col-xs-12 col-sm-6" >
       <label for="retailValueInput">Retail Value</label>
       <input class="form-control" type="number" id="retailValueInput" ng-model="$ctrl.inputs.retailValue" ng-disabled="$ctrl.disableEditing">
