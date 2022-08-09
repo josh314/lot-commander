@@ -3,6 +3,7 @@ import {
   __STANDARD_MANIFEST_PALLET_ID_COLUMN__,
   __STANDARD_MANIFEST_BARCODE_COLUMN__,
   __STANDARD_MANIFEST_QUANTITY_COLUMN__,
+  __STANDARD_MANIFEST_DESCRIPTION_COLUMN__,
   __STANDARD_MANIFEST_CATEGORY_COLUMN__,
   __STANDARD_MANIFEST_UNIT_COST_COLUMN__,
   __STANDARD_MANIFEST_TOTAL_COST_COLUMN__,
@@ -125,6 +126,10 @@ export class Column {
     return this.displayName === __STANDARD_MANIFEST_QUANTITY_COLUMN__;
   }
 
+  isDescriptionColumn() {
+    return this.displayName === __STANDARD_MANIFEST_DESCRIPTION_COLUMN__;
+  }
+
   isCategoryColumn() {
     return this.displayName === __STANDARD_MANIFEST_CATEGORY_COLUMN__;
   }
@@ -186,7 +191,7 @@ export class Column {
 // Main class
 
 export class Sheet {
-  constructor( { manifest, name, skipFirstRows, noHeaderRow, data, rows, columns, renameStandardColumns } ) {
+  constructor( { manifest, name, skipFirstRows, skipLastRows, noHeaderRow, data, rows, columns, renameStandardColumns } ) {
 
     this.manifest = manifest;
     this.name = name;
@@ -209,6 +214,10 @@ export class Sheet {
     else if ( this.rawData ) {
 
       this.rows = xlsx.utils.sheet_to_json( this.rawData, sheetParseOpts );
+
+      if( skipLastRows > 0 ) {
+        this.rows.splice( this.rows.length - skipLastRows );
+      }
 
     }
     else {
@@ -291,6 +300,10 @@ export class Sheet {
 
   getQuantityColumn() {
     return this.columns.find( column => column.isQuantityColumn() );
+  }
+
+  getDescriptionColumn() {
+    return this.columns.find( column => column.isDescriptionColumn() );
   }
 
   getUnitCostColumn() {
@@ -710,7 +723,6 @@ export class Sheet {
     const filter = this.filterRowDataForOutput.bind(this);
     const hack = this.upcColumnHack.bind(this);
     const rows = this.rows.map( filter ).map( hack );
-    // TODO: remove existing header and totals rows
     return this.jsonToStyledAoa( rows );
   }
 
@@ -997,6 +1009,62 @@ export class Sheet {
     }
 
     return res;
+  }
+
+  getLineItemByBarcode( barcode ) {
+    return this.rows.find( _r => _r[ __STANDARD_MANIFEST_BARCODE_COLUMN__ ] === barcode );
+  }
+
+  getLineItemIndexByBarcode( barcode ) {
+    return this.rows.findIndex( _r => _r[ __STANDARD_MANIFEST_BARCODE_COLUMN__ ] === barcode );
+  }
+
+  // Note that amount is signed!
+  adjustLineItemQuantity( barcode, amount, keepZeroQuantity ) {
+    const idx = this.getLineItemIndexByBarcode( barcode );
+    if( idx >= 0 ) {
+
+      const row = this.rows[ idx ];
+
+      // update retail price - must be done before adjusting the row quantity
+      if( row[ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ]  && row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ] ) {
+
+        /* eslint-disable indent */
+        const unitRetailPrice = row[ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ] && row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ]
+                                ? row[ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ] / row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ]
+                                : 0;
+        /* eslint-enable indent */
+
+        row[ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ] += amount * unitRetailPrice;
+
+      }
+
+      // update sale price - must be done before adjusting the row quantity
+      if( row[ __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__ ]  && row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ] ) {
+
+        /* eslint-disable indent */
+        const unitSalePrice = row[ __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__ ] && row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ]
+                              ? row[ __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__ ] / row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ]
+                              : 0;
+        /* eslint-enable indent */
+
+        row[ __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__ ] += amount * unitSalePrice;
+
+      }
+
+      // adjust quantity
+      if( row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ] ) {
+
+        row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ] += amount;
+
+        if( !keepZeroQuantity && row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ] <= 0 ) {
+          this.removeRow( idx );
+        }
+
+      }
+
+    }
+
   }
 
 }

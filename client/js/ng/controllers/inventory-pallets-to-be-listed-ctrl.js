@@ -24,69 +24,59 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
     ShipmentManagerSvc,
 
   ) {
-
-    sessionTimeout.timeoutExpired();
-
     const vm = this;
-
-    // Permissions
-    vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
-    vm.allowShipmentNavigation = LoggedInUser.hasPermission('VIEW_INCOMING_SHIPMENT');
-    vm.allowLotNavigation = LoggedInUser.hasPermission('VIEW_LOT');
-
-    // list options
-    vm.filter = {
-      handle: '',
-      populateShipment: true,
-      populateLot: true,
-      status: 'not brokendown',
-      hasLot: false,
-      toBeListed: true
-    };
-    vm.categoryOptions = [ "" ].concat( palletProperties.category );
-    vm.conditionOptions = [ "" ].concat( palletProperties.condition );
-    vm.sortOpts = {
-      key: 'createdAt',
-      ascending: true
-    };
-
-    vm.pagination = {
-      current: 1,
-      totalItems: 0,
-      pageSize: __PAGE_SIZE__,
-      pageChange: refreshPalletsData,
-      maxSize: 8
-    };
-
-    vm.columns = InventoryPalletManagerSvc.getListColumns();
-
-    vm.sortListBy = sortListBy;
-    vm.refreshPalletsData = refreshPalletsData;
-    vm.showPalletDetails = showPalletDetails;
-    vm.createLotFromPallet = createLotFromPallet;
+    // Initialize the page
+    init();
 
     function init() {
-      initListColumns();
-      refreshPalletsData();
-    }
 
-    function initListColumns() {
+      sessionTimeout.timeoutExpired();
 
-      Object.values( vm.columns ).forEach( c => c.active = false );
+      // Permissions
+      vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+      vm.allowShipmentNavigation = LoggedInUser.hasPermission('VIEW_INCOMING_SHIPMENT');
+      vm.allowLotNavigation = LoggedInUser.hasPermission('VIEW_LOT');
 
-      const activeColumns = [
+      // list options
+      vm.filter = {
+        handle: '',
+        populateShipment: true,
+        populateLot: true,
+        status: 'not brokendown',
+        hasLot: false,
+        toBeListed: true
+      };
+      vm.categoryOptions = [ "" ].concat( palletProperties.category );
+      vm.conditionOptions = [ "" ].concat( palletProperties.condition );
+      vm.sortOpts = {
+        key: 'createdAt',
+        ascending: true
+      };
+
+      vm.pagination = {
+        current: 1,
+        totalItems: 0,
+        pageSize: __PAGE_SIZE__,
+        pageChange: refreshPalletsData,
+        maxSize: 8
+      };
+
+      vm.columns = InventoryPalletManagerSvc.getListColumns( [
         'handle',
         'shipment',
         'lot',
         'category',
         'condition',
         'createdAt',
-      ];
+        'makeLot'
+      ] );
 
-      for( let _ of activeColumns ) {
-        vm.columns[ _ ].active = true;
-      }
+      vm.sortListBy = sortListBy;
+      vm.refreshPalletsData = refreshPalletsData;
+      vm.showPalletDetails = showPalletDetails;
+      vm.createLotFromPallet = createLotFromPallet;
 
+      refreshPalletsData();
     }
 
     function sortListBy( sortKey ) {
@@ -156,9 +146,6 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
       // TODO: handle error if lot not created. Particular issue is if the auto-generated handle is a dupe
 
     }
-
-    // Initialize the page
-    init();
 
   }
 ]);

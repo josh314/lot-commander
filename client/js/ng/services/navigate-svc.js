@@ -43,37 +43,37 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
 
   const shipmentCreation = () => {
     $anchorScroll();
-    $state.go( 'main.receiving.shipment-creation');
+    $state.go( 'main.shipments.creation');
   };
 
   const shipmentDetails = shipmentId => {
     $anchorScroll();
-    $state.go( 'main.receiving.shipment-details', { shipmentId: shipmentId } );
+    $state.go( 'main.shipments.details', { shipmentId: shipmentId } );
   };
 
   const shipmentList = () => {
     $anchorScroll();
-    $state.go( 'main.receiving.shipment-list' );
+    $state.go( 'main.shipments.list' );
   };
 
   const shipmentReceiving = shipmentId  => {
     $anchorScroll();
-    $state.go( 'main.receiving.shipment-receiving', { shipmentId: shipmentId } );
+    $state.go( 'main.shipments.receiving', { shipmentId: shipmentId } );
   };
 
   const shipmentCleanManifest = shipmentId  => {
     $anchorScroll();
-    $state.go( 'main.receiving.shipment-clean-manifest', { shipmentId: shipmentId } );
+    $state.go( 'main.shipments.clean-manifest', { shipmentId: shipmentId } );
   };
 
   const inventoryPalletCreation = () => {
     $anchorScroll();
-    $state.go( 'main.receiving.inventory-pallet-creation');
+    $state.go( 'main.inventory-pallets.creation');
   };
 
   const inventoryPalletView = () => {
     $anchorScroll();
-    $state.go( 'main.receiving.inventory-pallet-view' );
+    $state.go( 'main.inventory-pallets.view' );
   };
 
   const cleanManifest = () => {
@@ -101,9 +101,15 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     $state.go('main.lots.upload-manifest', { lotId: lotId });
   };
 
+  const editPalletManifest = () => {
+    $anchorScroll();
+    $state.go('main.inventory-pallets.edit-manifest');
+  };
+
   return {
     cleanManifest: cleanManifest,
     editLotManifest: editLotManifest,
+    editPalletManifest: editPalletManifest,
     history: history,
     home: home,
     imageEditor: imageEditor,

@@ -62,11 +62,22 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'L
 
     return {
 
+      ShipmentFactory: ShipmentFactory,
+
       shipmentDocumentTypes: shipmentDocumentTypes,
 
       createShipment: ( shipment ) => $q.when( api.createIncomingShipment( shipment ) ),
 
       getShipmentId: () => _shipmentId(),
+
+      hydrateShipment: async ( __shipment, hydratePalletObjects = false ) => {
+
+        const _shipment = angular.isString( __shipment ) ? await this.loadShipment( __shipment ) : __shipment;
+
+        const shipment = _shipment.isHydrated ? _shipment : ShipmentFactory( _shipment, hydratePalletObjects );
+
+        return shipment;
+      },
 
       loadShipment: ( { shipmentId, populate = [], hydratePalletObjects = false } = {} ) => $q.when( api.getIncomingShipmentById( shipmentId || _shipmentId(), { populate: populate } ) ).then( resp => {
         if( !resp || !resp.shipment ) {
@@ -133,7 +144,7 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
     function Shipment( _data, hydratePalletObjects = false ) {
 
       const shipment = Object.assign(
-        {},
+        { isHydrated: true },
         _data,
         [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
       );
@@ -180,6 +191,12 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
       };
 
       shipment.getTotalUnits = function() { return this.totalUnits || this.palletsExpected.reduce( (total, p) => total + (p.units || 0) , 0); };
+
+      shipment.getTotalUnitsRemoved = function() {
+        if( this.palletsReceived && this.palletsReceived.reduce ) {
+          return this.palletsReceived.reduce( ( acc, _p ) => acc + (_p.numUnitsRemoved || 0) , 0 );
+        }
+      };
 
       shipment.getNextAnonymousPalletExpected = () => shipment.palletsExpected.find( pe => pe.isAnonymous && !pe.isReceived );
 

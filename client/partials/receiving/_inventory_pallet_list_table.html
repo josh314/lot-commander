@@ -3,61 +3,86 @@
 
   <thead><tr>
     <th>#</th>
-    <th ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable && columnData.active">
+    <th ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.active">
     <span ng-click="$ctrl.sortListBy(columnKey)" style="cursor: pointer;" ng-hide="columnData.noSort">
-      {{columnData.displayName}}
+      {{columnData.header}}
       <span ng-show="columnKey === $ctrl.sortOpts.key">
       <span class="glyphicon glyphicon-triangle-bottom" ng-hide="$ctrl.sortOpts.ascending" style="font-size: .75em"></span>
       <span class="glyphicon glyphicon-triangle-top" ng-show="$ctrl.sortOpts.ascending" style="font-size: .75em"></span>
       </span>
     </span>
-    <span ng-show="columnData.noSort">{{columnData.displayName}}</span>
+    <span ng-show="columnData.noSort">{{columnData.header}}</span>
     </th>
     <th></th>
   </tr></thead>
 
   <tbody>
     <tr ng-repeat="pallet in $ctrl.palletsList">
-    <td>{{$index+1}}</td>
-    <td ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable && columnData.active" ng-switch="columnKey">
-      <span ng-switch-when="handle">
-      <a href ng-click="$ctrl.showPalletDetails( pallet )">{{pallet.handle}}</a>
-      </span>
-      <span ng-switch-when="shipment">
-      <a ng-href="/receiving/shipments/{{pallet.shipment._id}}" ng-show="$ctrl.allowShipmentNavigation">
-        {{ pallet.shipment.handle }}
-      </a>
-      <span ng-hide="$ctrl.allowShipmentNavigation">
-        {{ pallet.shipment.handle }}
-      </span>
-      </span>
-      <span ng-switch-when="lot">
-      <a ng-href="/lots/view/{{pallet.lot._id}}" ng-show="$ctrl.allowLotNavigation">
-        {{ pallet.lot.handle }}
-      </a>
-      <span ng-hide="$ctrl.allowLotNavigation">
-        {{ pallet.lot.handle }}
-      </span>
-      </span>
-      <span ng-switch-when="hasProblem">
-      <span class="glyphicon glyphicon-alert" ng-show="pallet.hasProblem"></span>
-      </span>
-      <span ng-switch-when="note">
-      <span ng-show="pallet.showNote">{{pallet.note}}</span>
-      <span ng-show="pallet.note">[<a href ng-hide="pallet.showNote" ng-click="pallet.toggleShowNote()">Show</a><a href ng-show="pallet.showNote" ng-click="pallet.toggleShowNote()">Hide</a>]</span>
-      </span>
-      <span ng-switch-when="breakdown">
-      <button type="button" class="btn btn-xs" ng-class="{ 'btn-danger': !pallet.isBrokendown, 'btn-success': pallet.isBrokendown }" ng-click="pallet.breakdown( !pallet.isBrokendown )">
-        {{ pallet.isBrokendown ? 'Undo breakdown' : 'Breakdown' }}
-      </button>
-      </span>
-      <span ng-switch-default>{{ columnData.transform ? columnData.transform( pallet[ columnKey ] ) : pallet[ columnKey ] }}</span>
-    </td>
-    <td>
-      <span ng-show="pallet.toBeListed">
-      <button class="btn btn-xs btn-primary" ng-click="$ctrl.createLotFromPallet( pallet )" ng-disabled="pallet.lot">Make Lot</button>
-      </span>
-    </td>
+
+      <td>{{$index+1}}</td>
+
+      <td ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.active" ng-switch="columnKey">
+
+        <span ng-switch-when="handle">
+          <span ng-show="$ctrl.showPalletDetails">
+            <a href ng-click="$ctrl.showPalletDetails( pallet )">{{pallet.handle}}</a>
+          </span>
+          <span ng-show="!$ctrl.showPalletDetails">
+            {{pallet.handle}}
+          </span>
+        </span>
+
+        <span ng-switch-when="shipment">
+          <a ng-href="/shipments/{{pallet.shipment._id}}" ng-show="$ctrl.allowShipmentNavigation">
+            {{ pallet.shipment.handle }}
+          </a>
+          <span ng-hide="$ctrl.allowShipmentNavigation">
+            {{ pallet.shipment.handle }}
+          </span>
+        </span>
+
+        <span ng-switch-when="lot">
+          <a ng-href="/lots/view/{{pallet.lot._id}}" ng-show="$ctrl.allowLotNavigation">
+            {{ pallet.lot.handle }}
+          </a>
+          <span ng-hide="$ctrl.allowLotNavigation">
+            {{ pallet.lot.handle }}
+          </span>
+        </span>
+
+        <span ng-switch-when="hasProblem">
+          <span class="glyphicon glyphicon-alert" ng-show="pallet.hasProblem"></span>
+        </span>
+
+        <span ng-switch-when="note">
+          <span ng-show="pallet.showNote">{{pallet.note}}</span>
+          <span ng-show="pallet.note">[<a href ng-hide="pallet.showNote" ng-click="pallet.toggleShowNote()">Show</a><a href ng-show="pallet.showNote" ng-click="pallet.toggleShowNote()">Hide</a>]</span>
+        </span>
+
+        <span ng-switch-when="breakdown">
+          <button type="button" class="btn btn-xs" ng-class="{ 'btn-danger': !pallet.isBrokendown, 'btn-success': pallet.isBrokendown }" ng-click="pallet.breakdown( !pallet.isBrokendown )">
+            {{ pallet.isBrokendown ? 'Undo breakdown' : 'Breakdown' }}
+          </button>
+        </span>
+
+        <span ng-switch-when="makeLot">
+          <span ng-show="pallet.toBeListed">
+            <button class="btn btn-xs btn-primary" ng-click="$ctrl.createLotFromPallet( pallet )" ng-disabled="pallet.lot">Make Lot</button>
+          </span>
+        </span>
+
+        <span ng-switch-when="editManifest">
+          <span ng-show="pallet.hasManifest()">
+            <button class="btn btn-xs btn-primary" ng-click="$ctrl.editPalletManifest( pallet )">Edit Manifest</button>
+          </span>
+        </span>
+
+        <span ng-switch-default>
+          {{ columnData.transform ? columnData.transform( pallet[ columnKey ] ) : pallet[ columnKey ] }}
+        </span>
+
+      </td>
+
     </tr>
   </tbody>
 

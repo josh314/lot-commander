@@ -81,15 +81,15 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
       return manifestExtensions.includes( path.extname( filename ) );
     }
 
-    function parseFile( file, { noHeaderRow, skipFirstRows, renameStandardColumns } = {} ) {
+    function parseFile( file, { noHeaderRow, skipFirstRows, skipLastRows, renameStandardColumns } = {} ) {
 
       return $q.when( readFile( file ) ).then( reader => {
-        return parse( reader.result, file.name, { noHeaderRow, skipFirstRows, renameStandardColumns } );
+        return parse( reader.result, file.name, { noHeaderRow, skipFirstRows, skipLastRows, renameStandardColumns } );
       });
 
     }
 
-    function parse( data, filename, { noHeaderRow, skipFirstRows, renameStandardColumns } = {} ) {
+    function parse( data, filename, { noHeaderRow, skipFirstRows, skipLastRows, renameStandardColumns } = {} ) {
 
       const wb = xlsx.read( new Uint8Array( data ) , { type: 'array' } );
 
@@ -102,6 +102,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
           data: data,
           noHeaderRow: noHeaderRow || false,
           skipFirstRows: skipFirstRows || 0,
+          skipLastRows: skipLastRows || 0,
           renameStandardColumns
         };
         _activeManifest.addSheet( new Sheet( sheetOpts ) );
@@ -191,7 +192,8 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
           vm.filename = filename;
           vm.options = {
             noHeaderRow: false,
-            skipFirstRows: 0
+            skipFirstRows: 0,
+            skipLastRows: 0
           };
 
         },
@@ -203,7 +205,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
 
     function loadNewManifestFromExtractByColumnValue( { documentName, data, column, splitValue, sheetName } ) {
 
-      parse( data, documentName, { noHeaderRow: false, skipFirstRows: 0 } );
+      parse( data, documentName, { noHeaderRow: false, skipFirstRows: 0, skipLastRows: 0 } );
 
       const manifest = getActiveManifest();
       manifest.setActiveSheet( sheetName );
@@ -231,7 +233,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
 
     function splitStandardManifestByPallet( data ) {
 
-      parse( data, 'temp.xlsx', { noHeaderRow: false, skipFirstRows: 0 } );
+      parse( data, 'temp.xlsx', { noHeaderRow: false, skipFirstRows: 0, skipLastRows: 0 } );
       const manifest = getActiveManifest();
 
       const splitSheets = manifest.splitActiveSheetByColumn( 'Pallet ID' );

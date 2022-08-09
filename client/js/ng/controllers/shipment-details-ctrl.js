@@ -12,6 +12,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
   'ModalSvc',
   'navigate',
   'PalletLotSvc',
+  'PalletManifestSvc',
   'palletProperties',
   'PrintSvc',
   'sessionTimeout',
@@ -29,6 +30,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     ModalSvc,
     navigate,
     PalletLotSvc,
+    PalletManifestSvc,
     palletProperties,
     PrintSvc,
     sessionTimeout,
@@ -503,53 +505,18 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
         }
 
-
-        if( expectedPallet ) {
-
-          uploads.push(
-            vm.shipment.uploadExpectedPalletDocument( expectedPallet._id, file, { documentType: 'manifest', isRestricted: false } )
-          );
-
-          if( summary ) {
-
-            const expectedPalletEditDoc = {
-              category: summary.category || undefined,
-              units: summary.quantity || undefined,
-              retailValue: summary.retailValue || undefined,
-              salePrice: summary.salePrice || undefined,
-            };
-
-            uploads.push(
-              vm.shipment.editExpectedPallet( expectedPallet._id, expectedPalletEditDoc )
-            );
-
-          }
-
+        const options = {};
+        if( summary ) {
+          Object.assign( options, summary, { units: summary.quantity } );
         }
 
         if( receivedPallet ) {
-
-          uploads.push(
-            receivedPallet.uploadDocument( file, { documentType: 'manifest', isRestricted: false } )
-          );
-
-          if( summary ) {
-
-            const receivedPalletEditDoc = {
-              category: summary.category || undefined,
-              units: summary.quantity || undefined,
-              retailValue: summary.retailValue || undefined,
-              salePrice: summary.salePrice || undefined,
-            };
-
-            uploads.push(
-              receivedPallet.edit( receivedPalletEditDoc )
-            );
-
-          }
-
+          uploads.push( PalletManifestSvc.uploadReceivedPalletManifest( receivedPallet, file, options ) );
         }
 
+        if ( expectedPallet ) {
+          uploads.push( PalletManifestSvc.uploadExpectedPalletManifest( vm.shipment, expectedPallet._id, file, options ) );
+        }
 
       }
 
