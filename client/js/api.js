@@ -702,6 +702,14 @@ export function breakdownInventoryPallet( palletId, isBrokendown = true ) {
   })
     .then( resp => resp.data );
 }
+export function repackInventoryPallet( palletId, isRepacked = true ) {
+  return axios({
+    method: 'put',
+    url: `/api/pallets/${ palletId }/is-repacked`,
+    data: { isRepacked }
+  })
+    .then( resp => resp.data );
+}
 export function deleteInventoryPallet( palletId ) {
   return axios({
     method: 'delete',

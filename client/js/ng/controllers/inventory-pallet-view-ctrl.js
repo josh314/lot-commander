@@ -34,66 +34,73 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
 
   ) {
 
-    sessionTimeout.timeoutExpired();
-
+    // Initialize the page
     const vm = this;
-    vm.displayModes = {
-      LIST: __DISPLAY_MODE_LIST__,
-      AGGREGATE: __DISPLAY_MODE_AGGREGATE__,
-    };
-    vm.displayModeActive = vm.displayModes.LIST;
-    vm.displayModeActiveIs = str => str === vm.displayModeActive;
-    vm.setDisplayModeActive = str => (vm.displayModeActive = str) && refreshPalletsData();
-
-    // Permissions
-    vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
-    vm.allowShipmentNavigation = LoggedInUser.hasPermission('VIEW_INCOMING_SHIPMENT');
-    vm.allowLotNavigation = LoggedInUser.hasPermission('VIEW_LOT');
-
-    // aggregation options
-    vm.aggregationReportDate = __TODAY__.toDate();
-    vm.aggregationReportMinDate = dayjs('2021-01-01').format('YYYY-MM-DD');
-    vm.aggregationReportMaxDate = __TODAY__.format('YYYY-MM-DD');
-
-    // list mode options
-    vm.filter = {
-      handle: '',
-      populateShipment: true,
-      populateLot: true,
-      status: 'not brokendown',
-      toBeListed: null,
-      hasLot: null,
-    };
-    vm.categoryOptions = [ "" ].concat( palletProperties.category );
-    vm.conditionOptions = [ "" ].concat( palletProperties.condition );
-    vm.palletsList = [];
-    vm.palletsAggregation = [];
-    vm.sortOpts = {
-      key: 'createdAt',
-      ascending: true
-    };
-
-    vm.pagination = {
-      current: 1,
-      totalItems: 0,
-      pageSize: __PAGE_SIZE__,
-      pageChange: refreshPalletsList,
-      maxSize: 8
-    };
-
-    vm.columns = InventoryPalletManagerSvc.getListColumns();
-
-    vm.showColumnOptions = false;
-    vm.toggleShowColumnOptions = () => vm.showColumnOptions = !vm.showColumnOptions;
-    vm.toggleColumnActive = toggleColumnActive;
-    vm.sortListBy = sortListBy;
-    vm.refreshPalletsData = refreshPalletsData;
-    vm.showPalletDetails = showPalletDetails;
-    vm.createLotFromPallet = createLotFromPallet;
-
-    vm.createPallet = () => navigate.inventoryPalletCreation();
+    init();
 
     function init() {
+
+      sessionTimeout.timeoutExpired();
+
+      vm.displayModes = {
+        LIST: __DISPLAY_MODE_LIST__,
+        AGGREGATE: __DISPLAY_MODE_AGGREGATE__,
+      };
+      vm.displayModeActive = vm.displayModes.LIST;
+      vm.displayModeActiveIs = str => str === vm.displayModeActive;
+      vm.setDisplayModeActive = str => (vm.displayModeActive = str) && refreshPalletsData();
+  
+      // Permissions
+      vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+      vm.allowShipmentNavigation = LoggedInUser.hasPermission('VIEW_INCOMING_SHIPMENT');
+      vm.allowLotNavigation = LoggedInUser.hasPermission('VIEW_LOT');
+  
+      // aggregation options
+      vm.aggregationReportDate = __TODAY__.toDate();
+      vm.aggregationReportMinDate = dayjs('2021-01-01').format('YYYY-MM-DD');
+      vm.aggregationReportMaxDate = __TODAY__.format('YYYY-MM-DD');
+  
+      // list mode options
+      vm.filter = {
+        handle: '',
+        populateShipment: true,
+        populateLot: true,
+        isBrokendown: null,
+        // status: 'not brokendown',
+        toBeListed: null,
+        isRepacked: null,
+        hasLot: null,
+      };
+      vm.categoryOptions = [ "" ].concat( palletProperties.category );
+      vm.conditionOptions = [ "" ].concat( palletProperties.condition );
+      vm.palletsList = [];
+      vm.palletsAggregation = [];
+      vm.sortOpts = {
+        key: 'createdAt',
+        ascending: true
+      };
+  
+      vm.pagination = {
+        current: 1,
+        totalItems: 0,
+        pageSize: __PAGE_SIZE__,
+        pageChange: refreshPalletsList,
+        maxSize: 8
+      };
+  
+      vm.columns = InventoryPalletManagerSvc.getListColumns();
+  
+      vm.showColumnOptions = false;
+      vm.toggleShowColumnOptions = () => vm.showColumnOptions = !vm.showColumnOptions;
+      vm.toggleColumnActive = toggleColumnActive;
+      vm.sortListBy = sortListBy;
+      vm.refreshPalletsData = refreshPalletsData;
+      vm.showPalletDetails = showPalletDetails;
+      vm.createLotFromPallet = createLotFromPallet;
+      vm.repackPallet = repackPallet;
+  
+      vm.createPallet = () => navigate.inventoryPalletCreation();
+  
       loadUserSettings();
       refreshPalletsData();
     }
@@ -238,8 +245,9 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
 
     }
 
-    // Initialize the page
-    init();
+    function repackPallet( pallet ) {
+      navigate.repackPallet( pallet._id );
+    }
 
   }
 ]);

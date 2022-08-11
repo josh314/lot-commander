@@ -12,17 +12,13 @@ const queryParams = ( params ) => {
 
   const qp = Object.assign( {}, params );
 
-  if( qp.status ) {
+  if( "isBrokendown" in qp ) {
 
-    if( qp.status === 'not brokendown' ) {
-      qp.is_brokendown = 0;
-    }
-    else if ( qp.status === 'brokendown' ) {
-      qp.is_brokendown = 1;
+    if( qp.isBrokendown !== null ) {
+      qp.is_brokendown = qp.isBrokendown ? 1 : 0;
     }
 
-    delete qp.status;
-
+    delete qp.isBrokendown;
   }
 
   if( "toBeListed" in qp ) {
@@ -32,6 +28,15 @@ const queryParams = ( params ) => {
     }
 
     delete qp.toBeListed;
+  }
+
+  if( "isRepacked" in qp ) {
+
+    if( qp.isRepacked !== null ) {
+      qp.is_repacked = qp.isRepacked ? 1 : 0;
+    }
+
+    delete qp.isRepacked;
   }
 
   if( "hasLot" in qp ) {
@@ -87,6 +92,8 @@ angular.module('myApp').service( 'InventoryPalletManagerSvc', [
     const _palletId = () =>  $stateParams.palletId;
 
     return {
+
+      getPalletId: _palletId,
 
       get: ( palletId, { populate = [] } ) => $q.when( api.getInventoryPallet( palletId, { populate } ) ).then( resp => new InventoryPallet( resp.pallet ) ),
 
@@ -152,10 +159,16 @@ angular.module('myApp').factory( 'InventoryPallet', [
         Object.assign( this,
           { showNote: false, isExpected: false },
           _data,
-          [ 'brokendownDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
+          [ 'brokendownDate', 'repackedDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
         );
 
-        this.refreshDocuments();
+        // This defines a promise which is resolved once this.documents is populated. Awaiting this data-field prevents `dereferncing undefined` errors.  Use it like so:
+        //
+        // await pallet.documentsAreLoaded;
+        // const manifest = pallet.documents[0];
+        //
+        this.documentsAreLoaded = this.loadDocuments();
+        
       }
 
       breakdown( isBrokendown ) {
@@ -166,6 +179,19 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
           this.isBrokendown = resp.pallet.isBrokendown;
           this.brokendownDate = resp.pallet.brokendownDate && datify( resp.pallet.brokendownDate );
+
+        } );
+
+      }
+
+      repack( isRepacked ) {
+
+        return $q.when( api.repackInventoryPallet( this._id, isRepacked ) ).then( resp => {
+
+          if( !resp || !resp.pallet ) return;
+
+          this.isRepacked = resp.pallet.isRepacked;
+          this.repackedDate = resp.pallet.repackedDate && datify( resp.pallet.repackedDate );
 
         } );
 
@@ -249,6 +275,11 @@ angular.module('myApp').factory( 'InventoryPallet', [
             delete details.isBrokendown;
           }
 
+          let newRepackedStatus = null;
+          if( this.isRepacked !== details.isRepacked ) {
+            newRepackedStatus = details.isRepacked;
+            delete details.isRepacked;
+          }
 
           const isChanged = Object.keys( details ).some( _key => details[ _key ] !== this[ _key ] );
           if( isChanged ) {
@@ -256,9 +287,10 @@ angular.module('myApp').factory( 'InventoryPallet', [
           }
 
           const breakdownPromise = newBrokendownStatus !== null ? this.breakdown( newBrokendownStatus ) : Promise.resolve( null );
+          const repackPromise = newRepackedStatus !== null ? this.repack( newRepackedStatus ) : Promise.resolve( null );
           const savePromise = isChanged ? this.save() : Promise.resolve( null );
 
-          return Promise.allSettled( [ breakdownPromise, savePromise ] );
+          return Promise.allSettled( [ breakdownPromise, repackPromise, savePromise ] );
 
         } )
           .catch( e => e ? console.error(e) : console.log('Pallet edit canceled.') );
@@ -300,8 +332,8 @@ angular.module('myApp').factory( 'InventoryPallet', [
         return $q.when( api.removeObjectDocument( this._id, this.isReceived ? 'received-pallet' : 'consolidated-pallet', documentName ) );
       }
 
-      refreshDocuments() {
-        this.listDocuments().then( resp => {
+      loadDocuments() {
+        return this.listDocuments().then( resp => {
           this.documents = (resp && resp.documents) ? resp.documents : [];
         } );
       }
@@ -327,103 +359,7 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
 
   const showPurchasingData = LoggedInUser.hasPermission( 'VIEW_PURCHASING_DATA' );
   const showMakeLot = LoggedInUser.hasPermission( 'CREATE_LOT' );
-  const showEditManifest = LoggedInUser.hasPermission( 'EDIT_INVENTORY_PALLET' );
-
-  // const __COLUMNS__ = {
-  //   handle: {
-  //     optionName: 'Pallet ID',
-  //     defaultSortAscending: true,
-  //     permitted: true,
-  //     defaultActive: true,
-  //     optionAvailable: true
-  //   },
-  //   shipment: {
-  //     optionName: 'Shipment',
-  //     permitted: true,
-  //     defaultActive: true,
-  //     optionAvailable: true,
-  //     noSort: true
-  //   },
-  //   lot: {
-  //     optionName: 'Lot',
-  //     permitted: true,
-  //     defaultActive: false,
-  //     optionAvailable: true,
-  //     noSort: true
-  //   },
-  //   category: {
-  //     optionName: 'Category',
-  //     defaultSortAscending: true,
-  //     permitted: true,
-  //     defaultActive: true,
-  //     optionAvailable: true
-  //   },
-  //   condition: {
-  //     optionName: 'Condition',
-  //     defaultSortAscending: true,
-  //     permitted: true,
-  //     defaultActive: true,
-  //     optionAvailable: true
-  //   },
-  //   createdAt: {
-  //     optionName: 'Created',
-  //     defaultSortAscending: false,
-  //     transform: UtilitiesSvc.prettifyDate.bind( UtilitiesSvc ),
-  //     permitted: true,
-  //     defaultActive: true,
-  //     optionAvailable: true
-  //   },
-  //   breakdown: {
-  //     optionName: 'Mark As Breakdown',
-  //     permitted: true,
-  //     defaultActive: true,
-  //     optionAvailable: true,
-  //     noSort: true,
-  //   },
-  //   brokendownDate: {
-  //     optionName: 'Brokendown on',
-  //     transform: UtilitiesSvc.prettifyDate.bind( UtilitiesSvc ),
-  //     permitted: true,
-  //     defaultActive: false,
-  //     optionAvailable: true
-  //   },
-  //   hasProblem: {
-  //     optionName: 'Problem?',
-  //     permitted: true,
-  //     defaultActive: false,
-  //     optionAvailable: true,
-  //     noSort: true,
-  //   },
-  //   note: {
-  //     optionName: 'Note',
-  //     permitted: true,
-  //     defaultActive: false,
-  //     optionAvailable: true,
-  //     noSort: true,
-  //   },
-  //   cost: {
-  //     optionName: 'Cost',
-  //     permitted: showPurchasingData,
-  //     defaultActive: false,
-  //     optionAvailable: true,
-  //     transform: UtilitiesSvc.displayAsMoney.bind( UtilitiesSvc ),
-  //     noSort: true,
-  //   },
-  //   editManifest: {
-  //     optionName: 'editMan',
-  //     permitted: showEditManifest,
-  //     defaultActive: false,
-  //     optionAvailable: false,
-  //     noSort: true,
-  //   },
-  //   makeLot: {
-  //     optionName: '',
-  //     permitted: showMakeLot,
-  //     defaultActive: true,
-  //     optionAvailable: false,
-  //     noSort: true,
-  //   },
-  // };
+  const showRepackPallet = LoggedInUser.hasPermission( 'EDIT_INVENTORY_PALLET' );
 
   const __COLUMNS__ = {
     handle: {
@@ -491,6 +427,22 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
       defaultActive: false,
       optionAvailable: true
     },
+    isRepacked: {
+      optionName: 'Repacked?',
+      header: 'Repacked?',
+      permitted: true,
+      defaultActive: false,
+      optionAvailable: true,
+      noSort: true,
+    },
+    repackedDate: {
+      optionName: 'Repacked date',
+      header: 'Repacked date',
+      transform: UtilitiesSvc.prettifyDate.bind( UtilitiesSvc ),
+      permitted: true,
+      defaultActive: false,
+      optionAvailable: true
+    },
     hasProblem: {
       optionName: 'Problem?',
       header: 'Problem?',
@@ -516,16 +468,16 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
       transform: UtilitiesSvc.displayAsMoney.bind( UtilitiesSvc ),
       noSort: true,
     },
-    editManifest: {
-      optionName: 'Edit Manifest',
+    repackPallet: {
+      optionName: 'Repack pallet button',
       header: '',
-      permitted: showEditManifest,
+      permitted: showRepackPallet,
       defaultActive: false,
-      optionAvailable: showEditManifest,
+      optionAvailable: showRepackPallet,
       noSort: true,
     },
     makeLot: {
-      optionName: 'Make Lot',
+      optionName: 'Make Lot button',
       header: '',
       permitted: showMakeLot,
       defaultActive: false,

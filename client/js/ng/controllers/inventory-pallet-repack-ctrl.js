@@ -3,7 +3,7 @@ import angular from 'angular';
 const __PAGE_SIZE__ = 5;
 
 /******************* Pallet Edit Manifest Controller *************************/
-angular.module('myApp').controller( 'InventoryPalletEditManifestCtrl', [
+angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
   'AudioAlertSvc',
   'focus',
@@ -34,7 +34,7 @@ angular.module('myApp').controller( 'InventoryPalletEditManifestCtrl', [
     const vm = this;
     init();
 
-    function init() {
+    async function init() {
 
       sessionTimeout.timeoutExpired();
       focus('palletHandleFilterInput');
@@ -51,20 +51,30 @@ angular.module('myApp').controller( 'InventoryPalletEditManifestCtrl', [
         handle: '',
         populateShipment: true,
         shipmentHandle: '',
+        isBrokendown: false,
       };
       vm.categoryOptions = [ "" ].concat( palletProperties.category );
       vm.conditionOptions = [ "" ].concat( palletProperties.condition );
       vm.palletsList = [];
-      vm.columns = InventoryPalletManagerSvc.getListColumns( [ 'handle', 'shipment', 'editManifest', 'createdAt' ] );
+      vm.columns = InventoryPalletManagerSvc.getListColumns( [ 'handle', 'shipment', 'repackPallet', 'createdAt' ] );
       vm.allowShipmentNavigation = LoggedInUser.hasPermission('VIEW_INCOMING_SHIPMENT');
 
       vm.removedItems = [];
 
-      vm.editPalletManifest = editPalletManifest;
+      vm.repackPallet = loadPallet;
       vm.refreshPalletsList = refreshPalletsList;
       vm.removeItem = removeItem;
       vm.undoRemoveItem = undoRemoveItem;
-      vm.saveManifest = saveManifest;
+      vm.finish = finish;
+      vm.cancel = cancel;
+
+      vm.palletId = InventoryPalletManagerSvc.getPalletId();
+      if( vm.palletId ) {
+        vm.pallet = await InventoryPalletManagerSvc.get( vm.palletId, { populate: [ 'shipment' ] } );
+        await vm.pallet.documentsAreLoaded;
+        loadPallet( vm.pallet );
+      }
+
     }
 
     function removeItem() {
@@ -150,7 +160,7 @@ angular.module('myApp').controller( 'InventoryPalletEditManifestCtrl', [
 
     }
 
-    function editPalletManifest( pallet ) {
+    function loadPallet( pallet ) {
 
       vm.pallet = pallet;
       vm.manifestFilename = angular.isArray(pallet.documents) && pallet.documents[0] ? pallet.documents[0].name : null;
@@ -226,49 +236,73 @@ angular.module('myApp').controller( 'InventoryPalletEditManifestCtrl', [
 
     }
 
-    async function saveManifest() {
+    async function finish() {
 
       //  popup to ask if they're finished
       const isConfirmed = await ModalSvc.confirm({
-        header: 'Save Manifest',
-        html: '<p>This will close the editor and save the changes to the manifest.</p><p>Continue?</p>',
+        header: 'Finish and Save Manifest?',
+        html: '<p>This will close the editor and save any changes to the manifest.</p><p>Continue?</p>',
       });
 
       if( !isConfirmed ) {
         return;
       }
 
-      // Apply the changes from vm.removedItems to vm.manifest.sheet
-      const sheet = vm.manifest.getActiveSheet();
-      for( let _item of vm.removedItems ) {
+      let finishedMessage;
+      if(vm.removedItems.length ) {
 
-        sheet.adjustLineItemQuantity( _item.barcode, - _item.numRemoved );
+        // Apply the changes from vm.removedItems to vm.manifest.sheet
+        const sheet = vm.manifest.getActiveSheet();
+        for( let _item of vm.removedItems ) {
 
+          sheet.adjustLineItemQuantity( _item.barcode, - _item.numRemoved );
+
+        }
+
+        const file = ManifestFileHandlerSvc.createFile( vm.manifestFilename, vm.manifest, true );
+
+        const palletTotals = vm.manifest.standardTotals();
+
+        const numUnitsRemoved = vm.removedItems.reduce( ( acc, _item ) => acc + _item.numRemoved , vm.pallet.numUnitsRemoved || 0 );
+
+        const editValues = {
+          units: palletTotals.quantity,
+          numUnitsRemoved,
+          retailValue: palletTotals.retailValue,
+          salePrice: palletTotals.salePrice,
+        };
+
+        // Only update the received pallet manifest
+        await ModalSvc.wait( {
+          waitFor: PalletManifestSvc.uploadReceivedPalletManifest( vm.pallet, file, editValues ),
+          delay: 2000
+        } );
+
+        finishedMessage = `Successfully saved new manifest and marked pallet as repacked.`;
+      }
+      else {
+        finishedMessage = `Marked pallet as repacked.`;
       }
 
-      const file = ManifestFileHandlerSvc.createFile( vm.manifestFilename, vm.manifest, true );
-
-      const palletTotals = vm.manifest.standardTotals();
-
-      const numUnitsRemoved = vm.removedItems.reduce( ( acc, _item ) => acc + _item.numRemoved , vm.pallet.numUnitsRemoved || 0 );
-
-      const editValues = {
-        units: palletTotals.quantity,
-        numUnitsRemoved,
-        retailValue: palletTotals.retailValue,
-        salePrice: palletTotals.salePrice,
-      };
-
-      // Only update the received pallet manifest
-      await ModalSvc.wait( {
-        waitFor: PalletManifestSvc.uploadReceivedPalletManifest( vm.pallet, file, editValues ),
-        delay: 2000
-      } );
-
-      await ModalSvc.message({ header: 'Manifest saved', body: `Successfully saved manifest.` });
-
+      await vm.pallet.repack( true );
+      await ModalSvc.message( { header: 'Repacking complete', body: finishedMessage } );
       navigate.reload();
 
+    }
+
+    async function cancel() {
+      // popup to ask if they're finished
+      const isConfirmed = await ModalSvc.confirm({
+        header: 'Cancel repacking?',
+        html: '<p>This will close the editor without saving any changes or marking the pallet as repacked.</p><p>Continue?</p>',
+      });
+
+      if( !isConfirmed ) {
+        return;
+      }
+      
+      vm.pallet = null;
+      vm.manifest = null;
     }
 
   }

@@ -46,7 +46,7 @@ const stateData = [
 
   // incoming shipments
   { name: "main.shipments", abstract: true, navName: "Shipments", url: "/shipments", templateUrl: 'partials/_container.html'},
-  { name: "main.shipments.list", navName: "List", navParent: 'Shipments', url: "/list", templateUrl: 'partials/receiving/_shipment_list.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
+  { name: "main.shipments.list", navName: "All shipments", navParent: 'Shipments', url: "/list", templateUrl: 'partials/receiving/_shipment_list.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
   { name: "main.shipments.creation", navName: "New Shipment", navParent: 'Shipments', url: '/create', templateUrl: '/partials/receiving/_shipment_creation.html', userPermission: 'CREATE_INCOMING_SHIPMENT' },
   { name: "main.shipments.details", url: '/{shipmentId}', templateUrl: '/partials/receiving/_shipment_details.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
   { name: "main.shipments.receiving", url: '/{shipmentId}/receive', templateUrl: '/partials/receiving/_shipment_receiving.html', userPermission: 'RECEIVE_INCOMING_SHIPMENT' },
@@ -57,7 +57,7 @@ const stateData = [
   { name: "main.inventory-pallets.view", navName: "All pallets", navParent: 'Pallets', url: '/list', templateUrl: '/partials/receiving/_inventory_pallet_view.html', userPermission: 'LIST_INVENTORY_PALLETS' },
   { name: "main.inventory-pallets.creation", url: '/create', templateUrl: '/partials/receiving/_inventory_pallet_creation.html', userPermission: 'CREATE_INVENTORY_PALLET' },
   { name: "main.inventory-pallets.to-be-listed", navName: "Pallets to be listed", navParent: 'Pallets', url: '/to-be-listed', templateUrl: '/partials/receiving/_inventory_pallets_to_be_listed.html', userPermission: 'LIST_INVENTORY_PALLETS_TO_BE_LISTED' },
-  { name: "main.inventory-pallets.edit-manifest", navName: "Edit manifest", navParent: 'Pallets', url: '/edit-manifest', templateUrl: '/partials/receiving/_inventory_pallet_edit_manifest.html', userPermission: '' },
+  { name: "main.inventory-pallets.repack", navName: "Repack pallet", navParent: 'Pallets', url: '/{palletId}/repack', optionalParams: ['palletId'], templateUrl: '/partials/receiving/_inventory_pallet_repack.html', userPermission: 'EDIT_INVENTORY_PALLET' },
 
   // Purchase aggregation
   { name: "main.purchases", navName: 'Purchases', url: "/purchases", templateUrl: 'partials/_purchase_aggregation.html', userPermission: 'VIEW_PURCHASING_DATA' },
@@ -90,7 +90,6 @@ const navbar = {
 
 // Format state data for registering with ui-router and building navbar data structure
 stateData.forEach(function(stateObj){
-  stateConfigData.push({ name: stateObj.name, url: stateObj.url, templateUrl: stateObj.templateUrl, controller: stateObj.controller});
   if(stateObj.navParent) {
     const navParent = navbar.navItems.find(function(elem) { return elem.title == stateObj.navParent; });//must define navParent before child
     if( angular.isUndefined (navParent.drops ) ) {
@@ -101,6 +100,29 @@ stateData.forEach(function(stateObj){
   else if (stateObj.navName) {
     navbar.navItems.push({ state: stateObj.name, title: stateObj.navName, route: stateObj.url, userPermission: stateObj.userPermission});
   }
+
+  const _state = {
+    name: stateObj.name,
+    abstract: stateObj.abstract,
+    url: stateObj.url,
+    templateUrl: stateObj.templateUrl,
+    controller: stateObj.controller
+  };
+
+  if( stateObj.optionalParams ) {
+
+    _state.params = {};
+
+    for( let paramName of stateObj.optionalParams ) {
+
+      _state.params[ paramName ] = { squash: true, value: null };
+
+    }
+
+  }
+
+  stateConfigData.push( _state );
+
 });
 angular.module('myApp').constant('stateConfigData', stateConfigData);
 angular.module('myApp').constant('navbarData', navbar);
@@ -213,12 +235,9 @@ angular.module('myApp').config(
       $urlRouterProvider.otherwise('/');
       $urlMatcherFactoryProvider.strictMode(false);
 
-      // Create an array of state objects to be registered with $stateProvider
-      var states = [];
-      stateConfigData.forEach(function(state) {
-        states.push({name: state.name, abstract: state.abstract, url: state.url, templateUrl: state.templateUrl, controller:state.controller});
-      });
-      angular.forEach(states, function(state) { $stateProvider.state(state); });
+      // register states with $stateProvider
+
+      angular.forEach(stateConfigData, function(state) { $stateProvider.state(state); });
     }
   ]
 );

@@ -54,6 +54,10 @@
           <span class="glyphicon glyphicon-alert" ng-show="pallet.hasProblem"></span>
         </span>
 
+        <span ng-switch-when="isRepacked">
+          <span class="glyphicon glyphicon-ok" ng-show="pallet.isRepacked"></span>
+        </span>
+
         <span ng-switch-when="note">
           <span ng-show="pallet.showNote">{{pallet.note}}</span>
           <span ng-show="pallet.note">[<a href ng-hide="pallet.showNote" ng-click="pallet.toggleShowNote()">Show</a><a href ng-show="pallet.showNote" ng-click="pallet.toggleShowNote()">Hide</a>]</span>
@@ -66,14 +70,16 @@
         </span>
 
         <span ng-switch-when="makeLot">
-          <span ng-show="pallet.toBeListed">
-            <button class="btn btn-xs btn-primary" ng-click="$ctrl.createLotFromPallet( pallet )" ng-disabled="pallet.lot">Make Lot</button>
+          <!-- Only can make lot if 1.) pallet is marked to be listed AND 2.) pallet has been repacked or is unmanifested AND 3.) there doesn't already exist a lot -->
+          <span ng-show="pallet.toBeListed && (pallet.isRepacked || !pallet.hasManifest()) && !pallet.lot">
+            <button class="btn btn-xs btn-success" ng-click="$ctrl.createLotFromPallet( pallet )">Make Lot</button>
           </span>
         </span>
 
-        <span ng-switch-when="editManifest">
-          <span ng-show="pallet.hasManifest()">
-            <button class="btn btn-xs btn-primary" ng-click="$ctrl.editPalletManifest( pallet )">Edit Manifest</button>
+        <span ng-switch-when="repackPallet">
+          <!-- Only can repack if 1.) pallet is marked to be listed AND 2.) there doesn't already exist a lot -->
+          <span ng-show="pallet.toBeListed && !pallet.lot">
+            <button class="btn btn-xs btn-primary" ng-click="$ctrl.repackPallet( pallet )">Repack Pallet</button>
           </span>
         </span>
 

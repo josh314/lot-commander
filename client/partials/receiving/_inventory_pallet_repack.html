@@ -1,6 +1,6 @@
-<div class="container" ng-controller="InventoryPalletEditManifestCtrl as $ctrl">
+<div class="container" ng-controller="InventoryPalletRepackCtrl as $ctrl">
 
-  <h2>Edit Pallet Manifests</h2>
+  <h2>Repack pallet</h2>
 
   <section ng-hide="$ctrl.manifest">
 
@@ -54,8 +54,26 @@
 
   <div ng-show="$ctrl.manifest">
 
+    <div ng-show="$ctrl.pallet">
+      <dl>
+
+          <dt>Pallet ID</dt>
+          <dd>
+            {{ $ctrl.pallet.handle }}
+          </dd>
+
+          <dt ng-show="$ctrl.pallet.shipment && $ctrl.pallet.shipment.handle">Shipment ID</dt>
+          <dd ng-show="$ctrl.pallet.shipment && $ctrl.pallet.shipment.handle">
+            {{ $ctrl.pallet.shipment.handle }}
+          </dd>
+
+      </dl>
+
+    </div>
+
     <div style="display: flex; justify-content: flex-end;">
-      <button class="btn btn-success" ng-click="$ctrl.saveManifest()">Save manifest</button>
+      <button class="btn btn-success" ng-click="$ctrl.finish()">Finish</button>
+      <button class="btn btn-danger" ng-click="$ctrl.cancel()" style="margin-left: 8px;">Cancel</button>
     </div>
 
     <div class="form-group">

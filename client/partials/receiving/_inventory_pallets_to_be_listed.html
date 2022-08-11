@@ -30,6 +30,14 @@
               <input class="form-control" name="shipmentHandleFilter" ng-model="$ctrl.filter.shipmentHandle" ng-keyup="$ctrl.refreshPalletsData()">
             </div>
             <div class="form-group col-xs-12 col-sm-6">
+              <label for="palletRepackedStatusFilter">Repacked status</label>
+              <select class="form-control" name="palletRepackedStatusFilter" ng-model="$ctrl.filter.isRepacked" ng-change="$ctrl.refreshPalletsData()">
+                <option ng-value="null">any</option>
+                <option ng-value="true">yes</option>
+                <option ng-value="false">no</option>
+              </select>
+            </div>
+            <div class="form-group col-xs-12 col-sm-6">
               <label for="hasLotFilter">Lot created?</label>
               <select class="form-control" name="hasLotFilter" ng-model="$ctrl.filter.hasLot" ng-change="$ctrl.refreshPalletsData()">
                 <option ng-value="null">any</option>

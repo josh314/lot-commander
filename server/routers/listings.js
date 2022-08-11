@@ -41,7 +41,7 @@ module.exports = routes;
  *
  **********/
 
-function routes({ listings, lotdb }) {
+function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
   const router = new express.Router();
 
 
@@ -112,9 +112,27 @@ function routes({ listings, lotdb }) {
       // Submission takes a while so don't wait
       res.json({ message: 'Listing submitted. Submission may take several minutes.'});
 
-      // wait for submission to finish then update the lot
+      // wait for submission to finish
       const submittedListingResponse = await respPromise;
-      lotdb.editLot( submittedListingResponse.lot );
+
+      // for pallet lots, mark the corresponding pallet as broken down
+      if( lot.pallet ) {
+
+        const palletId = lot.pallet._id || lot.pallet;
+
+        const { pallet } = await inventoryCommander.breakdownInventoryPallet( palletId );
+
+        if( pallet ) {
+
+          await eventsDb.breakdownInventoryPallet( { user: req.user, palletId } );
+
+        }
+
+      }
+
+      // then update the lot
+      await lotdb.editLot( submittedListingResponse.lot );
+
     }
     catch(e) {
 

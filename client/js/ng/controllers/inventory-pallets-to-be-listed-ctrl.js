@@ -44,7 +44,8 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
         populateLot: true,
         status: 'not brokendown',
         hasLot: false,
-        toBeListed: true
+        toBeListed: true,
+        isRepacked: null,
       };
       vm.categoryOptions = [ "" ].concat( palletProperties.category );
       vm.conditionOptions = [ "" ].concat( palletProperties.condition );
@@ -68,6 +69,7 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
         'category',
         'condition',
         'createdAt',
+        'repackPallet',
         'makeLot'
       ] );
 
@@ -75,6 +77,7 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
       vm.refreshPalletsData = refreshPalletsData;
       vm.showPalletDetails = showPalletDetails;
       vm.createLotFromPallet = createLotFromPallet;
+      vm.repackPallet = repackPallet;
 
       refreshPalletsData();
     }
@@ -129,7 +132,7 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
 
     async function showPalletDetails( pallet ) {
 
-      if( pallet.shipment ) {
+      if( pallet.shipment && !pallet.shipment.isHydrated ) {
         const shipment = await ShipmentManagerSvc.loadShipment( { shipmentId: pallet.shipment._id, populate: [ 'palletsReceived', 'palletsConsolidated' ]  } );
         pallet.shipment = shipment;
 
@@ -145,6 +148,10 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
         .then( lot => navigate.viewLot( lot._id ), console.log('dismissed') );
       // TODO: handle error if lot not created. Particular issue is if the auto-generated handle is a dupe
 
+    }
+
+    function repackPallet( pallet ) {
+      navigate.repackPallet( pallet._id );
     }
 
   }

@@ -79,6 +79,17 @@
       <input class="form-control" type="date" id="createdAtInput" ng-model="$ctrl.inputs.createdAt" disabled>
     </div>
     <div class="form-group col-xs-12 col-sm-6">
+      <label for="isRepackedInput">Repacked?</label>
+      <select class="form-control" id="isRepackedInput" ng-model="$ctrl.inputs.isRepacked" ng-disabled="$ctrl.disableEditing">
+        <option ng-value="true">yes</option>
+        <option ng-value="false">no</option>
+      </select>
+    </div>
+    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showRepackedDate">
+      <label for="repackedDateInput">Repacked date</label>
+      <input class="form-control" type="date" id="repackedDateInput" ng-model="$ctrl.inputs.repackedDate" disabled>
+    </div>
+    <div class="form-group col-xs-12 col-sm-6">
       <label for="isBrokendownInput">Broken down?</label>
       <select class="form-control" id="isBrokendownInput" ng-model="$ctrl.inputs.isBrokendown" ng-disabled="$ctrl.disableEditing">
         <option ng-value="true">yes</option>
@@ -86,7 +97,7 @@
       </select>
     </div>
     <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showBrokendownDate">
-      <label for="isBrokendownInput">Breakdown date</label>
+      <label for="brokendownDateInput">Breakdown date</label>
       <input class="form-control" type="date" id="brokendownDateInput" ng-model="$ctrl.inputs.brokendownDate" disabled>
     </div>
     <div class="form-group col-xs-12">

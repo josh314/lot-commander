@@ -101,15 +101,14 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     $state.go('main.lots.upload-manifest', { lotId: lotId });
   };
 
-  const editPalletManifest = () => {
+  const repackPallet = ( palletId ) => {
     $anchorScroll();
-    $state.go('main.inventory-pallets.edit-manifest');
+    $state.go('main.inventory-pallets.repack', { palletId } );
   };
 
   return {
     cleanManifest: cleanManifest,
     editLotManifest: editLotManifest,
-    editPalletManifest: editPalletManifest,
     history: history,
     home: home,
     imageEditor: imageEditor,
@@ -118,6 +117,7 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     inventoryPalletCreation: inventoryPalletCreation,
     inventoryPalletView: inventoryPalletView,
     reload: reload,
+    repackPallet: repackPallet,
     shipmentCleanManifest: shipmentCleanManifest,
     shipmentCreation: shipmentCreation,
     shipmentDetails: shipmentDetails,
