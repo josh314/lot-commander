@@ -166,7 +166,7 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
   return filter;
 };
 
-const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, hasProblem, toBeListed, hasLot, shipment, category, condition } ) => {
+const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, hasProblem, toBeListed, isRepacked, hasLot, shipment, category, condition } ) => {
   const filter = {
     isDeleted: false,
   };
@@ -197,6 +197,10 @@ const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, has
 
   if( toBeListed !== undefined ) {
     filter.toBeListed = toBeListed;
+  }
+
+  if( isRepacked !== undefined ) {
+    filter.isRepacked = isRepacked;
   }
 
   if( hasLot !== undefined ) {
@@ -707,6 +711,7 @@ class InventoryCommander {
 
     const basePalletObject = {
       isReceived: true,
+      isRepacked: false,
       shipment: shipment._id,
       isAnonymous: correspondingPalletExpected ? correspondingPalletExpected.isAnonymous : false,
       toBeListed: correspondingPalletExpected ? correspondingPalletExpected.toBeListed : false,
@@ -1045,6 +1050,42 @@ class InventoryCommander {
     }
 
     await pallet.unbreakdown();
+
+    return { pallet };
+
+  }
+
+  async repackInventoryPallet( palletId ) {
+
+    const pallet = await this.getInventoryPalletById( palletId );
+
+    if( !pallet ) {
+      throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
+    }
+
+    if( pallet.isRepacked ) {
+      return {};
+    }
+
+    await pallet.repack();
+
+    return { pallet };
+
+  }
+
+  async unrepackInventoryPallet( palletId ) {
+
+    const pallet = await this.getInventoryPalletById( palletId );
+
+    if( !pallet ) {
+      throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
+    }
+
+    if( !pallet.isRepacked ) {
+      return {};
+    }
+
+    await pallet.unrepack();
 
     return { pallet };
 

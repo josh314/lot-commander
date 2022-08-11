@@ -190,6 +190,22 @@ const unbreakdownInventoryPalletEventSchema = new mongoose.Schema(
   discriminatorOpts
 );
 
+const repackInventoryPalletEventSchema = new mongoose.Schema(
+  {
+    pallet: inventoryPalletRef,
+    shipment: incomingShipmentRef,
+  },
+  discriminatorOpts
+);
+
+const unrepackInventoryPalletEventSchema = new mongoose.Schema(
+  {
+    pallet: inventoryPalletRef,
+    shipment: incomingShipmentRef,
+  },
+  discriminatorOpts
+);
+
 /************************************************
  * Package Events
  * 
@@ -309,6 +325,8 @@ class EventsDbClient {
     this.EditInventoryPalletEvent = this.Event.discriminator( 'edit-inventory-pallet', editInventoryPalletEventSchema );
     this.BreakdownInventoryPalletEvent = this.Event.discriminator( 'breakdown-inventory-pallet', breakdownInventoryPalletEventSchema );
     this.UnbreakdownInventoryPalletEvent = this.Event.discriminator( 'unbreakdown-inventory-pallet', unbreakdownInventoryPalletEventSchema );
+    this.RepackInventoryPalletEvent = this.Event.discriminator( 'repack-inventory-pallet', repackInventoryPalletEventSchema );
+    this.UnrepackInventoryPalletEvent = this.Event.discriminator( 'unrepack-inventory-pallet', unrepackInventoryPalletEventSchema );
 
     this.CreatePackageEvent = this.Event.discriminator( 'create-package', createPackageEventSchema );
     this.EditPackageEvent = this.Event.discriminator( 'edit-package', editPackageEventSchema );
@@ -569,6 +587,30 @@ class EventsDbClient {
     }
 
     const e = new this.UnbreakdownInventoryPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
+
+    return e.save();
+
+  }
+
+  repackInventoryPallet( { user, palletId, shipmentId } ) {
+
+    if( !palletId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.RepackInventoryPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
+
+    return e.save();
+
+  }
+
+  unrepackInventoryPallet( { user, palletId, shipmentId } ) {
+
+    if( !palletId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.UnrepackInventoryPalletEvent( { user: user && user._id , pallet: palletId , shipment: shipmentId } );
 
     return e.save();
 

@@ -13,6 +13,8 @@ const inventoryPalletSchema = mongoose.Schema({
   note: String,
   isAnonymous: Boolean,
   toBeListed: Boolean,
+  isRepacked: Boolean,
+  repackedDate: Date,
   isBrokendown: Boolean,
   brokendownDate: Date,
   shipment: {
@@ -49,6 +51,10 @@ inventoryPalletSchema.pre( 'save', function(next) {
 
   if( typeof this.toBeListed !== 'boolean' ) {
     this.toBeListed = false;
+  }
+
+  if( typeof this.isRepacked !== 'boolean' ) {
+    this.isRepacked = false;
   }
 
   if( typeof this.isBrokendown !== 'boolean' ) {
@@ -98,6 +104,18 @@ inventoryPalletSchema.methods.breakdown = function() {
 inventoryPalletSchema.methods.unbreakdown = function() {
   this.isBrokendown = false;
   this.brokendownDate = undefined;
+  return this.save();
+};
+
+inventoryPalletSchema.methods.repack = function() {
+  this.isRepacked = true;
+  this.repackedDate = new Date();
+  return this.save();
+};
+
+inventoryPalletSchema.methods.unrepack = function() {
+  this.isRepacked = false;
+  this.repackedDate = undefined;
   return this.save();
 };
 

@@ -52,6 +52,10 @@ const listPalletsFilterParamsFromQueryParams = ( qp ) => {
     fp.toBeListed = !!parseInt(qp.to_be_listed);
   }
 
+  if( qp.is_repacked ) {
+    fp.isRepacked = !!parseInt(qp.is_repacked);
+  }
+
   if( qp.has_lot ) {
     fp.hasLot = !!parseInt(qp.has_lot);
   }
@@ -115,6 +119,11 @@ function routes({ eventsDb, inventoryCommander }) {
     '/:palletId/is-brokendown',
     auth.isAuthorized( 'EDIT_INVENTORY_PALLET' ),
     breakdownInventoryPallet
+  );
+  router.put(
+    '/:palletId/is-repacked',
+    auth.isAuthorized( 'EDIT_INVENTORY_PALLET' ),
+    repackInventoryPallet
   );
   router.delete(
     '/:palletId',
@@ -339,6 +348,39 @@ function routes({ eventsDb, inventoryCommander }) {
 
         }
 
+
+        res.json( { success: true, pallet } );
+
+      }
+      else {
+        throw new InvalidRequestError();
+      }
+
+    }
+    catch(e) {
+      return next( e );
+    }
+
+  }
+
+  async function repackInventoryPallet( req, res, next ){
+
+    try {
+
+      if( 'isRepacked' in req.body && typeof req.body.isRepacked === 'boolean' ) {
+
+        const isRepacked = req.body.isRepacked;
+        const palletId = req.params.palletId;
+
+        const fn = isRepacked ? inventoryCommander.repackInventoryPallet.bind( inventoryCommander ) : inventoryCommander.unrepackInventoryPallet.bind( inventoryCommander );
+
+        const { pallet } = await fn( palletId );
+
+        if( pallet ) {
+
+          isRepacked ? eventsDb.repackInventoryPallet( { user: req.user, palletId } ) : eventsDb.unrepackInventoryPallet( { user: req.user, palletId } );
+
+        }
 
         res.json( { success: true, pallet } );
 
