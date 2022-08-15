@@ -349,6 +349,19 @@ angular.module('myApp').factory( 'InventoryPallet', [
         return !!this.getManifestMetadata();
       }
 
+      canRepack() {
+        return this.toBeListed && !this.lot;
+      }
+
+      canMakeLot() {
+        if( this.lot ) {
+          return false;
+        }
+
+        return this.toBeListed && this.isRepacked;
+
+      }
+
     }
 
     return InventoryPallet;

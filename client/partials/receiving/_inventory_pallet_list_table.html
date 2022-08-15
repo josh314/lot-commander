@@ -70,15 +70,13 @@
         </span>
 
         <span ng-switch-when="makeLot">
-          <!-- Only can make lot if 1.) pallet is marked to be listed AND 2.) pallet has been repacked or is unmanifested AND 3.) there doesn't already exist a lot -->
-          <span ng-show="pallet.toBeListed && (pallet.isRepacked || !pallet.hasManifest()) && !pallet.lot">
+          <span ng-show="pallet.canMakeLot()">
             <button class="btn btn-xs btn-success" ng-click="$ctrl.createLotFromPallet( pallet )">Make Lot</button>
           </span>
         </span>
 
         <span ng-switch-when="repackPallet">
-          <!-- Only can repack if 1.) pallet is marked to be listed AND 2.) there doesn't already exist a lot -->
-          <span ng-show="pallet.toBeListed && !pallet.lot">
+          <span ng-show="pallet.canRepack()">
             <button class="btn btn-xs btn-primary" ng-click="$ctrl.repackPallet( pallet )">Repack Pallet</button>
           </span>
         </span>

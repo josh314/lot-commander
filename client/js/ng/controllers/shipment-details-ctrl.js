@@ -116,6 +116,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
     vm.createPalletManifests = _document => ModalSvc.wait( { waitFor: createPalletManifestsFromShipmentStandardManifest( _document ) }).then( _ => navigate.reload ());
     vm.createPalletLot = createPalletLot;
+    vm.repackPallet = repackPallet;
 
     /****************************************************
      * Functions
@@ -530,6 +531,10 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
         .then( lot => navigate.viewLot( lot._id ), console.log('dismissed') );
       // TODO: handle error if lot not created. Particular issue is if the auto-generated handle is a dupe
 
+    }
+
+    function repackPallet( pallet ) {
+      navigate.repackPallet( pallet._id );
     }
 
     /*******************************************************

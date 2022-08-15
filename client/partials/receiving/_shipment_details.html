@@ -465,9 +465,10 @@
           <th>Problem?</th>
           <th>Brokendown?</th>
           <th>Note</th>
-          <th></th>
-          <th></th>
-          <th></th>
+          <th></th> <!-- download manifest button -->
+          <th></th> <!-- Repack button -->
+          <th></th> <!-- Make Lot button -->
+          <th></th> <!-- delete/unreceive button -->
         </tr></thead>
 
         <tbody>
@@ -502,8 +503,13 @@
               </span>
             </td>
             <td>
-              <span ng-show="pallet.toBeListed">
-                <button class="btn btn-xs btn-success" ng-click="$ctrl.createPalletLot( pallet )" ng-disabled="pallet.lot">Make Lot</button>
+              <span ng-show="pallet.canRepack()">
+                <button class="btn btn-xs btn-primary" ng-click="$ctrl.repackPallet( pallet )">Repack</button>
+              </span>
+            </td>
+            <td>
+              <span ng-show="pallet.canMakeLot()">
+                <button class="btn btn-xs btn-success" ng-click="$ctrl.createPalletLot( pallet )">Make Lot</button>
               </span>
             </td>
             <td>
