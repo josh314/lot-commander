@@ -506,7 +506,9 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
         }
 
-        const options = {};
+        const options = {
+          removedItems: [],
+        };
         if( summary ) {
           Object.assign( options, summary, { units: summary.quantity } );
         }

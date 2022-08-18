@@ -64,8 +64,22 @@
 
           <dt ng-show="$ctrl.pallet.shipment && $ctrl.pallet.shipment.handle">Shipment ID</dt>
           <dd ng-show="$ctrl.pallet.shipment && $ctrl.pallet.shipment.handle">
-            {{ $ctrl.pallet.shipment.handle }}
+            <span ng-show="$ctrl.allowShipmentNavigation">
+              <a ng-href="/shipments/{{$ctrl.pallet.shipment._id}}">
+                {{ $ctrl.pallet.shipment.handle }}
+              </a>
+            </span>
+            <span ng-hide="$ctrl.allowShipmentNavigation">
+              {{ $ctrl.pallet.shipment.handle }}
+            </span>
           </dd>
+
+
+          <dt>Total units removed</dt>
+          <dd>
+            {{ $ctrl.totalUnitsRemoved() }}
+          </dd>
+
 
       </dl>
 
@@ -95,11 +109,14 @@
 
           <tr ng-repeat="row in $ctrl.removedItems track by $index">
 
-            <td>{{ row.barcode }}</td>
+            <!-- <td>{{ row.barcode }}</td>
             <td>{{ row.numRemoved }}</td>
-            <td>{{ row.description }}</td>
+            <td>{{ row.description }}</td> -->
+            <td>{{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_BARCODE_COLUMN__ ] }}</td>
+            <td>{{ row.numRemoved }}</td>
+            <td>{{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_DESCRIPTION_COLUMN__ ] }}</td>
             <td>
-              <button class="btn btn-xs btn-danger" ng-click="$ctrl.undoRemoveItem( row.barcode )">Undo</button>
+              <button class="btn btn-xs btn-danger" ng-click="$ctrl.undoRemoveItem( row )">Undo</button>
             </td>
 
           </tr>
@@ -123,18 +140,18 @@
           <tr ng-repeat="row in $ctrl.manifestDisplayRows track by $index">
 
             <td>
-              <p>{{ row.barcode }}</p>
+              <p>{{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_BARCODE_COLUMN__ ] }}</p>
             </td>
             <td>
               <p ng-hide="row.numRemoved">
-                {{ row.quantity }}
+                {{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_QUANTITY_COLUMN__ ] }}
               </p>
               <p ng-show="row.numRemoved">
-                {{ row.quantity }} (<span class="text-danger">-{{ row.numRemoved }}</span>)
+                {{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_QUANTITY_COLUMN__ ] }} (<span class="text-danger">-{{ row.numRemoved }}</span>)
               </p>
             </td>
             <td>
-              <p>{{ row.description }}</p>
+              <p>{{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_DESCRIPTION_COLUMN__ ] }}</p>
             </td>
 
           </tr>

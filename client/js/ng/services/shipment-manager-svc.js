@@ -194,7 +194,14 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
 
       shipment.getTotalUnitsRemoved = function() {
         if( this.palletsReceived && this.palletsReceived.reduce ) {
-          return this.palletsReceived.reduce( ( acc, _p ) => acc + (_p.numUnitsRemoved || 0) , 0 );
+          return this.palletsReceived.reduce( function( acc, _p ) {
+            if( _p.getTotalUnitsRemoved ) {
+              return acc + _p.getTotalUnitsRemoved();
+            }
+            else {
+              return acc;
+            }
+          }, 0);
         }
       };
 

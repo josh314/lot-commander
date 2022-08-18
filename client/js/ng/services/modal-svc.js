@@ -233,6 +233,7 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
       controller: [ '$scope', 'LoggedInUser', 'navigate', 'pallet', 'palletProperties', function( $scope, LoggedInUser, navigate, pallet, palletProperties ){
 
         const vm = this;
+        vm.pallet = pallet;
         vm.inputs = Object.assign( { isBrokendown: false, hasProblem: false, category: null, condition: 'shelf-pull' }, pallet );
         vm.errors = {};
         vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );

@@ -16,14 +16,14 @@ angular.module('myApp').factory( 'PalletManifestSvc', [
       uploadExpectedPalletManifest: uploadExpectedPalletManifest
     };
 
-    async function uploadReceivedPalletManifest( pallet, file, { category, quantity, units, numUnitsRemoved, retailValue, salePrice } = {} ) {
+    async function uploadReceivedPalletManifest( pallet, file, { category, quantity, units, removedItems, retailValue, salePrice } = {} ) {
 
       const _res = await pallet.uploadDocument( file, { documentType: 'manifest', isRestricted: false } );
 
       const palletEditDoc = {
         category,
         units: units || quantity,
-        numUnitsRemoved,
+        removedItems,
         retailValue,
         salePrice,
       };

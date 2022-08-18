@@ -701,7 +701,8 @@ export class Sheet {
           cell.s.numFmt = __PRETTY_MANIFEST_CELL_CURRENCY_FORMAT_CODE__; // numbers formatted like currency with $'s, commas and two place decimals
         }
 
-        cellArray.push( cell );
+        const cellIdx = headerRowArray.findIndex( _ => _.v === key );
+        cellArray[ cellIdx ] = cell;
 
       }
 

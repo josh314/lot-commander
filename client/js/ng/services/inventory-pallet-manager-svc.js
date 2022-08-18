@@ -168,7 +168,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
         // const manifest = pallet.documents[0];
         //
         this.documentsAreLoaded = this.loadDocuments();
-        
+
       }
 
       breakdown( isBrokendown ) {
@@ -217,7 +217,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
           'category',
           'condition',
           'units',
-          'numUnitsRemoved',
+          'removedItems',
           'retailValue',
           'salePrice',
           'cost',
@@ -360,6 +360,15 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
         return this.toBeListed && this.isRepacked;
 
+      }
+
+      getTotalUnitsRemoved() {
+        if( this.removedItems && this.removedItems.reduce ) {
+          return this.removedItems.reduce( ( acc, _item ) => acc + ( _item.numRemoved || 0 ) , 0 );
+        }
+        else {
+          return 0;
+        }
       }
 
     }

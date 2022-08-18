@@ -15,6 +15,7 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
   'PalletManifestSvc',
   'palletProperties',
   'sessionTimeout',
+  'StandardManifestColumnsConst',
 
   function(
 
@@ -28,16 +29,25 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
     PalletManifestSvc,
     palletProperties,
     sessionTimeout,
+    StandardManifestColumnsConst,
 
   ) {
 
     const vm = this;
     init();
 
+    const __BARCODE__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_BARCODE_COLUMN__;
+    const __QUANTITY__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_QUANTITY_COLUMN__;
+    const __DESCRIPTION__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_DESCRIPTION_COLUMN__;
+    const __RETAIL_PRICE__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__;
+    const __SALE_PRICE__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__;
+    const __CATEGORY__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_CATEGORY_COLUMN__;
+
     async function init() {
 
       sessionTimeout.timeoutExpired();
       focus('palletHandleFilterInput');
+      vm.standardManifestColumns = StandardManifestColumnsConst;
 
       vm.pagination = {
         current: 1,
@@ -75,7 +85,11 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
         loadPallet( vm.pallet );
       }
 
+      vm.totalUnitsRemoved = () => vm.removedItems.reduce( (acc,item) => acc + item.numRemoved, 0 );
     }
+
+
+    const findDisplayItemByBarcode = barcode => vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === barcode );
 
     function removeItem() {
 
@@ -83,26 +97,42 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
       if( barcode ) {
 
-        const displayItem = vm.manifestDisplayRows.find( _r => _r.barcode === barcode );
+        const displayItem = findDisplayItemByBarcode( barcode );
 
         if( displayItem ) {
 
-          if( displayItem.numRemoved + 1 <= displayItem.quantity ) {
+          const quantity = displayItem[ __QUANTITY__ ];
+
+          if( displayItem.numRemoved + 1 <= quantity ) {
 
             if( displayItem.numRemoved === 0 ) {
 
               const removedItem = {
-                barcode,
-                description: displayItem.description,
                 numRemoved: 1,
+                [ __BARCODE__ ]: displayItem[ __BARCODE__ ],
+                [ __DESCRIPTION__ ]: displayItem[ __DESCRIPTION__ ],
               };
+
+              if( displayItem[ __CATEGORY__ ] ) {
+                removedItem[ __CATEGORY__ ] = displayItem[ __CATEGORY__ ];
+              }
+
+              const retailPrice = displayItem[ __RETAIL_PRICE__ ];
+              if( retailPrice ) {
+                removedItem.unitRetailPrice = retailPrice / quantity;
+              }
+
+              const salePrice = displayItem[ __SALE_PRICE__ ];
+              if( salePrice ) {
+                removedItem.unitSalePrice = salePrice / quantity;
+              }
 
               vm.removedItems.push( removedItem );
 
             }
             else {
 
-              const alreadyDecrementedItem = vm.removedItems.find( _item => _item.barcode === barcode );
+              const alreadyDecrementedItem = vm.removedItems.find( _item => _item[ __BARCODE__ ] === barcode );
               alreadyDecrementedItem.numRemoved += 1;
 
             }
@@ -133,27 +163,23 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
     }
 
-    function undoRemoveItem( barcode ) {
+    function undoRemoveItem( removedItem ) {
 
-      if( barcode ) {
+      const barcode = removedItem[ __BARCODE__ ] ;
 
-        const displayItem = vm.manifestDisplayRows.find( _r => _r.barcode === barcode );
-        const removedItemIdx = vm.removedItems.findIndex( _item => _item.barcode === barcode );
+      const displayItem = findDisplayItemByBarcode( barcode );
+      if( displayItem ) {
 
-        if( displayItem && removedItemIdx > -1 ) {
+        if( displayItem.numRemoved >= 0 ) {
+          displayItem.numRemoved -= 1;
+        }
 
-          if( displayItem.numRemoved >= 0 ) {
-            displayItem.numRemoved -= 1;
-          }
-
-          const removedItem = vm.removedItems[ removedItemIdx ];
-          if( removedItem.numRemoved > 1 ) {
-            removedItem.numRemoved -= 1;
-          }
-          else if ( removedItem.numRemoved === 1 ) { // delete from the removed items list if numRemoved was only 1
-            vm.removedItems.splice( removedItemIdx, 1 );
-          }
-
+        if( removedItem.numRemoved > 1 ) {
+          removedItem.numRemoved -= 1;
+        }
+        else if ( removedItem.numRemoved === 1 ) { // delete from the removed items list if numRemoved was only 1
+          const removedItemIdx = vm.removedItems.findIndex( _item => _item === removedItem );
+          vm.removedItems.splice( removedItemIdx, 1 );
         }
 
       }
@@ -177,7 +203,57 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
         if( manifest ) {
           vm.manifest = manifest;
+          if( vm.pallet.removedItems ) {
+            vm.removedItems = JSON.parse( JSON.stringify( vm.pallet.removedItems ) );
+          }
+
+          const sheet = vm.manifest.getActiveSheet();
+          for( let _item of vm.removedItems ) {
+
+            const barcode = _item[ __BARCODE__ ];
+
+            if( sheet.getLineItemByBarcode( barcode ) ) {
+              sheet.adjustLineItemQuantity( barcode, _item.numRemoved );
+            }
+            else{
+              // add back in line items that were completely removed
+
+              const newRow = {
+                [ __BARCODE__ ]: _item[ __BARCODE__ ],
+                [ __DESCRIPTION__ ]: _item[ __DESCRIPTION__ ],
+                [ __QUANTITY__ ]: _item.numRemoved,
+              };
+
+              if( _item.unitRetailPrice ) {
+                newRow[ __RETAIL_PRICE__ ] = _item.unitRetailPrice * newRow[ __QUANTITY__ ];
+              }
+
+              if( _item.unitSalePrice ) {
+                newRow[ __SALE_PRICE__ ] = _item.unitSalePrice * newRow[ __QUANTITY__ ];
+              }
+
+              if( _item[ __CATEGORY__ ] ) {
+                newRow[ __CATEGORY__ ] = _item[ __CATEGORY__ ];
+              }
+
+              sheet.rows.push( newRow );
+            }
+
+          }
+
           vm.manifestDisplayRows = getDisplayRowsFromManifest( manifest );
+
+          if( vm.removedItems ) {
+            vm.removedItems.forEach( _removedItem => {
+              const displayItem = findDisplayItemByBarcode( _removedItem[ __BARCODE__ ] );
+              if( displayItem ) {
+                displayItem.numRemoved += _removedItem.numRemoved;
+              }
+            });
+          }
+
+
+          // loadRemovedItems();
         }
 
       });
@@ -190,16 +266,8 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
       let rows;
       if( sheet ) {
 
-        const barcodeColumn = sheet.getBarcodeColumn();
-        const quantityColumn = sheet.getQuantityColumn();
-        const descriptionColumn = sheet.getDescriptionColumn();
-
-        rows = sheet.rows.map( _r => ({
-          barcode: _r[ barcodeColumn.name ],
-          quantity: _r[ quantityColumn.name ],
-          description: _r[ descriptionColumn.name ],
-          numRemoved: 0,
-        }) );
+        rows = JSON.parse( JSON.stringify( sheet.rows ) );
+        rows.forEach( _r => _r.numRemoved = 0 );
 
       }
 
@@ -236,6 +304,34 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
     }
 
+    function cmpRemovedItems( a, b ) {
+      if( a[ __BARCODE__ ] < b[ __BARCODE__ ] ) {
+        return 1;
+      }
+      else if ( a[ __BARCODE__ ] > b[ __BARCODE__ ] ) {
+        return -1;
+      }
+      else if( a[ __DESCRIPTION__ ] < b[ __DESCRIPTION__ ] ) {
+        return 1;
+      }
+      else {
+        return -1;
+      }
+    }
+
+    function removedItemsUnchanged() {
+      const arr1 = vm.pallet.removedItems.slice().sort( cmpRemovedItems );
+      const arr2 = vm.removedItems.slice().sort( cmpRemovedItems );
+
+      if( JSON.stringify(arr1) === JSON.stringify(arr2) ) {
+        return true;
+      }
+      else {
+        return false;
+      }
+
+    }
+
     async function finish() {
 
       //  popup to ask if they're finished
@@ -249,13 +345,16 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
       }
 
       let finishedMessage;
-      if(vm.removedItems.length ) {
+      if( removedItemsUnchanged() ) {
+        finishedMessage = `Marked pallet as repacked.`;
+      }
+      else {
 
         // Apply the changes from vm.removedItems to vm.manifest.sheet
         const sheet = vm.manifest.getActiveSheet();
         for( let _item of vm.removedItems ) {
 
-          sheet.adjustLineItemQuantity( _item.barcode, - _item.numRemoved );
+          sheet.adjustLineItemQuantity( _item[ __BARCODE__ ], - _item.numRemoved );
 
         }
 
@@ -263,11 +362,9 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
         const palletTotals = vm.manifest.standardTotals();
 
-        const numUnitsRemoved = vm.removedItems.reduce( ( acc, _item ) => acc + _item.numRemoved , vm.pallet.numUnitsRemoved || 0 );
-
         const editValues = {
           units: palletTotals.quantity,
-          numUnitsRemoved,
+          removedItems: vm.removedItems,
           retailValue: palletTotals.retailValue,
           salePrice: palletTotals.salePrice,
         };
@@ -279,9 +376,6 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
         } );
 
         finishedMessage = `Successfully saved new manifest and marked pallet as repacked.`;
-      }
-      else {
-        finishedMessage = `Marked pallet as repacked.`;
       }
 
       await vm.pallet.repack( true );
@@ -300,7 +394,7 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
       if( !isConfirmed ) {
         return;
       }
-      
+
       vm.pallet = null;
       vm.manifest = null;
     }

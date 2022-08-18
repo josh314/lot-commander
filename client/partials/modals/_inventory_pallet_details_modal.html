@@ -1,8 +1,8 @@
 <div class="modal-header">
-	<h3 class="modal-title">Pallet Details</h3>
+  <h3 class="modal-title">Pallet Details</h3>
 </div>
 <div class="modal-body">
-	<div class="row">
+  <div class="row">
     <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.errors.emptyHandle || $ctrl.errors.duplicateHandle }">
       <label for="handleInput">Handle</label>
       <input class="form-control" type="text" id="handleInput" ng-model="$ctrl.inputs.handle" ng-change="$ctrl.validate()" ng-disabled="$ctrl.disableEditing">
@@ -29,9 +29,9 @@
       <label for="unitsInput">Units</label>
       <input class="form-control" type="number" id="unitsInput" ng-model="$ctrl.inputs.units" ng-disabled="$ctrl.disableEditing">
     </div>
-    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.inputs.numUnitsRemoved">
+    <div class="form-group col-xs-12 col-sm-6">
       <label for="numUnitsRemovedInput">Number of removed units</label>
-      <input class="form-control" type="number" id="numUnitsRemovedInput" ng-model="$ctrl.inputs.numUnitsRemoved" ng-disabled="$ctrl.disableEditing">
+      <input class="form-control" type="number" id="numUnitsRemovedInput" ng-value="$ctrl.pallet.getTotalUnitsRemoved()" disabled>
     </div>
     <div class="form-group col-xs-12 col-sm-6" >
       <label for="retailValueInput">Retail Value</label>
@@ -104,7 +104,7 @@
       <label for="noteInput">Note</label>
       <textarea class="form-control" rows=2 id="noteInput" ng-model="$ctrl.inputs.note"></textarea ng-disabled="$ctrl.disableEditing">
     </div>
-	</div>
+  </div>
 </div>
 <div class="modal-footer">
     <span ng-hide="$ctrl.disableEditing">
