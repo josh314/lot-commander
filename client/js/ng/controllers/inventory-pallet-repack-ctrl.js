@@ -88,69 +88,56 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
       vm.totalUnitsRemoved = () => vm.removedItems.reduce( (acc,item) => acc + item.numRemoved, 0 );
     }
 
-
-    const findDisplayItemByBarcode = barcode => vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === barcode );
-
     function removeItem() {
 
       const barcode = vm.barcodeToDecrement;
 
       if( barcode ) {
 
-        const displayItem = findDisplayItemByBarcode( barcode );
+        const displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === barcode && _r.numRemoved + 1 <= _r[ __QUANTITY__ ] );
 
         if( displayItem ) {
 
-          const quantity = displayItem[ __QUANTITY__ ];
-
-          if( displayItem.numRemoved + 1 <= quantity ) {
-
-            if( displayItem.numRemoved === 0 ) {
-
-              const removedItem = {
-                numRemoved: 1,
-                [ __BARCODE__ ]: displayItem[ __BARCODE__ ],
-                [ __DESCRIPTION__ ]: displayItem[ __DESCRIPTION__ ],
-              };
-
-              if( displayItem[ __CATEGORY__ ] ) {
-                removedItem[ __CATEGORY__ ] = displayItem[ __CATEGORY__ ];
-              }
-
-              const retailPrice = displayItem[ __RETAIL_PRICE__ ];
-              if( retailPrice ) {
-                removedItem.unitRetailPrice = retailPrice / quantity;
-              }
-
-              const salePrice = displayItem[ __SALE_PRICE__ ];
-              if( salePrice ) {
-                removedItem.unitSalePrice = salePrice / quantity;
-              }
-
-              vm.removedItems.push( removedItem );
-
-            }
-            else {
-
-              const alreadyDecrementedItem = vm.removedItems.find( _item => _item[ __BARCODE__ ] === barcode );
-              alreadyDecrementedItem.numRemoved += 1;
-
-            }
-
-            displayItem.numRemoved += 1;
-
-            AudioAlertSvc.success();
-
+          const alreadyDecrementedItem = vm.removedItems.find( _item => _item[ __BARCODE__ ] === barcode );
+          if( alreadyDecrementedItem ) {
+            alreadyDecrementedItem.numRemoved += 1;
           }
           else {
-            AudioAlertSvc.fail();
-            ModalSvc.message({ header: 'Error', body: `Cannot remove any more of item with barcode ${barcode} from this manifest.`, type: 'error' });
+
+            const removedItem = {
+              numRemoved: 1,
+              [ __BARCODE__ ]: displayItem[ __BARCODE__ ],
+              [ __DESCRIPTION__ ]: displayItem[ __DESCRIPTION__ ],
+            };
+
+            if( displayItem[ __CATEGORY__ ] ) {
+              removedItem[ __CATEGORY__ ] = displayItem[ __CATEGORY__ ];
+            }
+
+            const quantity = displayItem[ __QUANTITY__ ];
+
+            const retailPrice = displayItem[ __RETAIL_PRICE__ ];
+            if( retailPrice ) {
+              removedItem.unitRetailPrice = retailPrice / quantity;
+            }
+
+            const salePrice = displayItem[ __SALE_PRICE__ ];
+            if( salePrice ) {
+              removedItem.unitSalePrice = salePrice / quantity;
+            }
+
+            vm.removedItems.push( removedItem );
+
           }
+
+          displayItem.numRemoved += 1;
+
+          AudioAlertSvc.success();
 
         }
         else {
           AudioAlertSvc.fail();
-          ModalSvc.message({ header: 'Error', body: `Item with barcode ${barcode} not found in this manifest.`, type: 'error' });
+          ModalSvc.message({ header: 'Error', body: `Cannot remove item with barcode ${barcode} from this manifest.`, type: 'error' });
         }
 
       }
@@ -167,7 +154,7 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
       const barcode = removedItem[ __BARCODE__ ] ;
 
-      const displayItem = findDisplayItemByBarcode( barcode );
+      const displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === barcode && _r.numRemoved > 0 );
       if( displayItem ) {
 
         if( displayItem.numRemoved >= 0 ) {
@@ -245,15 +232,13 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
           if( vm.removedItems ) {
             vm.removedItems.forEach( _removedItem => {
-              const displayItem = findDisplayItemByBarcode( _removedItem[ __BARCODE__ ] );
+              const displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === _removedItem[ __BARCODE__ ] );
               if( displayItem ) {
                 displayItem.numRemoved += _removedItem.numRemoved;
               }
             });
           }
 
-
-          // loadRemovedItems();
         }
 
       });

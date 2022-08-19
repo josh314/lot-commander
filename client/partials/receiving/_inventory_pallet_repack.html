@@ -147,7 +147,11 @@
                 {{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_QUANTITY_COLUMN__ ] }}
               </p>
               <p ng-show="row.numRemoved">
-                {{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_QUANTITY_COLUMN__ ] }} (<span class="text-danger">-{{ row.numRemoved }}</span>)
+                {{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_QUANTITY_COLUMN__ ] }}
+                (<span class="text-danger">
+                  <span ng-show="row.numRemoved>0">-{{ row.numRemoved }}</span>
+                  <span ng-show="row.numRemoved<0">+{{ -row.numRemoved }}</span>
+                </span>)
               </p>
             </td>
             <td>
