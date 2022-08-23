@@ -38,6 +38,14 @@ const listShipmentsFilterParamsFromQueryParams = ( qp ) => {
     fp.includeClosed = !!parseInt( qp.include_closed );
   }
 
+  if( 'is_paid_for' in qp ) {
+    fp.isPaidFor = !!parseInt( qp.is_paid_for );
+  }
+
+  if( 'is_ready_for_transportation' in qp ) {
+    fp.isReadyForTransportation = !!parseInt( qp.is_ready_for_transportation );
+  }
+
   return fp;
 };
 

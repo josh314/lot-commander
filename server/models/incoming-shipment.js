@@ -11,6 +11,7 @@ const incomingShipmentSchema = mongoose.Schema({
   carrier: String,
   arrivalDateExpected: Date,
   arrivalDate: Date,
+  isPaidFor: Boolean,
   isReceived: Boolean,
   isReadyForTransportation: Boolean,
   palletsExpected: [ {

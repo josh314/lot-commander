@@ -31,6 +31,18 @@ const queryParams = ( params ) => {
     qp.include_closed = 1;
   }
 
+  if( "isPaidFor" in params && params.isPaidFor !== null ) {
+
+    qp.is_paid_for = params.isPaidFor ? 1 : 0;
+
+  }
+
+  if( "isReadyForTransportation" in params && params.isReadyForTransportation !== null ) {
+
+    qp.is_ready_for_transportation = params.isReadyForTransportation ? 1 : 0;
+
+  }
+
   if( params.populatePalletsReceived ) {
     qp.populate_pallets_received = 1;
   }

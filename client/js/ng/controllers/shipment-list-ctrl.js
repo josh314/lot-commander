@@ -23,6 +23,8 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
       status: 'all',
       includeClosed: false,
       populatePalletsReceived: true,
+      isPaidFor: null,
+      isReadyForTransportation: null,
     };
     vm.shipments = [];
     vm.sortOpts = {
@@ -112,6 +114,11 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
         displayName: 'Received?',
         active: true,
         optionAvailable: true
+      },
+      isPaidFor: {
+        displayName: 'Paid For?',
+        active: true,
+        optionAvailable: vm.showPurchasingData
       },
       isReadyForTransportation: {
         displayName: 'Ready for transport?',

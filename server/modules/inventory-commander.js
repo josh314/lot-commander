@@ -96,7 +96,7 @@ const withoutProblemShipmentFilter = {
   ]
 };
 
-const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProblemDateArrivedStart, includeClosed=false } ) => {
+const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProblemDateArrivedStart, isPaidFor, isReadyForTransportation, includeClosed=false } ) => {
   const filter = {
     isDeleted: false,
   };
@@ -161,6 +161,14 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
 
   if( !includeClosed ) {
     Object.assign( filter, { isClosed: { $not: { $eq: true } } } );
+  }
+
+  if( isPaidFor !== undefined ) {
+    filter.isPaidFor = isPaidFor;
+  }
+
+  if( isReadyForTransportation !== undefined ) {
+    filter.isReadyForTransportation = isReadyForTransportation;
   }
 
   return filter;
@@ -381,6 +389,8 @@ class InventoryCommander {
 
     const data = Object.assign(
       {
+        isPaidFor: false,
+        isReadyForTransportation: false,
         isReceived: false,
         isClosed: false,
         isDeleted: false
