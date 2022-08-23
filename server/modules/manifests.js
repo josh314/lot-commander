@@ -2,10 +2,13 @@ const path = require('path');
 
 const Promise = require('bluebird');
 
+const documentSvc = require('./document-svc');
 const manifestSvc = require('./manifest-svc');
 
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
+
+const xlsx = require( 'xlsx-js-style' );
 
 const __STANDARD_COLUMN_NAMES__ = {
   barcode: 'UPC/EAN/GTIN',
@@ -127,6 +130,11 @@ module.exports = function( { lotdb } ) {
   }
 
   function getManifestItemsForLot(lot, opts={}) {
+
+    if( lot.pallet ) {
+      return getManifestItemsForPallet( lot.pallet );
+    }
+
     if(!opts.defaultProductTitle) {
       opts.defaultProductTitle = defaultProductTitleForLot(lot.handle);
     }
@@ -138,6 +146,65 @@ module.exports = function( { lotdb } ) {
       return buildManifestItems(inventory, opts);
     });
   }
+
+  // Converts the saved excel file manifest into a json array of row objects
+  async function getManifestItemsForPallet( pallet ) {
+
+    let manifestItems = [];
+
+    const palletId = typeof pallet === 'string' ? pallet : pallet._id;
+
+    const docListReq = { folder: documentSvc.folder( 'inventory-pallet' )( palletId ) };
+
+    const docListResp = await documentSvc.list( docListReq );
+
+    if( docListResp && docListResp.documents && docListResp.documents[0] ) {
+
+      const docStream = documentSvc.get( { 
+        folder: documentSvc.folder( 'inventory-pallet' )( palletId ),
+        name: docListResp.documents[0].name
+      } );
+
+      const chunks = [];
+      for await ( let chunk of docStream ) {
+        chunks.push(chunk);
+      }
+
+      const buf = Buffer.concat(chunks);
+
+      const wb = xlsx.read( buf );
+
+      const [ _name, data ] = Object.entries(wb.Sheets)[0];
+
+
+      const sheetParseOpts = {
+        blankRows: true,
+        defVal: '',
+        range: 0,
+      };
+
+      const rows = xlsx.utils.sheet_to_json( data, sheetParseOpts );
+
+      manifestItems = rows.map( _row => {
+
+        for( let [ key, value ] of Object.entries( _row ) ) {
+
+          if( key === __STANDARD_COLUMN_NAMES__.barcode ) {
+            _row[ key ] = value.replace( "'", "" );
+          }
+          else if( key === 'Retail Price' || key === 'Sale Price' ) {
+            _row[ key ] = value.toFixed(2);
+          }
+
+        }
+
+        return _row;
+      } );
+    }
+
+    return manifestItems;
+  }
+
 
   /*****************************************************
    * opts = {
