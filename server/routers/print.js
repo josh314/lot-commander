@@ -81,7 +81,7 @@ function routes({ inventoryCommander, lotdb }) {
 
           const pallets = getPalletList( shipment, req.params.palletList );
 
-          print.createBarcodeLabels( pallets.map( p => p.handle ) ).pipe(res);
+          print.createPalletLabels( pallets.map( p => p.handle ), shipment.handle ).pipe(res);
 
         }
         else {
@@ -112,7 +112,7 @@ function routes({ inventoryCommander, lotdb }) {
 
         if( pallet ) {
 
-          print.createBarcodeLabels( [ pallet.handle ] ).pipe(res);
+          print.createPalletLabels( [ pallet.handle ], shipment.handle ).pipe(res);
 
         }
         else {

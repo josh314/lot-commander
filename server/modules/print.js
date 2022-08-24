@@ -213,7 +213,7 @@ function createPickReceipt(order) {
   return doc;
 }
 
-function createBarcodeLabels( barcodeValues ) {
+function createPalletLabels( palletIds, shipmentId ) {
 
   const labelDims = {
     width: 162,// 72/in * 2.25 in
@@ -225,7 +225,7 @@ function createBarcodeLabels( barcodeValues ) {
   doc.fontSize(8);
 
 
-  for( const str of barcodeValues ) {
+  for( const str of palletIds ) {
 
     doc.addPage({
       margin: 0,
@@ -245,6 +245,12 @@ function createBarcodeLabels( barcodeValues ) {
     doc
       .image(canvas.toBuffer(), margin, 15, { width: labelDims.width - 2*margin });
 
+    if( shipmentId ) {
+      doc
+        .font('Helvetica').text(`Shipment ID: `, 10, 5, { width: labelDims.width, continued: true })
+        .font('Helvetica-Bold').text(`${shipmentId}`, { continued: false, underline: true });
+    }
+
   }
 
   doc.end();
@@ -253,7 +259,7 @@ function createBarcodeLabels( barcodeValues ) {
 }
 
 module.exports = {
-  createBarcodeLabels: createBarcodeLabels,
+  createPalletLabels: createPalletLabels,
   createLotLabels: createLotLabels,
   createPickReceipt: createPickReceipt
 };
