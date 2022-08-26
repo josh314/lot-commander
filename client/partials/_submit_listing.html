@@ -113,7 +113,7 @@
 						<span class="text-danger h4" ng-show="$ctrl.inputErrors.shopify.invalidAdditionalTags">Invalid tags</span>
 					</div>
 					<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error': $ctrl.inputErrors.shopify.invalidPrice }">
-						<label for="shopifyPriceInput">Price</label>
+						<label for="shopifyPriceInput">Price<span ng-show="$ctrl.defaultPriceRatio"> (default {{ 100 * $ctrl.defaultPriceRatio }}% of Estimated Value)</span></label>
 						<input class="form-control" id="shopifyPriceInput" ng-model="$ctrl.listing.shopifyPrice">
 						<span class="text-danger h4" ng-show="$ctrl.inputErrors.shopify.invalidPrice">Invalid Price</span>
 					</div>

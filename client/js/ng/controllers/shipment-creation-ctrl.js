@@ -86,8 +86,8 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
 
     vm.inputs = {
-      categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
-      conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) ),
+      categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _ === 'general merchandise' ? 'GM' : _, value: _ } ) ) ),
+      conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _ === 'customer returns' ? 'returns' : _, value: _ } ) ) ),      
       documentTypeOptions: ShipmentManagerSvc.shipmentDocumentTypes.map( _ => _ === '' ? { displayName: 'none', value: _ } : { displayName: _, value: _ } ),
       category: null,
       condition: 'shelf-pull',
@@ -122,6 +122,7 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
       }
     };
     vm.clearPalletUnits = ( ) => vm.inputs.pallets.forEach( p => delete p.units );
+    vm.setAllPalletsToBeListed = _toBeListed => vm.inputs.pallets.forEach( p => p.toBeListed = _toBeListed );
     vm.addPallet = () => addPallet({ category: vm.inputs.category, condition: vm.inputs.condition });
     vm.removePallet = removePallet;
     vm.addAnonymousPallets = addAnonymousPallets;

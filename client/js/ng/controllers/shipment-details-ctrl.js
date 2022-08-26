@@ -47,6 +47,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
     const vm = this;
     vm.shipment = {};
+    vm.waiting = {};
 
     vm.showEditControls = LoggedInUser.hasPermission('EDIT_INCOMING_SHIPMENT');
     vm.showReceiveControls = LoggedInUser.hasPermission('RECEIVE_INCOMING_SHIPMENT');
@@ -117,6 +118,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     vm.createPalletManifests = _document => ModalSvc.wait( { waitFor: createPalletManifestsFromShipmentStandardManifest( _document ) }).then( _ => navigate.reload ());
     vm.createPalletLot = createPalletLot;
     vm.repackPallet = repackPallet;
+    vm.setAllPalletsToBeListed = setAllPalletsToBeListed;
 
     /****************************************************
      * Functions
@@ -309,6 +311,39 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
     }
 
+    async function setAllPalletsToBeListed( type, toBeListed ) {
+
+      const isConfirmed = await ModalSvc.confirm({
+        header: 'Edit pallets to be listed?',
+        html: `<p>This will set all pallets to ${toBeListed ? '' : '<strong>not</strong> ' }be listed. Continue?</p>`,
+      });
+
+      if( !isConfirmed ) {
+        return;
+      }
+
+      vm.waiting.palletsExpected = true;
+
+      const editRequests = [];
+
+      if( type === 'expected' ) {
+
+        for( let pallet of vm.shipment.palletsExpected ) {
+
+          pallet.openEdit();
+          pallet.editValues.toBeListed = toBeListed;
+          editRequests.push( pallet.saveEdit() );
+
+        }
+
+      }
+
+      Promise.all( editRequests ).then( _ => {
+        vm.waiting.palletsExpected = false;
+        loadShipment();
+      });
+    }
+
     /*******************************************************
      * Documents
      * =========
@@ -317,12 +352,12 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
     function updateDocumentList() {
 
-      vm.waitingForResponse = true;
+      vm.waiting.documents = true;
 
       vm.shipment.listShipmentDocuments().then( resp => {
 
         if( resp.error ) {
-          vm.waitingForResponse = false;
+          vm.waiting.documents = false;
           return ModalSvc.message( { header: 'Failure', body: 'Server Error: documents unavailable', type: 'error' } );
         }
 
@@ -365,7 +400,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
           Object.assign( vm, { documents } );
         }
 
-        vm.waitingForResponse = false;
+        vm.waiting.documents = false;
 
       });
 
@@ -435,7 +470,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
       }
 
-      vm.waitingForResponse = true;
+      vm.waiting.documents = true;
       vm.shipment.uploadShipmentDocument(
         vm.documentToAdd.file,
         {
@@ -444,7 +479,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
         }
       ).then( _ => {
         updateDocumentList();
-        vm.waitingForResponse = false;
+        vm.waiting.documents = false;
         vm.documentToAdd = initDocumentToAdd();
         FileModelSvc.startReset();
       });
@@ -453,11 +488,11 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
     function removeDocument( documentName ) {
 
-      vm.waitingForResponse = true;
+      vm.waiting.documents = true;
 
       vm.shipment.removeShipmentDocument( documentName ).then( _ => {
         updateDocumentList();
-        vm.waitingForResponse = false;
+        vm.waiting.documents = false;
       });
     }
 
