@@ -29,8 +29,8 @@ class DisplayRate {
 }
 
 /******************* Store Shippinbg Rates Controller *************************/
-angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'ListingsSvc', 'sessionTimeout',
-  function( focus, ListingsSvc, sessionTimeout ) {
+angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'ListingsSvc', 'ModalSvc', 'sessionTimeout',
+  function( focus, ListingsSvc, ModalSvc, sessionTimeout ) {
 
     sessionTimeout.timeoutExpired();
 
@@ -57,7 +57,12 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'Listing
       vm.visibleDisplayRates = vm.allDisplayRates.filter( _dr => _dr.titleMatches( vm.filter.productName ) );
     }
 
-    function saveRate( gid ) {
+    function saveRate( gid, index ) {
+      // This extra redirection step forces the AngularJS digest cycle even though __saveRate__ is an async function
+      return __saveRate__( gid, index );
+    }
+
+    async function __saveRate__( gid, index ) {
 
       const idx = vm.allDisplayRates.findIndex( _r => _r.gid === gid );
 
@@ -65,14 +70,40 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'Listing
 
         const oldRate = vm.allDisplayRates[idx];
 
-        ListingsSvc.editShippingRate( gid, oldRate.displayValue ).then( _rate => {
+        let p;
+        if( angular.isDefined(oldRate.displayValue) && oldRate.displayValue !== null && oldRate.displayValue >= 0 ) {
 
-          vm.allDisplayRates.splice( idx, 1, new DisplayRate( { gid: oldRate.gid, name: oldRate.name, rate: _rate.rate } ) );
+          p = ListingsSvc.editShippingRate( gid, oldRate.displayValue );
+
+        }
+        else {
+
+          const isConfirmed = await ModalSvc.confirm({
+            header: 'Reset rate?',
+            html: '<p>This will set the shipping rate to default values: $180 for pallets and $30/box for boxed lots.</p><p>Continue?</p>',
+          });
+
+          if( !isConfirmed ) {
+            return;
+          }
+
+          p = ListingsSvc.removeShippingRate( gid ).then( _ => ({ rate: null }) );
+
+        }
+
+        return p.then( _rate => {
+
+          const newRate = new DisplayRate( { gid: oldRate.gid, name: oldRate.name, rate: _rate.rate } );
+
+          vm.allDisplayRates.splice( idx, 1, newRate );
           refreshVisibleDisplayRates();
+
+          if( index ) {
+            focusOnRate( index + 1 );
+          }
 
         } );
 
-        return true;
       }
 
     }

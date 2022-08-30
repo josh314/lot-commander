@@ -83,7 +83,11 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
     auth.isAuthorized( 'EDIT_STORE_SHIPPING_RATES' ),
     editShippingRates
   );
-
+  router.delete(
+    '/shipping-rates/:id',
+    auth.isAuthorized( 'EDIT_STORE_SHIPPING_RATES' ),
+    removeShippingRate
+  );
 
 
   /*******************************************
@@ -174,6 +178,23 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
       rates.sort( cmpRate );
 
       res.json( { rates } );
+
+    }
+    catch (e) {
+      next( e );
+    }
+
+  }
+
+  async function removeShippingRate( req, res, next ) {
+
+    const productVariantGid = decodeURIComponent( req.params.id );
+
+    try {
+
+      const { success } = await listings.shopify.shopifyGql.removeProductVariantShippingRate( productVariantGid );
+
+      res.json( { success } );
 
     }
     catch (e) {

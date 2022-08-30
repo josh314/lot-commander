@@ -895,6 +895,15 @@ export function editStoreMultipleShippingRates( rates = [ /* { id, rate }: { pro
 
 }
 
+export function removeStoreShippingRate( productVariantGid ) {
+
+  return axios({
+    method: 'delete',
+    url: `/api/listings/shipping-rates/${ encodeURIComponent( productVariantGid ) }`
+  })
+    .then( resp => resp.data );
+}
+
 /*************************************************
 * Counters
 * ================

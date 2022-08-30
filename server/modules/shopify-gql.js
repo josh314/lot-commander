@@ -526,6 +526,37 @@ class Client {
     }
   }
 
+
+  async removeProductVariantShippingRate( pvGid ) {
+
+    try {
+
+      const resp = await this.gqlRequest( {
+        gqlQuery: `
+          {
+            productVariant(id: "${ pvGid }") {
+              id
+              displayName
+              rate: metafield(namespace:"wsn_shipping", key:"flat_rate") {
+                id
+              }
+            }
+          }
+        `,
+        debug: false
+      });
+
+      const gid = resp.data.productVariant.rate.id;
+
+      await this.deleteMetafield( gid );
+
+      return { success: true };
+
+    }
+    catch(e) {
+      throw e;
+    }
+  }
 }
 
 module.exports = Client;

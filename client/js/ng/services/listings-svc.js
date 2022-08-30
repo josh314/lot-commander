@@ -31,6 +31,8 @@ angular.module('myApp').factory('ListingsSvc', [ '$q', function( $q ) {
 
     }),
 
+    removeShippingRate: productVariantGid => $q.when( api.removeStoreShippingRate( productVariantGid ) ),
+
     submitLotListing: ( lotId, listingData, publish = false ) => $q.when( api.submitLotListing( lotId, listingData, publish ) ),
 
   };

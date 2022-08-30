@@ -18,34 +18,39 @@
 				</select>
 			</div>
 		</fieldset>
+    <div ng-hide="$ctrl.waitingForResponse">
+      <p>
+        Note: Blank fields indicate system defaults (such as Pallet Breakdown Service rate) are in use.
+      </p>
+      <table class="table table-striped">
 
-    <table class="table table-striped" ng-hide="$ctrl.waitingForResponse">
+        <thead><tr>
+          <th>Title</th>
+          <th>Rate</th>
+          <th></th> <!-- save -->
+          <th></th> <!-- revert -->
+        </tr></thead>
+  
+        <tbody>
+          <tr ng-repeat="$displayRate in $ctrl.visibleDisplayRates">
+            <td>{{ $displayRate.name }}</td>
+            <td >
+              <div class="form-group" ng-class="{ 'has-error' : $displayRate.isDirty() }">
+              <input type="number" id="rate-input-{{$index}}" class="form-control" ng-model="$displayRate.displayValue" ng-keyup="$event.keyCode == 13 && $ctrl.saveRate( $displayRate.gid, index )"/>
+              </div>
+            </td>
+            <td>
+              <button tabIndex="-1" class="btn btn-xs btn-success" ng-click="$ctrl.saveRate( $displayRate.gid, index )">Save</button>
+            </td>
+            <td>
+              <button tabIndex="-1" class="btn btn-xs btn-warning" ng-click="$ctrl.revertRate( $displayRate )">Revert</button>
+            </td>
+          </tr>
+        </tbody>
+  
+      </table>
+    </div>
 
-      <thead><tr>
-        <th>Title</th>
-        <th>Rate</th>
-        <th></th> <!-- save -->
-        <th></th> <!-- revert -->
-      </tr></thead>
-
-      <tbody>
-        <tr ng-repeat="$displayRate in $ctrl.visibleDisplayRates">
-          <td>{{ $displayRate.name }}</td>
-          <td >
-            <div class="form-group" ng-class="{ 'has-error' : $displayRate.isDirty() }">
-            <input type="number" id="rate-input-{{$index}}" class="form-control" ng-model="$displayRate.displayValue" ng-keyup="$event.keyCode == 13 && $ctrl.saveRate( $displayRate.gid ) && $ctrl.focusOnRate( $index + 1 )"/>
-            </div>
-          </td>
-          <td>
-            <button tabIndex="-1" class="btn btn-xs btn-success" ng-click="$ctrl.saveRate( $displayRate.gid )">Save</button>
-          </td>
-          <td>
-            <button tabIndex="-1" class="btn btn-xs btn-warning" ng-click="$ctrl.revertRate( $displayRate )">Revert</button>
-          </td>
-        </tr>
-      </tbody>
-
-    </table>
     <div class="col-xs-12" ng-show="$ctrl.waitingForResponse">
       <div class="center-block loader"></div>
       <h2 class="text-center">Please wait...</h2>
