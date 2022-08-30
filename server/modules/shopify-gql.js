@@ -414,10 +414,10 @@ class Client {
 
     let searchQuery;
     if( includePallets ) {
-      searchQuery = "product_status:'active'";
+      searchQuery = "product_status:'active' AND ( tag:'collection:pallets')";
     }
     else {
-      searchQuery = "product_status:'active' AND ( NOT tag:'pallets') AND ( NOT tag:'pallets:bulky') AND ( NOT tag:'pallets:oversized')";
+      searchQuery = "product_status:'active' AND ( NOT tag:'collection:pallets')";
     }
 
     const result = await this.getAll( 'productVariants', productVariantFlatRateNodeQuery, { searchQuery: searchQuery, debug: debug, cursor: cursor }, processFn );

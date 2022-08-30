@@ -39,7 +39,7 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'Listing
     function refreshRates() {
 
       const qp = {
-        includePallets: vm.filter.includePallets,
+        includePallets: vm.filter.type === 'pallets',
       };
 
       vm.waitingForResponse = true;
@@ -122,7 +122,8 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'Listing
       vm.allDisplayRates =[];
       vm.visibleDisplayRates = [];
       vm.filter = {
-        includePallets: false,
+        // includePallets: false,
+        type: 'lots',
         productName: ''
       };
       vm.refreshRates = refreshRates;
