@@ -83,6 +83,18 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
     auth.isAuthorized( 'EDIT_STORE_SHIPPING_RATES' ),
     editShippingRates
   );
+
+  router.get(
+    '/shipping-rates/pallet-breakdown-service',
+    auth.isAuthorized( 'VIEW_STORE_SHIPPING_RATES' ),
+    getPalletBreakdownServiceRate
+  );
+  router.post(
+    '/shipping-rates/pallet-breakdown-service',
+    auth.isAuthorized( 'EDIT_STORE_SHIPPING_RATES' ),
+    setPalletBreakdownServiceRate
+  );
+
   router.delete(
     '/shipping-rates/:id',
     auth.isAuthorized( 'EDIT_STORE_SHIPPING_RATES' ),
@@ -166,6 +178,20 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
 
   }
 
+  async function getPalletBreakdownServiceRate( req, res, next ) {
+
+    try {
+
+      const rate = await listings.shopify.shopifyGql.getPalletBreakdownServiceRate( );
+      res.json( { rate } );
+
+    }
+    catch (e) {
+      next( e );
+    }
+
+  }
+
   async function editShippingRates( req, res, next ) {
 
     const submittedRates = req.body.rates;
@@ -178,6 +204,22 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
       rates.sort( cmpRate );
 
       res.json( { rates } );
+
+    }
+    catch (e) {
+      next( e );
+    }
+
+  }
+
+  async function setPalletBreakdownServiceRate( req, res, next ) {
+
+    const newRate = req.body.rate;
+
+    try {
+
+      const { rate } = await listings.shopify.shopifyGql.setPalletBreakdownServiceRate( newRate );
+      res.json( { rate } );
 
     }
     catch (e) {

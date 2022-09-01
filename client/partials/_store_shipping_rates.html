@@ -12,22 +12,37 @@
 			</div>
 			<!-- <div class="form-group col-xs-12 col-sm-6">
 				<label for="includePalletsFilter">Include Pallets?</label>
-				<select class="form-control" name="includePalletsFilter" ng-model="$ctrl.filter.includePallets" ng-change="$ctrl.refreshRates()">
+				<select class="form-control" name="includePalletsFilter" ng-model="$ctrl.filter.includePallets" ng-change="$ctrl.refreshListingRates()">
           <option ng-value="false">No</option>
 					<option ng-value="true">Yes</option>
 				</select>
 			</div> -->
       <div class="form-group col-xs-12 col-sm-6">
-				<label for="typeFilter">Package Type</label>
-				<select class="form-control" name="typeFilter" ng-model="$ctrl.filter.type" ng-change="$ctrl.refreshRates()">
+				<label for="packageTypeFilter">Package Type</label>
+				<select class="form-control" name="packageTypeFilter" ng-model="$ctrl.filter.packageType" ng-change="$ctrl.refreshRates()">
           <option>lots</option>
 					<option>pallets</option>
 				</select>
 			</div>
 		</fieldset>
-    <div ng-hide="$ctrl.waitingForResponse">
+    <fieldset class="col-xs-12 box-border" ng-hide="$ctrl.waiting.palletRate || $ctrl.filter.packageType==='lots'">
+      <legend class="box-border">Pallet Breakdown Service rate</legend>
+
+      <div class="form-group" ng-class="{ 'has-error' : $ctrl.palletBreakdownServiceDisplayRate.isDirty() }">
+        <input type="number" id="palletBreakdownServiceRateInput" class="form-control" ng-model="$ctrl.palletBreakdownServiceDisplayRate.displayValue" ng-keyup="$event.keyCode == 13 && $ctrl.savePalletBreakdownServiceRate()"/>
+      </div>
+      <div style="display: flex; justify-content: flex-end;">
+        <span>
+          <button class="btn btn-success" ng-click="$ctrl.savePalletBreakdownServiceRate()">Save</button>
+        </span>
+        <span style="margin-left:8px;">
+          <button class="btn btn-warning" ng-click="$ctrl.clearRate( $ctrl.palletBreakdownServiceDisplayRate )">Clear change</button>
+        </span>
+      </div>
+    </fieldset>
+    <div ng-hide="$ctrl.waiting.listingRates" style="margin-top:12px;">
       <p>
-        Note: Blank fields indicate system defaults (such as Pallet Breakdown Service rate) are in use.
+        Note: Blank fields indicate system defaults (such as Pallet Breakdown Service rate) are in use. All values are in USD ($)
       </p>
       <table class="table table-striped">
 
@@ -35,7 +50,7 @@
           <th>Title</th>
           <th>Rate</th>
           <th></th> <!-- save -->
-          <th></th> <!-- revert -->
+          <th></th> <!-- clear -->
         </tr></thead>
   
         <tbody>
@@ -50,7 +65,7 @@
               <button tabIndex="-1" class="btn btn-xs btn-success" ng-click="$ctrl.saveRate( $displayRate.gid, index )">Save</button>
             </td>
             <td>
-              <button tabIndex="-1" class="btn btn-xs btn-warning" ng-click="$ctrl.revertRate( $displayRate )">Revert</button>
+              <button tabIndex="-1" class="btn btn-xs btn-warning" ng-click="$ctrl.clearRate( $displayRate )">Clear change</button>
             </td>
           </tr>
         </tbody>
@@ -58,7 +73,7 @@
       </table>
     </div>
 
-    <div class="col-xs-12" ng-show="$ctrl.waitingForResponse">
+    <div class="col-xs-12" ng-show="$ctrl.waiting.listingRates">
       <div class="center-block loader"></div>
       <h2 class="text-center">Please wait...</h2>
     </div>

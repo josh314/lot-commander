@@ -25,6 +25,8 @@ angular.module('myApp').factory('ListingsSvc', [ '$q', function( $q ) {
 
     editShippingRate: ( gid, newRate ) => $q.when( api.editStoreShippingRate( gid, newRate ) ),
 
+    getPalletBreakdownServiceRate: () => $q.when( api.getPalletBreakdownServiceRate( ) ),
+
     listShippingRates: qp => $q.when( api.listStoreShippingRates( qp ) ).then( rates =>  {
 
       return rates.map( _r => Object.assign( {}, _r ) );
@@ -32,6 +34,8 @@ angular.module('myApp').factory('ListingsSvc', [ '$q', function( $q ) {
     }),
 
     removeShippingRate: productVariantGid => $q.when( api.removeStoreShippingRate( productVariantGid ) ),
+
+    setPalletBreakdownServiceRate: newRate => $q.when( api.setPalletBreakdownServiceRate( newRate ) ),
 
     submitLotListing: ( lotId, listingData, publish = false ) => $q.when( api.submitLotListing( lotId, listingData, publish ) ),
 

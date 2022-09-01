@@ -484,7 +484,7 @@ class Client {
       });
 
       if( resp.data.metafieldsSet.userErrors.length ) {
-        throw new Error(resp.data.metafieldsSet.userErrors);
+        throw new Error( JSON.stringify(resp.data.metafieldsSet.userErrors, null, 2) );
       }
 
       return resp.data.metafieldsSet;
@@ -556,6 +556,22 @@ class Client {
     catch(e) {
       throw e;
     }
+  }
+
+  getPalletBreakdownServiceRate() {
+    return this.getShopMetafield( 'wsn_shipping', 'palletBreakdownServiceRate' );
+  }
+
+  async setPalletBreakdownServiceRate( newRate ) {
+
+    const resp = await this.setShopMetafield({
+      namespace: 'wsn_shipping',
+      key: 'palletBreakdownServiceRate',
+      value: newRate,
+      type: 'number_decimal'
+    });
+
+    return { rate: parseFloat( resp.metafields[0].value ) };
   }
 }
 

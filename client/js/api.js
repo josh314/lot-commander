@@ -904,6 +904,27 @@ export function removeStoreShippingRate( productVariantGid ) {
     .then( resp => resp.data );
 }
 
+export function getPalletBreakdownServiceRate() {
+
+  return axios({
+    method: 'get',
+    url: `/api/listings/shipping-rates/pallet-breakdown-service`
+  })
+    .then( resp => resp.data );
+}
+
+export function setPalletBreakdownServiceRate( newRate ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/listings/shipping-rates/pallet-breakdown-service`,
+    data: {
+      rate: newRate
+    }
+  })
+    .then( resp => resp.data );
+}
+
 /*************************************************
 * Counters
 * ================

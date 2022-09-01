@@ -12,13 +12,13 @@ class DisplayRate {
     return (this.displayValue !== this.rate) && (this.displayValue !== '');
   }
 
-  revert() {
+  clear() {
     this.displayValue = this.rate || '';
   }
 
   titleMatches( s ) {
 
-    if( s ) {
+    if( s && this.name ) {
       return this.name.match( new RegExp( s, 'i') );
     }
     else {
@@ -37,20 +37,39 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'Listing
     const vm = this;
 
     function refreshRates() {
+      refreshListingRates();
+      if( vm.filter.packageType === 'pallets' ) {
+        refreshPalletBreakdownServiceRate();
+      }
+    }
+
+    function refreshListingRates() {
 
       const qp = {
-        includePallets: vm.filter.type === 'pallets',
+        includePallets: vm.filter.packageType === 'pallets',
       };
 
-      vm.waitingForResponse = true;
+      vm.waiting.listingRates = true;
       return ListingsSvc.listShippingRates( qp ).then( rates => {
 
         vm.allDisplayRates = rates.map( _r => new DisplayRate( _r ) );
         refreshVisibleDisplayRates( );
-        vm.waitingForResponse = false;
+        vm.waiting.listingRates = false;
 
       });
 
+    }
+
+    function refreshPalletBreakdownServiceRate() {
+
+      vm.waiting.palletRate = true;
+      return ListingsSvc.getPalletBreakdownServiceRate().then( _rate => {
+
+        // refreshVisibleDisplayRates( );
+        vm.palletBreakdownServiceDisplayRate = new DisplayRate( { rate: _rate.rate } );
+        vm.waiting.palletRate = false;
+
+      });
     }
 
     function refreshVisibleDisplayRates() {
@@ -108,8 +127,14 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'Listing
 
     }
 
-    function revertRate( displayRate ) {
-      displayRate.revert();
+    function savePalletBreakdownServiceRate( ) {
+      ListingsSvc.setPalletBreakdownServiceRate( vm.palletBreakdownServiceDisplayRate.displayValue ).then( _rate => {
+        vm.palletBreakdownServiceDisplayRate = new DisplayRate( { rate: _rate.rate } );
+      } );
+    }
+
+    function clearRate( displayRate ) {
+      displayRate.clear();
     }
 
     function focusOnRate( index ) {
@@ -118,21 +143,26 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'Listing
 
     function init() {
 
-      vm.waitingForResponse = false;
+      vm.waiting = {
+        listingRates: false,
+        palletRate: false,
+      };
       vm.allDisplayRates =[];
       vm.visibleDisplayRates = [];
       vm.filter = {
         // includePallets: false,
-        type: 'lots',
+        packageType: 'lots',
         productName: ''
       };
       vm.refreshRates = refreshRates;
       vm.refreshVisibleDisplayRates = refreshVisibleDisplayRates;
       vm.saveRate = saveRate;
-      vm.revertRate = revertRate;
+      vm.clearRate = clearRate;
       vm.focusOnRate = focusOnRate;
 
-      refreshRates().then( _ => focusOnRate('0') );
+      vm.savePalletBreakdownServiceRate = savePalletBreakdownServiceRate;
+
+      refreshListingRates().then( _ => focusOnRate('0') );
 
     }
     init();
