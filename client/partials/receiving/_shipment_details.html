@@ -224,21 +224,21 @@
     </div>
 
   </div>
-  <div class="row well" ng-show="$ctrl.showEditControls || ($ctrl.documents && $ctrl.documents.length)">
+  <div class="row well" ng-show="$ctrl.showDocumentControls || ($ctrl.documents && $ctrl.documents.length)">
 
-      <div class="col-xs-12 row" ng-show="$ctrl.showEditControls">
+    <div class="col-xs-12 row" ng-show="$ctrl.showDocumentControls">
 
-        <div class="form-group col-xs-12 col-sm-6">
-          <label>File</label>
-          <input type="file" class="form-control" id="fileInput" required file-model="$ctrl.documentToAdd.file" ng-upload-change="$ctrl.preloadDocument( $event )">
-        </div>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label>File</label>
+        <input type="file" class="form-control" id="fileInput" required file-model="$ctrl.documentToAdd.file" ng-upload-change="$ctrl.preloadDocument( $event )">
+      </div>
 
-        <div class="form-group col-xs-12 col-sm-6">
-          <label>Document Type</label>
-          <select class="form-control" ng-model="$ctrl.documentToAdd.documentType">
-            <option ng-repeat="option in $ctrl.documentTypeOptions" ng-value="option.value">{{option.displayName}}</option>
-          </select>
-        </div>
+      <div class="form-group col-xs-12 col-sm-6">
+        <label>Document Type</label>
+        <select class="form-control" ng-model="$ctrl.documentToAdd.documentType">
+          <option ng-repeat="option in $ctrl.documentTypeOptions" ng-value="option.value">{{option.displayName}}</option>
+        </select>
+      </div>
 
 
       <div class="col-xs-12 row text-center">
@@ -293,6 +293,7 @@
         <h2 class="text-center">Please wait...</h2>
       </div>
     </div>
+
   </div>
 
   <!-- Expected Pallets section -->

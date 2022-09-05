@@ -62,6 +62,7 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
         populateShipment: true,
         shipmentHandle: '',
         isBrokendown: false,
+        toBeListed: true,
       };
       vm.categoryOptions = [ "" ].concat( palletProperties.category );
       vm.conditionOptions = [ "" ].concat( palletProperties.condition );

@@ -33,11 +33,11 @@ function authViewDocumentAccess( req, res, next ) {
 
   switch( req.query.object_type ) {
     case 'shipment':
+      return auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT_DOCUMENT' )( req, res, next );
     case 'shipment-expected-pallet':
-      return auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' )( req, res, next );
     case 'received-pallet':
     case 'consolidated-pallet':
-      return auth.isAuthorized( 'VIEW_INVENTORY_PALLET'  )( req, res, next );
+      return auth.isAuthorized( 'VIEW_INVENTORY_PALLET_DOCUMENT'  )( req, res, next );
     default:
       throw new InvalidRequestError();
   }
@@ -48,11 +48,11 @@ function authEditDocumentAccess( req, res, next ) {
 
   switch( req.query.object_type ) {
     case 'shipment':
+      return auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT_DOCUMENT' )( req, res, next );
     case 'shipment-expected-pallet':
-      return auth.isAuthorized( 'EDIT_INCOMING_SHIPMENT' )( req, res, next );
     case 'received-pallet':
     case 'consolidated-pallet':
-      return auth.isAuthorized( 'EDIT_INVENTORY_PALLET'  )( req, res, next );
+      return auth.isAuthorized( 'EDIT_INVENTORY_PALLET_DOCUMENT'  )( req, res, next );
     default:
       throw new InvalidRequestError();
   }

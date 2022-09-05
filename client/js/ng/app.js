@@ -57,7 +57,7 @@ const stateData = [
   { name: "main.inventory-pallets.view", navName: "All pallets", navParent: 'Pallets', url: '/list', templateUrl: '/partials/receiving/_inventory_pallet_view.html', userPermission: 'LIST_INVENTORY_PALLETS' },
   { name: "main.inventory-pallets.creation", url: '/create', templateUrl: '/partials/receiving/_inventory_pallet_creation.html', userPermission: 'CREATE_INVENTORY_PALLET' },
   { name: "main.inventory-pallets.to-be-listed", navName: "Pallets to be listed", navParent: 'Pallets', url: '/to-be-listed', templateUrl: '/partials/receiving/_inventory_pallets_to_be_listed.html', userPermission: 'LIST_INVENTORY_PALLETS_TO_BE_LISTED' },
-  { name: "main.inventory-pallets.repack", navName: "Repack pallet", navParent: 'Pallets', url: '/{palletId}/repack', optionalParams: ['palletId'], templateUrl: '/partials/receiving/_inventory_pallet_repack.html', userPermission: 'EDIT_INVENTORY_PALLET' },
+  { name: "main.inventory-pallets.repack", navName: "Repack pallet", navParent: 'Pallets', url: '/{palletId}/repack', optionalParams: ['palletId'], templateUrl: '/partials/receiving/_inventory_pallet_repack.html', userPermission: { 'or': [ 'REPACK_INVENTORY_PALLET', 'EDIT_INVENTORY_PALLET' ] } },
 
   // Purchase aggregation
   { name: "main.purchases", navName: 'Purchases', url: "/purchases", templateUrl: 'partials/_purchase_aggregation.html', userPermission: 'VIEW_PURCHASING_DATA' },

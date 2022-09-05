@@ -104,9 +104,29 @@ function isAuthorized( permission ) {
   };
 }
 
+function isAuthorizedForAll( ...permissions ) {
+  return ( req, _res, next ) => {
+    if( __config.skipAuth || !permissions || permissions.reduce( ( isAllowed, _permission ) => isAllowed && req.user.isAuthorized( _permission ), true ) ) {
+      return next();
+    }
+    return next( new AuthorizationError() );
+  };
+}
+
+function isAuthorizedForAny( ...permissions ) {
+  return ( req, _res, next ) => {
+    if( __config.skipAuth || !permissions || !permissions.length || permissions.reduce( ( isAllowed, _permission ) => isAllowed || req.user.isAuthorized( _permission ), false ) ) {
+      return next();
+    }
+    return next( new AuthorizationError() );
+  };
+}
+
 module.exports = {
-  init: init,
-  authenticate: authenticate,
-  isLoggedIn: isLoggedIn,
-  isAuthorized: isAuthorized,
+  init,
+  authenticate,
+  isLoggedIn,
+  isAuthorized,
+  isAuthorizedForAll,
+  isAuthorizedForAny
 };

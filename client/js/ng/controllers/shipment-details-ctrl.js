@@ -50,6 +50,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     vm.waiting = {};
 
     vm.showEditControls = LoggedInUser.hasPermission('EDIT_INCOMING_SHIPMENT');
+    vm.showDocumentControls = LoggedInUser.hasPermission('EDIT_INCOMING_SHIPMENT_DOCUMENT');
     vm.showReceiveControls = LoggedInUser.hasPermission('RECEIVE_INCOMING_SHIPMENT');
     vm.showHistoryControls = LoggedInUser.hasPermission('VIEW_EVENTS');
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');

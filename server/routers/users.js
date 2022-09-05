@@ -8,7 +8,9 @@ module.exports = routes;
 function routes({ users }) {
   const router = new express.Router();
 
+  // For users to change their own password
   router.post('/change-password', changeUserPassword);
+
   router.post(
     '/create', 
     auth.isAuthorized( 'CREATE_USER' ),
@@ -34,27 +36,42 @@ function routes({ users }) {
     auth.isAuthorized('ENABLE_USER'),
     editUserDisabledStatus,
   );
+
+  // To change another user's password
+  router.post(
+    '/:userId/change-password',
+    auth.isAuthorized('CHANGE_USER_PASSWORD'),
+    changeUserPassword
+  );
   
-  function changeUserPassword( req, res ) {
+  async function changeUserPassword( req, res ) {
+
+    const user = req.params.userId ? await users.getUserById( req.params.userId ) : req.user;
+
     let status;
-    users.changeUserPassword( {
-      user: req.user,
-      password: req.body.password
-    } )
-      .then(user=>{
-        console.log('Logging in user:');
-        console.log(user);
-        req.session.flash = flashMessages.successfulPasswordChange;
-        status = 'success';
-      })
-      .catch(err=>{
-        req.session.flash = flashMessages.serverError;
-        status = 'failed';
-        console.error(err);
-      })
-      .finally(()=>{
-        res.json({status: status});
-      });
+    try {
+
+      users.changeUserPassword( {
+        user,
+        password: req.body.password
+      } );
+
+      console.log('Changing password for user:');
+      console.log(user);
+      req.session.flash = flashMessages.successfulPasswordChange;
+      status = 'success';
+
+    }
+    catch(err) {
+
+      console.error(err);
+      req.session.flash = flashMessages.serverError;
+      status = 'failed';
+
+    }
+
+    res.json( { status } );
+
   }
   
   function createUser(req,res) {

@@ -350,7 +350,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
       }
 
       canRepack() {
-        return this.toBeListed && !this.lot;
+        return this.hasManifest() && this.toBeListed && !this.lot;
       }
 
       canMakeLot() {
@@ -381,7 +381,7 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
 
   const showPurchasingData = LoggedInUser.hasPermission( 'VIEW_PURCHASING_DATA' );
   const showMakeLot = LoggedInUser.hasPermission( 'CREATE_LOT' );
-  const showRepackPallet = LoggedInUser.hasPermission( 'EDIT_INVENTORY_PALLET' );
+  const showRepackPallet = LoggedInUser.hasPermission( 'EDIT_INVENTORY_PALLET_DOCUMENT' );
 
   const __COLUMNS__ = {
     handle: {

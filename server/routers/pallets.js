@@ -112,7 +112,8 @@ function routes({ eventsDb, inventoryCommander }) {
   );
   router.patch(
     '/:palletId',
-    auth.isAuthorized( 'EDIT_INVENTORY_PALLET' ),
+    auth.isAuthorizedForAny( 'EDIT_INVENTORY_PALLET', 'REPACK_INVENTORY_PALLET' ),
+    setEditDocumentBasedUponAuth,
     editInventoryPallet
   );
   router.put(
@@ -122,7 +123,10 @@ function routes({ eventsDb, inventoryCommander }) {
   );
   router.put(
     '/:palletId/is-repacked',
-    auth.isAuthorized( 'EDIT_INVENTORY_PALLET' ),
+    auth.isAuthorizedForAny(
+      'EDIT_INVENTORY_PALLET',
+      'REPACK_INVENTORY_PALLET'
+    ),
     repackInventoryPallet
   );
   router.delete(
@@ -140,11 +144,43 @@ function routes({ eventsDb, inventoryCommander }) {
 
   function setListAuthFromQueryParam( req, res, next ) {
     if( req.query.to_be_listed ) {
-      return auth.isAuthorized( 'LIST_INVENTORY_PALLETS_TO_BE_LISTED' )( req, res, next );
+      return auth.isAuthorizedForAny( 'LIST_INVENTORY_PALLETS', 'LIST_INVENTORY_PALLETS_TO_BE_LISTED' )( req, res, next );
     }
     else {
       return auth.isAuthorized( 'LIST_INVENTORY_PALLETS' )( req, res, next );
     }
+  }
+
+  function setEditDocumentBasedUponAuth( req, _res, next ) {
+
+    if( !req.user || req.user.isAuthorized( 'EDIT_INVENTORY_PALLET' ) ) {
+      next();
+    }
+
+    const allowedEditFields = {
+      REPACK_INVENTORY_PALLET: [
+        'category',
+        'units',
+        'removedItems',
+        'retailValue',
+        'salePrice',
+      ],
+    };
+
+    const _editDocument = {};
+    for( let _permission of Object.keys( allowedEditFields ) ) {
+
+      if( req.user.isAuthorized( _permission ) ) {
+
+        for( let _editField of allowedEditFields[ _permission ] ) {
+          _editDocument[ _editField ] = req.body[ _editField ];
+        }
+
+      }
+    }
+    req.body = _editDocument;
+
+    next();
   }
 
   async function resolveShipmentIds( req, _res, next ) {
