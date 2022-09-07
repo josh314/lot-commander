@@ -154,7 +154,7 @@ function routes({ eventsDb, inventoryCommander }) {
   function setEditDocumentBasedUponAuth( req, _res, next ) {
 
     if( !req.user || req.user.isAuthorized( 'EDIT_INVENTORY_PALLET' ) ) {
-      next();
+      return next();
     }
 
     const allowedEditFields = {
