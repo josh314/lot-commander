@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
+const dayjs = require('dayjs');
 
 const {
   ResourceNotFoundError,
@@ -314,6 +315,47 @@ function appendPopulationQueries( query, populationPaths ) {
 
   return query;
 }
+
+function getShipmentDateRangeMatchDocument( { startDate, endDate, dateField = 'createdAt' } ) {
+
+  let shipmentMatchDoc;
+
+  if( startDate || endDate ) {
+
+    shipmentMatchDoc = {
+      $and: [
+        { isDeleted: false }
+      ]
+    };
+
+    if( startDate ) {
+
+      shipmentMatchDoc.$and.push(
+        { [ dateField ]: { $gte: startDate } }
+      );
+
+    }
+
+
+    if( endDate ) {
+
+      shipmentMatchDoc.$and.push(
+        { [ dateField ]: { $lte: endDate } }
+      );
+
+    }
+
+  }
+  else {
+
+    shipmentMatchDoc = {
+      isDeleted: false,
+    };
+
+  }
+  return shipmentMatchDoc;
+}
+
 
 /************************************************
  *
@@ -1638,41 +1680,7 @@ class InventoryCommander {
 
   async aggregateExpectedPallets( { startDate, endDate } ) {
 
-    let shipmentMatchDoc;
-
-    if( startDate || endDate ) {
-
-      shipmentMatchDoc = {
-        $and: [
-          { isDeleted: false }
-        ]
-      };
-
-      if( startDate ) {
-
-        shipmentMatchDoc.$and.push(
-          { createdAt: { $gte: startDate } }
-        );
-
-      }
-
-
-      if( endDate ) {
-
-        shipmentMatchDoc.$and.push(
-          { createdAt: { $lte: endDate } }
-        );
-
-      }
-
-    }
-    else {
-
-      shipmentMatchDoc = {
-        isDeleted: false,
-      };
-
-    }
+    const shipmentMatchDoc = getShipmentDateRangeMatchDocument( { startDate, endDate } );
 
     const groups = await this.IncomingShipment.aggregate()
       .match( shipmentMatchDoc )
@@ -1727,9 +1735,69 @@ class InventoryCommander {
 
         return acc;
       }, new Map());
-  
+
     return [ ...groupTitleMap.values() ].sort( (a,b) => a.title < b.title ? -1 : 1 );
-  
+
+
+  }
+
+  async aggregateTransportationCosts( { startDate, endDate, period } ){
+
+    // initialize parameters
+    startDate = dayjs( startDate ).startOf('day');
+    endDate = dayjs( endDate ).endOf('day');
+    if ( ![ 'year', 'quarter', 'month', 'week', 'day' ].includes( period )  ) {
+      period = 'month';
+    }
+
+    const startDates = [  ];
+    let _nextDate = startDate;
+    while( _nextDate < endDate ) {
+      startDates.push( _nextDate.toDate() );
+      _nextDate = _nextDate.endOf( period ).add(1, 'day').startOf( period );
+    }
+    const boundaries = startDates.concat( [ endDate.toDate() ] );
+
+    const costs = await this.IncomingShipment.aggregate(
+      [
+        {
+          $match: getShipmentDateRangeMatchDocument( { startDate: startDate.toDate(), endDate: endDate.toDate(), dateField: 'arrivalDate' } )
+        },
+        {
+          $bucket: {
+            groupBy: '$arrivalDate',
+            boundaries: boundaries,
+            default: "Other",
+            output: {
+              "cost": { $sum: "$transportationCost" },
+            }
+          }
+        }
+      ]
+    )
+      .project( {
+        _id: 0,
+        date: "$_id",
+        cost: "$cost"
+      } );
+
+    if( costs.length < startDates.length ) {
+      for( let _d of startDates ) {
+
+        const found = costs.find( _ => _.date.toString() === _d.toString() );
+
+        if( !found ) {
+          costs.push( { date: _d, cost: 0 } );
+        }
+
+      }
+      costs.sort( (a,b) => a.date < b.date ? -1 : 1 );
+    }
+
+
+    return {
+      costs
+    };
 
   }
 

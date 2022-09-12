@@ -139,6 +139,13 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'L
 
       aggregateExpectedPallets: ( startDate, endDate ) => $q.when( api.aggregateExpectedPallets( startDate, endDate ) ),
 
+      aggregateTransportationCosts: ( startDate, endDate, period ) => $q.when( api.aggregateTransportationCosts( startDate, endDate, period ).then( res => {
+
+        return res.map( _ => Object.assign( _, { date: new Date( _.date ), dateString: _.date }) );
+
+
+      }) ),
+
     };
 
 

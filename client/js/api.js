@@ -570,7 +570,7 @@ export function aggregateExpectedPallets( startDate, endDate ) {
 
   const queryParams = {
     start_date: startDate,
-    end_date:  endDate
+    end_date: endDate
   };
 
   return axios({
@@ -578,6 +578,21 @@ export function aggregateExpectedPallets( startDate, endDate ) {
     url: `/api/inventory/expected-pallets?${ qs.stringify( queryParams ) }`,
   })
     .then( resp => resp.data && resp.data.pallets );
+}
+
+export function aggregateTransportationCosts( startDate, endDate, period ) {
+
+  const queryParams = {
+    start_date: startDate,
+    end_date: endDate,
+    period
+  };
+
+  return axios({
+    method: 'get',
+    url: `/api/receiving/transportation?${ qs.stringify( queryParams ) }`,
+  })
+    .then( resp => resp.data && resp.data.costs );
 }
 
 /*************************************************

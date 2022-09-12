@@ -11,7 +11,7 @@ module.exports = routes;
 /**********************************************
  * Helpers
  * =======
- * 
+ *
  *********/
 
 const listShipmentsFilterParamsFromQueryParams = ( qp ) => {
@@ -52,7 +52,7 @@ const listShipmentsFilterParamsFromQueryParams = ( qp ) => {
 /**********************************************
  * Routes function for export
  * ==========================
- * 
+ *
  **********/
 
 function routes({ eventsDb, inventoryCommander }) {
@@ -61,10 +61,10 @@ function routes({ eventsDb, inventoryCommander }) {
   /*******************************************
    * Register route handlers
    * ======
-   * 
+   *
    ****/
 
-  // view shipment(s)
+  // view shipment(s) & associated data
   router.get(
     '/',
     auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' ),
@@ -74,6 +74,11 @@ function routes({ eventsDb, inventoryCommander }) {
     '/count',
     auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' ),
     countIncomingShipments
+  );
+  router.get(
+    '/transportation',
+    auth.isAuthorized( 'VIEW_TRANSPORTATION_COST' ),
+    aggregateTransportationCosts
   );
   router.get(
     '/by-handle/:shipmentHandle',
@@ -122,12 +127,12 @@ function routes({ eventsDb, inventoryCommander }) {
 
   // Receiving shipments/pallets
   router.put(
-    '/:shipmentId/is-received', 
+    '/:shipmentId/is-received',
     auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
     receiveIncomingShipment
   );
   router.post(
-    '/:shipmentId/pallets-received', 
+    '/:shipmentId/pallets-received',
     auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
     receiveIncomingShipmentPallet
   );
@@ -143,9 +148,9 @@ function routes({ eventsDb, inventoryCommander }) {
     closeIncomingShipment
   );
 
-  // Consolidated pallets 
+  // Consolidated pallets
   router.post(
-    '/:shipmentId/pallets-consolidated', 
+    '/:shipmentId/pallets-consolidated',
     auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
     addIncomingShipmentPalletConsolidated
   );
@@ -155,19 +160,19 @@ function routes({ eventsDb, inventoryCommander }) {
     removeIncomingShipmentPalletConsolidated
   );
 
-  
-  
+
+
   /*******************************************
    * Define Handlers
    * ===============
-   * 
+   *
    ****/
 
   async function listIncomingShipments( req, res ) {
 
     const numPage = parseInt( req.query.num ) || 10;
     const page = parseInt( req.query.page ) || 1;
-  
+
     const query = {
       // paging
       skip: ( page - 1 ) * numPage,
@@ -190,11 +195,11 @@ function routes({ eventsDb, inventoryCommander }) {
   }
 
   async function countIncomingShipments( req, res ) {
-  
+
     const count = await inventoryCommander.countIncomingShipments( listShipmentsFilterParamsFromQueryParams( req.query ) );
 
     res.json({ count: count });
-    
+
   }
 
   async function getIncomingShipmentById( req, res, next ) {
@@ -479,7 +484,7 @@ function routes({ eventsDb, inventoryCommander }) {
       return next( e );
 
     }
- 
+
   }
 
   async function receiveIncomingShipmentPallet( req, res, next ) {
@@ -502,7 +507,7 @@ function routes({ eventsDb, inventoryCommander }) {
           palletId: palletReceived._id,
           shipmentId: shipment._id
         } );
-        
+
       }
 
       if( palletExpected ) {
@@ -546,7 +551,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
       const { shipment, pallet } = await inventoryCommander.deleteIncomingShipmentPalletReceived( shipmentId, palletId );
 
- 
+
       if( shipment && pallet ) {
 
         eventsDb.deleteInventoryPallet( {
@@ -582,7 +587,7 @@ function routes({ eventsDb, inventoryCommander }) {
           palletId: pallet._id,
           shipmentId: shipment._id
         } );
-        
+
       }
 
       res.json( { success: true } );
@@ -590,7 +595,7 @@ function routes({ eventsDb, inventoryCommander }) {
     catch(e) {
       return next(e);
     }
-    
+
   }
 
   async function removeIncomingShipmentPalletConsolidated( req, res, next ) {
@@ -602,7 +607,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
       const { shipment, pallet } = await inventoryCommander.deleteIncomingShipmentPalletConsolidated( shipmentId, palletId );
 
- 
+
       if( shipment && pallet ) {
 
         eventsDb.deleteInventoryPallet( {
@@ -659,14 +664,47 @@ function routes({ eventsDb, inventoryCommander }) {
 
       return next(e);
 
-    }    
+    }
+
+  }
+
+  async function aggregateTransportationCosts( req, res, next ) {
+
+    try {
+
+
+      const options = {};
+
+      if( req.query.start_date ) {
+        options.startDate = req.query.start_date;
+      }
+
+      if( req.query.end_date ) {
+        options.endDate = req.query.end_date;
+      }
+
+      if( req.query.period ) {
+        options.period = req.query.period;
+      }
+
+      const { costs } = await inventoryCommander.aggregateTransportationCosts( options );
+
+
+      res.json( { costs } );
+
+    }
+    catch(e) {
+
+      return next(e);
+
+    }
 
   }
 
   /**************************************
    * Return routes
    * =============
-   * 
+   *
    ************/
   return router;
 

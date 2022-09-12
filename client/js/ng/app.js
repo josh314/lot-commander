@@ -59,8 +59,10 @@ const stateData = [
   { name: "main.inventory-pallets.to-be-listed", navName: "Pallets to be listed", navParent: 'Pallets', url: '/to-be-listed', templateUrl: '/partials/receiving/_inventory_pallets_to_be_listed.html', userPermission: 'LIST_INVENTORY_PALLETS_TO_BE_LISTED' },
   { name: "main.inventory-pallets.repack", navName: "Repack pallet", navParent: 'Pallets', url: '/{palletId}/repack', optionalParams: ['palletId'], templateUrl: '/partials/receiving/_inventory_pallet_repack.html', userPermission: { 'or': [ 'REPACK_INVENTORY_PALLET', 'EDIT_INVENTORY_PALLET' ] } },
 
-  // Purchase aggregation
-  { name: "main.purchases", navName: 'Purchases', url: "/purchases", templateUrl: 'partials/_purchase_aggregation.html', userPermission: 'VIEW_PURCHASING_DATA' },
+  // Costs aggregation
+  { name: "main.costs", abstract: true, navName: "Costs", url: "/costs", templateUrl: 'partials/_container.html'},
+  { name: "main.costs.purchases", navName: 'Purchases', navParent: 'Costs', url: "/purchases", templateUrl: 'partials/_purchase_aggregation.html', userPermission: 'VIEW_PURCHASING_DATA' },
+  { name: "main.costs.transportation", navName: "Transportation", navParent: 'Costs', url: '/transportation', templateUrl: '/partials/_transportation_cost_aggregation.html', userPermission: { 'and': [ 'VIEW_PURCHASING_DATA', 'VIEW_TRANSPORTATION_COST' ] } },
 
   //Manual Inventory
   { name: "main.manual-inventory", navName: 'Inventory', url: "/manual-inventory", templateUrl: 'partials/_manual_inventory.html', userPermission: 'VIEW_MANUAL_INVENTORY' },

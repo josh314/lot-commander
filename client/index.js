@@ -91,5 +91,6 @@ import "./js/ng/controllers/shipping-items-modal-ctrl.js";
 import "./js/ng/controllers/store-content-ctrl.js";
 import "./js/ng/controllers/store-shipping-rates-ctrl.js";
 import "./js/ng/controllers/submit-listing-ctrl.js";
+import "./js/ng/controllers/transportation-cost-aggregation-ctrl.js";
 import "./js/ng/controllers/upload-lot-manifest-ctrl.js";
 import "./js/ng/controllers/view-lot-ctrl.js";
