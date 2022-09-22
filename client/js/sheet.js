@@ -110,6 +110,11 @@ export class Column {
     this.selected = !!selected; // defaults to false
   }
 
+  rename( _name ) {
+    this.name = _name;
+    this.displayName = _name;
+  }
+
   isStandardColumn() {
     return __STANDARD_MANIFEST_COLUMNS__.includes( this.displayName );
   }
@@ -395,6 +400,21 @@ export class Sheet {
     }
   }
 
+
+  renameColumn( name, newName ) {
+
+    const column = this.columns.find( c => c.name === name );
+    if( column && name !== newName ) {
+      column.rename( newName );
+      this.rows.forEach( _row => {
+        _row[ newName ] = _row[ name ];
+        delete _row[ name ];
+      });
+    }
+
+    return column;
+  }
+
   selectColumnByName( columnName ) {
 
     const column = this.columns.find( c => c.name === columnName );
@@ -473,6 +493,10 @@ export class Sheet {
     }
   }
 
+  prependUpcZerosOneRow( row, barcodeColumnName ) {
+    row[barcodeColumnName] =  `${ '0'.repeat( 12 - row[barcodeColumnName].length ) }${row[barcodeColumnName]}`;
+  }
+
   prependUpcZeros() {
     const barcodeColumn = this.getBarcodeColumn();
     if(barcodeColumn) {
@@ -513,6 +537,30 @@ export class Sheet {
         }
       }
     }
+  }
+
+  normalizeBarcodeColumn() {
+
+    const barcodeColumn = this.getBarcodeColumn();
+    for( let r of this.rows ) {
+
+      if( !r[ barcodeColumn.name ] ) {
+        continue;
+      }
+
+      if( !this.cellUpcCheckDigitValid( r, barcodeColumn ) ) {
+
+        r[barcodeColumn.name] = `${ r[barcodeColumn.name] || '' }`; // ensure the barcode is a string
+
+        r[barcodeColumn.name] = addCheckDigit(r[barcodeColumn.name]);
+
+      }
+      if( r[barcodeColumn.name].length < 12 ) {
+        this.prependUpcZerosOneRow( r, barcodeColumn.name );
+      }
+
+    }
+
   }
 
   getColumnWidth(columnName) {
@@ -727,7 +775,7 @@ export class Sheet {
     return this.jsonToStyledAoa( rows );
   }
 
-  splitByColumnValues( column ) {
+  splitByColumnValues( column, ignoreFalseyValues ) {
 
     const commonOpts = {
       standardBarcodeColumnName: __STANDARD_MANIFEST_BARCODE_COLUMN__,
@@ -741,6 +789,10 @@ export class Sheet {
     for( let r of this.rows ) {
 
       const groupId = r[ column ];
+
+      if( ignoreFalseyValues && !groupId ) {
+        continue;
+      }
 
       if( groups[ groupId ] ) {
 

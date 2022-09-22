@@ -1,0 +1,140 @@
+<div class="container" ng-controller="ShipmentCreationPostCtrl as $ctrl">
+
+  <h2>Shipment post-creation processing</h2>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <ul>
+        <li>Information from the previous page has already been saved.</li>
+        <li>Any <span class="text-danger">red</span> values below are computed from the uploaded manifest and will not be saved until the <strong>Accept</strong> button at the bottom of the page has been clicked.</li>
+        <li><span class="text-danger">Red</span> values in parentheses will overwrite existing values when <strong>Accept</strong> is clicked.</li>
+        <li>Generated pallet manifests are not saved until <strong>Accept</strong> is clicked.</li>
+        <li>Values computed from the manifest can be rejected without saving using the <strong>Reject</strong> button.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div ng-show="$ctrl.shipment">
+    <h3>Shipment details</h3>
+    <div>
+      <div style="display: flex;">
+        <dl>
+          <div>
+
+            <dt>Shipment ID</dt>
+            <dd>
+              {{ $ctrl.shipment.handle || '----' }}
+            </dd>
+
+            <dt>Cost</dt>
+            <dd>
+              {{ $ctrl.displayAsMoney( $ctrl.shipment.cost ) || '----' }}
+            </dd>
+
+            <dt>Number of pallets</dt>
+            <dd>
+              {{ $ctrl.shipment.palletsExpected.length || '----' }}
+            </dd>
+
+            <dt>Total units</dt>
+            <dd ng-show="$ctrl.shipment.getTotalUnits()">
+              {{ $ctrl.shipment.getTotalUnits() }}
+              <span ng-show="$ctrl.pallets">( <span class="text-danger">{{ $ctrl.totalComputedPalletUnits() }}</span> )</span>
+            </dd>
+            <dd ng-hide="$ctrl.shipment.getTotalUnits()">
+              <span ng-show="$ctrl.pallets">
+                <span class="text-danger">{{ $ctrl.totalComputedPalletUnits() }}</span>
+              </span>
+              <span ng-hide="$ctrl.pallets">
+                ----
+              </span>
+            </dd>
+
+            <dt>Total retail value</dt>
+            <dd ng-show="$ctrl.shipment.getTotalRetailValue()">
+              {{ $ctrl.shipment.getTotalRetailValue() }}
+              <span ng-show="$ctrl.pallets">( <span class="text-danger">{{ $ctrl.totalComputedPalletRetailValue() }}</span> )</span>
+            </dd>
+            <dd ng-hide="$ctrl.shipment.getTotalRetailValue()">
+              <span ng-show="$ctrl.pallets">
+                <span class="text-danger">{{ $ctrl.totalComputedPalletRetailValue() }}</span>
+              </span>
+              <span ng-hide="$ctrl.pallets">
+                ----
+              </span>
+            </dd>
+
+          </div>
+        </dl>
+    </div>
+  </div>
+
+  <div ng-show="$ctrl.sheetProcessingResults">
+    <h3>Sheet processing results</h3>
+    <table class="table table-striped">
+
+      <thead><tr>
+        <th>Sheet name</th>
+        <th>Success</th>
+        <th># of pallets</th>
+      </tr></thead>
+
+      <tbody>
+        <tr ng-repeat="$res in $ctrl.sheetProcessingResults">
+
+          <td>{{ $res.sheet.name }}</td>
+          <td>
+            <span class="glyphicon glyphicon-ok" ng-show="$res.success"></span>
+            <span class="glyphicon glyphicon-remove" ng-hide="$res.success"></span>
+          </td>
+          <td>{{ $res.success ? $res.pallets.length : '----' }}</td>
+
+        </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+  <div ng-show="$ctrl.pallets">
+    <h3>Extracted pallets</h3>
+    <div ng-show="$ctrl.unexpectedPallets">Rows in <span class="text-danger">red</span> represent pallets extracted from the manifest which were not submitted at shipment creation time. Data for such pallets will not be saved.</div>
+    <table class="table table-striped">
+
+      <thead><tr>
+        <th>Name</th>
+        <th>Sheet</th>
+        <th>Units</th>
+        <th>Retail value</th>
+        <th></th>
+      </tr></thead>
+
+      <tbody>
+        <tr ng-repeat="$pallet in $ctrl.pallets" ng-class="{ 'danger': !$pallet.isExpected }">
+
+          <td>{{ $pallet.name }}</td>
+
+          <td>{{ $pallet.sheet ? $pallet.sheet.name : '----' }}</td>
+
+          <td><span ng-class="{ 'text-danger': $pallet.isExpected }">{{ $pallet.units || '----' }}</span></td>
+
+          <td><span ng-class="{ 'text-danger': $pallet.isExpected }">{{ $ctrl.displayAsMoney($pallet.retailValue) || '----' }}</span></td>
+          <td>
+            <button class="btn btn-xs btn-primary" ng-click="$pallet.download()">Manifest</button>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+  <div style="display: flex; justify-content: flex-end;" ng-hide="$ctrl.waiting">
+    <button class="btn btn-success" ng-click="$ctrl.accept()">Accept</button>
+    <button class="btn btn-warning" ng-click="$ctrl.reject()" style="margin-left: 8px;">Reject</button>
+  </div>
+
+  <div ng-show="$ctrl.waiting">
+    <div class="center-block loader"></div>
+    <h2 class="text-center">Please wait...</h2>
+  </div>
+
+</div>

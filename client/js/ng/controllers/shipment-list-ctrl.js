@@ -2,7 +2,7 @@ import angular from 'angular';
 
 const prettifyDate = dt => dt && dt.toLocaleDateString();
 
-const __PAGE_SIZE__ = 10;
+const __PAGE_SIZE__ = 25;
 const __USER_SETTINGS_SUBKEY__ = 'shipment-list-page';
 
 /******************* Shipment List Page Controller *************************/

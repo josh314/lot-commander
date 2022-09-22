@@ -157,7 +157,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
 
         Object.assign( this,
-          { showNote: false, isExpected: false },
+          { isHydrated: true, showNote: false, isExpected: false },
           _data,
           [ 'brokendownDate', 'repackedDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
         );

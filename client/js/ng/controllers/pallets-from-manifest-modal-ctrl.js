@@ -11,7 +11,7 @@ angular.module('myApp').controller( 'PalletsFromManifestModalCtrl', [
     manifestFile,
     parseOptions,
     ManifestFileHandlerSvc,
-  
+
   ) {
 
     const vm = this;
@@ -24,12 +24,15 @@ angular.module('myApp').controller( 'PalletsFromManifestModalCtrl', [
     vm.stagePallets = stagePallets;
     vm.deletePallet = deletePallet;
     vm.goBack = goBack;
-    
+
     function loadManifest() {
 
       ManifestFileHandlerSvc.parseFile( manifestFile, parseOptions ).then( manifest => {
         vm.manifest = manifest;
         vm.columnNames = vm.manifest.getColumnNamesAllSheets();
+        if( vm.columnNames.includes( 'Container' ) ) {
+          vm.palletIdColumn = 'Container';
+        }
       });
 
     }

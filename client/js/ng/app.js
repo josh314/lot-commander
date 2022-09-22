@@ -48,6 +48,7 @@ const stateData = [
   { name: "main.shipments", abstract: true, navName: "Shipments", url: "/shipments", templateUrl: 'partials/_container.html'},
   { name: "main.shipments.list", navName: "All shipments", navParent: 'Shipments', url: "/list", templateUrl: 'partials/receiving/_shipment_list.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
   { name: "main.shipments.creation", navName: "New Shipment", navParent: 'Shipments', url: '/create', templateUrl: '/partials/receiving/_shipment_creation.html', userPermission: 'CREATE_INCOMING_SHIPMENT' },
+  { name: "main.shipments.creation-post", url: '/{shipmentId}/create-post', templateUrl: '/partials/receiving/_shipment_creation_post.html', userPermission: 'CREATE_INCOMING_SHIPMENT' },
   { name: "main.shipments.details", url: '/{shipmentId}', templateUrl: '/partials/receiving/_shipment_details.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
   { name: "main.shipments.receiving", url: '/{shipmentId}/receive', templateUrl: '/partials/receiving/_shipment_receiving.html', userPermission: 'RECEIVE_INCOMING_SHIPMENT' },
   { name: "main.shipments.clean-manifest", url: '/{shipmentId}/manifests/clean', templateUrl: '/partials/_clean_manifest.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },

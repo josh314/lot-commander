@@ -4,6 +4,21 @@ import * as path from 'path';
 
 import * as xlsx from 'xlsx-js-style';
 
+import {
+  __STANDARD_MANIFEST_PALLET_ID_COLUMN__,
+  __STANDARD_MANIFEST_BARCODE_COLUMN__,
+  __STANDARD_MANIFEST_QUANTITY_COLUMN__,
+  __STANDARD_MANIFEST_DESCRIPTION_COLUMN__,
+  __STANDARD_MANIFEST_CATEGORY_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_COST_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_COST_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_COLUMNS__,
+  __STANDARD_MANIFEST_DISPLAY_COLUMNS__,
+} from '../../manifest-constants';
 import { Sheet } from '../../sheet';
 import { Manifest } from '../../manifest';
 
@@ -51,6 +66,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
       createFileFromExtractByColumnValue,
       downloadFileFromExtractByColumnValue,
       splitStandardManifestByPallet,
+      defaultProcessActiveManifest,
     };
 
     function getActiveManifest() {
@@ -253,6 +269,79 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
       });
 
       return splitManifests;
+    }
+
+    function defaultProcessActiveManifest( ) {
+
+      const columnsMap = {
+        'Container': __STANDARD_MANIFEST_PALLET_ID_COLUMN__,
+        'Quantity': __STANDARD_MANIFEST_QUANTITY_COLUMN__,
+        'UPC #': __STANDARD_MANIFEST_BARCODE_COLUMN__,
+        'Description': __STANDARD_MANIFEST_DESCRIPTION_COLUMN__,
+        'Extended Retail': __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__,
+      };
+
+      const manifest = getActiveManifest();
+
+      const results = [];
+      for( let sheet of manifest.sheets ) {
+        const _res = {
+          sheet,
+          success: true,
+        };
+
+        sheet.deselectAllColumns();
+
+        for( let [ expectedColumnName, standardColumnName ] of Object.entries( columnsMap ) ) {
+
+          const standardColumn = sheet.renameColumn( expectedColumnName, standardColumnName );
+
+          if( standardColumn ) {
+            standardColumn.select();
+          }
+          else {
+            _res.success = false;
+            break;
+          }
+
+        }
+
+        if( _res.success ) {
+
+          try {
+            // normalize UPCs
+            sheet.normalizeBarcodeColumn();
+
+            const splitSheets = sheet.splitByColumnValues( __STANDARD_MANIFEST_PALLET_ID_COLUMN__, true );
+
+            _res.pallets = splitSheets.map( s => {
+              const palletName = s.name;
+              s.name = 'Data';
+              const manifest = new Manifest( [ s ] );
+
+              const res = {
+                name: palletName,
+                manifest,
+                summary: manifest.standardTotals(),
+                file: createFile( `${ palletName }.xlsx`, manifest, true )
+              };
+
+              return res;
+
+            });
+
+          }
+          catch(e) {
+            console.error(e);
+            _res.success = false;
+          }
+
+        }
+
+        results.push( _res );
+      }
+
+      return results;
     }
 
   }

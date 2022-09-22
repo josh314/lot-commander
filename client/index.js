@@ -85,6 +85,7 @@ import "./js/ng/controllers/reports-ctrl.js";
 import "./js/ng/controllers/root-ctrl.js";
 import "./js/ng/controllers/scan-ctrl.js";
 import "./js/ng/controllers/shipment-creation-ctrl.js";
+import "./js/ng/controllers/shipment-creation-post-ctrl.js";
 import "./js/ng/controllers/shipment-details-ctrl.js";
 import "./js/ng/controllers/shipment-list-ctrl.js";
 import "./js/ng/controllers/shipping-items-modal-ctrl.js";

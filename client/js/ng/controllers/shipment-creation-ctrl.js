@@ -5,6 +5,8 @@ class ShipmentValidator {
   constructor( inputs ) {
     if( inputs ) {
 
+      this.isPaidForUnset = (inputs.isPaidFor === null);
+
       this.checkCosts = inputs.checkCosts;
 
       this.invalidHandle = !inputs.handle;
@@ -48,7 +50,7 @@ class ShipmentValidator {
   }
 
   isValid() {
-    return this.clean || ( !this.invalidCost && !this.invalidHandle && this.arePalletsValid() );
+    return this.clean || ( !this.isPaidForUnset && !this.invalidCost && !this.invalidHandle && this.arePalletsValid() );
   }
 }
 
@@ -86,8 +88,9 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
 
     vm.inputs = {
+      isPaidFor: null,
       categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _ === 'general merchandise' ? 'GM' : _, value: _ } ) ) ),
-      conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _ === 'customer returns' ? 'returns' : _, value: _ } ) ) ),      
+      conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _ === 'customer returns' ? 'returns' : _, value: _ } ) ) ),
       documentTypeOptions: ShipmentManagerSvc.shipmentDocumentTypes.map( _ => _ === '' ? { displayName: 'none', value: _ } : { displayName: _, value: _ } ),
       category: null,
       condition: 'shelf-pull',
@@ -355,7 +358,15 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
 
             return shipment;
           })
-          .then( shipment => navigate.shipmentDetails( shipment._id ) )
+          .then( shipment => {
+            const manifest = vm.inputs.documents.find( _d => isManifestFile( _d ) );
+            if( manifest ) {
+              navigate.shipmentCreationPost( shipment._id );
+            }
+            else {
+              navigate.shipmentDetails( shipment._id );
+            }
+          })
           .catch( e => {
             ModalSvc.message( { header: 'Error', body: e.message, type: 'error' } );
           });
@@ -374,7 +385,7 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
       if( !vm.inputs.palletLevelCosts ) {
         setPalletCosts();
       }
-      
+
     }
 
     function addAnonymousPallets() {
@@ -415,7 +426,7 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
       }
 
       const shipment = Object.assign( {}, vm.inputs );
-      
+
       // TODO: date transformations? timezone stuff?
 
       delete shipment.categoryOptions;
@@ -428,15 +439,39 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
 
       if( manifestDocument && manifestDocument.documentType === 'manifest' && !manifestDocument.isImported ) {
 
-        ManifestFileHandlerSvc.launchFileParsingOptionsModal( manifestDocument.name, parseOptions => {
+        const defaultParseOptions = {
+          noHeaderRow: false,
+          skipFirstRows: 0,
+          skipLastRows: 0,
+        };
+  
+        // try to parse and get columns with some default settings
+        ManifestFileHandlerSvc.parseFile( manifestDocument.file, defaultParseOptions ).then( manifest => {
 
-          ModalSvc.palletsFromManifest( manifestDocument.file, parseOptions, palletNames => {
+          let palletNames = manifest.getUniqueValuesInColumnAllSheets( 'Container' );
 
+          if( palletNames.length ) { // test if we got any pallet names using the default parse settings
+            
             palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category, condition: vm.inputs.condition } ) );
 
             manifestDocument.isImported = true;
 
-          });
+          }
+          else{ // if no pallet names could be obtained automatically, launch the modal interface
+
+            ManifestFileHandlerSvc.launchFileParsingOptionsModal( manifestDocument.name, parseOptions => {
+
+              ModalSvc.palletsFromManifest( manifestDocument.file, parseOptions, palletNames => {
+  
+                palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category, condition: vm.inputs.condition } ) );
+  
+                manifestDocument.isImported = true;
+  
+              });
+  
+            });
+
+          }
 
         });
 

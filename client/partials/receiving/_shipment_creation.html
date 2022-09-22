@@ -21,6 +21,14 @@
           <input type="text" class="form-control" id="vendorInput" ng-model="$ctrl.inputs.vendor" autocomplete="off">
           <span class="text-danger h4" ng-show="$ctrl.validator.invalidVendor">No vendor submitted.</span>
         </div>
+        <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.isPaidForUnset }">
+          <label for="isPaidForInput">Is paid for?</label>
+          <select class="form-control" id="isPaidForInput" ng-model="$ctrl.inputs.isPaidFor" ng-change="$ctrl.refreshValidator()">
+            <option ng-value="true">yes</option>
+            <option ng-value="false">no</option>
+          </select>
+          <span class="text-danger h4" ng-show="$ctrl.validator.isPaidForUnset">Please choose one.</span>
+        </div>
       </div>
       <div class="row">
         <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.invalidCost }">
