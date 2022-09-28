@@ -275,6 +275,8 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
           }
         };
 
+        vm.viewRemovedItems = () => viewRemovedItemsModal( pallet );
+
       }],
       controllerAs: '$ctrl'
 
@@ -282,6 +284,58 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
 
     return modalInstance.result;
   }
+
+  function viewRemovedItemsModal( pallet ) {
+
+    const _modalInstance = $uibModal.open({
+      templateUrl: '/partials/modals/_inventory_pallet_removed_items_modal.html',
+      size: 'lg',
+      backdrop: 'static',
+
+
+      resolve: {
+        pallet: function () {
+          return pallet;
+        }
+      },
+
+      controller: [ 'LoggedInUser', 'pallet', 'StandardManifestColumnsConst', 'UtilitiesSvc', function( LoggedInUser, pallet, StandardManifestColumnsConst, UtilitiesSvc ){
+
+        const __BARCODE__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_BARCODE_COLUMN__;
+        const __DESCRIPTION__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_DESCRIPTION_COLUMN__;
+
+        function cmpRemovedItems( a, b ) {
+          if( a[ __BARCODE__ ] < b[ __BARCODE__ ] ) {
+            return -1;
+          }
+          else if ( a[ __BARCODE__ ] > b[ __BARCODE__ ] ) {
+            return 1;
+          }
+          else if( a[ __DESCRIPTION__ ] < b[ __DESCRIPTION__ ] ) {
+            return -1;
+          }
+          else {
+            return 1;
+          }
+        }
+
+        const vm = this;
+        vm.showPurchasingData = () => LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+
+        vm.removedItems = JSON.parse( JSON.stringify( pallet.removedItems ) );
+        vm.removedItems.forEach( _ => _.totalValue = UtilitiesSvc.displayAsMoney( _.numRemoved * _.unitRetailPrice ) );
+        vm.removedItems.sort( cmpRemovedItems );
+
+        vm.totalRemovedUnits = pallet.getTotalUnitsRemoved();
+        vm.totalRemovedRetailValue = UtilitiesSvc.displayAsMoney( pallet.getTotalRetailValueRemoved() );
+        vm.standardManifestColumns = StandardManifestColumnsConst;
+
+      }],
+      controllerAs: '$ctrl'
+
+    });
+  }
+
 
 
 }] );

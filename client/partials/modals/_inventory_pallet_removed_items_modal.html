@@ -1,0 +1,52 @@
+<div class="modal-header">
+  <h3 class="modal-title">Removed Items</h3>
+</div>
+
+<div class="modal-body">
+  <div class="panel panel-default">
+    <div class="panel-body" style="display: flex;">
+      <dl>
+        <div>
+          <dt>Total units removed</dt>
+          <dd>
+            {{ $ctrl.totalRemovedUnits || '----' }}
+          </dd>
+        </div>
+        <div ng-show="$ctrl.showPurchasingData()">
+          <dt>Total retail value removed</dt>
+          <dd>
+            {{ $ctrl.totalRemovedRetailValue || '----' }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+  <div>
+
+    <table class="table table-striped">
+      <thead>
+        <th>Barcode</th>
+        <th>Description</th>
+        <th>Number removed</th>
+        <th>Total retail valie</th>
+      </thead>
+      <tbody>
+
+        <tr ng-repeat="row in $ctrl.removedItems track by $index">
+
+          <td>{{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_BARCODE_COLUMN__ ] }}</td>
+          <td>{{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_DESCRIPTION_COLUMN__ ] }}</td>
+          <td>{{ row.numRemoved }}</td>
+          <td>{{ row.totalValue }}</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-footer">
+    <span>
+      <button class="btn btn-primary" type="button" ng-click="$dismiss()">Close</button>
+    </span>
+</div>

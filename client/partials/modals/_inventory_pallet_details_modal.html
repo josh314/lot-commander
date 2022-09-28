@@ -30,7 +30,10 @@
       <input class="form-control" type="number" id="unitsInput" ng-model="$ctrl.inputs.units" ng-disabled="$ctrl.disableEditing">
     </div>
     <div class="form-group col-xs-12 col-sm-6">
-      <label for="numUnitsRemovedInput">Number of removed units</label>
+      <label for="numUnitsRemovedInput" style="display: flex; justify-content: space-between;">
+        <span>Number of removed units</span>
+        <a href ng-click="$ctrl.viewRemovedItems()">view list</a>
+      </label>
       <input class="form-control" type="number" id="numUnitsRemovedInput" ng-value="$ctrl.pallet.getTotalUnitsRemoved()" disabled>
     </div>
     <div class="form-group col-xs-12 col-sm-6" >

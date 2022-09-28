@@ -292,16 +292,16 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
     function cmpRemovedItems( a, b ) {
       if( a[ __BARCODE__ ] < b[ __BARCODE__ ] ) {
-        return 1;
+        return -1;
       }
       else if ( a[ __BARCODE__ ] > b[ __BARCODE__ ] ) {
-        return -1;
-      }
-      else if( a[ __DESCRIPTION__ ] < b[ __DESCRIPTION__ ] ) {
         return 1;
       }
-      else {
+      else if( a[ __DESCRIPTION__ ] < b[ __DESCRIPTION__ ] ) {
         return -1;
+      }
+      else {
+        return 1;
       }
     }
 

@@ -371,6 +371,15 @@ angular.module('myApp').factory( 'InventoryPallet', [
         }
       }
 
+      getTotalRetailValueRemoved() {
+        if( this.removedItems && this.removedItems.reduce ) {
+          return this.removedItems.reduce( ( acc, _item ) => acc + ( _item.unitRetailPrice * _item.numRemoved || 0 ) , 0 );
+        }
+        else {
+          return 0;
+        }
+      }
+
     }
 
     return InventoryPallet;
