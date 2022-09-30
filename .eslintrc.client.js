@@ -7,15 +7,11 @@ module.exports = {
     "extends": [
         "eslint:recommended",
         "plugin:import/errors",
-        "angular"
     ],
     "parserOptions": {
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
-    "plugins": [
-        "angular"
-    ],
     "rules": {
         "array-callback-return": [
             "error",
@@ -55,15 +51,5 @@ module.exports = {
             "warn",
             "always"
         ],
-        // Angular plugin rules
-        "angular/controller-as": "off",
-        "angular/controller-name": "off",
-        "angular/di": [2, "array"],
-        "angular/di-unused": "warn",
-        "angular/json-functions": "off",
-        "angular/log": "off",
-        "angular/no-service-method": "off",
-        "angular/on-watch": "off",
-        "angular/typecheck-number": "off"
     }
 };

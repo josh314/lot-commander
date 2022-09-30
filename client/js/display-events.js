@@ -41,7 +41,7 @@ export class IncomingShipment extends Base {
     super( eventData );
 
     if( eventData.shipment ) {
-      this.details['Shipment ID'] = angular.isObject(eventData.shipment) ? eventData.shipment._id : eventData.shipment;
+      this.details['Shipment ID'] = eventData.shipment && eventData.shipment._id ? eventData.shipment._id : eventData.shipment;
     }
 
   }
@@ -110,7 +110,7 @@ export class ReceiveIncomingShipmentPallet extends IncomingShipment {
 
     super( eventData );
 
-    if( angular.isObject(eventData.shipment) ) {
+    if( eventData.shipment.palletsReceived && eventData.shipment.palletsReceived.find ) {
       const found = eventData.shipment.palletsReceived.find( rp => rp._id == eventData.pallet );
       if( found ) {
         this.message = `Received pallet <b>${found.handle}</b>`;

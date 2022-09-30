@@ -578,7 +578,7 @@ export class Sheet {
   }
 
   getUniqueValuesInColumn( columnName ) {
-    const values = this.rows.map( r => r[ columnName ] ).filter( _ => angular.isDefined(_) );
+    const values = this.rows.map( r => r[ columnName ] ).filter( _ => typeof _ !== 'undefined' );
     return [ ... new Set( values ) ];
   }
 

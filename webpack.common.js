@@ -20,7 +20,7 @@ module.exports = {
     rules: [
       {
         test: /client\/.*\.js$/,
-        exclude: /(node_modules|bower_components)/,
+        exclude: /(client\/js\/ng|node_modules|bower_components)/,
         use: [ 
           // { 
           //   loader: 'babel-loader',
@@ -47,6 +47,18 @@ module.exports = {
             loader: 'eslint-loader',
             options: {
               configFile: '.eslintrc.client.js'
+            }
+          }
+        ]
+      },
+      {
+        test: /client\/js\/ng\/.*\.js$/,
+        exclude: /(node_modules|bower_components)/,
+        use: [
+          { 
+            loader: 'eslint-loader',
+            options: {
+              configFile: '.eslintrc.angularjs.js'
             }
           }
         ]
