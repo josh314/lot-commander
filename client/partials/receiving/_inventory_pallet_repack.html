@@ -91,8 +91,8 @@
     </div>
 
     <div class="form-group">
-      <label for="barcodeToDecrement">Barcode of item to remove</label>
-      <input class="form-control" name="barcodeToDecrement" ng-model="$ctrl.barcodeToDecrement" ng-keyup="$event.keyCode == 13 && $ctrl.removeItem()">
+      <label for="scannedBarcode">Barcode of item to remove</label>
+      <input class="form-control" name="scannedBarcode" ng-model="$ctrl.scannedBarcode" ng-keyup="$event.keyCode == 13 && $ctrl.removeItem()">
     </div>
 
     <div ng-show="$ctrl.removedItems.length > 0">

@@ -14,6 +14,12 @@ import {
   __STANDARD_MANIFEST_COLUMNS__,
   __STANDARD_MANIFEST_DISPLAY_COLUMNS__,
 } from './manifest-constants';
+import {
+  addCheckDigit,
+  isNumericString,
+  validateCheckDigit,
+} from './upc';
+
 // CONSTANTS
 
 const __PRETTY_MANIFEST_CELL_CURRENCY_FORMAT_CODE__ = 7;
@@ -54,52 +60,6 @@ const __PRETTY_MANIFEST_HIGHLIGHTED_CELL_SETTINGS__ = {
     },
   }
 };
-
-// Helpers
-
-function calculateCheckDigit(upc) {
-  upc = upc.split('').reverse().join('');
-  let total = 0;
-  for(let i=0; i<upc.length; i++) {
-    if(i % 2===0) {
-      total = total + 3*parseInt(upc[i]);
-    }
-    else {
-      total = total + parseInt(upc[i]);
-    }
-  }
-  //Check digit is the remainder after subtracting above sum from nearest (larger or equal) multiple of ten.
-  if(parseInt(total/10)===total/10) {//Total is multiple of 10
-    return 0;
-  }
-  else {
-    return (parseInt(total/10)+1)*10 -total;
-  }
-}
-
-
-// Checks if the barcode includes a check digit
-function validateCheckDigit(barcode) {
-  if( !isNumericString( barcode ) ) {
-    return false;
-  }
-  const lastIdx = barcode.length-1;
-  return calculateCheckDigit(barcode.slice(0, lastIdx))==barcode[lastIdx];// use == since we are comparing a string to a number
-}
-
-const isDigit = c => ('0123456789'.split('')).includes(c);
-const isNumericString = s => s.split('').every(isDigit);
-
-function addCheckDigit(barcode) {
-
-  // return unaltered barcode if not a numeric string
-  if( !barcode || !isNumericString( barcode ) ) {
-    return barcode;
-  }
-
-  return barcode + calculateCheckDigit(barcode);
-}
-
 
 // Column class
 export class Column {
@@ -505,7 +465,7 @@ export class Sheet {
 
           r[barcodeColumn.name] = `${ r[barcodeColumn.name] }`; // ensure the barcode is a string
 
-          if( validateCheckDigit( r[barcodeColumn.name] ) && r[barcodeColumn.name].length < 12 ) {
+          if( validateCheckDigit( r[barcodeColumn.name] ) && r[barcodeColumn.name].length < 12 && r[barcodeColumn.name].length > 8 ) {
 
             r[barcodeColumn.name] =  `${ '0'.repeat( 12 - r[barcodeColumn.name].length ) }${r[barcodeColumn.name]}`;
 
@@ -555,7 +515,7 @@ export class Sheet {
         r[barcodeColumn.name] = addCheckDigit(r[barcodeColumn.name]);
 
       }
-      if( r[barcodeColumn.name].length < 12 ) {
+      if( r[barcodeColumn.name].length < 12 && r[barcodeColumn.name].length > 8 ) {
         this.prependUpcZerosOneRow( r, barcodeColumn.name );
       }
 

@@ -1,4 +1,8 @@
 import angular from 'angular';
+import {
+  isUpce,
+  upce2upca,
+} from '../../upc';
 
 const __PAGE_SIZE__ = 5;
 
@@ -91,21 +95,34 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
     function removeItem() {
 
-      const barcode = vm.barcodeToDecrement;
+      let barcode = vm.scannedBarcode;
 
       if( barcode ) {
 
-        const displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === barcode && _r.numRemoved + 1 <= _r[ __QUANTITY__ ] );
+        let displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === barcode && _r.numRemoved + 1 <= _r[ __QUANTITY__ ] );
+
+        if( !displayItem && isUpce( barcode ) ) { // for UPC-E, try again with the equivalent UPC-A
+
+          barcode = upce2upca( barcode );
+          displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === barcode && _r.numRemoved + 1 <= _r[ __QUANTITY__ ] );
+
+        }
 
         if( displayItem ) {
+          let removedItem;
 
-          const alreadyDecrementedItem = vm.removedItems.find( _item => _item[ __BARCODE__ ] === barcode );
-          if( alreadyDecrementedItem ) {
-            alreadyDecrementedItem.numRemoved += 1;
+          const alreadyDecrementedItemIdx = vm.removedItems.findIndex( _item => _item[ __BARCODE__ ] === barcode );
+          if( alreadyDecrementedItemIdx > -1 ) {
+
+            // removedItem already exists. Splice it out of the vm.removedItems array.
+            [ removedItem ] = vm.removedItems.splice( alreadyDecrementedItemIdx, 1 );
+            removedItem.numRemoved += 1;
+
           }
           else {
 
-            const removedItem = {
+            // new removedItem
+            removedItem = {
               numRemoved: 1,
               [ __BARCODE__ ]: displayItem[ __BARCODE__ ],
               [ __DESCRIPTION__ ]: displayItem[ __DESCRIPTION__ ],
@@ -127,9 +144,10 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
               removedItem.unitSalePrice = salePrice / quantity;
             }
 
-            vm.removedItems.push( removedItem );
-
           }
+
+          // put `removedItem` at the top of the vm.removedItems array to allow user better visibility of what they just removed.
+          vm.removedItems = [ removedItem ].concat( vm.removedItems );
 
           displayItem.numRemoved += 1;
 
@@ -138,7 +156,7 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
         }
         else {
           AudioAlertSvc.fail();
-          ModalSvc.message({ header: 'Error', body: `Cannot remove item with barcode ${barcode} from this manifest.`, type: 'error' });
+          ModalSvc.message({ header: 'Error', body: `Cannot remove item with barcode ${vm.scannedBarcode} from this manifest.`, type: 'error' });
         }
 
       }
@@ -147,7 +165,7 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
         ModalSvc.message({ header: 'Error', body: `No barcode submitted.`, type: 'error' });
       }
 
-      vm.barcodeToDecrement = '';
+      vm.scannedBarcode = '';
 
     }
 
