@@ -177,7 +177,16 @@ class Server {
       // check if client sent cookie
       const cookie = req.cookies.user;
       if ( cookie === undefined && req.user  ) {
-        res.cookie('user',JSON.stringify(req.user.getPublicInfo()), { maxAge: 900000, httpOnly: false });
+
+        res.cookie(
+          'user',
+          JSON.stringify( req.user.getPublicInfo() ),
+          {
+            // maxAge: 900000,
+            httpOnly: false
+          }
+        );
+
       }
       next();
     });
