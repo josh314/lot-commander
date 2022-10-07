@@ -350,7 +350,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
       }
 
       canRepack() {
-        return this.hasManifest() && this.toBeListed && !this.lot;
+        return this.hasManifest() && this.toBeListed && !this.isRepacked && !this.lot;
       }
 
       canMakeLot() {

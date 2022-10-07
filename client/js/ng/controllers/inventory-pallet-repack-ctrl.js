@@ -80,6 +80,7 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
       vm.refreshPalletsList = refreshPalletsList;
       vm.removeItem = removeItem;
       vm.undoRemoveItem = undoRemoveItem;
+      vm.save = save;
       vm.finish = finish;
       vm.cancel = cancel;
 
@@ -195,8 +196,11 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
     function loadPallet( pallet ) {
 
       vm.pallet = pallet;
-      vm.manifestFilename = angular.isArray(pallet.documents) && pallet.documents[0] ? pallet.documents[0].name : null;
+      if( vm.pallet.isRepacked ) {
+        ModalSvc.message( { header: 'Error', body: 'This pallet has already been repacked.', type: 'error' }, null, _ => navigate.repackPallet() );
+      }
 
+      vm.manifestFilename = angular.isArray(pallet.documents) && pallet.documents[0] ? pallet.documents[0].name : null;
       if( !vm.manifestFilename ) {
         return ModalSvc.message({ header: 'Error', body: `No manifest for pallet ${pallet.handle}.`, type: 'error' });
       }
@@ -336,23 +340,10 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
     }
 
-    async function finish() {
 
-      //  popup to ask if they're finished
-      const isConfirmed = await ModalSvc.confirm({
-        header: 'Finish and Save Manifest?',
-        html: '<p>This will close the editor and save any changes to the manifest.</p><p>Continue?</p>',
-      });
+    async function __save() {
 
-      if( !isConfirmed ) {
-        return;
-      }
-
-      let finishedMessage;
-      if( removedItemsUnchanged() ) {
-        finishedMessage = `Marked pallet as repacked.`;
-      }
-      else {
+      if( !removedItemsUnchanged() ) {
 
         // Apply the changes from vm.removedItems to vm.manifest.sheet
         const sheet = vm.manifest.getActiveSheet();
@@ -379,12 +370,60 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
           delay: 2000
         } );
 
-        finishedMessage = `Successfully saved new manifest and marked pallet as repacked.`;
       }
 
+    }
+
+
+    async function save() {
+
+      //  popup to ask if they're finished
+      const isConfirmed = await ModalSvc.confirm({
+        header: 'Save progress?',
+        html: `<p>This will save your current work, but will not finish the repacking process.</p>
+                <p>You may return to repacking this pallet at a later time.</p>
+                <p><strong>Continue?</strong></p>`,
+      });
+
+      if( !isConfirmed ) {
+        return;
+      }
+
+      await __save();
+
+      await ModalSvc.message( {
+        header: 'Saved.',
+        body: `Successfully saved removed items.`
+      } );
+
+    }
+
+
+    async function finish() {
+
+      //  popup to ask if they're finished
+      const isConfirmed = await ModalSvc.confirm({
+        header: 'Finish repacking?',
+        html: `<p>Finishing this pallet will close the editor, save any changes to the manifest, and marked the pallet as repacked.</p>
+                <p>You will not be able to return to repacking this pallet. If you will need to return to finish repacking this pallet later, use the <strong>Save progress</strong> button instead.</p>
+                <p><strong>Finish this pallet?</strong></p>`,
+      });
+
+      if( !isConfirmed ) {
+        return;
+      }
+
+      await __save();
+
       await vm.pallet.repack( true );
-      await ModalSvc.message( { header: 'Repacking complete', body: finishedMessage } );
-      navigate.reload();
+      await ModalSvc.message( { header: 'Repacking complete', body: `Successfully saved changes and marked pallet as repacked.` } );
+
+      if( vm.pallet.shipment && vm.pallet.shipment._id ) {
+        navigate.shipmentDetails( vm.pallet.shipment._id );
+      }
+      else {
+        navigate.inventoryPalletView();
+      }
 
     }
 
