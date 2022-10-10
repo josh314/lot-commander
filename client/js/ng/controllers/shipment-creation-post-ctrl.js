@@ -131,7 +131,7 @@ angular.module('myApp').controller( 'ShipmentCreationPostCtrl', [
     function processManifest() {
 
       if( !vm.manifest ) {
-        return ModalSvc.message( { header: 'Failure', body: 'Manifest could not be retieved.', type: 'error' } );
+        return ModalSvc.message( { header: 'Failure', body: 'Manifest could not be retrieved.', type: 'error' } );
       }
 
       const results = ManifestFileHandlerSvc.defaultProcessActiveManifest();

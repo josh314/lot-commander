@@ -112,6 +112,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_remove_image_modal.html',
         size: 'lg',
+        backdrop: 'static',
       });
 
       modalInstance.result.then(async function () {
@@ -256,6 +257,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_delete_lot_modal.html',
         size: 'lg',
+        backdrop: 'static',
       });
 
       modalInstance.result.then(function () {

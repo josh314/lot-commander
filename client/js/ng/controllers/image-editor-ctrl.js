@@ -74,6 +74,7 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal'
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_preview_image_edit_modal.html',
         size: 'lg',
+        backdrop: 'static',
 
         resolve: {
           image: function () {

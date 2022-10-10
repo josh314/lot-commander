@@ -12,17 +12,17 @@ function routes({ users }) {
   router.post('/change-password', changeUserPassword);
 
   router.post(
-    '/create', 
+    '/create',
     auth.isAuthorized( 'CREATE_USER' ),
     createUser
   );
   router.get(
-    '/', 
+    '/',
     auth.isAuthorized( 'VIEW_USER' ),
     listUsers
   );
   router.get(
-    '/count', 
+    '/count',
     auth.isAuthorized( 'VIEW_USER' ),
     countUsers
   );
@@ -43,7 +43,7 @@ function routes({ users }) {
     auth.isAuthorized('CHANGE_USER_PASSWORD'),
     changeUserPassword
   );
-  
+
   async function changeUserPassword( req, res ) {
 
     const user = req.params.userId ? await users.getUserById( req.params.userId ) : req.user;
@@ -73,17 +73,17 @@ function routes({ users }) {
     res.json( { status } );
 
   }
-  
+
   function createUser(req,res) {
     // find a user whose name is the same as the forms name
     // we are checking to see if the user trying to login already exists
     users.getUserByUsername( req.body.username )
       .then( user => {
-    
+
         if (user) {
           throw new Error('USER_EXISTS');
         }
-    
+
         return users.createUser({
           username: req.body.username,
           password: req.body.password,
@@ -91,7 +91,7 @@ function routes({ users }) {
           lastName: req.body.lastName,
           roles: req.body.roles
         });
-    
+
       })
       .then( _user => {
         res.json({ success: true });
@@ -104,51 +104,51 @@ function routes({ users }) {
           throw err;
         }
       });
-  
+
   }
-  
+
   function listUsers( req, res ) {
-  
+
     const numPage = parseInt( req.query.num ) || 10;
     const page = parseInt( req.query.page ) || 1;
-  
+
     const query = {
       skip: ( page - 1 ) * numPage,
       num: numPage,
       sort: req.query.sort,
       sortDir: parseInt(req.query.sort_dir),
     };
-  
+
     if( req.query.disabled ) {
       query.isDisabled = !!parseInt( req.query.disabled );
     }
-  
+
     if( req.query.superuser ) {
       query.isSuperuser = !!parseInt( req.query.superuser );
     }
-  
+
     users.list( query ).then( users => {
       res.json(users);
     });
   }
-  
+
   function countUsers( req, res ) {
-  
+
     const query = {};
-  
+
     if( req.query.disabled ) {
       query.isDisabled = !!parseInt( req.query.disabled );
     }
-  
+
     if( req.query.superuser ) {
       query.isSuperuser = !!parseInt( req.query.superuser );
     }
-  
+
     users.count( query ).then( _count => {
       res.json({ count: _count});
     });
   }
-  
+
   const handleEditUserError = ( res, userId ) => err => {
     if( err.message === 'NO_SUCH_USER' ) {
       res.json({ success: false, error: `No user with ID ${userId}.` });
@@ -157,57 +157,58 @@ function routes({ users }) {
       res.json({ success: false, error: `User can't edit self.` });
     }
     else {
-      throw err;
+      console.error( err );
+      res.json({ success: false, error: `Server error.` });
     }
   };
-  
+
   function editUserRoles (req, res) {
     const userId = req.params.userId;
     users.getUserById( userId )
       .then( user => {
-    
+
         if (!user) {
           throw new Error('NO_SUCH_USER');
         }
-    
+
         if( req.user.id === user.id ) {
           throw new Error('NO_EDIT_SELF');
         }
-    
+
         // filter to only the roles the logged in user has permission for
         const newRoles = req.body.roles.filter( role => req.user.isSuperuser || req.user.roles.includes( role ) );
-    
+
         return user.editRoles( newRoles );
-    
+
       })
       .then( _user => {
         res.json({ success: true });
       })
       .catch( handleEditUserError( res, userId ) );
-    
+
   }
-  
+
   function editUserDisabledStatus (req, res) {
     const userId = req.params.userId;
     users.getUserById( userId )
       .then( user => {
-    
+
         if (!user) {
           throw new Error('NO_SUCH_USER');
         }
-    
+
         if( req.user.id === user.id ) {
           throw new Error('NO_EDIT_SELF');
         }
-    
+
         return user.editDisabledStatus( req.body.isDisabled );
-    
+
       })
       .then( _user => {
         res.json({ success: true });
       })
       .catch( handleEditUserError( res, userId ) );
-    
+
   }
 
   return router;

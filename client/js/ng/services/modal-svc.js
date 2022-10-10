@@ -66,11 +66,12 @@ angular.module('myApp').factory( 'messageModal', [ '$uibModal', function( $uibMo
 
   return {
 
-    launch: function( message, ctrlFn, dismissFn ) {
+    launch: function( message ) {
 
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_message_modal.html',
         size: 'lg',
+        backdrop: 'static',
         resolve: {
           message: function () {
             return JSON.parse( JSON.stringify( message ) ); // deep clone
@@ -85,7 +86,7 @@ angular.module('myApp').factory( 'messageModal', [ '$uibModal', function( $uibMo
         controllerAs: '$ctrl'
       });
 
-      modalInstance.result.then(ctrlFn || function(){}, dismissFn || function(){});
+      return modalInstance.result;
     }
 
   };
@@ -103,6 +104,7 @@ angular.module('myApp').factory( 'ConfirmationModal', [ '$uibModal', function( $
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_confirmation_modal.html',
         size: 'lg',
+        backdrop: 'static',
 
         resolve: {
           message: function () {
@@ -138,6 +140,7 @@ angular.module('myApp').factory( 'WaitingModalSvc', [ '$uibModal', function( $ui
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_waiting_modal.html',
         size: 'lg',
+        backdrop: 'static',
         controller: [ '$scope','$timeout', function( $scope, $timeout ){
 
           if( waitFor && delay ) {

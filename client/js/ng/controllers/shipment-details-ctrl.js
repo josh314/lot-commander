@@ -448,15 +448,13 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
       const duplicateDocument = vm.documents.find( _d => _d.name === vm.documentToAdd.file.name );
 
       if( duplicateDocument ) {
-        ModalSvc.message(
-          { header: 'Error', body: 'This document has already been uploaded.', type: 'error' },
-          null,
-          () => {
+        return ModalSvc.message(
+          { header: 'Error', body: 'This document has already been uploaded.', type: 'error' }
+        )
+          .then( () => {
             vm.documentToAdd = initDocumentToAdd();
             FileModelSvc.startReset();
-          }
-        );
-        return;
+          });
       }
 
       if( vm.documentToAdd.documentType === 'manifest' && !ManifestFileHandlerSvc.isManifestFile( vm.documentToAdd.file.name ) ) {
@@ -615,12 +613,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
         if( found ) {
           AudioAlertSvc.warning();
-          ModalSvc.message(
-            duplicatePalletMessageObj,
-            null,
-            _ => vm.receivedPalletId = ''
-          );
-          return;
+          return ModalSvc.message( duplicatePalletMessageObj ).then( _ => vm.receivedPalletId = '' );
         }
 
         const expected = vm.shipment.palletsExpected.find( p => p.handle === vm.receivedPalletId );
@@ -639,11 +632,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
             let messageObj = _response.code === 'DUPLICATE_PALLET_HANDLE' ? duplicatePalletMessageObj : { header: 'Error', body: `Server error.`, type: 'error' };
 
-            ModalSvc.message(
-              messageObj,
-              null,
-              _ => vm.receivedPalletId = ''
-            );
+            ModalSvc.message( messageObj ).then(  _ => vm.receivedPalletId = '' );
 
           }
 
@@ -736,11 +725,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
             let messageObj = _response.code === 'DUPLICATE_PALLET_HANDLE' ? duplicatePalletMessageObj : { header: 'Error', body: `Server error.`, type: 'error' };
 
-            ModalSvc.message(
-              messageObj,
-              null,
-              _ => vm.receivedPalletId = ''
-            );
+            ModalSvc.message( messageObj ).then(  _ => vm.receivedPalletId = '' );
 
           }
 

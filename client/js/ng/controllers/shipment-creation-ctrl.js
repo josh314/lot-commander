@@ -202,12 +202,10 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
       const duplicateDocument = vm.inputs.documents.find( d => d.name === vm.inputs.documentToAdd.file.name );
 
       if( duplicateDocument ) {
-        ModalSvc.message(
-          { header: 'Error', body: 'This document has already been uploaded.', type: 'error' },
-          null,
-          _ => FileModelSvc.startReset()
-        );
-        return;
+        return ModalSvc.message(
+          { header: 'Error', body: 'This document has already been uploaded.', type: 'error' }
+        )
+          .then( _ => FileModelSvc.startReset() );
       }
 
       if( vm.inputs.documentToAdd.documentType === 'manifest' && !ManifestFileHandlerSvc.isManifestFile( vm.inputs.documentToAdd.file.name ) ) {

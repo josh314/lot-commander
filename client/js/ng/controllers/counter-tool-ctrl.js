@@ -222,6 +222,7 @@ angular.module('myApp').factory('counterToolModal', ['$uibModal', function($uibM
           </div>
           `,
         size: 'lg',
+        backdrop: 'static',
       });
 
       modalInstance.result.then(

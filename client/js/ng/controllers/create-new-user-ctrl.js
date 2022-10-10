@@ -62,10 +62,9 @@ angular.module('myApp').controller( 'CreateUserCtrl', [
 
         if(resp.success) {
           return ModalSvc.message(
-            {header: 'Success', body: `User "${vm.form.username}" successfully created`, type: 'info'},
-            navigateToHome,
-            navigateToHome
-          );
+            { header: 'Success', body: `User "${vm.form.username}" successfully created`, type: 'info' }
+          )
+            .then( navigateToHome );
         }
 
 
@@ -75,17 +74,15 @@ angular.module('myApp').controller( 'CreateUserCtrl', [
         }
         else if ( resp.message === 'UNAUTHORIZED' ) {
           return ModalSvc.message(
-            {header: 'Failure', body: `An error occured. Please try again later.`, type: 'error'},
-            navigateToHome,
-            navigateToHome
-          );
+            { header: 'Failure', body: `An error occured. Please try again later.`, type: 'error' }
+          )
+            .then( navigateToHome );
         }
         else {
           return ModalSvc.message(
-            {header: 'Failure', body: `Unauthorized to create user.`, type: 'error'},
-            navigateToHome,
-            navigateToHome
-          );
+            { header: 'Failure', body: `Unauthorized to create user.`, type: 'error' }
+          )
+            .then( navigateToHome );
         }
 
       });

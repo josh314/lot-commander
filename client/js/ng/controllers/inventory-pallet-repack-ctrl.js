@@ -197,7 +197,7 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
       vm.pallet = pallet;
       if( vm.pallet.isRepacked ) {
-        ModalSvc.message( { header: 'Error', body: 'This pallet has already been repacked.', type: 'error' }, null, _ => navigate.repackPallet() );
+        return ModalSvc.message( { header: 'Error', body: `Pallet ${pallet.handle} has already been repacked.`, type: 'error' }).then( _ => navigate.repackPallet() );
       }
 
       vm.manifestFilename = angular.isArray(pallet.documents) && pallet.documents[0] ? pallet.documents[0].name : null;
