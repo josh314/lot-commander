@@ -8,6 +8,7 @@ const incomingShipmentSchema = mongoose.Schema({
   category: String,
   condition: String,
   totalUnits: Number,
+  origin: String,
   carrier: String,
   arrivalDateExpected: Date,
   arrivalDate: Date,

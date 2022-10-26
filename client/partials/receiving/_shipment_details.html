@@ -70,6 +70,18 @@
             </dd>
           </div>
         </div>
+        <div ng-hide="$ctrl.isEditing[ 'origin' ]">
+          <dt>Origin location<span ng-hide="!$ctrl.showEditControls"> (<a href ng-click="$ctrl.openEdit( 'origin' )">edit</a>)</span></dt>
+          <dd ng-hide="$ctrl.isEditing[ 'origin' ]">
+            {{ $ctrl.shipment.origin || '----' }}
+          </dd>
+        </div>
+        <div ng-show="$ctrl.isEditing[ 'origin' ]">
+          <dt>Origin location (<a href ng-click="$ctrl.saveEdit( 'origin' )" style="color: red">save</a> or <a href ng-click="$ctrl.closeEdit( 'origin' )" style="color: red">cancel edit</a>)</dt>
+          <dd ng-show="$ctrl.isEditing[ 'origin' ]">
+            <input ng-model="$ctrl.editValue[ 'origin' ]" />
+          </dd>
+        </div>
         <div ng-hide="$ctrl.isEditing[ 'source' ]">
           <dt>Source<span ng-hide="!$ctrl.showEditControls"> (<a href ng-click="$ctrl.openEdit( 'source' )">edit</a>)</span></dt>
           <dd ng-hide="$ctrl.isEditing[ 'source' ]">

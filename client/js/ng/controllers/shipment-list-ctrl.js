@@ -86,6 +86,12 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
         optionAvailable: vm.showPurchasingData,
         noSort: true,
       },
+      origin: {
+        displayName: 'Origin',
+        active: true,
+        optionAvailable: true,
+        noSort: true,
+      },
       source: {
         displayName: 'Source',
         defaultSortAscending: true,
