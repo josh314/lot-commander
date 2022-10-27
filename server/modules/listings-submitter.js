@@ -8,16 +8,16 @@ const conditionBoilerplateListItems = [
 
 
 class Client {
-  constructor( { bstock, shopify, manifests } ) {
+  constructor( { bstock, shopifyAdminClient, manifests } ) {
 
     this.submitFn = {
       bstock: bstock.submitListing,
-      wholesaleninjas: shopify.submitListing.bind( shopify ),
+      wholesaleninjas: shopifyAdminClient.submitListing.bind( shopifyAdminClient ),
     };
 
     this.manifests = manifests;
 
-    this.shopify = shopify;
+    this.shopify = shopifyAdminClient;
   }
 
   getBodyBoilerplate(format) {

@@ -250,8 +250,8 @@ class Server {
       }),
     };
 
-    const Shopify = require( './modules/shopify' );
-    const shopify = new Shopify( {
+    const ShopifyAdminClient = require( './modules/shopify-admin-client' );
+    const shopifyAdminClient = new ShopifyAdminClient( {
       storeUrl: shopifyStoreConfig['prod'].url,
       apiKey: shopifyStoreConfig['prod'].auth.apiKey,
       accessToken: shopifyStoreConfig['prod'].auth.accessToken || shopifyStoreConfig['prod'].auth.password,
@@ -260,7 +260,7 @@ class Server {
     } );
 
     const ListingsSubmitter = require( './modules/listings-submitter' );
-    const listingsSubmitter = new ListingsSubmitter( { bstock, shopify, manifests } );
+    const listingsSubmitter = new ListingsSubmitter( { bstock, shopifyAdminClient, manifests } );
 
     const routerOpts = {
       bstock,

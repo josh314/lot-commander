@@ -5,7 +5,7 @@ const fs = require('fs');
 const readFile = Promise.promisify(fs.readFile);
 
 const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
-const shopifyApi = require('shopify/lib/api');
+const shopifyRestApiLib = require('shopify/lib/api');
 
 class Client {
   constructor( { storeUrl, apiVersion, apiKey, accessToken, shopifyGql, manifests } ) {
@@ -19,7 +19,7 @@ class Client {
       apiVersion
     };
 
-    this.shopifyClient = new shopifyApi.Client( shopifyClientOpts );
+    this.shopifyRestClient = new shopifyRestApiLib.Client( shopifyClientOpts );
     this.shopifyGql = shopifyGql;
     this.manifests = manifests;
   }
@@ -38,7 +38,7 @@ class Client {
         image: imgBuffer.toString('base64'),
         primary: imageObj.primary,
       };
-      return this.shopifyClient.addProductImage(imageReqOptions);
+      return this.shopifyRestClient.addProductImage(imageReqOptions);
     }
     catch(e) {
       return null; // return null if something goes wromng with image submission, including missing images
@@ -77,7 +77,7 @@ class Client {
       }
 
       console.log('Creating new Shopify product.');
-      const addProductResp = await this.shopifyClient.addProduct(product).then(_=>{
+      const addProductResp = await this.shopifyRestClient.addProduct(product).then(_=>{
         console.log(`New Shopify product created with id ${_.product.id}`);
         return _;
       });
@@ -94,13 +94,13 @@ class Client {
 
       // Set inventory tracking and SKU if requested
       const inventoryItemId = addProductResp.product.variants[0].inventory_item_id;
-      const updateInventoryItemP = this.shopifyClient.updateInventoryItem({inventoryItemId: inventoryItemId, tracked: true, sku: listing.lot.handle});
+      const updateInventoryItemP = this.shopifyRestClient.updateInventoryItem({inventoryItemId: inventoryItemId, tracked: true, sku: listing.lot.handle});
 
       //Default inventory after product creation is 0. Make adjustment to inventory if needed
       let updateInventoryLevelP = Promise.resolve(null);
       if(listing.shopifyInventory>=1) {
-        updateInventoryLevelP = this.shopifyClient.getInventoryLevels({inventoryItemId: inventoryItemId }).then(resp=>{
-          return this.shopifyClient.updateInventoryLevel({
+        updateInventoryLevelP = this.shopifyRestClient.getInventoryLevels({inventoryItemId: inventoryItemId }).then(resp=>{
+          return this.shopifyRestClient.updateInventoryLevel({
             availableAdjustment: parseInt(listing.shopifyInventory),//Note this is an adjustment from the default value
             inventoryItemId: inventoryItemId,
             locationId: resp.inventory_levels[0].location_id
@@ -128,7 +128,7 @@ class Client {
         });
         const manifest = JSON.stringify(manifestItems);
 
-        const addMetafieldP = this.shopifyClient.addProductMetafield({
+        const addMetafieldP = this.shopifyRestClient.addProductMetafield({
           productId: newProductId,
           metafield: {
             namespace: 'manifest',
@@ -149,7 +149,7 @@ class Client {
       }
 
       if(estimatedRetailValue) {
-        const addMetafieldP = this.shopifyClient.addProductMetafield({
+        const addMetafieldP = this.shopifyRestClient.addProductMetafield({
           productId: newProductId,
           metafield: {
             namespace: 'lot',
@@ -163,7 +163,7 @@ class Client {
 
       // Adding metafield for total units of lot. nOte added directly to product, not the variant
       if(listing.lot.totalUnits) {
-        const addMetafieldP = this.shopifyClient.addProductMetafield({
+        const addMetafieldP = this.shopifyRestClient.addProductMetafield({
           productId: newProductId,
           metafield: {
             namespace: 'lot',
@@ -177,7 +177,7 @@ class Client {
 
       // Adding metafield for lot manifest file location. nOte added directly to product, not the variant
       if(listing.lot.manifestFileLocation) {
-        const addMetafieldP = this.shopifyClient.addProductMetafield({
+        const addMetafieldP = this.shopifyRestClient.addProductMetafield({
           productId: newProductId,
           metafield: {
             namespace: 'manifest',
@@ -191,7 +191,7 @@ class Client {
 
       // Adding metafield for numBoxes. NOTE THIS FIELD IS DEPRECATED BUT EXISTS ON OLD DAT
       if(listing.lot.numBoxes) {
-        const addMetafieldP = this.shopifyClient.addProductVariantMetafield({
+        const addMetafieldP = this.shopifyRestClient.addProductVariantMetafield({
           productId: newProductId,
           productVariantId: newProductVariant.id,
           metafield: {
@@ -207,7 +207,7 @@ class Client {
       // Adding metafield for shippingItems. PREFERRED OVER THE DEPRECATED `numBoxes` FIELD
       if(listing.lot.shippingItems) {
         const shippingItemsJson = JSON.stringify(listing.lot.shippingItems);
-        const addMetafieldP = this.shopifyClient.addProductVariantMetafield({
+        const addMetafieldP = this.shopifyRestClient.addProductVariantMetafield({
           productId: newProductId,
           productVariantId: newProductVariant.id,
           metafield: {
@@ -222,7 +222,7 @@ class Client {
 
       // add condition metafield
       if(listing.lot.type) {
-        const addMetafieldP = this.shopifyClient.addProductMetafield({
+        const addMetafieldP = this.shopifyRestClient.addProductMetafield({
           productId: newProductId,
           metafield: {
             namespace: 'lot',
@@ -239,7 +239,7 @@ class Client {
         listingPromises.push(addMetafieldP);
       }
 
-      const result = publish ? Promise.all(listingPromises).then( _ => this.shopifyClient.publishProduct(newProductId) ) : listingPromises;
+      const result = publish ? Promise.all(listingPromises).then( _ => this.shopifyRestClient.publishProduct(newProductId) ) : listingPromises;
 
       return result;
     }
