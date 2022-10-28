@@ -13,9 +13,8 @@ const express = require('express');
 const { ClientError, AuthorizationError } = require('./errors');
 
 //====================================================
-// Modules
+// Server class
 //====================================================
-const ShopifyDumpDbClient = require('./modules/shopify-dump-db');
 
 class Server {
   constructor(config) {
@@ -211,8 +210,6 @@ class Server {
     const EventsDb = require('./modules/events-db');
     const eventsDbClient = new EventsDb.Client( this.mongooseConnection );
 
-    const shopifyDumpDbClient = new ShopifyDumpDbClient( this.mongoClient.db('ehdb') );
-
     const ModelCommander = require('./models');
     const models = new ModelCommander( this.mongooseConnection );
 
@@ -271,7 +268,6 @@ class Server {
       lotdb,
       manifests,
       manualInventoryDbClient,
-      shopifyDumpDb: shopifyDumpDbClient,
       shopifyGql: shopifyGqlClient,
       userDbClient: this.users,
     };

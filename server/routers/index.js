@@ -25,7 +25,6 @@ function routes({
   lotdb,
   manifests,
   manualInventoryDbClient,
-  shopifyDumpDb,
   shopifyGql,
   userDbClient
 }) {
@@ -53,11 +52,6 @@ function routes({
   router.use('/api/image', require('./images')( { lotdb } ) );
   router.use('/api/print', require('./print')( { inventoryCommander, lotdb: lotdb } ) );
   router.use('/api/manifests', require('./manifests')( { manifests } ) );
-  router.use(
-    '/api/reports',
-    auth.isAuthorized('VIEW_REPORT'),
-    require('./reports')( { shopifyDumpDb })
-  );
 
   router.use('/api/content', require('./content')( { shopifyGql } ) );
 
