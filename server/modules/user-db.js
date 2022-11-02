@@ -22,8 +22,8 @@ const __USER_ROLE_PERMISSIONS__ = {
     'VIEW_EVENTS'
   ],
   __FULFILLMENT__: [
-    'LIST_ORDERS',
-    'VIEW_ORDER'
+    'LIST_SHOPIFY_ORDERS',
+    'VIEW_SHOPIFY_ORDER'
   ],
   __LOTS__: [
     'VIEW_LOT',

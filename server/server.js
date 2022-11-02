@@ -220,6 +220,9 @@ class Server {
     const InventoryCommander = require('./modules/inventory-commander');
     const inventoryCommander = new InventoryCommander( models );
 
+    const ShopifyOrders = require('./modules/shopify-orders');
+    const shopifyOrders = new ShopifyOrders( models );
+
     const CountCommander = require('./modules/count-commander');
     const countCommander = new CountCommander( models.Counter );
 
@@ -269,6 +272,7 @@ class Server {
       manifests,
       manualInventoryDbClient,
       shopifyGql: shopifyGqlClient,
+      shopifyOrders,
       userDbClient: this.users,
     };
 

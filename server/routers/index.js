@@ -26,6 +26,7 @@ function routes({
   manifests,
   manualInventoryDbClient,
   shopifyGql,
+  shopifyOrders,
   userDbClient
 }) {
 
@@ -70,6 +71,10 @@ function routes({
   router.use('/api/manual-inventory', require('./manual-inventory')( { manualInventoryDb: manualInventoryDbClient } ) );
   router.use('/api/documents', require('./documents')( ) );
 
+  // shopify orders
+  router.use('/api/orders', require('./orders')( { shopifyOrders } ) );
+
+  // counter app
   router.use('/api/counters', require('./counters')( { countCommander } ) );
 
   // Shipping rates on Shopify store
