@@ -1,6 +1,3 @@
-const Promise = require('bluebird');
-
-
 /*********************************************************
 **********************************************************
 ************** Constructor function **********************
@@ -63,7 +60,7 @@ exports.Client = function( { Lot } ) {
 
   };
 
-  this.submitNewLot = Promise.method(function(lot) {
+  this.submitNewLot = function(lot) {
     //TODO: validation -> needs handle
     if(!lot.status) {
       lot.status = this.enums.status[0];
@@ -75,9 +72,9 @@ exports.Client = function( { Lot } ) {
 
     const newLot = new this.LotModel(lot);
     return newLot.save();
-  });
+  };
 
-  this.updateLot = Promise.method(async function(lot) {
+  this.updateLot = async function(lot) {
     //TODO: validation -> needs handle
     if(!lot || !lot._id)
       throw new Error('Not a valid lot.');
@@ -147,25 +144,25 @@ exports.Client = function( { Lot } ) {
       { new: true }
       // { upsert: true, new: true }
     );
-  });
+  };
 
-  this.getLotById = Promise.method(function(lotId) {
+  this.getLotById = function(lotId) {
     return this.LotModel.findOne({ _id: lotId, isDeleted: false }).populate('pallet');
-  });
+  };
 
-  this.getLotByHandle = Promise.method(function(lotHandle) {
+  this.getLotByHandle = function(lotHandle) {
     return this.LotModel.findOne({ handle: lotHandle, isDeleted: false });
-  });
+  };
 
-  this.deleteLot = Promise.method(function(lotId) {
+  this.deleteLot = function(lotId) {
     return this.LotModel.findOneAndUpdate(
       { _id: lotId },
       { $set: { isDeleted: true } },
       { new: true }
     );
-  });
+  };
 
-  this.addImage = Promise.method(function(lotId, metadata){
+  this.addImage = function(lotId, metadata){
     if(!lotId) {
       throw new Error('No lot ID submitted.');
     }
@@ -189,9 +186,9 @@ exports.Client = function( { Lot } ) {
         // { upsert: true, new: true }
       );
     });
-  });
+  };
 
-  this.setPrimaryImage = Promise.method(function(lotId, image){
+  this.setPrimaryImage = function(lotId, image){
     if(!lotId) {
       throw new Error('No lot ID submitted.');
     }
@@ -221,9 +218,9 @@ exports.Client = function( { Lot } ) {
         // { upsert: true, new: true }
       );
     });
-  });
+  };
 
-  this.removeImage = Promise.method(function(lotId, image) {
+  this.removeImage = function(lotId, image) {
     if(!lotId) {
       throw new Error('No lot ID submitted.');
     }
@@ -245,9 +242,9 @@ exports.Client = function( { Lot } ) {
         // { upsert: true, new: true }
       );
     });
-  });
+  };
 
-  this.add3pManifest = Promise.method(function(lotId, manifestData) {
+  this.add3pManifest = function(lotId, manifestData) {
     if(!lotId) {
       throw new Error('No lot ID submitted.');
     }
@@ -265,6 +262,6 @@ exports.Client = function( { Lot } ) {
       lot.thirdPartyManifests.push(manifestData);
       return lot.save();
     });
-  });
+  };
 };
 

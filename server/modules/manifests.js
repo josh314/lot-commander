@@ -1,7 +1,5 @@
 const path = require('path');
 
-const Promise = require('bluebird');
-
 const documentSvc = require('./document-svc');
 const manifestSvc = require('./manifest-svc');
 
@@ -140,10 +138,8 @@ module.exports = function( { lotdb } ) {
     }
 
     const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.toObject().inventory) : Promise.resolve([]);
-    const thirdPartyManifestP = Promise.resolve([]); // placeholder
-    return Promise.join(scannedManifestP, thirdPartyManifestP).spread(async (scannedInventory, thirdPartyInventory)=>{
-      const inventory = scannedInventory.concat(thirdPartyInventory);
-      return buildManifestItems(inventory, opts);
+    return scannedManifestP.then( (scannedInventory) => {
+      return buildManifestItems( scannedInventory , opts );
     });
   }
 
@@ -160,7 +156,7 @@ module.exports = function( { lotdb } ) {
 
     if( docListResp && docListResp.documents && docListResp.documents[0] ) {
 
-      const docStream = documentSvc.get( { 
+      const docStream = documentSvc.get( {
         folder: documentSvc.folder( 'inventory-pallet' )( palletId ),
         name: docListResp.documents[0].name
       } );

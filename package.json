@@ -29,7 +29,6 @@
     "axios": "^0.19.2",
     "barcodes": "git+ssh://git@gitlab.com/josh314/barcodes.git#1.2.1",
     "bcrypt-nodejs": "0.0.3",
-    "bluebird": "^3.5.5",
     "bootstrap": "^3.4.1",
     "bootswatch": "^3.4.1",
     "bstock": "git+ssh://git@gitlab.com/josh314/bstock.git#1.0.0",

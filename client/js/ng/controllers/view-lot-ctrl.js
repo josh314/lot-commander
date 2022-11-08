@@ -78,6 +78,13 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     vm.lot = lotStore;
 
+
+    /*************************************************
+    * Images
+    * =========
+    *
+    ************/
+
     const initializeAllThumbnailImages = () => {
       for(let i=0; i<lotStore.inventory.length; i++) {
         const item = lotStore.inventory[i];
@@ -99,15 +106,18 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
         ModalSvc.message( { header: 'Error', body: resp.error, type: 'error' } );
       }
     }
+
     async function uploadImages() {
-      const resp = await ImageSvc.uploadLotImages(lotStore, vm.imagesToUpload);
-      if(resp.error) {
-        console.log(resp);
-      }
-      else {
-        navigate.reload();
-      }
+
+      await ModalSvc.wait( {
+        waitFor: ImageSvc.uploadLotImages(lotStore, vm.imagesToUpload),
+        delay: 5000
+      } );
+
+      navigate.reload();
+
     }
+
     function removeImage(image) {
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_remove_image_modal.html',
@@ -128,7 +138,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       });
     }
 
-
     function editImage( image ) {
       if(image.s3) {
         ImageSvc.setStore(image);
@@ -138,6 +147,14 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
         ModalSvc.message( { header: 'Error', body: 'This image cannot be edited.', type: 'error' } );
       }
     }
+
+
+    /*************************************************
+    * Editing
+    * =========
+    *
+    ************/
+
 
     function editLot() {
       const modalInstance = $uibModal.open({

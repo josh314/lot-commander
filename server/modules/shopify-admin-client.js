@@ -1,8 +1,5 @@
-const Promise = require('bluebird');
-
 const path = require('path');
-const fs = require('fs');
-const readFile = Promise.promisify(fs.readFile);
+const fs = require('fs').promises;
 
 const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
 const shopifyRestApiLib = require('shopify/lib/api');
@@ -31,7 +28,7 @@ class Client {
         imgBuffer = ( await imageServer.get({ s3Location: imageObj.s3 }) ).Body;
       }
       else {
-        imgBuffer = await readFile( path.join(__basedir, __config.imgPath, imageObj.filename) );
+        imgBuffer = await fs.readFile( path.join(__basedir, __config.imgPath, imageObj.filename) );
       }
       const imageReqOptions = {
         productId: productId,

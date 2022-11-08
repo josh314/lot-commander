@@ -3,7 +3,6 @@ const fs = require('fs');
 
 const express = require('express');
 const dayjs = require('dayjs');
-const Promise = require('bluebird');
 
 const formidable = require('formidable');
 
@@ -375,7 +374,7 @@ function routes({ inventoryCommander, lotdb }) {
 
         }
 
-        res.json( Promise.all( fileUploads ) );
+        res.json( await Promise.all( fileUploads ) );
 
       }
       catch (e) {

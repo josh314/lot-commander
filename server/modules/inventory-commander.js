@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const Promise = require('bluebird');
 const dayjs = require('dayjs');
 
 const {
@@ -509,7 +508,7 @@ class InventoryCommander {
     if( deletePallets ) {
 
       pallets = await Promise.all(
-        Promise.map( shipment.palletsReceived, pallet => pallet.delete() )
+        shipment.palletsReceived.map( pallet => pallet.delete() )
       );
 
     }
@@ -697,7 +696,7 @@ class InventoryCommander {
     if( deletePallets ) {
 
       pallets = await Promise.all(
-        Promise.map( shipment.palletsReceived, pallet => pallet.delete() )
+        shipment.palletsReceived.map( pallet => pallet.delete() )
       );
 
     }

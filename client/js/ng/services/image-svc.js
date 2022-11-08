@@ -1,5 +1,4 @@
 import angular from "angular";
-import * as Promise from "bluebird";
 
 import errorImg from '../../../030-warning.svg';
 import * as api from '../../api';
@@ -16,7 +15,7 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
 
     /**
     * Returns a function which loads an image.
-    * 
+    *
     * @param {number} timeout - how long to wait for image to load before giving up (in milliseconds)
     * @param {string} [placeholderImg] - an image to use as a placeholder if the requested image is not found
     */
@@ -39,7 +38,7 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
               img.src = placeholderImg;
               resolve(img);
             }
-            else { 
+            else {
               resolve(null);
             }
             // reject(new Error('fuck'));
@@ -61,7 +60,7 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
       let img;
       if(!images || !images.length) {
         img = new Image();
-        img.src = errorImg; 
+        img.src = errorImg;
       }
       else {
         img = await Promise.any( images.map( this.loadImageWithTimeoutAndPlaceholder(1000, errorImg) ) );
@@ -79,16 +78,24 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
     };
 
     svc.uploadLotImages = (lot, images) => {
-      return Promise.map(images, (image)=>{
-        return fileUpload.uploadFileToUrl(image, urls.upload, { lotId: lot._id, primary: false });
-      });
+
+      const uploads = [];
+
+      for( let image of images ) {
+        uploads.push(
+          fileUpload.uploadFileToUrl(image, urls.upload, { lotId: lot._id, primary: false })
+        );
+      }
+
+      return Promise.all( uploads );
+
     };
 
     svc.updateLotPrimaryImage = (lot, image) => {
       return $q.when( api.setPrimaryLotImage( lot._id, image ) );
     };
 
-    svc.removeLotImage = async (lot, image) => {      
+    svc.removeLotImage = async (lot, image) => {
       const data = {
         lotId: lot._id,
         image: image

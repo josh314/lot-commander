@@ -132,7 +132,6 @@ const userRoleHasPermission = permission => role => {
 //=======================================
 
 const mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
 
 //======================================
 //======================================

@@ -2,17 +2,6 @@
 // Styles
 import './less/app.less';
 
-// third-party lib configuration
-import * as Promise from 'bluebird';
-// Using an eslint config comment to prevent a false positive linting error
-// eslint-disable-next-line angular/module-getter
-Promise.config({
-  // These are production settings for using bluebird: see http://bluebirdjs.com/docs/install.html
-  longStackTraces: false,
-  warnings: false
-});
-
-
 // Angular setup
 import "./js/ng/app";
 

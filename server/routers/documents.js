@@ -6,7 +6,6 @@ const documentSvc = require('../modules/document-svc');
 
 const fs = require('fs');
 const formidable = require('formidable');
-const Promise = require('bluebird');
 
 module.exports = routes;
 
@@ -14,7 +13,7 @@ module.exports = routes;
 /**********************************************
  * Helpers
  * =======
- * 
+ *
  *********/
 
 const __SHIPMENT_DOCUMENTS_FOLDER_PREFIX__ = 'incoming-shipment';
@@ -62,7 +61,7 @@ function authEditDocumentAccess( req, res, next ) {
 /**********************************************
  * Routes function for export
  * ==========================
- * 
+ *
  **********/
 
 function routes( ) {
@@ -71,7 +70,7 @@ function routes( ) {
   /*******************************************
    * Register route handlers
    * ======
-   * 
+   *
    ****/
 
   router.get(
@@ -80,22 +79,22 @@ function routes( ) {
     listObjectDocuments
   );
   router.get(
-    '/:objectId/:documentName', 
+    '/:objectId/:documentName',
     authViewDocumentAccess,
     getObjectDocument
   );
   router.delete(
-    '/:objectId/:documentName', 
+    '/:objectId/:documentName',
     authEditDocumentAccess,
     removeObjectDocument
   );
   router.put(
-    '/:objectId/:documentName', 
+    '/:objectId/:documentName',
     authEditDocumentAccess,
     uploadObjectDocument
   );
   router.patch(
-    '/:objectId/:documentName', 
+    '/:objectId/:documentName',
     authEditDocumentAccess,
     editObjectDocumentProperties
   );
@@ -117,10 +116,8 @@ function routes( ) {
 
       if( result && result.documents ) {
 
-        result.documents = (await Promise.map(
-          result.documents,
-          async (doc) => {
-
+        const documents = await Promise.all(
+          result.documents.map( async (doc) => {
             const docTags = await documentSvc.getDocumentTags( {
               folder: documentSvc.folder( __FOLDER_PREFIX__[ req.query.object_type ] )(req.params.objectId),
               name: doc.name
@@ -132,9 +129,10 @@ function routes( ) {
             }
 
             return doc;
-          }
-        ))
-          .filter( doc => req.user.isAuthorized(doc.permission) );
+          })
+        );
+
+        result.documents = documents.filter( doc => req.user.isAuthorized(doc.permission) );
 
       }
 
@@ -146,10 +144,10 @@ function routes( ) {
   }
 
   async function getObjectDocument( req, res ) {
-  
+
     const documentName = req.params.documentName;
 
-    const stream = documentSvc.get( { 
+    const stream = documentSvc.get( {
       folder: documentSvc.folder( __FOLDER_PREFIX__[ req.query.object_type ] )( req.params.objectId ),
       name: documentName
     } );
@@ -163,7 +161,7 @@ function routes( ) {
   }
 
   function removeObjectDocument( req, res ) {
-    
+
     const documentName = req.params.documentName;
 
     documentSvc.remove({
@@ -194,7 +192,7 @@ function routes( ) {
           const [ _, f ] = file;
 
           const readStream = fs.createReadStream(f.path);
-  
+
           const tags = {
             permission: fields.isRestricted === 'true' || fields.documentType === 'invoice' ? __RESTRICTED_DOCUMENT_PERMISSION__ : '',
             documentType: fields.documentType || '',
@@ -263,9 +261,8 @@ function routes( ) {
   /**************************************
    * Return routes
    * =============
-   * 
+   *
    ************/
   return router;
 
 }
-  

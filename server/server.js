@@ -78,7 +78,6 @@ class Server {
     const mongoSettings = this.config.dbHosts.mongo;
 
     const mongoose = require('mongoose');
-    mongoose.promise = require('bluebird');
 
     this.mongoClient = await (async ( { host, port, dbName, user, password } ) => {
 
