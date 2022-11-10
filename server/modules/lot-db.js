@@ -5,12 +5,12 @@ const {
 module.exports = function( lotdbClient ) {
 
 
-  function getLotById( lotId ) {
-    return lotdbClient.getLotById( lotId );
+  function getLotById( lotId, { populate } = {} ) {
+    return lotdbClient.getLotById( lotId, { populate } );
   }
 
-  function getLotByHandle( handle ) {
-    return lotdbClient.getLotByHandle( handle );
+  function getLotByHandle( handle, { populate } = {}  ) {
+    return lotdbClient.getLotByHandle( handle, { populate } );
   }
 
   function listLots( query ) {

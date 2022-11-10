@@ -146,12 +146,50 @@ exports.Client = function( { Lot } ) {
     );
   };
 
-  this.getLotById = function(lotId) {
-    return this.LotModel.findOne({ _id: lotId, isDeleted: false }).populate('pallet');
+  this.getLotById = function( lotId, { populate } = {} ) {
+
+    const findDoc = {
+      _id: lotId,
+      isDeleted: false
+    };
+
+    let q = this.LotModel.findOne( findDoc );
+
+    if( populate ) {
+
+      for( let path of populate ) {
+
+        q = q.populate( path );
+
+      }
+
+    }
+
+    return q.exec();
+
   };
 
-  this.getLotByHandle = function(lotHandle) {
-    return this.LotModel.findOne({ handle: lotHandle, isDeleted: false });
+  this.getLotByHandle = function( lotHandle, { populate } = {} ) {
+
+    const findDoc = {
+      handle: lotHandle,
+      isDeleted: false
+    };
+
+    let q = this.LotModel.findOne( findDoc );
+
+    if( populate ) {
+
+      for( let path of populate ) {
+
+        q = q.populate( path );
+
+      }
+
+    }
+
+    return q.exec();
+
   };
 
   this.deleteLot = function(lotId) {

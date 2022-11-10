@@ -391,7 +391,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     function init() {
 
-      LotSvc.load()
+      LotSvc.load( { populate: ['pallet'] } )
         .then( lot =>{
           vm.images = lot.images;
           initializeAllThumbnailImages( lot );

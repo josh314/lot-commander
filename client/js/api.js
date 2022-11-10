@@ -46,29 +46,33 @@ export function countLots( queryParams ) {
 
 }
 
-export function getLotByHandle( handle ) {
+export function getLotByHandle( handle, { populate = [] } = {}  ) {
 
   if(!handle) {
     throw new Error('Must supply lot handle.');
   }
 
+  const populateStr = getPopulateString( populate );
+
   return axios({
     method: 'get',
-    url: `/api/lots/by-handle/${handle}`
+    url: `/api/lots/by-handle/${handle}${ populateStr || '' }`
   })
     .then( resp => resp.data && resp.data.lot );
 
 }
 
-export function getLot( lotId ) {
+export function getLot( lotId, { populate = [] } = {} ) {
 
   if(!lotId) {
     throw new Error('Must supply lot ID.');
   }
 
+  const populateStr = getPopulateString( populate );
+
   return axios({
     method: 'get',
-    url: `/api/lots/${ lotId }`
+    url: `/api/lots/${ lotId }${ populateStr || '' }`
   })
     .then( resp => resp.data && resp.data.lot );
 

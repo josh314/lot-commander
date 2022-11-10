@@ -7,6 +7,7 @@ const dayjs = require('dayjs');
 const formidable = require('formidable');
 
 const auth = require('../auth');
+const helpers = require('../helpers');
 const {
   ResourceNotFoundError
 } = require('../errors');
@@ -184,8 +185,9 @@ function routes({ inventoryCommander, lotdb }) {
     try {
 
       const lotId = req.params.lotId;
+      const populate = helpers.populationPathsFromQuery( req.query );
 
-      const lot = await lotdb.getLotById( lotId );
+      const lot = await lotdb.getLotById( lotId, { populate } );
 
       res.json( { lot } );
 
@@ -200,9 +202,11 @@ function routes({ inventoryCommander, lotdb }) {
 
     try {
       const handle = req.params.handle;
+      const populate = helpers.populationPathsFromQuery( req.query );
+      
       let response;
       if( handle ) {
-        const lot = await lotdb.getLotByHandle( handle );
+        const lot = await lotdb.getLotByHandle( handle, { populate } );
         response = { lot } ;
       }
       else {

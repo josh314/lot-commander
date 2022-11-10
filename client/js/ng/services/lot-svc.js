@@ -6,6 +6,8 @@ import * as api from '../../api';
 angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
   function( $q, $stateParams, lotStore ) {
 
+    const get = ( lotId, { populate } = {} ) => $q.when( api.getLot( lotId, { populate } ) );
+
     return {
 
       cloneImages: ( lotId, images ) => $q.when( api.cloneImages( lotId, images ) ),
@@ -20,9 +22,11 @@ angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
 
       generateManifest: ( lotId, save, bstock ) => $q.when( api.generateLotManifest( lotId, save, bstock) ),
 
+      get,
+
       getLotStore: () => lotStore,
 
-      getLotByHandle: handle => $q.when( api.getLotByHandle( handle ) ),
+      getLotByHandle: ( handle, { populate } = {} ) => $q.when( api.getLotByHandle( handle, { populate } ) ),
 
       getManifest: manifestId => $q.when( api.getManifest( manifestId ) ),
 
@@ -52,7 +56,7 @@ angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
         });
       },
 
-      load: () => $q.when( api.getLot( $stateParams.lotId ) ).then( async (lot) => {
+      load: ( { populate } = {} ) => get( $stateParams.lotId, { populate } ).then( async (lot) => {
 
         lotStore.save( lot );
 
