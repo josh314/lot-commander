@@ -1,0 +1,131 @@
+<div class="container" ng-controller="OrderQueueCtrl as $ctrl">
+  <h2>Order Queue</h2>
+
+  <div class="well-tabs">
+
+    <div style="display: flex; justify-content: flex-end;">
+      <ul class="nav nav-tabs">
+        <li role="presentation" ng-class="{ active: $ctrl.displayModeActiveIs( $ctrl.displayModes.SUMMARY ) }" ng-click="$ctrl.setDisplayModeActive( $ctrl.displayModes.SUMMARY )"><a href="#">Summary</a></li>
+        <li role="presentation" ng-class="{ active: $ctrl.displayModeActiveIs( $ctrl.displayModes.LIST ) }" ng-click="$ctrl.setDisplayModeActive( $ctrl.displayModes.LIST )"><a href="#"> List </a></li>
+      </ul>
+    </div>
+
+    <!-- Summary view -->
+    <div ng-show="$ctrl.displayModeActive === $ctrl.displayModes.SUMMARY">
+      <div class="row well well-tabs__content" style="display: flex; flex-direction: column">
+
+        <h3>Everyday bargains</h3>
+        <table class="table table-striped">
+
+          <thead><tr>
+            <th>#</th>
+            <th>product</th>
+            <th>units</th>
+          </tr></thead>
+
+          <tbody>
+            <tr ng-repeat="$eb in $ctrl.queue.everydayBargainsAggregated">
+
+              <td>{{$index+1}}</td>
+
+              <td>{{ $eb.product.title }}</td>
+
+              <td>{{ $eb.totalUnits }}</td>
+
+            </tr>
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <div class="row well well-tabs__content" style="display: flex; flex-direction: column">
+
+        <h3>Lots</h3>
+        <table class="table table-striped">
+
+          <thead><tr>
+            <th>#</th>
+            <th>Lot handle</th>
+            <th>Pallet</th>
+          </tr></thead>
+
+          <tbody>
+            <tr ng-repeat="$lotLineItem in $ctrl.queue.lotLineItems">
+
+              <td>{{$index+1}}</td>
+
+              <td><a ng-href="lots/view/{{ $lotLineItem.lot._id }}">{{ $lotLineItem.lot.handle }}</a></td>
+              <td ng-show="$lotLineItem.lot.pallet"><a href ng-click="$ctrl.showPalletDetails( $lotLineItem.lot.pallet )">{{ $lotLineItem.lot.pallet.handle }}</a></td>
+
+            </tr>
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <div class="row well well-tabs__content" style="display: flex; flex-direction: column">
+
+        <h3>Other</h3>
+        <table class="table table-striped">
+
+          <thead><tr>
+            <th>#</th>
+            <th>product</th>
+            <th>count</th>
+          </tr></thead>
+
+          <tbody>
+            <tr ng-repeat="$aggregationItem in $ctrl.queue.otherLineItemsAggregated">
+
+              <td>{{$index+1}}</td>
+
+              <td>{{ $aggregationItem.name }}</td>
+
+              <td>{{ $aggregationItem.count }}</td>
+
+            </tr>
+          </tbody>
+
+        </table>
+
+      </div>
+    </div>
+
+    <!-- List view  -->
+    <div class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.LIST">
+
+      <!-- <ng-include src="'/partials/orders/_order_list.html'"></ng-include> -->
+      <table class="table table-striped">
+
+        <thead><tr>
+          <th>#</th>
+          <th>name</th>
+          <th>quantity</th>
+          <th>units</th>
+        </tr></thead>
+
+        <tbody>
+          <tr ng-repeat="$lineItem in $ctrl.queue.lineItems">
+
+            <td>{{$index+1}}</td>
+
+            <td>{{ $lineItem.name }}</td>
+
+            <td>{{ $lineItem.quantity }}</td>
+
+            <td>{{ $lineItem.units }}</td>
+
+          </tr>
+        </tbody>
+
+      </table>
+
+
+    </div>
+
+
+  </div>
+
+</div>

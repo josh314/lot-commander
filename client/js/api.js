@@ -1020,3 +1020,32 @@ export function deleteStoreContent( gid, queryParams ) {
     .then( resp => resp.data );
 
 }
+
+/*************************************************
+* Orders
+* ======
+*
+************/
+
+export function getOrder( orderId ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/orders/${ orderId }`
+  })
+    .then( resp => resp.data.order );
+}
+export function listOrders( qp ) {
+  return axios({
+    method: 'get',
+    url: `/api/orders/?${qs.stringify(qp)}`,
+  })
+    .then( resp => resp.data.orders );
+}
+export function countOrders( qp ) {
+  return axios({
+    method: 'get',
+    url: `/api/orders/count/?${qs.stringify(qp)}`,
+  })
+    .then( resp => resp.data.count );
+}

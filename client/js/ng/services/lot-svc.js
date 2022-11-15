@@ -3,10 +3,44 @@ import angular from 'angular';
 import * as api from '../../api';
 
 /******************* Service for managing lots ***/
-angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
-  function( $q, $stateParams, lotStore ) {
+angular.module('myApp').factory( 'LotSvc', [
 
-    const get = ( lotId, { populate } = {} ) => $q.when( api.getLot( lotId, { populate } ) );
+  '$q',
+  '$stateParams',
+  'InventoryPallet',
+  'lotStore',
+
+  function(
+    
+    $q,
+    $stateParams,
+    InventoryPallet,
+    lotStore
+    
+  ) {
+
+    async function _get( lotId, { populate, hydratePallet } = {} ) {
+
+      const lot = await $q.when( api.getLot( lotId, { populate } ) );
+
+      if( lot && lot.pallet && hydratePallet ) {
+        lot.pallet = new InventoryPallet( lot.pallet );
+      }
+
+      return lot;
+    }
+
+
+    async function getLotByHandle( handle, { populate, hydratePallet } = {} ) {
+
+      const lot = await $q.when( api.getLotByHandle( handle, { populate } ) );
+
+      if( lot && lot.pallet && hydratePallet ) {
+        lot.pallet = new InventoryPallet( lot.pallet );
+      }
+
+      return lot;
+    }
 
     return {
 
@@ -22,11 +56,11 @@ angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
 
       generateManifest: ( lotId, save, bstock ) => $q.when( api.generateLotManifest( lotId, save, bstock) ),
 
-      get,
+      get: ( lotId, { populate, hydratePallet } = {} ) => $q.when( _get( lotId, { populate, hydratePallet } ) ),
+
+      getLotByHandle,
 
       getLotStore: () => lotStore,
-
-      getLotByHandle: ( handle, { populate } = {} ) => $q.when( api.getLotByHandle( handle, { populate } ) ),
 
       getManifest: manifestId => $q.when( api.getManifest( manifestId ) ),
 
@@ -56,7 +90,7 @@ angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
         });
       },
 
-      load: ( { populate } = {} ) => get( $stateParams.lotId, { populate } ).then( async (lot) => {
+      load: ( { populate } = {} ) => $q.when( _get( $stateParams.lotId, { populate } ).then( async (lot) => {
 
         lotStore.save( lot );
 
@@ -69,7 +103,7 @@ angular.module('myApp').factory( 'LotSvc', [ '$q', '$stateParams', 'lotStore',
         }
 
         return lot;
-      }),
+      }) ),
 
       saveManifest: () => {
         // This filters out completely empty lines

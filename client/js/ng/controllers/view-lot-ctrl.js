@@ -76,9 +76,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     vm.cloneImageFromSelectedUrl = () => cloneImageFromUrl( vm.imageUrlToClone );
     vm.showPalletDetails = showPalletDetails;
 
-    vm.lot = lotStore;
-
-
     /*************************************************
     * Images
     * =========
@@ -393,6 +390,9 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
       LotSvc.load( { populate: ['pallet'] } )
         .then( lot =>{
+
+          vm.lot = lotStore;
+
           vm.images = lot.images;
           initializeAllThumbnailImages( lot );
         })

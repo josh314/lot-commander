@@ -30,7 +30,10 @@ const angularLintingRules = {
   "angular/log": "off",
   "angular/no-service-method": "off",
   "angular/on-watch": "off",
+  "angular/typecheck-array": "off",
   "angular/typecheck-number": "off",
+  "angular/typecheck-object": "off",
+  "angular/typecheck-string": "off",
 };
 exportObject.rules = exportObject.rules ? Object.assign( exportObject.rules, angularLintingRules ) : angularLintingRules;
 

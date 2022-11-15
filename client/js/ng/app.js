@@ -60,6 +60,12 @@ const stateData = [
   { name: "main.inventory-pallets.to-be-listed", navName: "Pallets to be listed", navParent: 'Pallets', url: '/to-be-listed', templateUrl: '/partials/receiving/_inventory_pallets_to_be_listed.html', userPermission: 'LIST_INVENTORY_PALLETS_TO_BE_LISTED' },
   { name: "main.inventory-pallets.repack", navName: "Repack pallet", navParent: 'Pallets', url: '/{palletId}/repack', optionalParams: ['palletId'], templateUrl: '/partials/receiving/_inventory_pallet_repack.html', userPermission: { 'or': [ 'REPACK_INVENTORY_PALLET', 'EDIT_INVENTORY_PALLET' ] } },
 
+
+  // ordes
+  { name: "main.orders", abstract: true, navName: "Orders", url: "/orders", templateUrl: 'partials/_container.html'},
+  // { name: "main.orders.list", navName: 'All orders', navParent: 'Orders', url: "/list", templateUrl: 'partials/orders/_orders_list.html', userPermission: 'LIST_SHOPIFY_ORDERS' },
+  { name: "main.orders.queue", navName: 'Queue', navParent: 'Orders', url: "/queue", templateUrl: 'partials/orders/_order_queue.html', userPermission: 'LIST_SHOPIFY_ORDERS' },
+
   // Costs aggregation
   { name: "main.costs", abstract: true, navName: "Costs", url: "/costs", templateUrl: 'partials/_container.html'},
   { name: "main.costs.purchases", navName: 'Purchases', navParent: 'Costs', url: "/purchases", templateUrl: 'partials/_purchase_aggregation.html', userPermission: 'VIEW_PURCHASING_DATA' },
