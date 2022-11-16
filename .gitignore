@@ -31,8 +31,13 @@ settings.js
 dat/
 files/
 logs/
+dump/
+mongodump-tmp
 
 # assorted
+todo*
 notes
+angular-console-commands
 
+# System files
 .DS_Store

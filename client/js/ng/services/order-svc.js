@@ -154,6 +154,7 @@ angular.module('myApp').service( 'OrderSvc', [
 
       await Promise.all( allLineItems.map( _li => _li.lotLoaded ) );
       const lotLineItems = allLineItems.filter( _li => _li.lot && !_li.hasTag( 'everyday bargains' ) );
+      const unfulfilledLotLineItems = lotLineItems.filter( _li => !! _li.unfulfilledQuantity );
 
       // get the everyday bargains line items
       const everydayBargainsLineItems = allLineItems.filter( _li => _li.hasTag( 'everyday bargains' ) );
@@ -268,6 +269,8 @@ angular.module('myApp').service( 'OrderSvc', [
 
         // one-off lots
         lotLineItems,
+        unfulfilledLotLineItems,
+        
         // everyday bargains by raw line item, unbundled line items, and aggregated by units
         everydayBargainsLineItems,
         everydayBargainsUnbundledLineItems,
@@ -343,7 +346,8 @@ angular.module('myApp').factory( 'LineItem', [
           units: 100,
         },
         {
-          title: "Target Case Pack General Merchandise Lots",
+          // title: "Target Case Pack General Merchandise Lots",
+          title: "All Star Package GM",
           units: 100,
         },
       ]
