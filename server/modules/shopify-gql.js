@@ -281,6 +281,36 @@ class Client {
     }
   }
 
+  async listActiveProducts( { debug, cursor, everydayBargainsOnly } = {} ) {
+
+    const productNodeQuery = `
+      {
+        id
+        title
+        tags
+      }
+    `;
+
+    const processFn = n => ({
+      gid: n.id,
+      title: n.title,
+      tags: n.tags
+    });
+
+    let searchQuery;
+    if( everydayBargainsOnly ) {
+      searchQuery = "status:'active' AND ( tag:'everyday bargains')";
+    }
+    else {
+      searchQuery = "status:'active'";
+    }
+
+    const result = await this.getAll( 'products', productNodeQuery, { searchQuery: searchQuery, debug: debug, cursor: cursor }, processFn );
+
+    return result.products;
+
+  }
+
   async getShippingRatesTable() {
     return this.getShopMetafield( "wsn_shipping", "rate_table" );
   }
@@ -421,6 +451,117 @@ class Client {
     }
 
     const result = await this.getAll( 'productVariants', productVariantFlatRateNodeQuery, { searchQuery: searchQuery, debug: debug, cursor: cursor }, processFn );
+
+    return result.productVariants;
+  }
+
+  async getProductVariantBundle( pvid ) {
+
+    const gqlPvid = productVariantId2Gid( pvid );
+
+    const resp = await this.gqlRequest( {
+      gqlQuery: `
+        {
+          productVariant(id: "${ gqlPvid }") {
+            id
+            displayName
+            bundle: metafield(namespace:"bundle", key:"contents") {
+              value
+            }
+          }
+        }
+      `,
+      debug: false
+    });
+
+    try {
+      return JSON.parse( resp.data.productVariant.bundle.value );
+    }
+    catch(e) {
+      throw e;
+    }
+
+  }
+
+  async setProductVariantBundle( pvid, bundle, { debug = false } = {} ) {
+
+    const gqlPvid = productVariantId2Gid( pvid );
+
+    // Why JSON.stringify twice?
+    // The first time creates a normal string. The second time escapes the string which is needed to properly insert into the GraphQL query string. C'est la vie
+    const value = JSON.stringify( JSON.stringify( bundle ) );
+
+    const resp = await this.gqlRequest( {
+      gqlQuery: `
+        mutation
+        {
+          metafieldsSet(metafields: {
+            key: "contents",
+            namespace: "bundle",
+            ownerId: "${ gqlPvid }",
+            type: "json"
+            value: ${ value }
+          }) {
+            userErrors {
+              field
+              message
+            }
+            metafields {
+              id
+              value
+            }
+          }
+        }
+      `,
+      debug,
+    });
+
+    try {
+      return {
+        id: pvid,
+        value: resp.data.metafieldsSet.metafields[0].value
+      };
+    }
+    catch(e) {
+
+      try {
+        console.error( JSON.stringify(resp,null,2) );
+      }
+      catch(_) {
+        console.error(resp);
+      }
+
+      throw e;
+    }
+  }
+
+  async listProductVariantBundles( { debug, cursor } = {} ) {
+
+    const productBundleNodeQuery = `
+      {
+        id
+        displayName
+        title
+        product {
+          title
+        }
+        bundle: metafield( namespace: "bundle", key: "contents" ) {
+          value
+        }
+      }
+    `;
+
+    const processFn = n => ({
+      gid: n.id,
+      name: n.title === 'Default Title' ? n.product.title : n.displayName,
+      variantTitle: n.title,
+      productTitle: n.product.title,
+      bundle: n.bundle && JSON.parse( n.bundle.value )
+    });
+
+    const searchQuery = "product_status:'active' AND ( tag:'bundle')";
+
+    const result = await this.getAll( 'productVariants', productBundleNodeQuery, { searchQuery: searchQuery, debug: debug, cursor: cursor }, processFn );
 
     return result.productVariants;
   }

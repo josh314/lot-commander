@@ -944,6 +944,54 @@ export function setPalletBreakdownServiceRate( newRate ) {
     .then( resp => resp.data );
 }
 
+export function listActiveProducts( { everydayBargainsOnly = false } = {} ) {
+
+  const queryParams = {
+    everyday_bargains_only: everydayBargainsOnly ? 1 : 0
+  };
+
+  return axios({
+    method: 'get',
+    url: `/api/listings/products?${qs.stringify( queryParams )}`
+  })
+    .then( resp => resp.data );
+
+}
+
+export function listProductBundles() {
+
+  return axios({
+    method: 'get',
+    url: `/api/listings/bundles`
+  })
+    .then( resp => resp.data );
+
+}
+
+export function getProductBundle( gid ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/listings/bundles/${ encodeURIComponent(gid)  }`
+  })
+    .then( resp => resp.data );
+
+}
+
+export function setProductBundle( gid, bundle ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/listings/bundles/${ encodeURIComponent(gid) }`,
+    data: {
+      bundle
+    }
+  })
+    .then( resp => resp.data );
+
+}
+
+
 /*************************************************
 * Counters
 * ================

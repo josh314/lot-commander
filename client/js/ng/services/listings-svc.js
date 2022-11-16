@@ -22,6 +22,7 @@ angular.module('myApp').factory('ListingsSvc', [ '$q', function( $q ) {
       return res;
     },
 
+    // shipping rates
 
     editShippingRate: ( gid, newRate ) => $q.when( api.editStoreShippingRate( gid, newRate ) ),
 
@@ -37,8 +38,65 @@ angular.module('myApp').factory('ListingsSvc', [ '$q', function( $q ) {
 
     setPalletBreakdownServiceRate: newRate => $q.when( api.setPalletBreakdownServiceRate( newRate ) ),
 
+    // submission
+
     submitLotListing: ( lotId, listingData, publish = false ) => $q.when( api.submitLotListing( lotId, listingData, publish ) ),
 
+    // product bundles
+
+    listProductBundles: () => $q.when( api.listProductBundles() ),
+
+    getProductBundle: gid => $q.when( api.getProductBundle( gid ) ),
+
+    setProductBundle: ( gid, bundle ) => $q.when( api.setProductBundle( gid, bundle ) ),
+
+    // active listings
+
+    listActiveProducts: ( { everydayBargainsOnly = false} = {} ) => $q.when( api.listActiveProducts( { everydayBargainsOnly } ) ),
+
+  };
+
+}]);
+
+/*********************** Product Bundle Service */
+angular.module('myApp').factory( 'ProductBundlesSvc', [ 'ListingsSvc', function( ListingsSvc ) {
+
+  let bundles;
+
+  function get( gid ) {
+
+    if( !bundles ) {
+      return refresh().then( _ => bundles.find( _b => _b.gid === gid ) );
+    }
+
+    return Promise.resolve( bundles.find( _b => _b.gid === gid ) );
+  }
+
+  function list() {
+
+    if( !bundles ) {
+      return refresh().then( _ => bundles );
+    }
+
+    return Promise.resolve( bundles );
+  }
+
+  function refresh() {
+
+    return ListingsSvc.listProductBundles().then( resp => bundles = resp.bundles );
+
+  }
+
+  function set( gid, bundle ) {
+    return ListingsSvc.setProductBundle( gid, bundle ).then( refresh );
+  }
+
+
+  return {
+    get,
+    list,
+    refresh,
+    set
   };
 
 }]);

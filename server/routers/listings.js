@@ -101,6 +101,31 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
     removeShippingRate
   );
 
+  router.get(
+    '/products',
+    auth.isAuthorized( 'VIEW_STORE_CONTENT' ),
+    listActiveProducts
+  );
+
+  router.get(
+    '/bundles',
+    auth.isAuthorized( 'VIEW_STORE_CONTENT' ),
+    listProductBundles
+  );
+
+  router.get(
+    '/bundles/:productVariantId',
+    auth.isAuthorized( 'VIEW_STORE_CONTENT' ),
+    getProductBundle
+  );
+
+  router.post(
+    '/bundles/:productVariantId',
+    auth.isAuthorized( 'EDIT_STORE_CONTENT' ),
+    setProductBundle
+  );
+
+
 
   /*******************************************
    * Define Handlers
@@ -158,6 +183,22 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
 
   }
 
+  async function listActiveProducts( req, res, next ) {
+
+    try {
+
+      const everydayBargainsOnly = req.query.everyday_bargains_only ? !!parseInt(req.query.everyday_bargains_only) : false;
+
+      const products = await listings.shopify.shopifyGql.listActiveProducts( { everydayBargainsOnly } );
+
+      res.json( { products } );
+
+    }
+    catch (e) {
+      next( e );
+    }
+
+  }
 
   async function getShippingRates( req, res, next ) {
 
@@ -241,6 +282,56 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
     }
     catch (e) {
       next( e );
+    }
+
+  }
+
+  async function listProductBundles( _req, res, next ) {
+
+    try {
+
+      const bundles = await listings.shopify.shopifyGql.listProductVariantBundles(  );
+
+      res.json( { bundles } );
+    }
+    catch(e) {
+      return next(e);
+    }
+
+  }
+
+  async function getProductBundle( req, res, next ) {
+
+    const pvid = decodeURIComponent( req.params.productVariantId );
+
+    try {
+
+      const bundle = await listings.shopify.shopifyGql.getProductVariantBundle( pvid );
+
+      res.json( { bundle } );
+    }
+    catch(e) {
+      return next(e);
+    }
+
+  }
+
+  async function setProductBundle( req, res, next ) {
+
+    const debug = req.query.debug && !!parseInt( req.query.debug );
+ 
+    const pvid = decodeURIComponent( req.params.productVariantId );
+
+    const newBundle = req.body.bundle;
+
+    try {
+
+      const bundles = await listings.shopify.shopifyGql.setProductVariantBundle( pvid, newBundle, { debug } );
+
+      res.json( { bundles } );
+    }
+    catch(e) {
+      return next(e);
     }
 
   }

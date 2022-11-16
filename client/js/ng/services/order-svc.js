@@ -66,11 +66,13 @@ angular.module('myApp').service( 'OrderSvc', [
 
   '$q',
   'Order',
+  'ProductBundlesSvc',
 
   function(
 
     $q,
     Order,
+    ProductBundlesSvc,
 
   ) {
 
@@ -85,7 +87,7 @@ angular.module('myApp').service( 'OrderSvc', [
       return $q.when( api.getOrder( orderId ) );
     }
 
-    function listOrders( { filter, sort, num, page } ) {
+    function listOrders( { filter, sort, num, page, hydrateLineItems = false } ) {
 
       const query = {
         num,
@@ -99,12 +101,14 @@ angular.module('myApp').service( 'OrderSvc', [
         query.sort_dir = sort.ascending ? 1 : -1;
       }
 
-      return $q.when( api.listOrders( query ) ).then( orders => {
+      return $q.when( api.listOrders( query ) ).then( async orders => {
         if( !orders ) {
           return [];
         }
 
-        return orders.map( data => new Order( data ) );
+        await ProductBundlesSvc.refresh();
+
+        return orders.map( data => new Order( data, { hydrateLineItems } ) );
 
       });
     }
@@ -118,6 +122,7 @@ angular.module('myApp').service( 'OrderSvc', [
     }
 
     async function _unfulfilledOrderQueue() {
+
       const filter = {
         toBeFulfilled: true,
       };
@@ -143,7 +148,8 @@ angular.module('myApp').service( 'OrderSvc', [
           sort: {
             key: 'createdAt',
             ascending: true
-          }
+          },
+          hydrateLineItems: true,
         } );
 
         allOrders = allOrders.concat( orders );
@@ -152,8 +158,9 @@ angular.module('myApp').service( 'OrderSvc', [
       // Flatten lineItems arrays
       const allLineItems = allOrders.reduce( ( acc, _order ) => angular.isArray( _order.lineItems ) ? acc.concat( _order.lineItems ) : acc , [] );
 
-      await Promise.all( allLineItems.map( _li => _li.lotLoaded ) );
+      await Promise.all( allLineItems.map( _li => Promise.all( [ _li.lotLoaded, _li.bundleLoaded ] ) ) );
       const lotLineItems = allLineItems.filter( _li => _li.lot && !_li.hasTag( 'everyday bargains' ) );
+      const unfulfilledLotLineItems = lotLineItems.filter( _li => !! _li.unfulfilledQuantity );
 
       // get the everyday bargains line items
       const everydayBargainsLineItems = allLineItems.filter( _li => _li.hasTag( 'everyday bargains' ) );
@@ -162,7 +169,7 @@ angular.module('myApp').service( 'OrderSvc', [
       const everydayBargainsUnbundledLineItems = everydayBargainsLineItems.reduce( ( unbundledItems, lineItem ) => {
 
         if( lineItem.isBundle() ) {
-          unbundledItems = unbundledItems.concat( lineItem.getBundleComponents() );
+          unbundledItems = unbundledItems.concat( lineItem.bundle );
         }
         else {
           unbundledItems.push( lineItem );
@@ -268,6 +275,8 @@ angular.module('myApp').service( 'OrderSvc', [
 
         // one-off lots
         lotLineItems,
+        unfulfilledLotLineItems,
+
         // everyday bargains by raw line item, unbundled line items, and aggregated by units
         everydayBargainsLineItems,
         everydayBargainsUnbundledLineItems,
@@ -284,70 +293,59 @@ angular.module('myApp').service( 'OrderSvc', [
   }
 ]);
 
-
 /*********************** Order class */
-angular.module('myApp').factory( 'Order', [ 'LineItem', function( LineItem ) {
+angular.module('myApp').factory( 'Order', [
 
-  class Order {
+  'LineItem',
 
-    constructor( _data ) {
+  function(
 
-      Object.assign( this,
-        {  },
-        _data,
-        {
-          lineItems: _data.lineItems.map( _lineItemData => {
-            _lineItemData.order = this;
-            return new LineItem( _lineItemData );
-          } )
-        }
-      );
+    LineItem,
+
+  ) {
+
+    class Order {
+
+      constructor( _data, { hydrateLineItems = false } ) {
+
+        Object.assign( this,
+          {  },
+          _data,
+          {
+            lineItems: _data.lineItems.map( _lineItemData => {
+              if( hydrateLineItems ) {
+                _lineItemData.order = this;
+                return new LineItem( _lineItemData );
+              }
+              else {
+                return _lineItemData;
+              }
+            } )
+          }
+        );
+
+      }
 
     }
 
+    return Order;
+
   }
-
-  return Order;
-
-} ]);
+]);
 
 
 /*********************** LineItem class */
 angular.module('myApp').factory( 'LineItem', [
 
   'LotSvc',
+  'ProductBundlesSvc',
 
   function(
 
-    LotSvc
+    LotSvc,
+    ProductBundlesSvc
 
   ) {
-
-    // Is there a better solution than hardcoding? Maybe a DB collection that is updatable via lot-commander UI?
-    const bundles = {
-      'all-star-package': [
-        {
-          title: "Brand Name Cosmetics",
-          units: 100,
-        },
-        {
-          title: "Brand Name Nail Polish and Nail Products",
-          units: 100,
-        },
-        {
-          title: "Department Store Jewelry Lots",
-          units: 100,
-        },
-        {
-          title: "Personal Care/HBA Liquidation Lots (no cosmetics)",
-          units: 100,
-        },
-        {
-          title: "Target Case Pack General Merchandise Lots",
-          units: 100,
-        },
-      ]
-    };
 
     class LineItem {
 
@@ -360,13 +358,14 @@ angular.module('myApp').factory( 'LineItem', [
           _data
         );
 
-
-        // This defines a promise which is resolved once this.lot is populated (or determined to be null). Awaiting this data-field prevents `dereferencing undefined` errors.  Use it like so:
+        // These fields define a promises which resolves once this.lot and this.bundle are populated (or determined to be null).
+        // Awaiting such a data-field prevents `dereferencing undefined` errors.  Use it like so:
         //
-        // await lineItem.documentsAreLoaded;
+        // await lineItem.lotLoaded;
         // const lot = lineItem.lot.blahblah;
         //
         this.lotLoaded = this.loadLot();
+        this.bundleLoaded = this.loadBundle();
 
       }
 
@@ -387,6 +386,37 @@ angular.module('myApp').factory( 'LineItem', [
         return lot;
       }
 
+      async loadBundle() {
+
+        const _bundle = this.variant ? await ProductBundlesSvc.get( this.variant.id ) : null;
+
+        if( _bundle && Array.isArray(_bundle.bundle) ) {
+
+          this.bundle = _bundle.bundle.map( _ => {
+
+            const componentData = {
+              order: this.order,
+              parentLineItem: this,
+              name: `${_.title} - ${_.units}`,
+              product: {
+                title: _.title
+              },
+              quantity: this.unfulfilledQuantity,
+              unfulfilledQuantity: this.unfulfilledQuantity,
+              units: _.units,
+            };
+
+            return new LineItem( componentData );
+          } );
+
+        }
+        else {
+          this.bundle = null;
+        }
+
+        return this.bundle;
+      }
+
       hasTag( tag ) {
         if( this.product && this.product.tags ) {
           return this.product.tags.some( t => t === tag );
@@ -395,35 +425,7 @@ angular.module('myApp').factory( 'LineItem', [
       }
 
       isBundle() {
-        if( bundles[ this.sku ] ) {
-          return true;
-        }
-        return false;
-      }
-
-      getBundleComponents() {
-        if( !this.isBundle() ) {
-          return null;
-        }
-
-        return bundles[ this.sku ].map( _ => {
-
-          const componentData = {
-            order: this.order,
-            parentLineItem: this,
-            name: `${_.title} - ${_.units}`,
-            product: {
-              title: _.title
-            },
-            quantity: this.unfulfilledQuantity,
-            unfulfilledQuantity: this.unfulfilledQuantity,
-            units: _.units,
-          };
-
-          return new LineItem( componentData );
-        } );
-
-
+        return !!this.bundle;
       }
 
     }

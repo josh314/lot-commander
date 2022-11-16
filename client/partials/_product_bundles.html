@@ -1,0 +1,106 @@
+<div class="container" ng-controller="ProductBundlesCtrl as $ctrl">
+  <h2>Product Bundles</h2>
+
+  <div class="row well" style="display: flex; flex-direction: column">
+
+    <div class="panel panel-primary" ng-repeat="$productBundle in $ctrl.productBundles" ng-show="$ctrl.productBundles">
+
+      <div class="panel-heading">
+        <div style="display:flex;justify-content:space-between;">
+          <span>{{ $productBundle.productTitle }}</span>
+          <span>Total units: {{ $productBundle.totalUnits }}</span>
+        </div>
+      </div> <!-- END: panel heading -->
+
+      <div class="panel-body" ng-show="$productBundle.bundle">
+
+        <!-- display when not editing -->
+        <div ng-hide="$productBundle.isEditing">
+
+          <table class="table table-striped">
+            <thead><tr>
+              <th>Title</th>
+              <th>Units</th>
+            </tr></thead>
+            <tbody>	
+              <tr ng-repeat="$item in $productBundle.bundle">
+
+                <td>
+                  <span>{{ $item.product.title }}</span>
+                </td>
+
+                <td>
+                  <span>{{ $item.units }}</span>
+                </td>
+
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="display:flex;justify-content:flex-end;">
+            <div style="margin-left: 8px;">
+              <button class="btn btn-sm btn-warning" ng-click="$ctrl.openProductBundleEdit( $productBundle )">Edit</button>
+            </div>
+          </div>
+
+        </div> <!-- END: display when not editing -->
+
+
+        <!-- display when editing -->
+        <div ng-show="$productBundle.isEditing">
+
+          <table class="table table-striped">
+            <thead><tr>
+              <th>Title</th>
+              <th>Units</th>
+              <th></th> <!-- remove button -->
+            </tr></thead>
+            <tbody>	
+              <tr ng-repeat="$editItem in $productBundle.editBundle">
+                <td>
+                  <select class="form-control" ng-model="$editItem.product">
+                    <option ng-repeat="$product in $ctrl.products track by $product.gid" 
+                            ng-value="$product"
+                            ng-show="$ctrl.showProductInChooserForProductBundleEditItem( $product, $productBundle, $editItem )"
+                      >
+                        {{ $product.title }}
+                      </option>
+                  </select>
+                </td>
+                <td>
+                  <input class="form-control" type="number" ng-model="$editItem.units">
+                </td>
+                <td>
+                  <button class="btn btn-xs btn-danger">
+                    <span class="glyphicon glyphicon-remove" ng-click="$ctrl.removeProductBundleEditItem( $productBundle, $index )"></span></span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="display:flex;justify-content:center;">
+            <div>
+              <button class="btn btn-sm btn-primary" ng-click="$ctrl.addProductBundleEditItem( $productBundle )">Add Item</button>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;">
+            <div style="margin-left: 8px;">
+              <button class="btn btn-sm btn-success" ng-click="$ctrl.saveProductBundleEdit( $productBundle )" ng-disabled="!$ctrl.validateProductBundleEdit( $productBundle )">Save</button>
+            </div>
+            <div style="margin-left: 8px;">
+              <button class="btn btn-sm btn-danger" ng-click="$ctrl.cancelProductBundleEdit( $productBundle )">Cancel</button>
+            </div>
+          </div>
+  
+
+        </div> <!-- END: display when editing -->
+
+      </div> <!-- END: panel body -->
+
+    </div> <!-- END: panel -->
+
+  </div>
+
+</div>
