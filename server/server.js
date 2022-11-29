@@ -162,9 +162,14 @@ class Server {
 
     this.app.post('/login', auth.authenticate({ success: '/', failure: '/login' }) );
 
-    this.app.get('/logout', function(req, res) {
-      req.logout();
-      res.redirect('/');
+    this.app.get('/logout', function( req, res, next ) {
+      req.logout( err => {
+
+        if (err) { return next(err); }
+        res.redirect('/');
+
+      });
+
     });
 
     const cookieParser = require('cookie-parser');

@@ -67,14 +67,14 @@ function routes( { lotdb } ) {
     form.parse(req, function (err, fields, files) {
       const fileUploads = [];
       for(let [_, f] of Object.entries(files)){
-        const s = imageServer.store(fields.lotId, f.path, f.name).then(resp=>{
+        const s = imageServer.store(fields.lotId, f.filepath, f.originalFilename).then(resp=>{
           if(resp) {
             return lotdb.addImage(fields.lotId, { s3: resp.Location });
           }
         })
           .then(_=>{
-            console.log(`Unlinking temp file ${f.path}`);
-            fs.promises.unlink(f.path);
+            console.log(`Unlinking temp file ${f.filepath}`);
+            fs.promises.unlink(f.filepath);
             return _;
           });
         fileUploads.push(s);
@@ -112,7 +112,7 @@ function routes( { lotdb } ) {
     form.parse(req, function (err, fields, files) {
       const fileUploads = [];
       for(let [_, f] of Object.entries(files)){
-        const s = imageServer.replace(fields.s3, f.path);
+        const s = imageServer.replace(fields.s3, f.filepath);
         fileUploads.push(s);
       }
       res.json(Promise.all(fileUploads));
