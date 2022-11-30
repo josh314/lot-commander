@@ -95,7 +95,7 @@ angular.module('myApp').service( 'InventoryPalletManagerSvc', [
 
       getPalletId: _palletId,
 
-      get: ( palletId, { populate = [] } ) => $q.when( api.getInventoryPallet( palletId, { populate } ) ).then( resp => new InventoryPallet( resp.pallet ) ),
+      get: ( palletId, { populate = [] } ) => $q.when( api.getInventoryPallet( palletId, { populate } ) ).then( resp => new InventoryPallet( resp.pallet, { loadDocuments: true } ) ),
 
       list: ( { filter, sort, num, page } ) => {
 
@@ -116,7 +116,7 @@ angular.module('myApp').service( 'InventoryPalletManagerSvc', [
             return [];
           }
 
-          return pallets.map( data => new InventoryPallet( data ) );
+          return pallets.map( data => new InventoryPallet( data, { loadDocuments: true } ) );
 
         });
       },
@@ -153,7 +153,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
     class InventoryPallet {
 
-      constructor( _data ) {
+      constructor( _data, { loadDocuments = true } = {} ) {
 
 
         Object.assign( this,
@@ -162,12 +162,12 @@ angular.module('myApp').factory( 'InventoryPallet', [
           [ 'brokendownDate', 'repackedDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
         );
 
-        // This defines a promise which is resolved once this.documents is populated. Awaiting this data-field prevents `dereferncing undefined` errors.  Use it like so:
+        // This defines a promise which is resolved once this.documents is populated. Awaiting this data-field prevents `dereferencing undefined` errors.  Use it like so:
         //
         // await pallet.documentsAreLoaded;
         // const manifest = pallet.documents[0];
         //
-        this.documentsAreLoaded = this.loadDocuments();
+        this.documentsAreLoaded = loadDocuments ? this.loadDocuments() : Promise.resolve(null);
 
       }
 

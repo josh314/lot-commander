@@ -172,8 +172,8 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
         Object.assign(
           shipment,
           {
-            palletsReceived: _data.palletsReceived.map( _ => new InventoryPallet( _ ) ),
-            palletsConsolidated: _data.palletsConsolidated.map( _ => new InventoryPallet( _ ) )
+            palletsReceived: _data.palletsReceived.map( _ => new InventoryPallet( _, { loadDocuments: true } ) ),
+            palletsConsolidated: _data.palletsConsolidated.map( _ => new InventoryPallet( _, { loadDocuments: true } ) )
           }
         );
       }

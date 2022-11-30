@@ -19,24 +19,34 @@ angular.module('myApp').factory( 'LotSvc', [
     
   ) {
 
-    async function _get( lotId, { populate, hydratePallet } = {} ) {
+    async function _get( lotId, { populate, hydratePallet, hydratePalletNoDocuments } = {} ) {
 
       const lot = await $q.when( api.getLot( lotId, { populate } ) );
 
-      if( lot && lot.pallet && hydratePallet ) {
-        lot.pallet = new InventoryPallet( lot.pallet );
+      if( lot && lot.pallet ) {
+        if( hydratePallet ) {
+          lot.pallet = new InventoryPallet( lot.pallet, { loadDocuments: true } );
+        }
+        else if( hydratePalletNoDocuments ) {
+          lot.pallet = new InventoryPallet( lot.pallet, { loadDocuments: false } );
+        }
       }
 
       return lot;
     }
 
 
-    async function getLotByHandle( handle, { populate, hydratePallet } = {} ) {
+    async function getLotByHandle( handle, { populate, hydratePallet, hydratePalletNoDocuments } = {} ) {
 
       const lot = await $q.when( api.getLotByHandle( handle, { populate } ) );
 
-      if( lot && lot.pallet && hydratePallet ) {
-        lot.pallet = new InventoryPallet( lot.pallet );
+      if( lot && lot.pallet ) {
+        if( hydratePallet ) {
+          lot.pallet = new InventoryPallet( lot.pallet, { loadDocuments: true } );
+        }
+        else if( hydratePalletNoDocuments ) {
+          lot.pallet = new InventoryPallet( lot.pallet, { loadDocuments: false } );
+        }
       }
 
       return lot;

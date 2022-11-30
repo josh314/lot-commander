@@ -23,7 +23,9 @@ const __USER_ROLE_PERMISSIONS__ = {
   ],
   __FULFILLMENT__: [
     'LIST_SHOPIFY_ORDERS',
-    'VIEW_SHOPIFY_ORDER'
+    'VIEW_SHOPIFY_ORDER',
+    'VIEW_LOT',
+    'VIEW_STORE_CONTENT',
   ],
   __LOTS__: [
     'VIEW_LOT',

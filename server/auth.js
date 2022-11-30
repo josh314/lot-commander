@@ -100,7 +100,7 @@ function isAuthorized( permission ) {
     if( __config.skipAuth || req.user.isAuthorized( permission ) ) {
       return next();
     }
-    return next( new AuthorizationError() );
+    return next( new AuthorizationError( req.originalUrl ) );
   };
 }
 
@@ -109,7 +109,7 @@ function isAuthorizedForAll( ...permissions ) {
     if( __config.skipAuth || !permissions || permissions.reduce( ( isAllowed, _permission ) => isAllowed && req.user.isAuthorized( _permission ), true ) ) {
       return next();
     }
-    return next( new AuthorizationError() );
+    return next( new AuthorizationError( req.originalUrl ) );
   };
 }
 
@@ -118,7 +118,7 @@ function isAuthorizedForAny( ...permissions ) {
     if( __config.skipAuth || !permissions || !permissions.length || permissions.reduce( ( isAllowed, _permission ) => isAllowed || req.user.isAuthorized( _permission ), false ) ) {
       return next();
     }
-    return next( new AuthorizationError() );
+    return next( new AuthorizationError( req.originalUrl ) );
   };
 }
 

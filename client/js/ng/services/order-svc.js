@@ -379,7 +379,7 @@ angular.module('myApp').factory( 'LineItem', [
       async loadLot() {
 
         const handle = this.sku;
-        const lot =  handle ? await LotSvc.getLotByHandle( handle, { populate: [ 'pallet' ], hydratePallet: true } ) : null;
+        const lot =  handle ? await LotSvc.getLotByHandle( handle, { populate: [ 'pallet' ], hydratePalletNoDocuments: true } ) : null;
 
         this.lot = lot;
 

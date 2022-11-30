@@ -67,8 +67,8 @@ class ChildResourceNotFoundError extends ClientError {
 }
 
 class AuthorizationError extends MyError {
-  constructor() {
-    super('UNAUTHORIZED');
+  constructor( endpoint ) {
+    super( endpoint || 'UNAUTHORIZED' );
   }
 }
 

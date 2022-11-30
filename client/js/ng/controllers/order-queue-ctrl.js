@@ -6,12 +6,14 @@ const __DISPLAY_MODE_SUMMARY__ = '__DISPLAY_MODE_SUMMARY__';
 
 angular.module('myApp').controller( 'OrderQueueCtrl', [
 
+  'LoggedInUser',
   'OrderSvc',
   'sessionTimeout',
   'ShipmentManagerSvc',
 
   function(
 
+    LoggedInUser,
     OrderSvc,
     sessionTimeout,
     ShipmentManagerSvc
@@ -53,8 +55,8 @@ angular.module('myApp').controller( 'OrderQueueCtrl', [
         return;
       }
 
-      if( pallet.shipment && !pallet.shipment.isHydrated ) {
-        const shipment = await ShipmentManagerSvc.loadShipment( { shipmentId: pallet.shipment._id, populate: [ 'palletsReceived', 'palletsConsolidated' ]  } );
+      if( LoggedInUser.hasPermission( 'VIEW_INCOMING_SHIPMENT' ) && pallet.shipment && !pallet.shipment.isHydrated ) {
+        const shipment = await ShipmentManagerSvc.loadShipment( { shipmentId: pallet.shipment, populate: [ 'palletsReceived', 'palletsConsolidated' ]  } );
         pallet.shipment = shipment;
 
       }
