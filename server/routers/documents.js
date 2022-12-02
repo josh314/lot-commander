@@ -191,7 +191,7 @@ function routes( ) {
 
           const [ _, f ] = file;
 
-          const readStream = fs.createReadStream(f.path);
+          const readStream = fs.createReadStream(f.filepath);
 
           const tags = {
             permission: fields.isRestricted === 'true' || fields.documentType === 'invoice' ? __RESTRICTED_DOCUMENT_PERMISSION__ : '',
@@ -205,8 +205,8 @@ function routes( ) {
             tags
           } );
 
-          console.log(`Unlinking temp file ${f.path}`);
-          fs.promises.unlink(f.path);
+          console.log(`Unlinking temp file ${f.filepath}`);
+          fs.promises.unlink(f.filepath);
           res.json( { success: true } );
         }
         else {

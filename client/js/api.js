@@ -274,47 +274,47 @@ export function listAuctions( query ) {
 *
 ************/
 
-// startdate and endDate should be ISO 8601 strings
-export function unitsSoldReport( { startDate, endDate, tag, binSize } ) {
-  const qp = {};
-  if(startDate) {
-    qp.start_date = startDate;
-  }
-  if(endDate) {
-    qp.end_date = endDate;
-  }
-  if(tag) {
-    qp.tag = tag;
-  }
-  if(binSize) {
-    qp.bin_size = binSize;
-  }
+// // startdate and endDate should be ISO 8601 strings
+// export function unitsSoldReport( { startDate, endDate, tag, binSize } ) {
+//   const qp = {};
+//   if(startDate) {
+//     qp.start_date = startDate;
+//   }
+//   if(endDate) {
+//     qp.end_date = endDate;
+//   }
+//   if(tag) {
+//     qp.tag = tag;
+//   }
+//   if(binSize) {
+//     qp.bin_size = binSize;
+//   }
 
-  const uri = `/api/reports/units-sold?${qs.stringify(qp)}`;
+//   const uri = `/api/reports/units-sold?${qs.stringify(qp)}`;
 
-  return axios.get(uri).then( resp => resp.data );
-}
+//   return axios.get(uri).then( resp => resp.data );
+// }
 
-// startdate and endDate should be ISO 8601 strings
-export function palletsSoldReport( { startDate, endDate, tag, binSize } ) {
-  const qp = {};
-  if(startDate) {
-    qp.start_date = startDate;
-  }
-  if(endDate) {
-    qp.end_date = endDate;
-  }
-  if(tag) {
-    qp.tag = tag;
-  }
-  if(binSize) {
-    qp.bin_size = binSize;
-  }
+// // startdate and endDate should be ISO 8601 strings
+// export function palletsSoldReport( { startDate, endDate, tag, binSize } ) {
+//   const qp = {};
+//   if(startDate) {
+//     qp.start_date = startDate;
+//   }
+//   if(endDate) {
+//     qp.end_date = endDate;
+//   }
+//   if(tag) {
+//     qp.tag = tag;
+//   }
+//   if(binSize) {
+//     qp.bin_size = binSize;
+//   }
 
-  const uri = `/api/reports/pallets-sold?${qs.stringify(qp)}`;
+//   const uri = `/api/reports/pallets-sold?${qs.stringify(qp)}`;
 
-  return axios.get(uri).then( resp => resp.data );
-}
+//   return axios.get(uri).then( resp => resp.data );
+// }
 
 /*************************************************
 * Users

@@ -349,7 +349,7 @@ function routes({ inventoryCommander, lotdb }) {
       try {
         const fileUploads = [];
         for(let [_, f] of Object.entries(files)){
-          const readStream = fs.createReadStream(f.path);
+          const readStream = fs.createReadStream(f.filepath);
 
           const lot = await lotdb.getLotById(lotId);
 
@@ -357,7 +357,7 @@ function routes({ inventoryCommander, lotdb }) {
             throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
           }
 
-          const s3Key = filename ? `${ lotId }/${ filename }` : `${ lotId }/${ lot.handle }${ path.extname(f.name)  }`;
+          const s3Key = filename ? `${ lotId }/${ filename }` : `${ lotId }/${ lot.handle }${ path.extname(f.originalFilename)  }`;
 
           const storePromise = manifestSvc.put( readStream, s3Key , true).then(resp=>{
             if(resp && resp.data) {
@@ -368,9 +368,9 @@ function routes({ inventoryCommander, lotdb }) {
             }
           })
             .then(_=>{
-              console.log(`Unlinking temp file ${f.path}`);
+              console.log(`Unlinking temp file ${f.filepath}`);
               // TODO: check the unlinking!
-              fs.promises.unlink( f.path );
+              fs.promises.unlink( f.filepath );
               return _;
             });
 
