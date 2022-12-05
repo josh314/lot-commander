@@ -5,7 +5,7 @@ const { ResourceNotFoundError } = require('../errors');
 
 // Helpers
 
-const cmpRate = ( a, b ) => {
+const cmpProductVariant = ( a, b ) => {
 
   if( a.productTitle < b.productTitle ) {
     return -1;
@@ -74,32 +74,58 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
 
 
   router.get(
-    '/shipping-rates',
+    '/shipping/rates',
     auth.isAuthorized( 'VIEW_STORE_SHIPPING_RATES' ),
-    getShippingRates
+    listShippingRates
   );
   router.post(
-    '/shipping-rates',
+    '/shipping/rates',
     auth.isAuthorized( 'EDIT_STORE_SHIPPING_RATES' ),
     editShippingRates
   );
 
   router.get(
-    '/shipping-rates/pallet-breakdown-service',
+    '/shipping/rates/pallet-breakdown-service',
     auth.isAuthorized( 'VIEW_STORE_SHIPPING_RATES' ),
     getPalletBreakdownServiceRate
   );
   router.post(
-    '/shipping-rates/pallet-breakdown-service',
+    '/shipping/rates/pallet-breakdown-service',
     auth.isAuthorized( 'EDIT_STORE_SHIPPING_RATES' ),
     setPalletBreakdownServiceRate
   );
 
   router.delete(
-    '/shipping-rates/:id',
+    '/shipping/rates/:id',
     auth.isAuthorized( 'EDIT_STORE_SHIPPING_RATES' ),
     removeShippingRate
   );
+
+
+  router.get(
+    '/shipping/configurations',
+    auth.isAuthorized( 'VIEW_STORE_SHIPPING_CONFIGURATIONS' ),
+    listShippingConfigurations
+  );
+
+  router.get(
+    '/shipping/configurations/:productVariantId',
+    auth.isAuthorized( 'VIEW_STORE_SHIPPING_CONFIGURATIONS' ),
+    getShippingConfiguration
+  );
+
+  router.post(
+    '/shipping/configurations/:productVariantId',
+    auth.isAuthorized( 'EDIT_STORE_SHIPPING_CONFIGURATIONS' ),
+    setShippingConfiguration
+  );
+
+  router.delete(
+    '/shipping/configurations/:productVariantId',
+    auth.isAuthorized( 'EDIT_STORE_SHIPPING_CONFIGURATIONS' ),
+    removeShippingConfiguration
+  );
+
 
   router.get(
     '/products',
@@ -200,7 +226,14 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
 
   }
 
-  async function getShippingRates( req, res, next ) {
+
+  /*******************************************
+   * Shipping Rate Handlers
+   * ======================
+   *
+   ****/
+
+  async function listShippingRates( req, res, next ) {
 
     try {
 
@@ -208,7 +241,7 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
 
       // const rates = await shopifyGql['prod'].listProductVariantShippingRates( { includePallets } );
       const rates = await listings.shopify.shopifyGql.listProductVariantShippingRates( { includePallets } );
-      rates.sort( cmpRate );
+      rates.sort( cmpProductVariant );
 
       res.json( { rates } );
 
@@ -242,7 +275,7 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
       const editPromises = submittedRates.filter( _ => _.id && typeof _.rate !== 'undefined' && _.rate !== null ).map( _ => listings.shopify.shopifyGql.setProductVariantShippingRate( _.id, _.rate ) );
 
       const rates = await Promise.all( editPromises );
-      rates.sort( cmpRate );
+      rates.sort( cmpProductVariant );
 
       res.json( { rates } );
 
@@ -285,6 +318,93 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
     }
 
   }
+
+
+  /*******************************************
+   * Shipping Configuration Handlers
+   * ===============================
+   *
+   ****/
+
+  async function listShippingConfigurations( req, res, next ) {
+
+    try {
+
+      const includePallets = req.query.include_pallets ? !!parseInt(req.query.include_pallets) : false;
+      const everydayBargainsOnly = req.query.everyday_bargains_only ? !!parseInt(req.query.everyday_bargains_only) : false;
+
+      const configurations = await listings.shopify.shopifyGql.listProductVariantShippingConfigurations( { includePallets, everydayBargainsOnly } );
+      configurations.sort( cmpProductVariant );
+
+      res.json( { configurations } );
+
+    }
+    catch (e) {
+      next( e );
+    }
+
+  }
+
+  async function getShippingConfiguration( req, res, next ) {
+
+    const productVariantGid = decodeURIComponent( req.params.productVariantId );
+
+    try {
+
+      const shippingConfiguration = await listings.shopify.shopifyGql.getProductVariantShippingConfiguration( productVariantGid );
+
+      res.json( { shippingConfiguration } );
+
+    }
+    catch (e) {
+      next( e );
+    }
+
+  }
+
+  async function setShippingConfiguration( req, res, next ) {
+
+    const debug = req.query.debug && !!parseInt( req.query.debug );
+ 
+    const pvid = decodeURIComponent( req.params.productVariantId );
+
+    const newShippingConfiguration = req.body.shippingConfiguration;
+
+    try {
+
+      const shippingConfiguration = await listings.shopify.shopifyGql.setProductVariantShippingConfiguration( pvid, newShippingConfiguration, { debug } );
+
+      res.json( { shippingConfiguration } );
+    }
+    catch(e) {
+      return next(e);
+    }
+
+  }
+
+  async function removeShippingConfiguration( req, res, next ) {
+
+    const productVariantGid = decodeURIComponent( req.params.productVariantId );
+
+    try {
+
+      const { success } = await listings.shopify.shopifyGql.removeProductVariantShippingConfiguration( productVariantGid );
+
+      res.json( { success } );
+
+    }
+    catch (e) {
+      next( e );
+    }
+
+  }
+
+  /*******************************************
+   * Product Bundle Handlers
+   * =======================
+   *
+   ****/
+
 
   async function listProductBundles( _req, res, next ) {
 

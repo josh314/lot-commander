@@ -475,7 +475,7 @@ class Client {
     });
 
     try {
-      return JSON.parse( resp.data.productVariant.bundle.value );
+      return resp.data.productVariant.bundle && JSON.parse( resp.data.productVariant.bundle.value );
     }
     catch(e) {
       throw e;
@@ -714,6 +714,147 @@ class Client {
 
     return { rate: parseFloat( resp.metafields[0].value ) };
   }
+
+  async getProductVariantShippingConfiguration( pvid ) {
+
+    const gqlPvid = productVariantId2Gid( pvid );
+
+    const resp = await this.gqlRequest( {
+      gqlQuery: `
+        {
+          productVariant(id: "${ gqlPvid }") {
+            id
+            displayName
+            shippingConfiguration: metafield( namespace: "shipping", key: "shippingItems" ) {
+              value
+            }
+          }
+        }
+      `,
+      debug: false
+    });
+
+    try {
+      return resp.data.productVariant.shippingConfiguration && JSON.parse( resp.data.productVariant.shippingConfiguration.value );
+    }
+    catch(e) {
+      throw e;
+    }
+  }
+
+  async setProductVariantShippingConfiguration( pvid, shippingConfiguration ) {
+
+    const gqlPvid = productVariantId2Gid( pvid );
+
+    // Why JSON.stringify twice?
+    // The first time creates a normal string. The second time escapes the string which is needed to properly insert into the GraphQL query string. C'est la vie
+    const value = JSON.stringify( JSON.stringify( shippingConfiguration ) );
+
+    const resp = await this.gqlRequest( {
+      gqlQuery: `
+        mutation
+        {
+          metafieldsSet(metafields: {
+            key: "shippingItems",
+            namespace: "shipping",
+            ownerId: "${ gqlPvid }",
+            type: "json",
+            value: ${ value }
+          }) {
+            userErrors {
+              field
+              message
+            }
+            metafields {
+              id
+              value
+            }
+          }
+        }
+      `,
+      debug: false
+    });
+
+    try {
+      return {
+        id: pvid,
+        shippingConfiguration: JSON.parse( resp.data.metafieldsSet.metafields[0].value )
+      };
+    }
+    catch(e) {
+      throw e;
+    }
+  }
+
+  async listProductVariantShippingConfigurations( { debug, cursor, includePallets, everydayBargainsOnly } = {} ) {
+
+    const productVariantShippingConfigurationNodeQuery = `
+      {
+        id
+        displayName
+        title
+        product {
+          title
+          tags
+        }
+        shippingConfiguration: metafield( namespace: "shipping", key: "shippingItems" ) {
+          value
+        }
+      }
+    `;
+
+    const processFn = n => ({
+      gid: n.id,
+      name: n.title === 'Default Title' ? n.product.title : n.displayName,
+      variantTitle: n.title,
+      productTitle: n.product.title,
+      shippingConfiguration: n.shippingConfiguration && JSON.parse( n.shippingConfiguration.value ),
+      tags: n.product.tags
+    });
+
+    let searchQuery = `product_status:'active' AND (${ includePallets ? '' : ' NOT'} tag:'collection:pallets')`;
+    if( everydayBargainsOnly ) {
+      searchQuery += " AND ( tag:'everyday bargains')";
+    }
+
+    const result = await this.getAll( 'productVariants', productVariantShippingConfigurationNodeQuery, { searchQuery: searchQuery, debug: debug, cursor: cursor }, processFn );
+
+    return result.productVariants;
+  }
+
+  async removeProductVariantShippingConfiguration( pvid ) {
+
+    const gqlPvid = productVariantId2Gid( pvid );
+
+    try {
+
+      const resp = await this.gqlRequest( {
+        gqlQuery: `
+          {
+            productVariant(id: "${ gqlPvid }") {
+              id
+              displayName
+              shippingConfiguration: metafield(namespace:"shipping", key:"shippingItems") {
+                id
+              }
+            }
+          }
+        `,
+        debug: false
+      });
+
+      const gid = resp.data.productVariant.shippingConfiguration.id;
+
+      await this.deleteMetafield( gid );
+
+      return { success: true };
+
+    }
+    catch(e) {
+      throw e;
+    }
+  }
+
 }
 
 module.exports = Client;
