@@ -1,5 +1,7 @@
 import angular from 'angular';
 
+import * as util from '../../utilities';
+
 /******************* One Modal Service to Rule Them All ******************************/
 angular.module('myApp').factory('ModalSvc', [
 
@@ -302,7 +304,7 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         }
       },
 
-      controller: [ 'LoggedInUser', 'pallet', 'StandardManifestColumnsConst', 'UtilitiesSvc', function( LoggedInUser, pallet, StandardManifestColumnsConst, UtilitiesSvc ){
+      controller: [ 'LoggedInUser', 'pallet', 'StandardManifestColumnsConst', function( LoggedInUser, pallet, StandardManifestColumnsConst ){
 
         const __BARCODE__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_BARCODE_COLUMN__;
         const __DESCRIPTION__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_DESCRIPTION_COLUMN__;
@@ -326,11 +328,11 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         vm.showPurchasingData = () => LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
 
         vm.removedItems = JSON.parse( JSON.stringify( pallet.removedItems ) );
-        vm.removedItems.forEach( _ => _.totalValue = UtilitiesSvc.displayAsMoney( _.numRemoved * _.unitRetailPrice ) );
+        vm.removedItems.forEach( _ => _.totalValue = util.displayAsMoney( _.numRemoved * _.unitRetailPrice ) );
         vm.removedItems.sort( cmpRemovedItems );
 
         vm.totalRemovedUnits = pallet.getTotalUnitsRemoved();
-        vm.totalRemovedRetailValue = UtilitiesSvc.displayAsMoney( pallet.getTotalRetailValueRemoved() );
+        vm.totalRemovedRetailValue = util.displayAsMoney( pallet.getTotalRetailValueRemoved() );
         vm.standardManifestColumns = StandardManifestColumnsConst;
 
       }],

@@ -1,5 +1,7 @@
 import angular from 'angular';
 
+import * as util from '../../utilities';
+
 
 /******************* Shipment Post Creation Page Controller *************************/
 angular.module('myApp').controller( 'ShipmentCreationPostCtrl', [
@@ -9,7 +11,6 @@ angular.module('myApp').controller( 'ShipmentCreationPostCtrl', [
   'navigate',
   'PalletManifestSvc',
   'ShipmentManagerSvc',
-  'UtilitiesSvc',
 
   function(
 
@@ -18,7 +19,6 @@ angular.module('myApp').controller( 'ShipmentCreationPostCtrl', [
     navigate,
     PalletManifestSvc,
     ShipmentManagerSvc,
-    UtilitiesSvc
 
   ) {
 
@@ -190,12 +190,12 @@ angular.module('myApp').controller( 'ShipmentCreationPostCtrl', [
     function totalComputedPalletRetailValue() {
       if( vm.pallets ) {
         const totalRetailValue = vm.pallets.reduce( (acc, _p) => acc + ( _p.retailValue ? _p.retailValue : 0 ), 0 );
-        return UtilitiesSvc.displayAsMoney( totalRetailValue );
+        return util.displayAsMoney( totalRetailValue );
       }
     }
 
     function init() {
-      vm.displayAsMoney = UtilitiesSvc.displayAsMoney;
+      vm.displayAsMoney = util.displayAsMoney;
       vm.accept = accept;
       vm.reject = reject;
       vm.totalComputedPalletUnits = totalComputedPalletUnits;

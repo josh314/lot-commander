@@ -1,19 +1,19 @@
 import angular from 'angular';
 
+import * as util from '../../utilities';
+
 //******************** Shipping Configurations page controller */
 angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
 
   'ModalSvc',
   'ShippingConfigurationsSvc',
   'sessionTimeout',
-  'UtilitiesSvc',
 
   function(
 
     ModalSvc,
     ShippingConfigurationsSvc,
     sessionTimeout,
-    UtilitiesSvc
 
   ) {
 
@@ -66,7 +66,7 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
             }
             else {
 
-              if( UtilitiesSvc.isNan( _config.variantTitle ) ) {
+              if( util.isNan( _config.variantTitle ) ) {
                 _config.variantDisplayHeader = `Variant: ${_config.variantTitle}`;
               }
               else {
@@ -134,7 +134,7 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
 
       const newItem = JSON.parse( JSON.stringify( vm.constants.presets[index] ) );
       variant.editConfig.push( newItem );
-    };
+    }
 
     function removeVariantEditShippingItem( variant, ShippingItemIdx ) {
       return variant.editConfig.splice( ShippingItemIdx, 1 );
@@ -181,7 +181,7 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
 
         for( let dimension of [ 'weight', 'height', 'length', 'width' ] ) {
 
-          if( UtilitiesSvc.isNan( item[ dimension ] ) || item[ dimension ] <= 0 ) {
+          if( util.isNan( item[ dimension ] ) || item[ dimension ] <= 0 ) {
             return false;
           }
 
@@ -268,7 +268,7 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
           'widthUnits'
         ];
 
-        const standardBox = UtilitiesSvc.createSubobject( productGroup.standardBox.dimensions, copyFields);
+        const standardBox = util.createSubobject( productGroup.standardBox.dimensions, copyFields);
 
         const shippingItems = Array( numBoxes ).fill( JSON.parse( JSON.stringify( standardBox ) ) );
 

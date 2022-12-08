@@ -1,6 +1,8 @@
 import angular from 'angular';
 import dayjs from 'dayjs';
 
+import * as util from '../../utilities';
+
 const __TODAY__ = dayjs().startOf('day');
 
 /******************* Transportation Cost Aggregation Controller *************************/
@@ -8,13 +10,11 @@ angular.module('myApp').controller( 'TransportationCostAggregationCtrl', [
 
   'sessionTimeout',
   'ShipmentManagerSvc',
-  'UtilitiesSvc',
 
   function(
 
     sessionTimeout,
     ShipmentManagerSvc,
-    UtilitiesSvc
 
   ) {
     sessionTimeout.timeoutExpired();
@@ -31,7 +31,7 @@ angular.module('myApp').controller( 'TransportationCostAggregationCtrl', [
 
       return ShipmentManagerSvc.aggregateTransportationCosts( _startDate.format(), _endDate.format(), vm.inputs.aggregationPeriod ).then( buckets => {
 
-        vm.aggregationRows = buckets.map( _ => Object.assign( _, { displayDate: UtilitiesSvc.prettifyDate( _.date ) }) );
+        vm.aggregationRows = buckets.map( _ => Object.assign( _, { displayDate: util.prettifyDate( _.date ) }) );
 
         vm.displayEndDate = _endDate.toDate().toLocaleDateString();
 

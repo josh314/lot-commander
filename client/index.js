@@ -34,7 +34,6 @@ import "./js/ng/services/shipment-manager-svc.js";
 import "./js/ng/services/shipping-items-svc.js";
 import "./js/ng/services/store-content-svc.js";
 import "./js/ng/services/user-svc.js";
-import "./js/ng/services/utilities-svc.js";
 
 
 // Angular directives

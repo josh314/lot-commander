@@ -1,6 +1,8 @@
 import angular from 'angular';
 import dayjs from 'dayjs';
 
+import * as util from '../../utilities';
+
 const __TODAY__ = dayjs().startOf('day');
 
 /******************* Pallets List Page Controller *************************/
@@ -9,14 +11,12 @@ angular.module('myApp').controller( 'PurchaseAggregationCtrl', [
   'LoggedInUser',
   'sessionTimeout',
   'ShipmentManagerSvc',
-  'UtilitiesSvc',
 
   function(
 
     LoggedInUser,
     sessionTimeout,
     ShipmentManagerSvc,
-    UtilitiesSvc,
 
   ) {
 
@@ -45,9 +45,9 @@ angular.module('myApp').controller( 'PurchaseAggregationCtrl', [
 
       return ShipmentManagerSvc.aggregateExpectedPallets( startDate, endDate ).then( pallets => {
 
-        vm.palletsAggregation = pallets.map( _p => Object.assign( {}, _p, { cost: UtilitiesSvc.displayAsMoney( _p.cost ) }));
+        vm.palletsAggregation = pallets.map( _p => Object.assign( {}, _p, { cost: util.displayAsMoney( _p.cost ) }));
 
-        vm.aggregationTotalCost = UtilitiesSvc.displayAsMoney( pallets.reduce( ( total, _p ) => _p.cost ? total + _p.cost : total , 0 ) );
+        vm.aggregationTotalCost = util.displayAsMoney( pallets.reduce( ( total, _p ) => _p.cost ? total + _p.cost : total , 0 ) );
 
         vm.aggregationTotalCount = pallets.reduce( ( total, _p ) => _p.count ? total + _p.count : total , 0 );
 

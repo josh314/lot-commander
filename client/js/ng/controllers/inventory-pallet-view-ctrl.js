@@ -1,6 +1,8 @@
 import angular from 'angular';
 import dayjs from 'dayjs';
 
+import * as util from '../../utilities';
+
 const __PAGE_SIZE__ = 25;
 const __USER_SETTINGS_SUBKEY__ = 'inventory-pallet-view-page';
 const __DISPLAY_MODE_LIST__ = '__DISPLAY_MODE_LIST__';
@@ -18,7 +20,6 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
   'sessionTimeout',
   'SettingsSvc',
   'ShipmentManagerSvc',
-  'UtilitiesSvc',
 
   function(
 
@@ -30,7 +31,6 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
     sessionTimeout,
     SettingsSvc,
     ShipmentManagerSvc,
-    UtilitiesSvc,
 
   ) {
 
@@ -176,9 +176,9 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
 
       return InventoryPalletManagerSvc.aggregate( date ).then( pallets => {
 
-        vm.palletsAggregation = pallets.map( _p => Object.assign( {}, _p, { cost: UtilitiesSvc.displayAsMoney( _p.cost ) }));
+        vm.palletsAggregation = pallets.map( _p => Object.assign( {}, _p, { cost: util.displayAsMoney( _p.cost ) }));
 
-        vm.aggregationTotalCost = UtilitiesSvc.displayAsMoney( pallets.reduce( ( total, _p ) => _p.cost ? total + _p.cost : total , 0 ) );
+        vm.aggregationTotalCost = util.displayAsMoney( pallets.reduce( ( total, _p ) => _p.cost ? total + _p.cost : total , 0 ) );
 
         vm.aggregationTotalCount = pallets.reduce( ( total, _p ) => _p.count ? total + _p.count : total , 0 );
 

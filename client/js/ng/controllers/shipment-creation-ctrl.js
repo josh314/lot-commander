@@ -1,5 +1,6 @@
 import angular from 'angular';
 
+import * as util from '../../utilities';
 
 class ShipmentValidator {
   constructor( inputs ) {
@@ -65,7 +66,6 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
   'palletProperties',
   'sessionTimeout',
   'ShipmentManagerSvc',
-  'UtilitiesSvc',
 
   function(
 
@@ -77,7 +77,6 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
     palletProperties,
     sessionTimeout,
     ShipmentManagerSvc,
-    UtilitiesSvc,
 
   ) {
 
@@ -223,7 +222,7 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
       const documentToAdd = {
         file: vm.inputs.documentToAdd.file,
         name: vm.inputs.documentToAdd.file.name,
-        size: UtilitiesSvc.humanReadableFileSize( vm.inputs.documentToAdd.file.size ),
+        size: util.humanReadableFileSize( vm.inputs.documentToAdd.file.size ),
         documentType: vm.inputs.documentToAdd.documentType,
         isRestricted: vm.inputs.documentToAdd.isRestricted,
       };

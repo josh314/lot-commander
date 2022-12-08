@@ -1,6 +1,7 @@
 import angular from 'angular';
 
 import * as api from '../../api';
+import * as util from '../../utilities';
 
 /***************************************
  * Helpers
@@ -154,8 +155,8 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'L
 
 
 /******************* Constructor for Shipment Objects *************************/
-angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'UtilitiesSvc',
-  function( $q, InventoryPallet, UtilitiesSvc ) {
+angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet',
+  function( $q, InventoryPallet ) {
     const datify = dString => dString ? new Date( dString ) : null;
 
     const buildAnonymousPalletHandle = ( shipmentHandle , number ) => `${ shipmentHandle }_${ number }`;
@@ -277,7 +278,7 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
           const documents = resp.documents || [];
 
           return {
-            documents: documents.map( d => Object.assign( d, { displaySize: UtilitiesSvc.humanReadableFileSize(d.size), documentType: d.documentType || '' } )  )
+            documents: documents.map( d => Object.assign( d, { displaySize: util.humanReadableFileSize(d.size), documentType: d.documentType || '' } )  )
           };
         }
 
@@ -324,7 +325,7 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet', 'U
           const documents = resp.documents || [];
 
           return {
-            documents: documents.map( d => Object.assign( d, { displaySize: UtilitiesSvc.humanReadableFileSize(d.size), documentType: d.documentType || '' } )  )
+            documents: documents.map( d => Object.assign( d, { displaySize: util.humanReadableFileSize(d.size), documentType: d.documentType || '' } )  )
           };
         }
 

@@ -1,13 +1,15 @@
 import angular from 'angular';
 
+import * as util from '../../utilities';
+
 const prettifyDate = dt => dt && dt.toLocaleDateString();
 
 const __PAGE_SIZE__ = 25;
 const __USER_SETTINGS_SUBKEY__ = 'shipment-list-page';
 
 /******************* Shipment List Page Controller *************************/
-angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'navigate', 'sessionTimeout', 'SettingsSvc', 'ShipmentManagerSvc', 'UtilitiesSvc',
-  function( LoggedInUser, navigate, sessionTimeout, SettingsSvc, ShipmentManagerSvc, UtilitiesSvc ) {
+angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'navigate', 'sessionTimeout', 'SettingsSvc', 'ShipmentManagerSvc',
+  function( LoggedInUser, navigate, sessionTimeout, SettingsSvc, ShipmentManagerSvc ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -78,7 +80,7 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
         active: false,
         optionAvailable: vm.showPurchasingData,
         noSort: true,
-        transform: UtilitiesSvc.displayAsMoney.bind( UtilitiesSvc ),
+        transform: util.displayAsMoney.bind( util ),
       },
       transportationCost: {
         displayName: 'Transportation Cost',

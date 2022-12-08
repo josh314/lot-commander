@@ -1,6 +1,7 @@
 import angular from 'angular';
 
 import * as api from '../../api';
+import * as util from '../../utilities';
 
 /***************************************
  * Helpers
@@ -139,13 +140,11 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
   '$q',
   'ModalSvc',
-  'UtilitiesSvc',
 
   function(
 
     $q,
     ModalSvc,
-    UtilitiesSvc,
 
   ) {
 
@@ -312,7 +311,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
             const documents = resp.documents || [];
 
             return {
-              documents: documents.map( d => Object.assign( d, { displaySize: UtilitiesSvc.humanReadableFileSize(d.size), documentType: d.documentType || '' } )  )
+              documents: documents.map( d => Object.assign( d, { displaySize: util.humanReadableFileSize(d.size), documentType: d.documentType || '' } )  )
             };
           }
 
@@ -386,7 +385,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
   }
 ]);
 
-angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser', 'UtilitiesSvc', function( LoggedInUser, UtilitiesSvc ) {
+angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser', function( LoggedInUser ) {
 
   const showPurchasingData = LoggedInUser.hasPermission( 'VIEW_PURCHASING_DATA' );
   const showMakeLot = LoggedInUser.hasPermission( 'CREATE_LOT' );
@@ -437,7 +436,7 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
       optionName: 'Created',
       header: 'Created',
       defaultSortAscending: false,
-      transform: UtilitiesSvc.prettifyDate.bind( UtilitiesSvc ),
+      transform: util.prettifyDate.bind( util ),
       permitted: true,
       defaultActive: true,
       optionAvailable: true
@@ -453,7 +452,7 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
     brokendownDate: {
       optionName: 'Brokendown on',
       header: 'Brokendown on',
-      transform: UtilitiesSvc.prettifyDate.bind( UtilitiesSvc ),
+      transform: util.prettifyDate.bind( util ),
       permitted: true,
       defaultActive: false,
       optionAvailable: true
@@ -469,7 +468,7 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
     repackedDate: {
       optionName: 'Repacked date',
       header: 'Repacked date',
-      transform: UtilitiesSvc.prettifyDate.bind( UtilitiesSvc ),
+      transform: util.prettifyDate.bind( util ),
       permitted: true,
       defaultActive: false,
       optionAvailable: true
@@ -496,7 +495,7 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
       permitted: showPurchasingData,
       defaultActive: false,
       optionAvailable: showPurchasingData,
-      transform: UtilitiesSvc.displayAsMoney.bind( UtilitiesSvc ),
+      transform: util.displayAsMoney.bind( util ),
       noSort: true,
     },
     repackPallet: {

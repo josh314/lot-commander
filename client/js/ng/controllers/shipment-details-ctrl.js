@@ -1,5 +1,7 @@
 import angular from 'angular';
 
+import * as util from '../../utilities';
+
 /******************* Shipment Details Page Controller *************************/
 angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
@@ -17,7 +19,6 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
   'PrintSvc',
   'sessionTimeout',
   'ShipmentManagerSvc',
-  'UtilitiesSvc',
 
   function (
 
@@ -35,7 +36,6 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     PrintSvc,
     sessionTimeout,
     ShipmentManagerSvc,
-    UtilitiesSvc,
 
   ) {
 
@@ -109,8 +109,8 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
     vm.viewHistory = viewHistory;
 
-    vm.htmlifyText = UtilitiesSvc.htmlifyText;
-    vm.displayAsMoney = UtilitiesSvc.displayAsMoney;
+    vm.htmlifyText = util.htmlifyText;
+    vm.displayAsMoney = util.displayAsMoney;
 
     vm.expectedPalletsSectionTitle = () => `Expected Pallets${vm.shipment &&vm.shipment.palletsExpected && vm.shipment.palletsExpected.length ? ` (${vm.shipment.palletsExpected.length})`: ''}`;
     vm.receivedPalletsSectionTitle = () => `Received Pallets${vm.shipment &&vm.shipment.palletsReceived && vm.shipment.palletsReceived.length ? ` (${vm.shipment.palletsReceived.length})`: ''}`;
