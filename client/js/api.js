@@ -878,7 +878,7 @@ export function listStoreShippingRates( qp ) {
 
   return axios({
     method: 'get',
-    url: `/api/listings/shipping-rates?${qs.stringify(queryParams)}`
+    url: `/api/listings/shipping/rates?${qs.stringify(queryParams)}`
   })
     .then( resp => resp.data.rates );
 }
@@ -896,7 +896,7 @@ export function editStoreShippingRate( pvid /* REST or GQL version*/, rate ) {
 
   return axios({
     method: 'post',
-    url: `/api/listings/shipping-rates`,
+    url: `/api/listings/shipping/rates`,
     data: data
   })
     .then( resp => resp.data.rates[0] );
@@ -907,7 +907,7 @@ export function editStoreMultipleShippingRates( rates = [ /* { id, rate }: { pro
 
   return axios({
     method: 'post',
-    url: `/api/listings/shipping-rates`,
+    url: `/api/listings/shipping/rates`,
     data: { rates }
   })
     .then( resp => resp.data.rates );
@@ -918,7 +918,7 @@ export function removeStoreShippingRate( productVariantGid ) {
 
   return axios({
     method: 'delete',
-    url: `/api/listings/shipping-rates/${ encodeURIComponent( productVariantGid ) }`
+    url: `/api/listings/shipping/rates/${ encodeURIComponent( productVariantGid ) }`
   })
     .then( resp => resp.data );
 }
@@ -927,7 +927,7 @@ export function getPalletBreakdownServiceRate() {
 
   return axios({
     method: 'get',
-    url: `/api/listings/shipping-rates/pallet-breakdown-service`
+    url: `/api/listings/shipping/rates/pallet-breakdown-service`
   })
     .then( resp => resp.data );
 }
@@ -936,12 +936,55 @@ export function setPalletBreakdownServiceRate( newRate ) {
 
   return axios({
     method: 'post',
-    url: `/api/listings/shipping-rates/pallet-breakdown-service`,
+    url: `/api/listings/shipping/rates/pallet-breakdown-service`,
     data: {
       rate: newRate
     }
   })
     .then( resp => resp.data );
+}
+
+export function listShippingConfigurations( { everydayBargainsOnly, includePallets } = {} ) {
+
+  const queryParams = {};
+
+  if( typeof everydayBargainsOnly !== 'undefined' ) {
+    queryParams.everyday_bargains_only = everydayBargainsOnly ? 1 : 0;
+  }
+
+  if( typeof includePallets !== 'undefined' ) {
+    queryParams.include_pallets = includePallets ? 1 : 0;
+  }
+
+  return axios({
+    method: 'get',
+    url: `/api/listings/shipping/configurations?${ qs.stringify( queryParams ) }`
+  })
+    .then( resp => resp.data );
+
+}
+
+export function getShippingConfiguration( gid ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/listings/shipping/configurations/${ encodeURIComponent(gid)  }`
+  })
+    .then( resp => resp.data );
+
+}
+
+export function setShippingConfiguration( gid, shippingConfiguration ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/listings/shipping/configurations/${ encodeURIComponent(gid) }`,
+    data: {
+      shippingConfiguration
+    }
+  })
+    .then( resp => resp.data );
+
 }
 
 export function listActiveProducts( { everydayBargainsOnly = false } = {} ) {

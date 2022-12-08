@@ -79,6 +79,7 @@ import "./js/ng/controllers/shipment-creation-ctrl.js";
 import "./js/ng/controllers/shipment-creation-post-ctrl.js";
 import "./js/ng/controllers/shipment-details-ctrl.js";
 import "./js/ng/controllers/shipment-list-ctrl.js";
+import "./js/ng/controllers/shipping-configurations-ctrl.js";
 import "./js/ng/controllers/shipping-items-modal-ctrl.js";
 import "./js/ng/controllers/store-content-ctrl.js";
 import "./js/ng/controllers/store-shipping-rates-ctrl.js";

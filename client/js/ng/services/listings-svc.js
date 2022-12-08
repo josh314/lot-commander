@@ -42,6 +42,15 @@ angular.module('myApp').factory('ListingsSvc', [ '$q', function( $q ) {
 
     submitLotListing: ( lotId, listingData, publish = false ) => $q.when( api.submitLotListing( lotId, listingData, publish ) ),
 
+    // shipping configs
+
+    listShippingConfigurations: ( { everydayBargainsOnly, includePallets } ) => $q.when( api.listShippingConfigurations( { everydayBargainsOnly, includePallets } ) ),
+
+    getShippingConfiguration: gid => $q.when( api.getShippingConfiguration( gid ) ),
+
+    setShippingConfiguration: ( gid, configuration ) => $q.when( api.setShippingConfiguration( gid, configuration ) ),
+
+
     // product bundles
 
     listProductBundles: () => $q.when( api.listProductBundles() ),
@@ -93,6 +102,72 @@ angular.module('myApp').factory( 'ProductBundlesSvc', [ 'ListingsSvc', function(
 
 
   return {
+    get,
+    list,
+    refresh,
+    set
+  };
+
+}]);
+
+
+/*********************** Listing Shipping Configuration Service */
+angular.module('myApp').factory( 'ShippingConfigurationsSvc', [ 'ListingsSvc', 'ShippingItemsSvc', function( ListingsSvc, ShippingItemsSvc ) {
+
+  let configurations;
+
+  function get( gid ) {
+
+    if( !configurations ) {
+      return refresh().then( _ => configurations.find( _b => _b.gid === gid ) );
+    }
+
+    return Promise.resolve( configurations.find( _b => _b.gid === gid ) );
+  }
+
+  function list( { everydayBargainsOnly, includePallets, refreshCache } = {} ) {
+
+    if( refreshCache || !configurations ) {
+      return refresh( { everydayBargainsOnly, includePallets } ).then( _ => configurations );
+    }
+
+    return Promise.resolve( configurations );
+  }
+
+  function refresh( { everydayBargainsOnly, includePallets } = {} ) {
+
+    return ListingsSvc.listShippingConfigurations( { everydayBargainsOnly, includePallets } ).then( resp => {
+
+      configurations = resp.configurations;
+
+      configurations.forEach( _c => _c.shippingConfiguration = _c.shippingConfiguration || [] );
+
+    });
+
+  }
+
+  function set( gid, configuration, refreshCache = true ) {
+
+    let p = ListingsSvc.setShippingConfiguration( gid, configuration );
+
+    if( refreshCache ) {
+
+      p = p.then( refreshCache );
+
+    }
+
+    return p;
+  }
+
+
+  return {
+
+    constants: {
+      presets: ShippingItemsSvc.presets,
+      lengthUnitsEnum: ShippingItemsSvc.lengthUnitsEnum,
+      weightUnitsEnum: ShippingItemsSvc.weightUnitsEnum,
+    },
+
     get,
     list,
     refresh,

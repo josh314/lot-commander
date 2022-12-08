@@ -77,6 +77,7 @@ const stateData = [
   // Store
   { name: "main.store", abstract: true, navName: 'Store', url: '/store', templateUrl: '/partials/_container.html' },
   { name: "main.store.shipping-rates", navParent: 'Store', navName: 'Shipping Rates', url: '/shipping-rates', templateUrl: '/partials/_store_shipping_rates.html', userPermission: 'EDIT_STORE_SHIPPING_RATES' },
+  { name: "main.store.shipping-configurations", navParent: 'Store', navName: 'Shipping Configs', url: '/shipping-configurations', templateUrl: '/partials/_shipping_configurations.html', userPermission: 'EDIT_STORE_SHIPPING_CONFIGURATIONS' },
   { name: "main.store.content", navParent: 'Store', navName: 'Content', url: '/content', templateUrl: '/partials/_store_content.html', userPermission: 'EDIT_STORE_CONTENT' },
   { name: "main.store.bundles", navParent: 'Store', navName: 'Bundles', url: '/bundles', templateUrl: '/partials/_product_bundles.html', userPermission: 'EDIT_STORE_CONTENT' },
 

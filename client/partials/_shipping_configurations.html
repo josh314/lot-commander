@@ -1,0 +1,178 @@
+<div class="container" ng-controller="ShippingConfigurationsCtrl as $ctrl">
+  <h2>Product Shipping Configurations</h2>
+
+
+  <div class="row well" style="display: flex; flex-direction: column">
+
+
+    <div class="panel panel-primary" ng-repeat="$productGroup in $ctrl.productGroups" ng-show="$ctrl.productGroups">
+
+      <div class="panel-heading">
+        <div style="display:flex;justify-content:space-between;">
+          <span>{{ $productGroup.title }}</span>
+          <!-- <span>Total units: {{ $productBundle.totalUnits }}</span> -->
+        </div>
+      </div> <!-- END: panel heading -->
+
+
+      <div class="panel-body">
+
+        <fieldset class="box-border" ng-show="$ctrl.showProductGroupStandardBoxControls( $productGroup )">
+          <legend class="box-border">Set standard box</legend>
+
+          <h6>Set a standard box only if <strong>every variant</strong> of this product ships as multiples of the same box configuration. Otherwise configure each variant individually below.</h6>
+          <div style="display: flex; justify-content: flex-end;">
+            <button class="btn btn-xs btn-success" ng-click="$ctrl.updateProductGroupShippingItems( $productGroup )">Save</button>
+          </div>
+
+          <table class="table table-striped">
+            <thead><tr>
+              <th>Weight</th>
+              <th>Height</th>
+              <th>Length</th>
+              <th>Width</th>
+              <th>Units</th>
+            </tr></thead>
+            <tbody>
+              <tr>
+
+                <td>
+                  <input type="number" min="0" class="hide-controls" style="width: 4em" ng-model="$productGroup.standardBox.dimensions.weight">
+                  <select ng-model="$productGroup.standardBox.dimensions.weightUnits"><option ng-repeat="$unit in $ctrl.constants.weightUnitsEnum">{{ $unit }}</option></select>
+                </td>
+                <td>
+                  <input type="number" min="0" class="hide-controls" style="width: 4em" ng-model="$productGroup.standardBox.dimensions.height">
+                  <select ng-model="$productGroup.standardBox.dimensions.heightUnits"><option ng-repeat="$unit in $ctrl.constants.lengthUnitsEnum">{{ $unit }}</option></select>
+                </td>
+                <td>
+                  <input type="number" min="0" class="hide-controls" style="width: 4em" ng-model="$productGroup.standardBox.dimensions.length">
+                  <select ng-model="$productGroup.standardBox.dimensions.lengthUnits"><option ng-repeat="$unit in $ctrl.constants.lengthUnitsEnum">{{ $unit }}</option></select>
+                </td>
+                <td>
+                  <input type="number" min="0" class="hide-controls" style="width: 4em" ng-model="$productGroup.standardBox.dimensions.width">
+                  <select ng-model="$productGroup.standardBox.dimensions.widthUnits"><option ng-repeat="$unit in $ctrl.constants.lengthUnitsEnum">{{ $unit }}</option></select>
+                </td>
+                <td>
+                  <input type="number" min="0" class="hide-controls" style="width: 4em" ng-model="$productGroup.standardBox.units">
+                </td>
+
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="text-center">
+            <span ng-repeat="$preset in $ctrl.constants.presets">
+              <button class="btn btn-primary btn-sm text-center" ng-click="$ctrl.setProductGroupStandardBoxToPreset( $productGroup, $index )">Preset ({{ $preset.name }})</button>
+            </span>
+          </div>
+
+        </fieldset>
+
+
+
+        <h3>Shipping configurations</h3>
+
+        <div ng-repeat="$variant in $productGroup.variants">
+
+          <fieldset class="box-border">
+            <legend class="box-border">{{ $variant.variantDisplayHeader }}</legend>
+
+            <div style="display: flex; justify-content: flex-end;">
+              <span ng-hide="$variant.isEditing">
+                <button class="btn btn-xs btn-primary" ng-click="$ctrl.openVariantEdit( $variant )">Edit</button>
+              </span>
+              <span ng-show="$variant.isEditing" >
+                <button class="btn btn-xs btn-success" ng-click="$ctrl.saveShippingConfigurationEdit( $variant )">Save</button>
+                <button class="btn btn-xs btn-danger" ng-click="$ctrl.cancelVariantEdit( $variant )">Cancel</button>
+              </span>
+            </div>
+
+            <div ng-hide="$variant.isEditing">
+
+              <table class="table table-striped">
+                <thead><tr>
+                  <th>Item No.</th>
+                  <th>Weight</th>
+                  <th>Height</th>
+                  <th>Length</th>
+                  <th>Width</th>
+                </tr></thead>
+                <tbody>
+                  <tr ng-repeat="$item in $variant.shippingConfiguration track by $index">
+                    <td>{{ $index + 1 }}</td>
+                    <td>
+                      {{ $item.weight }} {{ $item.weightUnits }}
+                    </td>
+                    <td>
+                      {{ $item.height }} {{ $item.heightUnits }}
+                    </td>
+                    <td>
+                      {{ $item.length }} {{ $item.lengthUnits }}
+                    </td>
+                    <td>
+                      {{ $item.width }} {{ $item.widthUnits }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </div> <!-- END is ng-hide isEditing -->
+
+            <div ng-show="$variant.isEditing">
+
+              <table class="table table-striped">
+                <thead><tr>
+                  <th>Item No.</th>
+                  <th>Weight</th>
+                  <th>Height</th>
+                  <th>Length</th>
+                  <th>Width</th>
+                  <th></th>
+                </tr></thead>
+                <tbody>
+                  <tr ng-repeat="$item in $variant.editConfig track by $index">
+                    <td>{{ $index + 1 }}</td>
+                    <td>
+                      <input type="number" min="0" class="hide-controls" style="width: 4em" ng-model="$item.weight">
+                      <select ng-model="$item.weightUnits"><option ng-repeat="$unit in $ctrl.constants.weightUnitsEnum">{{ $unit }}</option></select>
+                    </td>
+                    <td>
+                      <input type="number" min="0" class="hide-controls" style="width: 4em" ng-model="$item.height">
+                      <select ng-model="$item.heightUnits"><option ng-repeat="$unit in $ctrl.constants.lengthUnitsEnum">{{ $unit }}</option></select>
+                    </td>
+                    <td>
+                      <input type="number" min="0" class="hide-controls" style="width: 4em" ng-model="$item.length">
+                      <select ng-model="$item.lengthUnits"><option ng-repeat="$unit in $ctrl.constants.lengthUnitsEnum">{{ $unit }}</option></select>
+                    </td>
+                    <td>
+                      <input type="number" min="0" class="hide-controls" style="width: 4em" ng-model="$item.width">
+                      <select ng-model="$item.widthUnits"><option ng-repeat="$unit in $ctrl.constants.lengthUnitsEnum">{{ $unit }}</option></select>
+                    </td>
+
+                    <td><button class="btn btn-danger btn-xs" ng-click="$ctrl.removeVariantEditShippingItem( $variant, $index )"><span class="glyphicon glyphicon-remove"></span></button></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="text-center">
+                <button class="btn btn-primary btn-sm text-center" ng-click="$ctrl.addVariantEditShippingItem( $variant )">Add Shipping Item</button>
+                <span ng-repeat="$preset in $ctrl.constants.presets">
+                  <button class="btn btn-primary btn-sm text-center" ng-click="$ctrl.addVariantEditPresetShippingItem( $variant, $index )">Preset ({{ $preset.name }})</button>
+                </span>
+              </div>
+
+
+            </div> <!-- END is ng-show isEditing -->
+
+          </fieldset>
+
+        </div>
+
+      </div>
+
+
+    </div> <!-- END: panel -->
+
+  </div>
+
+</div>

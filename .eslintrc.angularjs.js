@@ -24,6 +24,7 @@ const angularLintingRules = {
   // Angular plugin rules
   "angular/controller-as": "off",
   "angular/controller-name": "off",
+  "angular/definedundefined": "off",
   "angular/di": [2, "array"],
   "angular/di-unused": "warn",
   "angular/json-functions": "off",
