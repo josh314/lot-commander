@@ -311,6 +311,42 @@ class Client {
 
   }
 
+  async listActiveProductVariants( { debug, cursor, everydayBargainsOnly } = {} ) {
+
+    const productVariantNodeQuery = `
+      {
+        id
+        title
+        product {
+          id
+          title
+          tags
+        }
+      }
+    `;
+
+    const processFn = n => ({
+      gid: n.id,
+      title: n.title,
+      tags: n.product ? n.product.tags : [],
+      productGid: n.product && n.product.id,
+      productTitle: n.product && n.product.title,
+    });
+
+    let searchQuery;
+    if( everydayBargainsOnly ) {
+      searchQuery = "product_status:'active' AND ( tag:'everyday bargains')";
+    }
+    else {
+      searchQuery = "product_status:'active'";
+    }
+
+    const result = await this.getAll( 'productVariants', productVariantNodeQuery, { searchQuery: searchQuery, debug: debug, cursor: cursor }, processFn );
+
+    return result.productVariants;
+
+  }
+
   async getShippingRatesTable() {
     return this.getShopMetafield( "wsn_shipping", "rate_table" );
   }

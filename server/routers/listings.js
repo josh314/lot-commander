@@ -134,6 +134,12 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
   );
 
   router.get(
+    '/product-variants',
+    auth.isAuthorized( 'VIEW_STORE_CONTENT' ),
+    listActiveProductVariants
+  );
+
+  router.get(
     '/bundles',
     auth.isAuthorized( 'VIEW_STORE_CONTENT' ),
     listProductBundles
@@ -218,6 +224,23 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
       const products = await listings.shopify.shopifyGql.listActiveProducts( { everydayBargainsOnly } );
 
       res.json( { products } );
+
+    }
+    catch (e) {
+      next( e );
+    }
+
+  }
+
+  async function listActiveProductVariants( req, res, next ) {
+
+    try {
+
+      const everydayBargainsOnly = req.query.everyday_bargains_only ? !!parseInt(req.query.everyday_bargains_only) : false;
+
+      const productVariants = await listings.shopify.shopifyGql.listActiveProductVariants( { everydayBargainsOnly } );
+
+      res.json( { productVariants } );
 
     }
     catch (e) {

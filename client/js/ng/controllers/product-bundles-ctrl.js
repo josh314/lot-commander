@@ -1,6 +1,6 @@
 import angular from 'angular';
 
-// Helpers
+import * as util from '../../utilities';
 
 const cmpByTitle = (a,b) => {
   if( !a || !a.title ) {
@@ -41,8 +41,6 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
 
       sessionTimeout.timeoutExpired();
 
-      vm.showProductInChooserForProductBundleEditItem = showProductInChooserForProductBundleEditItem;
-
       vm.openProductBundleEdit = openProductBundleEdit;
       vm.cancelProductBundleEdit = cancelProductBundleEdit;
       vm.addProductBundleEditItem = addProductBundleEditItem;
@@ -64,14 +62,31 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
           const displayBundles = bundles.map( _bundle => {
             const res = Object.assign( {}, _bundle );
 
-            res.bundle = _bundle.bundle.map( _ => {
-              return {
-                units: _.units,
-                product: vm.products.find( _product => _product.gid === _.gid )
-              };
-            });
+            const isBundleDefined = _bundle && Array.isArray( _bundle.bundle );
 
-            res.totalUnits = res.bundle.reduce( ( _total, _bundle ) => _total += _bundle && angular.isNumber( _bundle.units ) ? _bundle.units : 0, 0 );
+            if( isBundleDefined ) {
+              res.bundle = _bundle.bundle.map( _ => {
+
+                const productVariant = vm.productVariants.find( _pv => _pv.gid === _.gid );
+  
+                if( !util.isNan( parseInt( productVariant.title ) ) ) {
+                  productVariant.units = parseInt( productVariant.title );
+                }
+  
+                return {
+                  variant: productVariant,
+                  quantity: _.quantity,
+                };
+              });
+            }
+            else {
+              res.bundle = [];
+            }
+
+            const everyVariantTitleIsNumerical = res.bundle.every( _item => !util.isNan( _item.variant.units ) );
+            if( everyVariantTitleIsNumerical ) {
+              res.totalUnits = res.bundle.reduce( ( _total, _item ) => _total += _item.variant.units , 0 );
+            }
 
             return res;
           } );
@@ -84,13 +99,39 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
 
     function setProductList() {
       return ListingsSvc
-        .listActiveProducts( { everydayBargainsOnly: true} )
+        .listActiveProductVariants( { everydayBargainsOnly: true } )
         .then( resp => { 
 
-          const productsForBundling = resp.products.filter( _ => !_.tags.includes( 'bundle' ) );
+          const productVariantsForBundling = resp.productVariants.filter( _ => !_.tags.includes( 'bundle' ) );
 
-          vm.products = productsForBundling.sort( cmpByTitle );
-          return productsForBundling;
+          vm.productVariants = productVariantsForBundling;
+
+          const productsForBundling = productVariantsForBundling.reduce( ( _products, _variant ) => {
+
+            const _existingProduct = _products.find( _p => _p.gid === _variant.productGid );
+
+            if( _existingProduct ) {
+              _existingProduct.variants.push( _variant );
+            }
+            else {
+
+              const _newProduct = {
+                gid: _variant.productGid,
+                title: _variant.productTitle,
+                variants: [ _variant ],
+              };
+
+              _products.push( _newProduct );
+
+            }
+
+            return _products;
+
+          }, []);
+
+          vm.products = productsForBundling.sort(cmpByTitle);
+          return vm.products;
+
         });
     }
 
@@ -100,9 +141,21 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
 
     }
 
+
+
     function resetProductBundleEdit( productBundle ) {
 
-      productBundle.editBundle = productBundle.bundle.map( _ => Object.assign( {}, { units: _.units, product: _.product } ));
+      productBundle.editBundle = productBundle.bundle.map( _bundleItem => {
+
+        const _product = vm.products.find( _p => _p.gid === _bundleItem.variant.productGid );
+
+        return {
+          quantity: _bundleItem.quantity,
+          product: _product,
+          variantGid: _bundleItem.variant.gid,
+        };
+
+      });
       productBundle.isEditing = false;
 
     }
@@ -125,7 +178,7 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
         return;
       }
 
-      const bundleToSave = productBundle.editBundle.map( _ => ({ gid: _.product.gid, title: _.product.title, units: _.units }) );
+      const bundleToSave = productBundle.editBundle.map( _ => ({ gid: _.variantGid, quantity: _.quantity }) );
 
       const p = ProductBundlesSvc.set( productBundle.gid, bundleToSave )
         .then( _ => resetProductBundleEdit( productBundle ) )
@@ -157,7 +210,11 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
           return false;
         }
 
-        if( originalItem.units !== newItem.units ) {
+        if( originalItem.variantGid !== newItem.variantGid ) {
+          return false;
+        }
+
+        if( originalItem.quantity !== newItem.quantity ) {
           return false;
         }
 
@@ -170,8 +227,8 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
 
       if( productBundle.isEditing && productBundle.editBundle ) {
 
-        const anyUnitsNonPositive = productBundle.editBundle.some( _ => !_.units || _.units <= 0 );
-        if( anyUnitsNonPositive ) {
+        const anyQuantityNonPositive = productBundle.editBundle.some( _ => !_.quantity || _.quantity <= 0 );
+        if( anyQuantityNonPositive ) {
           return false;
         }
 
@@ -180,23 +237,12 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
           return false;
         }
 
-      }
+        const variantDoesNotMatchProduct = productBundle.editBundle.some( _ => !_.product.variants.find( _v => _v.gid === _.variantGid ) );
 
-      return true;
-    }
+        if( variantDoesNotMatchProduct ) {
+          return false;
+        }
 
-    function showProductInChooserForProductBundleEditItem( product, productBundle, editItem ) {
-
-      if( editItem.product === product ) {
-        return true;
-      }
-
-      if( product.tags.includes( 'bundle' ) ) {
-        return false;
-      }
-
-      if( productBundle.editBundle.find( _ => _.product && _.product.gid === product.gid ) ) {
-        return false;
       }
 
       return true;

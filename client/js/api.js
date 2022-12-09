@@ -1001,6 +1001,20 @@ export function listActiveProducts( { everydayBargainsOnly = false } = {} ) {
 
 }
 
+export function listActiveProductVariants( { everydayBargainsOnly = false } = {} ) {
+
+  const queryParams = {
+    everyday_bargains_only: everydayBargainsOnly ? 1 : 0
+  };
+
+  return axios({
+    method: 'get',
+    url: `/api/listings/product-variants?${qs.stringify( queryParams )}`
+  })
+    .then( resp => resp.data );
+
+}
+
 export function listProductBundles() {
 
   return axios({

@@ -61,7 +61,9 @@ angular.module('myApp').factory('ListingsSvc', [ '$q', function( $q ) {
 
     // active listings
 
-    listActiveProducts: ( { everydayBargainsOnly = false} = {} ) => $q.when( api.listActiveProducts( { everydayBargainsOnly } ) ),
+    listActiveProducts: ( { everydayBargainsOnly = false } = {} ) => $q.when( api.listActiveProducts( { everydayBargainsOnly } ) ),
+
+    listActiveProductVariants: ( { everydayBargainsOnly = false } = {} ) => $q.when( api.listActiveProductVariants( { everydayBargainsOnly } ) ),
 
   };
 
