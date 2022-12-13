@@ -7,6 +7,7 @@ const __DISPLAY_MODE_SUMMARY__ = '__DISPLAY_MODE_SUMMARY__';
 angular.module('myApp').controller( 'OrderQueueCtrl', [
 
   'LoggedInUser',
+  'ModalSvc',
   'OrderSvc',
   'sessionTimeout',
   'ShipmentManagerSvc',
@@ -14,6 +15,7 @@ angular.module('myApp').controller( 'OrderQueueCtrl', [
   function(
 
     LoggedInUser,
+    ModalSvc,
     OrderSvc,
     sessionTimeout,
     ShipmentManagerSvc
@@ -41,12 +43,16 @@ angular.module('myApp').controller( 'OrderQueueCtrl', [
     }
 
     function refreshQueue() {
-      OrderSvc.unfulfilledOrderQueue()
+      const p = OrderSvc.unfulfilledOrderQueue()
         .then( queue => {
           vm.queue = queue;
           console.log( 'Order queue:' );
           console.log( vm.queue );
         });
+
+      return ModalSvc.wait( {
+        waitFor: p
+      } );
     }
 
     async function showPalletDetails( pallet ) {

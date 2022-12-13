@@ -1,6 +1,7 @@
 import angular from 'angular';
 
 import * as api from '../../api';
+import * as util from '../../utilities';
 
 /***************************************
  * Helpers
@@ -57,6 +58,14 @@ const cmpByName = (a,b) => {
   }
 };
 
+const cmpByKey = (a,b) => {
+  if( a.key > b.key ) {
+    return 1;
+  }
+  else {
+    return -1;
+  }
+};
 
 /******************* Order Service *************************/
 //
@@ -67,12 +76,14 @@ angular.module('myApp').service( 'OrderSvc', [
   '$q',
   'Order',
   'ProductBundlesSvc',
+  'ShippingConfigurationsSvc',
 
   function(
 
     $q,
     Order,
     ProductBundlesSvc,
+    ShippingConfigurationsSvc,
 
   ) {
 
@@ -106,7 +117,10 @@ angular.module('myApp').service( 'OrderSvc', [
           return [];
         }
 
-        await ProductBundlesSvc.refresh();
+        await Promise.all([
+          ProductBundlesSvc.refresh(),
+          ShippingConfigurationsSvc.refresh( { everydayBargainsOnly: true, includePallets: true } )
+        ]);
 
         return orders.map( data => new Order( data, { hydrateLineItems } ) );
 
@@ -159,11 +173,11 @@ angular.module('myApp').service( 'OrderSvc', [
       const allLineItems = allOrders.reduce( ( acc, _order ) => angular.isArray( _order.lineItems ) ? acc.concat( _order.lineItems ) : acc , [] );
 
       await Promise.all( allLineItems.map( _li => Promise.all( [ _li.lotLoaded, _li.bundleLoaded ] ) ) );
-      const lotLineItems = allLineItems.filter( _li => _li.lot && !_li.hasTag( 'everyday bargains' ) );
+      const lotLineItems = allLineItems.filter( _li => _li.lot && !_li.isEverydayBargain() );
       const unfulfilledLotLineItems = lotLineItems.filter( _li => !! _li.unfulfilledQuantity );
 
       // get the everyday bargains line items
-      const everydayBargainsLineItems = allLineItems.filter( _li => _li.hasTag( 'everyday bargains' ) );
+      const everydayBargainsLineItems = allLineItems.filter( _li => _li.isEverydayBargain() );
 
       // un-bundle line items like the all-star package
       const everydayBargainsUnbundledLineItems = everydayBargainsLineItems.reduce( ( unbundledItems, lineItem ) => {
@@ -178,43 +192,36 @@ angular.module('myApp').service( 'OrderSvc', [
         return unbundledItems;
       } , [] );
 
-      const everydayBargainsAggregated = [];
-      for( let li of everydayBargainsUnbundledLineItems ) {
+      const everydayBargainsUnbundledLineItemsFlattenedShippingItems = everydayBargainsUnbundledLineItems.flatMap( _lineItem => {
 
-        if( !li.unfulfilledQuantity ) { // ignore fulfilled line items for aggregation purposes
-          continue;
-        }
+        return _lineItem.shippingConfiguration.map( _shippingItem => {
 
-        const existingAggregationItem = everydayBargainsAggregated.find( _eb => _eb.product.title === li.product.title );
+          const productTitle = _lineItem.product.title;
+          const boxSize = `${ _shippingItem.height }x${ _shippingItem.length }x${ _shippingItem.width }`;
+          const unitsPerBox = _shippingItem.units;
+          const key = `${productTitle}:${boxSize}${unitsPerBox ? `:${unitsPerBox}` : '' }`;
 
-        if( existingAggregationItem ) {
-          existingAggregationItem.totalUnits += li.units*li.unfulfilledQuantity;
+          return Object.assign( {}, _shippingItem, { productTitle, boxSize, unitsPerBox, key, count: _lineItem.unfulfilledQuantity } );
+        });
 
-          const variantTitle = li.variant ? li.variant.title : 'untitled';
-          const existingVariant = existingAggregationItem.variants.find( _v => _v.title === variantTitle );
-          if( existingVariant ) {
-            existingVariant.count += li.unfulfilledQuantity;
-          }
-          else {
-            const newVariant = { title: variantTitle, count: li.unfulfilledQuantity };
-            existingAggregationItem.variants.push( newVariant );
-          }
+      } );
 
+      const everydayBargainsShippingItemsAggregated = everydayBargainsUnbundledLineItemsFlattenedShippingItems.reduce( ( _acc, _item ) => {
 
+        const _existingAccItem = _acc.find( __item => __item.key === _item.key );
+        if( _existingAccItem ) {
+          _existingAccItem.count += _item.count;
         }
         else {
-          const newAggregationItem = {
-            product: li.product,
-            totalUnits: li.units*li.unfulfilledQuantity,
-            variants: [ {
-              title: li.variant ? li.variant.title : 'untitled',
-              count: li.unfulfilledQuantity
-            } ],
-          };
-          everydayBargainsAggregated.push( newAggregationItem );
+
+          const _newAccItem = Object.assign( {}, _item );
+          _acc.push( _newAccItem );
+
         }
 
-      }
+        return _acc;
+      }, []);
+
 
       const otherLineItems = allLineItems.filter( li => everydayBargainsLineItems.every( ebli => ebli.id !== li.id ) ).filter( li => lotLineItems.every( lli => lli.id !== li.id ) );
       const otherLineItemsAggregated = [];
@@ -263,7 +270,7 @@ angular.module('myApp').service( 'OrderSvc', [
       allLineItems.sort( cmpByName );
       everydayBargainsLineItems.sort( cmpByProductTitle );
       everydayBargainsUnbundledLineItems.sort( cmpByProductTitle );
-      everydayBargainsAggregated.sort( cmpByProductTitle );
+      everydayBargainsShippingItemsAggregated.sort( cmpByKey );
       otherLineItems.sort( cmpByName );
       otherLineItemsAggregated.sort( cmpByName );
 
@@ -277,10 +284,10 @@ angular.module('myApp').service( 'OrderSvc', [
         lotLineItems,
         unfulfilledLotLineItems,
 
-        // everyday bargains by raw line item, unbundled line items, and aggregated by units
+        // everyday bargains by raw line item, unbundled line items, and aggregated
         everydayBargainsLineItems,
         everydayBargainsUnbundledLineItems,
-        everydayBargainsAggregated,
+        everydayBargainsShippingItemsAggregated,
 
         // Other line items and aggregation
         otherLineItems,
@@ -337,13 +344,18 @@ angular.module('myApp').factory( 'Order', [
 /*********************** LineItem class */
 angular.module('myApp').factory( 'LineItem', [
 
+  'ListingsSvc',
   'LotSvc',
   'ProductBundlesSvc',
+  'ShippingConfigurationsSvc',
 
   function(
 
+    ListingsSvc,
     LotSvc,
-    ProductBundlesSvc
+    ProductBundlesSvc,
+    ShippingConfigurationsSvc,
+
 
   ) {
 
@@ -366,6 +378,7 @@ angular.module('myApp').factory( 'LineItem', [
         //
         this.lotLoaded = this.loadLot();
         this.bundleLoaded = this.loadBundle();
+        this.shippingConfigurationLoaded = this.loadShippingConfiguration();
 
       }
 
@@ -376,7 +389,15 @@ angular.module('myApp').factory( 'LineItem', [
         return false;
       }
 
+      isEverydayBargain() {
+        return this.hasTag( 'everyday bargains' );
+      }
+
       async loadLot() {
+
+        if( this.isEverydayBargain() ) {
+          return null;
+        }
 
         const handle = this.sku;
         const lot =  handle ? await LotSvc.getLotByHandle( handle, { populate: [ 'pallet' ], hydratePalletNoDocuments: true } ) : null;
@@ -392,29 +413,55 @@ angular.module('myApp').factory( 'LineItem', [
 
         if( _bundle && Array.isArray(_bundle.bundle) ) {
 
-          this.bundle = _bundle.bundle.map( _ => {
+          const bundleItemPs = _bundle.bundle.map( async _ => {
+
+            const pv = await ListingsSvc.getProductVariant( _.gid );
+
+            const units = parseInt( pv.title );
 
             const componentData = {
               order: this.order,
               parentLineItem: this,
-              name: `${_.title} - ${_.units}`,
+              name: `${pv.productTitle} - ${pv.title}`,
               product: {
-                title: _.title
+                title: pv.productTitle
               },
               quantity: this.unfulfilledQuantity,
               unfulfilledQuantity: this.unfulfilledQuantity,
-              units: _.units,
+              units: util.isNan( units ) ? pv.title : units,
+              variant: {
+                id: pv.gid,
+                title: pv.title
+              }
             };
 
             return new LineItem( componentData );
           } );
 
+          this.bundle = await Promise.all( bundleItemPs );
         }
         else {
           this.bundle = null;
         }
 
         return this.bundle;
+      }
+
+      async loadShippingConfiguration() {
+
+        if( this.variant ) {
+
+          const gid = this.variant.id;
+          const resp = await ShippingConfigurationsSvc.get( gid );
+
+          this.shippingConfiguration = resp && resp.shippingConfiguration;
+          return this.shippingConfiguration;
+
+        }
+        else {
+          return null;
+        }
+
       }
 
       hasTag( tag ) {
