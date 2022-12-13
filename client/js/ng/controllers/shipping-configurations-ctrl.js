@@ -46,7 +46,7 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
     }
 
     function refreshShippingConfigurationsList() {
-      return ShippingConfigurationsSvc.list( { everydayBargainsOnly: true, includePallets: false, refreshCache: true } )
+      return ShippingConfigurationsSvc.list( { everydayBargainsOnly: true, includePallets: true, refreshCache: true } )
         .then( configurations => {
 
           const productGroups = [];

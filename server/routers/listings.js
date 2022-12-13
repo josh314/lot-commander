@@ -134,6 +134,12 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
   );
 
   router.get(
+    '/product-variants/:productVariantId',
+    auth.isAuthorized( 'VIEW_STORE_CONTENT' ),
+    getProductVariant
+  );
+
+  router.get(
     '/product-variants',
     auth.isAuthorized( 'VIEW_STORE_CONTENT' ),
     listActiveProductVariants
@@ -245,6 +251,22 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
     }
     catch (e) {
       next( e );
+    }
+
+  }
+
+  async function getProductVariant( req, res, next ) {
+
+    const pvid = decodeURIComponent( req.params.productVariantId );
+
+    try {
+
+      const productVariant = await listings.shopify.shopifyGql.getProductVariant( pvid );
+
+      res.json( { productVariant } );
+    }
+    catch(e) {
+      return next(e);
     }
 
   }
@@ -388,7 +410,7 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
   async function setShippingConfiguration( req, res, next ) {
 
     const debug = req.query.debug && !!parseInt( req.query.debug );
- 
+
     const pvid = decodeURIComponent( req.params.productVariantId );
 
     const newShippingConfiguration = req.body.shippingConfiguration;
@@ -462,7 +484,7 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
   async function setProductBundle( req, res, next ) {
 
     const debug = req.query.debug && !!parseInt( req.query.debug );
- 
+
     const pvid = decodeURIComponent( req.params.productVariantId );
 
     const newBundle = req.body.bundle;

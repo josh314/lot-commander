@@ -76,6 +76,7 @@ class Client {
 
   }
 
+  // Basic getters and listers
 
   getPage(queryType, nodeQuery, { pageSize, args, searchQuery, cursor, debug } = {}) {
 
@@ -344,6 +345,54 @@ class Client {
     const result = await this.getAll( 'productVariants', productVariantNodeQuery, { searchQuery: searchQuery, debug: debug, cursor: cursor }, processFn );
 
     return result.productVariants;
+
+  }
+
+  async getProductVariant( pvid ) {
+
+    const gqlPvid = productVariantId2Gid( pvid );
+
+    const resp = await this.gqlRequest( {
+      gqlQuery: `
+        {
+          productVariant(id: "${ gqlPvid }") {
+            id
+            title
+            product {
+              id
+              title
+              tags
+            }
+          }
+        }
+      `,
+      debug: false
+    });
+
+
+    try {
+
+      const pv = resp.data.productVariant;
+      if( pv ) {
+
+        return {
+          gid: pv.id,
+          title: pv.title,
+          tags: pv.product ? pv.product.tags : [],
+          productGid: pv.product && pv.product.id,
+          productTitle: pv.product && pv.product.title,
+        };
+
+      }
+      else {
+        return null;
+      }
+
+    }
+    catch(e) {
+      console.error( resp );
+      throw e;
+    }
 
   }
 
@@ -848,7 +897,12 @@ class Client {
       tags: n.product.tags
     });
 
-    let searchQuery = `product_status:'active' AND (${ includePallets ? '' : ' NOT'} tag:'collection:pallets')`;
+    let searchQuery = `product_status:'active'`;
+
+    if( !includePallets ) {
+      searchQuery += " AND ( NOT tag:'collection:pallets')";
+    }
+
     if( everydayBargainsOnly ) {
       searchQuery += " AND ( tag:'everyday bargains')";
     }

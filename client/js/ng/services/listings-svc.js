@@ -5,6 +5,22 @@ import * as api from '../../api';
 /******************* Listings Service *************************/
 angular.module('myApp').factory('ListingsSvc', [ '$q', function( $q ) {
 
+  const productVariantCache = {};
+
+  async function _getProductVariant( gid ) {
+
+    let pv = productVariantCache[ gid ];
+
+    if( !pv ) {
+      const resp = await api.getProductVariant( gid );
+      pv = resp.productVariant;
+      productVariantCache[ gid ] = pv;
+    }
+
+    return pv;
+
+  }
+
   return {
 
     isTitleTooLong: title => {
@@ -61,9 +77,11 @@ angular.module('myApp').factory('ListingsSvc', [ '$q', function( $q ) {
 
     // active listings
 
-    listActiveProducts: ( { everydayBargainsOnly = false } = {} ) => $q.when( api.listActiveProducts( { everydayBargainsOnly } ) ),
+    getProductVariant: gid => $q.when( _getProductVariant( gid ) ),
 
-    listActiveProductVariants: ( { everydayBargainsOnly = false } = {} ) => $q.when( api.listActiveProductVariants( { everydayBargainsOnly } ) ),
+    listActiveProducts: ( { everydayBargainsOnly = false, includePallets = true } = {} ) => $q.when( api.listActiveProducts( { everydayBargainsOnly, includePallets } ) ),
+
+    listActiveProductVariants: ( { everydayBargainsOnly = false, includePallets = true } = {} ) => $q.when( api.listActiveProductVariants( { everydayBargainsOnly, includePallets } ) ),
 
   };
 

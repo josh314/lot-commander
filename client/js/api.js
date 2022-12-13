@@ -1015,6 +1015,14 @@ export function listActiveProductVariants( { everydayBargainsOnly = false } = {}
 
 }
 
+export function getProductVariant( id ) {
+  return axios({
+    method: 'get',
+    url: `/api/listings/product-variants/${ encodeURIComponent(id) }`
+  })
+    .then( resp => resp.data );
+}
+
 export function listProductBundles() {
 
   return axios({
