@@ -417,6 +417,10 @@ angular.module('myApp').factory( 'LineItem', [
 
             const pv = await ListingsSvc.getProductVariant( _.gid );
 
+            if( !pv ) {
+              return;
+            }
+
             const units = parseInt( pv.title );
 
             const componentData = {
@@ -438,7 +442,7 @@ angular.module('myApp').factory( 'LineItem', [
             return new LineItem( componentData );
           } );
 
-          this.bundle = await Promise.all( bundleItemPs );
+          this.bundle = (await Promise.all( bundleItemPs )).filter( _ => _ );
         }
         else {
           this.bundle = null;
