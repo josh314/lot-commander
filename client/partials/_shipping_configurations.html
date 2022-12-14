@@ -96,6 +96,7 @@
                   <th>Height</th>
                   <th>Length</th>
                   <th>Width</th>
+                  <th>Units</th>
                 </tr></thead>
                 <tbody>
                   <tr ng-repeat="$item in $variant.shippingConfiguration track by $index">
@@ -111,6 +112,9 @@
                     </td>
                     <td>
                       {{ $item.width }} {{ $item.widthUnits }}
+                    </td>
+                    <td>
+                      {{ $item.units }}
                     </td>
                   </tr>
                 </tbody>
@@ -147,6 +151,9 @@
                     <td>
                       <input type="number" min="0" class="hide-controls" style="width: 4em" ng-model="$item.width">
                       <select ng-model="$item.widthUnits"><option ng-repeat="$unit in $ctrl.constants.lengthUnitsEnum">{{ $unit }}</option></select>
+                    </td>
+                    <td>
+                      <input type="number" min="0" class="hide-controls" style="width: 4em" ng-model="$item.units">
                     </td>
 
                     <td><button class="btn btn-danger btn-xs" ng-click="$ctrl.removeVariantEditShippingItem( $variant, $index )"><span class="glyphicon glyphicon-remove"></span></button></td>

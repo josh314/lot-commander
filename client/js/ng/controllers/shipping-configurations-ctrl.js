@@ -159,7 +159,8 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
           'length',
           'lengthUnits',
           'width',
-          'widthUnits'
+          'widthUnits',
+          'units'
         ];
 
         for( let f of editFields ) {
@@ -175,7 +176,7 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
       return true;
     }
 
-    function validateVariantShippingConfigurationEdit( configuration ) {
+    function validateShippingConfiguration( configuration ) {
 
       for( let item of configuration ) {
 
@@ -200,10 +201,27 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
       return true;
     }
 
+
+    function validateVariantShippingConfigurationEdit( variant, configuration ) {
+
+      if( !util.isNan( variant.units ) ) {
+
+        const totalUnits = configuration.reduce( ( _totalUnits, item ) => _totalUnits + item.units, 0 );
+
+        if( totalUnits !== variant.units ) {
+          return false;
+        }
+
+      }
+
+      return validateShippingConfiguration( configuration );
+    }
+
+
     function saveShippingConfigurationEdit( variant ) {
 
-      if( !validateVariantShippingConfigurationEdit( variant.editConfig ) ) {
-        ModalSvc.message({ header: 'Error', body: 'Invalid values', type: 'error' });
+      if( !validateVariantShippingConfigurationEdit( variant, variant.editConfig ) ) {
+        ModalSvc.message({ header: 'Error', body: 'Invalid values for shipping configuration or units do not add up to the proper total for this variant.', type: 'error' });
         return;
       }
 
@@ -246,7 +264,7 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
         return ModalSvc.message( { header: 'Error', body: 'Invalid units per box. Does not evenly divide every variant.', type: 'error' } );
       }
 
-      if( !validateVariantShippingConfigurationEdit( [ productGroup.standardBox.dimensions ] ) ) {
+      if( !validateShippingConfiguration( [ productGroup.standardBox.dimensions ] ) ) {
         return ModalSvc.message({ header: 'Error', body: 'Invalid values for shipping configuration.', type: 'error' });
       }
 
@@ -265,10 +283,11 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
           'length',
           'lengthUnits',
           'width',
-          'widthUnits'
+          'widthUnits',
+          'units',
         ];
 
-        const standardBox = util.createSubobject( productGroup.standardBox.dimensions, copyFields);
+        const standardBox = util.createSubobject( { units: productGroup.standardBox.units, ...productGroup.standardBox.dimensions }, copyFields);
 
         const shippingItems = Array( numBoxes ).fill( JSON.parse( JSON.stringify( standardBox ) ) );
 

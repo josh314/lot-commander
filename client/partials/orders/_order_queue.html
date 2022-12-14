@@ -17,33 +17,10 @@
       <div class="row well well-tabs__content" style="display: flex; flex-direction: column">
 
         <h3>Everyday bargains</h3>
-        <!-- <table class="table table-striped">
-
-          <thead><tr>
-            <th>#</th>
-            <th>product</th>
-            <th>units</th>
-            <th>boxes</th>
-          </tr></thead>
-
-          <tbody>
-            <tr ng-repeat="$eb in $ctrl.queue.everydayBargainsAggregated">
-
-              <td>{{$index+1}}</td>
-
-              <td>{{ $eb.product.title }}</td>
-
-              <td>{{ $eb.totalUnits }}</td>
-
-              <td>{{ $eb.shippingItems.length }}</td>
-
-            </tr>
-          </tbody>
-
-        </table> -->
 
         <table class="table table-striped">
 
+          <caption>If some orders are not appearing, make sure that the corresponding product's shipping configuration is set.</caption>
           <thead><tr>
             <th>Product</th>
             <th>Box size</th>
