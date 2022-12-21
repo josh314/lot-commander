@@ -3,18 +3,42 @@
     <h2>Order Queue</h2>
   </div>
 
+
+  <header style="display: flex; align-items: center;">
+
+      <div class="form-group">
+        <label for="filterInput">Filter by date</label>
+        <select class="form-control" id="filterInput" ng-model="$ctrl.inputs.filter" ng-change="$ctrl.processFilterInput()">
+          <option ng-repeat="$option in $ctrl.inputs.filterOptions track by $option.id" ng-value="$option">{{ $option.label }}</option>
+        </select>
+      </div>
+
+      <div class="form-group" ng-show="$ctrl.inputs.filter.id === 'custom'" style="margin-left:12px;">
+        <label for="endDateInput">Orders on or before</label>
+        <div class="input-group">
+          <input type="date" class="form-control" id="endDateInput" ng-model="$ctrl.inputs.endDate" max="{{ $ctrl.inputs.maxDate }}"/>
+          <span class="input-group-btn">
+            <button class="btn btn-primary" ng-click="$ctrl.refreshQueue()">Get</button>
+          </span>
+        </div>
+      </div>
+
+  </header>
+
+
   <div class="well-tabs">
 
-    <div style="display: flex; justify-content: flex-end;">
+    <nav style="display: flex; justify-content: flex-end;">
       <ul class="nav nav-tabs">
         <li role="presentation" ng-class="{ active: $ctrl.displayModeActiveIs( $ctrl.displayModes.SUMMARY ) }" ng-click="$ctrl.setDisplayModeActive( $ctrl.displayModes.SUMMARY )"><a href="#">Summary</a></li>
         <li role="presentation" ng-class="{ active: $ctrl.displayModeActiveIs( $ctrl.displayModes.LIST ) }" ng-click="$ctrl.setDisplayModeActive( $ctrl.displayModes.LIST )"><a href="#"> List </a></li>
       </ul>
-    </div>
+    </nav>
 
     <!-- Summary view -->
-    <div ng-show="$ctrl.displayModeActive === $ctrl.displayModes.SUMMARY">
-      <div class="row well well-tabs__content" style="display: flex; flex-direction: column">
+    <section class="row well well-tabs__content" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.SUMMARY">
+
+      <section style="display: flex; flex-direction: column">
 
         <h3>Everyday bargains</h3>
 
@@ -44,9 +68,9 @@
 
         </table>
 
-      </div>
+      </section>
 
-      <div class="row well well-tabs__content" style="display: flex; flex-direction: column">
+      <section style="display: flex; flex-direction: column">
 
         <h3>Lots</h3>
         <table class="table table-striped">
@@ -70,9 +94,9 @@
 
         </table>
 
-      </div>
+      </section>
 
-      <div class="row well well-tabs__content" style="display: flex; flex-direction: column">
+      <section style="display: flex; flex-direction: column">
 
         <h3>Other</h3>
         <table class="table table-striped">
@@ -97,11 +121,13 @@
 
         </table>
 
-      </div>
-    </div>
+      </section>
+    </section>
 
     <!-- List view  -->
-    <div class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.LIST">
+    <section class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.LIST">
+
+      <h3>Unfulfilled order items</h3>
 
       <!-- <ng-include src="'/partials/orders/_order_list.html'"></ng-include> -->
       <table class="table table-striped">
@@ -111,6 +137,8 @@
           <th>name</th>
           <th>quantity</th>
           <th>units</th>
+          <th>order</th>
+          <th>date</th>
         </tr></thead>
 
         <tbody>
@@ -124,13 +152,17 @@
 
             <td>{{ $lineItem.units }}</td>
 
+            <td>{{ $lineItem.order.name }}</td>
+
+            <td>{{ $ctrl.prettifyDate( $lineItem.order.createdAt ) }}</td>
+
           </tr>
         </tbody>
 
       </table>
 
 
-    </div>
+    </section>
 
 
   </div>

@@ -1,4 +1,5 @@
 const express = require('express');
+const dayjs = require('dayjs');
 
 const auth = require('../auth');
 
@@ -15,6 +16,24 @@ const listShopifyOrdersParamsFromQueryParams = ( qp ) => {
 
   if( qp.to_be_fulfilled ) {
     fp.toBeFulfilled = !!parseInt( qp.to_be_fulfilled );
+  }
+
+  if( qp.start_date ) {
+    const startDate = dayjs( qp.start_date ).startOf('day').toDate();
+
+    if( !isNaN( startDate ) ) {
+      fp.startDate = startDate;
+    }
+
+  }
+
+  if( qp.end_date ) {
+    const endDate = dayjs( qp.end_date ).endOf('day').toDate();
+
+    if( !isNaN( endDate ) ) {
+      fp.endDate = endDate;
+    }
+
   }
 
   return fp;
@@ -64,41 +83,52 @@ function routes( { shopifyOrders } ) {
    *
    ****/
 
-  async function listShopifyOrders( req, res ) {
+  async function listShopifyOrders( req, res, next ) {
 
-    const numPage = parseInt( req.query.num ) || 10;
-    const page = parseInt( req.query.page ) || 1;
+    try {
+      const numPage = parseInt( req.query.num ) || 10;
+      const page = parseInt( req.query.page ) || 1;
 
-    const query = {
-      // paging
-      skip: ( page - 1 ) * numPage,
-      num: numPage,
+      const query = {
+        // paging
+        skip: ( page - 1 ) * numPage,
+        num: numPage,
 
-      // sorting
-      sort: req.query.sort,
-      sortDir: parseInt(req.query.sort_dir),
+        // sorting
+        sort: req.query.sort,
+        sortDir: parseInt(req.query.sort_dir),
 
-      // filters
-      filterParams: listShopifyOrdersParamsFromQueryParams( req.query ),
+        // filters
+        filterParams: listShopifyOrdersParamsFromQueryParams( req.query ),
 
-    };
+      };
 
-    let orders = await shopifyOrders.listShopifyOrders( query );
+      let orders = await shopifyOrders.listShopifyOrders( query );
 
-    if( 'annotate' in req.query && !!parseInt( req.query.annotate ) ) {
+      if( 'annotate' in req.query && !!parseInt( req.query.annotate ) ) {
 
-      orders = orders.map( o => o.toObject( { virtuals: true } ));
+        orders = orders.map( o => o.toObject( { virtuals: true } ));
 
+      }
+
+      res.json( { orders } );
+    }
+    catch(e) {
+      next(e);
     }
 
-    res.json( { orders } );
   }
 
-  async function countShopifyOrders( req, res ) {
+  async function countShopifyOrders( req, res, next ) {
 
-    const count = await shopifyOrders.countShopifyOrders( listShopifyOrdersParamsFromQueryParams( req.query ) );
+    try { 
+      const count = await shopifyOrders.countShopifyOrders( listShopifyOrdersParamsFromQueryParams( req.query ) );
 
-    res.json({ count });
+      res.json({ count });
+    }
+    catch(e) {
+      next(e);
+    }
 
   }
 

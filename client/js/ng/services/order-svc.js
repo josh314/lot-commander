@@ -1,4 +1,5 @@
 import angular from 'angular';
+import dayjs from 'dayjs';
 
 import * as api from '../../api';
 import * as util from '../../utilities';
@@ -11,22 +12,32 @@ import * as util from '../../utilities';
 
 const queryParams = ( params ) => {
 
-  const qp = Object.assign( {}, params );
+  const qp = {};
 
-  if( "toBeFulfilled" in qp ) {
+  if( "toBeFulfilled" in params ) {
 
-    if( qp.toBeFulfilled !== null ) {
-      qp.to_be_fulfilled = qp.toBeFulfilled ? 1 : 0;
+    if( params.toBeFulfilled !== null ) {
+      qp.to_be_fulfilled = params.toBeFulfilled ? 1 : 0;
     }
 
-    delete qp.toBeFulfilled;
   }
 
+  if( typeof params.startDate !== 'undefined' ) {
 
-  if( "annotate" in qp ) {
+    qp.start_date = dayjs(params.startDate).format('YYYY-MM-DD');
 
-    if( qp.annotate !== null ) {
-      qp.annotate = qp.annotate ? 1 : 0;
+  }
+
+  if( typeof params.endDate !== 'undefined' ) {
+
+    qp.end_date = dayjs(params.endDate).format('YYYY-MM-DD');
+
+  }
+
+  if( "annotate" in params ) {
+
+    if( params.annotate !== null ) {
+      qp.annotate = params.annotate ? 1 : 0;
     }
 
   }
@@ -67,9 +78,21 @@ const cmpByKey = (a,b) => {
   }
 };
 
+const cmpLineItemsByOrderCreatedAt = (a,b) => {
+  if( a.order.createdAt > b.order.createdAt ) {
+    return 1;
+  }
+  else if( a.name > b.name ) {
+    return 1;
+  }
+  else {
+    return -1;
+  }
+};
+
 /******************* Order Service *************************/
 //
-// This service provides some utility functionality to the orders API and UI
+// This service provides functionality to the orders API and UI
 //
 angular.module('myApp').service( 'OrderSvc', [
 
@@ -131,14 +154,16 @@ angular.module('myApp').service( 'OrderSvc', [
       return $q.when( api.countOrders( queryParams( filter ) ) );
     }
 
-    function unfulfilledOrderQueue() { // This redirection forces digest update of the async function _unfulfilledOrderQueue
-      return $q.when( _unfulfilledOrderQueue() );
+    function unfulfilledOrderQueue( startDate, endDate ) { // This redirection forces digest update of the async function _unfulfilledOrderQueue
+      return $q.when( _unfulfilledOrderQueue( startDate, endDate ) );
     }
 
-    async function _unfulfilledOrderQueue() {
+    async function _unfulfilledOrderQueue( startDate, endDate ) {
 
       const filter = {
         toBeFulfilled: true,
+        startDate,
+        endDate
       };
 
       const count = await countOrders( filter );
@@ -171,13 +196,14 @@ angular.module('myApp').service( 'OrderSvc', [
 
       // Flatten lineItems arrays
       const allLineItems = allOrders.reduce( ( acc, _order ) => angular.isArray( _order.lineItems ) ? acc.concat( _order.lineItems ) : acc , [] );
+      const unfulfilledLineItems = allLineItems.filter( _li => _li.unfulfilledQuantity );
 
-      await Promise.all( allLineItems.map( _li => Promise.all( [ _li.lotLoaded, _li.bundleLoaded ] ) ) );
-      const lotLineItems = allLineItems.filter( _li => _li.lot && !_li.isEverydayBargain() );
+      await Promise.all( unfulfilledLineItems.map( _li => Promise.all( [ _li.lotLoaded, _li.bundleLoaded ] ) ) );
+      const lotLineItems = unfulfilledLineItems.filter( _li => _li.lot && !_li.isEverydayBargain() );
       const unfulfilledLotLineItems = lotLineItems.filter( _li => !! _li.unfulfilledQuantity );
 
       // get the everyday bargains line items
-      const everydayBargainsLineItems = allLineItems.filter( _li => _li.isEverydayBargain() );
+      const everydayBargainsLineItems = unfulfilledLineItems.filter( _li => _li.isEverydayBargain() );
 
       // un-bundle line items like the all-star package
       const everydayBargainsUnbundledLineItems = everydayBargainsLineItems.reduce( ( unbundledItems, lineItem ) => {
@@ -223,7 +249,7 @@ angular.module('myApp').service( 'OrderSvc', [
       }, []);
 
 
-      const otherLineItems = allLineItems.filter( li => everydayBargainsLineItems.every( ebli => ebli.id !== li.id ) ).filter( li => lotLineItems.every( lli => lli.id !== li.id ) );
+      const otherLineItems = unfulfilledLineItems.filter( li => everydayBargainsLineItems.every( ebli => ebli.id !== li.id ) ).filter( li => lotLineItems.every( lli => lli.id !== li.id ) );
       const otherLineItemsAggregated = [];
       for( let li of otherLineItems ) {
 
@@ -266,8 +292,7 @@ angular.module('myApp').service( 'OrderSvc', [
       // TODO: are there any lineItems that aren't a lot but aren't everyday-bargains? enduring listings pallets like Drugstore High Piece Count Pallet
 
       // Sorts
-
-      allLineItems.sort( cmpByName );
+      unfulfilledLineItems.sort( cmpLineItemsByOrderCreatedAt );
       everydayBargainsLineItems.sort( cmpByProductTitle );
       everydayBargainsUnbundledLineItems.sort( cmpByProductTitle );
       everydayBargainsShippingItemsAggregated.sort( cmpByKey );
@@ -278,7 +303,8 @@ angular.module('myApp').service( 'OrderSvc', [
       return {
         // all orders and line items
         orders: allOrders,
-        lineItems: allLineItems,
+        allLineItems,
+        lineItems: unfulfilledLineItems,
 
         // one-off lots
         lotLineItems,
@@ -327,7 +353,8 @@ angular.module('myApp').factory( 'Order', [
               else {
                 return _lineItemData;
               }
-            } )
+            } ),
+            createdAt: new Date( _data.createdAt )
           }
         );
 

@@ -299,11 +299,12 @@ class Server {
     //   res.render('404', layout);
     // });
 
-    this.app.use( function( err, _req, res, _next ){
+    this.app.use( function( err, req, res, _next ){
 
       // console.error(`404: path does not exist -- ${req.originalUrl}`);
       // res.status(404).render('404', {});
-      console.error(err);
+      // console.error(req.originalUrl)
+      // console.error(err);
 
       const response = {
         error: true,

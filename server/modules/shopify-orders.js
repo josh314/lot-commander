@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
-const shopifyOrdersQueryFilter = ( { toBeFulfilled } ) => {
-  const filter = {};
+const shopifyOrdersQueryFilter = ( { toBeFulfilled, startDate, endDate } ) => {
+  const filter = {
+    cancelledAt: null
+  };
 
   if( toBeFulfilled ) {
 
@@ -17,7 +19,28 @@ const shopifyOrdersQueryFilter = ( { toBeFulfilled } ) => {
 
     filter.closed  = false;
 
-    filter.cancelledAt = null;
+  }
+
+  if( startDate || endDate ) {
+
+    filter.$and = [];
+
+    if( startDate ) {
+
+      filter.$and.push( {
+        createdAt: { $gte: startDate }
+      });
+
+    }
+
+
+    if( endDate ) {
+
+      filter.$and.push( {
+        createdAt: { $lte: endDate }
+      });
+
+    }
 
   }
 
