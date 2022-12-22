@@ -6,6 +6,25 @@ import {
 
 const __PAGE_SIZE__ = 5;
 
+class MyError extends Error {
+  constructor(message) {
+    super(message);
+    // Ensure the name of this error is the same as the class name
+    this.name = this.constructor.name;
+    // This clips the constructor invocation from the stack trace.
+    // It's not absolutely essential, but it does make the stack trace a little nicer.
+    //  @see Node.js reference (bottom)
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+class RepackError extends MyError {
+  constructor( { message, alertType } ) {
+    super(message);
+    this.alertType = alertType;
+  }
+}
+
 /******************* Pallet Edit Manifest Controller *************************/
 angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
@@ -75,6 +94,11 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
       vm.allowShipmentNavigation = LoggedInUser.hasPermission('VIEW_INCOMING_SHIPMENT');
 
       vm.removedItems = [];
+      vm.removedItemEdits = new Map();
+      vm.isEditingRemovedItem = isEditingRemovedItem;
+      vm.editRemovedItem = editRemovedItem;
+      vm.saveRemovedItemEdit = saveRemovedItemEdit;
+      vm.cancelRemovedItemEdit = cancelRemovedItemEdit;
 
       vm.repackPallet = loadPallet;
       vm.refreshPalletsList = refreshPalletsList;
@@ -94,85 +118,203 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
       vm.totalUnitsRemoved = () => vm.removedItems.reduce( (acc,item) => acc + item.numRemoved, 0 );
     }
 
-    function removeItem() {
+    function getDisplayItem( barcode ) {
+      let displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === barcode && _r.numRemoved + 1 <= _r[ __QUANTITY__ ] );
 
-      let barcode = vm.scannedBarcode;
+      if( !displayItem && isUpce( barcode ) ) { // for UPC-E, try again with the equivalent UPC-A
 
-      if( barcode ) {
+        barcode = upce2upca( barcode );
+        displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === barcode && _r.numRemoved + 1 <= _r[ __QUANTITY__ ] );
 
-        let displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === barcode && _r.numRemoved + 1 <= _r[ __QUANTITY__ ] );
+      }
+      return displayItem;
+    }
 
-        if( !displayItem && isUpce( barcode ) ) { // for UPC-E, try again with the equivalent UPC-A
+    function __removeItem( displayItem ) {
 
-          barcode = upce2upca( barcode );
-          displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === barcode && _r.numRemoved + 1 <= _r[ __QUANTITY__ ] );
+      const barcode = displayItem[ __BARCODE__ ];
 
-        }
+      let removedItem;
 
-        if( displayItem ) {
-          let removedItem;
+      const alreadyDecrementedItemIdx = vm.removedItems.findIndex( _item => _item[ __BARCODE__ ] === barcode );
+      if( alreadyDecrementedItemIdx > -1 ) {
 
-          const alreadyDecrementedItemIdx = vm.removedItems.findIndex( _item => _item[ __BARCODE__ ] === barcode );
-          if( alreadyDecrementedItemIdx > -1 ) {
-
-            // removedItem already exists. Splice it out of the vm.removedItems array.
-            [ removedItem ] = vm.removedItems.splice( alreadyDecrementedItemIdx, 1 );
-            removedItem.numRemoved += 1;
-
-          }
-          else {
-
-            // new removedItem
-            removedItem = {
-              numRemoved: 1,
-              [ __BARCODE__ ]: displayItem[ __BARCODE__ ],
-              [ __DESCRIPTION__ ]: displayItem[ __DESCRIPTION__ ],
-            };
-
-            if( displayItem[ __CATEGORY__ ] ) {
-              removedItem[ __CATEGORY__ ] = displayItem[ __CATEGORY__ ];
-            }
-
-            const quantity = displayItem[ __QUANTITY__ ];
-
-            const retailPrice = displayItem[ __RETAIL_PRICE__ ];
-            if( retailPrice ) {
-              removedItem.unitRetailPrice = retailPrice / quantity;
-            }
-
-            const salePrice = displayItem[ __SALE_PRICE__ ];
-            if( salePrice ) {
-              removedItem.unitSalePrice = salePrice / quantity;
-            }
-
-          }
-
-          // put `removedItem` at the top of the vm.removedItems array to allow user better visibility of what they just removed.
-          vm.removedItems = [ removedItem ].concat( vm.removedItems );
-
-          displayItem.numRemoved += 1;
-
-          AudioAlertSvc.success();
-
-        }
-        else {
-          AudioAlertSvc.fail();
-          ModalSvc.message({ header: 'Error', body: `Cannot remove item with barcode ${vm.scannedBarcode} from this manifest.`, type: 'error' });
-        }
+        // removedItem already exists. Splice it out of the vm.removedItems array.
+        [ removedItem ] = vm.removedItems.splice( alreadyDecrementedItemIdx, 1 );
+        removedItem.numRemoved += 1;
 
       }
       else {
-        AudioAlertSvc.warning();
-        ModalSvc.message({ header: 'Error', body: `No barcode submitted.`, type: 'error' });
+
+        // new removedItem
+        removedItem = {
+          numRemoved: 1,
+          [ __BARCODE__ ]: displayItem[ __BARCODE__ ],
+          [ __DESCRIPTION__ ]: displayItem[ __DESCRIPTION__ ],
+        };
+
+        if( displayItem[ __CATEGORY__ ] ) {
+          removedItem[ __CATEGORY__ ] = displayItem[ __CATEGORY__ ];
+        }
+
+        const quantity = displayItem[ __QUANTITY__ ];
+
+        const retailPrice = displayItem[ __RETAIL_PRICE__ ];
+        if( retailPrice ) {
+          removedItem.unitRetailPrice = retailPrice / quantity;
+        }
+
+        const salePrice = displayItem[ __SALE_PRICE__ ];
+        if( salePrice ) {
+          removedItem.unitSalePrice = salePrice / quantity;
+        }
+
+      }
+
+      // put `removedItem` at the top of the vm.removedItems array to allow user better visibility of what they just removed.
+      vm.removedItems = [ removedItem ].concat( vm.removedItems );
+
+      displayItem.numRemoved += 1;
+
+    }
+
+    function removeItem( barcode ) {
+
+      if( !barcode ) {
+        barcode = vm.scannedBarcode;
+      }
+
+      try {
+
+        if( !barcode ) {
+          throw new RepackError( { alertType: 'warning', message: `No barcode submitted.` } );
+        }
+
+        const displayItem = getDisplayItem( barcode );
+
+        if( !displayItem ) {
+          throw new RepackError( { alertType: 'fail', message: `Cannot remove item with barcode ${barcode} from this manifest.` } );
+        }
+
+        __removeItem( displayItem );
+
+        AudioAlertSvc.success();
+
+      }
+      catch (e) {
+        if( e.alertType === 'warning' ) {
+          AudioAlertSvc.warning();
+        }
+        else if ( e.alertType === 'fail' ) {
+          AudioAlertSvc.fail();
+        }
+        ModalSvc.message( { header: 'Error', body: e.message, type: 'error' } );
       }
 
       vm.scannedBarcode = '';
 
     }
 
-    function undoRemoveItem( removedItem ) {
+    function removeItemMultipleQuantity( barcode, numItemsToRemove ) {
 
-      const barcode = removedItem[ __BARCODE__ ] ;
+      let displayItems = vm.manifestDisplayRows.filter( _r => _r[ __BARCODE__ ]  === barcode );
+
+      if( !displayItems.length && isUpce( barcode ) ) { // for UPC-E, try again with the equivalent UPC-A
+
+        barcode = upce2upca( barcode );
+        displayItems = vm.manifestDisplayRows.filter( _r => _r[ __BARCODE__ ]  === barcode );
+
+      }
+
+      const totalNumItemsAvailableToRemove = displayItems.reduce( ( _total, _r ) => _total + _r[ __QUANTITY__ ] - _r.numRemoved, 0 );
+
+      if( numItemsToRemove > totalNumItemsAvailableToRemove ) {
+        AudioAlertSvc.fail();
+        ModalSvc.message( { header: 'Error', body: `Fewer than ${numItemsToRemove} items with barcode ${ barcode } left to remove.`, type: 'error' } );
+        return;
+      }
+
+      let furtherItemsToRemove = numItemsToRemove;
+      for( let i=0; i<displayItems.length; i++ ) {
+
+        const currentDisplayItem = displayItems[ i ];
+
+        const numItemsAvailableToRemoveFromCurrentDisplayItem =  currentDisplayItem[ __QUANTITY__ ] - currentDisplayItem.numRemoved;
+
+        const numItemsToRemoveFromCurrentDisplayItem = Math.min( furtherItemsToRemove, numItemsAvailableToRemoveFromCurrentDisplayItem );
+
+        for( let j=0; j<numItemsToRemoveFromCurrentDisplayItem; j++ ) {
+          __removeItem( currentDisplayItem );
+        }
+
+        furtherItemsToRemove -= numItemsToRemoveFromCurrentDisplayItem;
+
+        if( furtherItemsToRemove <= 0 ) {
+          break;
+        }
+
+      }
+
+    }
+
+    function isEditingRemovedItem( removedItem ) {
+
+      const barcode = removedItem[ __BARCODE__ ];
+
+      return !!vm.removedItemEdits.get( barcode );
+
+    }
+
+    function editRemovedItem( removedItem ) {
+
+      const barcode = removedItem[ __BARCODE__ ];
+      const removedItemEdit = vm.removedItemEdits.get( barcode );
+
+      if( !removedItemEdit ) {
+        vm.removedItemEdits.set( barcode, { numRemoved: removedItem.numRemoved } );
+      }
+
+    }
+
+    function saveRemovedItemEdit( removedItem ) {
+
+      const barcode = removedItem[ __BARCODE__ ];
+      const removedItemEdit = vm.removedItemEdits.get( barcode );
+
+      if( removedItemEdit ) {
+
+        const editDifference = removedItemEdit.numRemoved - removedItem.numRemoved;
+
+        if( editDifference > 0 ) {
+          removeItemMultipleQuantity( barcode, editDifference );
+        }
+        else if ( editDifference < 0 ) {
+
+          for( let i=0; i<-editDifference ; i++ ) {
+            undoRemoveItem( barcode );
+          }
+
+        }
+
+        vm.removedItemEdits.delete( barcode );
+      }
+
+    }
+
+    function cancelRemovedItemEdit( removedItem ) {
+
+      const barcode = removedItem[ __BARCODE__ ];
+      const removedItemEdit = vm.removedItemEdits.get( barcode );
+
+      if( removedItemEdit ) {
+        vm.removedItemEdits.delete( barcode );
+      }
+
+    }
+
+    function undoRemoveItem( barcode ) {
+
+      const removedItem = vm.removedItems.find( _item => _item[ __BARCODE__ ] === barcode );
 
       const displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === barcode && _r.numRemoved > 0 );
       if( displayItem ) {
