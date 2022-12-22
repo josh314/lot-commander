@@ -499,7 +499,80 @@ export class Sheet {
     }
   }
 
+  barcodeColumnHasCheckDigits() {
+
+    /*
+
+    This is a somewhat delicate and subjective test.
+
+    Define
+
+        fractionRowsFailingValidation ==> fraction of (non-empty) rows whose last digit does not satisfy the check digit calculation for the preceding digits
+
+    and
+
+        fractionRowsPassingValidation ==> fraction of (non-empty) rows whose last digit does satisfies the check digit calculation for the preceding digits
+
+    Naturally,
+
+        fractionRowsPassingValidation = 1 - fractionRowsFailingValidation
+
+    If there are no data errors then we would expect fractionRowsFailingValidation to be exactly zero **if check digits are present** on this sheet.
+    However, we must allow some leeway in the inevitable case of some errors in the raw data. Therefore, **when check digits are present** we wish
+
+        fractionRowsFailingValidation < __DATA_ERROR_TOLERANCE__     ( **check digits are present** )
+
+    for some smallish __DATA_ERROR_TOLERANCE__, say,
+
+        __DATA_ERROR_TOLERANCE__ = 0.1
+
+    Conversely, **if check digits are not present**, the natural expectation is that fractionRowsFailingValidation is exactly 1. However, this ignores that
+    there will inevitably be false positives to validation where the final digit just happens to satisfy validation although it isn't really the check digit.
+    In that case, **when check digits are NOT present** we wish the fraction of rows passing to satisfy
+
+        fractionRowsPassingValidation < __FALSE_POSITIVE_TOLERANCE__
+
+    or
+
+        fractionRowsFailingValidation > 1 - __FALSE_POSITIVE_TOLERANCE__
+
+    for some __FALSE_POSITIVE_TOLERANCE__, although it isn't clear what value to choose here. While false positives occur for only 10% of all possible codes,
+    some manifests -- especially with a small number of lines -- may just happen to have much larger percentage of rows with false positives. However, it
+    seems reasonable that
+
+        1 - __FALSE_POSITIVE_TOLERANCE__ > __DATA_ERROR_TOLERANCE__
+
+    To see why, note that for the smallish value of __DATA_ERROR_TOLERANCE__ = 0.1, one would need a false positive tolerance over 90% to violate this inequality.
+    While we do wish to tolerate a fairly liberal amount of false positives, __FALSE_POSITIVE_TOLERANCE__ is surely not as large as that.
+
+    Therefore, **when check digits are NOT present** we'd like
+
+        fractionRowsFailingValidation > 1 - __FALSE_POSITIVE_TOLERANCE__ > __DATA_ERROR_TOLERANCE__      ( **check digits are not present** )
+
+    Thus we only need to compare fractionRowsFailingValidation against __DATA_ERROR_TOLERANCE__ to get a sufficient test for whether or not the barcode column already
+    has check digits added.
+
+    */
+
+    const barcodeColumn = this.getBarcodeColumn();
+
+    // some rows may be blank so filter out
+    const nonEmptyRows = this.rows.filter( _row => _row[ barcodeColumn.name ] );
+
+    const numNonEmptyRows = nonEmptyRows.length;
+    const numRowsFailingValidation = nonEmptyRows.reduce( ( _num, _row ) => _num + ( this.cellUpcCheckDigitValid( _row, barcodeColumn ) ? 0 : 1 ), 0);
+
+    const fractionRowsFailingValidation = numRowsFailingValidation / numNonEmptyRows;
+    const __DATA_ERROR_TOLERANCE__ = 0.1; // The maximum percentage of rows that might just have data errors despite check digits being largely present
+
+    return fractionRowsFailingValidation <= __DATA_ERROR_TOLERANCE__ ;
+  }
+
   normalizeBarcodeColumn() {
+
+    if( this.barcodeColumnHasCheckDigits() ) {
+      return;
+    }
 
     const barcodeColumn = this.getBarcodeColumn();
     for( let r of this.rows ) {
@@ -508,13 +581,10 @@ export class Sheet {
         continue;
       }
 
-      if( !this.cellUpcCheckDigitValid( r, barcodeColumn ) ) {
+      r[barcodeColumn.name] = `${ r[barcodeColumn.name] || '' }`; // ensure the barcode is a string
 
-        r[barcodeColumn.name] = `${ r[barcodeColumn.name] || '' }`; // ensure the barcode is a string
+      r[barcodeColumn.name] = addCheckDigit( r[barcodeColumn.name] );
 
-        r[barcodeColumn.name] = addCheckDigit(r[barcodeColumn.name]);
-
-      }
       if( r[barcodeColumn.name].length < 12 && r[barcodeColumn.name].length > 8 ) {
         this.prependUpcZerosOneRow( r, barcodeColumn.name );
       }
