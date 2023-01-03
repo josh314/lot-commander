@@ -52,7 +52,7 @@
 
   </section>
 
-  <div ng-show="$ctrl.manifest">
+  <section ng-show="$ctrl.manifest">
 
     <div ng-show="$ctrl.pallet">
       <dl>
@@ -114,10 +114,30 @@
             <td>{{ row.numRemoved }}</td>
             <td>{{ row.description }}</td> -->
             <td>{{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_BARCODE_COLUMN__ ] }}</td>
-            <td>{{ row.numRemoved }}</td>
+            <td>
+              <span ng-hide="$ctrl.isEditingRemovedItem( row )" style="display: flex; justify-content: space-between;">
+                <span>{{ row.numRemoved }}</span>
+                <span>(<a ng-click="$ctrl.editRemovedItem( row )">Edit</a>)</span>
+              </span>
+              <span ng-show="$ctrl.isEditingRemovedItem( row )" style="display: flex;">
+                <span style="margin-right: auto;">
+                  <input
+                    type="number"
+                    ng-model="$ctrl.removedItemEdits.get( row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_BARCODE_COLUMN__ ] ).numRemoved"
+                    style="width: 4em"
+                  />
+                </span>
+                <span style="margin-right: 4px;">
+                  <button class="btn btn-xs btn-success" ng-click="$ctrl.saveRemovedItemEdit( row )">Save</button>
+                </span>
+                <span>
+                  <button class="btn btn-xs btn-danger" ng-click="$ctrl.cancelRemovedItemEdit( row )">Cancel</button>
+                </span>
+              </span>
+            </td>
             <td>{{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_DESCRIPTION_COLUMN__ ] }}</td>
             <td>
-              <button class="btn btn-xs btn-danger" ng-click="$ctrl.undoRemoveItem( row )">Undo</button>
+              <button class="btn btn-xs btn-danger" ng-click="$ctrl.undoRemoveItem( row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_BARCODE_COLUMN__ ] )">Undo</button>
             </td>
 
           </tr>
@@ -135,6 +155,7 @@
           <th>Barcode</th>
           <th>Quantity</th>
           <th>Description</th>
+          <th></th>
         </thead>
         <tbody>
 
@@ -159,12 +180,16 @@
               <p>{{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_DESCRIPTION_COLUMN__ ] }}</p>
             </td>
 
+            <td>
+              <button class="btn btn-xs btn-danger" ng-click="$ctrl.removeItem( row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_BARCODE_COLUMN__ ] )">Remove</button>
+            </td>
+
           </tr>
 
         </tbody>
       </table>
 
     </div>
-  </div>
+  </section>
 
 </div>
