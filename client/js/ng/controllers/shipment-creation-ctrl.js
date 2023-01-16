@@ -344,11 +344,11 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
 
             for( let _document of vm.inputs.documents ) {
 
-              await ShipmentManagerSvc.uploadShipmentDocument( {
+              await ShipmentManagerSvc.uploadShipmentDocumentWithRetry( {
                 shipmentId: shipment._id,
                 file: _document.file,
                 documentType: _document.documentType,
-                isRestricted: _document.isRestricted || false
+                isRestricted: _document.isRestricted || false,
               } );
 
             }
