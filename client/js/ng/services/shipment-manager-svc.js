@@ -59,8 +59,8 @@ const queryParams = ( params ) => {
 //
 // This service provides some utility functionality to the shipments API and UI
 //
-angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'LoggedInUser', 'ShipmentFactory',
-  function( $q, $stateParams, LoggedInUser, ShipmentFactory ) {
+angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'LoggedInUser', 'ModalSvc', 'ShipmentFactory',
+  function( $q, $stateParams, LoggedInUser, ModalSvc, ShipmentFactory ) {
 
     const _shipmentId = () =>  $stateParams.shipmentId;
 
@@ -72,6 +72,44 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'L
 
       return true;
     } );
+
+
+    function uploadShipmentDocument( { shipmentId, file, documentType, isRestricted } ) {
+      return $q.when( api.uploadObjectDocument( shipmentId || _shipmentId(), 'shipment', file, { documentType, isRestricted } ) );
+    }
+
+
+    async function uploadShipmentDocumentWithRetry( { shipmentId, file, documentType, isRestricted } ) {
+
+      try {
+
+        return uploadShipmentDocument( {
+          shipmentId: shipmentId,
+          file: file,
+          documentType: documentType,
+          isRestricted: isRestricted
+        } );
+
+      }
+      catch( e ) {
+
+        console.error( e );
+
+        const tryAgain = await ModalSvc.confirm({
+          header: 'Document upload error',
+          body: `Error uploading ${ file.name }. Try again?`,
+        });
+
+        if( tryAgain ) {
+          return uploadShipmentDocumentWithRetry( { shipmentId, file, documentType, isRestricted } );
+        }
+        else {
+          return null;
+        }
+
+      }
+    }
+
 
     return {
 
@@ -136,7 +174,9 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'L
 
       countShipments: filter => $q.when( api.countIncomingShipments( queryParams( filter ) ) ),
 
-      uploadShipmentDocument: ( { shipmentId, file, documentType, isRestricted } ) => $q.when( api.uploadObjectDocument( shipmentId || _shipmentId(), 'shipment', file, { documentType, isRestricted } ) ),
+      uploadShipmentDocument,
+
+      uploadShipmentDocumentWithRetry,
 
       aggregateExpectedPallets: ( startDate, endDate ) => $q.when( api.aggregateExpectedPallets( startDate, endDate ) ),
 
