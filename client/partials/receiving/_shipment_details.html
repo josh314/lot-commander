@@ -257,49 +257,54 @@
         <button type="button" class="btn btn-primary" ng-click="$ctrl.uploadDocument()">Upload file</button>
       </div>
     </div>
-
     <div class="col-xs-12 row" ng-show="$ctrl.waiting.documents || ($ctrl.documents && $ctrl.documents.length)">
-      <table class="table table-striped" ng-hide="$ctrl.waiting.documents">
-        <thead>
-          <th>Name</th>
-          <th>Size</th>
-          <th>Type</th>
-          <th ng-show="$ctrl.showRestrictedDocuments">Restricted?</th>
-          <th></th>
-          <th></th>
-          <th ng-show="$ctrl.showEditControls">Remove</th>
-        </thead>
-        <tbody>
-          <tr ng-repeat="document in $ctrl.documents track by $index">
-            <td>
-              <a ng-href="/api/documents/{{ $ctrl.shipment._id }}/{{ document.name }}?object_type=shipment" target="_self" download>{{ document.name }}</a>
-            </td>
-            <td>{{ document.displaySize }}</td>
-            <td>
-              <select ng-model="document.documentType" ng-change="document.updateDocumentType( '{{ document.documentType }}' )">
-                <option ng-repeat="option in $ctrl.documentTypeOptions" ng-value="option.value">{{ option.displayName }}</option>
-              </select>
-            </td>
-            <td ng-show="$ctrl.showRestrictedDocuments">
-              <select ng-model="document.isRestricted" ng-change="document.updateRestrictionStatus()">
-                <option ng-value="true">Yes</option>
-                <option ng-value="false">No</option>
-              </select>
-            </td>
-            <td>
-              <button class="btn btn-xs btn-success" ng-click="$ctrl.cleanManifest( document )" ng-show="$ctrl.isManifestFile( document )">Clean</button>
-            </td>
-            <td>
-              <button class="btn btn-xs btn-warning" ng-click="$ctrl.createPalletManifests( document )" ng-show="$ctrl.isManifestFile( document )">Create pallet manifests</button>
-            </td>
-            <td ng-show="$ctrl.showEditControls">
-              <button type="button" class="btn btn-danger btn-xs" ng-click="$ctrl.removeDocument( document.name )">
-                <span class="glyphicon glyphicon-remove"></span>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div ng-hide="$ctrl.waiting.documents">
+        <table class="table table-striped">
+          <thead>
+            <th>Name</th>
+            <th>Size</th>
+            <th>Type</th>
+            <th ng-show="$ctrl.showRestrictedDocuments">Restricted?</th>
+            <th></th>
+            <th></th>
+            <th ng-show="$ctrl.showEditControls">Remove</th>
+          </thead>
+          <tbody>
+            <tr ng-repeat="document in $ctrl.documents track by $index">
+              <td>
+                <a ng-href="/api/documents/{{ $ctrl.shipment._id }}/{{ document.name }}?object_type=shipment" target="_self" download>{{ document.name }}</a>
+              </td>
+              <td>{{ document.displaySize }}</td>
+              <td>
+                <select ng-model="document.documentType" ng-change="document.updateDocumentType( '{{ document.documentType }}' )">
+                  <option ng-repeat="option in $ctrl.documentTypeOptions" ng-value="option.value">{{ option.displayName }}</option>
+                </select>
+              </td>
+              <td ng-show="$ctrl.showRestrictedDocuments">
+                <select ng-model="document.isRestricted" ng-change="document.updateRestrictionStatus()">
+                  <option ng-value="true">Yes</option>
+                  <option ng-value="false">No</option>
+                </select>
+              </td>
+              <td>
+                <button class="btn btn-xs btn-success" ng-click="$ctrl.cleanManifest( document )" ng-show="$ctrl.isManifestFile( document )">Clean</button>
+              </td>
+              <td>
+                <button class="btn btn-xs btn-warning" ng-click="$ctrl.createPalletManifests( document )" ng-show="$ctrl.isManifestFile( document )">Create pallet manifests</button>
+              </td>
+              <td ng-show="$ctrl.showEditControls">
+                <button type="button" class="btn btn-danger btn-xs" ng-click="$ctrl.removeDocument( document.name )">
+                  <span class="glyphicon glyphicon-remove"></span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="col-xs-12 row text-center" ng-show="$ctrl.hasManifest()">
+          <button type="button" class="btn btn-primary" ng-click="$ctrl.processManifest()">Process manifest</button>
+        </div>
+      </div>
       <div ng-show="$ctrl.waiting.documents">
         <div class="center-block loader"></div>
         <h2 class="text-center">Please wait...</h2>

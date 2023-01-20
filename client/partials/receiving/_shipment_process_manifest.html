@@ -1,11 +1,12 @@
-<div class="container" ng-controller="ShipmentCreationPostCtrl as $ctrl">
+<div class="container" ng-controller="ShipmentProcessManifestCtrl as $ctrl">
 
-  <h2>Shipment post-creation processing</h2>
+  <h2>Shipment manifest processing</h2>
 
   <div class="panel panel-default">
     <div class="panel-body">
       <ul>
-        <li>Information from the previous page has already been saved.</li>
+        <li>Information input at creation time has already been saved.</li>
+        <li>Only the first listed manifest on the shipment will be processed.</li>
         <li>Any <span class="text-danger">red</span> values below are computed from the uploaded manifest and will not be saved until the <strong>Accept</strong> button at the bottom of the page has been clicked.</li>
         <li><span class="text-danger">Red</span> values in parentheses will overwrite existing values when <strong>Accept</strong> is clicked.</li>
         <li>Generated pallet manifests are not saved until <strong>Accept</strong> is clicked.</li>
@@ -98,6 +99,7 @@
   <div ng-show="$ctrl.pallets">
     <h3>Extracted pallets</h3>
     <div ng-show="$ctrl.unexpectedPallets">Rows in <span class="text-danger">red</span> represent pallets extracted from the manifest which were not submitted at shipment creation time. Data for such pallets will not be saved.</div>
+
     <table class="table table-striped">
 
       <thead><tr>

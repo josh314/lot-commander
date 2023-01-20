@@ -358,7 +358,7 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
           .then( shipment => {
             const manifest = vm.inputs.documents.find( _d => isManifestFile( _d ) );
             if( manifest ) {
-              navigate.shipmentCreationPost( shipment._id );
+              navigate.shipmentProcessManifest( shipment._id );
             }
             else {
               navigate.shipmentDetails( shipment._id );

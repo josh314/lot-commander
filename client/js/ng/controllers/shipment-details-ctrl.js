@@ -78,7 +78,9 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     vm.removeDocument = removeDocument;
     vm.uploadDocument = uploadDocument;
     vm.isManifestFile = isManifestFile;
+    vm.hasManifest = hasManifest;
     vm.cleanManifest = cleanManifest;
+    vm.processManifest = () => navigate.shipmentProcessManifest( vm.shipment._id );
 
     vm.removeExpectedPallet = removeExpectedPallet;
     vm.addExpectedPallet = {
@@ -417,6 +419,10 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
     function isManifestFile( _document ) {
       return _document.documentType === 'manifest' && ManifestFileHandlerSvc.isManifestFile( _document.name );
+    }
+
+    function hasManifest() {
+      return vm.documents && vm.documents.some( isManifestFile );
     }
 
     function preloadDocument( $event ) {

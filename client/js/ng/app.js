@@ -48,8 +48,8 @@ const stateData = [
   { name: "main.shipments", abstract: true, navName: "Shipments", url: "/shipments", templateUrl: 'partials/_container.html'},
   { name: "main.shipments.list", navName: "All shipments", navParent: 'Shipments', url: "/list", templateUrl: 'partials/receiving/_shipment_list.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
   { name: "main.shipments.creation", navName: "New Shipment", navParent: 'Shipments', url: '/create', templateUrl: '/partials/receiving/_shipment_creation.html', userPermission: 'CREATE_INCOMING_SHIPMENT' },
-  { name: "main.shipments.creation-post", url: '/{shipmentId}/create-post', templateUrl: '/partials/receiving/_shipment_creation_post.html', userPermission: 'CREATE_INCOMING_SHIPMENT' },
   { name: "main.shipments.details", url: '/{shipmentId}', templateUrl: '/partials/receiving/_shipment_details.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
+  { name: "main.shipments.process-manifest", url: '/{shipmentId}/process-manifest', templateUrl: '/partials/receiving/_shipment_process_manifest.html', userPermission: 'EDIT_INCOMING_SHIPMENT' },
   { name: "main.shipments.receiving", url: '/{shipmentId}/receive', templateUrl: '/partials/receiving/_shipment_receiving.html', userPermission: 'RECEIVE_INCOMING_SHIPMENT' },
   { name: "main.shipments.clean-manifest", url: '/{shipmentId}/manifests/clean', templateUrl: '/partials/_clean_manifest.html', userPermission: 'VIEW_INCOMING_SHIPMENT' },
 
@@ -61,7 +61,7 @@ const stateData = [
   { name: "main.inventory-pallets.repack", navName: "Repack pallet", navParent: 'Pallets', url: '/{palletId}/repack', optionalParams: ['palletId'], templateUrl: '/partials/receiving/_inventory_pallet_repack.html', userPermission: { 'or': [ 'REPACK_INVENTORY_PALLET', 'EDIT_INVENTORY_PALLET' ] } },
 
 
-  // ordes
+  // orders
   { name: "main.orders", abstract: true, navName: "Orders", url: "/orders", templateUrl: 'partials/_container.html'},
   // { name: "main.orders.list", navName: 'All orders', navParent: 'Orders', url: "/list", templateUrl: 'partials/orders/_orders_list.html', userPermission: 'LIST_SHOPIFY_ORDERS' },
   { name: "main.orders.queue", navName: 'Queue', navParent: 'Orders', url: "/queue", templateUrl: 'partials/orders/_order_queue.html', userPermission: 'LIST_SHOPIFY_ORDERS' },

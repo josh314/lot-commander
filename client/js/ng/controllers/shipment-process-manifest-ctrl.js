@@ -3,8 +3,8 @@ import angular from 'angular';
 import * as util from '../../utilities';
 
 
-/******************* Shipment Post Creation Page Controller *************************/
-angular.module('myApp').controller( 'ShipmentCreationPostCtrl', [
+/******************* Shipment Process Manifest Page Controller *************************/
+angular.module('myApp').controller( 'ShipmentProcessManifestCtrl', [
 
   'ManifestFileHandlerSvc',
   'ModalSvc',
@@ -112,26 +112,54 @@ angular.module('myApp').controller( 'ShipmentCreationPostCtrl', [
 
     }
 
+    function loadManifestByName( name ) {
+      return vm.shipment.getShipmentDocument( name ).then( file => {
+
+        const manifest = ManifestFileHandlerSvc.parse( file, { noHeaderRow: false, skipFirstRows: 0, skipLastRows: 0 } );
+        vm.manifest = manifest;
+        processManifest();
+        vm.waiting = false;
+      });
+    }
+
 
     function loadManifest( ) {
 
-      const manifestMetadata = vm.documents.find( _d => _d.documentType === 'manifest' );
+      const manifests = vm.documents.filter( _d => _d.documentType === 'manifest' );
 
-      if( manifestMetadata ) {
-        return vm.shipment.getShipmentDocument( manifestMetadata.name ).then( file => {
+      if( manifests.length === 1 ) {
 
-          const manifest = ManifestFileHandlerSvc.parse( file, { noHeaderRow: false, skipFirstRows: 0, skipLastRows: 0 } );
-          vm.manifest = manifest;
-          processManifest();
-          vm.waiting = false;
-        });
+        const manifestMetadata = manifests[0];
+
+        return loadManifestByName( manifestMetadata.name );
+
       }
+      else if ( manifests.length > 1 ) {
+
+        const options = manifests.map( _ => ({ label: _.name }) );
+
+        return ModalSvc.chooseOptions( { options, header: 'Multiple manifests', message: 'Choose one manifest to process', chooseOnlyOne: true } ).then( _options => {
+
+          const chosenManifest = _options.find( _ => _.selected );
+
+          return loadManifestByName( chosenManifest.label );
+
+        } );
+
+      }
+      else {
+        return failedToLoadManifest();
+      }
+    }
+
+    function failedToLoadManifest() {
+      return ModalSvc.message({ header: 'Failure', body: 'Manifest could not be retrieved.', type: 'error' }).then( navigate.shipmentDetails( vm.shipment._id ) );
     }
 
     function processManifest() {
 
       if( !vm.manifest ) {
-        return ModalSvc.message( { header: 'Failure', body: 'Manifest could not be retrieved.', type: 'error' } );
+        return failedToLoadManifest();
       }
 
       const results = ManifestFileHandlerSvc.defaultProcessActiveManifest();
@@ -194,6 +222,40 @@ angular.module('myApp').controller( 'ShipmentCreationPostCtrl', [
       }
     }
 
+    async function handleUnexpectedPallets() {
+
+      if( !vm.unexpectedPallets ) {
+        return;
+      }
+
+      const addUnexpectedPalletsToShipment = await ModalSvc.confirm({
+        header: 'Unexpected pallets',
+        html: '<p>Manifest contains pallets not registered at shipment creation time.</p><p>Add to shipment?</p>',
+      });
+
+      if( !addUnexpectedPalletsToShipment ) {
+        return;
+      }
+
+      const newPalletRequests = [];
+      for( let _p of vm.pallets ) {
+
+        const newPalletPromise = vm.shipment.addExpectedPallet( {
+          handle: _p.name,
+          category: vm.shipment.category,
+          condition: vm.shipment.condition
+        } );
+
+        newPalletRequests.push( newPalletPromise );
+
+      }
+
+      await Promise.all( newPalletRequests );
+
+      navigate.reload();
+
+    }
+
     function init() {
       vm.displayAsMoney = util.displayAsMoney;
       vm.accept = accept;
@@ -206,6 +268,7 @@ angular.module('myApp').controller( 'ShipmentCreationPostCtrl', [
       loadShipment()
         .then( loadDocuments )
         .then( loadManifest )
+        .then( handleUnexpectedPallets )
         .then(()=>console.log(vm));
 
     }

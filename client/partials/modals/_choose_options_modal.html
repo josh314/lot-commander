@@ -1,0 +1,24 @@
+<div>
+  <div class="modal-header" ng-show="$ctrl.header">
+    <h3 class="modal-title">{{ $ctrl.header }}</h3>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-xs-12">
+        <p ng-show="$ctrl.message">{{ $ctrl.message }}</p>
+        <div class="form-group col-xs-12" ng-repeat="$option in $ctrl.options track by $index">
+          <div class="checkbox">
+            <label for="option-{{ $index }}-input">
+              <input type="checkbox" id="option-{{ $index }}-input" ng-model="$option.selected">
+              {{ $option.label }}
+            </label>
+          </div>
+        </div>
+        <p ng-show="$ctrl.isOverChosen()" class="text-danger">Please choose only one</p>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-danger" type="button" ng-click="$close( $ctrl.options )" ng-disabled="$ctrl.disableButton()">Select</button>
+  </div>
+</div>

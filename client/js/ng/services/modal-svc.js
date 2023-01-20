@@ -5,6 +5,7 @@ import * as util from '../../utilities';
 /******************* One Modal Service to Rule Them All ******************************/
 angular.module('myApp').factory('ModalSvc', [
 
+  'ChooseOptionsModal',
   'ConfirmationModal',
   'InventoryPalletDetailsModalSvc',
   'ManifestFileOptionsModal',
@@ -16,6 +17,7 @@ angular.module('myApp').factory('ModalSvc', [
 
   function(
 
+    ChooseOptionsModal,
     ConfirmationModal,
     InventoryPalletDetailsModalSvc,
     ManifestFileOptionsModal,
@@ -29,6 +31,7 @@ angular.module('myApp').factory('ModalSvc', [
 
     return {
 
+      chooseOptions: ChooseOptionsModal.launch.bind( ChooseOptionsModal ),
       confirm: ConfirmationModal.launch.bind( ConfirmationModal ),
       inventoryPalletDetails: InventoryPalletDetailsModalSvc.launch.bind( InventoryPalletDetailsModalSvc ),
       manifestFileOptions: ManifestFileOptionsModal.launch.bind( ManifestFileOptionsModal ),
@@ -62,6 +65,69 @@ angular.module('myApp').factory('ModalSvc', [
   }
 ]);
 
+/******************* Choose Options Modal service ******************************/
+angular.module('myApp').factory( 'ChooseOptionsModal', [ '$uibModal', function( $uibModal ){
+
+  return {
+
+    launch: function( { header, message, options, chooseOnlyOne = false } ) {
+
+      const modalInstance = $uibModal.open({
+        templateUrl: '/partials/modals/_choose_options_modal.html',
+        size: 'lg',
+        backdrop: 'static',
+
+        resolve: {
+          data: function () {
+            return {
+              header,
+              message,
+              options: JSON.parse( JSON.stringify( options ) ),
+              chooseOnlyOne
+            };
+          }
+        },
+
+        controller: [ 'data', function( data ) {
+
+          const vm = this;
+          Object.assign( vm, data );
+          vm.options.forEach( _ => _.selected = false );
+
+          const countSelected = () => vm.options.filter( _ => _.selected ).length;
+
+          vm.isOverChosen = () => {
+
+            if ( chooseOnlyOne && countSelected() > 1 ) {
+              return true;
+            }
+            else {
+              return false;
+            }
+
+          };
+
+          vm.disableButton = () => {
+
+            if( countSelected() <=0 ) {
+              return true;
+            }
+            else {
+              return vm.isOverChosen();
+            }
+
+          };
+
+        }],
+        controllerAs: '$ctrl'
+
+      });
+
+      return modalInstance.result;
+    }
+
+  };
+}]);
 
 /******************* Message Modal service ******************************/
 angular.module('myApp').factory( 'messageModal', [ '$uibModal', function( $uibModal ) {

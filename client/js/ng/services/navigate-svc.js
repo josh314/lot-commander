@@ -46,11 +46,6 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     $state.go( 'main.shipments.creation');
   };
 
-  const shipmentCreationPost = shipmentId => {
-    $anchorScroll();
-    $state.go( 'main.shipments.creation-post', { shipmentId: shipmentId } );
-  };
-
   const shipmentDetails = shipmentId => {
     $anchorScroll();
     $state.go( 'main.shipments.details', { shipmentId: shipmentId } );
@@ -59,6 +54,11 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
   const shipmentList = () => {
     $anchorScroll();
     $state.go( 'main.shipments.list' );
+  };
+
+  const shipmentProcessManifest = shipmentId => {
+    $anchorScroll();
+    $state.go( 'main.shipments.process-manifest', { shipmentId: shipmentId } );
   };
 
   const shipmentReceiving = shipmentId  => {
@@ -125,9 +125,9 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     repackPallet: repackPallet,
     shipmentCleanManifest: shipmentCleanManifest,
     shipmentCreation: shipmentCreation,
-    shipmentCreationPost: shipmentCreationPost,
-    shipmentDetails: shipmentDetails,
-    shipmentList: shipmentList,
+    shipmentDetails,
+    shipmentList,
+    shipmentProcessManifest,
     shipmentReceiving: shipmentReceiving,
     submitListing: submitListing,
     scanLot: scanLot,
