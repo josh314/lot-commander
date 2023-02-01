@@ -1102,8 +1102,7 @@ export class Sheet {
     return this.rows.findIndex( _r => _r[ __STANDARD_MANIFEST_BARCODE_COLUMN__ ] === barcode );
   }
 
-  // Note that amount is signed!
-  adjustLineItemQuantity( barcode, amount, keepZeroQuantity ) {
+  addLineItemQuantity( barcode, amount ) {
     const idx = this.getLineItemIndexByBarcode( barcode );
     if( idx >= 0 ) {
 
@@ -1140,11 +1139,52 @@ export class Sheet {
 
         row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ] += amount;
 
-        if( !keepZeroQuantity && row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ] <= 0 ) {
-          this.removeRow( idx );
-        }
+      }
+
+    }
+
+  }
+
+  removeLineItemQuantity( barcode, amount ) {
+
+    let amountLeftToRemove = amount;
+    while( amountLeftToRemove > 0 ) {
+
+      const _idx = this.getLineItemIndexByBarcode( barcode );
+      const row = this.rows[_idx];
+
+      const _rowAmount = row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ];      
+
+      if( !_rowAmount ) {
+        continue;
+      }
+
+      let _amountToRemoveFromThisRow = ( amountLeftToRemove < _rowAmount ) ? amountLeftToRemove : _rowAmount;
+
+      // update retail price - must be done before adjusting the row quantity
+      if( row[ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ] ) {
+
+        const unitRetailPrice = row[ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ] / _rowAmount;
+        row[ __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__ ] -= _amountToRemoveFromThisRow * unitRetailPrice;
 
       }
+
+      // update sale price - must be done before adjusting the row quantity
+      if( row[ __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__ ]   ) {
+
+        const unitSalePrice = row[ __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__ ] / _rowAmount;
+        row[ __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__ ] -= _amountToRemoveFromThisRow * unitSalePrice;
+
+      }
+
+      row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ] -= _amountToRemoveFromThisRow;
+
+      if( row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ] <= 0 ) {
+
+        this.removeRow( _idx );
+      }
+
+      amountLeftToRemove -= _amountToRemoveFromThisRow;
 
     }
 

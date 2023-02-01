@@ -365,7 +365,7 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
             const barcode = _item[ __BARCODE__ ];
 
             if( sheet.getLineItemByBarcode( barcode ) ) {
-              sheet.adjustLineItemQuantity( barcode, _item.numRemoved );
+              sheet.addLineItemQuantity( barcode, _item.numRemoved );
             }
             else{
               // add back in line items that were completely removed
@@ -491,7 +491,7 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
         const sheet = vm.manifest.getActiveSheet();
         for( let _item of vm.removedItems ) {
 
-          sheet.adjustLineItemQuantity( _item[ __BARCODE__ ], - _item.numRemoved );
+          sheet.removeLineItemQuantity( _item[ __BARCODE__ ], _item.numRemoved );
 
         }
 
