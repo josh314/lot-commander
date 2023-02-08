@@ -56,6 +56,8 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
     vm.showTransportationCost = LoggedInUser.hasPermission('VIEW_TRANSPORTATION_COST');
     vm.showRestrictedDocuments = vm.showPurchasingData;
+    vm.showPricingData = LoggedInUser.hasPermission('VIEW_PRICING_DATA');
+    vm.allowEditPricingData = LoggedInUser.hasPermission('EDIT_PRICING_DATA');
 
 
     vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );
@@ -171,15 +173,8 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
             .then( resp => {
               if( resp.success ) {
 
-                if( key === 'category' && vm.editValue.category ) { /* The second condition allows blanking the shipment category without blanking the pallet categories */
-                  vm.shipment.palletsExpected.forEach( p => p.category = vm.editValue.category );
-                }
+                navigate.reload();
 
-                if( key === 'totalUnits' ) {
-                  vm.shipment.palletsExpected.forEach( p => delete p.units );
-                }
-
-                return vm.shipment[ key ] = vm.editValue[ key ];
               }
               else {
                 throw new Error(resp.error);
@@ -838,6 +833,7 @@ angular.module('myApp').factory( 'DisplayPalletFactory', [ 'ModalSvc',
         'condition',
         'cost',
         'toBeListed',
+        'priceValuePercentage',
       ],
       received: [
         'handle',

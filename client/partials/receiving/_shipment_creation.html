@@ -47,6 +47,17 @@
       </div>
     </fieldset>
 
+    <fieldset class="col-xs-12 box-border" ng-show="$ctrl.showPricingData">
+      <legend class="box-border">Sales</legend>
+      <div class="row">
+        <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.validator.invalidPriceValuePercentage }">
+          <label for="priceValuePercentageInput">Price/value percentage</label>
+          <input type="number" class="form-control" id="priceValuePercentageInput" ng-model="$ctrl.inputs.priceValuePercentage" autocomplete="off" ng-disabled="!$ctrl.allowEditPricingData">
+          <span class="text-danger h4" ng-show="$ctrl.validator.invalidPriceValuePercentage">Invalid value.</span>
+        </div>
+      </div>
+    </fieldset>
+
     <fieldset class="col-xs-12 box-border">
       <legend class="box-border">Documents</legend>
   

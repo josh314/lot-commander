@@ -8,6 +8,7 @@ const incomingShipmentSchema = mongoose.Schema({
   category: String,
   condition: String,
   totalUnits: Number,
+  priceValuePercentage: Number,
   origin: String,
   carrier: String,
   arrivalDateExpected: Date,
@@ -20,6 +21,7 @@ const incomingShipmentSchema = mongoose.Schema({
     cost: Number,
     units: Number,
     retailValue: Number,
+    priceValuePercentage: Number,
     salePrice: Number,
     category: String,
     condition: String,
@@ -68,7 +70,7 @@ incomingShipmentSchema.virtual( 'cost' )
 
 
 /***********************
- * IncomingShipment pre-save hook
+ * IncomingShipment pre hooks
  * 
  ******/
 incomingShipmentSchema.pre( 'save', function(next) {
@@ -127,6 +129,13 @@ incomingShipmentSchema.pre( 'save', function(next) {
  ******/
 
 incomingShipmentSchema.methods.edit = function( data ) {
+
+  if( data.priceValuePercentage ) { // set pallet PVR from shipment-level priceValuePercentage
+
+    this.palletsExpected.forEach( p => p.priceValuePercentage = data.priceValuePercentage );
+
+  }
+
   Object.assign( this, data );
   return this.save();
 };

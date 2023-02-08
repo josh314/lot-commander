@@ -17,6 +17,9 @@
 					</span>
           <b>Total Unit Count: </b>{{ $ctrl.lot.totalUnits }}<br>
           <b>Estimated Retail Value: </b>{{ $ctrl.lot.getEstimatedRetailValue() ? $ctrl.lot.getEstimatedRetailValue() : '---' }}<br>
+          <span ng-show="$ctrl.showPricingData">
+            <b>Price/value percentage: </b>{{ $ctrl.lot.getPriceValuePercentage() ? $ctrl.lot.getPriceValuePercentage() + '%' : '---' }}<br>
+          </span>
           <b>Packaging Type: </b>{{ $ctrl.lot.packagingType }}<br>
           <span ng-show="$ctrl.lot.numBoxes"><b>Number of Boxes: </b>{{ $ctrl.lot.getNumBoxes() }}<br></span>
           <span ng-hide="$ctrl.lot.numBoxes"><b>Shipping Items: </b>{{ $ctrl.lot.getShippingItems().length }} <small>[<a href ng-click="$ctrl.toggleShowShippingItems()">{{ $ctrl.showShippingItems ? "Hide Details" : "Show Details" }}</a>]</small><br></span>

@@ -5,6 +5,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
 
   'dbEnums',
   'ListingsSvc',
+  'LoggedInUser',
   'lot',
   'palletProperties',
   'ModalSvc',
@@ -13,6 +14,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
 
     dbEnums,
     ListingsSvc,
+    LoggedInUser,
     lot,
     palletProperties,
     ModalSvc,
@@ -22,7 +24,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
     const vm = this;
 
     // VM data
-    vm.lot = JSON.parse( JSON.stringify( lot ) );// deep clone of lot so edits are emphemeral before save
+    vm.lot = JSON.parse( JSON.stringify( lot ) );// deep clone of lot so edits are ephemeral before save
     vm.lotStatusEnum = dbEnums.lotStatus;
     vm.lotCategoryOptions = [''].concat(palletProperties.category);
     vm.lotTypeEnum = dbEnums.lotType;
@@ -31,6 +33,10 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
     vm.marketplaces = [undefined].concat( dbEnums.marketplaces );
     vm.openPackagingTypeInfo = ModalSvc.packagingTypeInfo.bind( ModalSvc );
     vm.titleTooLong = {};
+
+
+    vm.allowEditPricingData = LoggedInUser.hasPermission( 'EDIT_PRICING_DATA' ) || !vm.lot.estimatedRetailValue;
+
 
     // VM methods
     vm.verifyTitle = verifyTitle;

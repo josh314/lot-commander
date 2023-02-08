@@ -428,6 +428,12 @@ class InventoryCommander {
       throw new IllegalActionError(`Shipment with handle ${_data.handle} already exists.`, 'DUPLICATE_SHIPMENT_HANDLE');
     }
 
+    if( _data.priceValuePercentage && Array.isArray( _data.palletsExpected ) ) {
+
+      _data.palletsExpected.forEach( _p => _p.priceValuePercentage = _data.priceValuePercentage );
+
+    }
+
     const data = Object.assign(
       {
         isPaidFor: false,
@@ -558,6 +564,17 @@ class InventoryCommander {
 
         for( let palletId of palletsToUpdate ) {
           await this.editInventoryPallet( palletId, { condition: editDocument.condition } );
+        }
+
+      }
+
+      // if a priceValuePercentage change (besides the removal of PVR), propagate to the pallets
+      if( editDocument.priceValuePercentage ) {
+
+        const palletsToUpdate = shipment.palletsReceived.concat( shipment.palletsConsolidated );
+
+        for( let palletId of palletsToUpdate ) {
+          await this.editInventoryPallet( palletId, { priceValuePercentage: editDocument.priceValuePercentage } );
         }
 
       }
@@ -776,6 +793,11 @@ class InventoryCommander {
     // use corresponding expected pallet's retailValue
     if( correspondingPalletExpected && correspondingPalletExpected.retailValue ) {
       basePalletObject.retailValue = correspondingPalletExpected.retailValue;
+    }
+
+    // use corresponding expected pallet's priceValuePercentage
+    if( correspondingPalletExpected && correspondingPalletExpected.priceValuePercentage ) {
+      basePalletObject.priceValuePercentage = correspondingPalletExpected.priceValuePercentage;
     }
 
     // use corresponding expected pallet's salePrice

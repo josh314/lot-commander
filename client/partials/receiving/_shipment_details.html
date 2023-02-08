@@ -56,6 +56,22 @@
             </dd>
           </div>
         </div>
+
+        <div ng-show="$ctrl.showPricingData">
+          <div ng-hide="$ctrl.isEditing[ 'priceValuePercentage' ]">
+            <dt>Price/value percentage<span ng-hide="!$ctrl.showEditControls || !$ctrl.allowEditPricingData"> (<a href ng-click="$ctrl.openEdit( 'priceValuePercentage' )">edit</a>)</span></dt>
+            <dd ng-hide="$ctrl.isEditing[ 'priceValuePercentage' ]">
+              {{ $ctrl.shipment.priceValuePercentage ? $ctrl.shipment.priceValuePercentage + '%' : '----' }}
+            </dd>
+          </div>
+          <div ng-show="$ctrl.isEditing[ 'priceValuePercentage' ]">
+            <dt>Price/value percentage (<a href ng-click="$ctrl.saveEdit( 'priceValuePercentage' )" style="color: red">save</a> or <a href ng-click="$ctrl.closeEdit( 'priceValuePercentage' )" style="color: red">cancel edit</a>)</dt>
+            <dd ng-show="$ctrl.isEditing[ 'priceValuePercentage' ]">
+              <input ng-model="$ctrl.editValue[ 'priceValuePercentage' ]" />
+            </dd>
+          </div>
+        </div>
+
         <div ng-show="$ctrl.showTransportationCost">
           <div ng-hide="$ctrl.isEditing[ 'transportationCost' ]">
             <dt>Transportation Cost<span ng-hide="!$ctrl.showEditControls"> (<a href ng-click="$ctrl.openEdit( 'transportationCost' )">edit</a>)</span></dt>
@@ -325,6 +341,7 @@
         <th>Category</th>
         <th>Condition</th>
         <th>To Be Listed</th>
+        <th ng-show="$ctrl.showPricingData">Price/value percentage</th>
         <th ng-hide="$ctrl.somePalletsEditing( $ctrl.shipment.palletsExpected )">Received?</th>
         <th ng-show="$ctrl.showEditControls"></th>
         <th ng-show="$ctrl.showEditControls"></th>
@@ -377,6 +394,14 @@
             </span>
             <span ng-hide="pallet.isEditing">
               <span class="glyphicon glyphicon-ok" ng-show="pallet.toBeListed"></span>
+            </span>
+          </td>
+          <td ng-show="$ctrl.showPricingData">
+            <span ng-show="pallet.isEditing">
+              <input type="number" class="form-control" ng-model="pallet.editValues.priceValuePercentage"  style="width:80px;" ng-change="pallet.validate()" />
+            </span>
+            <span ng-hide="pallet.isEditing">
+              {{ pallet.priceValuePercentage ? pallet.priceValuePercentage + '%' : '' }}
             </span>
           </td>
           <td ng-hide="$ctrl.somePalletsEditing( $ctrl.shipment.palletsExpected )">

@@ -1,6 +1,6 @@
 import angular from 'angular';
 
-const __DEFAULT_LOT_PRICE_RATIO__ = .15;
+const __DEFAULT_LOT_PRICE_VALUE_PCT__ = 15;
 
 /******************* Submit Listing Controller *************************/
 angular.module('myApp').controller( 'SubmitListingCtrl', [
@@ -39,9 +39,11 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
 
     function init() {
 
-      vm.defaultPriceRatio = __DEFAULT_LOT_PRICE_RATIO__;
       vm.waitingForResponse = false;
       vm.lot = lotStore;
+      vm.allowEditPricingData = LoggedInUser.hasPermission( 'EDIT_PRICING_DATA' ) || !vm.lot.estimatedRetailValue;
+
+      vm.priceValuePercentage = vm.lot.priceValuePercentage || __DEFAULT_LOT_PRICE_VALUE_PCT__;
 
       // Form options
       vm.formOptions = {
@@ -134,7 +136,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
         marketplace: LoggedInUser.hasMarketplacePermission( vm.lot.destinationMarketplace ) ? vm.lot.destinationMarketplace : vm.formOptions.marketplaces[0],
         // bstock defaults
         auctionStartPrice: '300',
-        shopifyPrice: estimatedRetailValue ? ( __DEFAULT_LOT_PRICE_RATIO__*parseFloat(estimatedRetailValue) ).toFixed(2) : '',
+        shopifyPrice: estimatedRetailValue ? ( vm.priceValuePercentage*parseFloat(estimatedRetailValue)/100 ).toFixed(2) : '',
         condition: ({'shelf-pull': 'Shelf Pulls','customer returns': 'Customer Returns','salvage': 'Salvage'})[vm.lot.type] || '',
         packaging: 'Original',
         shipping: {

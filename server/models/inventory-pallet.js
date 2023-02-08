@@ -8,6 +8,7 @@ const inventoryPalletSchema = mongoose.Schema({
   units: Number,
   removedItems: [ Object ],
   retailValue: Number,
+  priceValuePercentage: Number,
   salePrice: Number,
   hasProblem: Boolean,
   note: String,
@@ -65,6 +66,10 @@ inventoryPalletSchema.pre( 'save', function(next) {
     this.isDeleted = false;
   }
 
+  if( !this.priceValuePercentage || this.priceValuePercentage < 0 ) {
+    this.priceValuePercentage = 15;
+  }
+
   // In the below, we normalize falsy properties for the string-valued fields. This actually completely removes the property
   if( !this.handle ) {
     this.handle = undefined;
@@ -81,6 +86,7 @@ inventoryPalletSchema.pre( 'save', function(next) {
   if( !this.note ) {
     this.note = undefined;
   }
+
 
   next();
 } );

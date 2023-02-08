@@ -64,6 +64,7 @@ angular.module('myApp').service('lotStore', ['dbEnums',
     this.setThirdPartyManifests = function(_thirdPartyManifests) {this.thirdPartyManifests = _thirdPartyManifests; };
     this.setTotalUnits = function(_totalUnits) { this.totalUnits = _totalUnits; };
     this.setEstimatedRetailValue = function(_estimatedRetailValue) { this.estimatedRetailValue = _estimatedRetailValue; };
+    this.setPriceValuePercentage = function(_priceValuePercentage) { this.priceValuePercentage = _priceValuePercentage; };
     this.setManifestFileLocation = function(_manifestFileLocation) { this.manifestFileLocation = _manifestFileLocation; };
     this.updateTotalUnits = () => this.totalUnits = this.inventory ? this.inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 ;
 
@@ -121,6 +122,9 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       }
       if(_lot.estimatedRetailValue) {
         this.setEstimatedRetailValue(_lot.estimatedRetailValue);
+      }
+      if(_lot.priceValuePercentage) {
+        this.priceValuePercentage = _lot.priceValuePercentage;
       }
       if(_lot.submittedListings) {
         this.setSubmittedListings(_lot.submittedListings);
@@ -253,6 +257,8 @@ angular.module('myApp').service('lotStore', ['dbEnums',
       }
       return value ? value.toFixed(2) : '';
     };
+
+    this.getPriceValuePercentage = function() { return this.priceValuePercentage; };
 
     this.getShippingItems = function() { return this.shippingItems; };
 
