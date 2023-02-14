@@ -1,6 +1,6 @@
 {
   "name": "lot-commander",
-  "version": "9.2.0",
+  "version": "9.4.0",
   "private": true,
   "description": "Multi-purpose inventory management services for product lots.",
   "main": "server/index.js",
@@ -19,6 +19,7 @@
   "author": "Jorshua \"El\" Davis",
   "license": "UNLICENSED",
   "dependencies": {
+    "agenda": "~4.4.0",
     "angular": "^1.7.9",
     "angular-animate": "^1.6.3",
     "angular-cookies": "^1.6.9",
@@ -65,7 +66,7 @@
     "serve-favicon": "^2.5.0",
     "sharp": "^0.31.2",
     "shopify": "git+ssh://git@gitlab.com/josh314/shopify.git#1.2.0",
-    "upcitemdb": "git+ssh://git@gitlab.com/josh314/lib-upcitemdb.git#2.0.0",
+    "upc-item-db": "git+ssh://git@gitlab.com/wazue/upc-item-db.git#1.0.0",
     "url-loader": "^1.1.2",
     "webpack": "^4.32.2",
     "webpack-cli": "^3.3.2",

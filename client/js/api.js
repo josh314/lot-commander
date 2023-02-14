@@ -1162,3 +1162,27 @@ export function countOrders( qp ) {
   })
     .then( resp => resp.data.count );
 }
+
+
+/*************************************************
+* Product Data
+* ============
+*
+************/
+
+export function getProductDataByBarcode( barcode ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/product-data/${ barcode }`
+  })
+    .then( resp => resp.data );
+}
+export function queueProductDataFetching( barcodes ) {
+  return axios({
+    method: 'post',
+    url: `/api/product-data/queue`,
+    data: { barcodes }
+  })
+    .then( resp => resp.data );
+}

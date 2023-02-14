@@ -26,7 +26,7 @@ module.exports = function( { lotdb } ) {
       productDataReqs.push(
         productData.getProductDataByBarcode(manifestItem.barcode).then(retrievedProductData => {
           const res = {
-            barcode: retrievedProductData.normalizedBarcode ? retrievedProductData.normalizedBarcode : manifestItem.barcode,
+            barcode: retrievedProductData.barcode ? retrievedProductData.barcode : manifestItem.barcode,
             title: retrievedProductData.title || retrievedProductData.description || manifestItem.title || manifestItem.description,
             quantity: manifestItem.quantity,
             price: retrievedProductData.price || manifestItem.price,

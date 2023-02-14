@@ -206,38 +206,46 @@ class Server {
     // });
 
     //======================================================
-    // Main app routes =====================================
+    // Module initialization ===============================
     //======================================================
 
-    // Initialize database and APi clients to serve as dependencies for the routers
+    // Initialize database module(s) and API clients to serve as dependencies for the routers
 
+    // events and history
     const EventsDb = require('./modules/events-db');
     const eventsDbClient = new EventsDb.Client( this.mongooseConnection );
 
+    // Mongoose model manager
     const ModelCommander = require('./models');
     const models = new ModelCommander( this.mongooseConnection );
 
-
+    // Lot DB
     const LotDbClient = require('./modules/lot-db-client').Client;
     const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'))( new LotDbClient( models ) );
 
+    // Inventory commander - pallets, shipments
     const InventoryCommander = require('./modules/inventory-commander');
     const inventoryCommander = new InventoryCommander( models );
 
+    // Shopify order cache
     const ShopifyOrders = require('./modules/shopify-orders');
     const shopifyOrders = new ShopifyOrders( models );
 
+    // Counter
     const CountCommander = require('./modules/count-commander');
     const countCommander = new CountCommander( models.Counter );
 
+    // Ad-hoc inventory manager
     const ManualInventoryDb = require('./modules/manual-inventory-db');
     const manualInventoryDbClient = new ManualInventoryDb.Client( { mongooseConnection: this.mongooseConnection } );
 
+    // Old-style scanned lot manifests
     const manifests = require('./modules/manifests')( { lotdb } );
 
+    // Bstock module
     const bstock = require( './modules/bstock' );
 
-
+    // Shopify client(s)
     const shopifyStoreConfig = __config.shopify.stores;
 
     const ShopifyGql = require( './modules/shopify-gql' );
@@ -266,6 +274,21 @@ class Server {
     const ListingsSubmitter = require( './modules/listings-submitter' );
     const listingsSubmitter = new ListingsSubmitter( { bstock, shopifyAdminClient, manifests } );
 
+    // Product data
+
+    const UpcItemDbClient = require( './modules/upc-item-db' );
+    const upcItemDb = new UpcItemDbClient( {
+      connection: this.mongooseConnection,
+      settings: this.config.upcItemDb
+    } );
+
+    const ProductData = require( './modules/product-data' );
+    const productData = new ProductData( { upcItemDb, mongo: this.mongooseConnection.db } );
+
+    //======================================================
+    // Main app routes =====================================
+    //======================================================
+
     const routerOpts = {
       bstock,
       countCommander,
@@ -275,6 +298,7 @@ class Server {
       lotdb,
       manifests,
       manualInventoryDbClient,
+      productData,
       shopifyGql: shopifyGqlClient,
       shopifyOrders,
       userDbClient: this.users,

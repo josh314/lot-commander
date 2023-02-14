@@ -3,7 +3,6 @@ import angular from 'angular';
 /******************* Scanning Page Controller *************************/
 angular.module('myApp').controller( 'ScanCtrl', [
 
-  '$http',
   'AudioAlertSvc',
   'focus',
   'ImageSvc',
@@ -11,11 +10,11 @@ angular.module('myApp').controller( 'ScanCtrl', [
   'LotSvc',
   'ModalSvc',
   'navigate',
+  'ProductDataSvc',
   'sessionTimeout',
 
   function(
 
-    $http,
     AudioAlertSvc,
     focus,
     ImageSvc,
@@ -23,6 +22,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
     LotSvc,
     ModalSvc,
     navigate,
+    ProductDataSvc,
     sessionTimeout,
 
   ) {
@@ -42,7 +42,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
     vm.editShippingItems = editShippingItems;
     vm.scanBarcode = scanBarcode;
 
-    vm.numLotBoxes = lotStore.numBoxes; 
+    vm.numLotBoxes = lotStore.numBoxes;
     vm.loadedImages = {};
 
     const save = () => {
@@ -78,11 +78,11 @@ angular.module('myApp').controller( 'ScanCtrl', [
         const item = lotStore.addInventory( scannedBarcode );
         if(item) {
           if(item.quantity==1) {
-            const resp = await $http.get(`/api/product-data/${item.barcode}`);
-            if(resp && resp.data) {
-              item.description = resp.data.title;
-              item.price = resp.data.price;
-              item.images = resp.data.images;
+            const product = await ProductDataSvc.getProductDataByBarcode( item.barcode );
+            if(product) {
+              item.description = product.title;
+              item.price = product.price;
+              item.images = product.images;
             }
           }
           AudioAlertSvc.success();

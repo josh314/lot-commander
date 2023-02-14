@@ -5,7 +5,6 @@ const auth = require('../auth');
 
 const quickLots = require(path.join(__basedir, __config.modulesPath, 'quick-lots'));
 const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
-const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
 // middleware to stick for testing purposes
 // function testLog(s) {
@@ -25,6 +24,7 @@ function routes({
   lotdb,
   manifests,
   manualInventoryDbClient,
+  productData,
   shopifyGql,
   shopifyOrders,
   userDbClient
@@ -41,11 +41,7 @@ function routes({
   router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);
 
   // product data
-  router.get('/api/product-data/:barcode', (req,res)=>{
-    productData.getProductDataByBarcode(req.params.barcode).then(resp=>{
-      res.json(resp);
-    });
-  });
+  router.use('/api/product-data', require('./product-data')( { productData } ) );
 
   // import & register routers
 
