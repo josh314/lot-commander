@@ -27,6 +27,7 @@ const lotSchema = mongoose.Schema({
   category: String,
   totalUnits: Number,
   estimatedRetailValue: Number,
+  priceValuePercentage: Number,
   status: { type: String, enum: statusEnum, required: true },
   listedOn: [{ type: String, enum: marketplaceEnum }],
   soldOn: { type: String, enum: marketplaceEnum },
@@ -96,6 +97,10 @@ lotSchema.pre( 'save', function(next) {
 
   if( typeof this.isDeleted !== 'boolean' ) {
     this.isDeleted = false;
+  }
+
+  if( !this.priceValuePercentage || this.priceValuePercentage < 0 ) {
+    this.priceValuePercentage = .15;
   }
 
   next();

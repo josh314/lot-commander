@@ -105,6 +105,9 @@ exports.Client = function( { Lot } ) {
     if(lot.estimatedRetailValue) {
       updateDocument.estimatedRetailValue = lot.estimatedRetailValue;
     }
+    if( lot.priceValuePercentage ) {
+      updateDocument.priceValuePercentage = lot.priceValuePercentage;
+    }
     if(lot.numBoxes) { // DEPRECATED: use shippingItems for new data
       updateDocument.numBoxes = lot.numBoxes;
     }

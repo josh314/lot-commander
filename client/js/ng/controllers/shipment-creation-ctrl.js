@@ -32,6 +32,8 @@ class ShipmentValidator {
 
       }
 
+      this.invalidPriceValuePercentage = inputs.priceValuePercentage < 0;
+
     }
     else {
       this.clean = true;
@@ -85,9 +87,12 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
     const vm = this;
     vm.showRestrictedDocuments = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+    vm.showPricingData = LoggedInUser.hasPermission('VIEW_PRICING_DATA');
+    vm.allowEditPricingData = LoggedInUser.hasPermission('EDIT_PRICING_DATA');
 
     vm.inputs = {
       isPaidFor: null,
+      priceValuePercentage: 15,
       categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _ === 'general merchandise' ? 'GM' : _, value: _ } ) ) ),
       conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _ === 'customer returns' ? 'returns' : _, value: _ } ) ) ),
       documentTypeOptions: ShipmentManagerSvc.shipmentDocumentTypes.map( _ => _ === '' ? { displayName: 'none', value: _ } : { displayName: _, value: _ } ),

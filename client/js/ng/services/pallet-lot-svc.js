@@ -72,6 +72,10 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
         _data.estimatedRetailValue = pallet.retailValue;
       }
 
+      if( pallet.priceValuePercentage ) {
+        _data.priceValuePercentage = pallet.priceValuePercentage;
+      }
+
       const resp = await LotSvc.create( _data );
 
       if( resp.error ) {

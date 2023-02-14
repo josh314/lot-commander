@@ -39,6 +39,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     vm.showEditingControls = LoggedInUser.hasPermission( 'EDIT_LOT' );
     vm.showDeleteButton = LoggedInUser.hasPermission( 'DELETE_LOT' );
+    vm.showPricingData = LoggedInUser.hasPermission( 'VIEW_PRICING_DATA' );
     vm.waitingForResponse = false;
 
     vm.listingsBoilerplate = listingsBoilerplate;

@@ -38,7 +38,11 @@
     </div>
     <div class="form-group col-xs-12 col-sm-6" >
       <label for="retailValueInput">Retail Value</label>
-      <input class="form-control" type="number" id="retailValueInput" ng-model="$ctrl.inputs.retailValue" ng-disabled="$ctrl.disableEditing">
+      <input class="form-control" type="number" id="retailValueInput" ng-model="$ctrl.inputs.retailValue" ng-disabled="$ctrl.disableEditing || !$ctrl.allowEditPricingData">
+    </div>
+    <div class="form-group col-xs-12 col-sm-6">
+      <label for="priceValuePercentageInput">Price/value percentage</label>
+      <input class="form-control" type="number" id="priceValuePercentageInput" ng-model="$ctrl.inputs.priceValuePercentage" ng-disabled="$ctrl.disableEditing || !$ctrl.allowEditPricingData">
     </div>
     <div class="form-group col-xs-12 col-sm-6" >
       <label for="salePriceInput">Sale Price</label>
