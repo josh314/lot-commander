@@ -29,6 +29,7 @@ class $_ {
       db: { collection: 'product-data-fetch-scheduled-tasks' },
       mongo,
       name: 'lot-commander',
+      disableAutoIndex: true,
     } );
   }
 
@@ -45,6 +46,10 @@ class $_ {
 
   async queueProductDataFetching( barcodes ) {
     return this.agenda.now( "queueProductDataFetching", { barcodes } );
+  }
+
+  bulkGetProductData( barcodes ) {
+    return this.upcItemDb.bulkGetProductData( barcodes );
   }
 
 }

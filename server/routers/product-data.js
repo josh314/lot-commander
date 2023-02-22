@@ -25,6 +25,10 @@ function routes( { productData } ) {
     getProductDataByBarcode
   );
   router.post(
+    '/bulk-get',
+    bulkGetProductDataByBarcode
+  );
+  router.post(
     '/queue',
     queueProductDataFetching
   );
@@ -53,6 +57,23 @@ function routes( { productData } ) {
       await productData.queueProductDataFetching( barcodes );
 
       res.json( { success: true } );
+
+    }
+    catch(e) {
+      next( e );
+    }
+
+  }
+
+
+  async function bulkGetProductDataByBarcode( req, res, next ) {
+
+    try {
+      const barcodes = req.body.barcodes;
+
+      const products = await productData.bulkGetProductData( barcodes );
+
+      res.json( { products } );
 
     }
     catch(e) {

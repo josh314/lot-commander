@@ -347,11 +347,7 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
         return ModalSvc.message({ header: 'Error', body: `No manifest for pallet ${pallet.handle}.`, type: 'error' });
       }
 
-      pallet.getDocument( vm.manifestFilename ).then( data => {
-
-        ManifestFileHandlerSvc.parse( data, vm.manifestFilename, { skipLastRows: 1 } ); //note we are assuming the last row is a totals row
-
-        const manifest = ManifestFileHandlerSvc.getActiveManifest();
+      PalletManifestSvc.loadPalletManifest( pallet, vm.manifestFilename ).then( manifest => {
 
         if( manifest ) {
           vm.manifest = manifest;

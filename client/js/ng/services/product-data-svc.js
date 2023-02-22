@@ -10,9 +10,12 @@ angular.module('myApp').factory( 'ProductDataSvc', [ '$q',
 
     const queueProductDataFetching = barcodes => $q.when( api.queueProductDataFetching( barcodes ) );
 
+    const bulkGetProductData = barcodes => $q.when( api.bulkGetProductData( barcodes ) );
+
     return {
       getProductDataByBarcode,
-      queueProductDataFetching
+      queueProductDataFetching,
+      bulkGetProductData
     };
   }
 ]);

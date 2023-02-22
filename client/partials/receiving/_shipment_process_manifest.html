@@ -11,6 +11,7 @@
         <li><span class="text-danger">Red</span> values in parentheses will overwrite existing values when <strong>Accept</strong> is clicked.</li>
         <li>Generated pallet manifests are not saved until <strong>Accept</strong> is clicked.</li>
         <li>Values computed from the manifest can be rejected without saving using the <strong>Reject</strong> button.</li>
+        <li>Extracted UPCs will be queued for product data fetching and caching.</li>
       </ul>
     </div>
   </div>
@@ -65,12 +66,22 @@
               </span>
             </dd>
 
+            <dt>Unique UPCs</dt>
+            <dd>
+              <span class="text-danger" ng-show="$ctrl.manifestProcessingResults && $ctrl.manifestProcessingResults.barcodes">
+                {{ $ctrl.manifestProcessingResults.barcodes.length }}
+              </span>
+              <span ng-hide="$ctrl.manifestProcessingResults && $ctrl.manifestProcessingResults.barcodes">
+                ----
+              </span>
+            </dd>
+
           </div>
         </dl>
     </div>
   </div>
 
-  <div ng-show="$ctrl.sheetProcessingResults">
+  <div ng-show="$ctrl.manifestProcessingResults">
     <h3>Sheet processing results</h3>
     <table class="table table-striped">
 
@@ -81,7 +92,7 @@
       </tr></thead>
 
       <tbody>
-        <tr ng-repeat="$res in $ctrl.sheetProcessingResults">
+        <tr ng-repeat="$res in $ctrl.manifestProcessingResults.sheets">
 
           <td>{{ $res.sheet.name }}</td>
           <td>

@@ -105,6 +105,14 @@ class Client {
     return productData;
   }
 
+  async getProductDataFromCache( upc ) {
+    return this.upcitemdb.cache.get( upc );
+  }
+
+  bulkGetProductData( barcodes ) {
+    return this.upcitemdb.cache.cache.find( { upc: { $in: barcodes } } );
+  }
+
 }
 
 module.exports = Client;

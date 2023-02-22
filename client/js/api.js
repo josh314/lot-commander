@@ -1186,3 +1186,11 @@ export function queueProductDataFetching( barcodes ) {
   })
     .then( resp => resp.data );
 }
+export function bulkGetProductData( barcodes ) {
+  return axios({
+    method: 'post',
+    url: `/api/product-data/bulk-get`,
+    data: { barcodes }
+  })
+    .then( resp => resp.data );
+}

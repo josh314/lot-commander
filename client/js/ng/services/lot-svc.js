@@ -66,7 +66,7 @@ angular.module('myApp').factory( 'LotSvc', [
 
       generateManifest: ( lotId, save, bstock ) => $q.when( api.generateLotManifest( lotId, save, bstock) ),
 
-      get: ( lotId, { populate, hydratePallet } = {} ) => $q.when( _get( lotId, { populate, hydratePallet } ) ),
+      get: ( lotId, { populate, hydratePallet, hydratePalletNoDocuments } = {} ) => $q.when( _get( lotId, { populate, hydratePallet, hydratePalletNoDocuments } ) ),
 
       getLotByHandle,
 
@@ -100,7 +100,7 @@ angular.module('myApp').factory( 'LotSvc', [
         });
       },
 
-      load: ( { populate } = {} ) => $q.when( _get( $stateParams.lotId, { populate } ).then( async (lot) => {
+      load: ( { populate, hydratePallet, hydratePalletNoDocuments } = {} ) => $q.when( _get( $stateParams.lotId, { populate, hydratePallet, hydratePalletNoDocuments } ).then( async (lot) => {
 
         lotStore.save( lot );
 

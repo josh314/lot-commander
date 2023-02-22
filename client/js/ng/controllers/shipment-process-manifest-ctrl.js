@@ -10,6 +10,7 @@ angular.module('myApp').controller( 'ShipmentProcessManifestCtrl', [
   'ModalSvc',
   'navigate',
   'PalletManifestSvc',
+  'ProductDataSvc',
   'ShipmentManagerSvc',
 
   function(
@@ -18,6 +19,7 @@ angular.module('myApp').controller( 'ShipmentProcessManifestCtrl', [
     ModalSvc,
     navigate,
     PalletManifestSvc,
+    ProductDataSvc,
     ShipmentManagerSvc,
 
   ) {
@@ -42,14 +44,20 @@ angular.module('myApp').controller( 'ShipmentProcessManifestCtrl', [
 
       const isConfirmed = await ModalSvc.confirm({
         header: 'Accept manifest processing?',
-        html: '<p>This will accept all results from processing manifest and save individual pallet manifests and computations of unit and retail value totals.</p><p>Proceed?</p>',
+        html: '<p>This will accept all results from processing manifest and save individual pallet manifests and computations of unit and retail value totals. Extracted UPCs will be scheduled for product data fetching and caching.</p><p>Proceed?</p>',
       });
 
       if( !isConfirmed ) {
         return;
       }
 
-      const uploads = [];
+      const reqs = [];
+
+      if( vm.manifestProcessingResults && vm.manifestProcessingResults.barcodes && vm.manifestProcessingResults.barcodes.length ) {
+        reqs.push( ProductDataSvc.queueProductDataFetching( vm.manifestProcessingResults.barcodes ) );
+      }
+
+
       for ( let p of vm.pallets ) {
 
         const file = p.file;
@@ -75,14 +83,14 @@ angular.module('myApp').controller( 'ShipmentProcessManifestCtrl', [
         }
 
         if ( expectedPallet ) {
-          uploads.push( PalletManifestSvc.uploadExpectedPalletManifest( vm.shipment, expectedPallet._id, file, options ) );
+          reqs.push( PalletManifestSvc.uploadExpectedPalletManifest( vm.shipment, expectedPallet._id, file, options ) );
         }
 
       }
 
       // TODO: any updates to shipment? units, total estimatedRetailValue?
 
-      return Promise.all( uploads ).then( _ => navigate.shipmentDetails( vm.shipment._id ) );
+      return Promise.all( reqs ).then( _ => navigate.shipmentDetails( vm.shipment._id ) );
 
     }
 
@@ -164,10 +172,13 @@ angular.module('myApp').controller( 'ShipmentProcessManifestCtrl', [
 
       const results = ManifestFileHandlerSvc.defaultProcessActiveManifest();
 
-      vm.sheetProcessingResults = results;
+      console.log('Manifest processing results:');
+      console.log(results);
+
+      vm.manifestProcessingResults = results;
 
       vm.pallets = [];
-      for( let _res of results ) {
+      for( let _res of results.sheets ) {
 
         if( !_res.success ) {
           continue;

@@ -283,7 +283,9 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
 
       const manifest = getActiveManifest();
 
-      const results = [];
+      const results = {
+        sheets: []
+      };
       for( let sheet of manifest.sheets ) {
         const _res = {
           sheet,
@@ -338,8 +340,10 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
 
         }
 
-        results.push( _res );
+        results.sheets.push( _res );
       }
+
+      results.barcodes = manifest.getUniqueValuesInColumnAllSheets( __STANDARD_MANIFEST_BARCODE_COLUMN__ );
 
       return results;
     }
