@@ -39,13 +39,20 @@ function routes( { productData } ) {
    *
    ****/
 
-  async function getProductDataByBarcode( req, res, _next ) {
+  async function getProductDataByBarcode( req, res, next ) {
 
-    const barcode = req.params.barcode;
+    try {
 
-    const product = await productData.getProductDataByBarcode( barcode );
+      const barcode = req.params.barcode;
 
-    res.json( { product } );
+      const product = await productData.getProductDataByBarcode( barcode );
+
+      res.json( { product } );
+
+    }
+    catch(e) {
+      next( e );
+    }
 
   }
 
