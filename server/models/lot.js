@@ -100,7 +100,7 @@ lotSchema.pre( 'save', function(next) {
   }
 
   if( !this.priceValuePercentage || this.priceValuePercentage < 0 ) {
-    this.priceValuePercentage = .15;
+    this.priceValuePercentage = 15;
   }
 
   next();
