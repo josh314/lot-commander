@@ -186,13 +186,7 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
       }
       listing.lot = lot;
 
-      const respPromise = listings.submit( { lotId, listing, publish } );
-
-      // Submission takes a while so don't wait
-      res.json({ message: 'Listing submitted. Submission may take several minutes.'});
-
-      // wait for submission to finish
-      const submittedListingResponse = await respPromise;
+      const submittedListingResponse = await listings.submit( { lotId, listing, publish } );
 
       // for pallet lots, mark the corresponding pallet as broken down
       if( lot.pallet ) {
@@ -211,6 +205,14 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
 
       // then update the lot
       await lotdb.editLot( submittedListingResponse.lot );
+
+
+      if( submittedListingResponse.error ) {
+        throw new Error(`Failed to create ${ listing.marketplace } listing.`);
+      }
+
+
+      res.json({ message: `Successfully submitted ${listing.marketplace } listing.`});
 
     }
     catch(e) {
@@ -284,7 +286,6 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
 
       const includePallets = req.query.include_pallets ? !!parseInt(req.query.include_pallets) : false;
 
-      // const rates = await shopifyGql['prod'].listProductVariantShippingRates( { includePallets } );
       const rates = await listings.shopify.shopifyGql.listProductVariantShippingRates( { includePallets } );
       rates.sort( cmpProductVariant );
 

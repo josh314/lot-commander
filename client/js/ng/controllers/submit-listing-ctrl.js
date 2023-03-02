@@ -304,7 +304,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       ListingsSvc.submitLotListing( lotStore._id, vm.listing, vm.inputs.publish ).then(resp=>{
         console.log(resp);
         if(resp.error) {
-          ModalSvc.message( { header: 'Error', body: resp.error, type: 'error' } );
+          ModalSvc.message( { header: 'Error', body: resp.message, type: 'error' } );
         }
         else {
           ModalSvc.message( { header: 'Status', body: 'Listing submitted. Submission may take several minutes. Return to lot page to view results.', type: 'success' } );

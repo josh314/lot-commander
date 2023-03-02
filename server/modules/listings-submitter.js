@@ -122,7 +122,13 @@ class Client {
       listing.lot.submittedListings = [newSubmittedListing];
     }
 
-    return listing;
+    const resp = {
+      marketplace: newSubmittedListing.marketplace,
+      error: !!( listing.lot.status === 'Error' ),
+      lot: listing.lot
+    };
+
+    return resp;
   }
 
 }
