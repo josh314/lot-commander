@@ -11,7 +11,7 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
       createLotWithUi
     };
 
-    async function createLotWithUi( pallet, { handle, marketplace, status, packagingType } = {} ) {
+    async function createLotWithUi( pallet, { handle, marketplace, status, packagingType = 'pallets' } = {} ) {
 
       if( !pallet.hasManifest() ) {
         const isConfirmed = await ModalSvc.confirm({
@@ -31,7 +31,22 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
 
     }
 
-    async function createLot( pallet, { handle, marketplace, status, packagingType } = {} ) {
+// These are just estimated
+    function getPackagingTypeShippingItems( packagingType ) {
+
+      if( packagingType === 'pallets' ) { // this is the pallet breakdown service configuration (estimated)
+
+        return ShippingItemsSvc.getPalletBreakdownServiceConfiguration();
+
+      }
+      else {
+        return [ ShippingItemsSvc.getPreset( 'pallet' ) ];
+      }
+
+    }
+
+
+    async function createLot( pallet, { handle, marketplace, status, packagingType = 'pallets' } = {} ) {
 
       const palletLotCounter = await CounterSvc.incrementPalletLotCounter();
 
@@ -55,10 +70,10 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
         listingData: {
           title,
         },
-        packagingType: packagingType || 'pallets',
+        packagingType: packagingType,
         category: pallet.category,
         type: pallet.condition,
-        shippingItems: [ ShippingItemsSvc.getPreset( 'pallet' ) ],
+        shippingItems: getPackagingTypeShippingItems( packagingType ),
         unmanifested: !pallet.hasManifest(),
         destinationMarketplace: marketplace || 'wholesaleninjas',
         status

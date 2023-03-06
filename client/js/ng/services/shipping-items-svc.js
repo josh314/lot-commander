@@ -1,5 +1,9 @@
 import angular from 'angular';
 
+const __PALLET_BREAKDOWN_SERVICE_SHIPPING_ITEMS_NUMBER__ = 8;
+const __PALLET_BREAKDOWN_SERVICE_SHIPPING_ITEMS_PRESET__ = '21x21x21';
+const __PALLET_BREAKDOWN_SERVICE_SHIPPING_ITEMS_BOX_WEIGHT_LBS__ = 30;
+
 /***************** Utility Constants and function for Shipping Items ************************/
 angular.module('myApp').service('ShippingItemsSvc', [ 'dbEnums', function( dbEnums ){
 
@@ -67,12 +71,32 @@ angular.module('myApp').service('ShippingItemsSvc', [ 'dbEnums', function( dbEnu
     }
   ];
 
+  function getPalletBreakdownServiceConfiguration( ) {
+
+    const shippingItems = [];
+    for( let i=0; i<__PALLET_BREAKDOWN_SERVICE_SHIPPING_ITEMS_NUMBER__; i++ ) {
+
+      const $_ = getPreset( __PALLET_BREAKDOWN_SERVICE_SHIPPING_ITEMS_PRESET__ );
+      $_.weight = __PALLET_BREAKDOWN_SERVICE_SHIPPING_ITEMS_BOX_WEIGHT_LBS__;
+
+      shippingItems.push( $_ );
+
+    }
+
+    return shippingItems;
+
+  }
+
   function getPreset( name ) {
-    return presets.find( _p => _p.name === name );
+
+    const $_ = presets.find( _p => _p.name === name );
+
+    return JSON.parse( JSON.stringify( $_ ) );
   }
 
   return {
     //methods
+    getPalletBreakdownServiceConfiguration,
     getPreset,
 
     // constants
