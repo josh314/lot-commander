@@ -33,6 +33,7 @@ class Client {
       return this.shopifyRest.addProductImage( productId, imgBuffer, imageObj.primary );
     }
     catch(e) {
+      console.error( e );
       return null; // return null if something goes wrong with image submission, including missing images
     }
   }
@@ -234,7 +235,6 @@ class Client {
 
     }
     catch( e ) {
-      console.error(e);
       throw e;
     }
   }

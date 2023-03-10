@@ -328,7 +328,7 @@ class Server {
       // console.error(`404: path does not exist -- ${req.originalUrl}`);
       // res.status(404).render('404', {});
       // console.error(req.originalUrl)
-      // console.error(err);
+      console.error(err);
 
       const response = {
         error: true,

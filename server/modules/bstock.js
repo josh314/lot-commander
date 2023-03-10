@@ -38,6 +38,7 @@ async function submitListing(data) {
         }
       }
       catch(e) {
+        console.error( e );
         imgContents = null;
       }
 

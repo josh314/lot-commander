@@ -37,7 +37,7 @@ angular.module('myApp').controller('GalleryCtrl', [
           const _ = { barcode: item.barcode, description: item.description, images: [] };
           vm.items.push(_);
           for(let imageUrl of item.images) {
-            ImageSvc.loadImageWithTimeoutAndPlaceholder(1000, null)(imageUrl).then(img=>{
+            ImageSvc.loadImageWithTimeoutAndPlaceholder(10000, null)(imageUrl).then(img=>{
               if(img) {
                 _.images.push(img);
                 $scope.$apply();

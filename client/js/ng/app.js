@@ -23,7 +23,7 @@ const stateData = [
   { name: "main.lots.scan", url: '/scan', templateUrl: '/partials/_scan.html', userPermission: 'EDIT_LOT' },
   { name: "main.lots.edit-manifest", url: '/edit-manifest', templateUrl: '/partials/_edit_manifest.html', userPermission: 'EDIT_LOT' },
   { name: "main.lots.list", navName: 'List Lots', navParent: 'Lots', url: '/list', templateUrl: '/partials/_list_lots.html', userPermission: 'VIEW_LOT' },
-  { name: "main.lots.view", url: '/view/{lotId}', templateUrl: '/partials/_view_lot.html', controller: 'ViewLotCtrl', userPermission: 'VIEW_LOT' },
+  { name: "main.lots.view", url: '/view/{lotId}', templateUrl: '/partials/_view_lot.html', userPermission: 'VIEW_LOT' },
   { name: "main.lots.submit-listing", url: '/submit-listing', templateUrl: '/partials/_submit_listing.html', userPermission: { 'or': [ 'SUBMIT_SHOPIFY_LISTING', 'SUBMIT_AUCTION' ] } },
   { name: "main.lots.image-editor", url: '/image-editor', templateUrl: '/partials/_image_editor.html', userPermission: 'EDIT_LOT' },
   { name: "main.lots.gallery", url: '/gallery/{lotId}', templateUrl: '/partials/_gallery.html', userPermission: 'VIEW_LOT' },

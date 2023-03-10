@@ -169,7 +169,10 @@ function routes( ) {
       name: documentName
     })
       .then( _ => res.json( { success: true } ) )
-      .catch( _ => res.json({ error: true, message: `Unable to delete object: '${documentName}'` }) );
+      .catch( e => {
+        console.error( e );
+        res.json({ error: true, message: `Unable to delete object: '${documentName}'` });
+      });
 
   }
 

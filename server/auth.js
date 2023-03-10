@@ -20,7 +20,10 @@ passport.serializeUser(function(user, done) {
 
 // used to deserialize the user
 passport.deserializeUser(function(id, done) {
-  users.getUserById(id).then( user => done(null, user) ).catch( e => done(e, null ) );
+  users.getUserById(id).then( user => done(null, user) ).catch( e => {
+    console.error(e);
+    done(e);
+  });
 });
 
 // =========================================================================
@@ -58,7 +61,10 @@ passport.use('local-login',
         // all is well, return successful user
         return done(null, user);
       })
-        .catch( e => done(e) );
+        .catch( e => {
+          console.error(e);
+          done(e);
+        });
     }
   )
 );

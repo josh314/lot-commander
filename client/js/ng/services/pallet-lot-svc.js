@@ -31,7 +31,7 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
 
     }
 
-// These are just estimated
+    // These are just estimated
     function getPackagingTypeShippingItems( packagingType ) {
 
       if( packagingType === 'pallets' ) { // this is the pallet breakdown service configuration (estimated)

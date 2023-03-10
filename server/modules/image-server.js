@@ -262,7 +262,7 @@ const deleteLotImages = async (lotId) => {
 
   }
   catch (e) {
-    throw new Error(e);
+    throw e;
   }
 };
 

@@ -70,7 +70,6 @@ class Client {
     return axios(req)
       .then( resp => resp.data )
       .catch( e => {
-        console.error(e);
         throw e;
       });
 
@@ -390,7 +389,6 @@ class Client {
 
     }
     catch(e) {
-      console.error( resp );
       throw e;
     }
 
@@ -613,7 +611,7 @@ class Client {
         console.error( JSON.stringify(resp,null,2) );
       }
       catch(_) {
-        console.error(resp);
+        console.error( resp );
       }
 
       throw e;

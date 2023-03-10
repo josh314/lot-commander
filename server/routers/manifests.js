@@ -132,23 +132,30 @@ function routes( { manifests } ) {
    * Generates a manifest and saves to S3
    *
    * ****************************************/
-  router.post('/generate', async ( req, res ) => {
-    if( !req.body || !req.body.lotId ) {
-      res.json({ error: '__LOT_ID_REQUIRED__' });
+  router.post('/generate', async ( req, res, next ) => {
+
+    try {
+
+      if( !req.body || !req.body.lotId ) {
+        res.json({ error: '__LOT_ID_REQUIRED__' });
+      }
+
+      const generateManifestOptions = {
+        save: 'save' in req.body ? req.body.save : true,
+        bstock: 'bstock' in req.body ? req.body.bstock : false,
+      };
+
+      const generatedManifest = await manifests.generateLotManifest( req.body.lotId, generateManifestOptions );
+
+      if( generateManifestOptions.save ) {
+        res.json( generatedManifest );
+      }
+      else {
+        res.pipe( generatedManifest );
+      }
     }
-
-    const generateManifestOptions = {
-      save: 'save' in req.body ? req.body.save : true,
-      bstock: 'bstock' in req.body ? req.body.bstock : false,
-    };
-
-    const generatedManifest = await manifests.generateLotManifest( req.body.lotId, generateManifestOptions );
-
-    if( generateManifestOptions.save ) {
-      res.json( generatedManifest );
-    }
-    else {
-      res.pipe( generatedManifest );
+    catch( e ) {
+      next( e );
     }
 
   });
