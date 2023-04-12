@@ -1,5 +1,7 @@
 import angular from 'angular';
 
+const __MAX_DISPLAY_INVENTORY__ = 50;
+
 /******************* View Lot Controller *************************/
 angular.module('myApp').controller( 'ViewLotCtrl', [
 
@@ -77,6 +79,14 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     vm.cloneImageFromSelectedUrl = () => cloneImageFromUrl( vm.imageUrlToClone );
     vm.showPalletDetails = showPalletDetails;
 
+    vm.pagination = {
+      current: 1,
+      totalItems: 0,
+      pageSize: __MAX_DISPLAY_INVENTORY__,
+      pageChange: refreshDisplayInventory,
+      maxSize: 8
+    };
+
     /*************************************************
     * Images
     * =========
@@ -84,11 +94,22 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     ************/
 
     const initializeAllThumbnailImages = () => {
-      for(let i=0; i<lotStore.inventory.length; i++) {
-        const item = lotStore.inventory[i];
+      const limit = Math.min( vm.displayInventory.length, __MAX_DISPLAY_INVENTORY__ );
+
+      for(let i=0; i < limit; i++) {
+        const item = vm.displayInventory[i];
         ImageSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
       }
     };
+
+    function refreshDisplayInventory() {
+      const sortedInventory = lotStore.getInventorySortedByBarcode();
+      vm.pagination.totalItems = sortedInventory.length;
+      const start = ( vm.pagination.current - 1 ) * __MAX_DISPLAY_INVENTORY__;
+      const end = start + __MAX_DISPLAY_INVENTORY__;
+      vm.displayInventory = sortedInventory.slice( start, end );
+      initializeAllThumbnailImages();
+    }
 
     function getImageLink(image) {
       return image.s3 ? `/api/image/?s3=${encodeURIComponent(image.s3)}` : image.filename;
@@ -395,7 +416,8 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           vm.lot = lotStore;
 
           vm.images = lot.images;
-          initializeAllThumbnailImages( lot );
+          refreshDisplayInventory();
+          // initializeAllThumbnailImages( lot );
         })
         .then( _ => vm.titleTooLong = ListingsSvc.isTitleTooLong(lotStore.listingData.title) );
 

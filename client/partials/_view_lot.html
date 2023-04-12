@@ -201,10 +201,24 @@
 				<button class="btn btn-success btn-xs" ng-click="$ctrl.scanItems()">Scan More Items</button>
 				<button class="btn btn-success btn-xs" ng-click="$ctrl.editManifest()">Edit Manifest</button>
 			</div>
+
 			<div class="col-xs-12" ng-hide="$ctrl.lot.manifestId">
 				No scanned items.
 			</div>
 			<div class="col-xs-12">
+
+        <ul uib-pagination
+        total-items="$ctrl.pagination.totalItems"
+        items-per-page="$ctrl.pagination.pageSize"
+        ng-model="$ctrl.pagination.current"
+        ng-change="$ctrl.pagination.pageChange()"
+        class="pagination-sm pull-right"
+
+        max-size="$ctrl.pagination.maxSize"
+        boundary-links="true"
+        boundary-link-numbers="true"
+        force-ellipses="true"></ul>
+
 				<table class="table table-striped" ng-show="$ctrl.lot.manifestId">
 					<thead><tr>
 						<th>Image</th>
@@ -214,7 +228,7 @@
 						<th>Price</th>
 					</tr></thead>
 					<tbody>
-						<tr ng-repeat="$item in $ctrl.lot.getInventorySortedByBarcode()">
+						<tr ng-repeat="$item in $ctrl.displayInventory">
 							<td>
 								<div id="item-thumbnail-container-{{$item.barcode}}" ng-click="$ctrl.confirmAddLotImage( $event )">
 								</div>

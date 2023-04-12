@@ -81,6 +81,19 @@
             <a class="btn btn-success" ng-click="ctrl.saveManifest()">Done</a>
 				</div>
 			</div>
+
+      <ul uib-pagination
+      total-items="ctrl.pagination.totalItems"
+      items-per-page="ctrl.pagination.pageSize"
+      ng-model="ctrl.pagination.current"
+      ng-change="ctrl.pagination.pageChange()"
+      class="pagination-sm pull-right"
+
+      max-size="ctrl.pagination.maxSize"
+      boundary-links="true"
+      boundary-link-numbers="true"
+      force-ellipses="true"></ul>
+
 			<table class="table table-striped">
 				<thead><tr>
 					<th>Image</th>
@@ -91,11 +104,10 @@
 					<th>Remove</th>
 				</tr></thead>
 				<tbody>
-					<tr ng-repeat="item in ctrl.getLotInventory()">
+					<tr ng-repeat="item in ctrl.displayInventory">
 						<td>
-							<!-- <img class="inventory-preview-img" ng-src="{{item.images[0]}}"> -->
-							<!-- <div id="item-thumbnail-container-{{item.barcode}}"></div> -->
-							<img ng-src="{{ctrl.loadedImages[item.barcode].src}}" class="inventory-preview-img">
+              <div id="item-thumbnail-container-{{item.barcode}}">
+              </div>
 						</td>
 						<td><input type="text" size=16 ng-model="item.barcode"></td>
 						<td><input type="text" size="64" ng-model="item.description"></td>

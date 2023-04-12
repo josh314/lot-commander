@@ -1,5 +1,7 @@
 import angular from 'angular';
 
+const __MAX_DISPLAY_INVENTORY__ = 50;
+
 /******************* Scanning Page Controller *************************/
 angular.module('myApp').controller( 'ScanCtrl', [
 
@@ -45,6 +47,16 @@ angular.module('myApp').controller( 'ScanCtrl', [
     vm.numLotBoxes = lotStore.numBoxes;
     vm.loadedImages = {};
 
+    vm.maxDisplayInventory = __MAX_DISPLAY_INVENTORY__;
+
+    vm.pagination = {
+      current: 1,
+      totalItems: 0,
+      pageSize: __MAX_DISPLAY_INVENTORY__,
+      pageChange: refreshDisplayInventory,
+      maxSize: 8
+    };
+
     const save = () => {
       return LotSvc.saveManifest().then( manifest => {
 
@@ -55,13 +67,24 @@ angular.module('myApp').controller( 'ScanCtrl', [
       });
     };
 
-    const initializeAllThumbnailImages = () => {
-      for(let i=0; i<lotStore.inventory.length; i++) {
-        const item = lotStore.inventory[i];
-        ImageSvc.loadRepresentativeImage( { images: item.images, className: "inventory-preview-img" } ).then(img => vm.loadedImages[item.barcode] = img);
+    function refreshDisplayInventory() {
+      const inventory = vm.getLotInventory();
+      vm.pagination.totalItems = inventory.length;
+      const start = ( vm.pagination.current - 1 ) * __MAX_DISPLAY_INVENTORY__;
+      const end = start + __MAX_DISPLAY_INVENTORY__;
+      vm.displayInventory = inventory.slice( start, end );
+      initializeAllThumbnailImages();
+    }
+
+    function initializeAllThumbnailImages() {
+
+      const limit = Math.min( vm.displayInventory.length, __MAX_DISPLAY_INVENTORY__ );
+
+      for(let i=0; i < limit; i++) {
+        const item = vm.displayInventory[i];
+        ImageSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
       }
-    };
-    initializeAllThumbnailImages();
+    }
 
     function saveManifest() {
       console.log(`Auto-saving lot: ${lotStore.handle}`);
@@ -122,6 +145,8 @@ angular.module('myApp').controller( 'ScanCtrl', [
           }
         });
     }
+
+    refreshDisplayInventory();
 
   }
 ]);
