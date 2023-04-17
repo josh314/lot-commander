@@ -1,52 +1,89 @@
-<div class="container well" ng-controller="GalleryCtrl as $ctrl" >
+<div ng-controller="GalleryCtrl as $ctrl">
 
-  <div class="lot-type-gallery" ng-show="$ctrl.galleryType === 'lot'">
+  <div id="collage-section-container" class="container well">
 
-    <h3>Product Gallery</h3>
-    <div class="row" style="margin-left: 8px; margin-right: 8px;">
-      <div id="gallery-container" class="row">
-        <div ng-repeat="item in $ctrl.items">
-          <div ng-show="item.images.length">
-            <h4 class="text-center">{{item.barcode}} - {{item.description}}</h4>
-            <div class="row">
-              <div class="col-xs-6 col-sm-4 col-md-3 col-lg-1" ng-repeat="image in item.images track by $index">
-                <a ng-href="{{image.src}}"><img class="img-responsive" ng-src="{{image.src}}"></a>
-              </div>
-            </div>
-          </div>
-        </div>
+    <h3>Collage</h3>
+    <div style="display:flex; flex-direction:column; align-items:center;" ng-show="$ctrl.showCollage">
+
+      <div class="collage-container">
+        <canvas id="collage-canvas" width="{{ $ctrl.collage.width }}" height="{{ $ctrl.collage.height }}"></canvas>
       </div>
-    <!-- 	<div class="row">
-        <div ng-repeat="item in $ctrl.lot.getInventorySortedByBarcode()">
-          <h5>{{item.barcode}} - {{item.description}}</h5>
-          <div class="row">
-            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-1" ng-repeat="image in item.images track by $index">
-              <a ng-href="{{image}}"><img class="img-responsive" ng-src="{{image}}"></a>
-            </div>
-          </div>
-        </div>
-      </div> -->
+
+      <div class="button-row-container" style="margin-top:8px;">
+        <button class="btn btn-primary" ng-click="$ctrl.renderCollage()">Render new collage</button>
+        <button class="btn btn-success" ng-click="$ctrl.save()" style="margin-left: 4px;" ng-disabled="$ctrl.collageSaved">{{ $ctrl.collageSaved ? 'Saved!' : 'Save to lot' }}</button>
+      </div>
+
+    </div>
+
+    <div style="display:flex; flex-direction:column; align-items:center;" ng-hide="$ctrl.showCollage">
+
+      <div class="button-row-container" style="margin-top:8px;">
+        <button class="btn btn-primary" ng-click="$ctrl.revealAndRenderCollage()">Render collage</button>
+      </div>
+
     </div>
 
   </div>
 
+  <div id="gallery-container" class="container well">
 
-  <div class="pallet-type-gallery" ng-show="$ctrl.galleryType === 'pallet'">
-    <h3>Product Gallery</h3>
-    <div class="row" style="margin-left: 8px; margin-right: 8px;">
-    <div ng-repeat="$item in $ctrl.palletProducts track by $index">
-      <div id="gallery-container" class="row">
-        <dl>
-          <dt>UPC</dt>
-          <dd>{{ $item.upc }}</dd>
-          <dt>Title</dt>
-          <dd>{{ $item.title }}</dd>
-        </dl>
-        <div class="col-xs-6 col-sm-4 col-md-3 col-lg-1" ng-repeat="image in $item.images track by $index">
-          <a ng-href="{{image}}"><img class="img-responsive" ng-src="{{image}}"></a>
+    <div class="lot-type-gallery">
+
+      <h3>Product Gallery</h3>
+      <div class="row" style="margin-left: 8px; margin-right: 8px;">
+        <div id="gallery-container" class="row">
+          <div ng-repeat="$item in $ctrl.items">
+            <div ng-show="$item.images.length">
+              <!-- <h4 class="text-center">{{$item.upc}} - {{$item.title}}</h4> -->
+              <dl>
+                <dt>UPC</dt>
+                <dd>{{ $item.upc }}</dd>
+                <dt>Title</dt>
+                <dd>{{ $item.title }}</dd>
+              </dl>
+              <div class="row">
+                <div class="col-xs-6 col-sm-4 col-md-3 col-lg-1" ng-repeat="$image in $item.images track by $index">
+                  <a ng-href="{{$image.src}}"><img class="img-responsive" ng-src="{{$image.src}}"></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <!-- 	<div class="row">
+          <div ng-repeat="item in $ctrl.lot.getInventorySortedByBarcode()">
+            <h5>{{item.barcode}} - {{item.description}}</h5>
+            <div class="row">
+              <div class="col-xs-6 col-sm-4 col-md-3 col-lg-1" ng-repeat="image in item.images track by $index">
+                <a ng-href="{{image}}"><img class="img-responsive" ng-src="{{image}}"></a>
+              </div>
+            </div>
+          </div>
+        </div> -->
+      </div>
+
+    </div>
+
+
+    <!-- <div class="pallet-type-gallery" ng-show="$ctrl.galleryType === 'pallet'">
+      <h3>Product Gallery</h3>
+      <div class="row" style="margin-left: 8px; margin-right: 8px;">
+        <div ng-repeat="$item in $ctrl.palletProducts track by $index">
+          <div id="gallery-container" class="row">
+            <dl>
+              <dt>UPC</dt>
+              <dd>{{ $item.upc }}</dd>
+              <dt>Title</dt>
+              <dd>{{ $item.title }}</dd>
+            </dl>
+            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-1" ng-repeat="image in $item.images track by $index">
+              <a ng-href="{{image}}"><img class="img-responsive" ng-src="{{image}}"></a>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </div> -->
+
   </div>
 
 </div>

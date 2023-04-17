@@ -3,6 +3,7 @@ const path = require('path');
 
 const express = require('express');
 const formidable = require('formidable');
+const axios = require('axios');
 
 const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
 const notFoundImage = fs.readFileSync(path.join(__basedir, '../assets', 'missing-image.jpg'));
@@ -15,7 +16,7 @@ function routes( { lotdb } ) {
   /*******************************************
    * Register route handlers
    * ======
-   * 
+   *
    ****/
 
   router.get(
@@ -42,12 +43,16 @@ function routes( { lotdb } ) {
     '/clone',
     clone
   );
+  router.get(
+    '/proxy',
+    proxy
+  );
 
 
   /*******************************************
    * Define Handlers
    * ===============
-   * 
+   *
    ****/
 
   async function get(req, res) {
@@ -128,24 +133,45 @@ function routes( { lotdb } ) {
 
     try {
       const { lotId, images } = req.body;
-  
+
       for( let image of images ) {
         const resp = await imageServer.clone( image, lotId );
         await lotdb.addImage( lotId, { s3: resp.s3Location });
       }
-  
+
       res.json( { success: true } );
     }
     catch(e) {
       return next( e );
     }
-  
+
+  }
+
+  async function proxy( req, res, next ) {
+
+    try {
+
+      const url = decodeURIComponent( req.query.url );
+
+      const urlResponse = await axios({
+        method: 'get',
+        url,
+        responseType: 'stream'
+      });
+      const urlReadStream = urlResponse.data;
+
+      urlReadStream.pipe( res );
+    }
+    catch (e) {
+      return next( e );
+    }
+
   }
 
   /**************************************
    * Return routes
    * =============
-   * 
+   *
    ************/
 
   return router;
