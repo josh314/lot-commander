@@ -84,11 +84,15 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       };
 
       // Default collection selections
-      if( isBoxedLot() ) {
+      if( isCasePacked() ) {
+        const casePackedCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'cases' );
+        casePackedCollectionOption.selected = true;
+      }
+      else if( isBoxedLot() ) {
         const lotCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'lots' );
         lotCollectionOption.selected = true;
       }
-      if( isPallet() ) {
+      else if( isPallet() ) {
         const palletCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'pallets' );
         palletCollectionOption.selected = true;
       }
@@ -224,6 +228,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
 
     function isBoxedLot() { return lotStore.packagingType === 'box lot'; }
     function isPallet() { return !!lotStore.packagingType.match(/pallet/); }
+    function isCasePacked() { return lotStore.type === 'case-packed'; } // type is condition
 
     function validateBstockListingOptions() {
       vm.inputErrors.bstock.invalidAuctionPrice = (vm.listing.auctionStartPrice && vm.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;
