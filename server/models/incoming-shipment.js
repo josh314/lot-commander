@@ -36,6 +36,10 @@ const incomingShipmentSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'InventoryPallet'
   } ],
+  packages: [ {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Package'
+  } ],
   notes: String,
   isClosed: Boolean,
   closedDate: Date,
@@ -202,6 +206,16 @@ incomingShipmentSchema.methods.addPalletConsolidated = function( palletId ) {
 
 incomingShipmentSchema.methods.removePalletConsolidated = async function( palletId ) {
   await this.palletsConsolidated.pull( palletId );
+  return this.save();
+};
+
+incomingShipmentSchema.methods.addPackage = function( pkdId ) {
+  this.packages.addToSet( pkdId );
+  return this.save();
+};
+
+incomingShipmentSchema.methods.removePackage = async function( pkdId ) {
+  await this.packages.pull( pkdId );
   return this.save();
 };
 

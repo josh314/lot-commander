@@ -228,14 +228,14 @@ const editPackageEventSchema = new mongoose.Schema(
   discriminatorOpts
 );
 
-const finishPackageEventSchema = new mongoose.Schema(
+const instantiatePackageEventSchema = new mongoose.Schema(
   {
     package: packageRef,
   },
   discriminatorOpts
 );
 
-const reopenPackageEventSchema = new mongoose.Schema(
+const uninstantiatePackageEventSchema = new mongoose.Schema(
   {
     package: packageRef,
   },
@@ -330,8 +330,8 @@ class EventsDbClient {
 
     this.CreatePackageEvent = this.Event.discriminator( 'create-package', createPackageEventSchema );
     this.EditPackageEvent = this.Event.discriminator( 'edit-package', editPackageEventSchema );
-    this.FinishPackageEvent = this.Event.discriminator( 'finish-package', finishPackageEventSchema );
-    this.ReopenPackageEvent = this.Event.discriminator( 'reopen-package', reopenPackageEventSchema );
+    this.InstantiatePackageEvent = this.Event.discriminator( 'instantiate-package', instantiatePackageEventSchema );
+    this.UninstantiatePackageEvent = this.Event.discriminator( 'uninstantiate-package', uninstantiatePackageEventSchema );
     this.DeletePackageEvent = this.Event.discriminator( 'delete-package', deletePackageEventSchema );
     this.AddPackageInventoryPalletEvent = this.Event.discriminator( 'add-package-inventory-pallet', addPackageInventoryPalletEventSchema );
 
@@ -666,25 +666,25 @@ class EventsDbClient {
 
   }
 
-  finishPackage( { user, packageId } ) {
+  instantiatePackage( { user, packageId } ) {
 
     if( !packageId ) {
       return Promise.resolve( null );
     }
 
-    const e = new this.FinishPackageEvent( { user: user && user._id , package: packageId } );
+    const e = new this.InstantiatePackageEvent( { user: user && user._id , package: packageId } );
 
     return e.save();
 
   }
 
-  reopenPackage( { user, packageId } ) {
+  uninstantiatePackage( { user, packageId } ) {
 
     if( !packageId ) {
       return Promise.resolve( null );
     }
 
-    const e = new this.ReopenPackageEvent( { user: user && user._id , package: packageId } );
+    const e = new this.UninstantiatePackageEvent( { user: user && user._id , package: packageId } );
 
     return e.save();
 

@@ -1,33 +1,22 @@
 const mongoose = require('mongoose');
 
-const PKG_TYPE_ENUM = [
-  'cosmetics',
-  'cosmetics__maybelline',
-  'cosmetics__loreal',
-  'general_merchandise',
-  'nail_polish',
-  'personal_care',
-  'personal_care__cosmetics',
-];
-
 const packageSchema = mongoose.Schema({
   handle: String,
   units: Number,
-  type: { type: String, enum: PKG_TYPE_ENUM },
-  isFinished: Boolean,
-  finishedDate: Date,
-  isShipped: Boolean,
-  shippedDate: Date,
+  category: String,
+  condition: String,
+  isInstantiated: Boolean,
+  instantiatedDate: Date,
   isDeleted: Boolean,
   deletedDate: Date,
-  pallets: [ {
+  pallet: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'InventoryPallet'
-  } ],
-  bundles: [ {
+  },
+  shipment: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Bundle'
-  } ],
+    ref: 'IncomingShipment'
+  }
 }, { collection: 'packages', timestamps: true });
 
 /***********************
@@ -36,24 +25,15 @@ const packageSchema = mongoose.Schema({
  ******/
 packageSchema.pre( 'save', function(next) {
 
-  if( typeof this.isFinished !== 'boolean' ) {
-    this.isFinished = false;
+  if( typeof this.isInstantiated !== 'boolean' ) {
+    this.isInstantiated = false;
   }
-
-  if( typeof this.isShipped !== 'boolean' ) {
-    this.isShipped = false;
+  else if ( this.isInstantiated ) {
+    this.instantiatedDate = new Date();
   }
 
   if( typeof this.isDeleted !== 'boolean' ) {
     this.isDeleted = false;
-  }
-
-  if( !this.pallets ) {
-    this.pallets = [];
-  }
-
-  if( !this.bundles ) {
-    this.bundles = [];
   }
 
   next();
@@ -64,27 +44,15 @@ packageSchema.methods.edit = function( data ) {
   return this.save();
 };
 
-packageSchema.methods.finish = function() {
-  this.isFinished = true;
-  this.finishedDate = this.finishedDate || new Date();
+packageSchema.methods.instantiate = function() {
+  this.isInstantiated = true;
+  this.instantiatedDate = this.instantiatedDate || new Date();
   return this.save();
 };
 
-packageSchema.methods.reopen = function() {
-  this.isFinished = false;
-  this.finishedDate = undefined;
-  return this.save();
-};
-
-packageSchema.methods.ship = function() {
-  this.isShipped = true;
-  this.shippedDate = new Date();
-  return this.save();
-};
-
-packageSchema.methods.unship = function() {
-  this.isShipped = false;
-  this.shippedDate = undefined;
+packageSchema.methods.uninstantiate = function() {
+  this.isInstantiated = false;
+  this.instantiatedDate = undefined;
   return this.save();
 };
 
@@ -97,16 +65,6 @@ packageSchema.methods.delete = function() {
 packageSchema.methods.undelete = function() {
   this.isDeleted = false;
   this.deletedDate = undefined;
-  return this.save();
-};
-
-packageSchema.methods.addPallet = function( palletId ) {
-  this.pallets.addToSet( palletId );
-  return this.save();
-};
-
-packageSchema.methods.addBundle = function( bundleId ) {
-  this.bundles.addToSet( bundleId );
   return this.save();
 };
 

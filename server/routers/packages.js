@@ -28,12 +28,8 @@ const listPackagesFilterParamsFromQueryParams = ( qp ) => {
     fp.units = parseInt(qp.units);
   }
 
-  if( 'finished' in qp ) {
-    fp.isFinished = !!parseInt( qp.finished );
-  }
-
-  if( 'shipped' in qp ) {
-    fp.isShipped = !!parseInt( qp.shipped );
+  if( 'include_virtual' in qp ) {
+    fp.includeVirtual = !!parseInt( qp.include_virtual );
   }
 
   return fp;
@@ -81,19 +77,9 @@ function routes( { eventsDb, inventoryCommander } ) {
     editPackage
   );
   router.put(
-    '/:pkgId/is-finished',
+    '/:pkgId/is-instantiated',
     auth.isAuthorized( 'EDIT_PACKAGE' ),
-    finishPackage
-  );
-  router.post(
-    '/:pkgId/pallets',
-    auth.isAuthorized( 'EDIT_PACKAGE' ),
-    addPalletsToPackage
-  );
-  router.post(
-    '/:pkgId/bundles',
-    auth.isAuthorized( 'EDIT_PACKAGE' ),
-    addBundlesToPackage
+    instantiatePackage
   );
 
   /*******************************************
@@ -157,9 +143,10 @@ function routes( { eventsDb, inventoryCommander } ) {
   async function createPackages( req, res, next  ) {
 
     try {
-      const pkgData = req.body;
+      const pkgData = req.body.packages;
+      const { instantiate } = req.body;
 
-      const { packages } = await inventoryCommander.createPackages( pkgData );
+      const { packages } = await inventoryCommander.createPackages( pkgData, instantiate );
 
       if( packages ) {
 
@@ -234,30 +221,30 @@ function routes( { eventsDb, inventoryCommander } ) {
 
   }
 
-  async function finishPackage( req, res, next ) {
+  async function instantiatePackage( req, res, next ) {
 
     try {
 
-      if( 'isFinished' in req.body && typeof req.body.isFinished === 'boolean' ) {
+      if( 'isInstantiated' in req.body && typeof req.body.isInstantiated === 'boolean' ) {
 
-        const isFinished = req.body.isFinished;
+        const isInstantiated = req.body.isInstantiated;
         const pkgId = req.params.pkgId;
         
-        if( isFinished ) {
+        if( isInstantiated ) {
 
-          const { package: pkg } = await inventoryCommander.finishPackage( pkgId );
+          const { package: pkg } = await inventoryCommander.instantiatePackage( pkgId );
 
           if( pkg ) {
-            eventsDb.finishPackage( { user: req.user, packageId: pkgId } );
+            eventsDb.instantiatePackage( { user: req.user, packageId: pkgId } );
           }
 
         }
         else {
 
-          const { package: pkg } = await inventoryCommander.reopenPackage( pkgId );
+          const { package: pkg } = await inventoryCommander.uninstantiatePackage( pkgId );
 
           if( pkg ) {
-            eventsDb.reopenPackage( { user: req.user, packageId: pkgId } );
+            eventsDb.uninstantiatePackage( { user: req.user, packageId: pkgId } );
           }
 
         }
@@ -269,56 +256,6 @@ function routes( { eventsDb, inventoryCommander } ) {
         throw new InvalidRequestError();
       }
 
-    }
-    catch(e) {
-      return next( e );
-    }
-
-  }
-
-  async function addPalletsToPackage( req, res, next ) {
-
-    try {
-
-      const pkgId = req.params.pkgId;
-      const pallets = req.body;
-
-      for( let palletId of pallets ) {
-
-        const { package: pkg, pallet } = await inventoryCommander.addPackageInventoryPallet( pkgId, palletId );
-
-        if( pkg && pallet ) {
-          eventsDb.addPackageInventoryPallet( { user: req.user, packageId: pkgId, palletId } );
-        }
-
-      }
-
-      res.json( { success: true } );
-    }
-    catch(e) {
-      return next( e );
-    }
-
-  }
-  
-  async function addBundlesToPackage( req, res, next ) {
-
-    try {
-
-      const pkgId = req.params.pkgId;
-      const bundles = req.body;
-
-      for( let bundleId of bundles ) {
-
-        const { package: pkg, bundle } = await inventoryCommander.packBundle( bundleId, pkgId );
-
-        if( pkg && bundle ) {
-          eventsDb.packBundle( { user: req.user, bundleId, packageId: pkgId } );
-        }
-
-      }
-
-      res.json( { success: true } );
     }
     catch(e) {
       return next( e );

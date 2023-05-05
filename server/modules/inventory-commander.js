@@ -226,7 +226,7 @@ const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, has
   return filter;
 };
 
-const packageQueryFilter = ( { handle, pallet, isFinished, isShipped } ) => {
+const packageQueryFilter = ( { handle, pallet, shipment, includeVirtual } ) => {
   const filter = {
     isDeleted: false,
   };
@@ -239,12 +239,12 @@ const packageQueryFilter = ( { handle, pallet, isFinished, isShipped } ) => {
     filter.pallet = pallet;
   }
 
-  if( isShipped !== undefined ) {
-    filter.isShipped = isShipped;
+  if( shipment ) {
+    filter.shipment = shipment;
   }
 
-  if( isFinished !== undefined ) {
-    filter.isFinished = isFinished;
+  if( !includeVirtual ) {
+    filter.isInstantiated = true;
   }
 
   return filter;
@@ -1203,15 +1203,27 @@ class InventoryCommander {
 
   }
 
-  async createPackages( _data ) {
+  async createPackages( _data, instantiate = false ) {
+
+    let packages;
 
     if( Array.isArray( _data ) ) {
-      const packages = await this.Package.create(_data);
-      return { packages };
+      packages = await this.Package.create(_data);
+    }
+    else {
+      const pkg = await ( new this.Package( _data ) ).save();
+      packages = [ pkg ];
     }
 
-    const pkg = await ( new this.Package( _data ) ).save();
-    return { packages: [ pkg ] };
+    if( instantiate ) {
+
+      for( let _pkg of packages ) {
+        await this.instantiatePackage( _pkg._id );
+      }
+
+    }
+
+    return { packages };
 
   }
 
@@ -1256,6 +1268,12 @@ class InventoryCommander {
       return {};
     }
 
+    if( pkg.shipment ) {
+
+      await pkg.shipment.removePackage( pkgId );
+
+    }
+
     await pkg.delete();
 
     return { package: pkg };
@@ -1292,105 +1310,56 @@ class InventoryCommander {
 
   }
 
-  async finishPackage( pkgId ) {
+  async instantiatePackage( pkgId ) {
+
+    const pkg = await this.getPackageById( pkgId, { populate: [ 'shipment', 'pallet', 'lot' ] } );
+
+    if( !pkg ) {
+      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
+    }
+
+    if( pkg.isInstantiated ) {
+      return {};
+    }
+
+    await pkg.instantiate();
+
+    if( pkg.shipment ) {
+
+      await pkg.shipment.addPackage( pkgId );
+
+    }
+
+    return { package: pkg };
+
+  }
+
+  async uninstantiatePackage( pkgId ) {
 
     // TODO: link/unlink bundles, sub-packages, components
 
-    const pkg = await this.getPackageById( pkgId );
+    const pkg = await this.getPackageById( pkgId, { populate: [ 'shipment', 'pallet', 'lot' ] } );
 
     if( !pkg ) {
       throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
     }
 
-    if( pkg.isFinished ) {
+    if( !pkg.isInstantiated ) {
       return {};
     }
 
-    await pkg.finish();
+    await pkg.uninstantiate();
+
+    if( pkg.shipment ) {
+
+      await pkg.shipment.removePackage( pkgId );
+
+    }
 
     return { package: pkg };
 
   }
 
-  async reopenPackage( pkgId ) {
-
-    // TODO: link/unlink bundles, sub-packages, components
-
-    const pkg = await this.getPackageById( pkgId );
-
-    if( !pkg ) {
-      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
-    }
-
-    if( !pkg.isFinished ) {
-      return {};
-    }
-
-    await pkg.reopen();
-
-    return { package: pkg };
-
-  }
-
-  async addPackageInventoryPallet( pkgId, palletId ) {
-
-    const pkg = await this.getPackageById( pkgId );
-
-    if( !pkg ) {
-      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
-    }
-
-    const pallet = await this.getInventoryPalletById( palletId );
-
-    if( !pallet ) {
-      throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
-    }
-
-    try {
-      await pkg.addPallet( palletId );
-      return { package: pkg, pallet };
-    }
-    catch(e) {
-      return {};
-    }
-
-  }
-
-  async shipPackage( pkgId ) {
-
-    const pkg = await this.getPackageById( pkgId );
-
-    if( !pkg ) {
-      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
-    }
-
-    if( pkg.isShipped ) {
-      return {};
-    }
-
-    await pkg.ship();
-
-    return { package: pkg };
-
-  }
-
-  async unshipPackage( pkgId ) {
-
-    const pkg = await this.getPackageById( pkgId );
-
-    if( !pkg ) {
-      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
-    }
-
-    if( !pkg.isShipped ) {
-      return {};
-    }
-
-    await pkg.unship();
-
-    return { package: pkg };
-
-  }
 
   //==========================================================
   // Bundles
@@ -1519,33 +1488,6 @@ class InventoryCommander {
     }
 
   }
-
-  async packBundle( bundleId, pkgId ) {
-
-    const bundle = await this.getBundleById( bundleId );
-
-    if( !bundle ) {
-      throw new ResourceNotFoundError( { type: 'bundle', id: bundleId } );
-    }
-
-    // TODO: error if already bundle.isPacked with a different package
-    if ( bundle.isPacked ) {
-      return {};
-    }
-
-    const p = [ bundle.pack( pkgId ) ];
-
-    const pkg = await this.getPackageById( pkgId );
-    if( pkg ) {
-      p.push( pkg.addBundle( bundleId ) );
-    }
-
-    await Promise.all( p );
-
-    return { bundle, package: pkg };
-
-  }
-
 
   //==========================================================
   // Aggregation and Inventory Levels
