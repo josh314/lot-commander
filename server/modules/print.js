@@ -7,17 +7,17 @@ function createNumBoxesLabels(opts={}) {
   const doc = new PDFDocument({ autoFirstPage: false });
   doc.fontSize(8);
   for(let i=0; i<(opts.numLabels || 1); i++) {
-    doc.addPage({ 
-      margin: 0, 
+    doc.addPage({
+      margin: 0,
       size: [ opts.label.width , opts.label.height ]
     });
     let canvas = createCanvas('image');
-    JsBarcode(canvas, opts.barcode.text, { 
+    JsBarcode(canvas, opts.barcode.text, {
       format: 'CODE39',
       font: "monospace",
       fontSize: 50,
       fontOptions: "bold",
-      height: 125 
+      height: 125
     });
 
     const margin = 5;
@@ -65,17 +65,17 @@ function createShippingItemsLabels(opts={}) {
   const doc = new PDFDocument({ autoFirstPage: false });
   doc.fontSize(8);
   for(let i=0; i<(opts.shippingItems.length || 1); i++) {
-    doc.addPage({ 
-      margin: 0, 
+    doc.addPage({
+      margin: 0,
       size: [ opts.label.width , opts.label.height ]
     });
     let canvas = createCanvas('image');
-    JsBarcode(canvas, opts.barcode.text, { 
+    JsBarcode(canvas, opts.barcode.text, {
       format: 'CODE39',
       font: "monospace",
       fontSize: 50,
       fontOptions: "bold",
-      height: 125 
+      height: 125
     });
 
     const margin = 5;
@@ -141,8 +141,8 @@ function createPickReceipt(order) {
 
   const doc = new PDFDocument({ autoFirstPage: false });
   doc.fontSize(8);
-  doc.addPage({ 
-    margin: margin, 
+  doc.addPage({
+    margin: margin,
     size: [ label.width , label.height ]
   });
 
@@ -173,7 +173,7 @@ function createPickReceipt(order) {
     doc.moveDown(.25);
     doc.fontSize(8).text(`${item.sku ? item.sku : '[ NO SKU ]'}`);
     doc.moveDown(.25);
-    doc.text(`${item.title}`, { 
+    doc.text(`${item.title}`, {
       // ellipsis: true,
       // lineBreak: false
     });
@@ -191,7 +191,7 @@ function createPickReceipt(order) {
   // Create and add barcode
   const barcodeText = order.orderNumber;
   let canvas = createCanvas('image');
-  JsBarcode(canvas, barcodeText, { 
+  JsBarcode(canvas, barcodeText, {
     format: 'CODE39',
     displayValue: false,
     // font: "monospace",
@@ -258,8 +258,55 @@ function createPalletLabels( palletIds, shipmentId ) {
 
 }
 
+function createPackageLabels( packages ) {
+
+  const labelDims = {
+    width: 162,// 72/in * 2.25 in
+    height: 90, // 72/in * 1.25 in
+  };
+
+
+  const doc = new PDFDocument({ autoFirstPage: false });
+  doc.fontSize(8);
+
+
+  for( const pkg of packages ) {
+
+    doc.addPage({
+      margin: 0,
+      size: [ labelDims.width , labelDims.height ]
+    });
+
+    let canvas = createCanvas('image');
+    JsBarcode(
+      canvas,
+      decodeURIComponent( pkg._id ),
+      {
+        format: 'CODE128',
+        displayValue: false,
+        // height: 100,
+      }
+    );
+
+    const margin = 5;
+    doc
+      .image(canvas.toBuffer(), margin, 15, { width: labelDims.width - 2*margin });
+
+    if( pkg.shipment ) {
+      doc
+        .font('Helvetica').text(`Shipment ID: `, 10, 5, { width: labelDims.width, continued: true })
+        .font('Helvetica-Bold').text(`${pkg.shipment.handle}`, { continued: false, underline: true });
+    }
+
+  }
+
+  doc.end();
+  return doc;
+}
+
 module.exports = {
-  createPalletLabels: createPalletLabels,
-  createLotLabels: createLotLabels,
-  createPickReceipt: createPickReceipt
+  createPackageLabels,
+  createPalletLabels,
+  createLotLabels,
+  createPickReceipt
 };

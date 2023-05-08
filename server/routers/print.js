@@ -9,7 +9,7 @@ module.exports = routes;
 /**********************************************
  * helpers
  * =======
- * 
+ *
  **********/
 
 function getPalletList( shipment, type ) {
@@ -33,7 +33,7 @@ function getPalletList( shipment, type ) {
 /**********************************************
  * Routes function for export
  * ==========================
- * 
+ *
  **********/
 
 function routes({ inventoryCommander, lotdb }) {
@@ -43,18 +43,19 @@ function routes({ inventoryCommander, lotdb }) {
   /*******************************************
    * Register route handlers
    * ======
-   * 
+   *
    ****/
 
   router.get('/labels/lots/:lotId', lotLabels);
   router.get('/labels/incoming-shipments/:shipmentId/pallets-:palletList', incomingShipmentLabels);
   router.get('/labels/incoming-shipments/:shipmentId/pallets-:palletList/:palletId', incomingShipmentPalletLabel);
 
+  router.post('/labels/packages/', packageLabelsByIdList);
 
   /*******************************************
    * Define handlers
    * ===============
-   * 
+   *
    ****/
 
   function lotLabels(req, res, next) {
@@ -124,10 +125,26 @@ function routes({ inventoryCommander, lotdb }) {
       .catch( next );
   }
 
+  async function packageLabelsByIdList( req, res, next ) {
+
+    try {
+
+      const { packageIds } = req.body;
+
+      const packages = await inventoryCommander.getPackagesById( packageIds, { populate: [ 'shipment' ] } )
+
+      print.createPackageLabels( packages ).pipe(res);
+
+    }
+    catch(e) {
+      next(e);
+    }
+  }
+
   /**************************************
    * Return routes
    * =============
-   * 
+   *
    ************/
   return router;
 

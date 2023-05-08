@@ -1256,6 +1256,38 @@ class InventoryCommander {
 
   }
 
+  getPackagesById( pkgIds, { populate, includeDeleted = false } = {}) {
+
+    const objectIds = pkgIds.map( _pkgId => {
+
+      try {
+        return new mongoose.Types.ObjectId( _pkgId );
+      }
+      catch ( _ ) {
+        return null;
+      }
+
+    } ).filter( _ => _ );
+
+
+    const findDoc = { _id: { $in: objectIds } };
+
+    if( !includeDeleted ) {
+      findDoc.isDeleted = false;
+    }
+
+    let q = this.Package.find( findDoc );
+
+    if( populate ) {
+
+      q = appendPopulationQueries( q, populate );
+
+    }
+
+    return q.exec();
+
+  }
+
   async deletePackage( pkgId ) {
 
     const pkg = await this.getPackageById( pkgId );
