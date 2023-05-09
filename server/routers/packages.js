@@ -9,7 +9,7 @@ module.exports = routes;
 /**********************************************
  * Helpers
  * =======
- * 
+ *
  *********/
 
 const listPackagesFilterParamsFromQueryParams = ( qp ) => {
@@ -41,10 +41,10 @@ function routes( { eventsDb, inventoryCommander } ) {
   /*******************************************
    * Register route handlers
    * ======
-   * 
+   *
    ****/
 
-  
+
   router.get(
     '/',
     auth.isAuthorized( 'VIEW_PACKAGE' ),
@@ -85,7 +85,7 @@ function routes( { eventsDb, inventoryCommander } ) {
   /*******************************************
    * Define Handlers
    * ===============
-   * 
+   *
    ****/
 
 
@@ -93,7 +93,7 @@ function routes( { eventsDb, inventoryCommander } ) {
 
     const numPage = parseInt( req.query.num ) || 10;
     const page = parseInt( req.query.page ) || 1;
-  
+
     const query = {
       // paging
       skip: ( page - 1 ) * numPage,
@@ -114,13 +114,13 @@ function routes( { eventsDb, inventoryCommander } ) {
 
     res.json( { packages } );
   }
- 
+
   async function countPackages( req, res ) {
-  
+
     const count = await inventoryCommander.countPackages( listPackagesFilterParamsFromQueryParams( req.query ) );
 
     res.json({ count: count });
-    
+
   }
 
   async function getPackageById( req, res, next ) {
@@ -229,7 +229,7 @@ function routes( { eventsDb, inventoryCommander } ) {
 
         const isInstantiated = req.body.isInstantiated;
         const pkgId = req.params.pkgId;
-        
+
         if( isInstantiated ) {
 
           const { package: pkg } = await inventoryCommander.instantiatePackage( pkgId );
@@ -266,7 +266,7 @@ function routes( { eventsDb, inventoryCommander } ) {
   /**************************************
    * Return routes
    * =============
-   * 
+   *
    ************/
   return router;
 

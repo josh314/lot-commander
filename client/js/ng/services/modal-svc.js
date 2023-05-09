@@ -11,6 +11,7 @@ angular.module('myApp').factory('ModalSvc', [
   'ManifestFileOptionsModal',
   'MergeSheetsOptionsModalSvc',
   'messageModal',
+  'PackageLabelDataModalSvc',
   'PalletsFromManifestModalSvc',
   'shippingItemsModal',
   'WaitingModalSvc',
@@ -23,6 +24,7 @@ angular.module('myApp').factory('ModalSvc', [
     ManifestFileOptionsModal,
     MergeSheetsOptionsModalSvc,
     messageModal,
+    PackageLabelDataModalSvc,
     PalletsFromManifestModalSvc,
     shippingItemsModal,
     WaitingModalSvc,
@@ -37,6 +39,7 @@ angular.module('myApp').factory('ModalSvc', [
       manifestFileOptions: ManifestFileOptionsModal.launch.bind( ManifestFileOptionsModal ),
       mergeSheetsOptions: MergeSheetsOptionsModalSvc.launch.bind( MergeSheetsOptionsModalSvc ),
       message: messageModal.launch.bind( messageModal ),
+      packageLabelData: PackageLabelDataModalSvc.launch.bind( PackageLabelDataModalSvc ),
       packagingTypeInfo: packagingTypeInfoModal,
       palletsFromManifest: PalletsFromManifestModalSvc.launch.bind( PalletsFromManifestModalSvc ),
       shippingItems: shippingItemsModal.launch.bind( shippingItemsModal ),
@@ -529,3 +532,43 @@ angular.module('myApp').factory( 'MergeSheetsOptionsModalSvc', [ '$uibModal', fu
 
 }]);
 
+
+/********************* Package labels modal **************************/
+angular.module('myApp').factory( 'PackageLabelDataModalSvc', [ '$uibModal', function( $uibModal ) {
+
+  return {
+    launch: launch,
+  };
+
+  // launches the modal
+  function launch( { category, condition } = {} ) {
+
+    const modalInstance = $uibModal.open({
+      templateUrl: '/partials/modals/_package_label_data_modal.html',
+      size: 'lg',
+      backdrop: 'static',
+      resolve: {
+        _packageData: function () {
+          return {
+            category,
+            condition
+          };
+        },
+      },
+      controller:  [ '$scope', '_packageData', 'dbEnums', 'palletProperties', function( $scope, _packageData, dbEnums, palletProperties ){
+
+        const vm = this;
+        vm.inputs = {
+          categoryOptions: [''].concat(palletProperties.category),
+          conditionOptions: dbEnums.lotType,
+          data: Object.assign( {}, _packageData )
+        };
+
+      }],
+      controllerAs: '$ctrl'
+    });
+
+    return modalInstance.result;
+  }
+
+}]);

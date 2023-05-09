@@ -201,6 +201,48 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet',
 
     const buildAnonymousPalletHandle = ( shipmentHandle , number ) => `${ shipmentHandle }_${ number }`;
 
+    function aggregatePackages( packages ) {
+      const aggregation = [];
+
+      for( let _package of packages ) {
+
+        const found = aggregation.find( _aggregation => {
+
+          if( _package.category !== _aggregation.category && ( _package.category || _aggregation.category ) ) { // they don't match and at least one is truthy
+            return false;
+          }
+          if( _package.condition !== _aggregation.condition && ( _package.condition || _aggregation.condition ) ) { // they don't match and at least one is truthy
+            return false;
+          }
+          if( _package.units !== _aggregation.units && ( _package.units || _aggregation.units ) ) { // they don't match and at least one is truthy
+            return false;
+          }
+
+          return true;
+
+        });
+
+        if( found ) {
+          found.number += 1;
+        }
+        else {
+
+          const newAggregation = {
+            category: _package.category,
+            condition: _package.condition,
+            units: _package.units,
+            number: 1
+          };
+
+          aggregation.push( newAggregation );
+
+        }
+
+      }
+
+      return aggregation;
+    }
+
     function Shipment( _data, hydratePalletObjects = false ) {
 
       const shipment = Object.assign(
@@ -208,6 +250,8 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet',
         _data,
         [ 'arrivalDateExpected', 'arrivalDate', 'createdAt', 'updatedAt' ].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
       );
+
+      shipment.packageAggregation = aggregatePackages( _data.packages );
 
       if( hydratePalletObjects ) {
         Object.assign(

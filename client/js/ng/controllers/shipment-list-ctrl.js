@@ -145,7 +145,7 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
     vm.refreshShipmentsList = refreshShipmentsList;
 
     vm.sortListBy = sortKey => {
-      
+
       if( vm.columns[sortKey].noSort ) {
         return;
       }
@@ -219,7 +219,7 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
 
       const activeColumns = [];
       for( let column in vm.columns ) {
-        
+
         if( vm.columns[ column ].active ) {
           activeColumns.push( column );
         }
@@ -228,8 +228,8 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
 
       const userSettings = SettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
 
-      SettingsSvc.save( 
-        __USER_SETTINGS_SUBKEY__, 
+      SettingsSvc.save(
+        __USER_SETTINGS_SUBKEY__,
         userSettings ? Object.assign( userSettings, { activeColumns: activeColumns } ) : { activeColumns: activeColumns }
       );
 

@@ -13,7 +13,23 @@ export function humanReadableFileSize( size ) {
 
 }
 
-export function prettifyDate (dt) { return dt && dt.toLocaleDateString ? dt.toLocaleDateString() : dt; }
+export function prettifyDate (dt) {
+  return dt && dt.toLocaleDateString ? dt.toLocaleDateString() : dt;
+}
+
+
+export function prettifyDateTime( dt ) {
+
+  if( dt ) {
+
+    const _ = typeof dt === Date ? _ : new Date(dt);
+
+    return _.toLocaleString();
+
+  }
+
+}
+
 
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {

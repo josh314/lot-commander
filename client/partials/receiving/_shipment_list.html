@@ -68,9 +68,9 @@
       ng-model="$ctrl.pagination.current"
       ng-change="$ctrl.pagination.pageChange()"
       class="pagination-sm pull-right"></ul>
-      
+
     </div>
-    
+
     <table class="table table-striped">
       <thead><tr>
         <th ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable && columnData.active">
@@ -84,7 +84,7 @@
           <span ng-show="columnData.noSort">{{columnData.displayName}}</span>
         </th>
       </tr></thead>
-      <tbody>	
+      <tbody>
         <tr ng-repeat="shipment in $ctrl.shipments">
           <td ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable && columnData.active" ng-switch="columnKey">
             <span ng-switch-when="handle">

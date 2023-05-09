@@ -1,9 +1,11 @@
 import angular from 'angular';
 
+import * as api from '../../api';
+
 import printJS from 'print-js';
 
 /******************* Print labels service ******************************/
-angular.module('myApp').factory('PrintSvc', [ function(){
+angular.module('myApp').factory('PrintSvc', [ function( ){
 
   const verifyShippingData = lot => {
     if(lot.numBoxes) {
@@ -35,15 +37,24 @@ angular.module('myApp').factory('PrintSvc', [ function(){
     printJS(`/api/print/labels/incoming-shipments/${ shipmentId }/pallets-${ palletList }`);
   };
 
-  const printIncomingShipmenPalletLabel = ( shipmentId, palletList, palletId ) => {
+  const printIncomingShipmentPalletLabel = ( shipmentId, palletList, palletId ) => {
     printJS(`/api/print/labels/incoming-shipments/${ shipmentId }/pallets-${ palletList }/${palletId}`);
   };
 
+  async function printPackageLabels( packageIds ) {
+
+    const resp = await api.getLabelsforPackageList( packageIds );
+    const url = URL.createObjectURL( resp );
+    printJS( { printable: url, type: 'pdf' } );
+
+  }
+
   return {
-    printIncomingShipmentLabels: printIncomingShipmentLabels,
-    printIncomingShipmenPalletLabel: printIncomingShipmenPalletLabel,
-    printLotLabels: printLotLabels,
-    printPickReceipt: printPickReceipt
+    printIncomingShipmentLabels,
+    printIncomingShipmentPalletLabel,
+    printLotLabels,
+    printPackageLabels,
+    printPickReceipt,
   };
 
 }]);

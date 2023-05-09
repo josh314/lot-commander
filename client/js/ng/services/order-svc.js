@@ -220,6 +220,10 @@ angular.module('myApp').service( 'OrderSvc', [
 
       const everydayBargainsUnbundledLineItemsFlattenedShippingItems = everydayBargainsUnbundledLineItems.flatMap( _lineItem => {
 
+        if( !_lineItem || ! _lineItem.shippingConfiguration ) {
+          return null;
+        }
+
         return _lineItem.shippingConfiguration.map( _shippingItem => {
 
           const productTitle = _lineItem.product.title;
@@ -230,7 +234,7 @@ angular.module('myApp').service( 'OrderSvc', [
           return Object.assign( {}, _shippingItem, { productTitle, boxSize, unitsPerBox, key, count: _lineItem.unfulfilledQuantity } );
         });
 
-      } );
+      } ).filter( _ => _ );
 
       const everydayBargainsShippingItemsAggregated = everydayBargainsUnbundledLineItemsFlattenedShippingItems.reduce( ( _acc, _item ) => {
 

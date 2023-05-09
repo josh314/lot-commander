@@ -1,0 +1,73 @@
+<div class="container" ng-controller="PackagesPackingCtrl as $ctrl">
+
+  <h2>Packages</h2>
+
+  <div class="form-group">
+    <label for="scanPackageLabelInput">Scan label here to create package</label>
+    <input type="text" class="form-control" name="scan" ng-model="$ctrl.scannedLabel" id="scanPackageLabelInput" ng-keyup="$event.keyCode == 13 && $ctrl.scanLabel()" autofocus>
+  </div>
+
+  <div class="row well">
+
+    <h4>Recently Created Packages</h4>
+
+    <ul uib-pagination
+    total-items="$ctrl.pagination.totalItems"
+    items-per-page="$ctrl.pagination.pageSize"
+    ng-model="$ctrl.pagination.current"
+    ng-change="$ctrl.pagination.pageChange()"
+    class="pagination-sm pull-right"></ul>
+
+    <table class="table table-striped">
+
+      <thead><tr>
+        <th>Package ID</th>
+        <th>Shipment</th>
+        <th>Category</th>
+        <th>Condition</th>
+        <th>Units</th>
+        <th>Date</th>
+      </tr></thead>
+
+      <tbody>
+        <tr ng-repeat="$package in $ctrl.packages">
+
+          <td>
+            {{ $package._id }}
+          </td>
+
+          <td>
+
+            <a ng-href="/shipments/{{$package.shipment._id}}" ng-show="$ctrl.allowShipmentNavigation">
+              {{ $package.shipment.handle }}
+            </a>
+            <span ng-hide="$ctrl.allowShipmentNavigation">
+              {{ $package.shipment.handle }}
+            </span>
+
+          </td>
+
+          <td>
+            {{ $package.category }}
+          </td>
+
+          <td>
+            {{ $package.condition }}
+          </td>
+
+          <td>
+            {{ $package.units }}
+          </td>
+
+          <td>
+            {{ $ctrl.prettifyDateTime( $package.instantiatedDate ) }}
+          </td>
+
+        </tr>
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>

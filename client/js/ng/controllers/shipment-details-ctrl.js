@@ -13,6 +13,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
   'ManifestFileHandlerSvc',
   'ModalSvc',
   'navigate',
+  'PackageSvc',
   'PalletLotSvc',
   'PalletManifestSvc',
   'palletProperties',
@@ -30,6 +31,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     ManifestFileHandlerSvc,
     ModalSvc,
     navigate,
+    PackageSvc,
     PalletLotSvc,
     PalletManifestSvc,
     palletProperties,
@@ -98,6 +100,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     vm.somePalletsEditing = ( pallets ) => pallets ? pallets.some( p => p.isEditing ) : false;
 
     vm.printShipmentLabels = printShipmentLabels;
+    vm.printPackageLabels = printPackageLabels;
 
     vm.receiveShipment = receiveShipment;
     vm.unreceiveShipment = unreceiveShipment;
@@ -756,6 +759,34 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
       PrintSvc.printIncomingShipmentLabels( vm.shipment._id, palletList );
     }
 
+    function printPackageLabels() {
+
+      const data = {
+        category: vm.shipment.category,
+        condition: vm.shipment.condition,
+      };
+
+      ModalSvc.packageLabelData( data ).then( _ => {
+
+        const packageData = {
+          shipment: vm.shipment._id,
+          category: _.category,
+          condition: _.condition,
+          units: _.units,
+        };
+
+        PackageSvc.createDuplicatePackages( packageData, _.numPackage ).then( resp => {
+
+          const packageIds = resp.packages.map( pkg => pkg._id );
+
+          PrintSvc.printPackageLabels( packageIds );
+
+        });
+
+      });
+
+    }
+
 
     /*******************************************************
      * Close/Reopen
@@ -792,7 +823,18 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
      *******/
 
     function loadShipment() {
-      return ShipmentManagerSvc.loadShipment( { populate: [ 'pallets_received', 'pallets_consolidated' ], hydratePalletObjects: true } ).then( shipment => {
+
+      const loadOptions = {
+        populate: [
+          'pallets_received',
+          'pallets_consolidated',
+          'packages'
+        ],
+        hydratePalletObjects: true,
+      };
+
+
+      return ShipmentManagerSvc.loadShipment( loadOptions ).then( shipment => {
 
         Object.assign(vm.shipment, shipment);
 

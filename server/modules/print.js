@@ -283,20 +283,30 @@ function createPackageLabels( packages ) {
       decodeURIComponent( pkg._id ),
       {
         format: 'CODE128',
-        displayValue: false,
-        // height: 100,
+        displayValue: true,
+        height: 125,
       }
     );
 
-    const margin = 5;
-    doc
-      .image(canvas.toBuffer(), margin, 15, { width: labelDims.width - 2*margin });
-
     if( pkg.shipment ) {
       doc
-        .font('Helvetica').text(`Shipment ID: `, 10, 5, { width: labelDims.width, continued: true })
-        .font('Helvetica-Bold').text(`${pkg.shipment.handle}`, { continued: false, underline: true });
+        .font('Helvetica').text(`Shipment: `, 10, 5, { width: labelDims.width, continued: true })
+        .font('Helvetica-Bold').text(`${pkg.shipment.handle}`, { continued: false, underline: true })
+        .fontSize(5)
+        .font('Helvetica').text(`Category: ${ pkg.category}`, { continued: false } )
+        .font('Helvetica').text(`Condition: ${ pkg.condition}`, { continued: false } )
+        .font('Helvetica').text(`Units: ${ pkg.units}`, { continued: false } );
     }
+
+    const margin = 5;
+    doc
+      .image(
+        canvas.toBuffer(),
+        margin,
+        36,
+        { width: labelDims.width - 2*margin }
+      );
+
 
   }
 

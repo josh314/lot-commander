@@ -252,6 +252,7 @@
     </div>
 
   </div>
+
   <div class="row well" ng-show="$ctrl.showDocumentControls || ($ctrl.documents && $ctrl.documents.length)">
 
     <div class="col-xs-12 row" ng-show="$ctrl.showDocumentControls">
@@ -685,6 +686,84 @@
       </div>
 
     </div>
+  </div>
+
+  <div class="row well" >
+
+    <div style="display: flex; align-items: center;">
+      <span class="h2">Production</span>
+    </div>
+
+
+    <div class="text-center">
+      <button type="button" class="btn btn-sm btn-primary" ng-click="$ctrl.printPackageLabels()">Print New Package Labels</button>
+    </div>
+
+
+    <div ng-show="$ctrl.shipment.packageAggregation.length">
+
+      <div style="display: flex; align-items: center;">
+        <span class="h4">Packages</span>
+      </div>
+
+      <table class="table table-striped">
+
+        <thead><tr>
+          <th>Category</th>
+          <th>Condition</th>
+          <th>Units</th>
+          <th>Number</th>
+        </tr></thead>
+
+        <tbody>
+          <tr ng-repeat="$package in $ctrl.shipment.packageAggregation track by $index">
+            <td>
+              {{ $package.category }}
+            </td>
+            <td>
+              {{ $package.condition }}
+            </td>
+            <td>
+              {{ $package.units }}
+            </td>
+            <td>
+              {{ $package.number }}
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <div ng-show="$ctrl.shipment.lots.length">
+
+      <div style="display: flex; align-items: center;">
+        <span class="h4">Lots</span>
+      </div>
+
+      <table class="table table-striped">
+
+        <thead><tr>
+          <th>Handle</th>
+          <th>Units</th>
+        </tr></thead>
+
+        <tbody>
+          <tr ng-repeat="$lot in $ctrl.shipment.lots track by $index">
+            <td>
+              {{ $lot.handle }}
+            </td>
+            <td>
+              {{ $lot.units }}
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
   </div>
 
   <div class="row" style="margin-top: 40px; margin-bottom: 60px;" >

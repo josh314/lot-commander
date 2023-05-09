@@ -1194,3 +1194,89 @@ export function bulkGetProductData( barcodes ) {
   })
     .then( resp => resp.data );
 }
+
+
+/*************************************************
+* Packages
+* ======
+*
+************/
+
+export function getPackage( pkgId ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/packages/${ pkgId }`
+  })
+    .then( resp => resp.data.package );
+}
+export function listPackages( qp ) {
+  return axios({
+    method: 'get',
+    url: `/api/packages/?${qs.stringify(qp)}`,
+  })
+    .then( resp => resp.data.packages );
+}
+export function countPackages( qp ) {
+  return axios({
+    method: 'get',
+    url: `/api/packages/count/?${qs.stringify(qp)}`,
+  })
+    .then( resp => resp.data.count );
+}
+
+export function createPackages( pkgs, instantiate = false ) {
+  return axios({
+    method: 'post',
+    url: `/api/packages/`,
+    data: {
+      packages: pkgs,
+      instantiate
+    }
+  })
+    .then( resp => resp.data );
+}
+
+export function removePackage( pkgId ) {
+  return axios({
+    method: 'delete',
+    url: `/api/packages/${ pkgId }`,
+  })
+    .then( resp => resp.data );
+}
+
+export function editPackage( pkgId, _data ) {
+  return axios({
+    method: 'patch',
+    url: `/api/packages/${ pkgId }`,
+    data: _data
+  })
+    .then( resp => resp.data );
+}
+
+export function instantiatePackage( pkgId ) {
+  return axios({
+    method: 'put',
+    url: `/api/packages/${ pkgId }/is-instantiated`,
+    data: { isInstantiated: true }
+  })
+    .then( resp => resp.data );
+}
+
+
+/*************************************************
+* Print & Labels
+* ==============
+*
+************/
+
+
+export function getLabelsforPackageList( packageIds ) {
+  return axios({
+    method: 'post',
+    url: `/api/print/labels/packages/`,
+    data: { packageIds },
+    responseType: 'blob'
+  })
+    .then( resp => resp.data );
+}

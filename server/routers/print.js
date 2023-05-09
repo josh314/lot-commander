@@ -131,7 +131,7 @@ function routes({ inventoryCommander, lotdb }) {
 
       const { packageIds } = req.body;
 
-      const packages = await inventoryCommander.getPackagesById( packageIds, { populate: [ 'shipment' ] } )
+      const packages = await inventoryCommander.getPackagesById( packageIds, { populate: [ 'shipment' ] } );
 
       print.createPackageLabels( packages ).pipe(res);
 
