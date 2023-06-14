@@ -841,7 +841,7 @@ class InventoryCommander {
 
   async deleteIncomingShipmentPalletReceived( shipmentId, palletId ) {
 
-    const shipment = await this.getIncomingShipmentById( shipmentId );
+    const shipment = await this.getIncomingShipmentById( shipmentId, { includeDeleted: true } );
 
     if( !shipment ) {
       throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
