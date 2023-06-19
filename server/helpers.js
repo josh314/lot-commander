@@ -1,17 +1,42 @@
 module.exports = {
-  snake2Camel: snake2Camel,
-  populationPathsFromQuery: populationPathsFromQuery,
+  arrayOfScalarsIsEqual,
+  snake2Camel,
+  populationPathsFromQuery,
 };
 
 /**********************************************
- * Helpers
- * =======
- * 
+ * Utility functions
+ * ========================
+ *
  *********/
 
 function snake2Camel( str ) {
   return str.split('_').map( (s, idx) => idx ? s.slice(0,1).toUpperCase() + s.slice(1) : s ).join('');
 }
+
+
+function arrayOfScalarsIsEqual( a1, a2 ) {
+  if( a1.length !== a2.length ) {
+    return false;
+  }
+
+  for( let i=0; i<a1.length; i++ ) {
+
+    if( a1[i] !== a2[i] ) {
+      return false;
+    }
+
+  }
+
+  return true;
+
+}
+
+/**********************************************
+ * Query helpers
+ * ========================
+ *
+ *********/
 
 function populationPathsFromQuery( qps ) {
 

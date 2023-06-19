@@ -10,6 +10,15 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const express = require('express');
 
+// dayjs and configuration
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc.js');
+const timezone = require('dayjs/plugin/timezone.js');
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault( process.env.TIMEZONE );
+
+
 const { ClientError, AuthorizationError } = require('./errors');
 
 //====================================================
@@ -289,7 +298,7 @@ class Server {
     // Main app routes =====================================
     //======================================================
 
-    const routerOpts = {
+    const modules = {
       bstock,
       countCommander,
       eventsDbClient,
@@ -304,8 +313,10 @@ class Server {
       userDbClient: this.users,
     };
 
+    this.modules = modules;
+
     // Load routes based on layout
-    const router = require(path.join(__basedir,'routers'))(routerOpts);
+    const router = require(path.join(__basedir,'routers'))( modules );
 
     // Login users on all main routes
     this.app.use(
@@ -355,8 +366,8 @@ class Server {
     //=================================================
     // Start the server
     //=================================================
-    const server = this.app.listen(this.app.get('port'), function() {
-      const address = server.address();
+    const _server = this.app.listen(this.app.get('port'), function() {
+      const address = _server.address();
       if(typeof address === 'string') {
         debug('Express server listening at address ' + address);
       }
@@ -364,7 +375,7 @@ class Server {
         debug('Express server listening on port ' + address.port);
       }
     });
-    return server;
+    return this;
   }
 }
 
