@@ -199,6 +199,9 @@ class DisplayContent {
     else if( this.type === 'boolean' ) {
       return this.editValue[ env ] === 'true' || this.editValue[ env ] === 'false';
     }
+    else if( this.type === 'color' ) {
+      return !!this.editValue[ env ].match( /^#[0-9a-fA-F]{6}$/ );
+    }
     else {
       return true;
     }

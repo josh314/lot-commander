@@ -18,7 +18,7 @@
       <div class="panel panel-primary" ng-class="{
           'panel-danger' : !$displayContent.isValid( 'staging' ) && !$displayContent.isBlank( 'staging' ),
           'panel-success': $displayContent.readyToStage(),
-          'panel-warning': $displayContent.readyForProd() 
+          'panel-warning': $displayContent.readyForProd()
         }">
         <div class="panel-heading" style="display: flex; justify-content: space-between">
           <p>Key: <strong>{{ $displayContent.subkey }}</strong></p>
@@ -48,6 +48,27 @@
                   ng-model="$displayContent.value[ 'prod' ]"
                   disabled
                 />
+            <!-- color -->
+            <div ng-switch-when="color">
+              <div class="col-xs-6">
+                <input
+                  type="color"
+                  id="content-input-{{$displayContent.key}}-color-prod"
+                  class="form-control"
+                  ng-model="$displayContent.value[ 'prod' ]"
+                  disabled
+                />
+              </div>
+              <div class="col-xs-6">
+                <input
+                  type="text"
+                  id="content-input-{{$displayContent.key}}-hex-prod"
+                  class="form-control"
+                  ng-model="$displayContent.value[ 'prod' ]"
+                  disabled
+                />
+              </div>
+            </div>
             <!-- objects as JSON -->
             <textarea ng-switch-when="json"
                       id="content-input-{{$displayContent.key}}-prod"
@@ -84,7 +105,7 @@
             <label>Current staging value</label>
             <!-- booleans -->
             <select ng-switch-when="boolean"
-                  id="content-input-{{$displayContent.key}}-prod"
+                  id="content-input-{{$displayContent.key}}-staging"
                   class="form-control"
                   ng-model="$displayContent.value[ 'staging' ]"
                   disabled
@@ -95,14 +116,35 @@
             <!-- numbers -->
             <input ng-switch-when-separator="|" ng-switch-when="number_integer|number_decimal"
                   type="number"
-                  id="content-input-{{$displayContent.key}}-prod"
+                  id="content-input-{{$displayContent.key}}-staging"
                   class="form-control"
                   ng-model="$displayContent.value[ 'staging' ]"
                   disabled
                 />
+            <!-- color -->
+            <div ng-switch-when="color">
+              <div class="col-xs-6">
+                <input
+                  type="color"
+                  id="content-input-{{$displayContent.key}}-color-staging"
+                  class="form-control"
+                  ng-model="$displayContent.value[ 'staging' ]"
+                  disabled
+                />
+              </div>
+              <div class="col-xs-6">
+                <input
+                  type="text"
+                  id="content-input-{{$displayContent.key}}-hex-staging"
+                  class="form-control"
+                  ng-model="$displayContent.value[ 'staging' ]"
+                  disabled
+                />
+              </div>
+            </div>
             <!-- objects as JSON -->
             <textarea ng-switch-when="json"
-                      id="content-input-{{$displayContent.key}}-prod"
+                      id="content-input-{{$displayContent.key}}-staging"
                       class="form-control"
                       rows="{{$displayContent.value[ 'staging' ].split('\n').length}}"
                       ng-model="$displayContent.value[ 'staging' ]"
@@ -110,7 +152,7 @@
                     ></textarea>
             <!-- multi-line text -->
             <textarea ng-switch-when="multi_line_text_field"
-                      id="content-input-{{$displayContent.key}}-prod"
+                      id="content-input-{{$displayContent.key}}-staging"
                       class="form-control"
                       rows="{{$displayContent.value[ 'staging' ].split('\n').length}}"
                       ng-model="$displayContent.value[ 'staging' ]"
@@ -119,7 +161,7 @@
             <!-- Default to single-line text input -->
             <input ng-switch-default
                   type="text"
-                  id="content-input-{{$displayContent.key}}-prod"
+                  id="content-input-{{$displayContent.key}}-staging"
                   class="form-control"
                   ng-model="$displayContent.value[ 'staging' ]"
                   disabled
@@ -137,7 +179,7 @@
             <label>Value to stage</label>
             <!-- booleans -->
             <select ng-switch-when="boolean"
-                  id="content-input-{{$displayContent.key}}-staging"
+                  id="content-input-{{$displayContent.key}}-edit-staging"
                   class="form-control"
                   ng-model="$displayContent.editValue[ 'staging' ]"
                   ng-class="{ 'placeholder': !$displayContent.isDirty( 'staging' ) }"
@@ -147,15 +189,36 @@
             </select>
             <!-- numbers -->
             <input ng-switch-when-separator="|" ng-switch-when="number_integer|number_decimal"
-                  type="number"
-                  id="content-input-{{$displayContent.key}}-staging"
+              type="number"
+              id="content-input-{{$displayContent.key}}-edit-staging"
+              class="form-control"
+              ng-model="$displayContent.editValue[ 'staging' ]"
+              ng-class="{ 'placeholder': !$displayContent.isDirty( 'staging' ) }"
+            />
+            <!-- color -->
+            <div ng-switch-when="color">
+              <div class="col-xs-6">
+                <input
+                  type="color"
+                  id="content-input-{{$displayContent.key}}-color-edit-staging"
                   class="form-control"
                   ng-model="$displayContent.editValue[ 'staging' ]"
                   ng-class="{ 'placeholder': !$displayContent.isDirty( 'staging' ) }"
                 />
+              </div>
+              <div class="col-xs-6">
+                <input
+                  type="text"
+                  id="content-input-{{$displayContent.key}}-hex-edit-staging"
+                  class="form-control"
+                  ng-model="$displayContent.editValue[ 'staging' ]"
+                  ng-class="{ 'placeholder': !$displayContent.isDirty( 'staging' ) }"
+                />
+              </div>
+            </div>
             <!-- objects as JSON -->
             <textarea ng-switch-when-separator="|" ng-switch-when="json|dimension|rating|volume|weight"
-                      id="content-input-{{$displayContent.key}}-staging"
+                      id="content-input-{{$displayContent.key}}-edit-staging"
                       class="form-control"
                       rows="{{$displayContent.editValue[ 'staging' ].split('\n').length}}"
                       ng-model="$displayContent.editValue[ 'staging' ]"
@@ -163,7 +226,7 @@
                     ></textarea>
             <!-- multi-line text -->
             <textarea ng-switch-when="multi_line_text_field"
-                      id="content-input-{{$displayContent.key}}-staging"
+                      id="content-input-{{$displayContent.key}}-edit-staging"
                       class="form-control"
                       rows="{{$displayContent.editValue[ 'staging' ].split('\n').length}}"
                       ng-model="$displayContent.editValue[ 'staging' ]"
@@ -172,7 +235,7 @@
             <!-- Default to single-line text input -->
             <input ng-switch-default
                   type="text"
-                  id="content-input-{{$displayContent.key}}-staging"
+                  id="content-input-{{$displayContent.key}}-edit-staging"
                   class="form-control"
                   ng-model="$displayContent.editValue[ 'staging' ]"
                   ng-class="{ 'placeholder': !$displayContent.isDirty( 'staging' ) }"
@@ -206,6 +269,7 @@
           <div style="margin-right:12px;" ng-show="$displayContent.readyForProd()">
             <button tabIndex="-1" class="btn btn-sm btn-warning" ng-click="$ctrl.deployToProd( $displayContent )">Deploy staging value to production</button>
           </div>
+
         </div>
       </div>
     </div>
@@ -222,29 +286,30 @@
     <h2>New Content (development use only)</h2>
 
 
-    <table class="table table-striped">
+    <table class="table table-striped" ng-switch="$ctrl.newContent.type">
 
       <thead><tr>
         <th>Namespace</th>
         <th>Key</th>
         <th>Type</th>
         <th>Value</th>
+        <th ng-switch-when="color"></th>
         <th></th> <!-- create -->
       </tr></thead>
 
       <tbody>
         <!-- The new metafield-->
-        <tr ng-switch="$ctrl.newContent.type">
+        <tr >
           <td>
             <input class="form-control" ng-model="$ctrl.newContent.namespace" ng-value="'wsn_content'" disabled/>
           </td>
-          <td 
+          <td
             ng-class="{
               'has-error' : !$ctrl.newContent.key && !$ctrl.newContent.isBlank( 'staging' )
             }">
             <input class="form-control" ng-model="$ctrl.newContent.key"/>
           </td>
-          <td 
+          <td
             ng-class="{
               'has-error' : !$ctrl.newContent.type && !$ctrl.newContent.isBlank( 'staging' )
             }">
@@ -259,7 +324,7 @@
             }">
               <!-- booleans -->
               <select ng-switch-when="boolean"
-                    id="content-input-{{$displayContent.key}}-new"
+                    id="content-input-{{$ctrl.newContent.key}}-new"
                     class="form-control"
                     ng-model="$ctrl.newContent.editValue.staging"
                   >
@@ -269,20 +334,28 @@
               <!-- numbers -->
               <input ng-switch-when-separator="|" ng-switch-when="number_integer|number_decimal"
                     type="number"
-                    id="content-input-{{$displayContent.key}}-new"
+                    id="content-input-{{$ctrl.newContent.key}}-new"
                     class="form-control"
                     ng-model="$ctrl.newContent.editValue.staging"
                   />
+              <!-- color -->
+              <input ng-switch-when="color"
+                type="text"
+                id="content-input-{{$ctrl.newContent.key}}-hex-new"
+                class="form-control"
+                ng-model="$ctrl.newContent.editValue.staging"
+                ng-value="'#FFFFFF'"
+              />
               <!-- objects as JSON -->
               <textarea ng-switch-when-separator="|" ng-switch-when="json|dimension|rating|volume|weight"
-                        id="content-input-{{$displayContent.key}}-new"
+                        id="content-input-{{$ctrl.newContent.key}}-new"
                         class="form-control"
                         rows="{{$ctrl.newContent.editValue.staging.split('\n').length}}"
                         ng-model="$ctrl.newContent.editValue.staging"
                       ></textarea>
               <!-- multi-line text -->
               <textarea ng-switch-when="multi_line_text_field"
-                        id="content-input-{{$displayContent.key}}-new"
+                        id="content-input-{{$ctrl.newContent.key}}-new"
                         class="form-control"
                         rows="{{$ctrl.newContent.editValue.staging.split('\n').length}}"
                         ng-model="$ctrl.newContent.editValue.staging"
@@ -290,7 +363,7 @@
               <!-- If type hasn't been chosen yet -->
               <input ng-switch-when="undefined"
                     type="text"
-                    id="content-input-{{$displayContent.key}}-new"
+                    id="content-input-{{$ctrl.newContent.key}}-new"
                     class="form-control"
                     ng-model="$ctrl.newContent.editValue.staging"
                     disabled
@@ -298,26 +371,38 @@
               <!-- Default to single-line text input -->
               <input ng-switch-default
                     type="text"
-                    id="content-input-{{$displayContent.key}}-new"
+                    id="content-input-{{$ctrl.newContent.key}}-new"
                     class="form-control"
                     ng-model="$ctrl.newContent.editValue.staging"
                   />
 
-              
+
               <!-- Error messages -->
               <span ng-switch-when-separator="|" ng-switch-when="number_integer|number_decimal"
-                  ng-hide="$ctrl.newContent.isValid( 'staging' ) || $ctrl.newContent.isBlank( 'staging' )" 
+                  ng-hide="$ctrl.newContent.isValid( 'staging' ) || $ctrl.newContent.isBlank( 'staging' )"
                   class="text-danger"
                   >Not a number</span>
               <span ng-switch-when-separator="|" ng-switch-when="json|dimension|rating|volume|weight"
-                  ng-hide="$ctrl.newContent.isValid( 'staging' ) || $ctrl.newContent.isBlank( 'staging' )" 
+                  ng-hide="$ctrl.newContent.isValid( 'staging' ) || $ctrl.newContent.isBlank( 'staging' )"
                   class="text-danger"
                 >Not valid JSON</span>
+              <span ng-switch-when="color"
+                  ng-hide="$ctrl.newContent.isValid( 'staging' ) || $ctrl.newContent.isBlank( 'staging' )"
+                  class="text-danger"
+                >Not valid color</span>
             </div>
+          </td>
+          <td ng-switch-when="color">
+            <input
+              type="color"
+              id="content-input-{{$ctrl.newContent.key}}-color-new"
+              class="form-control"
+              ng-model="$ctrl.newContent.editValue.staging"
+            />
           </td>
           <td>
             <button
-                tabIndex="-1" 
+                tabIndex="-1"
                 class="btn btn-xs btn-success"
                 ng-click="$ctrl.createContentMetafield( $ctrl.newContent )"
                 ng-disabled="!$ctrl.newContent.isValid( 'staging' )"
