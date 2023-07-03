@@ -20,9 +20,12 @@
           'panel-success': $displayContent.readyToStage(),
           'panel-warning': $displayContent.readyForProd()
         }">
-        <div class="panel-heading" style="display: flex; justify-content: space-between">
-          <p>Key: <strong>{{ $displayContent.subkey }}</strong></p>
-          <p>Data type: {{ $displayContent.displayType }}</p>
+        <div class="panel-heading">
+          <span style="display: flex; justify-content: space-between">
+            <p>Key: <strong>{{ $displayContent.subkey }}</strong></p>
+            <p>Data type: {{ $displayContent.displayType }}</p>
+          </span>
+          <p>Description: {{ $displayContent.description }}</p>
         </div>
         <div class="panel-body">
 
@@ -255,7 +258,7 @@
         <div class="panel-footer" style="display: flex; justify-content: flex-end;">
 
           <div ng-show="$ctrl.showDeveloper" style="margin-right: auto;">
-            <button tabIndex="-1" class="btn btn-sm btn-danger" ng-click="$ctrl.deleteContent( $displayContent )">Delete</button>
+            <button tabIndex="-1" class="btn btn-sm btn-danger" ng-click="$ctrl.deleteContent( $displayContent )" ng-disabled="!$displayContent.value[ 'prod' ] && !$displayContent.value[ 'staging' ]">Clear</button>
           </div>
 
           <div style="margin-right:12px;" ng-show="$displayContent.isDirty( 'staging' )">
@@ -272,6 +275,143 @@
 
         </div>
       </div>
+    </div>
+
+    <div class="row well" ng-show="$ctrl.unsetCanonicalContent.length">
+
+      <h2>Set Content</h2>
+      <p>These are variables which do not currently have any value set.</p>
+
+      <table class="table table-striped" ng-switch="$ctrl.newContent.type">
+
+        <thead><tr>
+          <th>Namespace</th>
+          <th>Key</th>
+          <th>Type</th>
+          <th>Value</th>
+          <th ng-switch-when="color"></th>
+          <th></th> <!-- create -->
+        </tr></thead>
+
+        <tbody>
+          <!-- The new metafield-->
+          <tr>
+            <td>
+              <input class="form-control" ng-model="$ctrl.newContent.namespace" ng-value="'wsn_content'" disabled/>
+            </td>
+            <td
+              ng-class="{
+                'has-error' : !$ctrl.newContent.key && !$ctrl.newContent.isBlank( 'staging' )
+              }">
+              <input class="form-control" ng-model="$ctrl.newContent.key"/>
+            </td>
+            <td
+              ng-class="{
+                'has-error' : !$ctrl.newContent.type && !$ctrl.newContent.isBlank( 'staging' )
+              }">
+              <select class="form-control" ng-model="$ctrl.newContent.type">
+                <option ng-repeat="opt in $ctrl.metafieldTypeOptions">{{ opt }}</option>
+              </select>
+            </td>
+            <td>
+              <div class="form-group" ng-class="{
+                'has-error' : !$ctrl.newContent.isValid( 'staging' ) && !$ctrl.newContent.isBlank( 'staging' ),
+                'has-success': $ctrl.newContent.isDirty( 'staging' ) && $ctrl.newContent.isValid( 'staging' )
+              }">
+                <!-- booleans -->
+                <select ng-switch-when="boolean"
+                      id="content-input-{{$ctrl.newContent.key}}-new"
+                      class="form-control"
+                      ng-model="$ctrl.newContent.editValue.staging"
+                    >
+                  <option>true</option>
+                  <option>false</option>
+                </select>
+                <!-- numbers -->
+                <input ng-switch-when-separator="|" ng-switch-when="number_integer|number_decimal"
+                      type="number"
+                      id="content-input-{{$ctrl.newContent.key}}-new"
+                      class="form-control"
+                      ng-model="$ctrl.newContent.editValue.staging"
+                    />
+                <!-- color -->
+                <input ng-switch-when="color"
+                  type="text"
+                  id="content-input-{{$ctrl.newContent.key}}-hex-new"
+                  class="form-control"
+                  ng-model="$ctrl.newContent.editValue.staging"
+                  ng-value="'#FFFFFF'"
+                />
+                <!-- objects as JSON -->
+                <textarea ng-switch-when-separator="|" ng-switch-when="json|dimension|rating|volume|weight"
+                          id="content-input-{{$ctrl.newContent.key}}-new"
+                          class="form-control"
+                          rows="{{$ctrl.newContent.editValue.staging.split('\n').length}}"
+                          ng-model="$ctrl.newContent.editValue.staging"
+                        ></textarea>
+                <!-- multi-line text -->
+                <textarea ng-switch-when="multi_line_text_field"
+                          id="content-input-{{$ctrl.newContent.key}}-new"
+                          class="form-control"
+                          rows="{{$ctrl.newContent.editValue.staging.split('\n').length}}"
+                          ng-model="$ctrl.newContent.editValue.staging"
+                        ></textarea>
+                <!-- If type hasn't been chosen yet -->
+                <input ng-switch-when="undefined"
+                      type="text"
+                      id="content-input-{{$ctrl.newContent.key}}-new"
+                      class="form-control"
+                      ng-model="$ctrl.newContent.editValue.staging"
+                      disabled
+                    />
+                <!-- Default to single-line text input -->
+                <input ng-switch-default
+                      type="text"
+                      id="content-input-{{$ctrl.newContent.key}}-new"
+                      class="form-control"
+                      ng-model="$ctrl.newContent.editValue.staging"
+                    />
+
+
+                <!-- Error messages -->
+                <span ng-switch-when-separator="|" ng-switch-when="number_integer|number_decimal"
+                    ng-hide="$ctrl.newContent.isValid( 'staging' ) || $ctrl.newContent.isBlank( 'staging' )"
+                    class="text-danger"
+                    >Not a number</span>
+                <span ng-switch-when-separator="|" ng-switch-when="json|dimension|rating|volume|weight"
+                    ng-hide="$ctrl.newContent.isValid( 'staging' ) || $ctrl.newContent.isBlank( 'staging' )"
+                    class="text-danger"
+                  >Not valid JSON</span>
+                <span ng-switch-when="color"
+                    ng-hide="$ctrl.newContent.isValid( 'staging' ) || $ctrl.newContent.isBlank( 'staging' )"
+                    class="text-danger"
+                  >Not valid color</span>
+              </div>
+            </td>
+            <td ng-switch-when="color">
+              <input
+                type="color"
+                id="content-input-{{$ctrl.newContent.key}}-color-new"
+                class="form-control"
+                ng-model="$ctrl.newContent.editValue.staging"
+              />
+            </td>
+            <td>
+              <button
+                  tabIndex="-1"
+                  class="btn btn-xs btn-success"
+                  ng-click="$ctrl.createContentMetafield( $ctrl.newContent )"
+                  ng-disabled="!$ctrl.newContent.isValid( 'staging' )"
+                >Save</button>
+            </td>
+            <td>
+              <!-- No revert button -->
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+
     </div>
 
   </div>

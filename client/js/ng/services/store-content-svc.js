@@ -9,6 +9,8 @@ angular.module('myApp').factory('StoreContentSvc', [ '$q', function( $q ) {
 
   return {
 
+    getSchema: () => $q.when( api.getStoreContentSchema( ) ),
+
     get: ( gid, env ) => $q.when( api.getStoreContent( gid, { env } ) ),
 
     edit: ( newContent, env ) => $q.when( api.editStoreContent( newContent, { env } ) ),

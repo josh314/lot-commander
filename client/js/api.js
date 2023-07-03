@@ -1093,6 +1093,16 @@ export function incrementCounter( handle, increment ) {
 *
 ************/
 
+export function getStoreContentSchema() {
+
+  return axios({
+    method: 'get',
+    url: `/api/content/schema`
+  })
+    .then( resp => resp.data );
+
+}
+
 export function getStoreContent( gid, queryParams ) {
 
   return axios({

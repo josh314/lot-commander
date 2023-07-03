@@ -27,6 +27,7 @@ function routes({
   productData,
   shopifyGql,
   shopifyOrders,
+  storeMetafieldSchemaDb,
   userDbClient
 }) {
 
@@ -50,7 +51,7 @@ function routes({
   router.use('/api/print', require('./print')( { inventoryCommander, lotdb: lotdb } ) );
   router.use('/api/manifests', require('./manifests')( { manifests } ) );
 
-  router.use('/api/content', require('./content')( { shopifyGql } ) );
+  router.use('/api/content', require('./content')( { shopifyGql, storeMetafieldSchemaDb } ) );
 
 
   // inventory commander
@@ -72,8 +73,6 @@ function routes({
 
   // counter app
   router.use('/api/counters', require('./counters')( { countCommander } ) );
-
-  // Shipping rates on Shopify store
 
   // dynamically created JS scripts for the client
   router.use('/build', require('./script-builder')( { bstock, listings, lotdb, quickLots }) );

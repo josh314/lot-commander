@@ -248,6 +248,11 @@ class Server {
     const ManualInventoryDb = require('./modules/manual-inventory-db');
     const manualInventoryDbClient = new ManualInventoryDb.Client( { mongooseConnection: this.mongooseConnection } );
 
+    // Store metafield schema db
+    const StoreMetafieldSchemaDb = require('./modules/store-metafield-schema-db');
+    const storeMetafieldSchemaDb = new StoreMetafieldSchemaDb.Client( { mongooseConnection: this.mongooseConnection } );
+
+
     // Old-style scanned lot manifests
     const manifests = require('./modules/manifests')( { lotdb } );
 
@@ -310,6 +315,7 @@ class Server {
       productData,
       shopifyGql: shopifyGqlClient,
       shopifyOrders,
+      storeMetafieldSchemaDb,
       userDbClient: this.users,
     };
 

@@ -31,8 +31,24 @@ function metafield2Content( m, env ) {
   return Object.assign( {} , m, { env } );
 }
 
-function contentIsEqual( c1, c2 ) {
-  return (c1.namespace === c2.namespace) && (c1.key === c2.key) && (c1.env === c2.env);
+function compareContent( c1, c2 ) {
+
+  if( c1.namespace !== c2.namespace || c1.key !== c2.key) {
+    return false;
+  }
+
+  if( c1.env === c2.env ) {
+    return true;
+  }
+  else if( c1.env === 'staging' && !c2.env ) {
+    return true;
+  }
+  else if ( c2.env === 'staging' && !c1.env ) {
+    return true;
+  }
+
+  return false;
+
 }
 
 function isBlank( value ) {
@@ -113,11 +129,14 @@ function parseKey( key ) {
 }
 
 class DisplayContent {
-  constructor( { namespace, key, type } = {} ) {
+  constructor( { namespace, key, type, description } = {} ) {
     this.id = {};
     this.namespace = namespace;
     this.key = key;
+    this.subkey = undefined;
+    this.group = undefined;
     this.type = type;
+    this.description = description;
     this.displayType = getDisplayType( type );
     this.value = {};
     this.editValue = {};
@@ -242,6 +261,32 @@ angular.module('myApp').controller('StoreContentCtrl', [
     const vm = this;
     vm.showDeveloper = LoggedInUser.isDeveloper();
 
+    function loadContentSchema() {
+
+      return StoreContentSvc.getSchema().then( resp => {
+        vm.contentSchema = resp.schema;
+      } );
+
+    }
+
+    function dressContentFromSchema() {
+
+      __ALL_CONTENT__.forEach( _content => {
+
+        const _correspondingContentSchema = vm.contentSchema.find( _schema => _content.key === _schema.key );
+
+        if( _correspondingContentSchema ) {
+          _content.description = _correspondingContentSchema.description;
+        }
+
+      });
+
+      const unsetCanonicalContent = vm.contentSchema.filter( _schema => !__ALL_CONTENT__.find( _content => _content.key === _schema.key ) );
+
+      __ALL_CONTENT__ = __ALL_CONTENT__.concat( unsetCanonicalContent );
+
+    }
+
     function refreshContent() {
 
       vm.waitingForResponse = true;
@@ -263,6 +308,7 @@ angular.module('myApp').controller('StoreContentCtrl', [
       return Promise.all( requests ).then( _ => {
         vm.waitingForResponse = false;
         __ALL_CONTENT__ = content.prod.concat( content.staging );
+
         return refreshDisplayContent( );
       });
 
@@ -335,7 +381,7 @@ angular.module('myApp').controller('StoreContentCtrl', [
 
         const content = metafield2Content( metafield, env );
 
-        const idx = __ALL_CONTENT__.findIndex( _c => contentIsEqual( _c, content ) );
+        const idx = __ALL_CONTENT__.findIndex( _c => compareContent( _c, content ) );
 
         if( idx >= 0 ) {
           __ALL_CONTENT__.splice( idx, 1, content );
@@ -370,12 +416,24 @@ angular.module('myApp').controller('StoreContentCtrl', [
       return StoreContentSvc.deleteMany( contentToDelete ).then( responses => {
 
         for( let resp of responses ) {
+
           if( resp.deletedId ) {
 
             const idx = __ALL_CONTENT__.findIndex( _c => _c.id === resp.deletedId );
 
             if( idx >= 0 ) {
-              __ALL_CONTENT__.splice( idx, 1 );
+
+              const _correspondingContentSchema = vm.contentSchema.find( _schema => __ALL_CONTENT__[idx].key === _schema.key );
+
+              if( _correspondingContentSchema ) {
+
+                __ALL_CONTENT__[idx] = new DisplayContent( __ALL_CONTENT__[idx] );
+
+              }
+              else {
+                __ALL_CONTENT__.splice( idx, 1 );
+              }
+
             }
 
           }
@@ -393,6 +451,8 @@ angular.module('myApp').controller('StoreContentCtrl', [
 
     function refreshDisplayContent( defaultDisplayGroupName ) {
 
+      dressContentFromSchema();
+
       const allDisplayContent = [];
       for( let _c of __ALL_CONTENT__ ) {
 
@@ -401,13 +461,16 @@ angular.module('myApp').controller('StoreContentCtrl', [
           dv = new DisplayContent( {
             namespace: _c.namespace,
             key: _c.key,
-            type: _c.type
+            type: _c.type,
+            description: _c.description
           } );
           allDisplayContent.push( dv );
         }
 
-        dv.setValue( _c.value, _c.env );
-        dv.setId( _c.id, _c.env );
+        if( _c.env ) {
+          dv.setValue( _c.value, _c.env );
+          dv.setId( _c.id, _c.env );
+        }
       }
       vm.allDisplayContent = allDisplayContent;
 
@@ -500,10 +563,14 @@ angular.module('myApp').controller('StoreContentCtrl', [
       vm.focusOnContent = focusOnContent;
       vm.createContentMetafield = createContentMetafield;
 
-      refreshContent( ).then( _ => focusOnContent('0') );
+      loadContentSchema()
+        .then( refreshContent )
+        .then( _ => focusOnContent('0') );
+
       vm.newContent = new DisplayContent();
     }
     init();
 
   }
 ]);
+
