@@ -9,6 +9,7 @@ module.exports = {
   get: get,
   list: list,
   put: put,
+  exportToGoogle: exportToGoogle
 };
 
 function build( sheets, saveAs = '', isPublic = false) {
@@ -82,4 +83,21 @@ function list( queryParams = {} ) {
         )
       };
     });
+}
+
+function exportToGoogle( key, title, customerEmail, purchasePrice ) {
+
+  const uri = `${getUrl( '/google/' )}${ key }`;
+
+  return axios({
+    method: 'post',
+    url: uri,
+    data: {
+      title,
+      customerEmail,
+      purchasePrice
+    }
+  })
+    .then( resp => resp.data );
+
 }

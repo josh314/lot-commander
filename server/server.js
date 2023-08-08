@@ -218,6 +218,8 @@ class Server {
     // Module initialization ===============================
     //======================================================
 
+    const manifestSvc = require('./modules/manifest-svc');
+
     // Initialize database module(s) and API clients to serve as dependencies for the routers
 
     // events and history
@@ -254,7 +256,7 @@ class Server {
 
 
     // Old-style scanned lot manifests
-    const manifests = require('./modules/manifests')( { lotdb } );
+    const manifests = require('./modules/manifests')( { lotdb, manifestSvc } );
 
     // Bstock module
     const bstock = require( './modules/bstock' );
@@ -311,8 +313,10 @@ class Server {
       listings: listingsSubmitter,
       lotdb,
       manifests,
+      manifestSvc,
       manualInventoryDbClient,
       productData,
+      shopifyAdmin: shopifyAdminClient,
       shopifyGql: shopifyGqlClient,
       shopifyOrders,
       storeMetafieldSchemaDb,

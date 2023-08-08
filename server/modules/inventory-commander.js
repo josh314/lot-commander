@@ -7,6 +7,8 @@ const {
   IllegalActionError
 } = require('../errors');
 
+const helpers = require('../helpers');
+
 /************************************************
  * Helpers
  * =======
@@ -270,51 +272,6 @@ const bundleQueryFilter = ( { handle, pkg, isPacked } ) => {
   return filter;
 };
 
-//Note: that this only supports two levels of the path, i.e. 'shipment' & 'shipment.palletsReceived'.
-// If we have a reason to go deeper, we'll need to put together some sort of recursive solution.
-function appendPopulationQueries( query, populationPaths ) {
-
-  const populationSets = populationPaths.reduce( ( acc, path ) => {
-
-    const dotIdx = path.indexOf('.');
-
-    const { parentPath, childPath } = dotIdx > -1 ? { parentPath: path.slice( 0, dotIdx ), childPath: path.slice( dotIdx + 1 ) } : { parentPath: path };
-
-    if( !acc.has( parentPath ) ) {
-
-      acc.set( parentPath, new Set() );
-
-    }
-
-    acc.get( parentPath ).add( childPath );
-
-    return acc;
-  }, new Map() );
-
-
-  const pathObjects = [];
-  for( let [ parentPath, childPathSet ]  of populationSets.entries() ) {
-    // filter out empty childpaths. this removes, e.g. 'shipment' if 'shipment.palletsReceived' exists
-    const _childPathList = [ ...childPathSet ].filter(_=>_);
-
-    if( _childPathList.length ) {
-
-      // for each child path, add a two level deep population object
-      _childPathList.forEach( _cp => pathObjects.push( { path: parentPath, populate: { path: _cp } } ) );
-
-    }
-    else { // if no child paths at all, add a one-level deep population object
-      pathObjects.push( { path: parentPath } );
-    }
-  }
-
-  for( let _po of pathObjects ) {
-    query = query.populate( _po );
-  }
-
-  return query;
-}
-
 function getShipmentDateRangeMatchDocument( { startDate, endDate, dateField = 'createdAt' } ) {
 
   let shipmentMatchDoc;
@@ -404,7 +361,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      q = appendPopulationQueries( q, populate );
+      q = helpers.appendPopulationQueries( q, populate );
 
     }
 
@@ -470,7 +427,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      q = appendPopulationQueries( q, populate );
+      q = helpers.appendPopulationQueries( q, populate );
 
     }
 
@@ -950,7 +907,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      q = appendPopulationQueries( q, populate );
+      q = helpers.appendPopulationQueries( q, populate );
 
     }
 
@@ -999,7 +956,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      q = appendPopulationQueries( q, populate );
+      q = helpers.appendPopulationQueries( q, populate );
 
     }
 
@@ -1188,7 +1145,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      q = appendPopulationQueries( q, populate );
+      q = helpers.appendPopulationQueries( q, populate );
 
     }
 
@@ -1248,7 +1205,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      q = appendPopulationQueries( q, populate );
+      q = helpers.appendPopulationQueries( q, populate );
 
     }
 
@@ -1280,7 +1237,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      q = appendPopulationQueries( q, populate );
+      q = helpers.appendPopulationQueries( q, populate );
 
     }
 
@@ -1417,7 +1374,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      q = appendPopulationQueries( q, populate );
+      q = helpers.appendPopulationQueries( q, populate );
 
     }
 
@@ -1465,7 +1422,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      q = appendPopulationQueries( q, populate );
+      q = helpers.appendPopulationQueries( q, populate );
 
     }
 

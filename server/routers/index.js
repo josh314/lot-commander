@@ -23,8 +23,10 @@ function routes({
   listings,
   lotdb,
   manifests,
+  manifestSvc,
   manualInventoryDbClient,
   productData,
+  shopifyAdmin,
   shopifyGql,
   shopifyOrders,
   storeMetafieldSchemaDb,
@@ -36,7 +38,7 @@ function routes({
   router.use('/api/users', require('./users')( { users: userDbClient } ) );
 
   // lots api
-  router.use('/api/lots', require( './lots' )( { inventoryCommander, lotdb } ) );
+  router.use('/api/lots', require( './lots' )( { inventoryCommander, lotdb, manifestSvc } ) );
 
   // bstock db api
   router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);
@@ -49,7 +51,7 @@ function routes({
   router.use('/api/listings', require('./listings')( { eventsDb: eventsDbClient, inventoryCommander, listings, lotdb, shopifyGql } ));
   router.use('/api/image', require('./images')( { lotdb } ) );
   router.use('/api/print', require('./print')( { inventoryCommander, lotdb: lotdb } ) );
-  router.use('/api/manifests', require('./manifests')( { manifests } ) );
+  router.use('/api/manifests', require('./manifests')( { manifests, manifestSvc } ) );
 
   router.use('/api/content', require('./content')( { shopifyGql, storeMetafieldSchemaDb } ) );
 

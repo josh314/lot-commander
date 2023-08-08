@@ -1,7 +1,6 @@
 const path = require('path');
 
 const documentSvc = require('./document-svc');
-const manifestSvc = require('./manifest-svc');
 
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
@@ -17,7 +16,7 @@ const __STANDARD_COLUMN_NAMES__ = {
 };
 const __STANDARD_COLUMNS__ = Object.values(__STANDARD_COLUMN_NAMES__);
 
-module.exports = function( { lotdb } ) {
+module.exports = function( { lotdb, manifestSvc } ) {
 
   function getProductData(inventory) {
     console.log(`Retreiving API product data for ${inventory.length} products`);

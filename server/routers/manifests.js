@@ -1,8 +1,4 @@
-const path = require('path');
-
 const express = require('express');
-
-const manifestSvc = require(path.join(__basedir, __config.modulesPath, 'manifest-svc'));
 
 module.exports = routes;
 
@@ -12,7 +8,7 @@ module.exports = routes;
  *
  **********/
 
-function routes( { manifests } ) {
+function routes( { manifests, manifestSvc } ) {
 
   const router = new express.Router();
 

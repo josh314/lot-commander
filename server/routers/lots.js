@@ -12,7 +12,6 @@ const {
   ResourceNotFoundError
 } = require('../errors');
 
-const manifestSvc = require(path.join(__basedir, __config.modulesPath, 'manifest-svc'));
 const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 
 module.exports = routes;
@@ -51,7 +50,7 @@ function listLotsFilterParamsFromQueryParams( qp ) {
  *
  **********/
 
-function routes({ inventoryCommander, lotdb }) {
+function routes({ inventoryCommander, lotdb, manifestSvc }) {
   const router = new express.Router();
 
   /*******************************************
@@ -203,7 +202,7 @@ function routes({ inventoryCommander, lotdb }) {
     try {
       const handle = req.params.handle;
       const populate = helpers.populationPathsFromQuery( req.query );
-      
+
       let response;
       if( handle ) {
         const lot = await lotdb.getLotByHandle( handle, { populate } );

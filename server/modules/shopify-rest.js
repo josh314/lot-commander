@@ -36,6 +36,40 @@ class Client {
 
   }
 
+  getProduct( productId ) {
+
+    const endpoint = `products/${ productId }.json`;
+
+    return this.request( {
+      method: 'GET',
+      endpoint,
+    } );
+
+  }
+
+
+  getProductVariant( productVariantId ) {
+
+    const endpoint = `variants/${ productVariantId }.json`;
+
+    return this.request( {
+      method: 'GET',
+      endpoint,
+    } );
+
+  }
+
+  getMetafieldsByOwnerIdAndType( ownerId, type ) {
+
+    const endpoint = `${type}/${ownerId}/metafields.json`;
+
+    return this.request( {
+      method: 'GET',
+      endpoint,
+    } );
+
+  }
+
   createProduct( product ) {
 
     const endpoint = `products.json`;
@@ -152,6 +186,25 @@ class Client {
       method: 'POST',
       endpoint,
       body: { metafield }
+    } );
+
+  }
+
+  listOrders( params ) {
+
+    return this.request( {
+      method: 'GET',
+      endpoint: `orders.json`,
+      params
+    } );
+
+  }
+
+  getOrder( orderId ) {
+
+    return this.request( {
+      method: 'GET',
+      endpoint: `orders/${ orderId }.json`,
     } );
 
   }
