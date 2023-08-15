@@ -1,5 +1,5 @@
 
-  
+
 const pkg = require('./package');
 const incomingShipment = require('./incoming-shipment');
 const inventoryPallet = require('./inventory-pallet');
@@ -7,6 +7,7 @@ const bundle = require('./bundle');
 const lot = require('./lot');
 const counter = require('./counter');
 const shopifyOrder = require('./shopify-order');
+const claim = require( './claim' );
 
 
 class ModelCommander {
@@ -23,6 +24,7 @@ class ModelCommander {
     this.Lot.enums = lot.enums;
     this.Counter = mongooseConnection.model( 'Counter', counter.schema );
     this.ShopifyOrder = mongooseConnection.model( 'ShopifyOrder', shopifyOrder.schema );
+    this.Claim = mongooseConnection.model( 'Claim', claim.schema );
 
   }
 

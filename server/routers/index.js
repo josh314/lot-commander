@@ -17,6 +17,7 @@ const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db')
 //routes
 function routes({
   bstock,
+  claimsCommander,
   countCommander,
   eventsDbClient,
   inventoryCommander,
@@ -75,6 +76,8 @@ function routes({
 
   // counter app
   router.use('/api/counters', require('./counters')( { countCommander } ) );
+
+  router.use( '/api/claims', require('./claims')( { claimsCommander, manifestSvc, shopifyAdmin } ) );
 
   // dynamically created JS scripts for the client
   router.use('/build', require('./script-builder')( { bstock, listings, lotdb, quickLots }) );

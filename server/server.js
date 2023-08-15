@@ -301,12 +301,16 @@ class Server {
     const ProductData = require( './modules/product-data' );
     const productData = new ProductData( { upcItemDb, mongo: this.mongooseConnection.db } );
 
+    const ClaimsCommander = require( './modules/claims-commander' );
+    const claimsCommander = new ClaimsCommander( models );
+
     //======================================================
     // Main app routes =====================================
     //======================================================
 
     const modules = {
       bstock,
+      claimsCommander,
       countCommander,
       eventsDbClient,
       inventoryCommander,

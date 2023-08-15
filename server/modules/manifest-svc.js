@@ -9,7 +9,9 @@ module.exports = {
   get: get,
   list: list,
   put: put,
-  exportToGoogle: exportToGoogle
+  deleteGoogleSpreadsheet,
+  exportToGoogle,
+  getGoogleSpreadsheet,
 };
 
 function build( sheets, saveAs = '', isPublic = false) {
@@ -85,6 +87,8 @@ function list( queryParams = {} ) {
     });
 }
 
+/*************** Google sheets functionality ***************************/
+
 function exportToGoogle( key, title, customerEmail, purchasePrice ) {
 
   const uri = `${getUrl( '/google/' )}${ key }`;
@@ -97,6 +101,33 @@ function exportToGoogle( key, title, customerEmail, purchasePrice ) {
       customerEmail,
       purchasePrice
     }
+  })
+    .then( resp => resp.data );
+
+}
+
+// TODO: with range info
+
+function getGoogleSpreadsheet( spreadsheetId, nameRangesOnly ) {
+
+  const uri = `${getUrl( '/google/' )}${ spreadsheetId }?${ nameRangesOnly ? 'named_ranges_only=1' : '' }`;
+
+  return axios({
+    method: 'get',
+    url: uri
+  })
+    .then( resp => resp.data );
+
+}
+
+
+function deleteGoogleSpreadsheet( spreadsheetId ) {
+
+  const uri = `${getUrl( '/google/' )}${ spreadsheetId }`;
+
+  return axios({
+    method: 'delete',
+    url: uri
   })
     .then( resp => resp.data );
 

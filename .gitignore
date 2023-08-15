@@ -5,6 +5,9 @@ npm-debug.log
 # Temp files
 *~
 *\#
+
+# ad-hoc
+demo.js
 *.josh
 *sandbox
 foo
