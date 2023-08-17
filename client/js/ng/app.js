@@ -85,8 +85,15 @@ const stateData = [
   { name: "main.store.content", navParent: 'Store', navName: 'Content', url: '/content', templateUrl: '/partials/_store_content.html', userPermission: 'EDIT_STORE_CONTENT' },
   { name: "main.store.bundles", navParent: 'Store', navName: 'Bundles', url: '/bundles', templateUrl: '/partials/_product_bundles.html', userPermission: 'EDIT_STORE_CONTENT' },
 
+  // TODO: permissions
+  // Claims
+  { name: "main.claims", abstract: true, url: "/claims", templateUrl: 'partials/_container.html' },
+  { name: "main.claims.details", url: '/{claimId}', templateUrl: 'partials/claims/_claim_details.html', /* userPermission: 'CREATE_CLAIM' */ },
+  { name: "main.claims.list", navName: "List", navParent: "Claims", url: "/list", templateUrl: 'partials/claims/_claim_list.html', /* userPermission: 'VIEW_CLAIM' */ },
+  { name: "main.claims.new", navName: "New", navParent: "Claims", url: "/new", templateUrl: 'partials/claims/_claim_new.html', /* userPermission: 'CREATE_CLAIM' */ },
+
   // users
-  { name: "main.users", abstract:true, url: "/users", templateUrl: 'partials/_container.html'},
+  { name: "main.users", abstract:true, url: "/users", templateUrl: 'partials/_container.html' },
   { name: "main.users.list", navName: "List", navParent: "Users", url: "/list", templateUrl: 'partials/users/_list_users.html', userPermission: 'VIEW_USER' },
   { name: "main.users.change-password", navName: "Change Password", navParent: 'Users', url: "/change-password", templateUrl: 'partials/users/_change_password.html' },
   { name: "main.users.create", navName: "New User", navParent: "Users", url: "/create", templateUrl: 'partials/users/_create_user.html', userPermission: 'CREATE_USER' },
@@ -108,6 +115,7 @@ const navbar = {
     { title: 'Orders' },
     { title: 'Costs' },
     { title: 'Store' },
+    { title: 'Claims' },
     { title: 'Users' },
   ]
 };

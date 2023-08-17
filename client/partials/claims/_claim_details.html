@@ -1,0 +1,135 @@
+<div class="container" ng-controller="ClaimDetailsCtrl as $ctrl">
+  <h2>Claim details</h2>
+
+  <div class="row well">
+    <div style="display: flex;">
+      <dl>
+
+        <div>
+          <dt>Order number</dt>
+          <dd>
+            {{ $ctrl.claim.orderNumber || '----' }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Shopify order ID</dt>
+          <dd>
+            {{ $ctrl.claim.orderId || '----' }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Customer name</dt>
+          <dd>
+            {{ $ctrl.claim.customerName || '----' }}
+          </dd>
+        </div>
+
+
+        <div>
+          <dt>Customer email</dt>
+          <dd>
+            {{ $ctrl.claim.customerEmail || '----' }}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Total price</dt>
+          <dd>
+            {{ $ctrl.claim.totalPrice ? $ctrl.util.displayAsMoney( $ctrl.claim.totalPrice ) : '----' }}
+          </dd>
+        </div>
+
+
+        <div>
+          <dt>Total price paid</dt>
+          <dd>
+            {{ $ctrl.claim.totalPricePaid ? $ctrl.util.displayAsMoney( $ctrl.claim.totalPricePaid ) : '----' }}
+          </dd>
+        </div>
+
+      </dl>
+    </div>
+  </div>
+
+  <div class="row well">
+
+    <h3>Order items</h3>
+
+    <div ng-repeat="$orderItem in $ctrl.claim.orderItems">
+    <div class="panel" ng-class="{ 'panel-primary': !$orderItem.hasClaim, 'panel-danger': $orderItem.hasClaim }">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ $orderItem.productTitle }}</h3>
+      </div>
+      <div class="panel-body">
+
+        <dl>
+
+          <div>
+            <dt>Units</dt>
+            <dd>
+              {{ $orderItem.units || '----' }}
+            </dd>
+          </div>
+
+          <div>
+            <dt>Total price</dt>
+            <dd>
+              {{ $orderItem.price ? $ctrl.util.displayAsMoney( $orderItem.price ) : '----' }}
+            </dd>
+          </div>
+
+          <div>
+            <dt>Total price paid</dt>
+            <dd>
+              {{ $orderItem.pricePaid ? $ctrl.util.displayAsMoney( $orderItem.pricePaid ) : '----' }}
+            </dd>
+          </div>
+
+          <div ng-show="$orderItem.lotHandle">
+            <dt>Lot</dt>
+            <dd>
+              <span ng-hide="$orderItem.lotId">
+                {{ $orderItem.lotHandle }}
+              </span>
+              <span ng-show="$orderItem.lotId">
+                <a ng-click="$ctrl.navigate.viewLot( $orderItem.lotId )" href>{{ $orderItem.lotHandle }}</a>
+              </span>
+            </dd>
+          </div>
+
+        </dl>
+
+        <span ng-show="$orderItem.manifestUrl">
+          <a class="btn btn-primary btn-xs" ng-href="{{ $orderItem.manifestUrl }}">Download listing manifest</a>
+        </span>
+
+        <div ng-show="!$orderItem.hasClaim">
+          <button ng-click="$ctrl.startOrderItemClaim( $orderItem )">Create claim</button>
+        </div>
+
+        <div ng-show="$orderItem.hasClaim">
+
+          <span ng-show="$orderItem.claimManifestUrl">
+            <a class="btn btn-danger btn-xs" ng-href="{{ $orderItem.claimManifestUrl }}" rel="noopener" target="_blank">View claim manifest</a>
+          </span>
+
+          <button ng-click="$ctrl.cancelOrderItemClaim( $orderItem )">Cancel claim</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="row" style="margin-top: 40px; margin-bottom: 60px;" >
+    <div class="text-center">
+      <button type="button" class="btn btn-default" ng-click="$ctrl.closeClaim()" ng-hide="$ctrl.claim.isClosed">Mark as Closed</button>
+      <button type="button" class="btn btn-default" ng-click="$ctrl.reopenClaim()" ng-show="$ctrl.claim.isClosed">Reopen Claim</button>
+      <button type="button" class="btn btn-danger" ng-click="$ctrl.deleteClaim()">Delete Claim</button>
+    </div>
+  </div>
+
+</div>

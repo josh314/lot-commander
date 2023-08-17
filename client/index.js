@@ -8,6 +8,7 @@ import "./js/ng/app";
 // Angular services
 
 import "./js/ng/services/audio-alert-svc.js";
+import "./js/ng/services/claims-svc.js";
 import "./js/ng/services/counter-svc.js";
 import "./js/ng/services/events-svc.js";
 import "./js/ng/services/file-upload-svc.js";
@@ -50,6 +51,8 @@ import "./js/ng/directives/navbar.js";
 import "./js/ng/controllers/auctions-ctrl.js";
 import "./js/ng/controllers/change-user-password-ctrl.js";
 import "./js/ng/controllers/clean-manifest-ctrl.js";
+import "./js/ng/controllers/claim-details-ctrl.js";
+import "./js/ng/controllers/claim-list-ctrl.js";
 import "./js/ng/controllers/counter-tool-ctrl.js";
 import "./js/ng/controllers/create-new-user-ctrl.js";
 import "./js/ng/controllers/edit-lot-modal-ctrl.js";

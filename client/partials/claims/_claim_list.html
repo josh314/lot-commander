@@ -1,0 +1,88 @@
+<div class="container" ng-controller="ClaimListCtrl as $ctrl">
+  <h2>Claims</h2>
+
+
+	<div class="row well" style="display: flex; flex-direction: column">
+
+    <div>
+
+      <button class="btn btn-primary pull-right" ng-click="$ctrl.startClaim()">Start New Claim</button>
+
+      <fieldset class="col-xs-12 box-border">
+        <legend class="box-border">Filter</legend>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="orderNumberFilter">Order Number</label>
+          <input class="form-control" name="orderNumberFilter" ng-model="$ctrl.filter.orderNumber" ng-keyup="$ctrl.refreshClaimsList()">
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="includeClosedFilter">Include closed</label>
+          <select class="form-control" name="includeClosedFilter" ng-model="$ctrl.filter.includeClosed" ng-change="$ctrl.refreshClaimsList()">
+            <option ng-value="true">yes</option>
+            <option ng-value="false">no</option>
+          </select>
+        </div>
+      </fieldset>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; align-items: baseline;">
+
+      <ul uib-pagination
+      total-items="$ctrl.pagination.totalItems"
+      items-per-page="$ctrl.pagination.pageSize"
+      ng-model="$ctrl.pagination.current"
+      ng-change="$ctrl.pagination.pageChange()"
+      class="pagination-sm pull-right"></ul>
+
+    </div>
+
+    <table class="table table-striped">
+
+      <thead><tr>
+        <th>Order number</th>
+        <th>Customer</th>
+        <th>Closed?</th>
+        <th>Order date</th>
+        <th>Claim started date</th>
+        <th></th><!-- Details button-->
+      </tr></thead>
+
+      <tbody>
+        <tr ng-repeat="$claim in $ctrl.claims">
+
+          <!-- Order number -->
+          <td>
+            {{ $claim.orderNumber }}
+          </td>
+
+          <!-- Customer -->
+          <td>
+            {{ $claim.customerName }}
+          </td>
+
+          <!-- Closed -->
+          <td>
+            <span class="glyphicon glyphicon-ok" ng-show="$claim.isClosed"></span>
+          </td>
+
+          <!-- Order date -->
+          <td>
+            {{ $claim.orderDate ? $ctrl.util.prettifyDate( $claim.orderDate ) : ''}}
+          </td>
+
+          <!-- Created date -->
+          <td>
+            {{ $claim.createdAt ? $ctrl.util.prettifyDate( $claim.createdAt ) : ''}}
+          </td>
+
+          <!-- Details -->
+          <td>
+            <button class="btn btn-primary btn-xs" ng-click="$ctrl.navigate.claimDetails( $claim.claimId )">Details</button>
+          </td>
+
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+</div>

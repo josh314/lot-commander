@@ -111,7 +111,25 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     $state.go('main.inventory-pallets.repack', { palletId } );
   };
 
+  const claimDetails = claimId => {
+    $anchorScroll();
+    $state.go('main.claims.details', { claimId } );
+  };
+
+  const claimList = () => {
+    $anchorScroll();
+    $state.go('main.claims.list');
+  };
+
+  const claimNew = () => {
+    $anchorScroll();
+    $state.go('main.claims.new');
+  };
+
   return {
+    claimDetails,
+    claimList,
+    claimNew,
     cleanManifest: cleanManifest,
     editLotManifest: editLotManifest,
     history: history,
