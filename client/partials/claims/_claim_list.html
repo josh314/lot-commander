@@ -6,21 +6,36 @@
 
     <div>
 
-      <button class="btn btn-primary pull-right" ng-click="$ctrl.startClaim()">Start New Claim</button>
+      <button class="btn btn-primary pull-right" ng-click="$ctrl.navigate.claimNew()" ng-show="$ctrl.showCreateClaimButton">Start New Claim</button>
 
       <fieldset class="col-xs-12 box-border">
         <legend class="box-border">Filter</legend>
+
         <div class="form-group col-xs-12 col-sm-6">
           <label for="orderNumberFilter">Order Number</label>
-          <input class="form-control" name="orderNumberFilter" ng-model="$ctrl.filter.orderNumber" ng-keyup="$ctrl.refreshClaimsList()">
+          <input class="form-control" name="orderNumberFilter" id="orderNumberFilter" ng-model="$ctrl.inputs.orderNumber" ng-keyup="$ctrl.refreshClaimsList()">
         </div>
+
         <div class="form-group col-xs-12 col-sm-6">
+          <label for="ticketFilter">Ticket Number</label>
+          <input class="form-control" name="ticketFilter" id="ticketFilter" ng-model="$ctrl.inputs.ticket" ng-keyup="$ctrl.refreshClaimsList()">
+        </div>
+
+        <!-- <div class="form-group col-xs-12 col-sm-6">
           <label for="includeClosedFilter">Include closed</label>
-          <select class="form-control" name="includeClosedFilter" ng-model="$ctrl.filter.includeClosed" ng-change="$ctrl.refreshClaimsList()">
+          <select class="form-control" name="includeClosedFilter" id="includeClosedFilter" ng-model="$ctrl.filter.includeClosed" ng-change="$ctrl.refreshClaimsList()">
             <option ng-value="true">yes</option>
             <option ng-value="false">no</option>
           </select>
+        </div> -->
+
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="statusFilter">Status</label>
+          <select class="form-control" name="statusFilter" id="statusFilter" ng-model="$ctrl.inputs.status" ng-change="$ctrl.refreshClaimsList()">
+            <option ng-repeat="$status in $ctrl.inputs.statusOptions track by $index" ng-value="$status">{{ $status.name }}</option>
+          </select>
         </div>
+
       </fieldset>
     </div>
 
@@ -41,13 +56,14 @@
         <th>Order number</th>
         <th>Customer</th>
         <th>Closed?</th>
+        <th>To be reviewed?</th>
         <th>Order date</th>
         <th>Claim started date</th>
         <th></th><!-- Details button-->
       </tr></thead>
 
       <tbody>
-        <tr ng-repeat="$claim in $ctrl.claims">
+        <tr ng-repeat="$claim in $ctrl.claims track by $claim.claimId">
 
           <!-- Order number -->
           <td>
@@ -56,12 +72,22 @@
 
           <!-- Customer -->
           <td>
-            {{ $claim.customerName }}
+            <span ng-if="$ctrl.showShopifyLinks">
+              <a ng-href="{{ $claim.customerUrl }}" rel="noopener" target="_blank">{{ $claim.customerName || '----' }}</a>
+            </span>
+            <span ng-if="!$ctrl.showShopifyLinks">
+              {{ $claim.customerName || '----' }}
+            </span>
           </td>
 
           <!-- Closed -->
           <td>
             <span class="glyphicon glyphicon-ok" ng-show="$claim.isClosed"></span>
+          </td>
+
+          <!-- toBeReviewed -->
+          <td>
+            <span class="glyphicon glyphicon-ok" ng-show="$claim.toBeReviewed"></span>
           </td>
 
           <!-- Order date -->

@@ -1,0 +1,147 @@
+<div class="container" ng-controller="ClaimNewCtrl as $ctrl">
+  <h2>New Claim</h2>
+
+	<div class="row well" style="display: flex; flex-direction: column">
+
+    <div class="form-group col-xs-12 col-sm-6">
+
+      <label for="orderNumberInput">Order Number search</label>
+      <div class="input-group">
+        <input class="form-control"  name="orderNumberInput" ng-model="$ctrl.orderNumber" ng-keyup="$event.keyCode == 13 && $ctrl.lookupOrder()">
+        <span class="input-group-btn">
+          <button ng-click="$ctrl.lookupOrder()" class="btn btn-primary" type="button">Go</button>
+        </span>
+      </div><!-- /input-group -->
+    </div>
+
+  </div>
+
+	<div class="row well" style="display: flex; flex-direction: column" ng-show="$ctrl.orders && !$ctrl.selectedOrder">
+
+    <div ng-hide="$ctrl.orders.length">
+      <p>No valid orders found.</p>
+    </div>
+
+    <div ng-show="$ctrl.orders.length">
+
+      <table class="table table-striped">
+
+        <thead><tr>
+          <th>Order number</th>
+          <th>Customer</th>
+          <th>Order date</th>
+          <th></th><!-- start claim button-->
+        </tr></thead>
+
+        <tbody>
+          <tr ng-repeat="$order in $ctrl.orders track by $order.orderId">
+
+            <!-- Order number -->
+            <td>
+              {{ $order.orderNumber }}
+            </td>
+
+            <!-- Customer -->
+            <td>
+              {{ $order.customerName }}
+            </td>
+
+            <!-- Order date -->
+            <td>
+              {{ $order.orderDate ? $ctrl.util.prettifyDate( $order.orderDate ) : ''}}
+            </td>
+
+
+            <!-- Details -->
+            <td>
+              <button class="btn btn-primary btn-xs" ng-click="$ctrl.selectOrder( $order )">Select order</button>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+  </div>
+
+  <div class="row well" style="display: flex; flex-direction: column" ng-show="$ctrl.selectedOrder">
+
+    <div class="panel" ng-class="{ 'panel-primary': !$ctrl.selectedOrder.claim, 'panel-warning': $ctrl.selectedOrder.claim }">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <div style="display:flex;justify-content:space-between;">
+            <span>Order number: #{{ $ctrl.selectedOrder.orderNumber }}</span>
+            <span ng-show="$ctrl.selectedOrder.claim">Claim already started</span>
+          </div>
+        </h3>
+      </div>
+      <div class="panel-body">
+
+        <dl>
+
+          <div>
+            <dt>Customer name</dt>
+            <dd>
+              {{ $ctrl.selectedOrder.customerName || '----' }}
+            </dd>
+          </div>
+
+          <div>
+            <dt>Customer email</dt>
+            <dd>
+              {{ $ctrl.selectedOrder.customerEmail || '----' }}
+            </dd>
+          </div>
+
+          <div>
+            <dt>Total price</dt>
+            <dd>
+              {{ $ctrl.selectedOrder.totalPrice ? $ctrl.util.displayAsMoney( $ctrl.selectedOrder.totalPrice ) : '----' }}
+            </dd>
+          </div>
+
+
+          <div>
+            <dt>Line items</dt>
+            <dd>
+              <table class="table table-striped">
+                <!-- <thead>
+                  <th>Name</th>
+                  <th>Quantity</th>
+                </thead> -->
+                <tbody>
+                  <tr ng-repeat="$li in $ctrl.selectedOrder.lineItems track by $li.lineItemId">
+                    <td>
+                      {{ $li.name }}
+                    </td><td>
+                      {{ $li.quantity }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </dd>
+          </div>
+
+        </dl>
+
+
+        <div style="display: flex; justify-content:space-around;">
+          <span ng-show="$ctrl.orders.length > 1">
+            <button class="btn btn-sm btn-warning" ng-click="$ctrl.unselectOrder()">Back to list</button>
+          </span>
+          <span ng-show="$ctrl.selectedOrder.claim">
+            <button class="btn btn-success btn-sm" ng-click="$ctrl.navigate.claimDetails( $ctrl.selectedOrder.claim._id )">Go to claim</button>
+          </span>
+          <span ng-hide="$ctrl.selectedOrder.claim">
+            <button class="btn btn-sm btn-danger" ng-click="$ctrl.startClaim()">Start Claim</button>
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

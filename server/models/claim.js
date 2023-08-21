@@ -11,14 +11,12 @@ const orderItemClaimManifestSchema = mongoose.Schema({
   spreadsheetId: String,
   spreadsheetUrl: String,
   title: String,
-  totalDefectiveUnits: Number,
-  totalRefund: Number,
 
 });
 
 orderItemClaimManifestSchema.methods.edit = function( editDoc ) {
   return Object.assign( this, editDoc );
-}
+};
 
 
 /***********************
@@ -54,7 +52,7 @@ orderItemClaimSchema.methods.edit = function( editDoc ) {
   Object.assign( this, _editDoc );
 
   return this;
-}
+};
 
 orderItemClaimSchema.methods.addManifest = function( { spreadsheetId, spreadsheetUrl, title } ) {
 
@@ -64,14 +62,12 @@ orderItemClaimSchema.methods.addManifest = function( { spreadsheetId, spreadshee
       spreadsheetId,
       spreadsheetUrl,
       title,
-      totalDefectiveUnits: 0,
-      totalRefund: 0,
     };
 
   }
 
   return this;
-}
+};
 
 /***********************
  * OrderItem schema
@@ -88,7 +84,10 @@ const orderItemSchema = mongoose.Schema({
   variantId: String,
   variantTitle: String,
   price: Number,
-  pricePaid: Number,
+  discounts: [ {
+    name: String,
+    amount: Number,
+  } ],
   manifestUrl: String,
   units: Number,
   lot: {
@@ -101,9 +100,13 @@ const orderItemSchema = mongoose.Schema({
 });
 
 
+orderItemSchema.methods.hasClaim = function( ) {
+  return this.claim && this.claim.createdAt;
+};
+
 orderItemSchema.methods.startClaim = function( agentId ) {
 
-  if( !this.claim || !this.claim.createdAt ) {
+  if( !this.hasClaim() ) {
 
     this.claim = {
       createdAt: new Date(),
@@ -113,36 +116,28 @@ orderItemSchema.methods.startClaim = function( agentId ) {
 
   }
   return this;
-}
+};
 
 orderItemSchema.methods.editClaim = function( editDoc ) {
 
-  if( this.claim && this.claim.createdAt ) {
+  if( this.hasClaim() ) {
 
     this.claim.edit( editDoc );
 
   }
   return this;
-}
+};
 
 orderItemSchema.methods.addClaimManifest = function( { spreadsheetId, spreadsheetUrl, title } ) {
 
-  if( this.claim && this.claim.createdAt ) {
+  if( this.hasClaim() ) {
 
     this.claim.addManifest( { spreadsheetId, spreadsheetUrl, title } );
 
   }
   return this;
 
-}
-
-// orderItemSchema.virtual( 'refund' )
-//   .get( function() {
-
-//     // TODO: perform calculation based upon missing units, etc
-//     return this.refund;
-
-//   } );
+};
 
 /**************
  * Claim schema
@@ -166,43 +161,33 @@ const claimSchema = mongoose.Schema({
   },
   orderDate: Date,
   orderItems: [ orderItemSchema ],
+  discounts: [ {
+    name: String,
+    amount: Number,
+  } ],
   agent: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
+  tickets: [ {
+    ticketId: String,
+    url: String
+  } ],
+  toBeReviewed: Boolean,
   isClosed: Boolean,
   closedDate: Date,
   isDeleted: Boolean,
-  deletedDate: Date, // TODO: necessary?
+  deletedDate: Date,
+  notes: [ {
+    content: String,
+    agent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    date: Date
+  } ],
 }, { collection: 'claims', timestamps: true });
 
-
-/***************************************
- * Claim virtuals
- *
- ******/
-
-claimSchema.virtual( 'refund' )
-  .get( function() {
-
-    return this.orderItems.reduce( ( acc, oi ) => acc + (oi.refund || 0), 0 );
-
-  } );
-
-claimSchema.virtual( 'totalPricePaid' )
-  .get( function() {
-
-    return this.orderItems.reduce( ( acc, oi ) => acc + oi.pricePaid, 0 );
-
-  } );
-
-
-claimSchema.virtual( 'totalPrice' )
-  .get( function() {
-
-    return this.orderItems.reduce( ( acc, oi ) => acc + oi.price, 0 );
-
-  } );
 
 /***************************************
  * Claim methods
@@ -250,10 +235,6 @@ claimSchema.methods.editOrderItemClaim = async function( orderItemId, editDoc ) 
   return orderItem;
 };
 
-claimSchema.methods.updateOrderItemClaimUnits = function( orderItemId, units ) {
-  return this.editOrderItemClaim( orderItemId, { units } );
-};
-
 claimSchema.methods.addOrderItemClaimManifest = async function( orderItemId, { spreadsheetId, spreadsheetUrl, title } ) {
 
   const orderItem = this.getOrderItem( orderItemId );
@@ -297,12 +278,68 @@ claimSchema.methods.undelete = function() {
 claimSchema.methods.close = function() {
   this.isClosed = true;
   this.closedDate = new Date();
+  this.toBeReviewed = false;
   return this.save();
 };
 
 claimSchema.methods.reopen = function() {
   this.isClosed = false;
   this.closedDate = undefined;
+  return this.save();
+};
+
+claimSchema.methods.setToBeReviewed = function( value ) {
+  this.toBeReviewed = value;
+  return this.save();
+};
+
+claimSchema.methods.addNote = function( content, user ) {
+
+  const newNote = {
+    content,
+    date: new Date()
+  };
+
+  if( user ) {
+    newNote.agent = user._id;
+  }
+
+  this.notes.push( newNote );
+
+  return this.save();
+};
+
+claimSchema.methods.setTickets = function( ticketIds ) {
+
+  const newTickets = [];
+
+  for( let ticketId of ticketIds ) {
+
+    if( typeof ticketId === 'number' ) {
+      ticketId = `${ticketId}`;
+    }
+
+    if( typeof ticketId !== 'string' ) {
+      continue;
+    }
+
+    ticketId = ticketId.replace( '#' ,'' ); // remove initial hashes
+
+    if( ticketId.match( /[^0-9]/ ) ) { // if any non-numerical characters
+      continue;
+    }
+
+    const ticket = {
+      ticketId,
+      url: `https://wholesaleninjas.zendesk.com/agent/tickets/${ ticketId }`
+    };
+
+    newTickets.push( ticket );
+
+  }
+
+  this.tickets = newTickets;
+
   return this.save();
 };
 

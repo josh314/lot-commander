@@ -53,6 +53,7 @@ import "./js/ng/controllers/change-user-password-ctrl.js";
 import "./js/ng/controllers/clean-manifest-ctrl.js";
 import "./js/ng/controllers/claim-details-ctrl.js";
 import "./js/ng/controllers/claim-list-ctrl.js";
+import "./js/ng/controllers/claim-new-ctrl.js";
 import "./js/ng/controllers/counter-tool-ctrl.js";
 import "./js/ng/controllers/create-new-user-ctrl.js";
 import "./js/ng/controllers/edit-lot-modal-ctrl.js";

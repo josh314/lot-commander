@@ -6,11 +6,25 @@ const bcrypt   = require('bcryptjs');
 //=======================================
 //=======================================
 
+const __CLAIMS_AGENT_PERMISSIONS__ = [
+  'VIEW_CLAIM',
+  'EDIT_CLAIM',
+  'CREATE_CLAIM',
+  'DELETE_CLAIM'
+];
+
+const __CLAIMS_ADMIN_PERMISSIONS__ = __CLAIMS_AGENT_PERMISSIONS__.concat( [
+  'CLOSE_CLAIM',
+  'VIEW_SHOPIFY_ORDER',
+]);
+
 const __USER_ROLE_PERMISSIONS__ = {
   __AUCTIONS__: [
     'LIST_AUCTIONS',
     'SUBMIT_AUCTION'
   ],
+  __CLAIMS_AGENT__: __CLAIMS_AGENT_PERMISSIONS__,
+  __CLAIMS_ADMIN__: __CLAIMS_ADMIN_PERMISSIONS__,
   __COUNTERS__: [
     'VIEW_COUNTER',
     'LIST_COUNTERS',
@@ -130,7 +144,9 @@ const __USER_ROLE_PERMISSIONS__ = {
   // ],
 };
 
-const superuserRoles = () => Object.keys( __USER_ROLE_PERMISSIONS__ );
+const __USER_ROLES__ = Object.keys( __USER_ROLE_PERMISSIONS__ );
+
+const superuserRoles = () => __USER_ROLES__;
 
 const userRoleHasPermission = permission => role => {
 
@@ -156,18 +172,27 @@ const mongoose = require('mongoose');
 //======================================
 //======================================
 
-const userSchema = mongoose.Schema({
-  firstName: String,
-  lastName: String,
-  roles: [{ type: String, enum: Object.keys( __USER_ROLE_PERMISSIONS__ ) }],
-  local: {
-    username: String,
-    password: String,
+const userSchema = mongoose.Schema(
+  {
+    firstName: String,
+    lastName: String,
+    roles: [{ type: String, enum: __USER_ROLES__ }],
+    local: {
+      username: String,
+      password: String,
+    },
+    isSuperuser: Boolean,
+    isDeveloper: Boolean,
+    isDisabled: Boolean,
   },
-  isSuperuser: Boolean,
-  isDeveloper: Boolean,
-  isDisabled: Boolean,
-}, {collection: 'users', timestamps: true});
+  {
+    collection: 'users',
+    timestamps: true,
+    toJSON: { // used automatically in express's res.json()
+      transform: doc => doc.getPublicInfo()
+    }
+  }
+);
 
 // methods ======================
 // generating a hash
@@ -212,8 +237,24 @@ userSchema.methods.getPermissionSet = function() {
 };
 
 userSchema.methods.getPublicInfo = function() {
+
+  let name;
+  if( this.firstName && this.lastName ) {
+    name = this.firstName + ' ' + this.lastName;
+  }
+  else if ( this.firstName ) {
+    name = this.firstName;
+  }
+  else if ( this.lastName ) {
+    name = this.lastName;
+  }
+  else {
+    name = '';
+  }
+
   return {
     id: this.id,
+    name,
     firstName: this.firstName,
     lastName: this.lastName,
     username: this.local.username,
@@ -225,7 +266,7 @@ userSchema.methods.getPublicInfo = function() {
 };
 
 userSchema.methods.editRoles = function( _roles ) {
-  this.roles = _roles;
+  this.roles = _roles.filter( _role => __USER_ROLES__.includes( _role ) );
   return this.save();
 };
 
@@ -330,9 +371,7 @@ class Client {
       [ sortField ] : sortDir || 1
     };
 
-    const q = this.User.find( query ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
-
-    return q.then( users => users.map( user => user.getPublicInfo() ) );
+    return this.User.find( query ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
   }
 }
 

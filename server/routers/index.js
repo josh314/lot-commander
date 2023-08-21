@@ -30,6 +30,7 @@ function routes({
   shopifyAdmin,
   shopifyGql,
   shopifyOrders,
+  shopifyStorePublicData,
   storeMetafieldSchemaDb,
   userDbClient
 }) {
@@ -77,10 +78,10 @@ function routes({
   // counter app
   router.use('/api/counters', require('./counters')( { countCommander } ) );
 
-  router.use( '/api/claims', require('./claims')( { claimsCommander, manifestSvc, shopifyAdmin } ) );
+  router.use( '/api/claims', require('./claims')( { claimsCommander, eventsDb: eventsDbClient, manifestSvc, shopifyAdmin } ) );
 
   // dynamically created JS scripts for the client
-  router.use('/build', require('./script-builder')( { bstock, listings, lotdb, quickLots }) );
+  router.use('/build', require('./script-builder')( { bstock, listings, lotdb, quickLots, shopifyStorePublicData }) );
 
   router.use( express.static(path.join(__basedir, __config.assets.root)) );
   router.use( express.static(path.join(__basedir, __config.imgPath)) );

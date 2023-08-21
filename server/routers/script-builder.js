@@ -5,17 +5,17 @@ module.exports = routes;
 /**********************************************
  * Routes function for export
  * ==========================
- * 
+ *
  **********/
 
-function routes({ bstock, listings, lotdb, quickLots }) {
+function routes({ bstock, listings, lotdb, quickLots, shopifyStorePublicData }) {
   const router = new express.Router();
 
 
   /*******************************************
    * Register route handlers
    * ======
-   * 
+   *
    ****/
 
   router.get(
@@ -26,7 +26,7 @@ function routes({ bstock, listings, lotdb, quickLots }) {
   /*******************************************
    * Define Handlers
    * ===============
-   * 
+   *
    ****/
 
   async function ngAppServerData( _req, res, _next ) {
@@ -39,8 +39,9 @@ function routes({ bstock, listings, lotdb, quickLots }) {
       weightUnits: lotdb.enums.weightUnits,
       lengthUnits: lotdb.enums.lengthUnits,
     };
-    
+
     const ngConstants = [
+      { name: 'ShopifyStoreConst', data: shopifyStorePublicData },
       { name: 'dbEnums', data: dbEnums },
       { name: 'listingsBoilerplate', data: listings.boilerplate },
       { name: 'bstockFormConstants', data: bstock.constants },
@@ -48,14 +49,14 @@ function routes({ bstock, listings, lotdb, quickLots }) {
     ].reduce((s, item) => { return s + `app.constant('${item.name}', ${JSON.stringify(item.data)});`;}, '');
 
     res.send( `(function() { 'use strict'; var app = angular.module("myApp"); ${ngConstants} })();` );
-  
+
   }
 
 
   /**************************************
    * Return routes
    * =============
-   * 
+   *
    ************/
   return router;
 

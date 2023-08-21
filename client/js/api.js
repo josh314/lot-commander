@@ -1297,17 +1297,20 @@ export function getLabelsforPackageList( packageIds ) {
 *
 ************/
 
+export function lookupOrderForClaim( orderNumber ) {
+  return axios({
+    method: 'get',
+    url: `/api/claims/orders/${ orderNumber }`
+  })
+    .then( resp => resp.data );
+}
 
-export function getClaim( claimId, { populate = [], getShopifyOrder, getManifestTotals } = {} ) {
+export function getClaim( claimId, { populate = [], getShopifyOrder } = {} ) {
 
   const queryParams = getPopulateQueryParamsObject( populate );
 
   if( getShopifyOrder ) {
     queryParams.shopify_order = 1;
-  }
-
-  if( getManifestTotals ) {
-    queryParams.manifest_totals = 1;
   }
 
   return axios({
@@ -1324,6 +1327,26 @@ export function getClaimShopifyOrder( claimId ) {
     url: `/api/claims/${ claimId }/shopify-order`
   })
     .then( resp => resp.data.shopifyOrder );
+
+}
+
+export function getClaimManifest( spreadsheetId ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/claims/manifests/${ spreadsheetId }`
+  })
+    .then( resp => resp.data );
+
+}
+
+export function getClaimManifestTotals( spreadsheetId ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/claims/manifests/${ spreadsheetId }/totals`
+  })
+    .then( resp => resp.data );
 
 }
 
@@ -1361,6 +1384,69 @@ export function deleteClaim( claimId ) {
     url: `/api/claims/${ claimId }`
   })
     .then( resp => resp.data );
+}
+
+export function addClaimNote( claimId, content ) {
+
+  return axios({
+    method: 'patch',
+    url: `/api/claims/${ claimId }/notes`,
+    data: {
+      content
+    }
+  })
+    .then( resp => resp.data );
+}
+
+
+export function editClaimTickets( claimId, tickets ) {
+
+  return axios({
+    method: 'put',
+    url: `/api/claims/${ claimId }/tickets`,
+    data: {
+      tickets
+    }
+  })
+    .then( resp => resp.data );
+}
+
+
+export function closeClaim( claimId ) {
+
+  return axios({
+    method: 'put',
+    url: `/api/claims/${ claimId }/is-closed`,
+    data: {
+      isClosed: true
+    }
+  })
+    .then( resp => resp.data );
+}
+
+export function reopenClaim( claimId ) {
+
+  return axios({
+    method: 'put',
+    url: `/api/claims/${ claimId }/is-closed`,
+    data: {
+      isClosed: false
+    }
+  })
+    .then( resp => resp.data );
+}
+
+export function setClaimToBeReviewed( claimId, toBeReviewed ) {
+
+  return axios({
+    method: 'put',
+    url: `/api/claims/${ claimId }/to-be-reviewed`,
+    data: {
+      toBeReviewed
+    }
+  })
+    .then( resp => resp.data );
+
 }
 
 export function startOrderItemClaim( claimId, orderItemId ) {

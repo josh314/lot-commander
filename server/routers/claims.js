@@ -11,7 +11,6 @@ const {
   IllegalActionError
 } = require('../errors');
 
-
 module.exports = routes;
 
 /**********************************************
@@ -28,31 +27,21 @@ const listClaimsFilterParamsFromQueryParams = ( qp ) => {
     fp.includeClosed = !!parseInt(qp.include_closed);
   }
 
+  if( qp.to_be_reviewed ) {
+    fp.toBeReviewed = !!parseInt(qp.to_be_reviewed);
+  }
+
   if( qp.order_number ) {
     fp.orderNumber = new RegExp( qp.order_number, 'i');
+  }
+
+  if( qp.ticket ) {
+    fp.ticketId = qp.ticket;
   }
 
 
   return fp;
 };
-
-function getGoogleManifestTotals( manifest ) {
-
-  const res = {};
-
-  const data = manifest.sheets[0].data;
-
-  for( let _namedRange of manifest.namedRanges ) {
-
-    const _namedRangeData = data.find( _ => _.startColumn === _namedRange.range.startColumnIndex );
-
-    res[ _namedRange.name ] = parseFloat( _namedRangeData.rowData[0].values[0].effectiveValue.numberValue );
-
-  }
-
-  return res;
-}
-
 
 /**********************************************
  * Router
@@ -60,7 +49,7 @@ function getGoogleManifestTotals( manifest ) {
  *
  *********/
 
-function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
+function routes( { claimsCommander, eventsDb, manifestSvc, shopifyAdmin } ) {
   const router = new express.Router();
 
   /*******************************************
@@ -69,52 +58,72 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
    *
    ****/
 
-  // TODO: add user authorizations
-
   /*******  GET  *********/
 
   // list claim(s)
   router.get(
     '/',
-    // auth.isAuthorized( 'LIST_CLAIMS' ), TODO: auth
+    auth.isAuthorized( 'VIEW_CLAIM' ),
     listClaims
   );
   router.get(
     '/count',
-    // auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' ), TODO: auth
+    auth.isAuthorized( 'VIEW_CLAIM' ),
     countClaims
   );
   router.get(
     '/:claimId',
-    // auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' ), TODO: auth
+    auth.isAuthorized( 'VIEW_CLAIM' ),
     getClaimById
   );
 
   router.get(
     '/:claimId/shopify-order',
-    // auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' ), TODO: auth
+    auth.isAuthorized( 'VIEW_CLAIM' ),
     getClaimShopifyOrder
   );
 
   // get an order so as to start a claim
   router.get(
     '/orders/:orderNumber',
-    // auth.isAuthorized TODO: auth
+    auth.isAuthorized( 'VIEW_CLAIM' ),
     getOrderForClaim
   );
 
+  // the following endpoints exist for semantic reasons as they just redirect to /api/manifests/
+  router.get(
+    '/manifests/:spreadsheetId',
+    auth.isAuthorized( 'VIEW_CLAIM' ),
+    ( req, res, _next ) => {
+
+      const { spreadsheetId } = req.params;
+      res.redirect(`/api/manifests/google/${spreadsheetId}`);
+
+    }
+  );
+
+  router.get(
+    '/manifests/:spreadsheetId/totals',
+    auth.isAuthorized( 'VIEW_CLAIM' ),
+    ( req, res, _next ) => {
+
+      const { spreadsheetId } = req.params;
+      res.redirect(`/api/manifests/google/${spreadsheetId}/totals`);
+
+    }
+  );
 
   /*******  DELETE  *********/
 
   router.delete(
     '/:claimId',
-    // auth.isAuthorized( 'VIEW_INCOMING_SHIPMENT' ), TODO: auth
+    auth.isAuthorized( 'DELETE_CLAIM' ),
     deleteClaim
   );
 
   router.delete(
     '/:claimId/order-items/:orderItemId/claim',
-    // TODO: auth
+    auth.isAuthorized( 'EDIT_CLAIM' ),
     deleteOrderItemClaim
   );
 
@@ -122,33 +131,50 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
 
   router.post(
     '/',
-    // TODO: auth
+    auth.isAuthorized( 'CREATE_CLAIM' ),
     startClaim
   );
 
   /*******  PUT  *********/
 
   router.put(
+    '/:claimId/tickets',
+    auth.isAuthorized( 'EDIT_CLAIM' ),
+    setClaimTickets
+  );
+
+  router.put(
     '/:claimId/is-closed',
-    // TODO: auth
-    editClaimIsClosed
+    auth.isAuthorized( 'CLOSE_CLAIM' ),
+    setClaimIsClosed
+  );
+
+  router.put(
+    '/:claimId/to-be-reviewed',
+    auth.isAuthorized( 'EDIT_CLAIM' ),
+    setClaimToBeReviewed
   );
 
   router.put(
     '/:claimId/order-items/:orderItemId/claim',
-    // TODO: auth
+    auth.isAuthorized( 'EDIT_CLAIM' ),
     startOrderItemClaim
   );
 
-
   /*******  PATCH  *********/
+
 
   router.patch(
     '/:claimId/order-items/:orderItemId/claim/',
-    // TODO: auth
+    auth.isAuthorized( 'EDIT_CLAIM' ),
     updateOrderItemClaim
   );
 
+  router.patch(
+    '/:claimId/notes',
+    auth.isAuthorized( 'EDIT_CLAIM' ),
+    addClaimNote
+  );
 
   //==================
   // handlers
@@ -177,6 +203,21 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
 
     const claims = await claimsCommander.listClaims(query);
 
+    const orderIds = claims.reduce( ( acc, _claim ) => acc.concat( [ _claim.orderId ] ) , []);
+
+    const { orders } = await shopifyAdmin.shopifyRest.listOrders( { ids: orderIds.join(',') } );
+
+    for( let _order of orders ) {
+
+      const _claim = claims.find( _c => _c.orderId == _order.id );
+
+      if( _claim ) {
+        // this is required to set _claim.shopifyOrder = _order since there is no shopifyOrder field in the Claim model
+        _claim.set( 'shopifyOrder', _order, { strict: false } );
+      }
+
+    }
+
     res.json( { claims } );
   }
 
@@ -195,41 +236,23 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
       const claimId = req.params.claimId;
       const populate = helpers.populationPathsFromQuery( req.query );
       const getShopifyOrder = !!parseInt( req.query.shopify_order );
-      const getManifestTotals = !!parseInt( req.query.manifest_totals );
 
       const claim = await claimsCommander.getClaimById( claimId, { populate } );
 
-      let shopifyOrder;
+      if( !claim ) {
+        throw new ResourceNotFoundError( { type: 'Claim', id: claimId } );
+      }
+
       if( getShopifyOrder ) {
 
         const { order } = await shopifyAdmin.shopifyRest.getOrder( claim.orderId );
-        shopifyOrder = order;
+
+        // this is required to set claim.shopifyOrder = order since there is no shopifyOrder field in the Claim model
+        claim.set( 'shopifyOrder', order, { strict: false } );
 
       }
 
-      if( getManifestTotals ) {
-
-        for( let _orderItem of claim.orderItems ) {
-
-          if( _orderItem.claim && _orderItem.claim.manifest && _orderItem.claim.manifest.spreadsheetId ) {
-
-            const googleManifest = await manifestSvc.getGoogleSpreadsheet( _orderItem.claim.manifest.spreadsheetId, true /* namedRangesOnly */ );
-            const manifestTotals = getGoogleManifestTotals( googleManifest );
-
-            Object.assign(
-              _orderItem.claim.manifest,
-              manifestTotals
-            );
-
-            // require('fs').writeFileSync( 'google-manifest.json', JSON.stringify(googleManifest,null,2), 'utf-8' )
-
-          }
-
-        }
-
-      }
-
-      res.json( { claim: claim.toObject( { virtuals: true } ), shopifyOrder } );
+      res.json( { claim } );
     }
     catch(e) {
       return next( e );
@@ -278,7 +301,7 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
 
         if( orderItem.claim ) {
 
-          if( orderItem.claim.manifest.spreadsheetId ) {
+          if( orderItem.claim.manifest && orderItem.claim.manifest.spreadsheetId ) {
 
             await manifestSvc.deleteGoogleSpreadsheet( orderItem.claim.manifest.spreadsheetId );
 
@@ -291,6 +314,8 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
       }
 
       await claimsCommander.deleteClaim( claimId );
+
+      eventsDb.deleteClaim( { user: req.user, claimId } );
 
       res.json( { success: true } );
     }
@@ -307,14 +332,20 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
 
       const { orderNumber } = req.params;
 
-      // check if a claim has already been started
-      const claim = await claimsCommander.findClaimByOrderNumber( orderNumber );
-
-      if( claim ) {
-        res.json( { claim } ); // TODO: is this the right behavior? returning a claim, but the function/endpoint is for getting orders
-      }
-
       const { orders } = await shopifyAdmin.shopifyRest.listOrders( { name: orderNumber } );
+
+      const orderNumbers = orders.map( _ => _.order_number );
+
+
+      const claims = await claimsCommander.listClaims( { filterParams: { orderNumber: { $in: orderNumbers }, includeClosed: true } } );
+
+      for( let _claim of claims ) {
+
+        const _order = orders.find( _ => _.order_number == _claim.orderNumber );
+
+        _order.claim = _claim;
+
+      }
 
       res.json( { orders } );
     }
@@ -348,16 +379,20 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
 
       for( let li of shopifyOrder.line_items ) {
 
-        const { product } = await shopifyAdmin.shopifyRest.getProduct( li.product_id );
-        const { variant } = await shopifyAdmin.shopifyRest.getProductVariant( li.variant_id );
+        if( li.product_id && li.variant_id ) {
 
-        const { metafields: productMetafields } = await shopifyAdmin.shopifyRest.getMetafieldsByOwnerIdAndType( li.product_id, 'products' );
-        const { metafields: productVariantMetafields } = await shopifyAdmin.shopifyRest.getMetafieldsByOwnerIdAndType( li.variant_id, 'variants' );
+          const { product } = await shopifyAdmin.shopifyRest.getProduct( li.product_id );
+          const { variant } = await shopifyAdmin.shopifyRest.getProductVariant( li.variant_id );
 
-        product.metafields = productMetafields;
-        variant.metafields = productVariantMetafields;
+          const { metafields: productMetafields } = await shopifyAdmin.shopifyRest.getMetafieldsByOwnerIdAndType( li.product_id, 'products' );
+          const { metafields: productVariantMetafields } = await shopifyAdmin.shopifyRest.getMetafieldsByOwnerIdAndType( li.variant_id, 'variants' );
 
-        Object.assign( li, { product, variant });
+          product.metafields = productMetafields;
+          variant.metafields = productVariantMetafields;
+
+          Object.assign( li, { product, variant });
+
+        }
 
       }
 
@@ -368,7 +403,7 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
 
       const claim = await claimsCommander.createClaim( data );
 
-      // eventsDb.createClaim( { user: req.user, claim } );
+      eventsDb.createClaim( { user: req.user, claimId: claim._id } );
 
       res.json( { claim } );
 
@@ -378,7 +413,6 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
     }
 
   }
-
 
   async function startOrderItemClaim( req, res, next ) {
 
@@ -392,7 +426,7 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
         throw new ResourceNotFoundError( { type: 'Claim', id: claimId } );
       }
 
-      const orderItem = await claim.startOrderItemClaim( orderItemId, req.user._id );
+      const orderItem = await claim.getOrderItem( orderItemId );
 
       if( !orderItem ) {
         throw new ChildResourceNotFoundError( {
@@ -403,32 +437,44 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
         } );
       }
 
-      // TODO: only proceed if claim was newly made
+      let success = false;
 
-      if( orderItem.lot && orderItem.lot.manifestFileLocation  ) {
+      if( !orderItem.hasClaim() ) {
 
-        // get customer email from Shopify order
-        const { order: shopifyOrder } = await shopifyAdmin.shopifyRest.getOrder( claim.orderId );
+        await claim.startOrderItemClaim( orderItemId, req.user._id );
 
-        const { customer: { email: customerEmail } } = shopifyOrder;
+        if( orderItem.lot && orderItem.lot.manifestFileLocation  ) {
 
-        // get pricePaid from orderItem
-        const { pricePaid: purchasePrice } = orderItem;
+          // get customer email from Shopify order
+          const { order: shopifyOrder } = await shopifyAdmin.shopifyRest.getOrder( claim.orderId );
 
-        //  The usage of path.basename() is maybe a bit abusive since it's being applied to a URL instead of file path
-        const filename = path.basename( orderItem.lot.manifestFileLocation );
-        const title = path.basename( orderItem.lot.manifestFileLocation, '.xlsx' );
+          const { customer: { email: customerEmail } } = shopifyOrder;
 
-        const key = `${ orderItem.lot._id }/${ filename }`;
+          // get price paid from orderItem
+          const { price, discounts } = orderItem;
+          const purchasePrice = price - ( discounts ? discounts.reduce( ( total, _ ) => total + parseFloat(_.amount), 0 ) : 0);
 
-        const spreadsheetResp = await manifestSvc.exportToGoogle( key, title, customerEmail, purchasePrice );
+          //  The usage of path.basename() is maybe a bit abusive since it's being applied to a URL instead of file path
+          const filename = path.basename( orderItem.lot.manifestFileLocation );
+          const title = path.basename( orderItem.lot.manifestFileLocation, '.xlsx' );
 
-        // record spreadsheetUrl in claim. mark claim.orderItem as having manifest created
-        await claim.addOrderItemClaimManifest( orderItemId, spreadsheetResp );
+          const key = `${ orderItem.lot._id }/${ filename }`;
+
+          const spreadsheetResp = await manifestSvc.exportToGoogle( key, title, customerEmail, purchasePrice );
+
+          // record spreadsheetUrl in claim. mark claim.orderItem as having manifest created
+          await claim.addOrderItemClaimManifest( orderItemId, spreadsheetResp );
+
+        }
+
+        eventsDb.startOrderItemClaim( { user: req.user, claimId, orderItemId } );
+
+        success = true;
 
       }
 
-      res.json( { claim } );
+      res.json( { success, claim, orderItem } );
+
     }
     catch(e) {
       return next(e);
@@ -467,6 +513,8 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
 
       await claim.deleteOrderItemClaim( orderItemId );
 
+      eventsDb.deleteOrderItemClaim( { user: req.user, claimId, orderItemId } );
+
       res.json( { claim } );
 
     }
@@ -476,7 +524,7 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
 
   }
 
-  async function editClaimIsClosed( req, res, next ) {
+  async function setClaimIsClosed( req, res, next ) {
 
     try {
 
@@ -490,14 +538,14 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
 
           const { claim } = await claimsCommander.closeClaim( claimId );
 
-          // eventsDb.closeClaim( { user: req.user, claim } );
+          eventsDb.closeClaim( { user: req.user, claim } );
 
         }
         else {
 
           const { claim } = await claimsCommander.reopenClaim( claimId );
 
-          // eventsDb.reopenClaim( { user: req.user, claim } );
+          eventsDb.reopenClaim( { user: req.user, claim } );
 
         }
 
@@ -517,38 +565,101 @@ function routes( { claimsCommander, manifestSvc, shopifyAdmin } ) {
 
   }
 
+  async function setClaimToBeReviewed( req, res, next ) {
+
+    try {
+
+      const { toBeReviewed } = req.body;
+
+      if( typeof toBeReviewed === 'boolean' ) {
+
+        const { claimId } = req.params;
+
+        const { claim } = await claimsCommander.setClaimToBeReviewed( claimId, toBeReviewed );
+
+        eventsDb.setClaimToBeReviewed( { user: req.user, claimId: claim._id, toBeReviewed } );
+
+        res.json( { success: true } );
+
+      }
+      else {
+        throw new InvalidRequestError();
+      }
+
+    }
+    catch(e) {
+      return next(e);
+    }
+
+  }
+
   async function updateOrderItemClaim( req, res, next ) {
 
     try {
 
       const { claimId, orderItemId } = req.params;
-      const { units } = req.body;
 
-      const { claim, edits } = await claimsCommander.updateOrderItemClaimUnits( claimId, orderItemId, units );
+      const { claim, orderItem, edits } = await claimsCommander.editOrderItemClaim( claimId, orderItemId, req.body );
 
-      // if( claim ) {
 
-      //   for( let edit of edits ) {
+      if( claim && orderItem ) {
 
-      //     const eventData = Object.assign(
-      //       {
-      //         user: req.user,
-      //         claimId,
-      //       },
-      //       edit
-      //     );
+        for( let edit of edits ) {
 
-      //     eventsDb.editClaim( eventData );
+          const eventData = Object.assign(
+            {
+              user: req.user,
+              claimId,
+              orderItemId
+            },
+            edit
+          );
 
-      //   }
+          eventsDb.editOrderItemClaim( eventData );
 
-      // }
+        }
 
-      res.json( { success: true } );
+      }
+
+      res.json( { claim, orderItem, edits } );
     }
     catch(e) {
       return next(e);
     }
+  }
+
+  async function addClaimNote( req, res, next ) {
+
+    try {
+
+      const { claimId } = req.params;
+      const { content } = req.body;
+
+      const { claim } = await claimsCommander.addClaimNote( claimId, content, req.user );
+
+      res.json( { claim } );
+    }
+    catch(e) {
+      return next(e);
+    }
+
+  }
+
+  async function setClaimTickets( req, res, next ) {
+
+    try {
+
+      const { claimId } = req.params;
+      const { tickets } = req.body;
+
+      const { claim } = await claimsCommander.setClaimTickets( claimId, tickets );
+
+      res.json( { claim } );
+    }
+    catch(e) {
+      return next(e);
+    }
+
   }
 
   return router;

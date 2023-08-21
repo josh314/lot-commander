@@ -264,6 +264,17 @@ class Server {
     // Shopify client(s)
     const shopifyStoreConfig = __config.shopify.stores;
 
+    const shopifyStorePublicData = {};
+    for( let [ key, value ] of Object.entries( shopifyStoreConfig ) ) {
+
+      shopifyStorePublicData[ key ] = {
+        name: value.name,
+        url: value.url,
+        id: value.id,
+      };
+
+    }
+
     const ShopifyGql = require( './modules/shopify-gql' );
     const shopifyGqlClient = {
       prod: new ShopifyGql({
@@ -323,6 +334,7 @@ class Server {
       shopifyAdmin: shopifyAdminClient,
       shopifyGql: shopifyGqlClient,
       shopifyOrders,
+      shopifyStorePublicData,
       storeMetafieldSchemaDb,
       userDbClient: this.users,
     };

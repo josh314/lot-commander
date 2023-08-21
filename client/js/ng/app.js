@@ -88,9 +88,9 @@ const stateData = [
   // TODO: permissions
   // Claims
   { name: "main.claims", abstract: true, url: "/claims", templateUrl: 'partials/_container.html' },
-  { name: "main.claims.details", url: '/{claimId}', templateUrl: 'partials/claims/_claim_details.html', /* userPermission: 'CREATE_CLAIM' */ },
-  { name: "main.claims.list", navName: "List", navParent: "Claims", url: "/list", templateUrl: 'partials/claims/_claim_list.html', /* userPermission: 'VIEW_CLAIM' */ },
-  { name: "main.claims.new", navName: "New", navParent: "Claims", url: "/new", templateUrl: 'partials/claims/_claim_new.html', /* userPermission: 'CREATE_CLAIM' */ },
+  { name: "main.claims.details", url: '/{claimId}', templateUrl: 'partials/claims/_claim_details.html', userPermission: 'VIEW_CLAIM' },
+  { name: "main.claims.list", navName: "List", navParent: "Claims", url: "/list", templateUrl: 'partials/claims/_claim_list.html', userPermission: 'VIEW_CLAIM' },
+  { name: "main.claims.new", navName: "New", navParent: "Claims", url: "/new", templateUrl: 'partials/claims/_claim_new.html', userPermission: 'CREATE_CLAIM' },
 
   // users
   { name: "main.users", abstract:true, url: "/users", templateUrl: 'partials/_container.html' },

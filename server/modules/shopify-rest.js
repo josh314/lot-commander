@@ -209,6 +209,24 @@ class Client {
 
   }
 
+  listCustomers( customerIds ) {
+
+    const params = {};
+
+    if( Array.isArray( customerIds ) ) {
+
+      params.ids = customerIds.join(',');
+
+    }
+
+    return this.request( {
+      method: 'GET',
+      endpoint: `customers.json`,
+      params
+    } );
+
+  }
+
 }
 
 module.exports = Client;

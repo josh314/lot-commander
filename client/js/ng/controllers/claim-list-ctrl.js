@@ -3,7 +3,6 @@ import angular from 'angular';
 import * as util from '../../utilities';
 
 const __PAGE_SIZE__ = 25;
-const __USER_SETTINGS_SUBKEY__ = 'claim-list-page';
 
 /******************* Claim List Page Controller *************************/
 angular.module('myApp').controller('ClaimListCtrl', [
@@ -11,7 +10,6 @@ angular.module('myApp').controller('ClaimListCtrl', [
   'LoggedInUser',
   'navigate',
   'sessionTimeout',
-  'SettingsSvc',
   'ClaimsSvc',
 
   function(
@@ -19,7 +17,6 @@ angular.module('myApp').controller('ClaimListCtrl', [
     LoggedInUser,
     navigate,
     sessionTimeout,
-    SettingsSvc,
     ClaimsSvc
 
   ) {
@@ -32,36 +29,89 @@ angular.module('myApp').controller('ClaimListCtrl', [
 
     function init() {
 
-      vm.filter = {
-        orderNumber: '',
-        includeClosed: false,
-      };
-      vm.claims = [];
-      vm.sortOpts = {
-        key: 'createdAt',
-        ascending: false
-      };
+      const statusOptions = [
+        {
+          name: 'awaiting review',
+          filter: {
+            toBeReviewed: true,
+            includeClosed: false
+          }
+        },
+        {
+          name: 'open',
+          filter: {
+            includeClosed: false
+          }
+        },
+        {
+          name: 'all',
+          filter: {
+            includeClosed: true
+          }
+        }
+      ];
 
-      vm.pagination = {
-        current: 1,
-        totalItems: 0,
-        pageSize: __PAGE_SIZE__,
-        pageChange: refreshClaimsList
-      };
+      Object.assign(
+        vm,
+        {
 
-      vm.navigate = navigate;
-      vm.util = util;
+          // vars
+          showCreateClaimButton: LoggedInUser.hasPermission( 'CREATE_CLAIM' ),
+          showShopifyLinks: LoggedInUser.hasPermission( 'VIEW_SHOPIFY_ORDER' ),
+          inputs: {
+            orderNumber: '',
+            ticket: '',
+            status: statusOptions[0],
+            statusOptions
+          },
+          claims: [],
+          sortOpts: {
+            key: 'createdAt',
+            ascending: false
+          },
+          pagination: {
+            current: 1,
+            totalItems: 0,
+            pageSize: __PAGE_SIZE__,
+            pageChange: refreshClaimsList
+          },
 
-      vm.refreshClaimsList = refreshClaimsList;
+          // modules
+          navigate,
+          util,
+
+          // methods
+          refreshClaimsList: refreshClaimsList,
+
+        }
+      );
 
       refreshClaimsList();
+
+    }
+
+    function getFilterFromInputs() {
+
+      const filter = {};
+
+      if( vm.inputs.orderNumber ) {
+        filter.orderNumber = vm.inputs.orderNumber;
+      }
+
+      if( vm.inputs.ticket ) {
+        filter.ticket = vm.inputs.ticket;
+      }
+
+      Object.assign( filter, vm.inputs.status.filter );
+
+      return filter;
 
     }
 
     function refreshClaimsList() {
 
       const baseQueryOptions = {
-        filter: vm.filter,
+        filter: getFilterFromInputs(),
         sort: vm.sortOpts,
       };
 
@@ -77,7 +127,6 @@ angular.module('myApp').controller('ClaimListCtrl', [
         );
 
         return ClaimsSvc.list( pagedQueryOptions ).then( claims => {
-          console.log(claims)
           vm.claims = claims;
         });
 

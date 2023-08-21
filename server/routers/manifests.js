@@ -1,6 +1,32 @@
 const express = require('express');
 
+const auth = require('../auth');
+
 module.exports = routes;
+
+/**********************************************
+ * Helpers
+ * =======
+ *
+ *********/
+
+function getGoogleManifestTotals( manifest ) {
+
+  const res = {};
+
+  const data = manifest.sheets[0].data;
+
+  for( let _namedRange of manifest.namedRanges ) {
+
+    const _namedRangeData = data.find( _ => _.startColumn === _namedRange.range.startColumnIndex );
+
+    res[ _namedRange.name ] = parseFloat( _namedRangeData.rowData[0].values[0].effectiveValue.numberValue );
+
+  }
+
+  return res;
+}
+
 
 /**********************************************
  * Routes function for export
@@ -39,15 +65,74 @@ function routes( { manifests, manifestSvc } ) {
   });
 
   /**************************************
+   * Get Google manifest
+   * ===================
+   *
+   * Get a google manifest
+   *
+   ********************/
+  router.get(
+    '/google/:spreadsheetId',
+    auth.isAuthorized( 'VIEW_MANIFEST' ),
+    async function get( req, res, next ) {
+
+      try{
+
+        const { spreadsheetId } = req.params;
+
+        const googleManifest = await manifestSvc.getGoogleSpreadsheet( spreadsheetId );
+
+        res.json( { googleManifest } );
+
+      }
+      catch(e) {
+        return next(e);
+      }
+
+    }
+  );
+
+  /**************************************
+   * Get Google manifest totals
+   * ==========================
+   *
+   * Only get the totals from a google manifest
+   *
+   ********************/
+  router.get(
+    '/google/:spreadsheetId/totals',
+    auth.isAuthorized( 'VIEW_MANIFEST' ),
+    async function get( req, res, next ) {
+
+      try{
+
+        const { spreadsheetId } = req.params;
+
+        const googleManifest = await manifestSvc.getGoogleSpreadsheet( spreadsheetId, true /* namedRangesOnly */ );
+        const googleManifestTotals = getGoogleManifestTotals( googleManifest );
+
+        res.json( { googleManifestTotals } );
+
+      }
+      catch(e) {
+        return next(e);
+      }
+
+    }
+  );
+
+  /**************************************
    * Get
    * ====
    *
    * Get an individual manifest. The URI path parameter(s) is the full S3 key
    *
    ********************/
-  router.get('/*', function get( req, res ) {
+  router.get('/:privacy?/:subkey', function( req, res ) {
 
-    const key = req.params[0];
+    const { privacy, subkey } = req.params;
+
+    const key = `${ privacy ? `${privacy}/` : ''}${subkey}`;
 
     manifestSvc.get(key)
       .then( resp => {

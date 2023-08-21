@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 /************************************************
- * 
+ *
  * Mongoose data models
  * ====================
- * 
+ *
  ****/
 
 const discriminatorOpts = { discriminatorKey: 'type' };
@@ -33,6 +33,11 @@ const bundleRef = {
   ref: 'Bundle'
 };
 
+const claimRef = {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Claim'
+};
+
 
 
 const eventSchema = new mongoose.Schema(
@@ -47,7 +52,7 @@ const eventSchema = new mongoose.Schema(
 
 /************************************************
  * Incoming Shipment Events
- * 
+ *
  ****/
 
 const createIncomingShipmentEventSchema = new mongoose.Schema(
@@ -57,7 +62,7 @@ const createIncomingShipmentEventSchema = new mongoose.Schema(
   discriminatorOpts
 );
 
-const deleteIncomingShipmentEventSchema = new mongoose.Schema( 
+const deleteIncomingShipmentEventSchema = new mongoose.Schema(
   {
     shipment: incomingShipmentRef
   },
@@ -144,7 +149,7 @@ const reopenIncomingShipmentEventSchema = new mongoose.Schema(
 
 /************************************************
  * Inventory Pallet Events
- * 
+ *
  ****/
 
 const createInventoryPalletEventSchema = new mongoose.Schema(
@@ -208,7 +213,7 @@ const unrepackInventoryPalletEventSchema = new mongoose.Schema(
 
 /************************************************
  * Package Events
- * 
+ *
  ****/
 
 const createPackageEventSchema = new mongoose.Schema(
@@ -259,7 +264,7 @@ const addPackageInventoryPalletEventSchema = new mongoose.Schema(
 
 /************************************************
  * Package Events
- * 
+ *
  ****/
 
 const createBundleEventSchema = new mongoose.Schema(
@@ -294,11 +299,87 @@ const packBundleEventSchema = new mongoose.Schema(
   discriminatorOpts
 );
 
+
 /************************************************
- * 
+ * Claim Events
+ *
+ ****/
+
+const createClaimEventSchema = new mongoose.Schema(
+  {
+    claim: claimRef,
+  },
+  discriminatorOpts
+);
+
+const deleteClaimEventSchema = new mongoose.Schema(
+  {
+    claim: claimRef,
+  },
+  discriminatorOpts
+);
+
+const closeClaimEventSchema = new mongoose.Schema(
+  {
+    claim: claimRef
+  },
+  discriminatorOpts
+);
+
+const reopenClaimEventSchema = new mongoose.Schema(
+  {
+    claim: claimRef
+  },
+  discriminatorOpts
+);
+
+const startOrderItemClaimEventSchema = new mongoose.Schema(
+  {
+    claim: claimRef,
+    // Note: this is a subdocument on the claim so not a ref to another table
+    orderItem: mongoose.Schema.Types.ObjectId,
+  },
+  discriminatorOpts
+);
+
+const deleteOrderItemClaimEventSchema = new mongoose.Schema(
+  {
+    claim: claimRef,
+    // Note: this is a subdocument on the claim so not a ref to another table
+    orderItem: mongoose.Schema.Types.ObjectId,
+  },
+  discriminatorOpts
+);
+
+const editOrderItemClaimEventSchema = new mongoose.Schema(
+  {
+    claim: claimRef,
+    // Note: this is a subdocument on the claim so not a ref to another table
+    orderItem: mongoose.Schema.Types.ObjectId,
+    path: String,
+    oldValue: mongoose.Mixed,
+    newValue: mongoose.Mixed
+  },
+  discriminatorOpts
+);
+
+
+const setClaimToBeReviewedEventSchema = new mongoose.Schema(
+  {
+    claim: claimRef,
+    toBeReviewed: Boolean
+  },
+  discriminatorOpts
+);
+
+
+
+
+/************************************************
+ *
  * Public Database Client
  * ======================
- * 
+ *
  ****/
 
 
@@ -340,6 +421,15 @@ class EventsDbClient {
     this.DeleteBundleEvent = this.Event.discriminator( 'delete-bundle', deleteBundleEventSchema );
     this.PackBundleEvent = this.Event.discriminator( 'pack-bundle', packBundleEventSchema );
 
+    this.CreateClaimEvent = this.Event.discriminator( 'create-claim', createClaimEventSchema );
+    this.DeleteClaimEvent = this.Event.discriminator( 'delete-claim', deleteClaimEventSchema );
+    this.CloseClaimEvent = this.Event.discriminator( 'close-claim', closeClaimEventSchema );
+    this.ReopenClaimEvent = this.Event.discriminator( 'reopen-claim', reopenClaimEventSchema );
+    this.SetClaimToBeReviewedEvent = this.Event.discriminator( 'set-claim-to-be-reviewed', setClaimToBeReviewedEventSchema );
+    this.StartOrderItemClaimEvent = this.Event.discriminator( 'start-order-item-claim', startOrderItemClaimEventSchema );
+    this.DeleteOrderItemClaimEvent = this.Event.discriminator( 'delete-order-item-claim', deleteOrderItemClaimEventSchema );
+    this.EditOrderItemClaimEvent = this.Event.discriminator( 'edit-order-item-claim', editOrderItemClaimEventSchema );
+
     // TODO:
     // add/remove documents
     // change documents to restricted
@@ -354,7 +444,7 @@ class EventsDbClient {
     const sortParams = {
       createdAt : -1
     };
-    
+
     const query = { shipment: mongoose.Types.ObjectId( shipmentId ) };
 
     if( opts.eventType ) {
@@ -374,13 +464,13 @@ class EventsDbClient {
     }
 
     return q.exec();
-  
+
   }
 
 
   /************************************************
    * Register shipment events
-   * 
+   *
    ****/
 
   createIncomingShipment( { user, shipment } ) {
@@ -519,7 +609,7 @@ class EventsDbClient {
 
   /************************************************
    * Register pallet events
-   * 
+   *
    ****/
 
 
@@ -619,7 +709,7 @@ class EventsDbClient {
 
   /************************************************
    * Register package events
-   * 
+   *
    ****/
 
   createPackage( { user, packageId } ) {
@@ -705,7 +795,7 @@ class EventsDbClient {
 
   /************************************************
    * Register bundle events
-   * 
+   *
    ****/
 
   createBundle( { user, bundleId } ) {
@@ -765,6 +855,116 @@ class EventsDbClient {
 
   }
 
+
+  /************************************************
+   * Register claim events
+   *
+   ****/
+
+  createClaim( { user, claim } ) {
+
+    if( !claim ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.CreateClaimEvent( { user: user && user._id , claim: claim._id } );
+
+    return e.save();
+
+  }
+
+  deleteClaim( { user, claim } ) {
+
+    if( !claim ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.DeleteClaimEvent( { user: user && user._id , claim: claim._id } );
+
+    return e.save();
+
+  }
+
+  closeClaim( { user, claimId } ) {
+
+    if( !claimId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.CloseClaimEvent( { user: user && user._id , claim: claimId } );
+
+    return e.save();
+
+  }
+
+  reopenClaim( { user, claimId } ) {
+
+    if( !claimId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.ReopenClaimEvent( { user: user && user._id , claim: claimId } );
+
+    return e.save();
+
+  }
+
+  setClaimToBeReviewed( { user, claimId, toBeReviewed } ) {
+
+    if( !claimId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.SetClaimToBeReviewedEvent( { user: user && user._id , claim: claimId, toBeReviewed } );
+
+    return e.save();
+
+  }
+
+  startOrderItemClaim( { user, claimId, orderItemId } ) {
+
+    if( !claimId || !orderItemId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.StartOrderItemClaimEvent( { user: user && user._id , claim: claimId, orderItem: orderItemId } );
+
+    return e.save();
+
+  }
+
+  deleteOrderItemClaim( { user, claimId, orderItemId } ) {
+
+    if( !claimId || !orderItemId ) {
+      return Promise.resolve( null );
+    }
+
+    const e = new this.DeleteOrderItemClaimEvent( { user: user && user._id , claim: claimId, orderItem: orderItemId } );
+
+    return e.save();
+
+  }
+
+  editOrderItemClaim( { user, claimId, orderItemId, path, oldValue, newValue } ) {
+
+    if( !claimId || !orderItemId ) {
+      return Promise.resolve( null );
+    }
+
+    const eventData = {
+      user: user && user._id,
+      claim: claimId,
+      orderItem: orderItemId,
+      path,
+      oldValue,
+      newValue
+    };
+
+    const e = new this.EditOrderItemClaimEvent( eventData );
+
+    return e.save();
+
+  }
 
 }
 
