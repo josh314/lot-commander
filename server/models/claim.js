@@ -1,5 +1,10 @@
 const mongoose = require('mongoose');
 
+const __RESOLUTION_TYPE_ENUM__ = [
+  'REFUND',
+  'DISCOUNT_CODE'
+];
+
 /*******************************
  * OrderItemClaimManifest schema
  * =============================
@@ -35,6 +40,7 @@ const orderItemClaimSchema = mongoose.Schema({
 
   manifest: orderItemClaimManifestSchema,
   units: Number,
+  suggestedResolutionValue: Number,
 
 });
 
@@ -174,10 +180,6 @@ const claimSchema = mongoose.Schema({
     url: String
   } ],
   toBeReviewed: Boolean,
-  isClosed: Boolean,
-  closedDate: Date,
-  isDeleted: Boolean,
-  deletedDate: Date,
   notes: [ {
     content: String,
     agent: {
@@ -186,6 +188,21 @@ const claimSchema = mongoose.Schema({
     },
     date: Date
   } ],
+
+  isClosed: Boolean,
+  closedDate: Date,
+
+  totalSuggestedResolutionValue: Number,
+  resolutionActions: [
+    {
+      amount: Number,
+      type: { type: String, enum: __RESOLUTION_TYPE_ENUM__ },
+    }
+  ],
+
+  isDeleted: Boolean,
+  deletedDate: Date,
+
 }, { collection: 'claims', timestamps: true });
 
 
@@ -275,16 +292,36 @@ claimSchema.methods.undelete = function() {
   return this.save();
 };
 
+claimSchema.addResolutionAction = function( amount, type ) {
+
+  const _resolutionAction = {
+    amount,
+    type
+  };
+
+  this.resolutionActions.push( _resolutionAction );
+
+  return this.save;
+}
+
 claimSchema.methods.close = function() {
   this.isClosed = true;
   this.closedDate = new Date();
   this.toBeReviewed = false;
+
+//TODO: set the final values for the resolutionAmount, resolutionType, units at claim and orderItemClaim levels
+
+
+
   return this.save();
 };
 
 claimSchema.methods.reopen = function() {
   this.isClosed = false;
   this.closedDate = undefined;
+
+//TODO: unset resolution values as needed
+
   return this.save();
 };
 
