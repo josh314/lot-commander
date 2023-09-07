@@ -370,13 +370,19 @@ class InventoryCommander {
     Package,
     Bundle,
     InventoryPallet,
-  }) {
+    ShopifyOrder,
+  } ) {
 
-    // initialize models
-    this.IncomingShipment = IncomingShipment;
-    this.Package = Package;
-    this.Bundle = Bundle;
-    this.InventoryPallet = InventoryPallet;
+    Object.assign(
+      this,
+      {
+        IncomingShipment,
+        Package,
+        Bundle,
+        InventoryPallet,
+        ShopifyOrder,
+      }
+    );
 
   }
 
@@ -449,7 +455,7 @@ class InventoryCommander {
     return newShipment.save();
   }
 
-  getIncomingShipmentById( shipmentId, { populate, includeDeleted = false } = {} ) {
+  async getIncomingShipmentById( shipmentId, { populate, getPalletProceeds = false, includeDeleted = false } = {} ) {
 
     let objectId;
 
@@ -468,13 +474,58 @@ class InventoryCommander {
 
     let q = this.IncomingShipment.findOne( findDoc );
 
+    if( getPalletProceeds ) {
+
+      const populateSet = new Set( populate || [] );
+
+      populateSet.add( 'palletsReceived.lot' );
+
+      populate = [ ... populateSet ];
+    }
+
     if( populate ) {
 
       q = appendPopulationQueries( q, populate );
 
     }
 
-    return q.exec();
+    const shipment = await q.exec();
+
+    if( getPalletProceeds ) {
+
+      const lotHandles = shipment.palletsReceived.reduce( ( _lotHandles, pallet ) => pallet.lot ? _lotHandles.concat( [ pallet.lot.handle ] ) : _lotHandles , [] );
+
+      const orders = await this.ShopifyOrder.find( { 'lineItems.sku' : { $in: lotHandles }} );
+
+      for( let order of orders ) {
+
+        for( let lineItem of order.lineItems ) {
+
+          if( lotHandles.includes( lineItem.sku ) ) {
+
+            let proceeds = 0;
+            if( lineItem.itemPrice ) {
+              proceeds += lineItem.itemPrice;
+            }
+            if( lineItem.discount ) {
+              proceeds -= lineItem.discount;
+            }
+
+            const pallet = shipment.palletsReceived.find( _p => _p.lot && _p.lot.handle === lineItem.sku );
+
+            if ( pallet ) {
+              pallet.set( 'proceeds', proceeds, { strict: false } );
+            }
+
+          }
+
+        }
+
+      }
+
+    }
+
+    return shipment;
 
   }
 

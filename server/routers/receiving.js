@@ -208,8 +208,9 @@ function routes({ eventsDb, inventoryCommander }) {
 
       const shipmentId = req.params.shipmentId;
       const populate = helpers.populationPathsFromQuery( req.query );
+      const getPalletProceeds = !!parseInt( req.query.pallet_proceeds );
 
-      const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId, { populate } );
+      const shipment = await inventoryCommander.getIncomingShipmentById( shipmentId, { populate, getPalletProceeds } );
 
       res.json( { shipment } );
     }

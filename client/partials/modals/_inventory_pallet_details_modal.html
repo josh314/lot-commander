@@ -25,6 +25,10 @@
       <input class="form-control" type="number" id="costInput" ng-model="$ctrl.inputs.cost" ng-change="$ctrl.validate()" ng-disabled="$ctrl.disableEditing">
       <span class="text-danger h6" ng-show="$ctrl.errors.invalidCost">Invalid cost</span>
     </div>
+    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showPurchasingData">
+      <label for="proceedsInput">Proceeds</label>
+      <input class="form-control" type="number" id="proceedsInput" ng-model="$ctrl.inputs.proceeds" disabled>
+    </div>
     <div class="form-group col-xs-12 col-sm-6" >
       <label for="unitsInput">Units</label>
       <input class="form-control" type="number" id="unitsInput" ng-model="$ctrl.inputs.units" ng-disabled="$ctrl.disableEditing">

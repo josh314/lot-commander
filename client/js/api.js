@@ -8,17 +8,17 @@ import axios from 'axios';
 *
 ************/
 
-function getPopulateString( populateArray = [] ) {
+function getPopulateQueryParamsObject( populateArray = [] ) {
 
-  let populateStr = '';
-  if( populateArray && populateArray.length ) {
+  let obj = {};
 
-    populateStr += '?' + populateArray.map( s => `populate_${s}=1` ).join('&');
-
+  for( let s of populateArray ) {
+    obj[ `populate_${s}` ] = 1;
   }
 
-  return populateStr;
+  return obj;
 }
+
 
 /*************************************************
 * Lot-db and Manifest-db
@@ -52,11 +52,11 @@ export function getLotByHandle( handle, { populate = [] } = {}  ) {
     throw new Error('Must supply lot handle.');
   }
 
-  const populateStr = getPopulateString( populate );
+  const queryParams = getPopulateQueryParamsObject( populate );
 
   return axios({
     method: 'get',
-    url: `/api/lots/by-handle/${handle}${ populateStr || '' }`
+    url: `/api/lots/by-handle/${handle}?${ qs.stringify( queryParams ) }`
   })
     .then( resp => resp.data && resp.data.lot );
 
@@ -68,11 +68,11 @@ export function getLot( lotId, { populate = [] } = {} ) {
     throw new Error('Must supply lot ID.');
   }
 
-  const populateStr = getPopulateString( populate );
+  const queryParams = getPopulateQueryParamsObject( populate );
 
   return axios({
     method: 'get',
-    url: `/api/lots/${ lotId }${ populateStr || '' }`
+    url: `/api/lots/${ lotId }?${ qs.stringify( queryParams ) }`
   })
     .then( resp => resp.data && resp.data.lot );
 
@@ -428,13 +428,17 @@ export function createIncomingShipment( shipment ) {
   })
     .then( resp => resp.data );
 }
-export function getIncomingShipmentById( shipmentId, { populate = [] } = {} ) {
+export function getIncomingShipmentById( shipmentId, { populate = [], getPalletProceeds } = {} ) {
 
-  const populateStr = getPopulateString( populate );
+  const queryParams = getPopulateQueryParamsObject( populate );
+
+  if( getPalletProceeds ) {
+    queryParams.pallet_proceeds = 1;
+  }
 
   return axios({
     method: 'get',
-    url: `/api/receiving/${ shipmentId }${ populateStr || '' }`,
+    url: `/api/receiving/${ shipmentId }?${ qs.stringify( queryParams ) }`,
   })
     .then( resp => resp.data );
 }
@@ -442,11 +446,11 @@ export function getIncomingShipmentById( shipmentId, { populate = [] } = {} ) {
 
 export function getIncomingShipmentByHandle( handle, { populate = [] } = {} ) {
 
-  const populateStr = getPopulateString( populate );
+  const queryParams = getPopulateQueryParamsObject( populate );
 
   return axios({
     method: 'get',
-    url: `/api/receiving/by-handle/${ handle }${ populateStr || '' }`,
+    url: `/api/receiving/by-handle/${ handle }?${ qs.stringify( queryParams ) }`,
   })
     .then( resp => resp.data );
 }
@@ -668,11 +672,11 @@ export function updateObjectDocumentProperties( objectId, objectType, documentNa
 
 export function getInventoryPallet( palletId,  { populate = [] } = {} ) {
 
-  const populateStr = getPopulateString( populate );
+  const queryParams = getPopulateQueryParamsObject( populate );
 
   return axios({
     method: 'get',
-    url: `/api/pallets/${ palletId }${ populateStr || '' }`
+    url: `/api/pallets/${ palletId }?${ qs.stringify( queryParams ) }`
   })
     .then( resp => resp.data );
 }

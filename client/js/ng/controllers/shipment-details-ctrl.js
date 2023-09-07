@@ -58,6 +58,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
     vm.showTransportationCost = LoggedInUser.hasPermission('VIEW_TRANSPORTATION_COST');
     vm.showRestrictedDocuments = vm.showPurchasingData;
+    vm.showFinancialData = vm.showPurchasingData;
     vm.showPricingData = LoggedInUser.hasPermission('VIEW_PRICING_DATA');
     vm.allowEditPricingData = LoggedInUser.hasPermission('EDIT_PRICING_DATA');
 
@@ -831,6 +832,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
           'packages'
         ],
         hydratePalletObjects: true,
+        getPalletProceeds: vm.showFinancialData,
       };
 
 

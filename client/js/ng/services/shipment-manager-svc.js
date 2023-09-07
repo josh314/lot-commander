@@ -130,7 +130,7 @@ angular.module('myApp').service('ShipmentManagerSvc', [ '$q', '$stateParams', 'L
         return shipment;
       },
 
-      loadShipment: ( { shipmentId, populate = [], hydratePalletObjects = false } = {} ) => $q.when( api.getIncomingShipmentById( shipmentId || _shipmentId(), { populate: populate } ) ).then( resp => {
+      loadShipment: ( { shipmentId, populate = [], getPalletProceeds, hydratePalletObjects = false } = {} ) => $q.when( api.getIncomingShipmentById( shipmentId || _shipmentId(), { populate: populate, getPalletProceeds } ) ).then( resp => {
         if( !resp || !resp.shipment ) {
           return null;
         }
@@ -307,6 +307,21 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet',
             }
           }, 0);
         }
+      };
+
+      shipment.getPalletProceeds = function() {
+
+        let proceeds = 0;
+
+        for( let pr of this.palletsReceived ) {
+
+          if( pr.proceeds ) {
+            proceeds += pr.proceeds;
+          }
+
+        }
+
+        return proceeds;
       };
 
       shipment.getNextAnonymousPalletExpected = () => shipment.palletsExpected.find( pe => pe.isAnonymous && !pe.isReceived );

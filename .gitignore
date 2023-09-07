@@ -38,6 +38,7 @@ mongodump-tmp
 todo*
 notes
 angular-console-commands
+demo*
 
 # System files
 .DS_Store

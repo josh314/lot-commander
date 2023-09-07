@@ -23,6 +23,7 @@ const lineItemSchema = mongoose.Schema({
 
   id: String, // graphQL ids
   name: String,
+  sku: String,
   quantity: Number,
   unfulfilledQuantity: Number,
   product: {
@@ -36,8 +37,10 @@ const lineItemSchema = mongoose.Schema({
   },
   variant: {
     id: String,
-    title: String
-  }
+    title: String,
+  },
+  itemPrice: Number,
+  discount: Number,
 
 });
 

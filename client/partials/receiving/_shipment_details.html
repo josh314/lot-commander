@@ -1,6 +1,7 @@
 <div class="container" ng-controller="ShipmentDetailsCtrl as $ctrl">
   <h2>Shipment Details</h2>
 	<div class="row well">
+
     <div style="display: flex;">
       <dl>
         <div ng-hide="$ctrl.isEditing[ 'handle' ]">
@@ -38,6 +39,12 @@
             <dt>Cost (<a href ng-click="$ctrl.saveEdit( 'cost' )" style="color: red">save</a> or <a href ng-click="$ctrl.closeEdit( 'cost' )" style="color: red">cancel edit</a>)</dt>
             <dd ng-show="$ctrl.isEditing[ 'cost' ]">
               <input ng-model="$ctrl.editValue[ 'cost' ]" />
+            </dd>
+          </div>
+          <div>
+            <dt>Proceeds from pallet sales</dt>
+            <dd>
+              {{ $ctrl.displayAsMoney( $ctrl.shipment.getPalletProceeds() ) || '----' }}
             </dd>
           </div>
           <div ng-hide="$ctrl.isEditing[ 'isPaidFor' ]">
