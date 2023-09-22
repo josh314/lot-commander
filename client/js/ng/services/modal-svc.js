@@ -327,7 +327,7 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
 
           vm.errors.emptyHandle = !vm.inputs.handle;
 
-          vm.errors.invalidCost = vm.showPurchasingData ? !( vm.inputs.cost > 0 ) : false;
+          // vm.errors.invalidCost = vm.showPurchasingData ? !( vm.inputs.cost > 0 ) : false;
 
           const shipment = pallet.shipment;
 

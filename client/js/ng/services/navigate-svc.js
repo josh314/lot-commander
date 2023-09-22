@@ -111,6 +111,11 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     $state.go('main.inventory-pallets.repack', { palletId } );
   };
 
+  const splitPallet = ( palletId ) => {
+    $anchorScroll();
+    $state.go('main.inventory-pallets.split', { palletId } );
+  };
+
   return {
     cleanManifest: cleanManifest,
     editLotManifest: editLotManifest,
@@ -122,7 +127,8 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     inventoryPalletCreation: inventoryPalletCreation,
     inventoryPalletView: inventoryPalletView,
     reload: reload,
-    repackPallet: repackPallet,
+    repackPallet,
+    splitPallet,
     shipmentCleanManifest: shipmentCleanManifest,
     shipmentCreation: shipmentCreation,
     shipmentDetails,

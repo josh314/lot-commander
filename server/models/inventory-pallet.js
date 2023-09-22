@@ -6,7 +6,18 @@ const inventoryPalletSchema = mongoose.Schema({
   condition: String,
   cost: Number,
   units: Number,
-  removedItems: [ Object ],
+  removedItems: [ Object ], // LEGACY
+  splitGroups: [ {
+    label: String,
+    category: String,
+    condition: String,
+    toBeListed: Boolean,
+    items: [ Object ]
+  } ],
+  splitFrom: { // parent pallet that this pallet was split from
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'InventoryPallet'
+  },
   retailValue: Number,
   priceValuePercentage: Number,
   salePrice: Number,
@@ -14,6 +25,8 @@ const inventoryPalletSchema = mongoose.Schema({
   note: String,
   isAnonymous: Boolean,
   toBeListed: Boolean,
+  toBeProcessed: Boolean,
+  processedDate: Date,
   isRepacked: Boolean,
   repackedDate: Date,
   isBrokendown: Boolean,
@@ -34,7 +47,7 @@ const inventoryPalletSchema = mongoose.Schema({
 
 /***********************
  *  pre-save hook
- * 
+ *
  ******/
 inventoryPalletSchema.pre( 'save', function(next) {
 
@@ -52,6 +65,10 @@ inventoryPalletSchema.pre( 'save', function(next) {
 
   if( typeof this.toBeListed !== 'boolean' ) {
     this.toBeListed = false;
+  }
+
+  if( typeof this.toBeProcessed !== 'boolean' ) {
+    this.toBeProcessed = false;
   }
 
   if( typeof this.isRepacked !== 'boolean' ) {

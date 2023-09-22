@@ -349,6 +349,7 @@
         <th>Category</th>
         <th>Condition</th>
         <th>To Be Listed</th>
+        <th>To Be Processed</th>
         <th ng-show="$ctrl.showPricingData">Price/value percentage</th>
         <th ng-hide="$ctrl.somePalletsEditing( $ctrl.shipment.palletsExpected )">Received?</th>
         <th ng-show="$ctrl.showEditControls"></th>
@@ -402,6 +403,17 @@
             </span>
             <span ng-hide="pallet.isEditing">
               <span class="glyphicon glyphicon-ok" ng-show="pallet.toBeListed"></span>
+            </span>
+          </td>
+          <td>
+            <span ng-show="pallet.isEditing">
+              <select class="form-control" ng-model="pallet.editValues.toBeProcessed">
+                <option ng-value="false">No</option>
+                <option ng-value="true">Yes</option>
+              </select>
+            </span>
+            <span ng-hide="pallet.isEditing">
+              <span class="glyphicon glyphicon-ok" ng-show="pallet.toBeProcessed"></span>
             </span>
           </td>
           <td ng-show="$ctrl.showPricingData">
@@ -464,6 +476,12 @@
               <option ng-value="true">Yes</option>
             </select>
           </td>
+          <td>
+            <select class="form-control" ng-model="$ctrl.addExpectedPallet.data.toBeProcessed">
+              <option ng-value="false">No</option>
+              <option ng-value="true">Yes</option>
+            </select>
+          </td>
           <td></td>
           <td></td>
           <td>
@@ -483,6 +501,10 @@
     <div class="text-center" style="margin-top: 12px;">
       <button class="btn btn-sm btn-warning" ng-click="$ctrl.setAllPalletsToBeListed( 'expected', true )">Set all to list</button>
       <button class="btn btn-sm btn-warning" ng-click="$ctrl.setAllPalletsToBeListed( 'expected', false )">Unset all to list</button>
+    </div>
+    <div class="text-center" style="margin-top: 12px;">
+      <button class="btn btn-sm btn-warning" ng-click="$ctrl.setAllPalletsToBeProcessed( 'expected', true )">Set all to process</button>
+      <button class="btn btn-sm btn-warning" ng-click="$ctrl.setAllPalletsToBeProcessed( 'expected', false )">Unset all to process</button>
     </div>
   </div>
 
@@ -541,6 +563,7 @@
           <th>Note</th>
           <th></th> <!-- download manifest button -->
           <th></th> <!-- Repack button -->
+          <th></th> <!-- Split button -->
           <th></th> <!-- Make Lot button -->
           <th></th> <!-- delete/unreceive button -->
         </tr></thead>
@@ -579,6 +602,11 @@
             <td>
               <span ng-show="pallet.canRepack()">
                 <button class="btn btn-xs btn-primary" ng-click="$ctrl.repackPallet( pallet )">Repack</button>
+              </span>
+            </td>
+            <td>
+              <span ng-show="pallet.canSplit()">
+                <button class="btn btn-xs btn-primary" ng-click="$ctrl.splitPallet( pallet )">Split</button>
               </span>
             </td>
             <td>
@@ -643,11 +671,13 @@
           <th>Handle</th>
           <th>Category</th>
           <th>Condition</th>
-          <th>Problem?</th>
+          <!-- <th>Problem?</th> -->
           <th>Brokendown?</th>
           <th>Note</th>
-          <th></th>
-          <th></th>
+          <th></th> <!-- Manifest button -->
+          <th></th> <!-- Split button -->
+          <th></th> <!-- Make Lot button -->
+          <th></th> <!-- Delete button -->
         </tr></thead>
 
         <tbody>
@@ -661,9 +691,9 @@
             <td>
               {{ pallet.condition }}
             </td>
-            <td>
+            <!-- <td>
               <span class="glyphicon glyphicon-alert" ng-show="pallet.hasProblem"></span>
-            </td>
+            </td> -->
             <td>
               <button type="button" class="btn btn-xs" ng-class="{ 'btn-danger': !pallet.isBrokendown, 'btn-success': pallet.isBrokendown }" ng-click="pallet.breakdown( !pallet.isBrokendown )">
                 {{ pallet.isBrokendown ? 'Undo breakdown' : 'Breakdown' }}
@@ -673,7 +703,17 @@
               <span class="glyphicon glyphicon-ok" ng-show="pallet.note"></span>
             </td>
             <td>
-              <span ng-show="pallet.toBeListed">
+              <span ng-show="pallet.hasManifest()">
+                <a ng-href="/api/documents/{{ pallet._id }}/{{ pallet.getManifestMetadata().name }}?object_type=received-pallet" target="_self" download><button class="btn btn-xs btn-primary">Manifest</button></a>
+              </span>
+            </td>
+            <td>
+              <span ng-show="pallet.canSplit()">
+                <button class="btn btn-xs btn-primary" ng-click="$ctrl.splitPallet( pallet )">Split</button>
+              </span>
+            </td>
+            <td>
+              <span ng-show="pallet.canMakeLot()">
                 <button class="btn btn-xs btn-success" ng-click="$ctrl.createPalletLot( pallet )" ng-disabled="pallet.lot">Make Lot</button>
               </span>
             </td>

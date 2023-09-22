@@ -67,6 +67,10 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
       downloadFileFromExtractByColumnValue,
       splitStandardManifestByPallet,
       defaultProcessActiveManifest,
+
+      // expose manifest and sheet classes
+      Manifest,
+      Sheet,
     };
 
     function getActiveManifest() {

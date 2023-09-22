@@ -52,6 +52,10 @@ const listPalletsFilterParamsFromQueryParams = ( qp ) => {
     fp.toBeListed = !!parseInt(qp.to_be_listed);
   }
 
+  if( qp.to_be_processed ) {
+    fp.toBeProcessed = !!parseInt(qp.to_be_processed);
+  }
+
   if( qp.is_repacked ) {
     fp.isRepacked = !!parseInt(qp.is_repacked);
   }
@@ -146,6 +150,9 @@ function routes({ eventsDb, inventoryCommander }) {
     if( req.query.to_be_listed ) {
       return auth.isAuthorizedForAny( 'LIST_INVENTORY_PALLETS', 'LIST_INVENTORY_PALLETS_TO_BE_LISTED' )( req, res, next );
     }
+    else if( req.query.to_be_processed ) {
+      return auth.isAuthorizedForAny( 'LIST_INVENTORY_PALLETS', 'LIST_INVENTORY_PALLETS_TO_BE_PROCESSED' )( req, res, next );
+    }
     else {
       return auth.isAuthorized( 'LIST_INVENTORY_PALLETS' )( req, res, next );
     }
@@ -162,6 +169,7 @@ function routes({ eventsDb, inventoryCommander }) {
         'category',
         'units',
         'removedItems',
+        'splitGroups',
         'retailValue',
         'salePrice',
       ],

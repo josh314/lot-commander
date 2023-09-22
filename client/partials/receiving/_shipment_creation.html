@@ -60,7 +60,7 @@
 
     <fieldset class="col-xs-12 box-border">
       <legend class="box-border">Documents</legend>
-  
+
       <div>
         <div class="col-xs-12 row">
 
@@ -159,9 +159,10 @@
           <th>Category</th>
           <th>Condition</th>
           <th>To be listed?</th>
+          <th>To be processed?</th>
           <th class="text-center">Remove</th>
         </tr></thead>
-        <tbody>	
+        <tbody>
           <tr ng-repeat="pallet in $ctrl.inputs.pallets track by $index">
             <td ng-class="{ 'has-error' : $ctrl.validator.pallets[$index].duplicateHandle }">
               <input class="form-control" ng-model="pallet.handle" ng-change="$ctrl.refreshValidator()"/>
@@ -184,6 +185,12 @@
             </td>
             <td>
               <select class="form-control" ng-model="pallet.toBeListed">
+                <option ng-value="true">yes</option>
+                <option ng-value="false">no</option>
+              </select>
+            </td>
+            <td>
+              <select class="form-control" ng-model="pallet.toBeProcessed">
                 <option ng-value="true">yes</option>
                 <option ng-value="false">no</option>
               </select>
@@ -215,7 +222,14 @@
         <span><button class="btn btn-warning" ng-click="$ctrl.setAllPalletsToBeListed( true )">Set all to list</button></span>
 
         <span><button class="btn btn-warning" ng-click="$ctrl.setAllPalletsToBeListed( false )">Unset all to list</button></span>
-        
+
+      </div>
+      <div class="text-center" style="margin-top:12px;" ng-show="$ctrl.inputs.pallets.length">
+
+        <span><button class="btn btn-warning" ng-click="$ctrl.setAllPalletsToBeProcessed( true )">Set all to process</button></span>
+
+        <span><button class="btn btn-warning" ng-click="$ctrl.setAllPalletsToBeProcessed( false )">Unset all to process</button></span>
+
       </div>
     </fieldset>
 

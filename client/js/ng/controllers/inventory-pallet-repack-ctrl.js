@@ -504,7 +504,7 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
         // Only update the received pallet manifest
         await ModalSvc.wait( {
-          waitFor: PalletManifestSvc.uploadReceivedPalletManifest( vm.pallet, file, editValues ),
+          waitFor: PalletManifestSvc.uploadInventoryPalletManifest( vm.pallet, file, editValues ),
           delay: 2000
         } );
 

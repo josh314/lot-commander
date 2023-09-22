@@ -174,7 +174,7 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
   return filter;
 };
 
-const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, hasProblem, toBeListed, isRepacked, hasLot, shipment, category, condition } ) => {
+const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, hasProblem, toBeListed, toBeProcessed, isRepacked, hasLot, shipment, category, condition } ) => {
   const filter = {
     isDeleted: false,
   };
@@ -205,6 +205,10 @@ const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, has
 
   if( toBeListed !== undefined ) {
     filter.toBeListed = toBeListed;
+  }
+
+  if( toBeProcessed !== undefined ) {
+    filter.toBeProcessed = toBeProcessed;
   }
 
   if( isRepacked !== undefined ) {
@@ -834,6 +838,7 @@ class InventoryCommander {
       shipment: shipment._id,
       isAnonymous: correspondingPalletExpected ? correspondingPalletExpected.isAnonymous : false,
       toBeListed: correspondingPalletExpected ? correspondingPalletExpected.toBeListed : false,
+      toBeProcessed: correspondingPalletExpected ? correspondingPalletExpected.toBeProcessed : false,
     };
 
     // use corresponding expected pallet's units

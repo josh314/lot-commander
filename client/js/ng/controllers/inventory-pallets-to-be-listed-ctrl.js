@@ -42,7 +42,7 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
         handle: '',
         populateShipment: true,
         populateLot: true,
-        status: 'not brokendown',
+        isBrokendown: false,
         hasLot: false,
         toBeListed: true,
         isRepacked: null,
@@ -70,6 +70,7 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
         'condition',
         'createdAt',
         'repackPallet',
+        'splitPallet',
         'makeLot'
       ] );
 
@@ -78,6 +79,7 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
       vm.showPalletDetails = showPalletDetails;
       vm.createLotFromPallet = createLotFromPallet;
       vm.repackPallet = repackPallet;
+      vm.splitPallet = splitPallet;
 
       refreshPalletsData();
     }
@@ -132,7 +134,7 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
 
     async function showPalletDetails( pallet ) {
 
-      if( pallet.shipment && !pallet.shipment.isHydrated ) {
+      if( vm.allowShipmentNavigation && pallet.shipment && !pallet.shipment.isHydrated ) {
         const shipment = await ShipmentManagerSvc.loadShipment( { shipmentId: pallet.shipment._id, populate: [ 'palletsReceived', 'palletsConsolidated' ]  } );
         pallet.shipment = shipment;
 
@@ -152,6 +154,10 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
 
     function repackPallet( pallet ) {
       navigate.repackPallet( pallet._id );
+    }
+
+    function splitPallet( pallet ) {
+      navigate.splitPallet( pallet._id );
     }
 
   }

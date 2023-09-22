@@ -81,6 +81,12 @@
           </span>
         </span>
 
+        <span ng-switch-when="splitPallet">
+          <span ng-show="pallet.canSplit()">
+            <button class="btn btn-xs btn-primary" ng-click="$ctrl.splitPallet( pallet )">Split Pallet</button>
+          </span>
+        </span>
+
         <span ng-switch-default>
           {{ columnData.transform ? columnData.transform( pallet[ columnKey ] ) : pallet[ columnKey ] }}
         </span>

@@ -20,7 +20,7 @@ app.css
 app.css.map
 dist/
 
-# deployment settings
+# configuration, settings, deployment and environment
 config/deploy.js
 config.*
 config-*.js
@@ -33,6 +33,7 @@ files/
 logs/
 dump/
 mongodump-tmp
+_dev-data
 
 # assorted
 todo*

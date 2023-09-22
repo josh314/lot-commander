@@ -1153,7 +1153,7 @@ export class Sheet {
       const _idx = this.getLineItemIndexByBarcode( barcode );
       const row = this.rows[_idx];
 
-      const _rowAmount = row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ];      
+      const _rowAmount = row[ __STANDARD_MANIFEST_QUANTITY_COLUMN__ ];
 
       if( !_rowAmount ) {
         continue;

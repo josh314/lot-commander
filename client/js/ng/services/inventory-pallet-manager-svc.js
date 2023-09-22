@@ -31,6 +31,15 @@ const queryParams = ( params ) => {
     delete qp.toBeListed;
   }
 
+  if( "toBeProcessed" in qp ) {
+
+    if( qp.toBeProcessed !== null ) {
+      qp.to_be_processed = qp.toBeProcessed ? 1 : 0;
+    }
+
+    delete qp.toBeProcessed;
+  }
+
   if( "isRepacked" in qp ) {
 
     if( qp.isRepacked !== null ) {
@@ -217,11 +226,13 @@ angular.module('myApp').factory( 'InventoryPallet', [
           'condition',
           'units',
           'removedItems',
+          'splitGroups',
           'retailValue',
           'priceValuePercentage',
           'salePrice',
           'cost',
           'toBeListed',
+          'toBeProcessed',
           'hasProblem',
           'note'
         ];
@@ -350,15 +361,38 @@ angular.module('myApp').factory( 'InventoryPallet', [
       }
 
       canRepack() {
-        return this.hasManifest() && this.toBeListed && !this.isRepacked && !this.lot;
+        return !this.isBrokendown
+          && this.hasManifest()
+          && this.toBeListed
+          && !this.isRepacked
+          && this.removedItems.length
+          && !this.lot;
+      }
+
+      canSplit() {
+        return !this.isBrokendown
+        && this.hasManifest()
+        && this.toBeProcessed
+        && !this.isRepacked
+        && !this.removedItems.length
+        && !this.lot;
       }
 
       canMakeLot() {
+
         if( this.lot ) {
           return false;
         }
 
-        return this.toBeListed && this.isRepacked;
+        if( this.isBrokendown ) {
+          return false;
+        }
+
+        if( !this.toBeListed ) {
+          return false;
+        }
+
+        return ( this.isRepacked || !!this.splitFrom );
 
       }
 
@@ -380,6 +414,27 @@ angular.module('myApp').factory( 'InventoryPallet', [
         }
       }
 
+      getTotalUnitsSplit() {
+        if( this.splitGroups  ) {
+          let total = 0;
+
+          for( let grp of this.splitGroups ) {
+
+            for( let item of grp.items ) {
+
+              total += item.numSplit;
+
+            }
+
+          }
+
+          return total;
+        }
+        else {
+          return 0;
+        }
+      }
+
     }
 
     return InventoryPallet;
@@ -391,6 +446,7 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
   const showPurchasingData = LoggedInUser.hasPermission( 'VIEW_PURCHASING_DATA' );
   const showMakeLot = LoggedInUser.hasPermission( 'CREATE_LOT' );
   const showRepackPallet = LoggedInUser.hasPermission( 'EDIT_INVENTORY_PALLET_DOCUMENT' );
+  const showSplitPallet = LoggedInUser.hasPermission( 'SPLIT_INVENTORY_PALLET' );
 
   const __COLUMNS__ = {
     handle: {
@@ -505,6 +561,14 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
       permitted: showRepackPallet,
       defaultActive: false,
       optionAvailable: showRepackPallet,
+      noSort: true,
+    },
+    splitPallet: {
+      optionName: 'Split pallet button',
+      header: '',
+      permitted: showSplitPallet,
+      defaultActive: false,
+      optionAvailable: showSplitPallet,
       noSort: true,
     },
     makeLot: {

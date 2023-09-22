@@ -127,7 +127,9 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     vm.createPalletManifests = _document => ModalSvc.wait( { waitFor: createPalletManifestsFromShipmentStandardManifest( _document ) }).then( _ => navigate.reload ());
     vm.createPalletLot = createPalletLot;
     vm.repackPallet = repackPallet;
+    vm.splitPallet = splitPallet;
     vm.setAllPalletsToBeListed = setAllPalletsToBeListed;
+    vm.setAllPalletsToBeProcessed = setAllPalletsToBeProcessed;
 
     /****************************************************
      * Functions
@@ -334,6 +336,39 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
           pallet.openEdit();
           pallet.editValues.toBeListed = toBeListed;
+          editRequests.push( pallet.saveEdit() );
+
+        }
+
+      }
+
+      Promise.all( editRequests ).then( _ => {
+        vm.waiting.palletsExpected = false;
+        loadShipment();
+      });
+    }
+
+    async function setAllPalletsToBeProcessed( type, toBeProcessed ) {
+
+      const isConfirmed = await ModalSvc.confirm({
+        header: 'Edit pallets to be listed?',
+        html: `<p>This will set all pallets to ${toBeProcessed ? '' : '<strong>not</strong> ' }be processed. Continue?</p>`,
+      });
+
+      if( !isConfirmed ) {
+        return;
+      }
+
+      vm.waiting.palletsExpected = true;
+
+      const editRequests = [];
+
+      if( type === 'expected' ) {
+
+        for( let pallet of vm.shipment.palletsExpected ) {
+
+          pallet.openEdit();
+          pallet.editValues.toBeProcessed = toBeProcessed;
           editRequests.push( pallet.saveEdit() );
 
         }
@@ -553,7 +588,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
         }
 
         if( receivedPallet ) {
-          uploads.push( PalletManifestSvc.uploadReceivedPalletManifest( receivedPallet, file, options ) );
+          uploads.push( PalletManifestSvc.uploadInventoryPalletManifest( receivedPallet, file, options ) );
         }
 
         if ( expectedPallet ) {
@@ -577,6 +612,11 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     function repackPallet( pallet ) {
       navigate.repackPallet( pallet._id );
     }
+
+    function splitPallet( pallet ) {
+      navigate.splitPallet( pallet._id );
+    }
+
 
     /*******************************************************
      * Receiving
@@ -877,6 +917,7 @@ angular.module('myApp').factory( 'DisplayPalletFactory', [ 'ModalSvc',
         'condition',
         'cost',
         'toBeListed',
+        'toBeProcessed',
         'priceValuePercentage',
       ],
       received: [

@@ -151,7 +151,7 @@ function routes({ eventsDb, inventoryCommander }) {
   // Consolidated pallets
   router.post(
     '/:shipmentId/pallets-consolidated',
-    auth.isAuthorized( 'RECEIVE_INCOMING_SHIPMENT' ),
+    auth.isAuthorizedForAny( 'RECEIVE_INCOMING_SHIPMENT', 'SPLIT_INVENTORY_PALLET' ),
     addIncomingShipmentPalletConsolidated
   );
   router.delete(
@@ -591,7 +591,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
       }
 
-      res.json( { success: true } );
+      res.json( { shipment, pallet } );
     }
     catch(e) {
       return next(e);

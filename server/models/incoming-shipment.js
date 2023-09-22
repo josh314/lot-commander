@@ -27,6 +27,7 @@ const incomingShipmentSchema = mongoose.Schema({
     condition: String,
     isAnonymous: Boolean,
     toBeListed: Boolean,
+    toBeProcessed: Boolean,
   } ],
   palletsReceived: [ {
     type: mongoose.Schema.Types.ObjectId,
@@ -75,7 +76,7 @@ incomingShipmentSchema.virtual( 'cost' )
 
 /***********************
  * IncomingShipment pre hooks
- * 
+ *
  ******/
 incomingShipmentSchema.pre( 'save', function(next) {
 
@@ -129,7 +130,7 @@ incomingShipmentSchema.pre( 'save', function(next) {
 
 /***************************************
  * IncomingShipment document methods
- * 
+ *
  ******/
 
 incomingShipmentSchema.methods.edit = function( data ) {

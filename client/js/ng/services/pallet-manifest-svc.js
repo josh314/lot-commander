@@ -3,11 +3,13 @@ import angular from 'angular';
 /******************* Service for managing pallet manifests ***/
 angular.module('myApp').factory( 'PalletManifestSvc', [
 
+  'InventoryPallet',
   'ManifestFileHandlerSvc',
   'ShipmentManagerSvc',
 
   function(
 
+    InventoryPallet,
     ManifestFileHandlerSvc,
     ShipmentManagerSvc,
 
@@ -15,11 +17,15 @@ angular.module('myApp').factory( 'PalletManifestSvc', [
 
     return {
       loadPalletManifest,
-      uploadReceivedPalletManifest,
+      uploadInventoryPalletManifest,
       uploadExpectedPalletManifest
     };
 
-    async function uploadReceivedPalletManifest( pallet, file, { category, quantity, units, removedItems, retailValue, salePrice } = {} ) {
+    async function uploadInventoryPalletManifest( pallet, file, { category, quantity, units, removedItems, retailValue, salePrice } = {} ) {
+
+      if( !pallet.uploadDocument ) {
+        pallet = new InventoryPallet( pallet );
+      }
 
       const _res = await pallet.uploadDocument( file, { documentType: 'manifest', isRestricted: false } );
 

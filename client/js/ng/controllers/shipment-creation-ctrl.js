@@ -130,6 +130,7 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
     };
     vm.clearPalletUnits = ( ) => vm.inputs.pallets.forEach( p => delete p.units );
     vm.setAllPalletsToBeListed = _toBeListed => vm.inputs.pallets.forEach( p => p.toBeListed = _toBeListed );
+    vm.setAllPalletsToBeProcessed = _toBeProcessed => vm.inputs.pallets.forEach( p => p.toBeProcessed = _toBeProcessed );
     vm.addPallet = () => addPallet({ category: vm.inputs.category, condition: vm.inputs.condition });
     vm.removePallet = removePallet;
     vm.addAnonymousPallets = addAnonymousPallets;
@@ -381,6 +382,7 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
 
       data.condition = data.condition || 'shelf-pull';
       data.toBeListed = data.toBeListed || false;
+      data.toBeProcessed = data.toBeProcessed || false;
 
       vm.inputs.pallets.push( data );
 
@@ -446,14 +448,14 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
           skipFirstRows: 0,
           skipLastRows: 0,
         };
-  
+
         // try to parse and get columns with some default settings
         ManifestFileHandlerSvc.parseFile( manifestDocument.file, defaultParseOptions ).then( manifest => {
 
           let palletNames = manifest.getUniqueValuesInColumnAllSheets( 'Container' );
 
           if( palletNames.length ) { // test if we got any pallet names using the default parse settings
-            
+
             palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category, condition: vm.inputs.condition } ) );
 
             manifestDocument.isImported = true;
@@ -464,13 +466,13 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
             ManifestFileHandlerSvc.launchFileParsingOptionsModal( manifestDocument.name, parseOptions => {
 
               ModalSvc.palletsFromManifest( manifestDocument.file, parseOptions, palletNames => {
-  
+
                 palletNames.forEach( p => addPallet( { handle: p, category: vm.inputs.category, condition: vm.inputs.condition } ) );
-  
+
                 manifestDocument.isImported = true;
-  
+
               });
-  
+
             });
 
           }
