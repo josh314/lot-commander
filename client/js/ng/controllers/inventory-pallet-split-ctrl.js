@@ -387,6 +387,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       vm.allowShipmentNavigation = LoggedInUser.hasPermission('VIEW_INCOMING_SHIPMENT');
 
       vm.displaySplitGroups = [];
+      vm.displaySplitGroupsSorted = [];
 
       Object.assign(
         vm,
@@ -400,6 +401,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
           // manage split groups
           newSplitGroup,
+          bumpCurrentSplitGroup,
 
           splitItem,
 
@@ -422,15 +424,32 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
     function newSplitGroup() {
 
       const data = {
-        label: `split-group-${ vm.displaySplitGroups.length + 1 }`,
+        label: `${ vm.displaySplitGroups.length + 1 }`,
         items: []
       };
 
       const newDisplaySplitGroup = new DisplaySplitGroup( data );
 
       vm.displaySplitGroups.push( newDisplaySplitGroup );
+      vm.displaySplitGroupsSorted = [ newDisplaySplitGroup ].concat( vm.displaySplitGroupsSorted );
 
       vm.currentSplitGroup = newDisplaySplitGroup;
+
+    }
+
+    function bumpCurrentSplitGroup() {
+
+      const currentSplitGroupIdx = vm.displaySplitGroupsSorted.findIndex( grp => grp === vm.currentSplitGroup );
+
+      if( currentSplitGroupIdx >= 0 ) {
+
+        // remove the current split group
+        vm.displaySplitGroupsSorted.splice( currentSplitGroupIdx, 1 );
+
+        // and re-insert in front
+        vm.displaySplitGroupsSorted.splice( 0, 0, vm.currentSplitGroup );
+
+      }
 
     }
 
@@ -508,10 +527,14 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
             vm.displaySplitGroups = JSON.parse( JSON.stringify( vm.pallet.splitGroups ) ).map( _ => new DisplaySplitGroup( _ ) );
 
             if( !vm.displaySplitGroups.length ) {
-              vm.displaySplitGroups.push( new DisplaySplitGroup( { label: 'split-group-1', items: [] } ) );
+              vm.displaySplitGroups.push( new DisplaySplitGroup( { label: '1', items: [] } ) );
             }
 
             vm.currentSplitGroup = vm.displaySplitGroups[0];
+          }
+
+          for( let _ of vm.displaySplitGroups ) {
+            vm.displaySplitGroupsSorted.push( _ );
           }
 
           vm.manifestDisplayRows = getDisplayRowsFromManifest( manifest );
@@ -887,7 +910,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
     }
 
     function splitGroupLabel2PalletHandle( label ) {
-      return `${vm.pallet.handle}__${ label }`;
+      return `${vm.pallet.handle}--${ label }`;
     }
 
   }

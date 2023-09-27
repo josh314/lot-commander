@@ -4,7 +4,7 @@
 
   <section ng-hide="$ctrl.manifest">
 
-    <div>
+    <div class="row">
       <fieldset class="col-xs-12 box-border">
         <legend class="box-border">Search pallets</legend>
         <div class="form-group col-xs-12 col-sm-6">
@@ -91,7 +91,7 @@
       <button class="btn btn-danger" ng-click="$ctrl.cancel()" style="margin-left: 8px;">Cancel</button>
     </div>
 
-    <div>
+    <div class="row">
       <fieldset class="col-xs-12 box-border">
 
         <legend class="box-border">Split item by barcode</legend>
@@ -102,7 +102,7 @@
 
         <div class="form-group col-xs-12 col-sm-6">
           <label for="splitGroupInput">Group</label>
-          <select class="form-control" name="splitGroupInput" ng-model="$ctrl.currentSplitGroup" >
+          <select class="form-control" name="splitGroupInput" ng-model="$ctrl.currentSplitGroup" ng-change="$ctrl.bumpCurrentSplitGroup()">
             <option ng-repeat="$grp in $ctrl.displaySplitGroups track by $index" ng-value="$grp">{{ $grp.label }}</option>
           </select>
         </div>
@@ -110,10 +110,25 @@
       </fieldset>
     </div>
 
-    <div ng-show="$ctrl.displaySplitGroups.length > 0">
-      <h3>Split groups</h3>
+    <div ng-hide="$ctrl.displaySplitGroups.length > 0">
+      <div style="display: flex; justify-content: center; align-items: center;" style="margin-top:8px;">
+        <span>
+          <button class="btn btn-primary" ng-click="$ctrl.newSplitGroup()">New group</button>
+        </span>
+      </div>
+    </div>
 
-      <div ng-repeat="$grp in $ctrl.displaySplitGroups track by $index">
+
+    <div ng-show="$ctrl.displaySplitGroups && $ctrl.displaySplitGroups.length > 0">
+
+      <div style="display: flex; justify-content: space-between; align-items: center;" style="margin-top:8px;">
+        <h3>Split groups</h3>
+        <span>
+          <button class="btn btn-primary btn-sm" ng-click="$ctrl.newSplitGroup()">New group</button>
+        </span>
+      </div>
+
+      <div ng-repeat="$grp in $ctrl.displaySplitGroupsSorted track by $index">
 
         <h4>
           <span ng-hide="$grp.isEditingLabel" style="display: flex; justify-content: space-between;">
@@ -125,6 +140,7 @@
               <input
                 class="form-control"
                 ng-model="$grp.labelEditValue"
+                ng-keyup="$event.keyCode == 13 && $grp.saveLabelEdit()"
               />
             </span>
             <span style="margin-right: 4px;">
@@ -184,12 +200,6 @@
 
       </div>
 
-    </div>
-
-    <div style="display: flex; justify-content: center; align-items: center;" style="margin-top:8px;">
-      <span>
-        <button class="btn btn-primary" ng-click="$ctrl.newSplitGroup()">New group</button>
-      </span>
     </div>
 
     <div>
