@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const enums = require( '../modules/enums' );
+const { shippingItemSchema } = require( './shipping-item' );
 
 const inventoryPalletSchema = mongoose.Schema({
   handle: String,
@@ -39,6 +41,12 @@ const inventoryPalletSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Lot'
   },
+
+  /******* Shipping properties ***************/
+
+  packagingType: { type: String, enum: enums.packagingType },
+  shippingItems: [ shippingItemSchema ],
+
   isReceived: Boolean,
   isDeleted: Boolean,
   deletedDate: Date
