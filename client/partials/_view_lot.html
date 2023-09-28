@@ -23,29 +23,18 @@
           <b>Packaging Type: </b>{{ $ctrl.lot.packagingType }}<br>
           <span ng-show="$ctrl.lot.numBoxes"><b>Number of Boxes: </b>{{ $ctrl.lot.getNumBoxes() }}<br></span>
           <span ng-hide="$ctrl.lot.numBoxes"><b>Shipping Items: </b>{{ $ctrl.lot.getShippingItems().length }} <small>[<a href ng-click="$ctrl.toggleShowShippingItems()">{{ $ctrl.showShippingItems ? "Hide Details" : "Show Details" }}</a>]</small><br></span>
+
           <div class="well" ng-show="$ctrl.showShippingItems">
-            <table class="table table-striped">
-              <thead><tr>
-                <th>Item No.</th>
-                <th>Weight</th>
-                <th>Height</th>
-                <th>Length</th>
-                <th>Width</th>
-              </tr></thead>
-              <tbody>
-                <tr ng-repeat="$item in $ctrl.lot.getShippingItems() track by $index">
-                  <td>{{ $index + 1 }}</td>
-                  <td>{{ $item.weight ? $item.weight + " " + $item.weightUnits : ''}}</td>
-                  <td>{{ $item.height ? $item.height + " " + $item.heightUnits : ''}}</td>
-                  <td>{{ $item.length ? $item.length + " " + $item.lengthUnits : ''}}</td>
-                  <td>{{ $item.width ? $item.width + " " + $item.widthUnits : ''}}</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="text-center" ng-show="$ctrl.showEditingControls">
-              <button class="btn btn-primary btn-sm" ng-click="$ctrl.editShippingItems()">Edit Shipping Items</button>
-            </div>
+            <shipping-items-dir
+              shipping-items="$ctrl.lot.getShippingItems()"
+              show-editing-controls="$ctrl.showEditingControls"
+              edit-shipping-items-cb="$ctrl.editShippingItemsCb"
+            >
+            </shipping-items-dir>
           </div>
+
+
+
 					<b>Status: </b>{{ $ctrl.lot.getStatus() }}<br>
           <span ng-show="$ctrl.lot.pallet"><b>Pallet: </b> <a ng-click="$ctrl.showPalletDetails()">{{ $ctrl.lot.pallet.handle }}</a><br></span>
 					<div class="row">

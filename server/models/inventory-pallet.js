@@ -14,7 +14,9 @@ const inventoryPalletSchema = mongoose.Schema({
     category: String,
     condition: String,
     toBeListed: Boolean,
-    items: [ Object ]
+    items: [ Object ],
+    packagingType: { type: String, enum: enums.packagingType },
+    shippingItems: [ shippingItemSchema ]
   } ],
   splitFrom: { // parent pallet that this pallet was split from
     type: mongoose.Schema.Types.ObjectId,

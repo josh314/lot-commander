@@ -34,7 +34,7 @@ function routes({ bstock, listings, quickLots }) {
 
     const dbEnums = {
       lotStatus: enums.lotStatus,
-lotType: enums.condition,
+      lotType: enums.condition,
       marketplaces: enums.marketplace,
       packagingType: enums.packagingType,
       weightUnits: enums.weightUnits,

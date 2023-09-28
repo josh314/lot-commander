@@ -833,6 +833,8 @@ class InventoryCommander {
     const correspondingPalletExpected = shipment.getPalletExpectedByHandle( _palletData.handle );
 
     const basePalletObject = {
+      packagingType: 'pallets',
+      shippingItems: [],
       isReceived: true,
       isRepacked: false,
       shipment: shipment._id,

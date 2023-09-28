@@ -94,10 +94,69 @@ angular.module('myApp').service('ShippingItemsSvc', [ 'dbEnums', function( dbEnu
     return JSON.parse( JSON.stringify( $_ ) );
   }
 
+  // this function only passes through the core shippingItem data, stripping out angularJS book-keeping data such as $$hashkey
+  function clean( shippingItem ) {
+
+    const {
+      weight,
+      weightUnits,
+      height,
+      heightUnits,
+      length,
+      lengthUnits,
+      width,
+      widthUnits
+    } = shippingItem;
+
+    return {
+      weight,
+      weightUnits,
+      height,
+      heightUnits,
+      length,
+      lengthUnits,
+      width,
+      widthUnits
+    };
+
+  }
+
+  function compare( a, b ) {
+    if( a.weight !== b.weight ) {
+      return a.weight < b.weight ? -1 : 1;
+    }
+    else if( dbEnums.weightUnits.findIndex( _ => _ === a.weightUnits ) !== dbEnums.weightUnits.findIndex( _ => _ === a.weightUnits ) ) {
+      return dbEnums.weightUnits.findIndex( _ => _ === a.weightUnits ) < dbEnums.weightUnits.findIndex( _ => _ === a.weightUnits ) ? -1 : 1;
+    }
+    else if( a.width !== b.width ) {
+      return a.width < b.width ? -1 : 1;
+    }
+    else if( dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) !== dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) ) {
+      return dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) < dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) ? -1 : 1;
+    }
+    else if( a.height !== b.height ) {
+      return a.height < b.height ? -1 : 1;
+    }
+    else if( dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) !== dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) ) {
+      return dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) < dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) ? -1 : 1;
+    }
+    else if( a.length !== b.length ) {
+      return a.length < b.length ? -1 : 1;
+    }
+    else if( dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) !== dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) ) {
+      return dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) < dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) ? -1 : 1;
+    }
+    else {
+      return 1;
+    }
+  }
+
   return {
     //methods
     getPalletBreakdownServiceConfiguration,
     getPreset,
+    clean,
+    compare,
 
     // constants
     presets,

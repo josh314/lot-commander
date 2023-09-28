@@ -54,38 +54,84 @@
 
   <section ng-show="$ctrl.manifest">
 
-    <div ng-show="$ctrl.pallet">
+    <div class="col-xs-12" ng-show="$ctrl.pallet">
       <dl>
 
-          <dt>Pallet ID</dt>
-          <dd>
-            {{ $ctrl.pallet.handle }}
-          </dd>
+        <dt>Pallet ID</dt>
+        <dd>
+          {{ $ctrl.pallet.handle }}
+        </dd>
 
-          <dt ng-show="$ctrl.pallet.shipment && $ctrl.pallet.shipment.handle">Shipment ID</dt>
-          <dd ng-show="$ctrl.pallet.shipment && $ctrl.pallet.shipment.handle">
-            <span ng-show="$ctrl.allowShipmentNavigation">
-              <a ng-href="/shipments/{{$ctrl.pallet.shipment._id}}">
-                {{ $ctrl.pallet.shipment.handle }}
-              </a>
-            </span>
-            <span ng-hide="$ctrl.allowShipmentNavigation">
+        <dt ng-show="$ctrl.pallet.shipment && $ctrl.pallet.shipment.handle">Shipment ID</dt>
+        <dd ng-show="$ctrl.pallet.shipment && $ctrl.pallet.shipment.handle">
+          <span ng-show="$ctrl.allowShipmentNavigation">
+            <a ng-href="/shipments/{{$ctrl.pallet.shipment._id}}">
               {{ $ctrl.pallet.shipment.handle }}
-            </span>
-          </dd>
+            </a>
+          </span>
+          <span ng-hide="$ctrl.allowShipmentNavigation">
+            {{ $ctrl.pallet.shipment.handle }}
+          </span>
+        </dd>
 
+        <dt>Packaging Type <span class="glyphicon glyphicon-question-sign" ng-click="$ctrl.openPackagingTypeInfo()"></span></dt>
+        <dd>
 
-          <dt>Total units split out</dt>
+          [<a href ng-click="$ctrl.toggleShowPackagingType()">{{ $ctrl.showPackagingType ? "Hide Details" : "Show Details" }}</a>]
+
+          <div class="well" ng-show="$ctrl.showPackagingType">
+            <div class="row">
+              <div ng-repeat="$grp in $ctrl.displaySplitGroups track by $index">
+                <div class="form-group col-xs-3">
+                  <label for="packagingTypeInput__{{ $grp.label }}">Group: {{ $grp.label }}</label>
+                  <select class="form-control" name="packagingType" id="packagingTypeInput__{{ $grp.label }}" required ng-model="$grp.packagingType">
+                    <option ng-repeat="$packagingType in $ctrl.packagingTypeOptions">{{ $packagingType }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </dd>
+
+        <dt>Shipping Items</dt>
+        <dd>
+
+          [<a href ng-click="$ctrl.toggleShowShippingItems()">{{ $ctrl.showShippingItems ? "Hide Details" : "Show Details" }}</a>]
+
+          <div class="well" ng-show="$ctrl.showShippingItems">
+            <div ng-repeat="$grp in $ctrl.displaySplitGroups track by $index">
+              <strong>{{ $grp.label }}</strong>
+              <shipping-items-dir
+                shipping-items="$grp.shippingItems"
+                show-editing-controls="true"
+                edit-shipping-items-cb="$grp.setShippingItems"
+                skip-validation="true"
+              >
+              </shipping-items-dir>
+            </div>
+          </div>
+
+        </dd>
+
+        <dt>Total units split out</dt>
+        <dd>
+          {{ $ctrl.totalUnitsSplit() }}
+        </dd>
+
+        <div ng-repeat="$grp in $ctrl.displaySplitGroups track by $index">
+          <dt>Units in group <u>{{ $grp.label }}</u></dt>
           <dd>
-            {{ $ctrl.totalUnitsSplit() }}
+            <span class="text-danger">{{ $grp.totalUnits() }}</span>
           </dd>
+        </div>
 
 
       </dl>
 
     </div>
 
-    <div style="display: flex; justify-content: flex-end;">
+    <div class="col-xs-12" style="display: flex; justify-content: flex-end;">
       <button class="btn btn-primary" ng-click="$ctrl.save()" ng-disabled="$ctrl.splitGroupsUnchanged()">Save progress</button>
       <button class="btn btn-success" ng-click="$ctrl.finish()" style="margin-left: 8px;">Finish</button>
       <button class="btn btn-danger" ng-click="$ctrl.cancel()" style="margin-left: 8px;">Cancel</button>
@@ -132,7 +178,10 @@
 
         <h4>
           <span ng-hide="$grp.isEditingLabel" style="display: flex; justify-content: space-between;">
-            <span><strong>{{ $grp.label }}</strong></span>
+            <span>
+              <strong>{{ $grp.label }}</strong>
+              <small ng-show="$ctrl.showDeveloper"> ( _id: {{ $grp._id }} )</small>
+            </span>
             <span>(<a ng-click="$grp.startEditingLabel()">Edit group label</a>)</span>
           </span>
           <span ng-show="$grp.isEditingLabel" style="display: flex;">
@@ -151,6 +200,24 @@
             </span>
           </span>
         </h4>
+
+        <!-- <div class="row">
+
+          <div class="form-group col-xs-3">
+            <label for="packagingTypeInput">Packaging Type <span class="glyphicon glyphicon-question-sign" ng-click="$ctrl.openPackagingTypeInfo()"></span></label>
+            <select class="form-control" name="packagingType" id="packagingTypeInput" required ng-model="$grp.packagingType">
+              <option ng-repeat="$packagingType in $ctrl.packagingTypeOptions">{{ $packagingType }}</option>
+            </select>
+          </div>
+
+          <div class="col-xs-3">
+
+            <button class="btn btn-primary btn-sm" ng-click="$grp.editShippingItems()">Edit shipping items</button>
+          </div>
+
+
+        </div> -->
+
         <table class="table table-striped table-bordered">
           <thead>
             <th>Barcode</th>

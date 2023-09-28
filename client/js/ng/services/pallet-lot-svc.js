@@ -48,6 +48,8 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
 
     async function createLot( pallet, { handle, marketplace, status, packagingType = 'pallets' } = {} ) {
 
+      packagingType = pallet.packagingType || packagingType;
+
       const palletLotCounter = await CounterSvc.incrementPalletLotCounter();
 
       const handleToSubmit = handle || `${ pallet.shipment && pallet.shipment.handle ? `${pallet.shipment.handle}--` : '' }${pallet.handle}--${palletLotCounter.count}`;
@@ -64,16 +66,15 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
       const title = `Pallet #${palletLotCounter.count}`;
 
       const _data = {
-        // TODO: estimatedRetailValue (can read this from a standard manifest),
         handle: handleToSubmit,
         pallet: pallet._id,
         listingData: {
           title,
         },
-        packagingType: packagingType,
+        packagingType,
         category: pallet.category,
         type: pallet.condition,
-        shippingItems: getPackagingTypeShippingItems( packagingType ),
+        shippingItems: pallet.shippingItems || getPackagingTypeShippingItems( packagingType ),
         unmanifested: !pallet.hasManifest(),
         destinationMarketplace: marketplace || 'wholesaleninjas',
         status

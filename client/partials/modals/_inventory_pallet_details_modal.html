@@ -20,6 +20,12 @@
       </label>
       <input class="form-control" type="text" id="shipmentInput" ng-model="$ctrl.inputs.shipment.handle" disabled>
     </div>
+    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.inputs.splitFrom">
+      <label for="splitFromInput" style="display: flex; justify-content: space-between;">
+        <span>Pallet split from</span>
+      </label>
+      <input class="form-control" type="text" id="splitFromInput" ng-model="$ctrl.inputs.splitFrom.handle" disabled>
+    </div>
     <div class="form-group col-xs-12 col-sm-6"  ng-class="{ 'has-error' : $ctrl.errors.invalidCost }" ng-show="$ctrl.showPurchasingData">
       <label for="costInput">Cost</label>
       <input class="form-control" type="number" id="costInput" ng-model="$ctrl.inputs.cost" ng-change="$ctrl.validate()" ng-disabled="$ctrl.disableEditing">
@@ -121,6 +127,21 @@
     <div class="form-group col-xs-12">
       <label for="noteInput">Note</label>
       <textarea class="form-control" rows=2 id="noteInput" ng-model="$ctrl.inputs.note"></textarea ng-disabled="$ctrl.disableEditing">
+    </div>
+    <div class="form-group col-xs-12 col-sm-6">
+			<label for="packagingTypeInput">Packaging Type <span class="glyphicon glyphicon-question-sign" ng-click="$ctrl.openPackagingTypeInfo()"></span></label>
+			<select class="form-control" name="packagingType" id="packagingTypeInput" required ng-model="$ctrl.inputs.packagingType">
+				<option ng-repeat="packagingType in $ctrl.packagingTypeEnum">{{ packagingType }}</option>
+			</select>
+		</div>
+    <div class="col-xs-12">
+      <h5>Shipping Items</h5>
+      <shipping-items-dir
+        shipping-items="$ctrl.inputs.shippingItems"
+        show-editing-controls="!$ctrl.disableEditing"
+        edit-shipping-items-cb="$ctrl.editShippingItemsCb"
+      >
+      </shipping-items-dir>
     </div>
   </div>
 </div>

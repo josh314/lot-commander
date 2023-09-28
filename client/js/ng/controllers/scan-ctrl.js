@@ -41,7 +41,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
     vm.deleteInventoryItem = deleteInventoryItem;
     vm.decrementInventory = decrementInventory;
     vm.saveManifest = saveManifest;
-    vm.editShippingItems = editShippingItems;
+    vm.openEditShippingItemsModal = openEditShippingItemsModal;
     vm.scanBarcode = scanBarcode;
 
     vm.numLotBoxes = lotStore.numBoxes;
@@ -131,19 +131,22 @@ angular.module('myApp').controller( 'ScanCtrl', [
       save().then(()=> navigate.reload());
     }
 
-    function editShippingItems() {
-      return ModalSvc.shippingItems()
-        .then(shippingItems => {
-          if(shippingItems) {
-            lotStore.shippingItems = shippingItems;
-            return LotSvc.edit( lotStore._id, lotStore ).then( _resp => {
-              return true;
-            });
-          }
-          else {
-            return false;
-          }
+    function openEditShippingItemsModal() {
+      return ModalSvc.shippingItems( lotStore.shippingItems )
+        .then( editShippingItemsCb );
+    }
+
+
+    function editShippingItemsCb( shippingItems ) {
+      if(shippingItems) {
+        lotStore.shippingItems = shippingItems;
+        return LotSvc.edit( lotStore._id, lotStore ).then( _resp => {
+          return true;
         });
+      }
+      else {
+        return false;
+      }
     }
 
     refreshDisplayInventory();
