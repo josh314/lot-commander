@@ -54,7 +54,7 @@
 
   <section ng-show="$ctrl.manifest">
 
-    <div ng-show="$ctrl.pallet">
+    <div ng-show="$ctrl.pallet" style="display:flex; justify-content:space-between;">
       <dl>
 
           <dt>Pallet ID</dt>
@@ -80,6 +80,13 @@
             {{ $ctrl.totalUnitsSplit() }}
           </dd>
 
+
+          <div ng-repeat="$grp in $ctrl.displaySplitGroups track by $index">
+            <dt>Units in group <u>{{ $grp.label }}</u></dt>
+            <dd>
+              <span class="text-danger">{{ $grp.totalUnits() }}</span>
+            </dd>
+          </div>
 
       </dl>
 
