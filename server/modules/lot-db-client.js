@@ -87,6 +87,9 @@ exports.Client = function( { Lot } ) {
     if(lot.handle) {
       updateDocument.handle = lot.handle;
     }
+    if(lot.lotNumber) {
+      updateDocument.lotNumber = lot.lotNumber;
+    }
     if('description' in lot) {
       updateDocument.description = lot.description;
     }

@@ -4,6 +4,7 @@ const { shippingItemSchema } = require( './shipping-item' );
 
 const inventoryPalletSchema = mongoose.Schema({
   handle: String,
+  lotNumber: Number,
   category: String,
   condition: String,
   cost: Number,
@@ -11,6 +12,7 @@ const inventoryPalletSchema = mongoose.Schema({
   removedItems: [ Object ], // LEGACY
   splitGroups: [ {
     label: String,
+    lotNumber: Number,
     category: String,
     condition: String,
     toBeListed: Boolean,

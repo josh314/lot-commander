@@ -222,6 +222,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
         const editFields = [
           'handle',
+          'lotNumber',
           'category',
           'condition',
           'units',
@@ -242,7 +243,11 @@ angular.module('myApp').factory( 'InventoryPallet', [
         const editDoc = {};
 
         for( let f of editFields ) {
-          editDoc[ f ] = _data[ f ];
+
+          if( f in _data ) {
+            editDoc[ f ] = _data[ f ];
+          }
+
         }
 
         return editDoc;
@@ -256,8 +261,8 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
           if( !resp || !resp.pallet ) return;
 
-          for( let [ modifiedField, newValue ] of Object.entries( editDoc ) ) {
-            this[ modifiedField ] = newValue;
+          for( let modifiedField of Object.keys( editDoc ) ) {
+            this[ modifiedField ] = resp.pallet[ modifiedField ];
           }
 
           return this;

@@ -82,7 +82,7 @@
           <div class="well" ng-show="$ctrl.showPackagingType">
             <div class="row">
               <div ng-repeat="$grp in $ctrl.displaySplitGroups track by $index">
-                <div class="form-group col-xs-3">
+                <div class="form-group col-xs-12 col-sm-3">
                   <label for="packagingTypeInput__{{ $grp.label }}">Group: {{ $grp.label }}</label>
                   <select class="form-control" name="packagingType" id="packagingTypeInput__{{ $grp.label }}" required ng-model="$grp.packagingType">
                     <option ng-repeat="$packagingType in $ctrl.packagingTypeOptions">{{ $packagingType }}</option>
@@ -111,6 +111,29 @@
               </shipping-items-dir>
             </div>
           </div>
+
+        </dd>
+
+        <dt>Labels</dt>
+
+          [<a href ng-click="$ctrl.toggleShowPrintLabelsControls()">{{ $ctrl.showPrintLabelsControls ? "Hide Details" : "Show Details" }}</a>]
+
+          <div class="well" ng-show="$ctrl.showPrintLabelsControls">
+            <div class="row">
+
+              <div ng-repeat="$grp in $ctrl.displaySplitGroups track by $index">
+                <div class="col-xs-12 col-sm-3" style="display:flex; flex-direction:column; align-items:center;">
+                  <strong>{{ $grp.label }}</strong>
+                  <span>
+                    <button class="btn btn-primary btn-xs" ng-click="$ctrl.printLabels( $grp )">Print labels</button>
+                  </span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        <dd>
 
         </dd>
 

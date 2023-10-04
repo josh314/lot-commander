@@ -13,6 +13,7 @@ const lotSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  lotNumber: Number,
   pallet: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'InventoryPallet'

@@ -46,13 +46,21 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
     }
 
 
-    async function createLot( pallet, { handle, marketplace, status, packagingType = 'pallets' } = {} ) {
+    async function createLot( pallet, { lotNumber, handle, marketplace, status, packagingType = 'pallets' } = {} ) {
 
       packagingType = pallet.packagingType || packagingType;
 
-      const palletLotCounter = await CounterSvc.incrementPalletLotCounter();
+      if( !lotNumber ) {
+        if( pallet.lotNumber ) {
+          lotNumber = pallet.lotNumber;
+        }
+        else {
+          const palletLotCounter = await CounterSvc.incrementPalletLotCounter();
+          lotNumber = palletLotCounter.count;
+        }
+      }
 
-      const handleToSubmit = handle || `${ pallet.shipment && pallet.shipment.handle ? `${pallet.shipment.handle}--` : '' }${pallet.handle}--${palletLotCounter.count}`;
+      const handleToSubmit = handle || `${ pallet.shipment && pallet.shipment.handle ? `${pallet.shipment.handle}--` : '' }${pallet.handle}--${lotNumber}`;
 
       const existingLot = await LotSvc.getLotByHandle( handleToSubmit );
 
@@ -63,10 +71,11 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
 
       }
 
-      const title = `Pallet #${palletLotCounter.count}`;
+      const title = `Pallet #${lotNumber}`;
 
       const _data = {
         handle: handleToSubmit,
+        lotNumber,
         pallet: pallet._id,
         listingData: {
           title,
@@ -109,7 +118,7 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
 
           const arrayBuffer = await pallet.getDocument( manifest.name );
 
-          const manifestFilename = `pallet-${ palletLotCounter.count }.xlsx`;
+          const manifestFilename = `pallet-${ lotNumber }.xlsx`;
           const file = new File( [ arrayBuffer ] , manifestFilename );
 
           await api.uploadLotManifestFile( lot._id, file, manifestFilename );

@@ -1,6 +1,14 @@
 const PDFDocument = require('pdfkit');
 const { createCanvas } = require('canvas');
 const JsBarcode = require('jsbarcode');
+const dayjs = require( 'dayjs' );
+
+const __LABEL_DIMENSIONS__ = [
+  {
+    width: 162,// 72/in * 2.25 in
+    height: 90, // 72/in * 1.25 in
+  }
+];
 
 function createNumBoxesLabels(opts={}) {
 
@@ -314,9 +322,81 @@ function createPackageLabels( packages ) {
   return doc;
 }
 
+function createPalletSplitGroupLabels( splitGroup, pallet ) {
+
+  const labelDims = __LABEL_DIMENSIONS__[0];
+
+  const doc = new PDFDocument({ autoFirstPage: false });
+
+
+  for( let i=0; i<splitGroup.shippingItems.length; i++ ) {
+
+    const shippingItem = splitGroup.shippingItems[i];
+
+    doc.addPage({
+      margins: {
+        top: 5,
+        bottom: 5,
+        left: 10,
+        right: 10
+      },
+      size: [ labelDims.width , labelDims.height ]
+    });
+    doc.fontSize(8);
+
+
+    doc
+      .fontSize(5)
+      .font('Helvetica').text(
+        `[ ${getShippingItemDimString( shippingItem )} ] (${ i+1 } of ${ splitGroup.shippingItems.length })`,
+        {
+          align: 'center',
+        }
+      );
+
+    if( splitGroup.label ) {
+
+      doc.moveDown();
+
+      doc
+        .font('Helvetica').text(`Split group label: `, { continued: true })
+        .font('Helvetica-Bold').text(`${splitGroup.label}`, { underline: true });
+    }
+
+    if( pallet ) {
+
+      doc.moveDown();
+
+      doc
+        .font('Helvetica').text(`Pallet: `, { continued: true })
+        .font('Helvetica-Bold').text(`${pallet.handle}`, { underline: true });
+    }
+
+    if( pallet && pallet.shipment && pallet.shipment.handle ) {
+
+      doc.moveDown();
+
+      doc
+        .font('Helvetica').text(`Shipment: `, { continued: true })
+        .font('Helvetica-Bold').text(`${pallet.shipment.handle}`, { underline: true });
+    }
+
+
+    doc.moveDown();
+    doc
+      .font('Helvetica').text(`Date: `, { continued: true })
+      .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
+
+  }
+
+  doc.end();
+  return doc;
+}
+
 module.exports = {
   createPackageLabels,
   createPalletLabels,
+  createPalletSplitGroupLabels,
   createLotLabels,
-  createPickReceipt
+  createPickReceipt,
 };

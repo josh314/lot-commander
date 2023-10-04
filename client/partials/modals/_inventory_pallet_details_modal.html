@@ -2,17 +2,25 @@
   <h3 class="modal-title">Pallet Details</h3>
 </div>
 <div class="modal-body">
+
   <div class="row">
+    <div class="form-group col-xs-12" ng-show="$ctrl.showDeveloper">
+      <label for="_idInput">_id (development use only)</label>
+      <input class="form-control" type="text" id="_idInput" ng-model="$ctrl.inputs._id" disabled>
+    </div>
     <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.errors.emptyHandle || $ctrl.errors.duplicateHandle }">
       <label for="handleInput">Handle</label>
       <input class="form-control" type="text" id="handleInput" ng-model="$ctrl.inputs.handle" ng-change="$ctrl.validate()" ng-disabled="$ctrl.disableEditing">
       <span class="text-danger h4" ng-show="$ctrl.errors.duplicateHandle">Duplicate handle</span>
       <span class="text-danger h4" ng-show="$ctrl.errors.emptyHandle">Missing handle</span>
     </div>
-    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showDeveloper">
-      <label for="_idInput">_id (development use only)</label>
-      <input class="form-control" type="text" id="_idInput" ng-model="$ctrl.inputs._id" disabled>
+    <div class="form-group col-xs-12 col-sm-6">
+      <label for="lotNumberInput">Lot number</label>
+      <input class="form-control" type="text" id="lotNumberInput" ng-model="$ctrl.inputs.lotNumber" disabled>
     </div>
+  </div>
+
+  <div class="row">
     <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showShipment">
       <label for="shipmentInput" style="display: flex; justify-content: space-between;">
         <span>Shipment</span>
@@ -22,19 +30,25 @@
     </div>
     <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.inputs.splitFrom">
       <label for="splitFromInput" style="display: flex; justify-content: space-between;">
-        <span>Pallet split from</span>
+        <span>Split from pallet</span>
       </label>
       <input class="form-control" type="text" id="splitFromInput" ng-model="$ctrl.inputs.splitFrom.handle" disabled>
     </div>
-    <div class="form-group col-xs-12 col-sm-6"  ng-class="{ 'has-error' : $ctrl.errors.invalidCost }" ng-show="$ctrl.showPurchasingData">
+  </div>
+
+  <div class="row" ng-show="$ctrl.showPurchasingData">
+    <div class="form-group col-xs-12 col-sm-6"  ng-class="{ 'has-error' : $ctrl.errors.invalidCost }">
       <label for="costInput">Cost</label>
       <input class="form-control" type="number" id="costInput" ng-model="$ctrl.inputs.cost" ng-change="$ctrl.validate()" ng-disabled="$ctrl.disableEditing">
       <span class="text-danger h6" ng-show="$ctrl.errors.invalidCost">Invalid cost</span>
     </div>
-    <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showPurchasingData">
+    <div class="form-group col-xs-12 col-sm-6">
       <label for="proceedsInput">Proceeds</label>
       <input class="form-control" type="number" id="proceedsInput" ng-model="$ctrl.inputs.proceeds" disabled>
     </div>
+  </div>
+
+  <div class="row">
     <div class="form-group col-xs-12 col-sm-6" >
       <label for="unitsInput">Units</label>
       <input class="form-control" type="number" id="unitsInput" ng-model="$ctrl.inputs.units" ng-disabled="$ctrl.disableEditing">
@@ -128,6 +142,9 @@
       <label for="noteInput">Note</label>
       <textarea class="form-control" rows=2 id="noteInput" ng-model="$ctrl.inputs.note"></textarea ng-disabled="$ctrl.disableEditing">
     </div>
+  </div>
+
+  <div class="row">
     <div class="form-group col-xs-12 col-sm-6">
 			<label for="packagingTypeInput">Packaging Type <span class="glyphicon glyphicon-question-sign" ng-click="$ctrl.openPackagingTypeInfo()"></span></label>
 			<select class="form-control" name="packagingType" id="packagingTypeInput" required ng-model="$ctrl.inputs.packagingType">
@@ -144,6 +161,7 @@
       </shipping-items-dir>
     </div>
   </div>
+
 </div>
 <div class="modal-footer">
     <span ng-hide="$ctrl.disableEditing">
