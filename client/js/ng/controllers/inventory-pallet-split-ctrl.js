@@ -54,7 +54,6 @@ function isHandleShipmentPalletDuplicate( handle, shipment ) {
 angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
   'AudioAlertSvc',
-  'CounterSvc',
   'dbEnums',
   'FinishSplitPalletModal',
   'focus',
@@ -74,7 +73,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
   function(
 
     AudioAlertSvc,
-    CounterSvc,
     dbEnums,
     FinishSplitPalletModal,
     focus,

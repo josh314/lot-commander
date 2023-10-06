@@ -316,8 +316,8 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         }
       },
 
-      controller: [ '$scope', 'dbEnums', 'LoggedInUser', 'navigate', 'PackagingTypeInfoModalSvc', 'pallet', 'palletProperties',
-        function( $scope, dbEnums, LoggedInUser, navigate, PackagingTypeInfoModalSvc, pallet, palletProperties ){
+      controller: [ '$scope', 'CounterSvc', 'dbEnums', 'LoggedInUser', 'navigate', 'PackagingTypeInfoModalSvc', 'pallet', 'palletProperties',
+        function( $scope, CounterSvc, dbEnums, LoggedInUser, navigate, PackagingTypeInfoModalSvc, pallet, palletProperties ){
 
           const vm = this;
           vm.pallet = pallet;
@@ -357,6 +357,10 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
           vm.finish = () => {
             return $scope.$close( vm.inputs );
           };
+
+          vm.generateLotNumber = () => CounterSvc.incrementPalletLotCounter().then( counter => {
+            vm.inputs.lotNumber = counter.count;
+          } );
 
           vm.navigateToShipment = () => {
             if( vm.inputs.shipment._id ) {
