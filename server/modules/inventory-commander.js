@@ -370,11 +370,15 @@ function getShipmentDateRangeMatchDocument( { startDate, endDate, dateField = 'c
 
 class InventoryCommander {
   constructor( {
+    // models
     IncomingShipment,
     Package,
     Bundle,
     InventoryPallet,
     ShopifyOrder,
+
+    // other modules
+    countCommander,
   } ) {
 
     Object.assign(
@@ -385,6 +389,7 @@ class InventoryCommander {
         Bundle,
         InventoryPallet,
         ShopifyOrder,
+        countCommander
       }
     );
 
@@ -1099,6 +1104,22 @@ class InventoryCommander {
 
         if( duplicatePallet ) {
           throw new IllegalActionError( `A pallet with the handle '${_editDocument.handle}' already exists for the shipment ${shipment._id}.`, 'DUPLICATE_PALLET_HANDLE' );
+        }
+
+      }
+
+    }
+
+    if( _editDocument.splitGroups ) {
+
+      for( let splitGroup of _editDocument.splitGroups ) {
+
+        if( !splitGroup.lotNumber ) {
+
+          const counter = await this.countCommander.incrementCounter( 'pallet-lots' , 1 );
+
+          splitGroup.lotNumber = counter.count;
+
         }
 
       }

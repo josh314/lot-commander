@@ -342,8 +342,6 @@ function createPalletSplitGroupLabels( splitGroup, pallet ) {
       },
       size: [ labelDims.width , labelDims.height ]
     });
-    doc.fontSize(8);
-
 
     doc
       .fontSize(5)
@@ -352,38 +350,49 @@ function createPalletSplitGroupLabels( splitGroup, pallet ) {
         {
           align: 'center',
         }
-      );
+      )
+      .moveDown();
+
+    if( splitGroup.lotNumber ) {
+
+      doc
+        .fontSize(12)
+        .font('Helvetica').text(`Lot number: `, { continued: true })
+        .font('Helvetica-Bold').text(`${splitGroup.lotNumber}`, { underline: true });
+    }
 
     if( splitGroup.label ) {
 
-      doc.moveDown();
-
       doc
+        .fontSize(5)
+        .moveDown()
         .font('Helvetica').text(`Split group label: `, { continued: true })
         .font('Helvetica-Bold').text(`${splitGroup.label}`, { underline: true });
     }
 
     if( pallet ) {
 
-      doc.moveDown();
 
       doc
+        .fontSize(5)
+        .moveDown()
         .font('Helvetica').text(`Pallet: `, { continued: true })
         .font('Helvetica-Bold').text(`${pallet.handle}`, { underline: true });
     }
 
     if( pallet && pallet.shipment && pallet.shipment.handle ) {
 
-      doc.moveDown();
 
       doc
+        .fontSize(5)
+        .moveDown()
         .font('Helvetica').text(`Shipment: `, { continued: true })
         .font('Helvetica-Bold').text(`${pallet.shipment.handle}`, { underline: true });
     }
 
-
-    doc.moveDown();
     doc
+      .fontSize(5)
+      .moveDown()
       .font('Helvetica').text(`Date: `, { continued: true })
       .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
 

@@ -481,8 +481,13 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
     function newSplitGroup() {
 
+      let proposedLabel = 1;
+      while( vm.displaySplitGroups.find( _ => _.label === `${proposedLabel}` ) ) {
+        proposedLabel++;
+      }
+
       const data = {
-        label: `${ vm.displaySplitGroups.length + 1 }`,
+        label: `${ proposedLabel }`,
         items: [],
         shippingItems: [],
       };
@@ -585,7 +590,10 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           if( vm.pallet.splitGroups ) {
             vm.displaySplitGroups = JSON.parse( JSON.stringify( vm.pallet.splitGroups ) ).map( _ => new DisplaySplitGroup( _ ) );
 
-            if( !vm.displaySplitGroups.length ) {
+            if( vm.displaySplitGroups.length ) {
+              vm.displaySplitGroupsSorted = vm.displaySplitGroups.map( _ => _ );
+            }
+            else {
               newSplitGroup();
             }
 
@@ -790,12 +798,13 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
       for( let splitGroup of vm.displaySplitGroups ) {
 
-        // This updates the _id of any split groups that were created since the last save
-        if( !splitGroup._id ) {
+        // This updates the _id and/or lotNumber of any split groups that were created since the last save
+        if( !splitGroup._id || !splitGroup.lotNumber ) {
 
-          const newSavedSplitGroup = pallet.splitGroups.find( _ => _.label === splitGroup.label );
+          const match = pallet.splitGroups.find( _ => _.label === splitGroup.label );
 
-          splitGroup._id = newSavedSplitGroup._id;
+          splitGroup._id = splitGroup._id || match._id;
+          splitGroup.lotNumber = splitGroup.lotNumber || match.lotNumber;
 
         }
 
@@ -986,13 +995,15 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         return;
       }
 
+      // save the final splitGroups
+      await __saveProgress();
+
       // create new consolidated pallets
       const { success } = await createNewPallets();
 
       if( success ) {
 
-        // save the final splitGroups and mark pallet as broken-down
-        await __saveProgress();
+        //  mark pallet as broken-down
         await vm.pallet.breakdown( true );
 
         await ModalSvc.message( { header: 'Splitting complete', body: `Successfully created new split pallets.` } );
