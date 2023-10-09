@@ -869,6 +869,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
         populate: [
           'pallets_received',
           'pallets_consolidated',
+          'pallets_consolidated.split_from',
           'packages'
         ],
         hydratePalletObjects: true,

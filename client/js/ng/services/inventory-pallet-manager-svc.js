@@ -222,6 +222,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
         const editFields = [
           'handle',
+          'lotNumber',
           'category',
           'condition',
           'units',
@@ -234,13 +235,19 @@ angular.module('myApp').factory( 'InventoryPallet', [
           'toBeListed',
           'toBeProcessed',
           'hasProblem',
-          'note'
+          'note',
+          'packagingType',
+          'shippingItems',
         ];
 
         const editDoc = {};
 
         for( let f of editFields ) {
-          editDoc[ f ] = _data[ f ];
+
+          if( f in _data ) {
+            editDoc[ f ] = _data[ f ];
+          }
+
         }
 
         return editDoc;
@@ -254,8 +261,8 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
           if( !resp || !resp.pallet ) return;
 
-          for( let [ modifiedField, newValue ] of Object.entries( editDoc ) ) {
-            this[ modifiedField ] = newValue;
+          for( let modifiedField of Object.keys( editDoc ) ) {
+            this[ modifiedField ] = resp.pallet[ modifiedField ];
           }
 
           return this;
@@ -292,6 +299,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
             delete details.isRepacked;
           }
 
+// TODO: this logic doesn't really make sense when a key value is an object/array
           const isChanged = Object.keys( details ).some( _key => details[ _key ] !== this[ _key ] );
           if( isChanged ) {
             Object.assign( this, details );

@@ -75,7 +75,7 @@ function routes({
   router.use('/api/counters', require('./counters')( { countCommander } ) );
 
   // dynamically created JS scripts for the client
-  router.use('/build', require('./script-builder')( { bstock, listings, lotdb, quickLots }) );
+  router.use('/build', require('./script-builder')( { bstock, listings, quickLots }) );
 
   router.use( express.static(path.join(__basedir, __config.assets.root)) );
   router.use( express.static(path.join(__basedir, __config.imgPath)) );

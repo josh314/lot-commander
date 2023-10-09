@@ -83,8 +83,6 @@ module.exports = function( lotdbClient ) {
     removeImage,
     markAsListed,
 
-    // Export data types
-    enums: lotdbClient.enums,
   };
 
 };

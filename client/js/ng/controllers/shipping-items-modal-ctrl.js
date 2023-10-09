@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /***************** Modal Controller ************************/
-angular.module('myApp').controller('ShippingItemsModalCtrl', [ '$uibModalInstance', 'shippingItems', 'ShippingItemsSvc',
-  function( $uibModalInstance, shippingItems, ShippingItemsSvc ){
+angular.module('myApp').controller('ShippingItemsModalCtrl', [ '$uibModalInstance', 'shippingItems', 'ShippingItemsSvc', 'skipValidation',
+  function( $uibModalInstance, shippingItems, ShippingItemsSvc, skipValidation ){ // skipValidation is passed in through the invocation in ShippingItemsModalSvc
     // copy shippingItems so we can edit the copy without affecting the original
     const _shippingItems = shippingItems ? JSON.parse( JSON.stringify( shippingItems ) ) : [];
     const weightUnitsEnum = ShippingItemsSvc.weightUnitsEnum;
@@ -58,12 +58,11 @@ angular.module('myApp').controller('ShippingItemsModalCtrl', [ '$uibModalInstanc
 
       });
 
-
       return valid;
     }
 
     vm.validateAndClose = () => {
-      if( validateDimensions() ) {
+      if( skipValidation || validateDimensions() ) {
 
         $uibModalInstance.close(vm.shippingItems);
 

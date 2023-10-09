@@ -59,7 +59,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     // Lot editing
     vm.editLot = editLot;
-    vm.editShippingItems = editShippingItems;
+    vm.editShippingItemsCb = editShippingItemsCb;
     vm.deleteLot = deleteLot;
 
     // shipping items display
@@ -313,7 +313,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     }
 
     function editShippingItems() {
-      return ModalSvc.shippingItems()
+      return ModalSvc.shippingItems( lotStore.shippingItems )
         .then(shippingItems => {
           if(shippingItems) {
             lotStore.shippingItems = shippingItems;
@@ -327,6 +327,19 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
         });
     }
 
+    function editShippingItemsCb (shippingItems) {
+      if(shippingItems) {
+        lotStore.shippingItems = shippingItems;
+        return LotSvc.edit( lotStore._id , lotStore ).then( _lot => {
+          return true;
+        });
+      }
+      else {
+        return false;
+      }
+    }
+
+// TODO: is this use of editShippingItems() kosher?
     function printLabels() {
       const isPrinting = PrintSvc.printLotLabels( lotStore );
       if(!isPrinting) {

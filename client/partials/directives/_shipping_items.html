@@ -1,0 +1,23 @@
+<div>
+  <table class="table table-striped">
+    <thead><tr>
+      <th>Item No.</th>
+      <th>Weight</th>
+      <th>Height</th>
+      <th>Length</th>
+      <th>Width</th>
+    </tr></thead>
+    <tbody>
+      <tr ng-repeat="$item in shippingItems track by $index">
+        <td>{{ $index + 1 }}</td>
+        <td>{{ $item.weight ? $item.weight + " " + $item.weightUnits : ''}}</td>
+        <td>{{ $item.height ? $item.height + " " + $item.heightUnits : ''}}</td>
+        <td>{{ $item.length ? $item.length + " " + $item.lengthUnits : ''}}</td>
+        <td>{{ $item.width ? $item.width + " " + $item.widthUnits : ''}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="text-center" ng-show="showEditingControls">
+    <button class="btn btn-primary btn-sm" ng-click="editShippingItems()">Edit Shipping Items</button>
+  </div>
+</div>

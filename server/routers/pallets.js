@@ -364,7 +364,7 @@ function routes({ eventsDb, inventoryCommander }) {
 
       }
 
-      res.json( { success: true } );
+      res.json( { pallet } );
 
     }
     catch(e) {

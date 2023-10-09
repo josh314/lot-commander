@@ -1,8 +1,4 @@
-/*********************************************************
-**********************************************************
-************** Constructor function **********************
-**********************************************************
-**********************************************************/
+const enums = require('./enums');
 
 
 const lotQueryFilter = ( { handle, status } ) => {
@@ -22,10 +18,17 @@ const lotQueryFilter = ( { handle, status } ) => {
 };
 
 
+/*********************************************************
+**********************************************************
+************** Constructor function **********************
+**********************************************************
+**********************************************************/
+
+
+
 exports.Client = function( { Lot } ) {
 
   this.LotModel = Lot;
-  this.enums = Lot.enums;
 
   this.countLots = function( filterParams ) {
 
@@ -63,7 +66,7 @@ exports.Client = function( { Lot } ) {
   this.submitNewLot = function(lot) {
     //TODO: validation -> needs handle
     if(!lot.status) {
-      lot.status = this.enums.status[0];
+      lot.status = enums.lotStatus[0];
     }
 
     if( typeof lot.isDeleted !== 'boolean' ) {
@@ -83,6 +86,9 @@ exports.Client = function( { Lot } ) {
 
     if(lot.handle) {
       updateDocument.handle = lot.handle;
+    }
+    if(lot.lotNumber) {
+      updateDocument.lotNumber = lot.lotNumber;
     }
     if('description' in lot) {
       updateDocument.description = lot.description;

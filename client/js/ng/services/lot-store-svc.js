@@ -13,6 +13,7 @@ angular.module('myApp').service('lotStore', ['dbEnums',
     this.reset = function() {
       // identifiers
       this.handle = undefined;
+      this.lotNumber = undefined;
       this._id = undefined;
 
       // top-level metadata
@@ -48,10 +49,11 @@ angular.module('myApp').service('lotStore', ['dbEnums',
 
     /*****************************************
      * Setters & mutators
-     * 
+     *
      **********/
     // identifiers
     this.setHandle = function(_handle) { this.handle = _handle; };
+    this.setLotNumber = function(_lotNumber) { this.lotNumber = _lotNumber; };
 
     // metadata
     this.setDescription = function(_description) { this.description = _description; };
@@ -83,6 +85,9 @@ angular.module('myApp').service('lotStore', ['dbEnums',
     this.save = function(_lot) {
       this.reset();
       this.setHandle(_lot.handle);
+      if( _lot.lotNumber ) {
+        this.setLotNumber( _lot.lotNumber );
+      }
       this.unmanifested = _lot.unmanifested;
       if(_lot.description) {
         this.setDescription(_lot.description);
@@ -198,7 +203,7 @@ angular.module('myApp').service('lotStore', ['dbEnums',
 
     /****************************************
      * Getters
-     * 
+     *
      ***********/
 
     this.getHandle = function() { return this.handle; };
@@ -238,7 +243,7 @@ angular.module('myApp').service('lotStore', ['dbEnums',
     this.getInventoryItemByBarcode = function(barcode) {
       return this.inventory.find(item => item.barcode == barcode);
     };
-    
+
     this.getInventoryTotal = function() {
       return this.inventory.reduce((acc,val) => {return acc + val.quantity;}, 0);
     };

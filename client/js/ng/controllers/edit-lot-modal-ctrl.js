@@ -41,7 +41,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
     // VM methods
     vm.verifyTitle = verifyTitle;
     vm.invalidLot = invalidLot;
-    vm.editShippingItems = editShippingItems;
+    vm.editShippingItemsCb = editShippingItemsCb;
 
     function verifyTitle() {
       vm.titleTooLong = ListingsSvc.isTitleTooLong( vm.lot.listingData.title );
@@ -62,15 +62,12 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
       return !vm.verifyTitle() || vm.lot.numBoxes < 0;
     }
 
-    function editShippingItems() {
+    function editShippingItemsCb( shippingItems ) {
 
-      ModalSvc.shippingItems()
-        .then(shippingItems => {
-          if(shippingItems) {
-            vm.lot.shippingItems = shippingItems;
-          }
-        });
-        
+      if(shippingItems) {
+        vm.lot.shippingItems = shippingItems;
+      }
+
     }
 
   }

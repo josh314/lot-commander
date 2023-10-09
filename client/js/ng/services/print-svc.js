@@ -49,11 +49,16 @@ angular.module('myApp').factory('PrintSvc', [ function( ){
 
   }
 
+  const printPalletSplitGroupLabels = ( palletId, splitGroupId ) => {
+    printJS(`/api/print/labels/pallets/${ palletId }/split-groups/${splitGroupId}`);
+  };
+
   return {
     printIncomingShipmentLabels,
     printIncomingShipmentPalletLabel,
     printLotLabels,
     printPackageLabels,
+    printPalletSplitGroupLabels,
     printPickReceipt,
   };
 

@@ -228,21 +228,21 @@ class Server {
     const ModelCommander = require('./models');
     const models = new ModelCommander( this.mongooseConnection );
 
+    // Counter
+    const CountCommander = require('./modules/count-commander');
+    const countCommander = new CountCommander( models.Counter );
+
     // Lot DB
     const LotDbClient = require('./modules/lot-db-client').Client;
     const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'))( new LotDbClient( models ) );
 
     // Inventory commander - pallets, shipments
     const InventoryCommander = require('./modules/inventory-commander');
-    const inventoryCommander = new InventoryCommander( models );
+    const inventoryCommander = new InventoryCommander( Object.assign( { countCommander } , models ) );
 
     // Shopify order cache
     const ShopifyOrders = require('./modules/shopify-orders');
     const shopifyOrders = new ShopifyOrders( models );
-
-    // Counter
-    const CountCommander = require('./modules/count-commander');
-    const countCommander = new CountCommander( models.Counter );
 
     // Ad-hoc inventory manager
     const ManualInventoryDb = require('./modules/manual-inventory-db');

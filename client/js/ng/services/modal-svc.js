@@ -12,8 +12,9 @@ angular.module('myApp').factory('ModalSvc', [
   'MergeSheetsOptionsModalSvc',
   'messageModal',
   'PackageLabelDataModalSvc',
+  'PackagingTypeInfoModalSvc',
   'PalletsFromManifestModalSvc',
-  'shippingItemsModal',
+  'ShippingItemsModalSvc',
   'WaitingModalSvc',
 
   function(
@@ -25,8 +26,9 @@ angular.module('myApp').factory('ModalSvc', [
     MergeSheetsOptionsModalSvc,
     messageModal,
     PackageLabelDataModalSvc,
+    PackagingTypeInfoModalSvc,
     PalletsFromManifestModalSvc,
-    shippingItemsModal,
+    ShippingItemsModalSvc,
     WaitingModalSvc,
 
   ){
@@ -40,14 +42,22 @@ angular.module('myApp').factory('ModalSvc', [
       mergeSheetsOptions: MergeSheetsOptionsModalSvc.launch.bind( MergeSheetsOptionsModalSvc ),
       message: messageModal.launch.bind( messageModal ),
       packageLabelData: PackageLabelDataModalSvc.launch.bind( PackageLabelDataModalSvc ),
-      packagingTypeInfo: packagingTypeInfoModal,
+      packagingTypeInfo: PackagingTypeInfoModalSvc.launch.bind( PackagingTypeInfoModalSvc ),
       palletsFromManifest: PalletsFromManifestModalSvc.launch.bind( PalletsFromManifestModalSvc ),
-      shippingItems: shippingItemsModal.launch.bind( shippingItemsModal ),
+      shippingItems: ShippingItemsModalSvc.launch.bind( ShippingItemsModalSvc ),
       wait: WaitingModalSvc.launch.bind( WaitingModalSvc ),
 
     };
 
-    function packagingTypeInfoModal() {
+  }
+]);
+
+/******************* Packaging Type Modal service ******************************/
+angular.module('myApp').factory( 'PackagingTypeInfoModalSvc', [ 'messageModal', function( messageModal ) {
+
+  return {
+
+    launch: function(  ) {
       const packagingInfoHtml = `
       <dl>
         <dt>box lot</dt>
@@ -65,8 +75,10 @@ angular.module('myApp').factory('ModalSvc', [
       return messageModal.launch( { header: 'Packaging Types', html: packagingInfoHtml, type: 'info' } );
     }
 
-  }
-]);
+  };
+
+}]);
+
 
 /******************* Choose Options Modal service ******************************/
 angular.module('myApp').factory( 'ChooseOptionsModal', [ '$uibModal', function( $uibModal ){
@@ -304,56 +316,70 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         }
       },
 
-      controller: [ '$scope', 'LoggedInUser', 'navigate', 'pallet', 'palletProperties', function( $scope, LoggedInUser, navigate, pallet, palletProperties ){
+      controller: [ '$scope', 'CounterSvc', 'dbEnums', 'LoggedInUser', 'navigate', 'PackagingTypeInfoModalSvc', 'pallet', 'palletProperties',
+        function( $scope, CounterSvc, dbEnums, LoggedInUser, navigate, PackagingTypeInfoModalSvc, pallet, palletProperties ){
 
-        const vm = this;
-        vm.pallet = pallet;
-        vm.inputs = Object.assign( { isBrokendown: false, hasProblem: false, category: null, condition: 'shelf-pull' }, pallet );
-        vm.errors = {};
-        vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );
-        vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) );
+          const vm = this;
+          vm.pallet = pallet;
+          vm.inputs = Object.assign( { isBrokendown: false, hasProblem: false, category: null, condition: 'shelf-pull' }, pallet );
+          vm.errors = {};
+          vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );
+          vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) );
+          vm.packagingTypeEnum = dbEnums.packagingType;
 
-        vm.disableEditing = ! LoggedInUser.hasPermission( 'EDIT_INVENTORY_PALLET' );
-        vm.allowShipmentNavigation = LoggedInUser.hasPermission( 'VIEW_INCOMING_SHIPMENT' );
-        vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
-        vm.showDeveloper = LoggedInUser.isDeveloper();
-        vm.showPricingData = LoggedInUser.hasPermission('VIEW_PRICING_DATA');
-        vm.allowEditPricingData = LoggedInUser.hasPermission('EDIT_PRICING_DATA') || !vm.pallet.retailValue;
-        vm.showBrokendownDate = pallet.isBrokendown;
-        vm.showCreatedAtDate = !!pallet.createdAt;
-        vm.showShipment = !!pallet.shipment;
+          vm.disableEditing = ! LoggedInUser.hasPermission( 'EDIT_INVENTORY_PALLET' );
+          vm.allowShipmentNavigation = LoggedInUser.hasPermission( 'VIEW_INCOMING_SHIPMENT' );
+          vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+          vm.showDeveloper = LoggedInUser.isDeveloper();
+          vm.showPricingData = LoggedInUser.hasPermission('VIEW_PRICING_DATA');
+          vm.allowEditPricingData = LoggedInUser.hasPermission('EDIT_PRICING_DATA') || !vm.pallet.retailValue;
+          vm.showBrokendownDate = pallet.isBrokendown;
+          vm.showCreatedAtDate = !!pallet.createdAt;
+          vm.showShipment = !!pallet.shipment;
 
-        vm.validate = () => {
+          vm.validate = () => {
 
-          vm.errors.emptyHandle = !vm.inputs.handle;
+            vm.errors.emptyHandle = !vm.inputs.handle;
 
-          // vm.errors.invalidCost = vm.showPurchasingData ? !( vm.inputs.cost > 0 ) : false;
+            // vm.errors.invalidCost = vm.showPurchasingData ? !( vm.inputs.cost > 0 ) : false;
 
-          const shipment = pallet.shipment;
+            const shipment = pallet.shipment;
 
-          if( shipment && shipment.palletsReceived && shipment.palletsConsolidated ) {
+            if( shipment && shipment.palletsReceived && shipment.palletsConsolidated ) {
 
-            vm.errors.duplicateHandle = !! shipment.palletsReceived.concat( shipment.palletsConsolidated ).find( _p => _p.handle === vm.inputs.handle && _p._id !== pallet._id );
+              vm.errors.duplicateHandle = !! shipment.palletsReceived.concat( shipment.palletsConsolidated ).find( _p => _p.handle === vm.inputs.handle && _p._id !== pallet._id );
 
-          }
+            }
 
-          return Object.values( vm.errors ).every( value => !value );
-        };
+            return Object.values( vm.errors ).every( value => !value );
+          };
 
-        vm.finish = () => {
-          return $scope.$close( vm.inputs );
-        };
+          vm.finish = () => {
+            return $scope.$close( vm.inputs );
+          };
 
-        vm.navigateToShipment = () => {
-          if( vm.inputs.shipment._id ) {
-            navigate.shipmentDetails( vm.inputs.shipment._id );
-            $scope.$close( vm.inputs );
-          }
-        };
+          vm.generateLotNumber = () => CounterSvc.incrementPalletLotCounter().then( counter => {
+            vm.inputs.lotNumber = counter.count;
+          } );
 
-        vm.viewRemovedItems = () => viewRemovedItemsModal( pallet );
+          vm.navigateToShipment = () => {
+            if( vm.inputs.shipment._id ) {
+              navigate.shipmentDetails( vm.inputs.shipment._id );
+              $scope.$close( vm.inputs );
+            }
+          };
 
-      }],
+          vm.viewRemovedItems = () => viewRemovedItemsModal( pallet );
+
+          vm.editShippingItemsCb = function( _shippingItems ) {
+
+            vm.inputs.shippingItems = _shippingItems;
+
+          };
+
+          vm.openPackagingTypeInfo = PackagingTypeInfoModalSvc.launch.bind( PackagingTypeInfoModalSvc );
+        }
+      ],
       controllerAs: '$ctrl'
 
     });
@@ -417,29 +443,32 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
 }] );
 
 /******************* Shipping Items Modal service ******************************/
-angular.module('myApp').factory( 'shippingItemsModal', [ '$uibModal', 'lotStore',
-  function( $uibModal, lotStore ){
+angular.module('myApp').factory( 'ShippingItemsModalSvc', [ '$uibModal', 'ShippingItemsSvc',
+  function( $uibModal, ShippingItemsSvc ){
 
     return {
-      launch: function() {
+      launch: function( shippingItems, skipValidation = false ) {
 
         const modalInstance = $uibModal.open({
           templateUrl: '/partials/modals/_shipping_items_modal.html',
           size: 'lg',
           backdrop: 'static',
 
-          controller: 'ShippingItemsModalCtrl as ctrl',
+          controller: 'ShippingItemsModalCtrl as $ctrl',
           resolve: {
             shippingItems: function () {
-              return lotStore.shippingItems;
+              return shippingItems;
+            },
+            skipValidation: function () {
+              return skipValidation;
             }
           },
         });
 
         return modalInstance.result.then(
 
-          // close modal cb returns edited shippingItems to the caller
-          shippingItems => shippingItems,
+          // close modal cb cleans edited shippingItems and returns to the caller
+          shippingItems => shippingItems.map( ShippingItemsSvc.clean.bind( ShippingItemsSvc ) ),
 
           // Cancel cb function
           () => {
