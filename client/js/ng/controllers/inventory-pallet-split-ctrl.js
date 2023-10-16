@@ -57,11 +57,13 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
   'dbEnums',
   'FinishSplitPalletModal',
   'focus',
+  'ImageSvc',
   'InventoryPalletManagerSvc',
   'LoggedInUser',
   'ManifestFileHandlerSvc',
   'ModalSvc',
   'navigate',
+  'PalletLotSvc',
   'PalletManifestSvc',
   'palletProperties',
   'PrintSvc',
@@ -76,11 +78,13 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
     dbEnums,
     FinishSplitPalletModal,
     focus,
+    ImageSvc,
     InventoryPalletManagerSvc,
     LoggedInUser,
     ManifestFileHandlerSvc,
     ModalSvc,
     navigate,
+    PalletLotSvc,
     PalletManifestSvc,
     palletProperties,
     PrintSvc,
@@ -93,24 +97,30 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
 
     class DisplaySplitGroup {
-      constructor( { _id, label, lotNumber, items = [], condition, category, toBeListed, packagingType = 'box lot', shippingItems = [], } ) {
+      constructor( { _id, label, lotNumber, items = [], condition, category, toBeListed, packagingType = 'box lot', shippingItems = [], images } ) {
 
         Object.assign(
           this,
           {
             _id,
-            items,
-            condition,
-            category,
-            toBeListed,
-            packagingType,
-            shippingItems,
-            lotNumber,
+            images,
 
             isEditingLabel: false,
             itemEdits: new Map(),
           }
         );
+
+        this.setData( {
+          label,
+          items,
+          condition,
+          category,
+          toBeListed,
+          packagingType,
+          shippingItems,
+          lotNumber,
+          images
+        } );
 
         if( typeof condition === 'undefined' ) {
           this.condition = vm.pallet.condition;
@@ -131,8 +141,9 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       getData() {
         return {
           _id: this._id,
-          handle: this.handle,
           lotNumber: this.lotNumber,
+          palletHandle: this.palletHandle,
+          lotHandle: this.lotHandle,
           label: this.label,
           condition: this.condition,
           category: this.category,
@@ -140,13 +151,38 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           items: this.items,
           packagingType: this.packagingType,
           shippingItems: this.shippingItems,
+          images: this.images && this.images.map( ImageSvc.cleanImageObject.bind(ImageSvc) )
         };
+      }
+
+      setData( { label, lotNumber, lotHandle, palletHandle, items = [], condition, category, toBeListed, packagingType = 'box lot', shippingItems = [] } ) {
+
+        this.setLabel( label );
+
+        Object.assign(
+          this,
+          {
+            items,
+            condition,
+            category,
+            toBeListed,
+            packagingType,
+            shippingItems,
+            lotNumber,
+
+            // overwrite value(s) from `setLabel` if explicitly passed in
+            palletHandle,
+            lotHandle,
+          }
+        );
+
       }
 
       setLabel( label ) {
 
         this.label = label;
-        this.handle = splitGroupLabel2PalletHandle( this.label );
+        this.palletHandle = splitGroupLabel2PalletHandle( this.label );
+        // TODO: set lotHandle
 
       }
 
@@ -177,8 +213,8 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
         // check against other shipment pallets
 
-        const handle = splitGroupLabel2PalletHandle( this.labelEditValue );
-        if( isHandleShipmentPalletDuplicate( handle, vm.pallet.shipment ) ) {
+        const palletHandle = splitGroupLabel2PalletHandle( this.labelEditValue );
+        if( isHandleShipmentPalletDuplicate( palletHandle, vm.pallet.shipment ) ) {
 
           return ModalSvc.message( {
             header: 'Error',
@@ -371,6 +407,45 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         }
       }
 
+      async printLabels() {
+        if( !this.shippingItems || this.shippingItems.length === 0 ) {
+          return ModalSvc.message( {
+            header: 'Nothing to print',
+            html: `<p>The split group <strong>${ this.label }</strong> has no shipping items configured.</p>`,
+            type: 'warning'
+          } );
+        }
+
+        if( !splitGroupsUnchanged() ) {
+          await __saveProgress();
+        }
+
+        PrintSvc.printPalletSplitGroupLabels( vm.pallet._id, this._id );
+
+      }
+
+      async uploadImages() {
+
+        await __saveProgress();
+
+        await ModalSvc.wait( {
+          waitFor: ImageSvc.uploadPalletSplitGroupImages( vm.pallet._id, this._id, this.imagesToUpload ).then( reloadPallet ),
+          delay: 2000
+        } );
+
+      }
+
+      async removeImage( image ) {
+
+        await __saveProgress();
+
+        await ModalSvc.wait( {
+          waitFor: ImageSvc.removePalletSplitGroupImage( vm.pallet._id, this._id, image ).then( reloadPallet ),
+          delay: 2000
+        } );
+
+      }
+
     }
 
     const vm = this;
@@ -404,8 +479,9 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         isBrokendown: false,
         toBeListed: true,
       };
-      vm.categoryOptions = [ "" ].concat( palletProperties.category );
-      vm.conditionOptions = [ "" ].concat( palletProperties.condition );
+
+      vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
+      vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) ),
       vm.packagingTypeOptions = [ "" ].concat( dbEnums.packagingType );
 
 
@@ -428,9 +504,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         {
 
           openPackagingTypeInfo: ModalSvc.packagingTypeInfo.bind( ModalSvc ),
-          toggleShowShippingItems,
-          toggleShowPackagingType,
-          toggleShowPrintLabelsControls,
+          toggleShowSplitGroupDetails,
 
           refreshPalletsList,
           splitPallet: loadPallet,
@@ -440,6 +514,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
           // manage split groups
           newSplitGroup,
+          deleteSplitGroup,
           bumpCurrentSplitGroup,
 
           splitItem,
@@ -448,33 +523,33 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           cancel,
           finish,
 
-          printLabels,
+          getImageLink: ImageSvc.getImageLink.bind( ImageSvc ),
         }
       );
 
-      vm.showPackagingType = false;
-      function toggleShowPackagingType() {
-        vm.showPackagingType = !vm.showPackagingType;
-      }
 
-      vm.showShippingItems = false;
-      function toggleShowShippingItems() {
-        vm.showShippingItems = !vm.showShippingItems;
-      }
 
-      vm.showPrintLabelsControls = false;
-      function toggleShowPrintLabelsControls() {
-        vm.showPrintLabelsControls = !vm.showPrintLabelsControls;
+      vm.showSplitGroupDetails = false;
+      function toggleShowSplitGroupDetails() {
+        vm.showSplitGroupDetails = !vm.showSplitGroupDetails;
       }
 
       vm.palletId = InventoryPalletManagerSvc.getPalletId();
       if( vm.palletId ) {
-        vm.pallet = await InventoryPalletManagerSvc.get( vm.palletId, { populate: [ 'shipment', 'shipment.palletsReceived', 'shipment.palletsConsolidated' ] } );
-        vm.pallet.shipment = ShipmentFactory( vm.pallet.shipment );
-        await vm.pallet.documentsAreLoaded;
-        loadPallet( vm.pallet );
+        loadPalletById( vm.palletId );
       }
 
+    }
+
+    async function loadPalletById( palletId ) {
+      vm.pallet = await InventoryPalletManagerSvc.get( palletId, { populate: [ 'shipment', 'shipment.palletsReceived', 'shipment.palletsConsolidated' ] } );
+      vm.pallet.shipment = ShipmentFactory( vm.pallet.shipment );
+      await vm.pallet.documentsAreLoaded;
+      loadPallet( vm.pallet );
+    }
+
+    function reloadPallet() {
+      return loadPalletById( vm.pallet._id );
     }
 
     function newSplitGroup() {
@@ -496,6 +571,30 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       vm.displaySplitGroupsSorted = [ newDisplaySplitGroup ].concat( vm.displaySplitGroupsSorted );
 
       vm.currentSplitGroup = newDisplaySplitGroup;
+
+    }
+
+    async function deleteSplitGroup( group ) {
+
+      //  popup to ask if they're sure
+      const isConfirmed = await ModalSvc.confirm({
+        header: 'Delete split group?',
+        html: `<p>Really delete this split group?</p>
+              <p>You will lose all data for this split group. This cannot be undone.</p>
+              <p>Continue?</p>`
+      });
+
+      if( !isConfirmed ) {
+        return;
+      }
+
+      const foundIdx = vm.displaySplitGroups.findIndex( _ => _ === group );
+
+      if( foundIdx >= 0 ) {
+        vm.displaySplitGroups.splice( foundIdx, 1 );
+      }
+
+      return __saveProgress();
 
     }
 
@@ -747,9 +846,22 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           return false;
         }
 
+        if( currentGrp.category !== oldGrp.category ) {
+          return false;
+        }
+
+        if( currentGrp.condition !== oldGrp.condition ) {
+          return false;
+        }
+
+        if( currentGrp.toBeListed !== oldGrp.toBeListed ) {
+          return false;
+        }
+
         if( currentGrp.packagingType !== oldGrp.packagingType ) {
           return false;
         }
+
 
         // .slice() performs shallow copy
         const items1 = oldGrp.items.slice().sort( cmpSplitGroupItems );
@@ -773,7 +885,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
     }
 
-    function trimEmptySplitGroups() {
+    function _trimEmptySplitGroups() {
 
       vm.displaySplitGroups = vm.displaySplitGroups.filter( _grp => _grp.items.length );
       vm.displaySplitGroupsSorted = vm.displaySplitGroupsSorted.filter( _grp => _grp.items.length );
@@ -783,7 +895,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
     async function __saveProgress() {
 
-      trimEmptySplitGroups();
+      // trimEmptySplitGroups();
       const editValues = {
         splitGroups: vm.displaySplitGroups.map( _ => _.getData() ),
       };
@@ -829,6 +941,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       }
 
       await __saveProgress();
+      await reloadPallet();
 
       await ModalSvc.message( {
         header: 'Saved.',
@@ -839,10 +952,10 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
     async function createNewPalletFromSplitGroup( splitGroup ) {
 
-      const { _id, label: _label, handle, lotNumber, items, condition, category, toBeListed, packagingType, shippingItems } = splitGroup.getData();
+      const { _id, label: _label, palletHandle, lotNumber, items, condition, category, toBeListed, packagingType, shippingItems } = splitGroup.getData();
       const rows = convertSplitGroupItems2ManifestRows( items );
 
-      let p;
+      let palletPromise;
 
       const manifest = new ManifestFileHandlerSvc.Manifest();
       const sheet = new ManifestFileHandlerSvc.Sheet(  {
@@ -853,7 +966,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       manifest.addSheet( sheet );
 
       const newPalletProperties = {
-        handle,
+        handle: palletHandle,
         lotNumber,
         condition,
         category,
@@ -863,24 +976,31 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         splitFrom: vm.pallet._id,
       };
 
+      if( vm.pallet.priceValuePercentage ) {
+        newPalletProperties.priceValuePercentage = vm.pallet.priceValuePercentage;
+      }
+
       if( vm.pallet.shipment ) {
 
-        p = vm.pallet.shipment.addConsolidatedPallet( newPalletProperties );
+        palletPromise = vm.pallet.shipment.addConsolidatedPallet( newPalletProperties );
 
       }
-      else { // TODO: test this, although there is currently no ability to have orphaned pallets with manifests. This will change with merged manifests
+      else {
 
-        p = InventoryPalletManagerSvc.create( newPalletProperties );
+        // TODO: test this, although there is currently no ability to have orphaned pallets with manifests. This will change with merged manifests.
+        // Note the return value is a different signature from `vm.pallet.shipment.addConsolidatedPallet( newPalletProperties )` = { shipment, pallet }
+
+        palletPromise = InventoryPalletManagerSvc.create( newPalletProperties );
 
       }
 
-      const { shipment: _shipment , pallet, error, code: _code , message } = await p;
+      const { shipment: _shipment , pallet, error, code: _code , message } = await palletPromise;
 
       if( error ) {
         throw new SplitPalletError( { message } );
       }
 
-      const file = ManifestFileHandlerSvc.createFile( `${ handle }.xlsx`, manifest, true );
+      const file = ManifestFileHandlerSvc.createFile( `${ palletHandle }.xlsx`, manifest, true );
 
       const palletTotals = manifest.standardTotals();
 
@@ -890,49 +1010,45 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         salePrice: palletTotals.salePrice,
       };
 
-      // update the new pallet manifest
-      await ModalSvc.wait( {
-        waitFor: PalletManifestSvc.uploadInventoryPalletManifest( pallet, file, editValues ),
-        delay: 2000
-      } );
+      // upload the new pallet manifest, update the pallet in client and return;
+      const updatedPallet = await PalletManifestSvc.uploadInventoryPalletManifest( pallet, file, editValues ).then( pallet => pallet.refreshDocuments() );
 
-      return p;
+      if( splitGroup.images && splitGroup.images.length ) {
 
-    }
-
-    async function createNewPallets() {
-
-      const p = [];
-
-      const leftoversSplitGroup = convertLeftovers2SplitGroup();
-
-      const splitGroups = [
-        new DisplaySplitGroup( {
-          label: 'remaining',
-          items: leftoversSplitGroup,
-          shippingItems: [],
-        }) ,
-        ...vm.displaySplitGroups.filter( _ => _.items.length ),
-      ];
-
-
-      const { success } = await FinishSplitPalletModal.launch( vm.pallet, splitGroups );
-
-      if( success ) {
-
-        for( let group of splitGroups ) {
-
-          if( group.items.length ) {
-            p.push( createNewPalletFromSplitGroup( group ) );
-          }
-
-        }
-
-        await Promise.all( p );
+        await updatedPallet.addImages( splitGroup.images );
 
       }
 
-      return { success };
+      return updatedPallet;
+    }
+
+
+    async function createSplitGroupChildren( splitGroups ) {
+
+      const promises = [];
+      for( let group of splitGroups ) {
+
+        if( group.items.length ) {
+          promises.push( createPalletAndLotFromSplitGroup( group ) );
+        }
+
+      }
+
+      return Promise.all( promises );
+
+    }
+
+    async function createPalletAndLotFromSplitGroup( splitGroup ) {
+
+      const pallet = await createNewPalletFromSplitGroup( splitGroup );
+
+      let lot;
+      if( pallet.toBeListed ) {
+        lot = await PalletLotSvc.createLot( pallet, { handle: splitGroup.lotHandle } );
+      }
+
+      return { splitGroup, pallet, lot };
+
     }
 
     function convertLeftovers2SplitGroup() {
@@ -996,15 +1112,28 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       // save the final splitGroups
       await __saveProgress();
 
-      // create new consolidated pallets
-      const { success } = await createNewPallets();
+      const leftoversSplitGroup = convertLeftovers2SplitGroup();
 
-      if( success ) {
+      const splitGroups = [
+        new DisplaySplitGroup( {
+          label: 'remaining',
+          items: leftoversSplitGroup,
+          shippingItems: [],
+          toBeListed: false
+        }) ,
+        ...vm.displaySplitGroups.filter( _ => _.items.length ),
+      ];
+
+      const result = await FinishSplitPalletModal.launch( vm.pallet, splitGroups );
+
+      if( result ) {
+
+        const _res = await createSplitGroupChildren( splitGroups );
 
         //  mark pallet as broken-down
         await vm.pallet.breakdown( true );
 
-        await ModalSvc.message( { header: 'Splitting complete', body: `Successfully created new split pallets.` } );
+        await ModalSvc.message( { header: 'Splitting complete', body: `Successfully created new split pallets and lots.` } );
 
         if( vm.allowShipmentNavigation && vm.pallet.shipment && vm.pallet.shipment._id ) {
           navigate.shipmentDetails( vm.pallet.shipment._id );
@@ -1036,24 +1165,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       return `${vm.pallet.handle}--${ label }`;
     }
 
-    async function printLabels( splitGroup ) {
-
-      if( !splitGroup.shippingItems || splitGroup.shippingItems.length === 0 ) {
-        return ModalSvc.message( {
-          header: 'Nothing to print',
-          html: `<p>The split group <strong>${ splitGroup.label }</strong> has no shipping items configured.</p>`,
-          type: 'warning'
-        } );
-      }
-
-      if( !splitGroupsUnchanged() ) {
-        const _pallet = await __saveProgress();
-      }
-
-      PrintSvc.printPalletSplitGroupLabels( vm.pallet._id, splitGroup._id );
-
-    }
-
   }
 ]);
 
@@ -1071,39 +1182,14 @@ angular.module('myApp').factory( 'FinishSplitPalletModal', [ '$uibModal', functi
         backdrop: 'static',
 
         resolve: {
-          data: function () {
+          resolvedModalData: function () {
             return {
               pallet,
               splitGroups
             };
           }
         },
-
-        controller: [ 'data', 'palletProperties', function( data, palletProperties ){
-
-          const vm = this;
-          vm.splitGroups = data.splitGroups;
-
-          vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );
-          vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) );
-
-          vm.validate = grp => {
-
-            grp.errors = {};
-
-            if( data.splitGroups.find( _ => _.handle === grp.handle && _ !== grp ) ) {
-              grp.errors.duplicateHandle = true;
-            }
-
-            if( isHandleShipmentPalletDuplicate( grp.handle, data.pallet.shipment ) ) {
-              grp.errors.duplicateHandle = true;
-            }
-
-          };
-
-
-        }],
-        controllerAs: '$ctrl'
+        controller: 'FinishSplitPalletModalCtrl as $ctrl',
 
       });
 
@@ -1113,3 +1199,128 @@ angular.module('myApp').factory( 'FinishSplitPalletModal', [ '$uibModal', functi
   };
 }]);
 
+
+/******************* Controller for Finish Pallet Splitting Modal service ******************************/
+angular.module('myApp').controller( 'FinishSplitPalletModalCtrl', [
+
+  '$scope',
+  'LotSvc',
+  'ModalSvc',
+  'palletProperties',
+  'resolvedModalData',
+
+  function(
+
+    $scope,
+    LotSvc,
+    ModalSvc,
+    palletProperties,
+    resolvedModalData,
+
+  ) {
+
+    const vm = this;
+    init();
+
+    function init() {
+
+      Object.assign(
+        vm,
+        {
+
+          splitGroups: resolvedModalData.splitGroups.map( _ => ( { original: _,
+            edits: _.getData() } ) ),
+
+          categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
+          conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) ),
+
+          onPalletHandleChange,
+          onLotHandleChange,
+          validateGroup,
+          validateAll,
+          done,
+        }
+      );
+
+      for( let _ of vm.splitGroups ) {
+        setSplitGroupLotHandle( _ );
+      }
+
+    }
+
+    function validateGroup( grp ) {
+      grp.errors = {};
+
+      if( vm.splitGroups.find( _ => _.edits.palletHandle === grp.edits.palletHandle && _ !== grp ) ) {
+        grp.errors.duplicatePalletHandle = true;
+      }
+      if( isHandleShipmentPalletDuplicate( grp.edits.palletHandle, resolvedModalData.pallet.shipment ) ) {
+        grp.errors.duplicatePalletHandle = true;
+      }
+
+      if( vm.splitGroups.find( _ => _.edits.lotHandle === grp.edits.lotHandle && _ !== grp ) ) {
+        grp.errors.duplicateLotHandle = true;
+      }
+
+      for( let errorValue of Object.values( grp.errors ) ) {
+
+        if( errorValue ) {
+          return false;
+        }
+
+      }
+      return true;
+    }
+
+    function validateAll() {
+      for( let grp of vm.splitGroups ) {
+        if( !validateGroup( grp ) ) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function setSplitGroupLotHandle( grp ) {
+
+      let lotHandle = '';
+
+      if( resolvedModalData.pallet.shipment && resolvedModalData.pallet.shipment.handle ) {
+        lotHandle += `${resolvedModalData.pallet.shipment.handle}--`;
+      }
+
+      lotHandle += `${grp.edits.palletHandle}`;
+      if( grp.original.lotNumber ) {
+        lotHandle += `--${ grp.original.lotNumber }`;
+      }
+      Object.assign( grp.edits, { lotHandle } );
+    }
+
+
+    function onPalletHandleChange( grp ) {
+      if( validateGroup( grp ) ) {
+        setSplitGroupLotHandle( grp );
+      }
+    }
+
+    function onLotHandleChange( grp ) {
+      validateGroup( grp );
+    }
+
+    async function done() {
+
+      for( let grp of vm.splitGroups ) {
+        const existingLot = await LotSvc.getLotByHandle( grp.edits.lotHandle );
+        if( existingLot ) {
+          return ModalSvc.message( { header: 'Error', html: `<p>There already exists a lot with handle <strong>${ grp.edits.lotHandle }</strong>.</p>`, type: 'error' } );
+        }
+      }
+
+      for( let grp of vm.splitGroups ) {
+        grp.original.setData( grp.edits );
+      }
+      $scope.$close( true );
+    }
+
+  }
+]);

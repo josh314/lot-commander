@@ -148,20 +148,62 @@
   </div>
 
   <div class="row">
+
     <div class="form-group col-xs-12 col-sm-6">
 			<label for="packagingTypeInput">Packaging Type <span class="glyphicon glyphicon-question-sign" ng-click="$ctrl.openPackagingTypeInfo()"></span></label>
 			<select class="form-control" name="packagingType" id="packagingTypeInput" required ng-model="$ctrl.inputs.packagingType">
 				<option ng-repeat="packagingType in $ctrl.packagingTypeEnum">{{ packagingType }}</option>
 			</select>
 		</div>
+
     <div class="col-xs-12">
-      <h5>Shipping Items</h5>
-      <shipping-items-dir
-        shipping-items="$ctrl.inputs.shippingItems"
-        show-editing-controls="!$ctrl.disableEditing"
-        edit-shipping-items-cb="$ctrl.editShippingItemsCb"
-      >
-      </shipping-items-dir>
+
+      <label for="palletShippingItems">Shipping Items</label>
+      <div id="palletShippingItem">
+        <shipping-items-dir
+          shipping-items="$ctrl.inputs.shippingItems"
+          show-editing-controls="!$ctrl.disableEditing"
+          show-print-controls="true"
+          edit-shipping-items-cb="$ctrl.editShippingItemsCb( shippingItems )"
+          print="$ctrl.printLabels()"
+        >
+        </shipping-items-dir>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="row">
+    <div class="col-xs-12">
+
+      <label for="palletImagesContainer">Images</label>
+      <div id="palletImagesContainer">
+
+        <div class="col-xs-12">
+          <div class="form-group">
+            <input type="file" file-list-model="$ctrl.imagesToUpload" multiple/>
+          </div>
+          <button class="btn btn-success btn-xs" ng-click="$ctrl.uploadImages()">Upload File</button>
+        </div>
+
+        <div class="col-xs-12">
+
+          <div class="col-xs-12 col-sm-4" ng-repeat="$image in $ctrl.images" style="margin-top:12px;">
+            <div>
+              <a ng-href="{{ $image.s3 }}">
+                <img ng-src="{{ $ctrl.getImageLink( $image ) }}" class="img-thumbnail primary-image" width="240" height="auto">
+              </a>
+            </div>
+            <div style="margin-top:4px; display:flex; justify-content: flex-end;">
+              <button class="btn btn-danger btn-xs" ng-click="$ctrl.removeImage( $image )">remove</button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
   </div>
 

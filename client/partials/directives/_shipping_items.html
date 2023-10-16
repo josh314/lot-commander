@@ -17,7 +17,12 @@
       </tr>
     </tbody>
   </table>
-  <div class="text-center" ng-show="showEditingControls">
-    <button class="btn btn-primary btn-sm" ng-click="editShippingItems()">Edit Shipping Items</button>
+  <div class="text-center" display="display:flex;">
+    <span ng-show="showEditingControls">
+      <button class="btn btn-primary btn-sm" ng-click="editShippingItems()">Edit Shipping Items</button>
+    </span>
+    <span ng-show="showPrintControls">
+      <button class="btn btn-primary btn-sm" ng-click="print()">Print Labels</button>
+    </span>
   </div>
 </div>

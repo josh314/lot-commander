@@ -37,9 +37,9 @@ const parseS3Location = (s3Location) => {
   const match = s3Location.match(p);
   if(match) {
     res.bucket = match[1];
-    res.lotId = match[2];
+    res.ownerId = match[2];
     res.imgName = match[3] && decodeURIComponent(match[3]);
-    res.key = `${res.lotId}/${res.imgName}`;
+    res.key = `${res.ownerId}/${res.imgName}`;
   }
 
   return res;
@@ -65,7 +65,7 @@ const formatAsCompressedJpeg = async function(imgPath, opts={}) {
     .toBuffer();
 };
 
-const store = async function(lotId, imgPath, imgName, opts={}) {
+const store = async function(ownerId, imgPath, imgName, opts={}) {
   const compress = 'compress' in opts ? opts.compress : true;
   const dedup = 'dedup' in opts ? opts.dedup : true;
 
@@ -78,11 +78,11 @@ const store = async function(lotId, imgPath, imgName, opts={}) {
     readStream = new stream.PassThrough();
     readStream.end(imgBuffer);
 
-    key = `${lotId}/${path.parse(imgName).name}.jpg`;
+    key = `${ownerId}/${path.parse(imgName).name}.jpg`;
   }
   else {
     readStream = fs.createReadStream(imgPath);
-    key = `${lotId}/${imgName}`;
+    key = `${ownerId}/${imgName}`;
   }
 
   return storeStream(readStream, key, dedup);
@@ -93,7 +93,7 @@ const storeStream = async function( readStream, key, dedup ) {
     await s3.headBucket({ Bucket: BUCKET }).promise();
   }
   catch (error) {
-    const newBucket = await s3.createBucket({ 
+    const newBucket = await s3.createBucket({
       Bucket: BUCKET,
       ACL: 'public-read',
     }).promise();
@@ -191,9 +191,9 @@ const list = async ( { urlEncode } = {} ) => {
 
   let imageObjects = [];
   let continuationToken;
-  
+
   do {
-    
+
     if( continuationToken ) {
       opts.ContinuationToken = continuationToken;
     }
@@ -227,18 +227,21 @@ const get = async function(opts = {}) {
 
 const remove = function(s3Location) {
   const { bucket, key } = parseS3Location(s3Location);
+
   if(key) {
     return s3.deleteObject({
       Bucket: bucket,
       Key: key
     }).promise();
   }
-  else return Promise({});
+  else {
+    return Promise({});
+  }
 };
 
 const replace = (s3Location, imgPath) => {
-  const { lotId, imgName } = parseS3Location(s3Location);
-  return store(lotId, imgPath, imgName, { dedup: false });
+  const { ownerId, imgName } = parseS3Location(s3Location);
+  return store( ownerId, imgPath, imgName, { dedup: false } );
 };
 
 const deleteLotImages = async (lotId) => {
@@ -247,7 +250,7 @@ const deleteLotImages = async (lotId) => {
     // 2.) delete each object s3.deleteObjects
     const list = await s3.listObjectsV2({ Bucket: BUCKET, Prefix: lotId }).promise();
     if(list.Contents && list.Contents.length) {
-      const keysToDelete = list.Contents.map(object => { 
+      const keysToDelete = list.Contents.map(object => {
         return {
           Key: object.Key
         };
@@ -277,6 +280,7 @@ module.exports = {
   store: store,
 
   // helpers
-  isImageServerLink: isImageServerLink,
-  imageName: imageName,
+  isImageServerLink,
+  imageName,
+  parseS3Location
 };

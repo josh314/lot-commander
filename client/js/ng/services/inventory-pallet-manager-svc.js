@@ -103,9 +103,12 @@ angular.module('myApp').service( 'InventoryPalletManagerSvc', [
 
     return {
 
+      // pass on the constructor to reduce other module dependencies
+      InventoryPallet,
+
       getPalletId: _palletId,
 
-      get: ( palletId, { populate = [] } ) => $q.when( api.getInventoryPallet( palletId, { populate } ) ).then( resp => new InventoryPallet( resp.pallet, { loadDocuments: true } ) ),
+      get: ( palletId, { populate = [] } = {} ) => $q.when( api.getInventoryPallet( palletId, { populate } ) ).then( resp => new InventoryPallet( resp.pallet, { loadDocuments: true } ) ),
 
       list: ( { filter, sort, num, page } ) => {
 
@@ -316,6 +319,18 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
       }
 
+      addImages( images ) {
+        return $q.when( api.addInventoryPalletImages( this._id, images ) ).then( resp => {
+          if( resp && resp.pallet ) {
+
+            this.images = resp.pallet.images;
+
+          }
+
+          return this;
+        });
+      }
+
       // Pallet documents
       listDocuments( ) {
         return $q.when( api.listObjectDocuments( this._id, this.isReceived ? 'received-pallet' : 'consolidated-pallet' ) ).then( resp => {
@@ -355,6 +370,11 @@ angular.module('myApp').factory( 'InventoryPallet', [
         return this.listDocuments().then( resp => {
           this.documents = (resp && resp.documents) ? resp.documents : [];
         } );
+      }
+
+      refreshDocuments() {
+        this.documentsAreLoaded = this.loadDocuments();
+        return this.documentsAreLoaded.then( _ => this );
       }
 
       getManifestMetadata() {

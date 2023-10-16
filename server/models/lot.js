@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const enums = require( '../modules/enums' );
 const { shippingItemSchema } = require( './shipping-item' );
+const { lotImageSchema } = require( './lot-image' );
 
 /*************************************************
  * Enums
@@ -45,12 +46,7 @@ const lotSchema = mongoose.Schema({
     title: String,
     body: String,
   },
-  images: [{
-    filename: String,
-    s3: String,
-    primary: Boolean,
-    _id: false,
-  }],
+  images: [ lotImageSchema ],
 
   /*********** Manifest properties ************/
   unmanifested: Boolean, //marks a generic lot with unmanifested items.

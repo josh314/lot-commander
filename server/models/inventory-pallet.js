@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const enums = require( '../modules/enums' );
 const { shippingItemSchema } = require( './shipping-item' );
+const { lotImageSchema } = require( './lot-image' );
 
 const inventoryPalletSchema = mongoose.Schema({
   handle: String,
@@ -18,7 +19,8 @@ const inventoryPalletSchema = mongoose.Schema({
     toBeListed: Boolean,
     items: [ Object ],
     packagingType: { type: String, enum: enums.packagingType },
-    shippingItems: [ shippingItemSchema ]
+    shippingItems: [ shippingItemSchema ],
+    images: [ lotImageSchema ],
   } ],
   splitFrom: { // parent pallet that this pallet was split from
     type: mongoose.Schema.Types.ObjectId,
@@ -45,6 +47,7 @@ const inventoryPalletSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Lot'
   },
+  images: [ lotImageSchema ],
 
   /******* Shipping properties ***************/
 
@@ -165,7 +168,6 @@ inventoryPalletSchema.methods.undelete = function() {
   this.deletedDate = undefined;
   return this.save();
 };
-
 
 module.exports = {
   schema: inventoryPalletSchema

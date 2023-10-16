@@ -46,8 +46,12 @@ module.exports = function( lotdbClient ) {
     return lotdbClient.setPrimaryImage( lotId, image );
   }
 
-  function addImage (lotId, imageMetadata ) {
+  function addImage(lotId, imageMetadata ) {
     return lotdbClient.addImage( lotId, imageMetadata );
+  }
+
+  function addImages(lotId, images ) {
+    return lotdbClient.addImages( lotId, images );
   }
 
   function removeImage( lotId, image ) {
@@ -80,6 +84,7 @@ module.exports = function( lotdbClient ) {
     setPrimaryImage,
 
     addImage,
+    addImages,
     removeImage,
     markAsListed,
 

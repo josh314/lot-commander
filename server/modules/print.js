@@ -322,6 +322,74 @@ function createPackageLabels( packages ) {
   return doc;
 }
 
+function createPalletShippingItemsLabels( pallet ) {
+
+  const labelDims = __LABEL_DIMENSIONS__[0];
+
+  const doc = new PDFDocument({ autoFirstPage: false });
+
+
+  for( let i=0; i<pallet.shippingItems.length; i++ ) {
+
+    const shippingItem = pallet.shippingItems[i];
+
+    doc.addPage({
+      margins: {
+        top: 5,
+        bottom: 5,
+        left: 10,
+        right: 10
+      },
+      size: [ labelDims.width , labelDims.height ]
+    });
+
+    doc
+      .fontSize(5)
+      .font('Helvetica').text(
+        `[ ${getShippingItemDimString( shippingItem )} ] (${ i+1 } of ${ pallet.shippingItems.length })`,
+        {
+          align: 'center',
+        }
+      )
+      .moveDown();
+
+    if( pallet.lotNumber ) {
+
+      doc
+        .fontSize(12)
+        .font('Helvetica').text(`Lot number: `, { continued: true })
+        .font('Helvetica-Bold').text(`${pallet.lotNumber}`, { underline: true });
+    }
+
+
+    doc
+      .fontSize(5)
+      .moveDown()
+      .font('Helvetica').text(`Pallet: `, { continued: true })
+      .font('Helvetica-Bold').text(`${pallet.handle}`, { underline: true });
+
+
+    if( pallet.shipment && pallet.shipment.handle ) {
+
+      doc
+        .fontSize(5)
+        .moveDown()
+        .font('Helvetica').text(`Shipment: `, { continued: true })
+        .font('Helvetica-Bold').text(`${pallet.shipment.handle}`, { underline: true });
+    }
+
+    doc
+      .fontSize(5)
+      .moveDown()
+      .font('Helvetica').text(`Date: `, { continued: true })
+      .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
+
+  }
+
+  doc.end();
+  return doc;
+}
+
 function createPalletSplitGroupLabels( splitGroup, pallet ) {
 
   const labelDims = __LABEL_DIMENSIONS__[0];
@@ -402,9 +470,79 @@ function createPalletSplitGroupLabels( splitGroup, pallet ) {
   return doc;
 }
 
+function createLotShippingItemsLabels( lot ) {
+
+  const labelDims = __LABEL_DIMENSIONS__[0];
+
+  const doc = new PDFDocument({ autoFirstPage: false });
+
+
+  for( let i=0; i<lot.shippingItems.length; i++ ) {
+
+    const shippingItem = lot.shippingItems[i];
+
+    doc.addPage({
+      margins: {
+        top: 5,
+        bottom: 5,
+        left: 10,
+        right: 10
+      },
+      size: [ labelDims.width , labelDims.height ]
+    });
+
+    doc
+      .fontSize(5)
+      .font('Helvetica').text(
+        `[ ${getShippingItemDimString( shippingItem )} ] (${ i+1 } of ${ lot.shippingItems.length })`,
+        {
+          align: 'center',
+        }
+      )
+      .moveDown();
+
+    if( lot.lotNumber ) {
+
+      doc
+        .fontSize(12)
+        .font('Helvetica').text(`Lot number: `, { continued: true })
+        .font('Helvetica-Bold').text(`${lot.lotNumber}`, { underline: true });
+    }
+
+    if( lot.pallet && lot.pallet.handle ) {
+      doc
+        .fontSize(5)
+        .moveDown()
+        .font('Helvetica').text(`Pallet: `, { continued: true })
+        .font('Helvetica-Bold').text(`${lot.pallet.handle}`, { underline: true });
+    }
+
+    if( lot.pallet && lot.pallet.shipment && lot.pallet.shipment.handle ) {
+
+      doc
+        .fontSize(5)
+        .moveDown()
+        .font('Helvetica').text(`Shipment: `, { continued: true })
+        .font('Helvetica-Bold').text(`${lot.pallet.shipment.handle}`, { underline: true });
+    }
+
+    doc
+      .fontSize(5)
+      .moveDown()
+      .font('Helvetica').text(`Date: `, { continued: true })
+      .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
+
+  }
+
+  doc.end();
+  return doc;
+}
+
 module.exports = {
+  createLotShippingItemsLabels,
   createPackageLabels,
   createPalletLabels,
+  createPalletShippingItemsLabels,
   createPalletSplitGroupLabels,
   createLotLabels,
   createPickReceipt,

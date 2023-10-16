@@ -776,6 +776,59 @@ export function cloneImages( lotId, images ) {
     .then( resp => resp.data );
 }
 
+export function addInventoryPalletImages( palletId, images ) {
+  return axios({
+    method: 'post',
+    url: `/api/pallets/${ palletId }/images`,
+    data: {
+      images
+    }
+  })
+    .then( resp => resp.data );
+}
+
+export function addLotImages( lotId, images ) {
+  return axios({
+    method: 'post',
+    url: `/api/lots/${ lotId }/images`,
+    data: {
+      images
+    }
+  })
+    .then( resp => resp.data );
+}
+
+export function removePalletImage( palletId, image ) {
+
+  const req = {
+    palletId,
+    image
+  };
+
+  return axios({
+    method: 'post',
+    url: `/api/image/remove`,
+    data: req
+  })
+    .then( resp => resp.data );
+}
+
+export function removePalletSplitGroupImage( palletId, splitGroupId, image ) {
+
+  const req = {
+    palletId,
+    splitGroupId,
+    image
+  };
+
+  return axios({
+    method: 'post',
+    url: `/api/image/remove`,
+    data: req
+  })
+    .then( resp => resp.data );
+}
+
 
 /*************************************************
 * Manual Inventory

@@ -1,5 +1,6 @@
 const enums = require('./enums');
-
+const helpers = require('../helpers');
+const { ResourceNotFoundError } = require('../errors');
 
 const lotQueryFilter = ( { handle, status } ) => {
   const filter = {
@@ -166,11 +167,7 @@ exports.Client = function( { Lot } ) {
 
     if( populate ) {
 
-      for( let path of populate ) {
-
-        q = q.populate( path );
-
-      }
+      q = helpers.appendPopulationQueries( q, populate );
 
     }
 
@@ -233,6 +230,22 @@ exports.Client = function( { Lot } ) {
         // { upsert: true, new: true }
       );
     });
+  };
+
+  this.addImages = async function( lotId, images ) {
+
+    const lot = await this.getLotById( lotId );
+
+    if( !lot ) {
+      throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
+    }
+
+    for( let img of images ) {
+      lot.images.push( img );
+    }
+
+    return lot.save();
+
   };
 
   this.setPrimaryImage = function(lotId, image){

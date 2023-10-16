@@ -1,48 +1,85 @@
 <div class="modal-header">
 	<h3 class="modal-title">Finish splitting pallet</h3>
 </div>
+
 <div class="modal-body">
-  <p>The following new consolidated pallets will be created:</p>
-  <table class="table table-striped table-bordered">
-    <thead>
-      <th>Handle</th>
-      <th>Category</th>
-      <th>Condition</th>
-      <th>To be Listed?</th>
-      <th>Units</th>
-    </thead>
-    <tbody>
-      <tr ng-repeat="$grp in $ctrl.splitGroups track by $index">
-        <td>
-          <div class="form-group" ng-class="{ 'has-error' : $grp.errors.duplicateHandle }" >
-            <input class="form-control" ng-model="$grp.handle" ng-change="$ctrl.validate( $grp )">
-            <span class="text-danger h6" ng-show="$grp.errors.duplicateHandle">Duplicate handle in shipment</span>
+
+  <p>Below is the information for the pallets and lots that will be created for each split group. A lot will only be created if the corresponding pallet is marked <strong>to be listed</strong>.</p>
+
+  <div ng-repeat="$grp in $ctrl.splitGroups track by $index">
+    <div class="panel panel-primary">
+      <div class="panel-heading">Split group: {{ $grp.original.label }}</div>
+      <div class="panel-body">
+
+        <div>
+
+          <h4>Pallet</h4>
+
+          <div class="row">
+
+            <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $grp.errors.duplicatePalletHandle }" >
+              <label for="palletHandleInput">Handle</label>
+              <input id="palletHandleInput" class="form-control" ng-model="$grp.edits.palletHandle" ng-change="$ctrl.onPalletHandleChange( $grp )">
+              <span class="text-danger h6" ng-show="$grp.errors.duplicatePalletHandle">Duplicate handle in shipment</span>
+            </div>
+
+            <div class="form-group col-xs-12 col-sm-4">
+              <label for="palletCategoryInput">Category</label>
+              <select id="palletCategoryInput" class="form-control" ng-model="$grp.edits.category">
+                <option ng-repeat="$option in $ctrl.categoryOptions" ng-value="$option.value">{{ $option.displayName }}</option>
+              </select>
+
+            </div>
+
+            <div class="form-group col-xs-12 col-sm-4">
+              <label for="palletConditionInput">Condition</label>
+              <select id="palletConditionInput" class="form-control" ng-model="$grp.edits.condition">
+                <option ng-repeat="$option in $ctrl.conditionOptions" ng-value="$option.value">{{ $option.displayName }}</option>
+              </select>
+
+            </div>
+
+            <div class="form-group col-xs-12 col-sm-4">
+              <label for="palletToBeListedInput">To Be Listed?</label>
+              <select id="palletToBeListedInput" class="form-control" ng-model="$grp.edits.toBeListed">
+                <option ng-value="true">yes</option>
+                <option ng-value="false">no</option>
+              </select>
+
+            </div>
+
+
+            <div class="form-group col-xs-12 col-sm-4">
+              <label for="unitsInput">Units</label>
+              <input id="unitsInput" class="form-control" ng-value="$grp.original.totalUnits()" disabled>
+            </div>
+
           </div>
-        </td>
-        <td>
-          <select class="form-control" ng-model="$grp.category">
-            <option ng-repeat="$option in $ctrl.categoryOptions" ng-value="$option.value">{{ $option.displayName }}</option>
-          </select>
-        </td>
-        <td>
-          <select class="form-control" ng-model="$grp.condition">
-            <option ng-repeat="$option in $ctrl.conditionOptions" ng-value="$option.value">{{ $option.displayName }}</option>
-          </select>
-        </td>
-        <td>
-          <select class="form-control" ng-model="$grp.toBeListed">
-            <option ng-value="true">yes</option>
-            <option ng-value="false">no</option>
-          </select>
-        </td>
-        <td>
-          {{ $grp.totalUnits() }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
+
+        </div>
+
+        <div ng-show="$grp.edits.toBeListed">
+
+          <h4>Lot</h4>
+
+          <div class="row">
+
+            <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $grp.errors.duplicateLotHandle }" >
+              <label for="lotHandleInput">Handle</label>
+              <input id="lotHandleInput" class="form-control" ng-model="$grp.edits.lotHandle" ng-change="$ctrl.onLotHandleChange( $grp )">
+              <span class="text-danger h6" ng-show="$grp.errors.duplicateLotHandle">Duplicate lot handle</span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="$close( { success: true } )" >Continue</button>
-    <button class="btn btn-warning" type="button" ng-click="$close( { success: false } )">Cancel</button>
+    <button class="btn btn-primary" type="button" ng-click="$ctrl.done()" ng-disabled="!$ctrl.validateAll()">Continue</button>
+    <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
 </div>

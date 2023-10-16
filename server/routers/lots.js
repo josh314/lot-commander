@@ -113,6 +113,11 @@ function routes({ inventoryCommander, lotdb }) {
   );
 
   router.post(
+    '/:lotId/images/',
+    auth.isAuthorized( 'EDIT_LOT' ),
+    addImages
+  );
+  router.post(
     '/:lotId/primary-image/',
     auth.isAuthorized( 'EDIT_LOT' ),
     setPrimaryImage
@@ -203,7 +208,7 @@ function routes({ inventoryCommander, lotdb }) {
     try {
       const handle = req.params.handle;
       const populate = helpers.populationPathsFromQuery( req.query );
-      
+
       let response;
       if( handle ) {
         const lot = await lotdb.getLotByHandle( handle, { populate } );
@@ -341,50 +346,78 @@ function routes({ inventoryCommander, lotdb }) {
 
   }
 
-  function uploadManifest( req, res, next ) {
-    const lotId = req.params.lotId;
-    const filename = req.params.filename;
-    const form = new formidable.IncomingForm();
-    form.parse( req, async function ( _err, _fields, files ) {
-      try {
-        const fileUploads = [];
-        for(let [_, f] of Object.entries(files)){
-          const readStream = fs.createReadStream(f.filepath);
+  async function uploadManifest( req, res, next ) {
 
-          const lot = await lotdb.getLotById(lotId);
+    try {
 
-          if( !lot ) {
-            throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
-          }
+      const lotId = req.params.lotId;
+      const filename = req.params.filename;
+      const form = new formidable.IncomingForm();
 
-          const s3Key = filename ? `${ lotId }/${ filename }` : `${ lotId }/${ lot.handle }${ path.extname(f.originalFilename)  }`;
+      const [ _, files ] = await form.parse( req );
 
-          const storePromise = manifestSvc.put( readStream, s3Key , true).then(resp=>{
-            if(resp && resp.data) {
-              return lotdb.editLot({
-                _id: lotId,
-                manifestFileLocation: resp.data.Location
-              });
-            }
-          })
-            .then(_=>{
-              console.log(`Unlinking temp file ${f.filepath}`);
-              // TODO: check the unlinking!
-              fs.promises.unlink( f.filepath );
-              return _;
-            });
+      const fileUploads = [];
 
-          fileUploads.push( storePromise );
+      for( let [ _, fileArray ] of Object.entries(files) ){
 
+        const f = fileArray[0];
+
+        const readStream = fs.createReadStream(f.filepath);
+
+        const lot = await lotdb.getLotById(lotId);
+
+        if( !lot ) {
+          throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
         }
 
-        res.json( await Promise.all( fileUploads ) );
+        const s3Key = filename ? `${ lotId }/${ filename }` : `${ lotId }/${ lot.handle }${ path.extname(f.originalFilename)  }`;
+
+        const storePromise = manifestSvc.put( readStream, s3Key , true).then(resp=>{
+          if(resp && resp.data) {
+            return lotdb.editLot({
+              _id: lotId,
+              manifestFileLocation: resp.data.Location
+            });
+          }
+        })
+          .then(_=>{
+            console.log(`Unlinking temp file ${f.filepath}`);
+            // TODO: check the unlinking!
+            fs.promises.unlink( f.filepath );
+            return _;
+          });
+
+        fileUploads.push( storePromise );
 
       }
-      catch (e) {
-        next(e);
-      }
-    });
+
+      res.json( await Promise.all( fileUploads ) );
+
+
+    }
+    catch(e) {
+      return next(e);
+    }
+
+  }
+
+  async function addImages( req, res, next ) {
+
+    try {
+
+      const lotId = req.params.lotId;
+      const { images } = req.body;
+
+      const lot = await lotdb.addImages( lotId, images );
+
+
+      res.json( { lot } );
+
+    }
+    catch(e) {
+      return next( e );
+    }
+
   }
 
   /**************************************

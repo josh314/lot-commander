@@ -11,12 +11,12 @@ angular.module('myApp').factory( 'LotSvc', [
   'lotStore',
 
   function(
-    
+
     $q,
     $stateParams,
     InventoryPallet,
     lotStore
-    
+
   ) {
 
     async function _get( lotId, { populate, hydratePallet, hydratePalletNoDocuments } = {} ) {
@@ -75,6 +75,8 @@ angular.module('myApp').factory( 'LotSvc', [
       getManifest: manifestId => $q.when( api.getManifest( manifestId ) ),
 
       import3rdPartyManifestBlock: ( lot, blockId ) => $q.when( api.import3rdPartyManifestBlock({ lot, blockId }) ),
+
+      addImages: ( lotId, images ) => $q.when( api.addLotImages( lotId, images ) ),
 
       list: ( { filter, sort, num, page } ) => {
 

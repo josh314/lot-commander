@@ -176,54 +176,53 @@ function routes( ) {
 
   }
 
-  function uploadObjectDocument( req, res, next ) {
+  async function uploadObjectDocument( req, res, next ) {
 
-    const documentName = req.params.documentName;
+    try {
 
-    const form = new formidable.IncomingForm();
-    form.parse(req, async function (err, fields, files) {
-      if( err ) {
-        next(err);
+      const documentName = req.params.documentName;
+
+      const form = new formidable.IncomingForm();
+
+      const [ fields, files ] = await form.parse(req);
+
+      const file = Object.entries(files)[0];
+
+      if(file) {
+
+        const [ _, fileArray ] = file;
+
+        const f = fileArray[0];
+
+        const readStream = fs.createReadStream(f.filepath);
+
+        const tags = {
+          permission: fields.isRestricted === 'true' || fields.documentType === 'invoice' ? __RESTRICTED_DOCUMENT_PERMISSION__ : '',
+          documentType: fields.documentType || '',
+        };
+
+        await documentSvc.store( {
+          readStream: readStream,
+          folder: documentSvc.folder( __FOLDER_PREFIX__[ req.query.object_type ] )( req.params.objectId ),
+          name: documentName,
+          tags
+        } );
+
+        console.log(`Unlinking temp file ${f.filepath}`);
+        fs.promises.unlink(f.filepath);
+        res.json( { success: true } );
+      }
+      else {
+        res.json( { error: true, message: 'No file uploaded.' } );
       }
 
-      try {
-
-        const file = Object.entries(files)[0];
-
-        if(file) {
-
-          const [ _, f ] = file;
-
-          const readStream = fs.createReadStream(f.filepath);
-
-          const tags = {
-            permission: fields.isRestricted === 'true' || fields.documentType === 'invoice' ? __RESTRICTED_DOCUMENT_PERMISSION__ : '',
-            documentType: fields.documentType || '',
-          };
-
-          await documentSvc.store( {
-            readStream: readStream,
-            folder: documentSvc.folder( __FOLDER_PREFIX__[ req.query.object_type ] )( req.params.objectId ),
-            name: documentName,
-            tags
-          } );
-
-          console.log(`Unlinking temp file ${f.filepath}`);
-          fs.promises.unlink(f.filepath);
-          res.json( { success: true } );
-        }
-        else {
-          res.json( { error: true, message: 'No file uploaded.' } );
-        }
-
-
-      }
-      catch (e) {
-        next(e);
-      }
-    });
+    }
+    catch(e) {
+      return next(e);
+    }
 
   }
+
 
   function editObjectDocumentProperties( req, res, next ) {
 

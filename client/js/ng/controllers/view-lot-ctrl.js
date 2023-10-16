@@ -72,7 +72,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     vm.linkManifestBlock = linkManifestBlock;
     vm.readableDate = readableDate;
     vm.openGallery = openGallery;
-    vm.printLabels = printLabels;
+    vm.printShippingItemsLabels = printShippingItemsLabels;
     vm.generateManifestFileForScannedInventory = generateManifestFileForScannedInventory;
     vm.openRecentImageGallery = openRecentImageGallery;
     vm.confirmAddLotImage = confirmAddLotImage;
@@ -312,20 +312,21 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       navigate.lotGallery( lotStore._id );
     }
 
-    function editShippingItems() {
-      return ModalSvc.shippingItems( lotStore.shippingItems )
-        .then(shippingItems => {
-          if(shippingItems) {
-            lotStore.shippingItems = shippingItems;
-            return LotSvc.edit( lotStore._id , lotStore ).then( _lot => {
-              return true;
-            });
-          }
-          else {
-            return false;
-          }
-        });
-    }
+    // DEPRECATED
+    // function editShippingItems() {
+    //   return ModalSvc.shippingItems( lotStore.shippingItems )
+    //     .then(shippingItems => {
+    //       if(shippingItems) {
+    //         lotStore.shippingItems = shippingItems;
+    //         return LotSvc.edit( lotStore._id , lotStore ).then( _lot => {
+    //           return true;
+    //         });
+    //       }
+    //       else {
+    //         return false;
+    //       }
+    //     });
+    // }
 
     function editShippingItemsCb (shippingItems) {
       if(shippingItems) {
@@ -339,23 +340,38 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       }
     }
 
-// TODO: is this use of editShippingItems() kosher?
-    function printLabels() {
-      const isPrinting = PrintSvc.printLotLabels( lotStore );
-      if(!isPrinting) {
-        editShippingItems().then(isEdited=>{
-          if(isEdited) {
-            PrintSvc.printLotLabels( lotStore );
-          }
-        });
-      }
-    }
+    // DEPRECATED
+    // TODO: is this use of editShippingItems() kosher?
+    // function printLabels() {
+    //   const isPrinting = PrintSvc.printLotLabels( lotStore );
+    //   if(!isPrinting) {
+    //     editShippingItems().then(isEdited=>{
+    //       if(isEdited) {
+    //         PrintSvc.printLotLabels( lotStore );
+    //       }
+    //     });
+    //   }
+    // }
 
     function generateManifestFileForScannedInventory() {
 
       LotSvc.generateManifest( lotStore._id, true, false ).then( () => {
         navigate.reload();
       });
+
+    }
+
+    function printShippingItemsLabels() {
+
+      if( !lotStore.shippingItems || lotStore.shippingItems.length === 0 ) {
+        return ModalSvc.message( {
+          header: 'Nothing to print',
+          html: `<p>The split group <strong>${ lotStore.label }</strong> has no shipping items configured.</p>`,
+          type: 'warning'
+        } );
+      }
+
+      PrintSvc.printLotShippingItemsLabels( lotStore._id );
 
     }
 

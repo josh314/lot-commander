@@ -316,75 +316,139 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         }
       },
 
-      controller: [ '$scope', 'CounterSvc', 'dbEnums', 'LoggedInUser', 'navigate', 'PackagingTypeInfoModalSvc', 'pallet', 'palletProperties',
-        function( $scope, CounterSvc, dbEnums, LoggedInUser, navigate, PackagingTypeInfoModalSvc, pallet, palletProperties ){
+      controller: [
 
-          const vm = this;
-          vm.pallet = pallet;
-          vm.inputs = Object.assign( { isBrokendown: false, hasProblem: false, category: null, condition: 'shelf-pull' }, pallet );
-          vm.errors = {};
-          vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );
-          vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) );
-          vm.packagingTypeEnum = dbEnums.packagingType;
+        '$scope',
+        'CounterSvc',
+        'dbEnums',
+        'ImageSvc',
+        'InventoryPalletManagerSvc',
+        'LoggedInUser',
+        'messageModal',
+        'navigate',
+        'PackagingTypeInfoModalSvc',
+        'pallet',
+        'palletProperties',
+        'PrintSvc',
+        'WaitingModalSvc',
 
-          vm.disableEditing = ! LoggedInUser.hasPermission( 'EDIT_INVENTORY_PALLET' );
-          vm.allowShipmentNavigation = LoggedInUser.hasPermission( 'VIEW_INCOMING_SHIPMENT' );
-          vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
-          vm.showDeveloper = LoggedInUser.isDeveloper();
-          vm.showPricingData = LoggedInUser.hasPermission('VIEW_PRICING_DATA');
-          vm.allowEditPricingData = LoggedInUser.hasPermission('EDIT_PRICING_DATA') || !vm.pallet.retailValue;
-          vm.showBrokendownDate = pallet.isBrokendown;
-          vm.showCreatedAtDate = !!pallet.createdAt;
-          vm.showShipment = !!pallet.shipment;
-
-          vm.validate = () => {
-
-            vm.errors.emptyHandle = !vm.inputs.handle;
-
-            // vm.errors.invalidCost = vm.showPurchasingData ? !( vm.inputs.cost > 0 ) : false;
-
-            const shipment = pallet.shipment;
-
-            if( shipment && shipment.palletsReceived && shipment.palletsConsolidated ) {
-
-              vm.errors.duplicateHandle = !! shipment.palletsReceived.concat( shipment.palletsConsolidated ).find( _p => _p.handle === vm.inputs.handle && _p._id !== pallet._id );
-
-            }
-
-            return Object.values( vm.errors ).every( value => !value );
-          };
-
-          vm.finish = () => {
-            return $scope.$close( vm.inputs );
-          };
-
-          vm.generateLotNumber = () => CounterSvc.incrementPalletLotCounter().then( counter => {
-            vm.inputs.lotNumber = counter.count;
-          } );
-
-          vm.navigateToShipment = () => {
-            if( vm.inputs.shipment._id ) {
-              navigate.shipmentDetails( vm.inputs.shipment._id );
-              $scope.$close( vm.inputs );
-            }
-          };
-
-          vm.viewRemovedItems = () => viewRemovedItemsModal( pallet );
-
-          vm.editShippingItemsCb = function( _shippingItems ) {
-
-            vm.inputs.shippingItems = _shippingItems;
-
-          };
-
-          vm.openPackagingTypeInfo = PackagingTypeInfoModalSvc.launch.bind( PackagingTypeInfoModalSvc );
-        }
+        InventoryPalletDetailsModalCtrl
       ],
       controllerAs: '$ctrl'
 
     });
 
     return modalInstance.result;
+  }
+
+  function InventoryPalletDetailsModalCtrl (
+    $scope,
+    CounterSvc,
+    dbEnums,
+    ImageSvc,
+    InventoryPalletManagerSvc,
+    LoggedInUser,
+    messageModal,
+    navigate,
+    PackagingTypeInfoModalSvc,
+    pallet,
+    palletProperties,
+    PrintSvc,
+    WaitingModalSvc
+  )
+
+  {
+
+    const vm = this;
+    vm.pallet = pallet;
+    vm.images = pallet.images;
+    vm.inputs = Object.assign( { isBrokendown: false, hasProblem: false, category: null, condition: 'shelf-pull' }, pallet );
+    vm.errors = {};
+    vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) );
+    vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) );
+    vm.packagingTypeEnum = dbEnums.packagingType;
+
+    vm.disableEditing = ! LoggedInUser.hasPermission( 'EDIT_INVENTORY_PALLET' );
+    vm.allowShipmentNavigation = LoggedInUser.hasPermission( 'VIEW_INCOMING_SHIPMENT' );
+    vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+    vm.showDeveloper = LoggedInUser.isDeveloper();
+    vm.showPricingData = LoggedInUser.hasPermission('VIEW_PRICING_DATA');
+    vm.allowEditPricingData = LoggedInUser.hasPermission('EDIT_PRICING_DATA') || !vm.pallet.retailValue;
+    vm.showBrokendownDate = pallet.isBrokendown;
+    vm.showCreatedAtDate = !!pallet.createdAt;
+    vm.showShipment = !!pallet.shipment;
+
+    vm.validate = () => {
+
+      vm.errors.emptyHandle = !vm.inputs.handle;
+
+      // vm.errors.invalidCost = vm.showPurchasingData ? !( vm.inputs.cost > 0 ) : false;
+
+      const shipment = pallet.shipment;
+
+      if( shipment && shipment.palletsReceived && shipment.palletsConsolidated ) {
+
+        vm.errors.duplicateHandle = !! shipment.palletsReceived.concat( shipment.palletsConsolidated ).find( _p => _p.handle === vm.inputs.handle && _p._id !== pallet._id );
+
+      }
+
+      return Object.values( vm.errors ).every( value => !value );
+    };
+
+    vm.finish = () => {
+      return $scope.$close( vm.inputs );
+    };
+
+    vm.generateLotNumber = () => CounterSvc.incrementPalletLotCounter().then( counter => {
+      vm.inputs.lotNumber = counter.count;
+    } );
+
+    vm.navigateToShipment = () => {
+      if( vm.inputs.shipment._id ) {
+        navigate.shipmentDetails( vm.inputs.shipment._id );
+        $scope.$close( vm.inputs );
+      }
+    };
+
+    vm.viewRemovedItems = () => viewRemovedItemsModal( pallet );
+
+    vm.editShippingItemsCb = function( _shippingItems ) {
+
+      vm.inputs.shippingItems = _shippingItems;
+
+    };
+
+    vm.printLabels = () => {
+
+      if( !vm.pallet.shippingItems || vm.pallet.shippingItems.length === 0 ) {
+        return messageModal.launch( {
+          header: 'Nothing to print',
+          html: `<p>This pallet has no shipping items configured.</p>`,
+          type: 'warning'
+        } );
+      }
+
+      PrintSvc.printPalletShippingItemsLabels( vm.pallet._id );
+
+    };
+
+    vm.openPackagingTypeInfo = PackagingTypeInfoModalSvc.launch.bind( PackagingTypeInfoModalSvc );
+
+    vm.getImageLink = ImageSvc.getImageLink.bind( ImageSvc );
+
+    vm.uploadImages = () => WaitingModalSvc.launch({
+      waitFor: ImageSvc.uploadPalletImages( vm.pallet._id, vm.imagesToUpload ).then( refreshImages ),
+    });
+
+    vm.removeImage = image => WaitingModalSvc.launch({
+      waitFor: ImageSvc.removePalletImage( vm.pallet._id, image ).then( refreshImages ),
+    });
+
+    function refreshImages() {
+      InventoryPalletManagerSvc.get( vm.pallet._id ).then( pallet => {
+        vm.images = pallet.images;
+      });
+    }
   }
 
   function viewRemovedItemsModal( pallet ) {
@@ -437,8 +501,6 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
 
     });
   }
-
-
 
 }] );
 

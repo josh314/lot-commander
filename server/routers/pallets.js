@@ -120,6 +120,12 @@ function routes({ eventsDb, inventoryCommander }) {
     setEditDocumentBasedUponAuth,
     editInventoryPallet
   );
+  router.post(
+    '/:palletId/images/',
+    auth.isAuthorizedForAny( 'EDIT_INVENTORY_PALLET', 'REPACK_INVENTORY_PALLET' ),
+    setEditDocumentBasedUponAuth,
+    addInventoryPalletImages,
+  );
   router.put(
     '/:palletId/is-brokendown',
     auth.isAuthorized( 'EDIT_INVENTORY_PALLET' ),
@@ -363,6 +369,25 @@ function routes({ eventsDb, inventoryCommander }) {
         }
 
       }
+
+      res.json( { pallet } );
+
+    }
+    catch(e) {
+      return next( e );
+    }
+
+  }
+
+  async function addInventoryPalletImages( req, res, next ){
+
+    try {
+
+      const palletId = req.params.palletId;
+      const { images } = req.body;
+
+      const pallet = await inventoryCommander.addInventoryPalletImages( palletId, images );
+
 
       res.json( { pallet } );
 

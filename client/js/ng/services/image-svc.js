@@ -143,5 +143,49 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
 
       return res;
     };
+
+    svc.uploadPalletImages = ( palletId, images ) => {
+
+      const uploads = [];
+
+      for( let image of images ) {
+        uploads.push(
+          fileUpload.uploadFileToUrl(image, urls.upload, { palletId } )
+        );
+      }
+
+      return Promise.all( uploads );
+
+    };
+
+    svc.uploadPalletSplitGroupImages = ( palletId, splitGroupId, images ) => {
+
+      const uploads = [];
+
+      for( let image of images ) {
+        uploads.push(
+          fileUpload.uploadFileToUrl(image, urls.upload, { palletId, splitGroupId })
+        );
+      }
+
+      return Promise.all( uploads );
+
+    };
+
+    svc.removePalletImage = async ( palletId, image ) => {
+      return $q.when( api.removePalletImage( palletId, image ) );
+    };
+
+    svc.removePalletSplitGroupImage = async ( palletId, splitGroupId, image ) => {
+      return $q.when( api.removePalletSplitGroupImage( palletId, splitGroupId, image ) );
+    };
+
+    svc.getImageLink = image => image.s3 ? `/api/image/?s3=${encodeURIComponent(image.s3)}` : image.filename;
+
+    svc.cleanImageObject = imageObj => ({
+      s3: imageObj.s3,
+      filename: imageObj.filename,
+      primary: imageObj.primary
+    });
   }
 ]);

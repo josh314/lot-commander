@@ -7,7 +7,9 @@ angular.module('myApp').directive('shippingItemsDir', function(){
     scope: {
       shippingItems: '=',
       showEditingControls: '=',
-      editShippingItemsCb: '=',
+      editShippingItemsCb: '&',
+      showPrintControls: '=',
+      print: '&', // calls the expression in the directive attribute value (in the parent scope)
       skipValidation: '='
     },
     controller: [ '$scope', 'ModalSvc', function ( $scope, ModalSvc ) {
@@ -17,7 +19,7 @@ angular.module('myApp').directive('shippingItemsDir', function(){
         return ModalSvc.shippingItems( $scope.shippingItems, $scope.skipValidation ).then( function( shippingItems ) {
 
           if( shippingItems && $scope.editShippingItemsCb ) {
-            return $scope.editShippingItemsCb( shippingItems );
+            return $scope.editShippingItemsCb( { shippingItems } );
           }
 
         });

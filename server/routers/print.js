@@ -50,6 +50,9 @@ function routes({ inventoryCommander, lotdb }) {
   router.get('/labels/incoming-shipments/:shipmentId/pallets-:palletList', incomingShipmentLabels);
   router.get('/labels/incoming-shipments/:shipmentId/pallets-:palletList/:palletId', incomingShipmentPalletLabel);
 
+
+  router.get('/labels/lots/:lotId/shipping-items', lotShippingItemsLabels);
+  router.get( '/labels/pallets/:palletId/shipping-items', palletShippingItemsLabels );
   router.get( '/labels/pallets/:palletId/split-groups/:splitGroupId', palletSplitGroupLabels );
 
   router.post('/labels/packages/', packageLabelsByIdList);
@@ -143,6 +146,23 @@ function routes({ inventoryCommander, lotdb }) {
     }
   }
 
+  function palletShippingItemsLabels(req, res, next) {
+    const palletId = req.params.palletId;
+
+    inventoryCommander.getInventoryPalletById( palletId, { populate: [ 'shipment' ] } )
+      .then( pallet => {
+
+        if( !pallet ) {
+
+          throw new Error(`No pallet found with id ${palletId}`);
+
+        }
+
+        print.createPalletShippingItemsLabels( pallet ).pipe(res);
+
+      })
+      .catch( next );
+  }
 
   function palletSplitGroupLabels(req, res, next) {
     const palletId = req.params.palletId;
@@ -169,6 +189,24 @@ function routes({ inventoryCommander, lotdb }) {
           throw new Error(`No splitGroup found with id ${splitGroupId} in pallet ${palletId}.`);
 
         }
+      })
+      .catch( next );
+  }
+
+  function lotShippingItemsLabels(req, res, next) {
+    const lotId = req.params.lotId;
+
+    lotdb.getLotById( lotId, { populate: [ 'pallet', 'pallet.shipment' ] } )
+      .then( lot => {
+
+        if( !lot ) {
+
+          throw new Error(`No lot found with id ${lotId}`);
+
+        }
+
+        print.createLotShippingItemsLabels( lot ).pipe(res);
+
       })
       .catch( next );
   }

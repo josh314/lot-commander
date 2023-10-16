@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const dayjs = require('dayjs');
 
+const { appendPopulationQueries } = require('../helpers');
 const {
   ResourceNotFoundError,
   ChildResourceNotFoundError,
@@ -273,51 +274,6 @@ const bundleQueryFilter = ( { handle, pkg, isPacked } ) => {
 
   return filter;
 };
-
-//Note: that this only supports two levels of the path, i.e. 'shipment' & 'shipment.palletsReceived'.
-// If we have a reason to go deeper, we'll need to put together some sort of recursive solution.
-function appendPopulationQueries( query, populationPaths ) {
-
-  const populationSets = populationPaths.reduce( ( acc, path ) => {
-
-    const dotIdx = path.indexOf('.');
-
-    const { parentPath, childPath } = dotIdx > -1 ? { parentPath: path.slice( 0, dotIdx ), childPath: path.slice( dotIdx + 1 ) } : { parentPath: path };
-
-    if( !acc.has( parentPath ) ) {
-
-      acc.set( parentPath, new Set() );
-
-    }
-
-    acc.get( parentPath ).add( childPath );
-
-    return acc;
-  }, new Map() );
-
-
-  const pathObjects = [];
-  for( let [ parentPath, childPathSet ]  of populationSets.entries() ) {
-    // filter out empty childpaths. this removes, e.g. 'shipment' if 'shipment.palletsReceived' exists
-    const _childPathList = [ ...childPathSet ].filter(_=>_);
-
-    if( _childPathList.length ) {
-
-      // for each child path, add a two level deep population object
-      _childPathList.forEach( _cp => pathObjects.push( { path: parentPath, populate: { path: _cp } } ) );
-
-    }
-    else { // if no child paths at all, add a one-level deep population object
-      pathObjects.push( { path: parentPath } );
-    }
-  }
-
-  for( let _po of pathObjects ) {
-    query = query.populate( _po );
-  }
-
-  return query;
-}
 
 function getShipmentDateRangeMatchDocument( { startDate, endDate, dateField = 'createdAt' } ) {
 
@@ -1240,6 +1196,105 @@ class InventoryCommander {
     await pallet.unrepack();
 
     return { pallet };
+
+  }
+
+  async addInventoryPalletImage( palletId, imageMetadata ) {
+
+    const pallet = await this.getInventoryPalletById( palletId );
+
+    if( !pallet ) {
+      throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
+    }
+
+    pallet.images.push( imageMetadata );
+
+    return pallet.save();
+
+  }
+
+  async addInventoryPalletSplitGroupImage( palletId, splitGroupId, imageMetadata ) {
+
+    const pallet = await this.getInventoryPalletById( palletId );
+
+    if( !pallet ) {
+      throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
+    }
+
+    const splitGroup = pallet.splitGroups.id( splitGroupId );
+
+    if( !splitGroup ) {
+      throw new ChildResourceNotFoundError( {
+        parentType: 'inventory pallet',
+        parentId: palletId,
+        childType: 'split group',
+        childId: splitGroupId
+      } );
+    }
+
+    splitGroup.images.push( imageMetadata );
+
+    return pallet.save();
+
+  }
+
+  async removeInventoryPalletImage( palletId, image ) {
+
+    const pallet = await this.getInventoryPalletById( palletId );
+
+    if( !pallet ) {
+      throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
+    }
+
+    const foundImageToBeRemovedIndex = pallet.images.findIndex(item => image.s3 ? item.s3 === image.s3 : item.filename === image.filename);
+    if(foundImageToBeRemovedIndex==-1) {
+      throw new ChildResourceNotFoundError( {
+        parentType: 'inventory pallet',
+        parentId: palletId,
+        childType: 'image',
+        childId: image.s3 || image.filename
+      } );
+    }
+
+    pallet.images.splice(foundImageToBeRemovedIndex, 1);
+
+    return pallet.save();
+
+  }
+
+
+  async removeInventoryPalletSplitGroupImage( palletId, splitGroupId, image ) {
+
+    const pallet = await this.getInventoryPalletById( palletId );
+
+    if( !pallet ) {
+      throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
+    }
+
+    const splitGroup = pallet.splitGroups.id( splitGroupId );
+
+    if( !splitGroup ) {
+      throw new ChildResourceNotFoundError( {
+        parentType: 'inventory pallet',
+        parentId: palletId,
+        childType: 'split group',
+        childId: splitGroupId
+      } );
+    }
+
+    const foundImageToBeRemovedIndex = splitGroup.images.findIndex(item => image.s3 ? item.s3 === image.s3 : item.filename === image.filename);
+    if(foundImageToBeRemovedIndex==-1) {
+      throw new ChildResourceNotFoundError( {
+        parentType: 'inventory pallet',
+        parentId: palletId,
+        childType: 'image',
+        childId: image.s3 || image.filename
+      } );
+    }
+
+    splitGroup.images.splice(foundImageToBeRemovedIndex, 1);
+
+    return pallet.save();
 
   }
 

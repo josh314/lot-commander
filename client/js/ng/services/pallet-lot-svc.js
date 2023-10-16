@@ -2,16 +2,39 @@ import angular from 'angular';
 
 import * as api from '../../api';
 
+const lotHandle = ( pallet, lotNumber ) => {
+
+  let res = '';
+
+  if( pallet.shipment && pallet.shipment.handle ) {
+    res += `${pallet.shipment.handle}--`;
+  }
+
+  res += pallet.handle;
+
+  if( lotNumber ) {
+    res += `--${lotNumber}`;
+  }
+
+  return res;
+};
+
 /******************* Service for creating lots from pallets ***/
-angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'ModalSvc', 'ShippingItemsSvc',
-  function( CounterSvc, LotSvc, ModalSvc, ShippingItemsSvc ) {
+angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'InventoryPallet', 'LotSvc', 'ModalSvc', 'ShippingItemsSvc',
+  function( CounterSvc, InventoryPallet, LotSvc, ModalSvc, ShippingItemsSvc ) {
 
     return {
       createLot,
-      createLotWithUi
+      createLotWithUi,
+      lotHandle,
     };
 
-    async function createLotWithUi( pallet, { handle, marketplace, status, packagingType = 'pallets' } = {} ) {
+    async function createLotWithUi( pallet, { lotNumber, handle, marketplace, status, packagingType = 'pallets' } = {} ) {
+
+      if( !pallet.isHydrated ) {
+        pallet = new InventoryPallet( pallet );
+      }
+      await pallet.documentsAreLoaded;
 
       if( !pallet.hasManifest() ) {
         const isConfirmed = await ModalSvc.confirm({
@@ -25,7 +48,7 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
       }
 
       return ModalSvc.wait( {
-        waitFor: createLot( pallet, { handle, marketplace, status, packagingType } ),
+        waitFor: createLot( pallet, { lotNumber, handle, marketplace, status, packagingType } ),
         delay: 2000
       } );
 
@@ -48,6 +71,11 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
 
     async function createLot( pallet, { lotNumber, handle, marketplace, status, packagingType = 'pallets' } = {} ) {
 
+      if( !pallet.isHydrated ) {
+        pallet = new InventoryPallet( pallet );
+      }
+      await pallet.documentsAreLoaded;
+
       packagingType = pallet.packagingType || packagingType;
 
       if( !lotNumber ) {
@@ -60,7 +88,7 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
         }
       }
 
-      const handleToSubmit = handle || `${ pallet.shipment && pallet.shipment.handle ? `${pallet.shipment.handle}--` : '' }${pallet.handle}--${lotNumber}`;
+      const handleToSubmit = handle || lotHandle( pallet, lotNumber );
 
       const existingLot = await LotSvc.getLotByHandle( handleToSubmit );
 
@@ -122,6 +150,12 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'LotSvc', 'Moda
           const file = new File( [ arrayBuffer ] , manifestFilename );
 
           await api.uploadLotManifestFile( lot._id, file, manifestFilename );
+
+          if( pallet.images && pallet.images.length ) {
+
+            await LotSvc.addImages( lot._id, pallet.images );
+
+          }
 
         }
 
