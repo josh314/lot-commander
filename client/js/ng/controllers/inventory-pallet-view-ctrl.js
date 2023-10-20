@@ -49,17 +49,17 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
       vm.displayModeActive = vm.displayModes.LIST;
       vm.displayModeActiveIs = str => str === vm.displayModeActive;
       vm.setDisplayModeActive = str => (vm.displayModeActive = str) && refreshPalletsData();
-  
+
       // Permissions
       vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
       vm.allowShipmentNavigation = LoggedInUser.hasPermission('VIEW_INCOMING_SHIPMENT');
       vm.allowLotNavigation = LoggedInUser.hasPermission('VIEW_LOT');
-  
+
       // aggregation options
       vm.aggregationReportDate = __TODAY__.toDate();
       vm.aggregationReportMinDate = dayjs('2021-01-01').format('YYYY-MM-DD');
       vm.aggregationReportMaxDate = __TODAY__.format('YYYY-MM-DD');
-  
+
       // list mode options
       vm.filter = {
         handle: '',
@@ -70,6 +70,7 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
         toBeListed: null,
         isRepacked: null,
         hasLot: null,
+        isMissing: false,
       };
       vm.categoryOptions = [ "" ].concat( palletProperties.category );
       vm.conditionOptions = [ "" ].concat( palletProperties.condition );
@@ -79,7 +80,7 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
         key: 'createdAt',
         ascending: true
       };
-  
+
       vm.pagination = {
         current: 1,
         totalItems: 0,
@@ -87,9 +88,9 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
         pageChange: refreshPalletsList,
         maxSize: 8
       };
-  
+
       vm.columns = InventoryPalletManagerSvc.getListColumns();
-  
+
       vm.showColumnOptions = false;
       vm.toggleShowColumnOptions = () => vm.showColumnOptions = !vm.showColumnOptions;
       vm.toggleColumnActive = toggleColumnActive;
@@ -98,9 +99,9 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
       vm.showPalletDetails = showPalletDetails;
       vm.createLotFromPallet = createLotFromPallet;
       vm.repackPallet = repackPallet;
-  
+
       vm.createPallet = () => navigate.inventoryPalletCreation();
-  
+
       loadUserSettings();
       refreshPalletsData();
     }

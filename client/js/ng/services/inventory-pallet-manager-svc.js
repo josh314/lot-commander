@@ -40,6 +40,26 @@ const queryParams = ( params ) => {
     delete qp.toBeProcessed;
   }
 
+  if( "isAllocatedForUnmanifestedLots" in qp ) {
+
+    if( qp.isAllocatedForUnmanifestedLots !== null ) {
+      qp.is_allocated_for_unmanifested_lots = qp.isAllocatedForUnmanifestedLots ? 1 : 0;
+    }
+
+    delete qp.isAllocatedForUnmanifestedLots;
+
+  }
+
+  if( "isMissing" in qp ) {
+
+    if( qp.isMissing !== null ) {
+      qp.is_missing = qp.isMissing ? 1 : 0;
+    }
+
+    delete qp.isMissing;
+
+  }
+
   if( "isRepacked" in qp ) {
 
     if( qp.isRepacked !== null ) {
@@ -237,6 +257,8 @@ angular.module('myApp').factory( 'InventoryPallet', [
           'cost',
           'toBeListed',
           'toBeProcessed',
+          'isAllocatedForUnmanifestedLots',
+          'isMissing',
           'hasProblem',
           'note',
           'packagingType',

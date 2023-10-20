@@ -21,6 +21,7 @@ angular.module('myApp').controller('ListLotsCtrl', [ 'dbEnums', 'lotStore', 'Lot
     vm.filter = {
       status: 'All',
       handle: '',
+      lotNumber: '',
     };
     vm.sortOpts = {
       key: 'createdAt',
@@ -45,31 +46,56 @@ angular.module('myApp').controller('ListLotsCtrl', [ 'dbEnums', 'lotStore', 'Lot
 
     function refreshLotsList() {
 
-      const filter = {
-        status: vm.filter.status==='All' ? undefined : vm.filter.status,
-        handle: vm.filter.handle,
-      };
+      let p;
 
-      return LotSvc.count( filter ).then( resp => {
-        vm.pagination.totalItems = resp.count;
+      if( vm.filter._id ) {
 
-        const pagedQueryOptions = {
-          filter,
-          sort: vm.sortOpts,
-          num: __PAGE_SIZE__,
-          page: vm.pagination.current,
+        p = LotSvc.get( vm.filter._id ).then( lot => {
+
+          vm.pagination.totalItems = 0;
+
+          const lots = [];
+          if( lot ) {
+            vm.pagination.totalItems += 1;
+            lots.push( lot );
+          }
+
+          return lots;
+        } );
+
+      }
+      else {
+
+        const filter = {
+          status: vm.filter.status==='All' ? undefined : vm.filter.status,
+          handle: vm.filter.handle,
+          lotNumber: vm.filter.lotNumber
         };
 
-        return LotSvc.list( pagedQueryOptions ).then( lots => {
+        p = LotSvc.count( filter ).then( resp => {
+          vm.pagination.totalItems = resp.count;
 
-          lots.forEach( lot =>{
-            lot.readableUpdatedAt = (new Date(lot.updatedAt)).toLocaleString();
-            lot.readableCreatedAt = (new Date(lot.createdAt)).toLocaleString();
-          });
+          const pagedQueryOptions = {
+            filter,
+            sort: vm.sortOpts,
+            num: __PAGE_SIZE__,
+            page: vm.pagination.current,
+          };
 
-          vm.lots = lots;
+          return LotSvc.list( pagedQueryOptions );
+
         });
 
+      }
+
+      p.then( lots => {
+
+        lots.forEach( lot =>{
+          lot.readableUpdatedAt = (new Date(lot.updatedAt)).toLocaleString();
+          lot.readableCreatedAt = (new Date(lot.createdAt)).toLocaleString();
+        });
+
+        vm.lots = lots;
       });
 
     }

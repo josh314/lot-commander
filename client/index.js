@@ -59,6 +59,7 @@ import "./js/ng/controllers/flash-ctrl.js";
 import "./js/ng/controllers/gallery-ctrl.js";
 import "./js/ng/controllers/history-ctrl.js";
 import "./js/ng/controllers/image-editor-ctrl.js";
+import "./js/ng/controllers/inventory-pallets-allocated-for-unmanifested-lots-ctrl.js";
 import "./js/ng/controllers/inventory-pallet-creation-ctrl.js";
 import "./js/ng/controllers/inventory-pallet-repack-ctrl.js";
 import "./js/ng/controllers/inventory-pallet-split-ctrl.js";

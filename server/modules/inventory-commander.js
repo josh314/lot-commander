@@ -175,7 +175,22 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
   return filter;
 };
 
-const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, hasProblem, toBeListed, toBeProcessed, isRepacked, hasLot, shipment, category, condition } ) => {
+const palletQueryFilter = ( {
+  handle,
+  isReceived,
+  isBrokendown,
+  isAnonymous,
+  hasProblem,
+  toBeListed,
+  toBeProcessed,
+  isAllocatedForUnmanifestedLots,
+  isMissing,
+  isRepacked,
+  hasLot,
+  shipment,
+  category,
+  condition
+} ) => {
   const filter = {
     isDeleted: false,
   };
@@ -210,6 +225,14 @@ const palletQueryFilter = ( { handle, isReceived, isBrokendown, isAnonymous, has
 
   if( toBeProcessed !== undefined ) {
     filter.toBeProcessed = toBeProcessed;
+  }
+
+  if( isAllocatedForUnmanifestedLots !== undefined ) {
+    filter.isAllocatedForUnmanifestedLots = isAllocatedForUnmanifestedLots;
+  }
+
+  if( isMissing !== undefined ) {
+    filter.isMissing = isMissing;
   }
 
   if( isRepacked !== undefined ) {

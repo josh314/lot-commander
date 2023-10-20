@@ -51,7 +51,7 @@ function routes({ inventoryCommander, lotdb }) {
   router.get('/labels/incoming-shipments/:shipmentId/pallets-:palletList/:palletId', incomingShipmentPalletLabel);
 
 
-  router.get('/labels/lots/:lotId/shipping-items', lotShippingItemsLabels);
+  router.get('/labels/lots/:lotId/shipping-items', lotShippingItemsLabels );
   router.get( '/labels/pallets/:palletId/shipping-items', palletShippingItemsLabels );
   router.get( '/labels/pallets/:palletId/split-groups/:splitGroupId', palletSplitGroupLabels );
 

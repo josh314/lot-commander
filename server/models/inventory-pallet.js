@@ -13,10 +13,14 @@ const inventoryPalletSchema = mongoose.Schema({
   removedItems: [ Object ], // LEGACY
   splitGroups: [ {
     label: String,
+    labelType: String,
     lotNumber: Number,
     category: String,
     condition: String,
     toBeListed: Boolean,
+    toBeProcessed: Boolean,
+    isAllocatedForUnmanifestedLots: Boolean,
+    isMissing: Boolean,
     items: [ Object ],
     packagingType: { type: String, enum: enums.packagingType },
     shippingItems: [ shippingItemSchema ],
@@ -34,6 +38,8 @@ const inventoryPalletSchema = mongoose.Schema({
   isAnonymous: Boolean,
   toBeListed: Boolean,
   toBeProcessed: Boolean,
+  isAllocatedForUnmanifestedLots: Boolean,
+  isMissing: Boolean, // this pallet represents an inventory/manifest of missing units
   processedDate: Date,
   isRepacked: Boolean,
   repackedDate: Date,
@@ -84,6 +90,14 @@ inventoryPalletSchema.pre( 'save', function(next) {
 
   if( typeof this.toBeProcessed !== 'boolean' ) {
     this.toBeProcessed = false;
+  }
+
+  if( typeof this.isAllocatedForUnmanifestedLots !== 'boolean' ) {
+    this.isAllocatedForUnmanifestedLots = false;
+  }
+
+  if( typeof this.isMissing !== 'boolean' ) {
+    this.isMissing = false;
   }
 
   if( typeof this.isRepacked !== 'boolean' ) {

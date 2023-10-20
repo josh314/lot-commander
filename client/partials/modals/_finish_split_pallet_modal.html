@@ -18,40 +18,83 @@
           <div class="row">
 
             <div class="form-group col-xs-12 col-sm-4" ng-class="{ 'has-error' : $grp.errors.duplicatePalletHandle }" >
-              <label for="palletHandleInput">Handle</label>
-              <input id="palletHandleInput" class="form-control" ng-model="$grp.edits.palletHandle" ng-change="$ctrl.onPalletHandleChange( $grp )">
+
+              <label for="palletHandleInput__{{ $grp._id }}">Handle</label>
+              <input id="palletHandleInput__{{ $grp._id }}" class="form-control" ng-model="$grp.edits.palletHandle" ng-change="$ctrl.onPalletHandleChange( $grp )">
               <span class="text-danger h6" ng-show="$grp.errors.duplicatePalletHandle">Duplicate handle in shipment</span>
+
             </div>
 
             <div class="form-group col-xs-12 col-sm-4">
-              <label for="palletCategoryInput">Category</label>
-              <select id="palletCategoryInput" class="form-control" ng-model="$grp.edits.category">
+
+              <label for="palletCategoryInput__{{ $grp._id }}">Category</label>
+              <select id="palletCategoryInput__{{ $grp._id }}" class="form-control" ng-model="$grp.edits.category">
                 <option ng-repeat="$option in $ctrl.categoryOptions" ng-value="$option.value">{{ $option.displayName }}</option>
               </select>
 
             </div>
 
             <div class="form-group col-xs-12 col-sm-4">
-              <label for="palletConditionInput">Condition</label>
-              <select id="palletConditionInput" class="form-control" ng-model="$grp.edits.condition">
+
+              <label for="palletConditionInput__{{ $grp._id }}">Condition</label>
+              <select id="palletConditionInput__{{ $grp._id }}" class="form-control" ng-model="$grp.edits.condition">
                 <option ng-repeat="$option in $ctrl.conditionOptions" ng-value="$option.value">{{ $option.displayName }}</option>
               </select>
 
             </div>
 
+          </div>
+
+          <div class="row">
+
             <div class="form-group col-xs-12 col-sm-4">
-              <label for="palletToBeListedInput">To Be Listed?</label>
-              <select id="palletToBeListedInput" class="form-control" ng-model="$grp.edits.toBeListed">
+
+              <label for="palletToBeProcessedInput__{{ $grp._id }}">To Be Processed?</label>
+              <select id="palletToBeProcessedInput__{{ $grp._id }}" class="form-control" ng-model="$grp.edits.toBeProcessed">
                 <option ng-value="true">yes</option>
                 <option ng-value="false">no</option>
               </select>
 
             </div>
 
+            <div class="form-group col-xs-12 col-sm-4">
+
+              <label for="palletToBeListedInput__{{ $grp._id }}">To Be Listed?</label>
+              <select id="palletToBeListedInput__{{ $grp._id }}" class="form-control" ng-model="$grp.edits.toBeListed">
+                <option ng-value="true">yes</option>
+                <option ng-value="false">no</option>
+              </select>
+
+            </div>
 
             <div class="form-group col-xs-12 col-sm-4">
-              <label for="unitsInput">Units</label>
-              <input id="unitsInput" class="form-control" ng-value="$grp.original.totalUnits()" disabled>
+
+              <label for="is-allocated-for-unmanifested-lots__{{ $grp.label }}">For unmanifested lots?</label>
+              <select id="is-allocated-for-unmanifested-lots__{{ $grp.label }}" class="form-control"
+                ng-model="$grp.edits.isAllocatedForUnmanifestedLots">
+                <option ng-value="true">yes</option>
+                <option ng-value="false">no</option>
+              </select>
+
+            </div>
+
+            <div class="form-group col-xs-12 col-sm-4">
+
+              <label for="palletIsMissingInput__{{ $grp._id }}">Composed of missing units?</label>
+              <select id="palletIsMissingInput__{{ $grp._id }}" class="form-control" ng-model="$grp.edits.isMissing">
+                <option ng-value="true">yes</option>
+                <option ng-value="false">no</option>
+              </select>
+
+            </div>
+
+          </div>
+
+          <div class="row">
+
+            <div class="form-group col-xs-12 col-sm-4">
+              <label for="unitsInput__{{ $grp._id }}">Units</label>
+              <input id="unitsInput__{{ $grp._id }}" class="form-control" ng-value="$grp.original.totalUnits()" disabled>
             </div>
 
           </div>
@@ -65,9 +108,14 @@
           <div class="row">
 
             <div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $grp.errors.duplicateLotHandle }" >
-              <label for="lotHandleInput">Handle</label>
-              <input id="lotHandleInput" class="form-control" ng-model="$grp.edits.lotHandle" ng-change="$ctrl.onLotHandleChange( $grp )">
+              <label for="lotHandleInput__{{ $grp._id }}">Handle</label>
+              <input id="lotHandleInput__{{ $grp._id }}" class="form-control" ng-model="$grp.edits.lotHandle" ng-change="$ctrl.onLotHandleChange( $grp )">
               <span class="text-danger h6" ng-show="$grp.errors.duplicateLotHandle">Duplicate lot handle</span>
+            </div>
+
+            <div class="form-group col-xs-12 col-sm-6" ng-show="$grp.original.lotNumber" >
+              <label for="lotNumberInput__{{ $grp._id }}">Lot Number</label>
+              <input id="lotNumberInput__{{ $grp._id }}" class="form-control" ng-model="$grp.original.lotNumber" disabled>
             </div>
 
           </div>

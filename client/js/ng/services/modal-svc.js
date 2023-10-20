@@ -370,6 +370,7 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
 
     vm.disableEditing = ! LoggedInUser.hasPermission( 'EDIT_INVENTORY_PALLET' );
     vm.allowShipmentNavigation = LoggedInUser.hasPermission( 'VIEW_INCOMING_SHIPMENT' );
+    vm.allowLotNavigation = LoggedInUser.hasPermission( 'VIEW_LOT' ) && vm.pallet.lot && vm.pallet.lot._id;
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
     vm.showDeveloper = LoggedInUser.isDeveloper();
     vm.showPricingData = LoggedInUser.hasPermission('VIEW_PRICING_DATA');
@@ -406,6 +407,13 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
     vm.navigateToShipment = () => {
       if( vm.inputs.shipment._id ) {
         navigate.shipmentDetails( vm.inputs.shipment._id );
+        $scope.$close( vm.inputs );
+      }
+    };
+
+    vm.navigateToLot = () => {console.log(vm.pallet.lot)
+      if( vm.pallet.lot && vm.pallet.lot._id ) {
+        navigate.viewLot( vm.pallet.lot._id );
         $scope.$close( vm.inputs );
       }
     };

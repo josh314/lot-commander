@@ -868,7 +868,9 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
       const loadOptions = {
         populate: [
           'pallets_received',
+          'pallets_received.lot',
           'pallets_consolidated',
+          'pallets_consolidated.lot',
           'pallets_consolidated.split_from',
           'packages'
         ],

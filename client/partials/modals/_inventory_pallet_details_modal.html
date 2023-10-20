@@ -18,6 +18,7 @@
       <label for="lotNumberInput"  style="display: flex; justify-content: space-between;">
         <span>Lot number</span>
         <small ng-show="!$ctrl.inputs.lotNumber"><a href ng-click="$ctrl.generateLotNumber()">generate</a></small>
+        <small ng-show="$ctrl.pallet.lot && $ctrl.allowLotNavigation"><a href ng-click="$ctrl.navigateToLot()">view lot details</a></small>
       </label>
       <input class="form-control" type="text" id="lotNumberInput" ng-model="$ctrl.inputs.lotNumber" disabled>
     </div>
@@ -52,6 +53,7 @@
   </div>
 
   <div class="row">
+
     <div class="form-group col-xs-12 col-sm-6" >
       <label for="unitsInput">Units</label>
       <input class="form-control" type="number" id="unitsInput" ng-model="$ctrl.inputs.units" ng-disabled="$ctrl.disableEditing">
@@ -87,6 +89,11 @@
         <option ng-repeat="option in $ctrl.conditionOptions" ng-value="option.value">{{ option.displayName }}</option>
       </select>
     </div>
+
+  </div>
+
+  <div class="row">
+
     <div class="form-group col-xs-12 col-sm-6">
       <label for="toBeListedInput">To Be Listed?</label>
       <select class="form-control" id="toBeListedInput" ng-model="$ctrl.inputs.toBeListed" ng-disabled="$ctrl.disableEditing">
@@ -94,6 +101,7 @@
         <option ng-value="false">no</option>
       </select>
     </div>
+
     <div class="form-group col-xs-12 col-sm-6">
       <label for="toBeProcessedInput">To Be Processed?</label>
       <select class="form-control" id="toBeProcessedInput" ng-model="$ctrl.inputs.toBeProcessed" ng-disabled="$ctrl.disableEditing">
@@ -101,6 +109,27 @@
         <option ng-value="false">no</option>
       </select>
     </div>
+
+    <div class="form-group col-xs-12 col-sm-6">
+      <label for="isMissingInput">Missing?</label>
+      <select class="form-control" id="isMissingInput" ng-model="$ctrl.inputs.isMissing" ng-disabled="$ctrl.disableEditing">
+        <option ng-value="true">yes</option>
+        <option ng-value="false">no</option>
+      </select>
+    </div>
+
+    <div class="form-group col-xs-12 col-sm-6">
+      <label for="isAllocatedForUnmanifestedLotsInput">For unmanifested lots?</label>
+      <select class="form-control" id="isAllocatedForUnmanifestedLotsInput" ng-model="$ctrl.inputs.isAllocatedForUnmanifestedLots" ng-disabled="$ctrl.disableEditing">
+        <option ng-value="true">yes</option>
+        <option ng-value="false">no</option>
+      </select>
+    </div>
+
+  </div>
+
+  <div class="row">
+
     <div class="form-group col-xs-12 col-sm-6">
       <label for="isAnonymousInput">Anonymous?</label>
       <select class="form-control" id="isAnonymousInput" ng-model="$ctrl.inputs.isAnonymous" disabled>
@@ -108,6 +137,7 @@
         <option ng-value="false">no</option>
       </select>
     </div>
+
     <div class="form-group col-xs-12 col-sm-6">
       <label for="hasProblemInput">Has problem?</label>
       <select class="form-control" id="hasProblemInput" ng-model="$ctrl.inputs.hasProblem" ng-disabled="$ctrl.disableEditing">
@@ -115,6 +145,7 @@
         <option ng-value="false">no</option>
       </select>
     </div>
+
     <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.showCreatedAtDate">
       <label for="createdAtInput">Created date</label>
       <input class="form-control" type="date" id="createdAtInput" ng-model="$ctrl.inputs.createdAt" disabled>
@@ -130,6 +161,7 @@
       <label for="repackedDateInput">Repacked date</label>
       <input class="form-control" type="date" id="repackedDateInput" ng-model="$ctrl.inputs.repackedDate" disabled>
     </div>
+
     <div class="form-group col-xs-12 col-sm-6">
       <label for="isBrokendownInput">Broken down?</label>
       <select class="form-control" id="isBrokendownInput" ng-model="$ctrl.inputs.isBrokendown" ng-disabled="$ctrl.disableEditing">

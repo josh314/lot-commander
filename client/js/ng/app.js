@@ -57,10 +57,11 @@ const stateData = [
   { name: "main.inventory-pallets", abstract: true, url: "/pallets", templateUrl: 'partials/_container.html'},
   { name: "main.inventory-pallets.view", navName: "All pallets", navParent: 'Pallets', url: '/list', templateUrl: '/partials/receiving/_inventory_pallet_view.html', userPermission: 'LIST_INVENTORY_PALLETS' },
   { name: "main.inventory-pallets.creation", url: '/create', templateUrl: '/partials/receiving/_inventory_pallet_creation.html', userPermission: 'CREATE_INVENTORY_PALLET' },
-  { name: "main.inventory-pallets.to-be-listed", navName: "Pallets to be listed", navParent: 'Pallets', url: '/to-be-listed', templateUrl: '/partials/receiving/_inventory_pallets_to_be_listed.html', userPermission: 'LIST_INVENTORY_PALLETS_TO_BE_LISTED' },
-  { name: "main.inventory-pallets.to-be-processed", navName: "Pallets to be processed", navParent: 'Pallets', url: '/to-be-processed', templateUrl: '/partials/receiving/_inventory_pallets_to_be_processed.html', userPermission: 'LIST_INVENTORY_PALLETS_TO_BE_PROCESSED' },
+  { name: "main.inventory-pallets.to-be-listed", navName: "Pallets to be listed", navParent: 'Pallets', url: '/to-be-listed', templateUrl: '/partials/production/_inventory_pallets_to_be_listed.html', userPermission: 'LIST_INVENTORY_PALLETS_TO_BE_LISTED' },
+  { name: "main.inventory-pallets.to-be-processed", navName: "Pallets to be processed", navParent: 'Pallets', url: '/to-be-processed', templateUrl: '/partials/production/_inventory_pallets_to_be_processed.html', userPermission: 'LIST_INVENTORY_PALLETS_TO_BE_PROCESSED' },
+  { name: "main.inventory-pallets.allocated-for-unmanifested-lots", navName: "Pallets allocated to unmanifested lots", navParent: 'Pallets', url: '/allocated-for-unmanifested-lots', templateUrl: '/partials/production/_inventory_pallets_allocated_for_unmanifested_lots.html' },
   { name: "main.inventory-pallets.split", navName: "Split pallet", navParent: 'Pallets', url: '/{palletId}/split', optionalParams: ['palletId'], templateUrl: '/partials/production/_inventory_pallet_split.html', userPermission: { 'or': [ 'SPLIT_INVENTORY_PALLET', 'EDIT_INVENTORY_PALLET' ] } },
-  { name: "main.inventory-pallets.repack", navName: "Repack pallet", navParent: 'Pallets', url: '/{palletId}/repack', optionalParams: ['palletId'], templateUrl: '/partials/receiving/_inventory_pallet_repack.html', userPermission: { 'or': [ 'REPACK_INVENTORY_PALLET', 'EDIT_INVENTORY_PALLET' ] } },
+  { name: "main.inventory-pallets.repack", navName: "Repack pallet", navParent: 'Pallets', url: '/{palletId}/repack', optionalParams: ['palletId'], templateUrl: '/partials/production/_inventory_pallet_repack.html', userPermission: { 'or': [ 'REPACK_INVENTORY_PALLET', 'EDIT_INVENTORY_PALLET' ] } },
 
   // packages
   { name: "main.packages", abstract: true, url: "/packages", templateUrl: 'partials/_container.html'},

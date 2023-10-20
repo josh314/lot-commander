@@ -2,13 +2,17 @@ const enums = require('./enums');
 const helpers = require('../helpers');
 const { ResourceNotFoundError } = require('../errors');
 
-const lotQueryFilter = ( { handle, status } ) => {
+const lotQueryFilter = ( { handle, lotNumber, status } ) => {
   const filter = {
     isDeleted: false,
   };
 
   if ( handle ) {
     filter.handle = handle;
+  }
+
+  if( lotNumber ) {
+    filter.lotNumber = lotNumber;
   }
 
   if( status ) {

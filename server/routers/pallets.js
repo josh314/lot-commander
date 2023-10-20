@@ -28,6 +28,10 @@ const listPalletsFilterParamsFromQueryParams = ( qp ) => {
     fp.hasProblem = !!parseInt(qp.has_problem);
   }
 
+  if( qp.is_missing ) {
+    fp.isMissing = !!parseInt(qp.is_missing);
+  }
+
   if( qp.is_received ) {
     fp.isReceived = !!parseInt(qp.is_received);
   }
@@ -54,6 +58,10 @@ const listPalletsFilterParamsFromQueryParams = ( qp ) => {
 
   if( qp.to_be_processed ) {
     fp.toBeProcessed = !!parseInt(qp.to_be_processed);
+  }
+
+  if( qp.is_allocated_for_unmanifested_lots ) {
+    fp.isAllocatedForUnmanifestedLots = !!parseInt(qp.is_allocated_for_unmanifested_lots);
   }
 
   if( qp.is_repacked ) {
@@ -156,7 +164,7 @@ function routes({ eventsDb, inventoryCommander }) {
     if( req.query.to_be_listed ) {
       return auth.isAuthorizedForAny( 'LIST_INVENTORY_PALLETS', 'LIST_INVENTORY_PALLETS_TO_BE_LISTED' )( req, res, next );
     }
-    else if( req.query.to_be_processed ) {
+    else if( req.query.to_be_processed || req.query.is_allocated_for_unmanifested_lots ) {
       return auth.isAuthorizedForAny( 'LIST_INVENTORY_PALLETS', 'LIST_INVENTORY_PALLETS_TO_BE_PROCESSED' )( req, res, next );
     }
     else {

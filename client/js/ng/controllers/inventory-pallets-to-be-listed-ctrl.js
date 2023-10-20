@@ -46,6 +46,7 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
         hasLot: false,
         toBeListed: true,
         isRepacked: null,
+        isMissing: false,
       };
       vm.categoryOptions = [ "" ].concat( palletProperties.category );
       vm.conditionOptions = [ "" ].concat( palletProperties.condition );

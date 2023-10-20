@@ -344,7 +344,7 @@ function createPalletShippingItemsLabels( pallet ) {
     });
 
     doc
-      .fontSize(5)
+      .fontSize( 5 )
       .font('Helvetica').text(
         `[ ${getShippingItemDimString( shippingItem )} ] (${ i+1 } of ${ pallet.shippingItems.length })`,
         {
@@ -353,34 +353,40 @@ function createPalletShippingItemsLabels( pallet ) {
       )
       .moveDown();
 
-    if( pallet.lotNumber ) {
+    if( pallet.toBeListed && pallet.lotNumber ) {
 
       doc
-        .fontSize(12)
+        .fontSize( 12 )
         .font('Helvetica').text(`Lot number: `, { continued: true })
         .font('Helvetica-Bold').text(`${pallet.lotNumber}`, { underline: true });
+
+      doc.fontSize( 5 ).moveDown();
+
     }
-
-
-    doc
-      .fontSize(5)
-      .moveDown()
-      .font('Helvetica').text(`Pallet: `, { continued: true })
-      .font('Helvetica-Bold').text(`${pallet.handle}`, { underline: true });
-
-
-    if( pallet.shipment && pallet.shipment.handle ) {
+    else {
 
       doc
-        .fontSize(5)
-        .moveDown()
-        .font('Helvetica').text(`Shipment: `, { continued: true })
-        .font('Helvetica-Bold').text(`${pallet.shipment.handle}`, { underline: true });
+        .fontSize( 8 )
+        .font('Helvetica').text(`Pallet: `, { continued: true })
+        .font('Helvetica-Bold').text(`${pallet.handle}`, { underline: true });
+
+      doc.fontSize( 5 ).moveDown();
+
+
+      if( pallet.shipment && pallet.shipment.handle ) {
+
+        doc
+          .fontSize( 5 )
+          .font('Helvetica').text(`Shipment: `, { continued: true })
+          .font('Helvetica-Bold').text(`${pallet.shipment.handle}`, { underline: true });
+
+        doc.fontSize( 5 ).moveDown();
+      }
+
     }
 
     doc
       .fontSize(5)
-      .moveDown()
       .font('Helvetica').text(`Date: `, { continued: true })
       .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
 
@@ -412,7 +418,7 @@ function createPalletSplitGroupLabels( splitGroup, pallet ) {
     });
 
     doc
-      .fontSize(5)
+      .fontSize( 5 )
       .font('Helvetica').text(
         `[ ${getShippingItemDimString( shippingItem )} ] (${ i+1 } of ${ splitGroup.shippingItems.length })`,
         {
@@ -421,46 +427,58 @@ function createPalletSplitGroupLabels( splitGroup, pallet ) {
       )
       .moveDown();
 
-    if( splitGroup.lotNumber ) {
+    if( splitGroup.toBeListed && splitGroup.lotNumber ) {
 
+      // lot number
       doc
-        .fontSize(12)
+        .fontSize( 12 )
         .font('Helvetica').text(`Lot number: `, { continued: true })
         .font('Helvetica-Bold').text(`${splitGroup.lotNumber}`, { underline: true });
-    }
 
-    if( splitGroup.label ) {
+      doc.fontSize( 5 ).moveDown();
 
-      doc
-        .fontSize(5)
-        .moveDown()
-        .font('Helvetica').text(`Split group label: `, { continued: true })
-        .font('Helvetica-Bold').text(`${splitGroup.label}`, { underline: true });
-    }
+    } // if( splitGroup.toBeListed && splitGroup.lotNumber )
+    else {
 
-    if( pallet ) {
+      if( pallet ) {
 
+        // pallet id
+        doc
+          .fontSize( 12 )
+          .font('Helvetica').text(`Pallet: `, { continued: true })
+          .font('Helvetica-Bold').text(`${pallet.handle}`, { underline: true });
 
-      doc
-        .fontSize(5)
-        .moveDown()
-        .font('Helvetica').text(`Pallet: `, { continued: true })
-        .font('Helvetica-Bold').text(`${pallet.handle}`, { underline: true });
-    }
+        doc.fontSize( 5 ).moveDown();
 
-    if( pallet && pallet.shipment && pallet.shipment.handle ) {
+      } // if( pallet )
 
+      if( splitGroup.label ) {
 
-      doc
-        .fontSize(5)
-        .moveDown()
-        .font('Helvetica').text(`Shipment: `, { continued: true })
-        .font('Helvetica-Bold').text(`${pallet.shipment.handle}`, { underline: true });
-    }
+        // split group name
+        doc
+          .fontSize( 5 )
+          .font('Helvetica').text(`Split group label: `, { continued: true })
+          .font('Helvetica-Bold').text(`${splitGroup.label}`, { underline: true })
+          .moveDown();
 
+      } // if ( splitGroup.label )
+
+      if( pallet && pallet.shipment && pallet.shipment.handle ) {
+
+        // Shipment
+        doc
+          .fontSize( 5 )
+          .font('Helvetica').text(`Shipment: `, { continued: true })
+          .font('Helvetica-Bold').text(`${pallet.shipment.handle}`, { underline: true })
+          .moveDown();
+
+      } // if( pallet && pallet.shipment && pallet.shipment.handle )
+
+    } // else
+
+    // Date
     doc
-      .fontSize(5)
-      .moveDown()
+      .fontSize( 8 )
       .font('Helvetica').text(`Date: `, { continued: true })
       .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
 
@@ -492,7 +510,7 @@ function createLotShippingItemsLabels( lot ) {
     });
 
     doc
-      .fontSize(5)
+      .fontSize( 5 )
       .font('Helvetica').text(
         `[ ${getShippingItemDimString( shippingItem )} ] (${ i+1 } of ${ lot.shippingItems.length })`,
         {
@@ -504,30 +522,20 @@ function createLotShippingItemsLabels( lot ) {
     if( lot.lotNumber ) {
 
       doc
-        .fontSize(12)
+        .fontSize( 12 )
         .font('Helvetica').text(`Lot number: `, { continued: true })
         .font('Helvetica-Bold').text(`${lot.lotNumber}`, { underline: true });
     }
-
-    if( lot.pallet && lot.pallet.handle ) {
+    else if( lot.handle ) {
       doc
-        .fontSize(5)
+        .fontSize( 8 )
         .moveDown()
-        .font('Helvetica').text(`Pallet: `, { continued: true })
-        .font('Helvetica-Bold').text(`${lot.pallet.handle}`, { underline: true });
-    }
-
-    if( lot.pallet && lot.pallet.shipment && lot.pallet.shipment.handle ) {
-
-      doc
-        .fontSize(5)
-        .moveDown()
-        .font('Helvetica').text(`Shipment: `, { continued: true })
-        .font('Helvetica-Bold').text(`${lot.pallet.shipment.handle}`, { underline: true });
+        .font('Helvetica').text(`Handle: `, { continued: true })
+        .font('Helvetica-Bold').text(`${lot.handle}`, { underline: true });
     }
 
     doc
-      .fontSize(5)
+      .fontSize( 8 )
       .moveDown()
       .font('Helvetica').text(`Date: `, { continued: true })
       .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });

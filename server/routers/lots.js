@@ -41,6 +41,9 @@ function listLotsFilterParamsFromQueryParams( qp ) {
   if( qp.handle ) {
     fp.handle = new RegExp( qp.handle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') , 'i');
   }
+  if( qp.lotNumber ) {
+    fp.lotNumber = qp.lotNumber;
+  }
 
   return fp;
 }
