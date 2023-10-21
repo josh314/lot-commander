@@ -63,6 +63,7 @@ const __DEFAULT_SPLIT_GROUP_LABELS__ = [
 angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
   'AudioAlertSvc',
+  'ConfigureRemainingItemsSplitGroupModal',
   'dbEnums',
   'FinishSplitPalletModal',
   'focus',
@@ -84,6 +85,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
   function(
 
     AudioAlertSvc,
+    ConfigureRemainingItemsSplitGroupModal,
     dbEnums,
     FinishSplitPalletModal,
     focus,
@@ -647,12 +649,18 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
       const newDisplaySplitGroup = new DisplaySplitGroup( data );
 
-      vm.displaySplitGroups.push( newDisplaySplitGroup );
-      vm.displaySplitGroupsSorted = [ newDisplaySplitGroup ].concat( vm.displaySplitGroupsSorted );
+      return addSplitGroup( newDisplaySplitGroup );
+    }
 
-      vm.currentSplitGroup = newDisplaySplitGroup;
+    function addSplitGroup( newSplitGroup ) {
+
+      vm.displaySplitGroups.push( newSplitGroup );
+      vm.displaySplitGroupsSorted = [ newSplitGroup ].concat( vm.displaySplitGroupsSorted );
+
+      vm.currentSplitGroup = newSplitGroup;
 
     }
+
 
     async function deleteSplitGroup( group ) {
 
@@ -1217,53 +1225,82 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         });
       }
 
-      //  popup to ask if they're finished
-      const isConfirmed = await ModalSvc.confirm({
-        header: 'Finish splitting?',
-        html: `<p>Finishing this pallet will close the editor, mark this pallet as broken down, and create new pallets with manifests reflecting the splitting of products.
-                ${ vm.pallet.shipment ? ` The new pallets will appear as consolidated pallets for shipment <strong>${vm.pallet.shipment.handle}</strong>.` : ''}</p>
-                <p>You will not be able to return to splitting this pallet, although you may further split the newly created pallets.</p>
-                <p>If you will need to return to splitting this pallet later, use the <strong>Save progress</strong> button instead.</p>
-                <p><strong>Finish this pallet?</strong></p>`,
-      });
+//  popup to ask if they're finished
+const isConfirmed = await ModalSvc.confirm({
+  header: 'Finish splitting?',
+  html: `<p>Finishing this pallet will close the editor, mark this pallet as broken down, and create new pallets with manifests reflecting the splitting of products.
+          ${ vm.pallet.shipment ? ` The new pallets will appear as consolidated pallets for shipment <strong>${vm.pallet.shipment.handle}</strong>.` : ''}</p>
+          <p>You will not be able to return to splitting this pallet, although you may further split the newly created pallets.</p>
+          <p>If you will need to return to splitting this pallet later, use the <strong>Save progress</strong> button instead.</p>
+          <p><strong>Finish this pallet?</strong></p>`,
+});
 
-      if( !isConfirmed ) {
-        return;
+if( !isConfirmed ) {
+  return;
+}
+
+      const leftoversSplitGroupItems = convertLeftovers2SplitGroupItems();
+
+      let remainingItemsSplitGroup;
+      if( leftoversSplitGroupItems.length ) {
+
+        remainingItemsSplitGroup = new DisplaySplitGroup( {
+          label: 'remaining',
+          items: leftoversSplitGroupItems,
+          shippingItems: [],
+          toBeListed: false
+        });
+
+        addSplitGroup( remainingItemsSplitGroup );
+
+// leftoversSplitGroups.push(
+
+//   new DisplaySplitGroup( {
+//     label: 'remaining',
+//     items: leftoversSplitGroupItems,
+//     shippingItems: [],
+//     toBeListed: false
+//   })
+
+// );
+
       }
+
+      vm.displaySplitGroups = vm.displaySplitGroups.filter( _ => _.items.length );
 
       // save the final splitGroups
       await __saveProgress();
 
-      const leftoversSplitGroupItems = convertLeftovers2SplitGroupItems();
+      if( remainingItemsSplitGroup ) {
 
-      const leftoversSplitGroups = [];
-      if( leftoversSplitGroupItems.length ) {
+        await ConfigureRemainingItemsSplitGroupModal.launch( vm.pallet, remainingItemsSplitGroup );
 
-        leftoversSplitGroups.push(
+        await __saveProgress();
 
-          new DisplaySplitGroup( {
-            label: 'remaining',
-            items: leftoversSplitGroupItems,
-            shippingItems: [],
-            toBeListed: false
-          })
+        if( remainingItemsSplitGroup.shippingItems.length ) {
 
-        );
+          const isConfirmed = await ModalSvc.confirm({
+            header: 'Print labels?',
+            html: `<p>Print labels for split group <strong>${ remainingItemsSplitGroup.label }</strong>?</p>`
+          });
+
+
+          if( isConfirmed ) {
+            await remainingItemsSplitGroup.printLabels();
+          }
+
+        }
+
 
       }
 
-      const splitGroups = [
-        ...leftoversSplitGroups,
-        ...vm.displaySplitGroups.filter( _ => _.items.length ),
-      ];
-
-      const result = await FinishSplitPalletModal.launch( vm.pallet, splitGroups );
+      const result = await FinishSplitPalletModal.launch( vm.pallet, vm.displaySplitGroups );
 
       if( result ) {
 
         // create children pallets/lots and then breakdown
         await ModalSvc.wait( {
-          waitFor: createSplitGroupChildren( splitGroups ).then( () => vm.pallet.breakdown( true ) ),
+          waitFor: createSplitGroupChildren( vm.displaySplitGroups ).then( () => vm.pallet.breakdown( true ) ),
         } );
 
         await ModalSvc.message( { header: 'Splitting complete', body: `Successfully created new split pallets and lots.` } );
@@ -1452,6 +1489,154 @@ angular.module('myApp').controller( 'FinishSplitPalletModalCtrl', [
       for( let grp of vm.splitGroups ) {
         grp.original.setData( grp.edits );
       }
+      $scope.$close( true );
+    }
+
+  }
+]);
+
+
+/******************* Remaining Split Group Config Modal service ******************************/
+angular.module('myApp').factory( 'ConfigureRemainingItemsSplitGroupModal', [ '$uibModal', function( $uibModal ){
+
+  return {
+
+    launch: function( pallet, grp ) {
+
+      const modalInstance = $uibModal.open({
+        templateUrl: '/partials/modals/_configure_remaining_split_group_modal.html',
+        size: 'lg',
+        backdrop: 'static',
+
+        resolve: {
+          resolvedModalData: function () {
+            return {
+              pallet,
+              grp
+            };
+          }
+        },
+        controller: 'ConfigureRemainingItemsSplitGroupModalCtrl as $ctrl',
+
+      });
+
+      return modalInstance.result;
+    }
+
+  };
+}]);
+
+
+/******************* Controller for Remaining Split Group Config Modal service ******************************/
+angular.module('myApp').controller( 'ConfigureRemainingItemsSplitGroupModalCtrl', [
+
+  '$scope',
+  'LotSvc',
+  'ModalSvc',
+  'palletProperties',
+  'resolvedModalData',
+
+  function(
+
+    $scope,
+    LotSvc,
+    ModalSvc,
+    palletProperties,
+    resolvedModalData,
+
+  ) {
+
+    const vm = this;
+    init();
+
+    function init() {
+
+      Object.assign(
+        vm,
+        {
+
+          grp: resolvedModalData.grp,
+          edits: resolvedModalData.grp.getData(),
+
+          categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
+          conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) ),
+
+          setShippingItems,
+
+          // onPalletHandleChange,
+          // onLotHandleChange,
+          validate,
+// printLabels,
+          done,
+        }
+      );
+
+
+    }
+
+    function validate() {
+      vm.errors = {};
+
+// if( vm.splitGroups.find( _ => _.edits.palletHandle === vm.edits.palletHandle && _ !== grp ) ) {
+//   vm.errors.duplicatePalletHandle = true;
+// }
+
+      if( isHandleShipmentPalletDuplicate( vm.edits.palletHandle, resolvedModalData.pallet.shipment ) ) {
+        vm.errors.duplicatePalletHandle = true;
+      }
+
+// if( vm.splitGroups.find( _ => _.edits.lotHandle === vm.edits.lotHandle && _ !== grp ) ) {
+//   vm.errors.duplicateLotHandle = true;
+// }
+
+      for( let errorValue of Object.values( vm.errors ) ) {
+
+        if( errorValue ) {
+          return false;
+        }
+
+      }
+      return true;
+    }
+
+    function setSplitGroupLotHandle() {
+
+      let lotHandle = '';
+
+      if( resolvedModalData.pallet.shipment && resolvedModalData.pallet.shipment.handle ) {
+        lotHandle += `${resolvedModalData.pallet.shipment.handle}--`;
+      }
+
+      lotHandle += `${vm.edits.palletHandle}`;
+      if( vm.grp.lotNumber ) {
+        lotHandle += `--${ vm.grp.lotNumber }`;
+      }
+      Object.assign( vm.edits, { lotHandle } );
+    }
+
+    function onPalletHandleChange() {
+      if( validate() ) {
+        setSplitGroupLotHandle();
+      }
+    }
+
+    function onLotHandleChange() {
+      validate();
+    }
+
+    function setShippingItems( shippingItems ) {
+      vm.edits.shippingItems = shippingItems;
+    }
+
+    async function done() {
+
+      // const existingLot = await LotSvc.getLotByHandle( vm.edits.lotHandle );
+      // if( existingLot ) {
+      //   return ModalSvc.message( { header: 'Error', html: `<p>There already exists a lot with handle <strong>${ vm.edits.lotHandle }</strong>.</p>`, type: 'error' } );
+      // }
+
+
+      vm.grp.setData( vm.edits );
       $scope.$close( true );
     }
 
