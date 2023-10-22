@@ -57,6 +57,7 @@ const __DEFAULT_SPLIT_GROUP_LABELS__ = [
   { value: 'GM', name: 'GM - General Merchandise' },
   { value: 'LIQ', name: 'LIQ - Liquid' },
   { value: 'COS', name: 'COS - Cosmetics' },
+  { value: null, name: 'Custom' },
 ];
 
 /******************* Pallet Split Controller *************************/
@@ -509,23 +510,13 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
       async uploadImages() {
 
-        await __saveProgress();
-
-        await ModalSvc.wait( {
-          waitFor: ImageSvc.uploadPalletSplitGroupImages( vm.pallet._id, this._id, this.imagesToUpload ).then( reloadPallet ),
-          delay: 2000
-        } );
+        return ImageSvc.uploadPalletSplitGroupImages( vm.pallet._id, this._id, this.imagesToUpload );
 
       }
 
       async removeImage( image ) {
 
-        await __saveProgress();
-
-        await ModalSvc.wait( {
-          waitFor: ImageSvc.removePalletSplitGroupImage( vm.pallet._id, this._id, image ).then( reloadPallet ),
-          delay: 2000
-        } );
+        return ImageSvc.removePalletSplitGroupImage( vm.pallet._id, this._id, image );
 
       }
 
@@ -566,7 +557,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
       vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) ),
       vm.packagingTypeOptions = [ "" ].concat( dbEnums.packagingType );
-      vm.labelTypeOptions = __DEFAULT_SPLIT_GROUP_LABELS__.concat( [ { value: null, name: 'Custom' } ] );
+      vm.labelTypeOptions = __DEFAULT_SPLIT_GROUP_LABELS__;
 
       vm.inputs = {
         barcode: '',
@@ -613,6 +604,9 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           finish,
 
           getImageLink: ImageSvc.getImageLink.bind( ImageSvc ),
+          uploadImages,
+          removeImage,
+
         }
       );
 
@@ -620,6 +614,28 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       if( vm.palletId ) {
         loadPalletById( vm.palletId );
       }
+
+    }
+
+    async function uploadImages( grp ) {
+
+      await __saveProgress();
+
+      await ModalSvc.wait( {
+        waitFor: grp.uploadImages().then( reloadPallet ),
+        delay: 2000
+      } );
+
+    }
+
+    async function removeImage( grp, image ) {
+
+      await __saveProgress();
+
+      await ModalSvc.wait( {
+        waitFor: grp.removeImage( image ).then( reloadPallet ),
+        delay: 2000
+      } );
 
     }
 
@@ -1246,6 +1262,7 @@ if( !isConfirmed ) {
 
         remainingItemsSplitGroup = new DisplaySplitGroup( {
           label: 'remaining',
+          packagingType: 'box lot',
           items: leftoversSplitGroupItems,
           shippingItems: [],
           toBeListed: false
@@ -1531,6 +1548,8 @@ angular.module('myApp').factory( 'ConfigureRemainingItemsSplitGroupModal', [ '$u
 angular.module('myApp').controller( 'ConfigureRemainingItemsSplitGroupModalCtrl', [
 
   '$scope',
+  'dbEnums',
+  'LoggedInUser',
   'LotSvc',
   'ModalSvc',
   'palletProperties',
@@ -1539,6 +1558,8 @@ angular.module('myApp').controller( 'ConfigureRemainingItemsSplitGroupModalCtrl'
   function(
 
     $scope,
+    dbEnums,
+    LoggedInUser,
     LotSvc,
     ModalSvc,
     palletProperties,
@@ -1558,8 +1579,11 @@ angular.module('myApp').controller( 'ConfigureRemainingItemsSplitGroupModalCtrl'
           grp: resolvedModalData.grp,
           edits: resolvedModalData.grp.getData(),
 
+          packagingTypeOptions: [ "" ].concat( dbEnums.packagingType ),
           categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
           conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) ),
+          labelTypeOptions: __DEFAULT_SPLIT_GROUP_LABELS__,
+          showDeveloper: LoggedInUser.isDeveloper(),
 
           setShippingItems,
 

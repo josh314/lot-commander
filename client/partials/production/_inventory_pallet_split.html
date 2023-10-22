@@ -78,7 +78,7 @@
         <dt>Split group details</span></dt>
         <dd>
 
-          [<a href ng-click="$ctrl.toggleShowSplitGroupDetails()">{{ $ctrl.showShippingItems ? "Hide Details" : "Show Details" }}</a>]
+          [<a href ng-click="$ctrl.toggleShowSplitGroupDetails()">{{ $ctrl.showSplitGroupDetails ? "Hide Details" : "Show Details" }}</a>]
 
           <div class="well" ng-show="$ctrl.showSplitGroupDetails">
 
@@ -280,7 +280,7 @@
                           <div class="form-group">
                             <input type="file" file-list-model="$grp.imagesToUpload" multiple/>
                           </div>
-                          <button class="btn btn-success btn-xs" ng-click="$grp.uploadImages()">Upload File</button>
+                          <button class="btn btn-success btn-xs" ng-click="$ctrl.uploadImages( $grp )">Upload File</button>
                         </div>
 
                         <div class="col-xs-12">
@@ -292,7 +292,7 @@
                               </a>
                             </div>
                             <div style="margin-top:4px; display:flex; justify-content: flex-end;">
-                              <button class="btn btn-danger btn-xs" ng-click="$grp.removeImage( $image )">remove</button>
+                              <button class="btn btn-danger btn-xs" ng-click="$ctrl.removeImage( $grp, $image )">remove</button>
                             </div>
                           </div>
 
