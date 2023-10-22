@@ -411,7 +411,7 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
       }
     };
 
-    vm.navigateToLot = () => {console.log(vm.pallet.lot)
+    vm.navigateToLot = () => {
       if( vm.pallet.lot && vm.pallet.lot._id ) {
         navigate.viewLot( vm.pallet.lot._id );
         $scope.$close( vm.inputs );

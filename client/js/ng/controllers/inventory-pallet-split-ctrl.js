@@ -51,6 +51,10 @@ function isHandleShipmentPalletDuplicate( handle, shipment ) {
   return false;
 }
 
+function createPalletLotHandle( palletHandle, lotNumber ) {
+  return `${ palletHandle }--${ lotNumber }`;
+}
+
 const __DEFAULT_SPLIT_GROUP_LABELS__ = [
   { value: 'SAL', name: 'SAL - Salvage' },
   { value: 'PC', name: 'PC - Personal Care' },
@@ -64,7 +68,6 @@ const __DEFAULT_SPLIT_GROUP_LABELS__ = [
 angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
   'AudioAlertSvc',
-  'ConfigureRemainingItemsSplitGroupModal',
   'dbEnums',
   'FinishSplitPalletModal',
   'focus',
@@ -86,7 +89,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
   function(
 
     AudioAlertSvc,
-    ConfigureRemainingItemsSplitGroupModal,
     dbEnums,
     FinishSplitPalletModal,
     focus,
@@ -241,6 +243,9 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         this.label = label;
         this.palletHandle = splitGroupLabel2PalletHandle( this.label );
         // TODO: set lotHandle
+        if( this.lotNumber ) {
+          this.lotHandle = createPalletLotHandle( this.palletHandle, this.lotNumber );
+        }
 
       }
 
@@ -601,6 +606,8 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
           save,
           cancel,
+          allItemsSplitOut,
+          createSplitGroupFromRemainingItems,
           finish,
 
           getImageLink: ImageSvc.getImageLink.bind( ImageSvc ),
@@ -614,6 +621,41 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       if( vm.palletId ) {
         loadPalletById( vm.palletId );
       }
+
+    }
+
+    function allItemsSplitOut() {
+
+      if( !vm.manifestDisplayRows ) {
+        return false;
+      }
+
+      for( let row of vm.manifestDisplayRows ) {
+
+        if( row.numSplit !== row[ __QUANTITY__ ] ) {
+          return false;
+        }
+
+      }
+
+      return true;
+    }
+
+    async function createSplitGroupFromRemainingItems() {
+
+      const leftoversSplitGroupItems = convertLeftovers2SplitGroupItems();
+
+      const remainingItemsSplitGroup = new DisplaySplitGroup( {
+        label: 'remaining',
+        packagingType: 'box lot',
+        items: leftoversSplitGroupItems,
+        shippingItems: [],
+        toBeListed: false
+      });
+
+      addSplitGroup( remainingItemsSplitGroup );
+
+      await __saveProgress().then( reloadPallet );
 
     }
 
@@ -1232,6 +1274,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
     }
 
+
     async function finish() {
 
       if( !vm.displaySplitGroups.filter( _ => _.items.length ).length ) {
@@ -1241,46 +1284,18 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         });
       }
 
-//  popup to ask if they're finished
-const isConfirmed = await ModalSvc.confirm({
-  header: 'Finish splitting?',
-  html: `<p>Finishing this pallet will close the editor, mark this pallet as broken down, and create new pallets with manifests reflecting the splitting of products.
-          ${ vm.pallet.shipment ? ` The new pallets will appear as consolidated pallets for shipment <strong>${vm.pallet.shipment.handle}</strong>.` : ''}</p>
-          <p>You will not be able to return to splitting this pallet, although you may further split the newly created pallets.</p>
-          <p>If you will need to return to splitting this pallet later, use the <strong>Save progress</strong> button instead.</p>
-          <p><strong>Finish this pallet?</strong></p>`,
-});
+      //  popup to ask if they're finished
+      const isConfirmed = await ModalSvc.confirm({
+        header: 'Finish splitting?',
+        html: `<p>Finishing this pallet will close the editor, mark this pallet as broken down, and create new pallets with manifests reflecting the splitting of products.
+                ${ vm.pallet.shipment ? ` The new pallets will appear as consolidated pallets for shipment <strong>${vm.pallet.shipment.handle}</strong>.` : ''}</p>
+                <p>You will not be able to return to splitting this pallet, although you may further split the newly created pallets.</p>
+                <p>If you will need to return to splitting this pallet later, use the <strong>Save progress</strong> button instead.</p>
+                <p><strong>Finish this pallet?</strong></p>`,
+      });
 
-if( !isConfirmed ) {
-  return;
-}
-
-      const leftoversSplitGroupItems = convertLeftovers2SplitGroupItems();
-
-      let remainingItemsSplitGroup;
-      if( leftoversSplitGroupItems.length ) {
-
-        remainingItemsSplitGroup = new DisplaySplitGroup( {
-          label: 'remaining',
-          packagingType: 'box lot',
-          items: leftoversSplitGroupItems,
-          shippingItems: [],
-          toBeListed: false
-        });
-
-        addSplitGroup( remainingItemsSplitGroup );
-
-// leftoversSplitGroups.push(
-
-//   new DisplaySplitGroup( {
-//     label: 'remaining',
-//     items: leftoversSplitGroupItems,
-//     shippingItems: [],
-//     toBeListed: false
-//   })
-
-// );
-
+      if( !isConfirmed ) {
+        return;
       }
 
       vm.displaySplitGroups = vm.displaySplitGroups.filter( _ => _.items.length );
@@ -1288,30 +1303,10 @@ if( !isConfirmed ) {
       // save the final splitGroups
       await __saveProgress();
 
-      if( remainingItemsSplitGroup ) {
-
-        await ConfigureRemainingItemsSplitGroupModal.launch( vm.pallet, remainingItemsSplitGroup );
-
-        await __saveProgress();
-
-        if( remainingItemsSplitGroup.shippingItems.length ) {
-
-          const isConfirmed = await ModalSvc.confirm({
-            header: 'Print labels?',
-            html: `<p>Print labels for split group <strong>${ remainingItemsSplitGroup.label }</strong>?</p>`
-          });
-
-
-          if( isConfirmed ) {
-            await remainingItemsSplitGroup.printLabels();
-          }
-
-        }
-
-
-      }
-
       const result = await FinishSplitPalletModal.launch( vm.pallet, vm.displaySplitGroups );
+
+      // save again in case anything is modified by FinishSplitPalletModal
+      await __saveProgress();
 
       if( result ) {
 
@@ -1386,14 +1381,12 @@ angular.module('myApp').factory( 'FinishSplitPalletModal', [ '$uibModal', functi
   };
 }]);
 
-
 /******************* Controller for Finish Pallet Splitting Modal service ******************************/
 angular.module('myApp').controller( 'FinishSplitPalletModalCtrl', [
 
   '$scope',
   'LotSvc',
   'ModalSvc',
-  'palletProperties',
   'resolvedModalData',
 
   function(
@@ -1401,7 +1394,6 @@ angular.module('myApp').controller( 'FinishSplitPalletModalCtrl', [
     $scope,
     LotSvc,
     ModalSvc,
-    palletProperties,
     resolvedModalData,
 
   ) {
@@ -1418,9 +1410,6 @@ angular.module('myApp').controller( 'FinishSplitPalletModalCtrl', [
           splitGroups: resolvedModalData.splitGroups.map( _ => ( { original: _,
             edits: _.getData() } ) ),
 
-          categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
-          conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) ),
-
           onPalletHandleChange,
           onLotHandleChange,
           validateGroup,
@@ -1428,10 +1417,6 @@ angular.module('myApp').controller( 'FinishSplitPalletModalCtrl', [
           done,
         }
       );
-
-      for( let _ of vm.splitGroups ) {
-        setSplitGroupLotHandle( _ );
-      }
 
     }
 
@@ -1472,14 +1457,10 @@ angular.module('myApp').controller( 'FinishSplitPalletModalCtrl', [
 
       let lotHandle = '';
 
-      if( resolvedModalData.pallet.shipment && resolvedModalData.pallet.shipment.handle ) {
-        lotHandle += `${resolvedModalData.pallet.shipment.handle}--`;
+      if( grp.original.lotNumber ) {
+        lotHandle += createPalletLotHandle( grp.edits.palletHandle, grp.original.lotNumber );
       }
 
-      lotHandle += `${grp.edits.palletHandle}`;
-      if( grp.original.lotNumber ) {
-        lotHandle += `--${ grp.original.lotNumber }`;
-      }
       Object.assign( grp.edits, { lotHandle } );
     }
 
@@ -1506,161 +1487,6 @@ angular.module('myApp').controller( 'FinishSplitPalletModalCtrl', [
       for( let grp of vm.splitGroups ) {
         grp.original.setData( grp.edits );
       }
-      $scope.$close( true );
-    }
-
-  }
-]);
-
-
-/******************* Remaining Split Group Config Modal service ******************************/
-angular.module('myApp').factory( 'ConfigureRemainingItemsSplitGroupModal', [ '$uibModal', function( $uibModal ){
-
-  return {
-
-    launch: function( pallet, grp ) {
-
-      const modalInstance = $uibModal.open({
-        templateUrl: '/partials/modals/_configure_remaining_split_group_modal.html',
-        size: 'lg',
-        backdrop: 'static',
-
-        resolve: {
-          resolvedModalData: function () {
-            return {
-              pallet,
-              grp
-            };
-          }
-        },
-        controller: 'ConfigureRemainingItemsSplitGroupModalCtrl as $ctrl',
-
-      });
-
-      return modalInstance.result;
-    }
-
-  };
-}]);
-
-
-/******************* Controller for Remaining Split Group Config Modal service ******************************/
-angular.module('myApp').controller( 'ConfigureRemainingItemsSplitGroupModalCtrl', [
-
-  '$scope',
-  'dbEnums',
-  'LoggedInUser',
-  'LotSvc',
-  'ModalSvc',
-  'palletProperties',
-  'resolvedModalData',
-
-  function(
-
-    $scope,
-    dbEnums,
-    LoggedInUser,
-    LotSvc,
-    ModalSvc,
-    palletProperties,
-    resolvedModalData,
-
-  ) {
-
-    const vm = this;
-    init();
-
-    function init() {
-
-      Object.assign(
-        vm,
-        {
-
-          grp: resolvedModalData.grp,
-          edits: resolvedModalData.grp.getData(),
-
-          packagingTypeOptions: [ "" ].concat( dbEnums.packagingType ),
-          categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
-          conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) ),
-          labelTypeOptions: __DEFAULT_SPLIT_GROUP_LABELS__,
-          showDeveloper: LoggedInUser.isDeveloper(),
-
-          setShippingItems,
-
-          // onPalletHandleChange,
-          // onLotHandleChange,
-          validate,
-// printLabels,
-          done,
-        }
-      );
-
-
-    }
-
-    function validate() {
-      vm.errors = {};
-
-// if( vm.splitGroups.find( _ => _.edits.palletHandle === vm.edits.palletHandle && _ !== grp ) ) {
-//   vm.errors.duplicatePalletHandle = true;
-// }
-
-      if( isHandleShipmentPalletDuplicate( vm.edits.palletHandle, resolvedModalData.pallet.shipment ) ) {
-        vm.errors.duplicatePalletHandle = true;
-      }
-
-// if( vm.splitGroups.find( _ => _.edits.lotHandle === vm.edits.lotHandle && _ !== grp ) ) {
-//   vm.errors.duplicateLotHandle = true;
-// }
-
-      for( let errorValue of Object.values( vm.errors ) ) {
-
-        if( errorValue ) {
-          return false;
-        }
-
-      }
-      return true;
-    }
-
-    function setSplitGroupLotHandle() {
-
-      let lotHandle = '';
-
-      if( resolvedModalData.pallet.shipment && resolvedModalData.pallet.shipment.handle ) {
-        lotHandle += `${resolvedModalData.pallet.shipment.handle}--`;
-      }
-
-      lotHandle += `${vm.edits.palletHandle}`;
-      if( vm.grp.lotNumber ) {
-        lotHandle += `--${ vm.grp.lotNumber }`;
-      }
-      Object.assign( vm.edits, { lotHandle } );
-    }
-
-    function onPalletHandleChange() {
-      if( validate() ) {
-        setSplitGroupLotHandle();
-      }
-    }
-
-    function onLotHandleChange() {
-      validate();
-    }
-
-    function setShippingItems( shippingItems ) {
-      vm.edits.shippingItems = shippingItems;
-    }
-
-    async function done() {
-
-      // const existingLot = await LotSvc.getLotByHandle( vm.edits.lotHandle );
-      // if( existingLot ) {
-      //   return ModalSvc.message( { header: 'Error', html: `<p>There already exists a lot with handle <strong>${ vm.edits.lotHandle }</strong>.</p>`, type: 'error' } );
-      // }
-
-
-      vm.grp.setData( vm.edits );
       $scope.$close( true );
     }
 

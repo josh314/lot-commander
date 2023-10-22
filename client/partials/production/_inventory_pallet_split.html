@@ -148,7 +148,7 @@
 
                   </div>
 
-                  <!-- <div class="row" style="margin-top:20px;" ng-show="$ctrl.showDeveloper">
+                  <div class="row" style="margin-top:20px;" ng-show="$ctrl.showDeveloper">
 
                     <div class="form-group col-xs-12 col-sm-6">
 
@@ -157,7 +157,7 @@
 
                     </div>
 
-                  </div> -->
+                  </div>
 
                   <div class="row">
 
@@ -334,7 +334,12 @@
     <div class="col-xs-12" style="display: flex; justify-content: flex-end;">
       <button class="btn btn-primary" ng-click="$ctrl.save()" ng-disabled="$ctrl.splitGroupsUnchanged()">Save
         progress</button>
-      <button class="btn btn-success" ng-click="$ctrl.finish()" style="margin-left: 8px;">Finish</button>
+      <span ng-hide="$ctrl.allItemsSplitOut()">
+        <button class="btn btn-success" ng-click="$ctrl.createSplitGroupFromRemainingItems()" style="margin-left: 8px;">Create remaining split group</button>
+      </span>
+      <span ng-show="$ctrl.allItemsSplitOut()">
+        <button class="btn btn-success" ng-click="$ctrl.finish()" style="margin-left: 8px;">Finish</button>
+      </span>
       <button class="btn btn-danger" ng-click="$ctrl.cancel()" style="margin-left: 8px;">Cancel</button>
     </div>
 
