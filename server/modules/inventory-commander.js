@@ -1222,7 +1222,7 @@ class InventoryCommander {
 
   }
 
-  async addInventoryPalletImage( palletId, imageMetadata ) {
+  async addInventoryPalletImages( palletId, images ) {
 
     const pallet = await this.getInventoryPalletById( palletId );
 
@@ -1230,7 +1230,11 @@ class InventoryCommander {
       throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
     }
 
-    pallet.images.push( imageMetadata );
+    for( let image of images ) {
+
+      pallet.images.push( image );
+
+    }
 
     return pallet.save();
 
