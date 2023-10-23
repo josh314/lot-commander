@@ -198,7 +198,7 @@
 
                       <label for="to-be-processed-input__{{ $grp.label }}">To Be Processed?</label>
                       <select id="to-be-processed-input__{{ $grp.label }}" class="form-control"
-                        ng-model="$grp.toBeProcessed">
+                        ng-model="$grp.toBeProcessed" ng-change="$grp.onToBeProcessedChange()" ng-disabled="$grp.isMissing">
                         <option ng-value="true">yes</option>
                         <option ng-value="false">no</option>
                       </select>
@@ -209,7 +209,7 @@
 
                       <label for="to-be-listed-input__{{ $grp.label }}">To Be Listed?</label>
                       <select id="to-be-listed-input__{{ $grp.label }}" class="form-control"
-                        ng-model="$grp.toBeListed">
+                        ng-model="$grp.toBeListed" ng-change="$grp.onToBeListedChange()" ng-disabled="$grp.isMissing">
                         <option ng-value="true">yes</option>
                         <option ng-value="false">no</option>
                       </select>
@@ -220,7 +220,7 @@
 
                       <label for="is-allocated-for-unmanifested-lots__{{ $grp.label }}">For unmanifested lots?</label>
                       <select id="is-allocated-for-unmanifested-lots__{{ $grp.label }}" class="form-control"
-                        ng-model="$grp.isAllocatedForUnmanifestedLots">
+                        ng-model="$grp.isAllocatedForUnmanifestedLots" ng-change="$grp.onIsAllocatedForUnmanifestedLotsChange()" ng-disabled="$grp.isMissing">
                         <option ng-value="true">yes</option>
                         <option ng-value="false">no</option>
                       </select>
@@ -231,7 +231,7 @@
 
                       <label for="is-missing-input__{{ $grp.label }}">Composed of missing units?</label>
                       <select id="is-missing-input__{{ $grp.label }}" class="form-control"
-                        ng-model="$grp.isMissing">
+                        ng-model="$grp.isMissing" ng-change="$grp.onIsMissingChange()">
                         <option ng-value="true">yes</option>
                         <option ng-value="false">no</option>
                       </select>
@@ -368,7 +368,7 @@
     <div ng-hide="$ctrl.displaySplitGroups.length > 0">
       <div style="display: flex; justify-content: center; align-items: center;" style="margin-top:8px;">
         <span>
-          <button class="btn btn-primary" ng-click="$ctrl.newSplitGroup()">New group</button>
+          <button class="btn btn-primary" ng-click="$ctrl.newSplitGroup()" ng-disabled="$ctrl.allItemsSplitOut()">New group</button>
         </span>
       </div>
     </div>
@@ -379,7 +379,7 @@
       <div style="display: flex; justify-content: space-between; align-items: center;" style="margin-top:8px;">
         <h3>Split group manifests</h3>
         <span>
-          <button class="btn btn-primary btn-sm" ng-click="$ctrl.newSplitGroup()">New group</button>
+          <button class="btn btn-primary btn-sm" ng-click="$ctrl.newSplitGroup()" ng-disabled="$ctrl.allItemsSplitOut()">New group</button>
         </span>
       </div>
 

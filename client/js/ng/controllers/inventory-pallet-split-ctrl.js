@@ -261,6 +261,42 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         return this.totalRetailValue() * vm.pallet.priceValuePercentage / 100;
       }
 
+
+      /*********************************************
+       * Editing metadata
+       * ================
+       *
+       *******/
+
+      onToBeProcessedChange() {
+        if( this.toBeProcessed ) {
+          this.toBeListed = false;
+          this.isAllocatedForUnmanifestedLots = false;
+        }
+      }
+
+      onToBeListedChange() {
+        if( this.toBeListed ) {
+          this.toBeProcessed = false;
+          this.isAllocatedForUnmanifestedLots = false;
+        }
+      }
+
+      onIsAllocatedForUnmanifestedLotsChange() {
+        if( this.isAllocatedForUnmanifestedLots ) {
+          this.toBeListed = false;
+          this.toBeProcessed = false;
+        }
+      }
+
+      onIsMissingChange() {
+        if( this.isMissing ) {
+          this.toBeListed = false;
+          this.toBeProcessed = false;
+          this.isAllocatedForUnmanifestedLots = false;
+        }
+      }
+
       // Editing the label
       startEditingLabel() {
         this.isEditingLabel = true;
@@ -321,6 +357,12 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         this.labelTypeEditValue = this.labelType;
       }
 
+
+      /*********************************************
+       * Splitting
+       * =======
+       *
+       * ***/
 
       splitItem( displayItem ) {
 
@@ -478,7 +520,13 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
       }
 
-      // TODO: deprecate
+
+      /*********************************************
+       * ShippingItems and printing
+       * ==========================
+       *
+       *****/
+
       editShippingItems() {
 
         const skipValidation = true;
@@ -512,6 +560,13 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         PrintSvc.printPalletSplitGroupLabels( vm.pallet._id, this._id );
 
       }
+
+
+      /*********************************************
+       * Images
+       * ======
+       *
+       *****/
 
       async uploadImages() {
 
@@ -1478,10 +1533,16 @@ angular.module('myApp').controller( 'FinishSplitPalletModalCtrl', [
     async function done() {
 
       for( let grp of vm.splitGroups ) {
-        const existingLot = await LotSvc.getLotByHandle( grp.edits.lotHandle );
-        if( existingLot ) {
-          return ModalSvc.message( { header: 'Error', html: `<p>There already exists a lot with handle <strong>${ grp.edits.lotHandle }</strong>.</p>`, type: 'error' } );
+
+        if( grp.edits.toBeListed && grp.edits.lotHandle ) {
+
+          const existingLot = await LotSvc.getLotByHandle( grp.edits.lotHandle );
+          if( existingLot ) {
+            return ModalSvc.message( { header: 'Error', html: `<p>There already exists a lot with handle <strong>${ grp.edits.lotHandle }</strong>.</p>`, type: 'error' } );
+          }
+
         }
+
       }
 
       for( let grp of vm.splitGroups ) {
