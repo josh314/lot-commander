@@ -647,7 +647,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           },
 
           refreshPalletsList,
-          splitPallet: loadPallet,
+          splitPallet: pallet => navigate.splitPallet( pallet._id ),
 
           splitGroupsUnchanged,
           totalUnitsSplit,

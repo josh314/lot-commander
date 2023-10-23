@@ -424,8 +424,11 @@ function createPalletSplitGroupLabels( splitGroup, pallet ) {
         {
           align: 'center',
         }
-      )
-      .moveDown();
+      );
+
+    doc.fontSize( 5 ).moveDown();
+
+
 
     if( splitGroup.toBeListed && splitGroup.lotNumber ) {
 
@@ -438,32 +441,32 @@ function createPalletSplitGroupLabels( splitGroup, pallet ) {
       doc.fontSize( 5 ).moveDown();
 
     } // if( splitGroup.toBeListed && splitGroup.lotNumber )
-    else {
 
-      if( pallet ) {
 
-        // pallet id
-        doc
-          .fontSize( 12 )
-          .font('Helvetica').text(`Pallet: `, { continued: true })
-          .font('Helvetica-Bold').text(`${pallet.handle}`, { underline: true });
+    if( splitGroup.label ) {
 
-        doc.fontSize( 5 ).moveDown();
+      // split group
+      doc
+        .fontSize( 8 )
+        .font('Helvetica').text(`Split group: `, { continued: true })
+        .font('Helvetica-Bold').text(`${splitGroup.label}`, { underline: true });
 
-      } // if( pallet )
+      doc.fontSize( 5 ).moveDown();
 
-      if( splitGroup.label ) {
+    } // if ( splitGroup.label )
 
-        // split group name
-        doc
-          .fontSize( 5 )
-          .font('Helvetica').text(`Split group label: `, { continued: true })
-          .font('Helvetica-Bold').text(`${splitGroup.label}`, { underline: true })
-          .moveDown();
 
-      } // if ( splitGroup.label )
+    if( pallet && !(splitGroup.toBeListed && splitGroup.lotNumber) ) {
 
-      if( pallet && pallet.shipment && pallet.shipment.handle ) {
+      // pallet id
+      doc
+        .fontSize( 12 )
+        .font('Helvetica').text(`Pallet: `, { continued: true })
+        .font('Helvetica-Bold').text(`${pallet.handle}`, { underline: true });
+
+      doc.fontSize( 5 ).moveDown();
+
+      if( pallet.shipment && pallet.shipment.handle ) {
 
         // Shipment
         doc
