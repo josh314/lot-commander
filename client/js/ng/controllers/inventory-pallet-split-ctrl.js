@@ -51,6 +51,11 @@ function isHandleShipmentPalletDuplicate( handle, shipment ) {
   return false;
 }
 
+function splitGroupLabel2PalletHandle( label, pallet ) {
+  return `${pallet.handle}--${ label }`;
+}
+
+
 function createPalletLotHandle( palletHandle, lotNumber ) {
   return `${ palletHandle }--${ lotNumber }`;
 }
@@ -84,6 +89,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
   'sessionTimeout',
   'ShipmentFactory',
   'ShippingItemsSvc',
+  'SplitGroupNameModal',
   'StandardManifestColumnsConst',
 
   function(
@@ -105,6 +111,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
     sessionTimeout,
     ShipmentFactory,
     ShippingItemsSvc,
+    SplitGroupNameModal,
     StandardManifestColumnsConst,
 
   ) {
@@ -238,10 +245,14 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
       }
 
+      setDataValue( key, value ) {
+        this[ key ] = value;
+      }
+
       setLabel( label ) {
 
         this.label = label;
-        this.palletHandle = splitGroupLabel2PalletHandle( this.label );
+        this.palletHandle = splitGroupLabel2PalletHandle( this.label, vm.pallet );
         // TODO: set lotHandle
         if( this.lotNumber ) {
           this.lotHandle = createPalletLotHandle( this.palletHandle, this.lotNumber );
@@ -296,67 +307,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           this.isAllocatedForUnmanifestedLots = false;
         }
       }
-
-      // Editing the label
-      startEditingLabel() {
-        this.isEditingLabel = true;
-        this.labelTypeEditValue = this.labelType;
-        this.labelEditValue = this.label;
-      }
-      disableSaveLabelEdit() {
-
-        if( this.labelTypeEditValue === this.labelType ) {
-          return true;
-        }
-
-        if( typeof this.labelTypeEditValue === 'undefined' ) {
-          return true;
-        }
-
-      }
-      saveLabelEdit() {
-        this.isEditingLabel = false;
-        if( this.labelTypeEditValue !== null ) {
-          const matchingLabelTypes = vm.displaySplitGroups.filter( _ => _.labelType && _.labelType === this.labelTypeEditValue );
-          this.labelEditValue = `${ this.labelTypeEditValue }-${ matchingLabelTypes.length + 1 }`;
-        }
-
-        // check against other split groups
-        const existingGrpWithEditLabel = vm.displaySplitGroups.find( _ => _.label === this.labelEditValue );
-
-        if( existingGrpWithEditLabel ) {
-
-          return ModalSvc.message( {
-            header: 'Error',
-            html: `<p>There already exists a split-group with the label <strong>${ this.labelEditValue }</strong>. Please choose another label.</p>`,
-            type: 'error'
-          } );
-
-        }
-
-        // check against other shipment pallets
-
-        const palletHandle = splitGroupLabel2PalletHandle( this.labelEditValue );
-        if( isHandleShipmentPalletDuplicate( palletHandle, vm.pallet.shipment ) ) {
-
-          return ModalSvc.message( {
-            header: 'Error',
-            html: `<p>The label <strong>${ this.labelEditValue }</strong> will clash with the name of another pallet in this shipment. Please choose another label.</p>`,
-            type: 'error'
-          } );
-
-        }
-
-        this.setLabel( this.labelEditValue );
-
-        this.labelType = this.labelTypeEditValue;
-
-      }
-      cancelLabelEdit() {
-        this.isEditingLabel = false;
-        this.labelTypeEditValue = this.labelType;
-      }
-
 
       /*********************************************
        * Splitting
@@ -658,6 +608,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           bumpCurrentSplitGroup,
 
           splitItem,
+          editSplitGroupLabel,
 
           save,
           cancel,
@@ -709,6 +660,8 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       });
 
       addSplitGroup( remainingItemsSplitGroup );
+
+      await editSplitGroupLabel( remainingItemsSplitGroup );
 
       await __saveProgress().then( reloadPallet );
 
@@ -762,7 +715,9 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
       const newDisplaySplitGroup = new DisplaySplitGroup( data );
 
-      return addSplitGroup( newDisplaySplitGroup );
+      addSplitGroup( newDisplaySplitGroup );
+
+      editSplitGroupLabel( newDisplaySplitGroup );
     }
 
     function addSplitGroup( newSplitGroup ) {
@@ -771,6 +726,16 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       vm.displaySplitGroupsSorted = [ newSplitGroup ].concat( vm.displaySplitGroupsSorted );
 
       vm.currentSplitGroup = newSplitGroup;
+
+    }
+
+    function editSplitGroupLabel( currentGroup ) {
+
+      return SplitGroupNameModal.launch( {
+        currentGroup,
+        splitGroups: vm.displaySplitGroups,
+        pallet: vm.pallet
+      } );
 
     }
 
@@ -1397,14 +1362,128 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       vm.pallet = null;
       vm.manifest = null;
     }
-
-    function splitGroupLabel2PalletHandle( label ) {
-      return `${vm.pallet.handle}--${ label }`;
-    }
-
   }
 ]);
 
+/******************* Split Group Name Modal service ******************************/
+angular.module('myApp').factory( 'SplitGroupNameModal', [ '$uibModal', function( $uibModal ){
+
+  return {
+
+    launch: function( { currentGroup, splitGroups, pallet } ) {
+
+      const modalInstance = $uibModal.open({
+        templateUrl: '/partials/modals/_split_group_name_modal.html',
+        size: 'lg',
+        backdrop: 'static',
+
+        resolve: {
+          resolvedModalData: function () {
+            return {
+              currentGroup,
+              splitGroups,
+              pallet
+            };
+          }
+        },
+        controllerAs: '$ctrl',
+        controller: [ '$scope', 'resolvedModalData', function( $scope, resolvedModalData ) {
+
+          const vm = this;
+          init();
+
+          function init() {
+
+            Object.assign(
+              vm,
+              {
+
+                labelTypeOptions: __DEFAULT_SPLIT_GROUP_LABELS__,
+
+                edits: {
+                  label: resolvedModalData.currentGroup.label,
+                  labelType: resolvedModalData.currentGroup.labelType,
+                },
+
+                onLabelTypeChange,
+                onLabelChange,
+                validate,
+                save
+              }
+            );
+
+
+          }
+
+          function labelTypeLabel( type, num ) {
+            return `${ type }-${ num }`;
+          }
+
+          function onLabelTypeChange() {
+            if( vm.edits.labelType !== null ) {
+
+              let proposedLabel;
+              let match;
+              let i = 0;
+              do {
+                i++;
+                proposedLabel = labelTypeLabel( vm.edits.labelType, i );
+                match = resolvedModalData.splitGroups.find( _ => _ !== resolvedModalData.currentGroup && _.label === proposedLabel );
+
+              } while( match )
+
+              vm.edits.label = proposedLabel;
+            }
+          }
+
+          function onLabelChange() {
+            validate();
+          }
+
+          function validate() {
+            vm.errors = {};
+
+            const existingGrpWithEditLabel = resolvedModalData.splitGroups.find( _ => _ !== resolvedModalData.currentGroup && _.label === vm.edits.label );
+
+            if( existingGrpWithEditLabel ) {
+              vm.errors.duplicateSplitGroupLabel = true;
+            }
+
+            // check against other shipment pallets
+
+            const palletHandle = splitGroupLabel2PalletHandle( vm.edits.label, resolvedModalData.pallet );
+            if( isHandleShipmentPalletDuplicate( palletHandle, resolvedModalData.pallet.shipment ) ) {
+              vm.errors.duplicatePalletHandle = true;
+            }
+
+            for( let errorValue of Object.values( vm.errors ) ) {
+
+              if( errorValue ) {
+                return false;
+              }
+
+            }
+
+            return true;
+          }
+
+          function save() {
+
+            resolvedModalData.currentGroup.setLabel( vm.edits.label );
+            resolvedModalData.currentGroup.labelType = vm.edits.labelType;
+
+            $scope.$close();
+          }
+
+        }]
+
+      });
+
+      return modalInstance.result;
+    }
+
+  };
+}]);
 
 /******************* Finish Pallet Splitting Modal service ******************************/
 angular.module('myApp').factory( 'FinishSplitPalletModal', [ '$uibModal', function( $uibModal ){
