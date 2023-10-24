@@ -146,7 +146,7 @@
                     <div class="form-group col-xs-12 col-sm-4">
 
                       <label for="category-input__{{ $grp.label }}">Category</label>
-                      <select id="category-input__{{ $grp.label }}" class="form-control" ng-model="$grp.category">
+                      <select id="category-input__{{ $grp.label }}" class="form-control" ng-model="$grp.category" ng-disabled="$grp.getCategoryFromLabelType() && $grp.category === $grp.getCategoryFromLabelType()">
                         <option ng-repeat="$option in $ctrl.categoryOptions" ng-value="$option.value">{{ $option.displayName }}</option>
                       </select>
 
@@ -155,8 +155,7 @@
                     <div class="form-group col-xs-12 col-sm-4">
 
                       <label for="condition-input__{{ $grp.label }}">Condition</label>
-                      <select id="condition-input__{{ $grp.label }}" class="form-control"
-                        ng-model="$grp.condition">
+                      <select id="condition-input__{{ $grp.label }}" class="form-control" ng-model="$grp.condition" ng-disabled="$grp.getConditionFromLabelType() && $grp.condition === $grp.getConditionFromLabelType()">
                         <option ng-repeat="$option in $ctrl.conditionOptions" ng-value="$option.value">{{ $option.displayName }}</option>
                       </select>
 

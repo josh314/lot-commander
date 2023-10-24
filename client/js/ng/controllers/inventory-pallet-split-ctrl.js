@@ -60,12 +60,12 @@ function createPalletLotHandle( palletHandle, lotNumber ) {
   return `${ palletHandle }--${ lotNumber }`;
 }
 
-const __DEFAULT_SPLIT_GROUP_LABELS__ = [
-  { value: 'SAL', name: 'SAL - Salvage' },
-  { value: 'PC', name: 'PC - Personal Care' },
-  { value: 'GM', name: 'GM - General Merchandise' },
+const __DEFAULT_SPLIT_GROUP_LABEL_TYPES__ = [
+  { value: 'SAL', name: 'SAL - Salvage', condition: 'salvage' },
+  { value: 'PC', name: 'PC - Personal Care', category: 'personal care' },
+  { value: 'GM', name: 'GM - General Merchandise', category: 'general merchandise' },
   { value: 'LIQ', name: 'LIQ - Liquid' },
-  { value: 'COS', name: 'COS - Cosmetics' },
+  { value: 'COS', name: 'COS - Cosmetics', category: 'cosmetics' },
   { value: null, name: 'Custom' },
 ];
 
@@ -117,7 +117,21 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
   ) {
 
 
+    /*********************************************
+     * DisplaySplitGroup class
+     * =======================
+     *
+     *******/
+
     class DisplaySplitGroup {
+
+
+      /*********************************************
+       * Constructor
+       * ================
+       *
+       *******/
+
       constructor( {
         _id,
         label,
@@ -181,6 +195,14 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         this.setLabel( label );
       }
 
+
+      /*********************************************
+       * Getting metadata
+       * ================
+       *
+       *******/
+
+
       // get the data
       getData() {
         return {
@@ -202,6 +224,46 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           isMissing: this.isMissing,
         };
       }
+
+
+      totalUnits() {
+        return this.items.reduce( ( total, item ) => total + item.numSplit, 0 );
+      }
+
+      totalRetailValue() {
+        return this.items.reduce( ( total, item ) => total + item.unitRetailPrice*item.numSplit, 0 );
+      }
+
+      totalSalesValue() {
+        return this.totalRetailValue() * vm.pallet.priceValuePercentage / 100;
+      }
+
+      getCategoryFromLabelType() {
+
+        const splitGroupDefaultLabelType = __DEFAULT_SPLIT_GROUP_LABEL_TYPES__.find( _ => _.value === this.labelType );
+        if( splitGroupDefaultLabelType ) {
+          return splitGroupDefaultLabelType.category;
+        }
+
+      }
+
+      getConditionFromLabelType() {
+
+        const splitGroupDefaultLabelType = __DEFAULT_SPLIT_GROUP_LABEL_TYPES__.find( _ => _.value === this.labelType );
+        if( splitGroupDefaultLabelType ) {
+          return splitGroupDefaultLabelType.condition;
+        }
+
+      }
+
+
+
+      /*********************************************
+       * Editing metadata
+       * ================
+       *
+       *******/
+
 
       setData( {
         label,
@@ -260,25 +322,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
       }
 
-      totalUnits() {
-        return this.items.reduce( ( total, item ) => total + item.numSplit, 0 );
-      }
-
-      totalRetailValue() {
-        return this.items.reduce( ( total, item ) => total + item.unitRetailPrice*item.numSplit, 0 );
-      }
-
-      totalSalesValue() {
-        return this.totalRetailValue() * vm.pallet.priceValuePercentage / 100;
-      }
-
-
-      /*********************************************
-       * Editing metadata
-       * ================
-       *
-       *******/
-
       onToBeProcessedChange() {
         if( this.toBeProcessed ) {
           this.toBeListed = false;
@@ -310,7 +353,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
       /*********************************************
        * Splitting
-       * =======
+       * =========
        *
        * ***/
 
@@ -567,7 +610,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
       vm.conditionOptions = [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _, value: _ } ) ) ),
       vm.packagingTypeOptions = [ "" ].concat( dbEnums.packagingType );
-      vm.labelTypeOptions = __DEFAULT_SPLIT_GROUP_LABELS__;
+      vm.labelTypeOptions = __DEFAULT_SPLIT_GROUP_LABEL_TYPES__;
 
       vm.inputs = {
         barcode: '',
@@ -1398,11 +1441,13 @@ angular.module('myApp').factory( 'SplitGroupNameModal', [ '$uibModal', function(
               vm,
               {
 
-                labelTypeOptions: __DEFAULT_SPLIT_GROUP_LABELS__,
+                labelTypeOptions: __DEFAULT_SPLIT_GROUP_LABEL_TYPES__,
 
                 edits: {
                   label: resolvedModalData.currentGroup.label,
                   labelType: resolvedModalData.currentGroup.labelType,
+                  category: resolvedModalData.currentGroup.category,
+                  condition: resolvedModalData.currentGroup.condition,
                 },
 
                 onLabelTypeChange,
@@ -1433,6 +1478,14 @@ angular.module('myApp').factory( 'SplitGroupNameModal', [ '$uibModal', function(
               } while( match )
 
               vm.edits.label = proposedLabel;
+
+              const labelTypeOption = __DEFAULT_SPLIT_GROUP_LABEL_TYPES__.find( _ => _.value === vm.edits.labelType );
+              if( labelTypeOption.category ) {
+                vm.edits.category = labelTypeOption.category;
+              }
+              if( labelTypeOption.condition ) {
+                vm.edits.condition = labelTypeOption.condition;
+              }
             }
           }
 
@@ -1471,6 +1524,8 @@ angular.module('myApp').factory( 'SplitGroupNameModal', [ '$uibModal', function(
 
             resolvedModalData.currentGroup.setLabel( vm.edits.label );
             resolvedModalData.currentGroup.labelType = vm.edits.labelType;
+            resolvedModalData.currentGroup.setDataValue( 'category', vm.edits.category );
+            resolvedModalData.currentGroup.setDataValue( 'condition', vm.edits.condition );
 
             $scope.$close();
           }
