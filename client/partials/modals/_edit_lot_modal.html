@@ -3,6 +3,23 @@
 </div>
 <div class="modal-body">
 	<div class="row">
+
+		<div class="col-xs-12">
+
+      <div class="form-group" ng-class="{ 'has-error' : !$ctrl.verifyTitle()}">
+				<label>Title</label>
+        <input ui-tinymce="$ctrl.tinymceOptions.listingData.title" ng-model="$ctrl.lot.listingData.title"></input>
+        <span class="text-danger h4" ng-show="$ctrl.titleTooLong.bstock && $ctrl.lot.destinationMarketplace ==='bstock'">Title too long for a Bstock Listing</span>
+        <span class="text-danger h4" ng-show="$ctrl.titleTooLong.shopify && $ctrl.lot.destinationMarketplace ==='wholesaleninjas'">Title too long for a Shopify Listing</span>
+        <span class="text-danger h4" ng-show="$ctrl.titleContainsLineBreaks">Please remove any line breaks.</span>
+      </div>
+      <div>
+				<label>Body</label>
+        <textarea ui-tinymce="$ctrl.tinymceOptions.listingData.body" ng-model="$ctrl.lot.listingData.body"></textarea>
+      </div>
+
+		</div>
+
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="handleInput">Handle</label>
 			<input class="form-control" name="handle" id="handleInput" required ng-model="$ctrl.lot.handle">
@@ -77,19 +94,6 @@
     <div class="form-group col-xs-12 col-sm-6">
 			<label for="priceValuePercentageInput">Price/value percentage</label>
 			<input type="number" class="form-control" id="priceValuePercentageInput" ng-model="$ctrl.lot.priceValuePercentage" ng-disabled="!$ctrl.allowEditPricingData">
-		</div>
-		<div class="col-xs-12">
-			<h3>Listings</h3>
-			<div class="form-group" ng-class="{ 'has-error' : !$ctrl.verifyTitle()}">
-				<label>Title</label>
-				<input class="form-control" name="listingTitle" id="listingTitleinput" ng-keyup="$ctrl.verifyTitle()" ng-model="$ctrl.lot.listingData.title">
-				<span class="text-danger h4" ng-show="$ctrl.titleTooLong.bstock && $ctrl.lot.destinationMarketplace ==='bstock'">Title too long for a Bstock Listing</span>
-				<span class="text-danger h4" ng-show="$ctrl.titleTooLong.shopify && $ctrl.lot.destinationMarketplace ==='wholesaleninjas'">Title too long for a Shopify Listing</span>
-			</div>
-			<div>
-				<label>Body (boilerplate omitted)</label>
-				<textarea rows="15" class="form-control" name="listingBody" id="listingBodyInput" required ng-model="$ctrl.lot.listingData.body"></textarea>
-			</div>
 		</div>
 	</div>
 </div>
