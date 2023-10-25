@@ -155,7 +155,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
             _id,
             images,
 
-            isEditingLabel: false,
+            showDetails: false,
             itemEdits: new Map(),
           }
         );
@@ -195,6 +195,9 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         this.setLabel( label );
       }
 
+      toggleShowDetails() {
+        this.showDetails = !this.showDetails;
+      };
 
       /*********************************************
        * Getting metadata
@@ -633,11 +636,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           util,
 
           openPackagingTypeInfo: ModalSvc.packagingTypeInfo.bind( ModalSvc ),
-
-          showSplitGroupDetails: false,
-          toggleShowSplitGroupDetails: function() {
-            vm.showSplitGroupDetails = !vm.showSplitGroupDetails;
-          },
 
           refreshPalletsList,
           splitPallet: pallet => navigate.splitPallet( pallet._id ),
@@ -1380,12 +1378,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
         await ModalSvc.message( { header: 'Splitting complete', body: `Successfully created new split pallets and lots.` } );
 
-        if( vm.allowShipmentNavigation && vm.pallet.shipment && vm.pallet.shipment._id ) {
-          navigate.shipmentDetails( vm.pallet.shipment._id );
-        }
-        else {
-          navigate.splitPallet();
-        }
+        navigate.splitPallet();
 
       }
 

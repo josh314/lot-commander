@@ -75,15 +75,29 @@
           </span>
         </dd>
 
-        <dt>Split group details</span></dt>
+        <dt>Total units split out</dt>
         <dd>
+          {{ $ctrl.totalUnitsSplit() }}
+        </dd>
 
-          [<a href ng-click="$ctrl.toggleShowSplitGroupDetails()">{{ $ctrl.showSplitGroupDetails ? "Hide Details" : "Show Details" }}</a>]
+        <div  ng-repeat="$grp in $ctrl.displaySplitGroups track by $index">
 
-          <div class="well" ng-show="$ctrl.showSplitGroupDetails">
+          <dt>
+            <span>
+              Group <u>{{ $grp.label }}</u>:
+            </span>
+            <!-- <span class="text-danger" ng-hide="$grp.totalUnits()">---</span> -->
+          </dt>
+          <dd>
 
-            <div ng-repeat="$grp in $ctrl.displaySplitGroups track by $index">
+            <div style="display: flex; flex-direction: column;">
+              <span  ng-show="$grp.totalUnits()">
+                <span class="text-danger"> {{ $grp.totalUnits() }}</span> units, <span class="text-danger">{{ $ctrl.util.displayAsMoney( $grp.totalSalesValue() ) }}</span> value
+              </span>
+              <span>[<a href ng-click="$grp.toggleShowDetails()">{{ $grp.showDetails ? "Hide Details" : "Show Details" }}</a>]</span>
+            </div>
 
+            <div ng-show="$grp.showDetails">
               <div class="panel panel-primary split-group-details-panel">
 
                 <div class="panel-heading">
@@ -277,24 +291,11 @@
                 </div>
 
               </div>
-
             </div>
 
-          </div>
-
-        </dd>
-
-        <dt>Total units split out</dt>
-        <dd>
-          {{ $ctrl.totalUnitsSplit() }}
-        </dd>
-
-        <div ng-repeat="$grp in $ctrl.displaySplitGroups track by $index">
-          <dt>Units in group <u>{{ $grp.label }}</u></dt>
-          <dd>
-            <span class="text-danger" ng-show="$grp.totalUnits()">{{ $grp.totalUnits() }} ({{ $ctrl.util.displayAsMoney( $grp.totalSalesValue() ) }})</span>
-            <span class="text-danger" ng-hide="$grp.totalUnits()">---</span>
           </dd>
+
+
         </div>
 
 
