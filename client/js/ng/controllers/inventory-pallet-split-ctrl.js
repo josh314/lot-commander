@@ -197,7 +197,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
       toggleShowDetails() {
         this.showDetails = !this.showDetails;
-      };
+      }
 
       /*********************************************
        * Getting metadata
@@ -704,7 +704,9 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
       await editSplitGroupLabel( remainingItemsSplitGroup );
 
-      await __saveProgress().then( reloadPallet );
+      await ModalSvc.wait({
+        waitFor: __saveProgress().then( reloadPallet )
+      });
 
     }
 
@@ -1468,7 +1470,7 @@ angular.module('myApp').factory( 'SplitGroupNameModal', [ '$uibModal', function(
                 proposedLabel = labelTypeLabel( vm.edits.labelType, i );
                 match = resolvedModalData.splitGroups.find( _ => _ !== resolvedModalData.currentGroup && _.label === proposedLabel );
 
-              } while( match )
+              } while( match );
 
               vm.edits.label = proposedLabel;
 
