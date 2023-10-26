@@ -10,8 +10,9 @@
       </div>
 
       <div class="button-row-container" style="margin-top:8px;">
+        <button class="btn btn-primary" ng-click="$ctrl.goBackToLot()">Back to lot</button>
         <button class="btn btn-primary" ng-click="$ctrl.renderCollage()">Render new collage</button>
-        <button class="btn btn-success" ng-click="$ctrl.save()" style="margin-left: 4px;" ng-disabled="$ctrl.collageSaved">{{ $ctrl.collageSaved ? 'Saved!' : 'Save to lot' }}</button>
+        <button class="btn btn-success" ng-click="$ctrl.saveCollageToLot()" style="margin-left: 4px;" ng-disabled="$ctrl.collageSaved">{{ $ctrl.collageSaved ? 'Saved!' : 'Save to lot' }}</button>
       </div>
 
     </div>
@@ -19,6 +20,7 @@
     <div style="display:flex; flex-direction:column; align-items:center;" ng-hide="$ctrl.showCollage">
 
       <div class="button-row-container" style="margin-top:8px;">
+        <button class="btn btn-primary" ng-click="$ctrl.goBackToLot()">Back to lot</button>
         <button class="btn btn-primary" ng-click="$ctrl.revealAndRenderCollage()">Render collage</button>
       </div>
 

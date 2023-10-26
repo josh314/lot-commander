@@ -14,6 +14,7 @@ angular.module('myApp').controller('GalleryCtrl', [
   'LotSvc',
   'ManifestFileHandlerSvc',
   'ModalSvc',
+  'navigate',
   'PalletManifestSvc',
   'ProductDataSvc',
 
@@ -24,11 +25,61 @@ angular.module('myApp').controller('GalleryCtrl', [
     LotSvc,
     ManifestFileHandlerSvc,
     ModalSvc,
+    navigate,
     PalletManifestSvc,
     ProductDataSvc
   ) {
 
     const vm = this;
+    init();
+
+
+    function init() {
+
+      Object.assign(
+        vm,
+        {
+          goBackToLot,
+
+          revealAndRenderCollage,
+          renderCollage,
+          saveCollageToLot,
+
+          showCollage: false,
+          collageSaved: false,
+
+          collage: {
+            height: 540,
+            width: 960,
+            fill: "white",
+            numRows: 2,
+          },
+
+          items: [],
+        }
+      );
+
+      LotSvc.load( { populate: [ 'pallet' ], hydratePallet: true } ).then(()=>{
+
+        vm.lot = LotSvc.getLotStore();
+
+        if( vm.lot.pallet ) {
+          return loadPalletImageGallery();
+        }
+        else {
+          return loadLotImageGallery();
+        }
+
+      });
+
+    }
+
+    function goBackToLot() {
+
+      return navigate.viewLot( vm.lot._id );
+
+    }
+
 
     function loadLotImageGallery() {
 
@@ -130,47 +181,25 @@ angular.module('myApp').controller('GalleryCtrl', [
           delay: 1000
         } );
         vm.collageSaved = true;
+
+        const yes = await ModalSvc.confirm({
+          header: "Create another collage?",
+          body: "The collage has been saved to the lot. Would you like to create another?",
+        });
+
+        if( yes ) {
+          return renderCollage();
+        }
+        else {
+          return goBackToLot();
+        }
+
       }
       else {
         ModalSvc.message({ header: 'Error', body: `Error saving image.`, type: 'error' });
       }
 
     }
-
-    function init() {
-
-      vm.revealAndRenderCollage = revealAndRenderCollage;
-      vm.renderCollage = renderCollage;
-      vm.save = saveCollageToLot;
-
-      vm.showCollage = false;
-      vm.collageSaved = false;
-
-      vm.collage = {
-        height: 540,
-        width: 960,
-        fill: "white",
-        numRows: 2,
-      };
-
-      vm.items = [];
-
-      LotSvc.load( { populate: [ 'pallet' ], hydratePallet: true } ).then(()=>{
-
-        vm.lot = LotSvc.getLotStore();
-
-        if( vm.lot.pallet ) {
-          return loadPalletImageGallery();
-        }
-        else {
-          return loadLotImageGallery();
-        }
-
-      });
-
-    }
-
-    init();
 
   }
 ]);
