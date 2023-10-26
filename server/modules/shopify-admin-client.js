@@ -48,6 +48,7 @@ class Client {
       const manifestItems = await manifestP;
 
       const productToCreate = {
+        status: 'draft',
         title: listing.lot.listingData.title,
         body_html: listing.lot.listingData.body + '<br><br>' + listing.bodyBoilerplate,
         template_suffix: 'lot',
