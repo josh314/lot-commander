@@ -5,11 +5,12 @@ import "angular-sanitize";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "ngstorage";
+import "angular-ui-tinymce";
 
 /************************************************************************
 ************************ Angular app init *******************************
 ************************************************************************/
-angular.module('myApp', ['ui.bootstrap', 'ui.router', 'ngAnimate', 'ngSanitize', 'ngCookies', 'ngStorage']);
+angular.module('myApp', [ 'ui.bootstrap', 'ui.router', 'ngAnimate', 'ngSanitize', 'ngCookies', 'ngStorage', 'ui.tinymce' ]);
 
 /************************************************************************
 ************************ Data and constants *****************************

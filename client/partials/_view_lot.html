@@ -51,7 +51,10 @@
 						</div>
 						<div class="col-xs-12">
 							<label>Body</label>
-							<div class="well" style="white-space: pre-wrap;">{{$ctrl.lot.listingData.body + '\n\n' + $ctrl.listingsBoilerplate[$ctrl.lot.getType()]}}</div><br>
+							<!-- <div class="well" style="white-space: pre-wrap;">{{$ctrl.lot.listingData.body + '\n\n' + $ctrl.listingsBoilerplate[$ctrl.lot.getType()]}}</div><br> -->
+              <div class="well">
+                <div ng-bind-html="$ctrl.lot.listingData.body"></div>
+              </div>
 						</div>
 					</div>
 					<div class="pull-left" ng-hide="$ctrl.lot.unmanifested">
