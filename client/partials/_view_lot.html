@@ -53,7 +53,7 @@
 							<label>Body</label>
 							<!-- <div class="well" style="white-space: pre-wrap;">{{$ctrl.lot.listingData.body + '\n\n' + $ctrl.listingsBoilerplate[$ctrl.lot.getType()]}}</div><br> -->
               <div class="well">
-                <div ng-bind-html="$ctrl.lot.listingData.body"></div>
+                <div ng-bind-html="$ctrl.getBodyHtml()"></div>
               </div>
 						</div>
 					</div>

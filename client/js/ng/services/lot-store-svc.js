@@ -2,8 +2,8 @@ import angular from 'angular';
 
 /****************** Lot store *****************************/
 //Constructor function for lotStore service
-angular.module('myApp').service('lotStore', ['dbEnums',
-  function (dbEnums) {
+angular.module('myApp').service('lotStore', [ '$sce', 'dbEnums',
+  function ( $sce, dbEnums ) {
 
     /*******************************************
      * Initializer
@@ -266,6 +266,10 @@ angular.module('myApp').service('lotStore', ['dbEnums',
     this.getPriceValuePercentage = function() { return this.priceValuePercentage; };
 
     this.getShippingItems = function() { return this.shippingItems; };
+
+    this.getBodyHtml = function() {
+      return this.listingData && this.listingData.body ? $sce.trustAsHtml( this.listingData.body ) : '';
+    };
 
   }
 ]);

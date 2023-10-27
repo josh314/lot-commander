@@ -38,54 +38,83 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     sessionTimeout.timeoutExpired();
 
     const vm = this;
+    init();
 
-    vm.showEditingControls = LoggedInUser.hasPermission( 'EDIT_LOT' );
-    vm.showDeleteButton = LoggedInUser.hasPermission( 'DELETE_LOT' );
-    vm.showPricingData = LoggedInUser.hasPermission( 'VIEW_PRICING_DATA' );
-    vm.waitingForResponse = false;
+    function init() {
 
-    vm.listingsBoilerplate = listingsBoilerplate;
+      Object.assign(
+        vm,
+        {
 
-    // images methods
-    vm.getImageLink = getImageLink;
-    vm.updatePrimaryImage = updatePrimaryImage;
-    vm.uploadImages = uploadImages;
-    vm.removeImage = removeImage;
-    vm.editImage = editImage;
+          showEditingControls: LoggedInUser.hasPermission( 'EDIT_LOT' ),
+          showDeleteButton: LoggedInUser.hasPermission( 'DELETE_LOT' ),
+          showPricingData: LoggedInUser.hasPermission( 'VIEW_PRICING_DATA' ),
+          waitingForResponse: false,
 
-    vm.addLotImageMethod = 'file';
-    vm.setAddLotImageMethod = s => vm.addLotImageMethod = s;
-    vm.addLotImageMethodIs = s => ( vm.addLotImageMethod === s );
+          listingsBoilerplate,
 
-    // Lot editing
-    vm.editLot = editLot;
-    vm.editShippingItemsCb = editShippingItemsCb;
-    vm.deleteLot = deleteLot;
+          // images methods
+          getImageLink,
+          updatePrimaryImage,
+          uploadImages,
+          removeImage,
+          editImage,
+          addLotImageMethod: 'file',
+          setAddLotImageMethod: s => vm.addLotImageMethod = s,
+          addLotImageMethodIs: s => ( vm.addLotImageMethod === s ),
 
-    // shipping items display
-    vm.showShippingItems = false;
-    vm.toggleShowShippingItems = () => vm.showShippingItems = !vm.showShippingItems;
 
-    vm.configureListingForSubmission = configureListingForSubmission;
-    vm.scanItems = scanItems;
-    vm.editManifest = editManifest;
-    vm.linkManifestBlock = linkManifestBlock;
-    vm.readableDate = readableDate;
-    vm.openGallery = openGallery;
-    vm.printShippingItemsLabels = printShippingItemsLabels;
-    vm.generateManifestFileForScannedInventory = generateManifestFileForScannedInventory;
-    vm.openRecentImageGallery = openRecentImageGallery;
-    vm.confirmAddLotImage = confirmAddLotImage;
-    vm.cloneImageFromSelectedUrl = () => cloneImageFromUrl( vm.imageUrlToClone );
-    vm.showPalletDetails = showPalletDetails;
+          // Lot editing
+          editLot,
+          editShippingItemsCb,
+          deleteLot,
 
-    vm.pagination = {
-      current: 1,
-      totalItems: 0,
-      pageSize: __MAX_DISPLAY_INVENTORY__,
-      pageChange: refreshDisplayInventory,
-      maxSize: 8
-    };
+
+          // shipping items display
+          showShippingItems: false,
+          toggleShowShippingItems: () => vm.showShippingItems = !vm.showShippingItemsfalse,
+
+
+          configureListingForSubmission,
+          scanItems,
+          editManifest,
+          linkManifestBlock,
+          readableDate,
+          openGallery,
+          printShippingItemsLabels,
+          generateManifestFileForScannedInventory,
+          openRecentImageGallery,
+          confirmAddLotImage,
+          cloneImageFromSelectedUrl: () => cloneImageFromUrl( vm.imageUrlToClone ),
+          showPalletDetails,
+
+          getBodyHtml,
+
+          pagination:{
+            current: 1,
+            totalItems: 0,
+            pageSize: __MAX_DISPLAY_INVENTORY__,
+            pageChange: refreshDisplayInventory,
+            maxSize: 8
+          },
+
+        }
+      );
+
+
+      LotSvc.load( { populate: ['pallet'] } )
+        .then( lot =>{
+
+          vm.lot = lotStore;
+
+          vm.images = lot.images;
+          refreshDisplayInventory();
+          // initializeAllThumbnailImages( lot );
+        })
+        .then( _ => vm.titleTooLong = ListingsSvc.isTitleTooLong(lotStore.listingData.title) );
+
+    }
+
 
     /*************************************************
     * Images
@@ -437,22 +466,11 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       InventoryPalletManagerSvc.get( vm.lot.pallet._id, { populate: [ 'shipment' ] } ).then( pallet => pallet.detailsModal() );
     }
 
-    function init() {
 
-      LotSvc.load( { populate: ['pallet'] } )
-        .then( lot =>{
-
-          vm.lot = lotStore;
-
-          vm.images = lot.images;
-          refreshDisplayInventory();
-          // initializeAllThumbnailImages( lot );
-        })
-        .then( _ => vm.titleTooLong = ListingsSvc.isTitleTooLong(lotStore.listingData.title) );
-
+    function getBodyHtml() {
+      return lotStore.getBodyHtml();
     }
 
-    init();
 
   }]
 );
