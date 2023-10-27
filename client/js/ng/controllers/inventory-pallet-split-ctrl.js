@@ -607,7 +607,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         populateShipment: true,
         shipmentHandle: '',
         isBrokendown: false,
-        toBeListed: true,
+        toBeProcessed: true,
       };
 
       vm.categoryOptions = [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _, value: _ } ) ) ),
