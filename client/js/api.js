@@ -92,6 +92,16 @@ export function getManifest( manifestId ) {
 
 }
 
+export function getLotManifestFile( lotId ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/lots/${ lotId }/manifest-file`,
+    responseType: 'arraybuffer'
+  })
+    .then( resp => resp.data );
+}
+
 export function import3rdPartyManifestBlock( { lot, blockId } ) {
 
   return axios({

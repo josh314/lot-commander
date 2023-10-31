@@ -9,13 +9,15 @@ angular.module('myApp').factory( 'LotSvc', [
   '$stateParams',
   'InventoryPallet',
   'lotStore',
+  'ManifestFileHandlerSvc',
 
   function(
 
     $q,
     $stateParams,
     InventoryPallet,
-    lotStore
+    lotStore,
+    ManifestFileHandlerSvc,
 
   ) {
 
@@ -74,6 +76,8 @@ angular.module('myApp').factory( 'LotSvc', [
 
       getManifest: manifestId => $q.when( api.getManifest( manifestId ) ),
 
+      getManifestFile: ( lotId, isPrivate ) => $q.when( api.getManifestFile( lotId, isPrivate ) ),
+
       import3rdPartyManifestBlock: ( lot, blockId ) => $q.when( api.import3rdPartyManifestBlock({ lot, blockId }) ),
 
       addImages: ( lotId, images ) => $q.when( api.addLotImages( lotId, images ) ),
@@ -116,6 +120,22 @@ angular.module('myApp').factory( 'LotSvc', [
 
         return lot;
       }) ),
+
+      loadManifestFile: ( lotId, manifestFilename ) => {
+
+        return $q.when( api.getLotManifestFile( lotId ) ).then( data => {
+
+          ManifestFileHandlerSvc.parse(
+            data,
+            manifestFilename || 'temp.xlsx',
+            { skipLastRows: 1 }, //note we are assuming the last row is a totals row
+          );
+
+          return ManifestFileHandlerSvc.getActiveManifest();
+
+        });
+
+      },
 
       saveManifest: () => {
         // This filters out completely empty lines

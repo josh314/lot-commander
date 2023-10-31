@@ -1,9 +1,10 @@
 import angular from 'angular';
 
+import * as util from '../../utilities';
 import * as api from '../../api';
 
 /******************* Listings Service *************************/
-angular.module('myApp').factory('ListingsSvc', [ '$q', function( $q ) {
+angular.module('myApp').factory('ListingsSvc', [ '$q', 'ListingTemplatesSvc', function( $q, ListingTemplatesSvc ) {
 
   const productVariantCache = {};
 
@@ -22,6 +23,8 @@ angular.module('myApp').factory('ListingsSvc', [ '$q', function( $q ) {
   }
 
   return {
+
+    getLotListingBodyTemplate: ListingTemplatesSvc.lotListingBody.bind( ListingTemplatesSvc ),
 
     isTitleTooLong: title => {
       const res = {
@@ -193,5 +196,62 @@ angular.module('myApp').factory( 'ShippingConfigurationsSvc', [ 'ListingsSvc', '
     refresh,
     set
   };
+
+}]);
+
+
+/*********************** Listing Templates service */
+angular.module('myApp').factory( 'ListingTemplatesSvc', [ function( ) {
+
+  return {
+    lotListingBody,
+  };
+
+  function lotListingBody( { category, condition, totalUnits, estimatedRetailValue, mostExpensiveItemPrice, isManifested } ) {
+
+    const displayCategory = util.titleCase( category );
+    const displayCondition = util.titleCase( condition );
+
+    let guaranteeString;
+    switch( condition ) {
+      case 'shelf-pull':
+      case 'case-packed':
+        guaranteeString = `<li> <span>✅ <strong>95% Product Guarantee</strong></span></li>`;
+        break;
+      case 'salvage':
+      case 'customer-returns':
+      default:
+    }
+
+    let categoryAdditionalCopyString = '';
+    switch( category ) {
+      case 'personal care':
+        categoryAdditionalCopyString = `, from a national drugstore, `;
+        break;
+      case 'cosmetics':
+      case 'general merchandise':
+      case 'clothing':
+        categoryAdditionalCopyString = `, from a national retail store, `;
+        break;
+      default:
+    }
+
+    return `
+      <h3><strong>💥New ${ displayCategory } Lot! 🌟</strong></h3>
+      <p><strong>Experience the Excellence of Quality Products</strong></p>
+      <p>Lot of ${ totalUnits ? `${totalUnits} ` : '' }${ category ? `${category} ` : '' }products${ categoryAdditionalCopyString }${ estimatedRetailValue ? ` with a total retail value of ${ util.displayAsMoney( estimatedRetailValue ) }` : '' }.</p>
+      <p>You Get the Following:</p>
+      <ul style="list-style: none;">
+          <li> <span>🔥 <strong>${ totalUnits } Units</strong> valued at <strong>${ util.displayAsMoney( estimatedRetailValue ) }</strong>!</span></li>
+          ${ isManifested ? `<li> <span>📋 <strong>Product Manifest Available</strong></span></li>` : '' }
+          ${ category ? `<li> <span>🛒 <strong>Wide Range of ${ category.toUpperCase() } ITEMS</strong>: _</span></li>` : '' }
+          <li> <span>🌟 <strong>Brand Names Included</strong>: _</span></li>
+          ${ mostExpensiveItemPrice ? `<li> <span>💰 <strong>Retail Value Per Item</strong>: Up to <strong>${ util.displayAsMoney( mostExpensiveItemPrice ) }</strong></span></li>` : '' }
+          ${ displayCondition ? `<li> <span>📦 <strong>Condition</strong>: ${ displayCondition }</span></li>` : '' }
+          ${ guaranteeString || '' }
+          <li> <span>👍 <strong>Perfect for Resellers!</strong></span></li>
+      </ul>
+    `;
+  }
 
 }]);

@@ -1,4 +1,10 @@
 
+/*************************************************
+ * text output
+ * ===========
+ *
+ ******/
+
 export function humanReadableFileSize( size ) {
 
   if( size > 1024*1024 ) {
@@ -30,8 +36,6 @@ export function prettifyDateTime( dt ) {
 
 }
 
-
-
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
@@ -50,6 +54,26 @@ export function htmlifyText( txt ) {
   return txt ? txt.split("\n").join('<br/>') : txt;
 }
 
+export function titleCase( s ) {
+
+  if( s ) {
+
+    const words = s.split( ' ' );
+
+    return words.map( w => w[0].toUpperCase() + w.substring(1) ).join( ' ' );
+
+  }
+
+}
+
+/*************************************************
+ * Comparison
+ * ==========
+ *
+ ******/
+
+
+
 // I'm a little skeptical of this. I would only use it for POD objects, not ones with prototypes, methods, etc
 export function isEqual (var1, var2) {
   if (typeof var1 === 'object' && typeof var2 === 'object') {
@@ -64,10 +88,18 @@ export function isEqual (var1, var2) {
   }
 }
 
-
 export function isNan( x ) {
   return parseInt( x ) !== parseInt( x );
 }
+
+
+/*************************************************
+ * Misc
+ * ====
+ *
+ ******/
+
+
 
 export function createSubobject( obj, fields ) {
 

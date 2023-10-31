@@ -212,7 +212,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
         backdrop: 'static',
         resolve: {
           lot: function () {
-            return lotStore;
+            return JSON.parse( JSON.stringify( lotStore ) ); // deep clone of lot so edits are ephemeral before save
           }
         },
       });
@@ -465,7 +465,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     function showPalletDetails() {
       InventoryPalletManagerSvc.get( vm.lot.pallet._id, { populate: [ 'shipment' ] } ).then( pallet => pallet.detailsModal() );
     }
-
 
     function getBodyHtml() {
       return lotStore.getBodyHtml();

@@ -3,12 +3,14 @@ const fs = require('fs');
 
 const express = require('express');
 const dayjs = require('dayjs');
+const axios = require('axios');
 
 const formidable = require('formidable');
 
 const auth = require('../auth');
 const helpers = require('../helpers');
 const {
+  ChildResourceNotFoundError,
   ResourceNotFoundError
 } = require('../errors');
 
@@ -91,6 +93,11 @@ function routes({ inventoryCommander, lotdb }) {
     '/manifest/:manifestId',
     auth.isAuthorized( 'VIEW_LOT' ),
     getManifest
+  );
+  router.get(
+    '/:lotId/manifest-file',
+    auth.isAuthorized( 'VIEW_LOT' ),
+    getManifestFile
   );
 
   // Create, edit, delete
@@ -237,6 +244,51 @@ function routes({ inventoryCommander, lotdb }) {
       const manifest = await mandb.getManifestById( manifestId );
 
       res.json({ manifest });
+
+    }
+    catch (e) {
+      return next( e );
+    }
+  }
+
+  async function getManifestFile( req, res, next ) {
+
+    try {
+
+      const { lotId } = req.params;
+
+      const lot = await lotdb.getLotById( lotId );
+
+      if( lot ) {
+
+        if( lot.manifestFileLocation ) {
+
+          const resp = await axios({
+            method: 'get',
+            url: lot.manifestFileLocation,
+            responseType: 'stream'
+          });
+
+          resp.data.pipe( res );
+
+        }
+        else {
+
+          throw new ChildResourceNotFoundError( {
+            parentType: 'lot',
+            parentId: lotId,
+            childType: 'manifestFilelocation',
+            childId: lot.manifestFileLocation
+          } );
+
+        }
+
+      }
+      else {
+
+        throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
+
+      }
 
     }
     catch (e) {

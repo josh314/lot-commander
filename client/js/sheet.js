@@ -1051,6 +1051,27 @@ export class Sheet {
     return allCategoriesSame ? firstRowCategory : null;
   }
 
+  getUnitPrice( row ) {
+
+    const unitRetailPriceColumn = this.getUnitRetailPriceColumn();
+    const totalRetailPriceColumn = this.getTotalRetailPriceColumn();
+
+    let unitPrice;
+    if( unitRetailPriceColumn ) {
+
+      unitPrice = row[ unitRetailPriceColumn.displayName ];
+
+    }
+    else if( totalRetailPriceColumn ) {
+
+      const quantityColumn = this.getQuantityColumn();
+      unitPrice = row[ totalRetailPriceColumn.displayName ] / row[ quantityColumn.displayName ];
+
+    }
+
+    return unitPrice;
+  }
+
   standardTotals() {
     const res = {};
 
@@ -1092,6 +1113,25 @@ export class Sheet {
     }
 
     return res;
+  }
+
+  mostExpensiveItem() {
+
+    let highestUnitPrice = 0;
+    let mostExpensiveItem;
+    for( let row of this.rows ) {
+
+      let currentUnitPrice = this.getUnitPrice( row );
+
+      if( typeof currentUnitPrice === 'number' && currentUnitPrice > highestUnitPrice ) {
+        highestUnitPrice = currentUnitPrice;
+        mostExpensiveItem = row;
+      }
+
+    }
+
+    return mostExpensiveItem;
+
   }
 
   getLineItemByBarcode( barcode ) {

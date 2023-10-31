@@ -264,4 +264,21 @@ export class Manifest {
 
   }
 
+  mostExpensiveItem() {
+    const sheet = this.sheets[0];
+
+    if( sheet ) {
+      return sheet.mostExpensiveItem();
+    }
+  }
+
+  mostExpensiveItemPrice() {
+    const sheet = this.sheets[0];
+
+    if( sheet ) {
+      const mostExpensiveItem = sheet.mostExpensiveItem();
+      return sheet.getUnitPrice( mostExpensiveItem );
+    }
+  }
+
 }
