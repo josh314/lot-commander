@@ -7,6 +7,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
   'ListingsSvc',
   'LoggedInUser',
   'lot',
+  'lotStore',
   'LotSvc',
   'palletProperties',
   'ModalSvc',
@@ -17,6 +18,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
     ListingsSvc,
     LoggedInUser,
     lot,
+    lotStore,
     LotSvc,
     palletProperties,
     ModalSvc,
@@ -194,15 +196,16 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
           type,
           totalUnits,
           estimatedRetailValue,
+          unmanifested
         } = vm.lot;
 
         const bodyHtml = ListingsSvc.getLotListingBodyTemplate( {
           category,
           condition: type,
           totalUnits,
-          estimatedRetailValue,
+          estimatedRetailValue: estimatedRetailValue || lotStore.getEstimatedRetailValue(),
           mostExpensiveItemPrice: manifest.mostExpensiveItemPrice(),
-          isManifested: true
+          isManifested: !unmanifested
         } );
 
         vm.lot.listingData.body = bodyHtml;

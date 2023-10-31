@@ -226,26 +226,48 @@ angular.module('myApp').factory( 'ListingTemplatesSvc', [ function( ) {
     let categoryAdditionalCopyString = '';
     switch( category ) {
       case 'personal care':
-        categoryAdditionalCopyString = `, from a national drugstore, `;
+        categoryAdditionalCopyString = `, from a national drugstore,`;
         break;
       case 'cosmetics':
       case 'general merchandise':
       case 'clothing':
-        categoryAdditionalCopyString = `, from a national retail store, `;
+        categoryAdditionalCopyString = `, from a national retail store,`;
         break;
       default:
     }
 
+    let byline1;
+    if( totalUnits && estimatedRetailValue ) {
+      byline1 = `<p>Lot of ${ totalUnits } products${ categoryAdditionalCopyString } with a total retail value of ${ util.displayAsMoney( estimatedRetailValue ) }.</p>`;
+    }
+    else if ( totalUnits ) {
+      byline1 = `<p>Lot of ${ totalUnits } products${ categoryAdditionalCopyString }.</p>`
+    }
+    else if ( estimatedRetailValue ) {
+      byline1 = `<p>Lot with a total retail value of ${ util.displayAsMoney( estimatedRetailValue ) }.</p>`
+    }
+
+    let byline2;
+    if( totalUnits && estimatedRetailValue ) {
+      byline2 = `<li> <span>🔥 <strong>${ totalUnits } Units</strong> valued at <strong>${ util.displayAsMoney( estimatedRetailValue ) }</strong>!</span></li>`;
+    }
+    else if ( totalUnits ) {
+      byline2 = `<li> <span>🔥 <strong>${ totalUnits } Units</strong>!</span></li>`
+    }
+    else if ( estimatedRetailValue ) {
+      byline2 = `<li> <span>🔥 Valued at <strong>${ util.displayAsMoney( estimatedRetailValue ) }</strong>!</span></li>`
+    }
+
     return `
-      <h3><strong>💥New ${ displayCategory } Lot! 🌟</strong></h3>
+      <h3><strong>💥New ${ displayCategory ? `${ displayCategory } ` : ' ' }Lot! 🌟</strong></h3>
       <p><strong>Experience the Excellence of Quality Products</strong></p>
-      <p>Lot of ${ totalUnits ? `${totalUnits} ` : '' }${ category ? `${category} ` : '' }products${ categoryAdditionalCopyString }${ estimatedRetailValue ? ` with a total retail value of ${ util.displayAsMoney( estimatedRetailValue ) }` : '' }.</p>
+      ${ byline1 || '' }
       <p>You Get the Following:</p>
       <ul style="list-style: none;">
-          <li> <span>🔥 <strong>${ totalUnits } Units</strong> valued at <strong>${ util.displayAsMoney( estimatedRetailValue ) }</strong>!</span></li>
+          ${ byline2 || '' }
           ${ isManifested ? `<li> <span>📋 <strong>Product Manifest Available</strong></span></li>` : '' }
-          ${ category ? `<li> <span>🛒 <strong>Wide Range of ${ category.toUpperCase() } ITEMS</strong>: _</span></li>` : '' }
-          <li> <span>🌟 <strong>Brand Names Included</strong>: _</span></li>
+          ${ category ? `<li> <span>🛒 <strong>Wide Range of ${ category.toUpperCase() } ITEMS</strong></span></li>` : '' }
+          <li> <span>🌟 <strong>Brand Names Included</strong></span></li>
           ${ mostExpensiveItemPrice ? `<li> <span>💰 <strong>Retail Value Per Item</strong>: Up to <strong>${ util.displayAsMoney( mostExpensiveItemPrice ) }</strong></span></li>` : '' }
           ${ displayCondition ? `<li> <span>📦 <strong>Condition</strong>: ${ displayCondition }</span></li>` : '' }
           ${ guaranteeString || '' }
