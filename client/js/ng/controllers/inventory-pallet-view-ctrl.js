@@ -63,6 +63,7 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
       // list mode options
       vm.filter = {
         handle: '',
+        lotNumber: '',
         populateShipment: true,
         populateLot: true,
         isBrokendown: null,

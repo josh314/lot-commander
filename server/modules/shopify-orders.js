@@ -1,5 +1,10 @@
 const mongoose = require('mongoose');
 
+const { appendPopulationQueries } = require('../helpers');
+const {
+  IllegalActionError
+} = require('../errors');
+
 const shopifyOrdersQueryFilter = ( { toBeFulfilled, startDate, endDate } ) => {
   const filter = {
     cancelledAt: null
@@ -58,15 +63,24 @@ const shopifyOrdersQueryFilter = ( { toBeFulfilled, startDate, endDate } ) => {
 class ShopifyOrders {
   constructor( {
     ShopifyOrder,
+    ShopifyOrderPick,
+    lotdb,
   } ) {
 
-    this.ShopifyOrder = ShopifyOrder;
+    Object.assign(
+      this,
+      {
+        ShopifyOrder,
+        ShopifyOrderPick,
+        lotdb,
+      }
+    );
 
   }
 
 
 
-  async listShopifyOrders( { num, skip, sort, sortDir, filterParams } ) {
+  async listShopifyOrders( { num, skip, sort, sortDir, filterParams, populate = [] } ) {
 
     const filter = shopifyOrdersQueryFilter(filterParams);
 
@@ -89,6 +103,12 @@ class ShopifyOrders {
 
     let q = this.ShopifyOrder.find( filter ).skip( skip || 0 ).limit( num || 50 ).sort( sortParams );
 
+    if( populate ) {
+
+      q = appendPopulationQueries( q, populate );
+
+    }
+
     return q.exec();
 
   }
@@ -102,7 +122,7 @@ class ShopifyOrders {
   }
 
   // get by mongodb _id field
-  getShopifyOrderById( id ) {
+  getShopifyOrderById( id, { populate = [] } = {}) {
 
     let objectId;
 
@@ -110,15 +130,23 @@ class ShopifyOrders {
       objectId = new mongoose.Types.ObjectId( id );
     }
     catch ( _ ) {
-      return null;
+      throw new IllegalActionError(`Invalid object id: ${ id }`);
     }
 
-    return this.ShopifyOrder.findOne( { _id: objectId } );
+    let q = this.ShopifyOrder.findOne( { _id: objectId } );
+
+    if( populate ) {
+
+      q = appendPopulationQueries( q, populate );
+
+    }
+
+    return q.exec();
 
   }
 
   // get by shopify's graphql id
-  getShopifyOrderByShopifyId( shopifyId ) {
+  getShopifyOrderByShopifyId( shopifyId, { populate = [] } = {}) {
 
     let _shopifyId;
 
@@ -141,12 +169,20 @@ class ShopifyOrders {
       return null;
     }
 
-    return this.ShopifyOrder.findOne( { id: _shopifyId } );
+    let q = this.ShopifyOrder.findOne( { id: _shopifyId } );
+
+    if( populate ) {
+
+      q = appendPopulationQueries( q, populate );
+
+    }
+
+    return q.exec();
 
   }
 
   // get by shopify's order number
-  getShopifyOrderByShopifyOrderNumber( shopifyOrderNumber ) {
+  getShopifyOrderByShopifyOrderNumber( shopifyOrderNumber, { populate = [] } = {}) {
 
     let orderName;
 
@@ -169,9 +205,25 @@ class ShopifyOrders {
       return null;
     }
 
-    return this.ShopifyOrder.findOne( { name: orderName } );
+    let q = this.ShopifyOrder.findOne( { name: orderName } );
+
+    if( populate ) {
+
+      q = appendPopulationQueries( q, populate );
+
+    }
+
+    return q.exec();
 
   }
+
+
+  //==========================================================
+  // Fulfillment
+  // ===========
+  //
+  //======================
+
 
 }
 

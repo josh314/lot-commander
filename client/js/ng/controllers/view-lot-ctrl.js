@@ -49,6 +49,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           showEditingControls: LoggedInUser.hasPermission( 'EDIT_LOT' ),
           showDeleteButton: LoggedInUser.hasPermission( 'DELETE_LOT' ),
           showPricingData: LoggedInUser.hasPermission( 'VIEW_PRICING_DATA' ),
+          showDeveloper: LoggedInUser.isDeveloper(),
           waitingForResponse: false,
 
           listingsBoilerplate,
@@ -72,7 +73,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
           // shipping items display
           showShippingItems: false,
-          toggleShowShippingItems: () => vm.showShippingItems = !vm.showShippingItemsfalse,
+          toggleShowShippingItems: () => vm.showShippingItems = !vm.showShippingItems,
 
 
           configureListingForSubmission,
@@ -361,7 +362,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       if(shippingItems) {
         lotStore.shippingItems = shippingItems;
         return LotSvc.edit( lotStore._id , lotStore ).then( _lot => {
-          return true;
+          navigate.reload();
         });
       }
       else {

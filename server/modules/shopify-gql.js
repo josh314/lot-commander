@@ -20,24 +20,6 @@ const _prettyPrintGqlQuery = q => {
   console.log('-----------------------------------------');
 };
 
-const productVariantId2Gid = pvid => `${pvid}`.search('gid://shopify/ProductVariant/') < 0 ? `gid://shopify/ProductVariant/${pvid}` : pvid;
-
-const _productVariantGid2Id = pvid => {
-
-  if( typeof pvid === 'number' ) {
-    return pvid;
-  }
-  else {
-    const p = /gid:\/\/shopify\/ProductVariant\/([0-9]*)/;
-    const m = pvid.match(p);
-    if( m && m[1] ) {
-      return parseInt(m[1]);
-    }
-  }
-
-  return null;
-};
-
 const _arrayifyGqlMultiData = gqlMultiData => Object.entries(gqlMultiData).map( x => x[1] ).filter( _ => _ );
 
 // Trimming the query of unnecessary whitespace
@@ -48,6 +30,26 @@ class Client {
     this.storeId = storeId,
     this.storeName = storeName;
     this.accessToken = accessToken;
+  }
+
+  id2Gid( id, type ) {
+    return `${id}`.search(`gid://shopify/${ type }/`) < 0 ? `gid://shopify/${ type }/${id}` : id;
+  }
+
+  gid2Id( gid, type ) {
+
+    if( typeof gid === 'number' ) {
+      return gid;
+    }
+    else {
+      const p = new RegExp( `gid://shopify/${ type }/([0-9]*)` );
+      const m = gid.match(p);
+      if( m && m[1] ) {
+        return parseInt(m[1]);
+      }
+    }
+
+    return null;
   }
 
   gqlRequest({ gqlQuery, debug = false }) {
@@ -349,7 +351,7 @@ class Client {
 
   async getProductVariant( pvid ) {
 
-    const gqlPvid = productVariantId2Gid( pvid );
+    const gqlPvid = this.id2Gid( pvid, 'ProductVariant' );
 
     const resp = await this.gqlRequest( {
       gqlQuery: `
@@ -436,7 +438,7 @@ class Client {
 
   async getProductVariantShippingRate( pvid ) {
 
-    const gqlPvid = productVariantId2Gid( pvid );
+    const gqlPvid = this.id2Gid( pvid, 'ProductVariant' );
 
     const resp = await this.gqlRequest( {
       gqlQuery: `
@@ -463,7 +465,7 @@ class Client {
 
   async setProductVariantShippingRate( pvid, rate ) {
 
-    const gqlPvid = productVariantId2Gid( pvid );
+    const gqlPvid = this.id2Gid( pvid, 'ProductVariant' );
 
     const resp = await this.gqlRequest( {
       gqlQuery: `
@@ -540,7 +542,7 @@ class Client {
 
   async getProductVariantBundle( pvid ) {
 
-    const gqlPvid = productVariantId2Gid( pvid );
+    const gqlPvid = this.id2Gid( pvid, 'ProductVariant' );
 
     const resp = await this.gqlRequest( {
       gqlQuery: `
@@ -568,7 +570,7 @@ class Client {
 
   async setProductVariantBundle( pvid, bundle, { debug = false } = {} ) {
 
-    const gqlPvid = productVariantId2Gid( pvid );
+    const gqlPvid = this.id2Gid( pvid, 'ProductVariant' );
 
     // Why JSON.stringify twice?
     // The first time creates a normal string. The second time escapes the string which is needed to properly insert into the GraphQL query string. C'est la vie
@@ -800,7 +802,7 @@ class Client {
 
   async getProductVariantShippingConfiguration( pvid ) {
 
-    const gqlPvid = productVariantId2Gid( pvid );
+    const gqlPvid = this.id2Gid( pvid, 'ProductVariant' );
 
     const resp = await this.gqlRequest( {
       gqlQuery: `
@@ -827,7 +829,7 @@ class Client {
 
   async setProductVariantShippingConfiguration( pvid, shippingConfiguration ) {
 
-    const gqlPvid = productVariantId2Gid( pvid );
+    const gqlPvid = this.id2Gid( pvid, 'ProductVariant' );
 
     // Why JSON.stringify twice?
     // The first time creates a normal string. The second time escapes the string which is needed to properly insert into the GraphQL query string. C'est la vie
@@ -877,6 +879,7 @@ class Client {
         displayName
         title
         product {
+          id
           title
           tags
         }
@@ -891,6 +894,7 @@ class Client {
       name: n.title === 'Default Title' ? n.product.title : n.displayName,
       variantTitle: n.title,
       productTitle: n.product.title,
+      productId: n.product.id,
       shippingConfiguration: n.shippingConfiguration && JSON.parse( n.shippingConfiguration.value ),
       tags: n.product.tags
     });
@@ -912,7 +916,7 @@ class Client {
 
   async removeProductVariantShippingConfiguration( pvid ) {
 
-    const gqlPvid = productVariantId2Gid( pvid );
+    const gqlPvid = this.id2Gid( pvid, 'ProductVariant' );
 
     try {
 

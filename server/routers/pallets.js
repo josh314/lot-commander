@@ -20,6 +20,10 @@ const listPalletsFilterParamsFromQueryParams = ( qp ) => {
     fp.handle = new RegExp( qp.handle, 'i');
   }
 
+  if( qp.lotNumber ) {
+    fp.lotNumber = parseInt( qp.lotNumber );
+  }
+
   if( qp.shipment ) {
     fp.shipment = qp.shipment;
   }

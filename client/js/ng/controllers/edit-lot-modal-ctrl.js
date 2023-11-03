@@ -34,6 +34,8 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
         vm,
         {
 
+          showDeveloper: LoggedInUser.isDeveloper(),
+
           lot,
           lotStatusEnum: dbEnums.lotStatus,
           lotCategoryOptions: [''].concat(palletProperties.category),

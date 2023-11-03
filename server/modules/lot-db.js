@@ -13,6 +13,10 @@ module.exports = function( lotdbClient ) {
     return lotdbClient.getLotByHandle( handle, { populate } );
   }
 
+  function getLotsByHandles( handles, { populate } = {} ) {
+    return lotdbClient.getLotsByHandles( handles, { populate } );
+  }
+
   function listLots( query ) {
     return lotdbClient.listLots( query );
   }
@@ -78,6 +82,7 @@ module.exports = function( lotdbClient ) {
     listLots,
     getLotById,
     getLotByHandle,
+    getLotsByHandles,
     deleteLot,
     createLot,
     editLot,

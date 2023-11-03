@@ -23,20 +23,24 @@
               <th>Variant</th>
               <th>Quantity</th>
             </tr></thead>
-            <tbody>	
+            <tbody>
               <tr ng-repeat="$item in $productBundle.bundle">
 
-                <td>
-                  <span>{{ $item.variant.productTitle }}</span>
-                </td>
+                  <td ng-hide="$item.variant">
+                    <span class="text-danger"><strong>ERROR: PLEASE EDIT THIS ITEM</strong></span>
+                  </td>
 
-                <td>
-                  <span>{{ $item.variant.title }}</span>
-                </td>
+                  <td ng-show="$item.variant">
+                    <span>{{ $item.variant.productTitle }}</span>
+                  </td>
 
-                <td>
-                  <span>{{ $item.quantity }}</span>
-                </td>
+                  <td>
+                    <span>{{ $item.variant.title }}</span>
+                  </td>
+
+                  <td>
+                    <span>{{ $item.quantity }}</span>
+                  </td>
 
               </tr>
             </tbody>
@@ -61,11 +65,11 @@
               <th>Quantity</th>
               <th></th> <!-- remove button -->
             </tr></thead>
-            <tbody>	
+            <tbody>
               <tr ng-repeat="$editItem in $productBundle.editBundle">
                 <td>
                   <select class="form-control" ng-model="$editItem.product">
-                    <option ng-repeat="$product in $ctrl.products track by $product.gid" 
+                    <option ng-repeat="$product in $ctrl.products track by $product.gid"
                             ng-value="$product"
                       >
                         {{ $product.title }}
@@ -107,7 +111,7 @@
               <button class="btn btn-sm btn-danger" ng-click="$ctrl.cancelProductBundleEdit( $productBundle )">Cancel</button>
             </div>
           </div>
-  
+
 
         </div> <!-- END: display when editing -->
 

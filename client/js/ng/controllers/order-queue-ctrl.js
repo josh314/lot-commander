@@ -3,7 +3,8 @@ import dayjs from 'dayjs';
 import { prettifyDate } from '../../utilities';
 
 const __USER_SETTINGS_SUBKEY__ = 'order-queue-page';
-const __DISPLAY_MODE_LIST__ = '__DISPLAY_MODE_LIST__';
+const __DISPLAY_MODE_ORDER_QUEUE__ = '__DISPLAY_MODE_ORDER_QUEUE__';
+const __DISPLAY_MODE_LINE_ITEMS__ = '__DISPLAY_MODE_LINE_ITEMS__';
 const __DISPLAY_MODE_SUMMARY__ = '__DISPLAY_MODE_SUMMARY__';
 
 angular.module('myApp').controller( 'OrderQueueCtrl', [
@@ -34,10 +35,11 @@ angular.module('myApp').controller( 'OrderQueueCtrl', [
       vm.prettifyDate = prettifyDate;
 
       vm.displayModes = {
-        LIST: __DISPLAY_MODE_LIST__,
+        ORDER_QUEUE: __DISPLAY_MODE_LINE_ITEMS__,
+        LINE_ITEMS: __DISPLAY_MODE_LINE_ITEMS__,
         SUMMARY: __DISPLAY_MODE_SUMMARY__,
       };
-      vm.displayModeActive = vm.displayModes.SUMMARY;
+      vm.displayModeActive = vm.displayModes.ORDER_QUEUE;
       vm.displayModeActiveIs = str => str === vm.displayModeActive;
       vm.setDisplayModeActive = str => (vm.displayModeActive = str);
 

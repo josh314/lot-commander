@@ -40,6 +40,7 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
       // list options
       vm.filter = {
         handle: '',
+        lotNumber: '',
         populateShipment: true,
         populateLot: true,
         isBrokendown: false,
@@ -67,6 +68,7 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
         'handle',
         'shipment',
         'lot',
+        'lotNumber',
         'category',
         'condition',
         'createdAt',
@@ -109,6 +111,7 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
     function refreshPalletsData() {
 
       const filter = vm.filter;
+      filter.isBrokendown = filter.hasLot;
 
       return InventoryPalletManagerSvc.count( filter ).then( count => {
         vm.pagination.totalItems = count;

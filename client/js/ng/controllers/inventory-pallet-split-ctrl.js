@@ -1129,17 +1129,14 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       } );
 
 
+      // This updates the _id and/or lotNumber of any split groups that were created since the last save, as well as _id of any new shippingItems
       for( let splitGroup of vm.displaySplitGroups ) {
 
-        // This updates the _id and/or lotNumber of any split groups that were created since the last save
-        if( !splitGroup._id || !splitGroup.lotNumber ) {
+        const match = pallet.splitGroups.find( _ => _.label === splitGroup.label );
 
-          const match = pallet.splitGroups.find( _ => _.label === splitGroup.label );
-
-          splitGroup._id = splitGroup._id || match._id;
-          splitGroup.lotNumber = splitGroup.lotNumber || match.lotNumber;
-
-        }
+        splitGroup._id = splitGroup._id || match._id;
+        splitGroup.lotNumber = splitGroup.lotNumber || match.lotNumber;
+        splitGroup.shippingItems = match.shippingItems;
 
       }
 
@@ -1203,6 +1200,10 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       } );
       manifest.addSheet( sheet );
 
+      const file = ManifestFileHandlerSvc.createFile( `${ palletHandle }.xlsx`, manifest, true );
+
+      const palletTotals = manifest.standardTotals();
+
       const newPalletProperties = {
         handle: palletHandle,
         lotNumber,
@@ -1216,6 +1217,10 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         isMissing,
         splitFrom: vm.pallet._id,
       };
+
+      if( vm.pallet.cost && vm.pallet.units ) {
+        newPalletProperties.cost = vm.pallet.cost * palletTotals.quantity / vm.pallet.units;
+      }
 
       // overwrite these values if this is a pallet of missing items
       if( isMissing ) {
@@ -1247,17 +1252,12 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         throw new SplitPalletError( { message } );
       }
 
-      const file = ManifestFileHandlerSvc.createFile( `${ palletHandle }.xlsx`, manifest, true );
-
-      const palletTotals = manifest.standardTotals();
-
+      // upload the new pallet manifest, update the pallet in client and return;
       const editValues = {
         units: palletTotals.quantity,
         retailValue: palletTotals.retailValue,
         salePrice: palletTotals.salePrice,
       };
-
-      // upload the new pallet manifest, update the pallet in client and return;
       const updatedPallet = await PalletManifestSvc.uploadInventoryPalletManifest( pallet, file, editValues ).then( pallet => pallet.refreshDocuments() );
 
       if( splitGroup.images && splitGroup.images.length ) {
@@ -1296,6 +1296,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       let lot;
       if( pallet.toBeListed && !pallet.isMissing ) {
         lot = await PalletLotSvc.createLot( pallet, { handle: splitGroup.lotHandle } );
+        await pallet.breakdown();
       }
 
       return { splitGroup, pallet, lot };

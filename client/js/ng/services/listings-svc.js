@@ -241,10 +241,10 @@ angular.module('myApp').factory( 'ListingTemplatesSvc', [ function( ) {
       byline1 = `<p>Lot of ${ totalUnits } products${ categoryAdditionalCopyString } with a total retail value of ${ util.displayAsMoney( estimatedRetailValue ) }.</p>`;
     }
     else if ( totalUnits ) {
-      byline1 = `<p>Lot of ${ totalUnits } products${ categoryAdditionalCopyString }.</p>`
+      byline1 = `<p>Lot of ${ totalUnits } products${ categoryAdditionalCopyString }.</p>`;
     }
     else if ( estimatedRetailValue ) {
-      byline1 = `<p>Lot with a total retail value of ${ util.displayAsMoney( estimatedRetailValue ) }.</p>`
+      byline1 = `<p>Lot with a total retail value of ${ util.displayAsMoney( estimatedRetailValue ) }.</p>`;
     }
 
     let byline2;
@@ -252,10 +252,10 @@ angular.module('myApp').factory( 'ListingTemplatesSvc', [ function( ) {
       byline2 = `<li> <span>🔥 <strong>${ totalUnits } Units</strong> valued at <strong>${ util.displayAsMoney( estimatedRetailValue ) }</strong>!</span></li>`;
     }
     else if ( totalUnits ) {
-      byline2 = `<li> <span>🔥 <strong>${ totalUnits } Units</strong>!</span></li>`
+      byline2 = `<li> <span>🔥 <strong>${ totalUnits } Units</strong>!</span></li>`;
     }
     else if ( estimatedRetailValue ) {
-      byline2 = `<li> <span>🔥 Valued at <strong>${ util.displayAsMoney( estimatedRetailValue ) }</strong>!</span></li>`
+      byline2 = `<li> <span>🔥 Valued at <strong>${ util.displayAsMoney( estimatedRetailValue ) }</strong>!</span></li>`;
     }
 
     return `

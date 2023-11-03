@@ -46,7 +46,7 @@ export function countLots( queryParams ) {
 
 }
 
-export function getLotByHandle( handle, { populate = [] } = {}  ) {
+export function getLotByHandle( handle, { populate = [] } = {} ) {
 
   if(!handle) {
     throw new Error('Must supply lot handle.');
@@ -1217,14 +1217,17 @@ export function deleteStoreContent( gid, queryParams ) {
 *
 ************/
 
-export function getOrder( orderId ) {
+export function getOrder( orderId , { populate = [] } = {} ) {
+
+  const queryParams = getPopulateQueryParamsObject( populate );
 
   return axios({
     method: 'get',
-    url: `/api/orders/${ orderId }`
+    url: `/api/orders/${ orderId }?${ qs.stringify( queryParams ) }`
   })
     .then( resp => resp.data.order );
 }
+
 export function listOrders( qp ) {
   return axios({
     method: 'get',
@@ -1232,12 +1235,61 @@ export function listOrders( qp ) {
   })
     .then( resp => resp.data.orders );
 }
+
 export function countOrders( qp ) {
   return axios({
     method: 'get',
     url: `/api/orders/count/?${qs.stringify(qp)}`,
   })
     .then( resp => resp.data.count );
+}
+
+export function startOrderPick( orderId ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/orders/${ orderId }/pick`,
+    // data: {}
+  })
+    .then( resp => resp.data.order );
+}
+
+export function pickItem( orderPickId, pickItemId, { pkg, shippingItem } = {} ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/orders/pick/${ orderPickId }`,
+    data: {
+      pickItemId,
+      pkg,
+      shippingItem,
+    }
+  })
+    .then( resp => resp.data );
+
+}
+
+export function unpickItem( orderPickId, pickItemId ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/orders/unpick/${ orderPickId }`,
+    data: {
+      pickItemId,
+    }
+  })
+    .then( resp => resp.data );
+
+}
+
+export function resetOrderPick( orderPickId ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/orders/pick/${ orderPickId }/reset`,
+  })
+    .then( resp => resp.data.orderPick );
+
 }
 
 

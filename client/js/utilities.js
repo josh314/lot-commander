@@ -94,6 +94,35 @@ export function isNan( x ) {
 
 
 /*************************************************
+ * Shopify id conversion
+ * =====================
+ *
+ ******/
+
+
+
+export function shopifyId2Gid( id, type ) {
+  return `${id}`.search(`gid://shopify/${ type }/`) < 0 ? `gid://shopify/${ type }/${id}` : id;
+}
+
+export function shopifyGid2Id( gid, type ) {
+
+  if( typeof gid === 'number' ) {
+    return gid;
+  }
+  else {
+    const p = new RegExp( `gid://shopify/${ type }/([0-9]*)` );
+    const m = gid.match(p);
+    if( m && m[1] ) {
+      return parseInt(m[1]);
+    }
+  }
+
+  return null;
+}
+
+
+/*************************************************
  * Misc
  * ====
  *

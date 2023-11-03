@@ -16,17 +16,24 @@
     items-per-page="$ctrl.pagination.pageSize"
     ng-model="$ctrl.pagination.current"
     ng-change="$ctrl.pagination.pageChange()"
-    class="pagination-sm pull-right"></ul>
+    class="pagination-sm pull-right"
+
+    max-size="$ctrl.pagination.maxSize"
+    boundary-links="true"
+    boundary-link-numbers="true"
+    force-ellipses="true"></ul>
 
     <table class="table table-striped">
 
       <thead><tr>
         <th>Package ID</th>
         <th>Shipment</th>
+        <th>Product</th>
         <th>Category</th>
         <th>Condition</th>
         <th>Units</th>
-        <th>Date</th>
+        <th>Packed</th>
+        <th>Fulfilled</th>
       </tr></thead>
 
       <tbody>
@@ -48,6 +55,10 @@
           </td>
 
           <td>
+            {{ $package.productTitle }}
+          </td>
+
+          <td>
             {{ $package.category }}
           </td>
 
@@ -61,6 +72,10 @@
 
           <td>
             {{ $ctrl.prettifyDateTime( $package.instantiatedDate ) }}
+          </td>
+
+          <td>
+            {{ $ctrl.prettifyDateTime( $package.fulfilledDate ) }}
           </td>
 
         </tr>

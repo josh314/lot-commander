@@ -201,6 +201,26 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet',
 
     const buildAnonymousPalletHandle = ( shipmentHandle , number ) => `${ shipmentHandle }_${ number }`;
 
+    const cmpPackageAggregations = (a,b) => {
+
+      if( a.type < b.type ) {
+        return -1;
+      }
+
+      if ( a.type > b.type ) {
+        return +1;
+      }
+
+      if( a.units < b.units ) {
+        return -1;
+      }
+
+      if( a.units > b.units ) {
+        return +1;
+      }
+
+    };
+
     function aggregatePackages( packages ) {
       const aggregation = [];
 
@@ -208,7 +228,9 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet',
 
         const found = aggregation.find( _aggregation => {
 
-          if( _package.category !== _aggregation.category && ( _package.category || _aggregation.category ) ) { // they don't match and at least one is truthy
+          const aggregationType = _package.productTitle || _package.category;
+
+          if( aggregationType !== _aggregation.type && ( aggregationType || _aggregation.type ) ) { // they don't match and at least one is truthy
             return false;
           }
           if( _package.condition !== _aggregation.condition && ( _package.condition || _aggregation.condition ) ) { // they don't match and at least one is truthy
@@ -228,7 +250,7 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet',
         else {
 
           const newAggregation = {
-            category: _package.category,
+            type: _package.productTitle || _package.category,
             condition: _package.condition,
             units: _package.units,
             number: 1
@@ -240,7 +262,7 @@ angular.module('myApp').factory('ShipmentFactory', [ '$q', 'InventoryPallet',
 
       }
 
-      return aggregation;
+      return aggregation.sort( cmpPackageAggregations );
     }
 
     function Shipment( _data, hydratePalletObjects = false ) {

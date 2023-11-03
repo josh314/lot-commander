@@ -2,7 +2,7 @@ import angular from 'angular';
 
 import * as util from '../../utilities';
 
-const __PAGE_SIZE__ = 25;
+const __PAGE_SIZE__ = 100;
 
 const __SCAN_ELEMENT_ID__ = 'scanPackageLabelInput';
 
@@ -48,7 +48,8 @@ angular.module('myApp').controller( 'PackagesPackingCtrl', [
         current: 1,
         totalItems: 0,
         pageSize: __PAGE_SIZE__,
-        pageChange: refreshRecentPackagesList
+        pageChange: refreshRecentPackagesList,
+        maxSize: 8
       };
 
       vm.filter = {

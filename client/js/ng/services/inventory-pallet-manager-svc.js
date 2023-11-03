@@ -186,12 +186,13 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
       constructor( _data, { loadDocuments = true } = {} ) {
 
-
-        Object.assign( this,
+        Object.assign(
+          this,
           { isHydrated: true, showNote: false, isExpected: false },
           _data,
-          [ 'brokendownDate', 'repackedDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( _data[ d ] ) } ), {})
         );
+
+        this.datifyAll();
 
         // This defines a promise which is resolved once this.documents is populated. Awaiting this data-field prevents `dereferencing undefined` errors.  Use it like so:
         //
@@ -200,6 +201,13 @@ angular.module('myApp').factory( 'InventoryPallet', [
         //
         this.documentsAreLoaded = loadDocuments ? this.loadDocuments() : Promise.resolve(null);
 
+      }
+
+      datifyAll() {
+        Object.assign(
+          this,
+          [ 'brokendownDate', 'repackedDate', 'deletedDate' , 'createdAt', 'updatedAt'].reduce( (acc, d) => Object.assign( acc, { [d]: datify( this[ d ] ) } ), {})
+        );
       }
 
       breakdown( isBrokendown ) {
@@ -300,7 +308,19 @@ angular.module('myApp').factory( 'InventoryPallet', [
         const editDoc = this._generateEditDocument( this );
 
         if( this._id ) {
-          return $q.when( api.editInventoryPallet( this._id, editDoc ) );
+          return $q.when( api.editInventoryPallet( this._id, editDoc ) ).then( ( { pallet } ) => {
+
+            if( pallet ) {
+
+              const newInventoryPallet = new InventoryPallet( Object.assign( pallet, { isExpected: this.isExpected }) );
+
+              Object.assign(
+                this,
+                newInventoryPallet
+              );
+            }
+
+          });
         }
         else {
           return $q.when( api.createInventoryPallets( [ editDoc ] ) );
@@ -518,6 +538,14 @@ angular.module('myApp').factory( 'InventoryPalletListColumns', [ 'LoggedInUser',
     lot: {
       optionName: 'Lot',
       header: 'Lot',
+      permitted: true,
+      defaultActive: false,
+      optionAvailable: true,
+      noSort: true
+    },
+    lotNumber: {
+      optionName: 'Lot Number',
+      header: 'Lot Number',
       permitted: true,
       defaultActive: false,
       optionAvailable: true,

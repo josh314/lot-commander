@@ -1,6 +1,7 @@
 <div>
   <table class="table table-striped">
     <thead><tr>
+      <th ng-show="showDeveloper">_id</th>
       <th>Item No.</th>
       <th>Weight</th>
       <th>Height</th>
@@ -9,6 +10,7 @@
     </tr></thead>
     <tbody>
       <tr ng-repeat="$item in shippingItems track by $index">
+        <td ng-show="showDeveloper">{{ $item._id }}</td>
         <td>{{ $index + 1 }}</td>
         <td>{{ $item.weight ? $item.weight + " " + $item.weightUnits : ''}}</td>
         <td>{{ $item.height ? $item.height + " " + $item.heightUnits : ''}}</td>

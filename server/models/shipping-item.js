@@ -8,7 +8,6 @@ const enums = require( '../modules/enums' );
  ******/
 
 const shippingItemSchema = mongoose.Schema({
-  _id: false,
   weight: Number,
   weightUnits: { type: String, enum: enums.weightUnits },
   height: Number,

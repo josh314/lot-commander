@@ -202,6 +202,29 @@ exports.Client = function( { Lot } ) {
 
   };
 
+  this.getLotsByHandles = function( handles, { populate } = {} ) {
+
+    const findDoc = {
+      handle: { $in: handles },
+      isDeleted: false
+    };
+
+    let q = this.LotModel.find( findDoc );
+
+    if( populate ) {
+
+      for( let path of populate ) {
+
+        q = q.populate( path );
+
+      }
+
+    }
+
+    return q.exec();
+
+  };
+
   this.deleteLot = function(lotId) {
     return this.LotModel.findOneAndUpdate(
       { _id: lotId },

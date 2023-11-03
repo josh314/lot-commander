@@ -67,7 +67,12 @@
       items-per-page="$ctrl.pagination.pageSize"
       ng-model="$ctrl.pagination.current"
       ng-change="$ctrl.pagination.pageChange()"
-      class="pagination-sm pull-right"></ul>
+      class="pagination-sm pull-right"
+
+      max-size="$ctrl.pagination.maxSize"
+      boundary-links="true"
+      boundary-link-numbers="true"
+      force-ellipses="true"></ul>
 
     </div>
 

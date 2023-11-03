@@ -38,7 +38,7 @@ angular.module('myApp').factory( 'PackageSvc', [ '$q',
       return $q.when( api.getPackage( packageId ) );
     }
 
-    function createDuplicatePackages( packageData, numPackages ) {
+    function createDuplicatePackages( packageData, numPackages, instantiate ) {
 
       const pkgs = [];
 
@@ -46,7 +46,7 @@ angular.module('myApp').factory( 'PackageSvc', [ '$q',
         pkgs.push( Object.assign( { }, packageData ) );
       }
 
-      return $q.when( api.createPackages( pkgs ) );
+      return $q.when( api.createPackages( pkgs, instantiate ) );
 
     }
 
