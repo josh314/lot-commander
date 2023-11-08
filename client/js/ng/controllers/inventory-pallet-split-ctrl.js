@@ -1296,6 +1296,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       let lot;
       if( pallet.toBeListed && !pallet.isMissing ) {
         lot = await PalletLotSvc.createLot( pallet, { handle: splitGroup.lotHandle } );
+        await pallet.breakdown();
       }
 
       return { splitGroup, pallet, lot };
