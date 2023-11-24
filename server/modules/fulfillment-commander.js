@@ -409,6 +409,39 @@ class FulfillmentCommander {
 
   }
 
+
+  async finishOrderPick( orderPickId ) {
+
+    const orderPick = await this.getOrderPickById( orderPickId );
+
+    if( !orderPick ) {
+      throw new ResourceNotFoundError( { type: 'shopify order pick', id: orderPickId } );
+    }
+
+    if( !orderPick.isFinished ) {
+      await orderPick.finish();
+    }
+
+    return { orderPick };
+
+  }
+
+  async unfinishOrderPick( orderPickId ) {
+
+    const orderPick = await this.getOrderPickById( orderPickId );
+
+    if( !orderPick ) {
+      throw new ResourceNotFoundError( { type: 'shopify order pick', id: orderPickId } );
+    }
+
+    if( orderPick.isFinished ) {
+      await orderPick.unfinish();
+    }
+
+    return { orderPick };
+
+  }
+
 }
 
 module.exports = FulfillmentCommander;

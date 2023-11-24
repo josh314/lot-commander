@@ -122,11 +122,11 @@ angular.module('myApp').service( 'OrderSvc', [
       return $q.when( api.getOrder( orderId, { populate } ) ).then( order => new Order( order, { hydrateLineItems } ));
     }
 
-    function listOrders( { filter, sort, num, page, hydrateLineItems = false } ) {
+    function listOrders( { filter, sort, num, page, hydrateLineItems = false, populate } ) {
 
       const query = {
         num,
-        page
+        page,
       };
 
       Object.assign( query, queryParams(filter) );
@@ -136,7 +136,7 @@ angular.module('myApp').service( 'OrderSvc', [
         query.sort_dir = sort.ascending ? 1 : -1;
       }
 
-      return $q.when( api.listOrders( query ) ).then( async orders => {
+      return $q.when( api.listOrders( query, { populate } ) ).then( async orders => {
         if( !orders ) {
           return [];
         }
@@ -190,6 +190,7 @@ angular.module('myApp').service( 'OrderSvc', [
             ascending: true
           },
           hydrateLineItems: true,
+          populate: [ 'orderPick' ]
         } );
 
         allOrders = allOrders.concat( orders );
@@ -744,6 +745,46 @@ angular.module('myApp').factory( 'OrderPick', [
           this.buildPickLists();
         });
 
+      }
+
+      allItemsPicked() {
+
+        for( let pickList of this.pickLists ) {
+
+          for( let pickItem of pickList ) {
+
+            if( !pickItem.isPicked ) {
+              return false;
+            }
+
+          }
+
+        }
+        return true;
+
+      }
+
+      editIsFinished( isFinished ) {
+
+        return $q.when( api.finishOrderPick( this._id, isFinished ) ).then( orderPick => {
+
+          Object.assign(
+            this,
+            {
+              isFinished: orderPick.isFinished,
+              finishedDate: orderPick.finishedDate,
+            }
+          );
+        });
+
+      }
+
+      finish() {
+        return this.editIsFinished( true );
+      }
+
+      unfinish() {
+        return this.editIsFinished( false );
       }
 
     }

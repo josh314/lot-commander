@@ -1228,7 +1228,17 @@ export function getOrder( orderId , { populate = [] } = {} ) {
     .then( resp => resp.data.order );
 }
 
-export function listOrders( qp ) {
+export function listOrders( _qp, { populate = [] } = {} ) {
+
+  const qp = Object.assign( {}, _qp );
+  if( populate ) {
+
+    const populateQueryParams = getPopulateQueryParamsObject( populate );
+
+    Object.assign( qp, populateQueryParams );
+
+  }
+
   return axios({
     method: 'get',
     url: `/api/orders/?${qs.stringify(qp)}`,
@@ -1287,6 +1297,19 @@ export function resetOrderPick( orderPickId ) {
   return axios({
     method: 'post',
     url: `/api/orders/pick/${ orderPickId }/reset`,
+  })
+    .then( resp => resp.data.orderPick );
+
+}
+
+export function finishOrderPick( orderPickId, isFinished ) {
+
+  return axios({
+    method: 'put',
+    url: `/api/orders/pick/${ orderPickId }/is-finished`,
+    data: {
+      isFinished
+    }
   })
     .then( resp => resp.data.orderPick );
 

@@ -108,6 +108,11 @@ function routes( { fulfillmentCommander, shopifyOrders } ) {
     // auth.isAuthorized( 'LIST_SHOPIFY_ORDERS' ),
     resetOrderPick
   );
+  router.put(
+    '/pick/:orderPickId/is-finished',
+    // auth.isAuthorized( 'LIST_SHOPIFY_ORDERS' ),
+    finishOrderPick
+  );
 
   /*******************************************
    * Define Handlers & Middleware
@@ -327,6 +332,28 @@ function routes( { fulfillmentCommander, shopifyOrders } ) {
       const { orderPickId } = req.params;
 
       const { orderPick } = await fulfillmentCommander.resetOrderPick( orderPickId );
+
+      res.json( { orderPick } );
+
+    }
+    catch(e) {
+      return next(e);
+    }
+  }
+
+  async function finishOrderPick( req, res, next ) {
+
+    try {
+
+      const { orderPickId } = req.params;
+      const { isFinished } = req.body;
+
+      let orderPick;
+      if( typeof isFinished !== 'undefined' ) {
+
+        ( { orderPick } = isFinished ? await fulfillmentCommander.finishOrderPick( orderPickId ) : await fulfillmentCommander.unfinishOrderPick( orderPickId ) );
+
+      }
 
       res.json( { orderPick } );
 

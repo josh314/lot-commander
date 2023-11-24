@@ -8,6 +8,7 @@ angular.module('myApp').controller( 'PickOrderController', [
   'AudioAlertSvc',
   'focus',
   'ModalSvc',
+  'navigate',
   'OrderSvc',
   'sessionTimeout',
 
@@ -17,6 +18,7 @@ angular.module('myApp').controller( 'PickOrderController', [
     AudioAlertSvc,
     focus,
     ModalSvc,
+    navigate,
     OrderSvc,
     sessionTimeout,
 
@@ -39,6 +41,7 @@ angular.module('myApp').controller( 'PickOrderController', [
           scanLabel,
           manualPick,
           undoPick,
+          goToLotPage,
 
           // expose modules to view
 
@@ -101,6 +104,13 @@ angular.module('myApp').controller( 'PickOrderController', [
     function undoPick( pickItem ) {
 
       return pickItem.undoPick();
+
+    }
+
+    function goToLotPage( lot ) {
+
+      const lotId = typeof lot === 'string' ? lot : lot._id;
+      navigate.viewLot( lotId );
 
     }
 

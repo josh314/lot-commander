@@ -64,11 +64,16 @@
             <td>{{ $ctrl.prettifyDate( $order.createdAt ) }}</td>
 
             <td>
-              <a ng-href="/orders/{{ $order._id }}/pick">
-                <button class="btn btn-success btn-sm">
+              <span ng-hide="$order.orderPick.isFinished">
+                <button class="btn btn-success btn-sm" ng-click="$ctrl.goToPickOrderPage( $order )">
                   Pick order
                 </button>
-              </a>
+              </span>
+              <span ng-show="$order.orderPick.isFinished">
+                <button class="btn btn-warning btn-sm" ng-click="$ctrl.reopenOrderPick( $order )">
+                  Re-open
+                </button>
+              </span>
             </td>
 
           </tr>

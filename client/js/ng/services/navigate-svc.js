@@ -116,28 +116,34 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     $state.go('main.inventory-pallets.split', { palletId } );
   };
 
+  const pickOrder = orderId => {
+    $anchorScroll();
+    $state.go('main.orders.pick', { orderId } );
+  };
+
   return {
-    cleanManifest: cleanManifest,
-    editLotManifest: editLotManifest,
-    history: history,
-    home: home,
-    imageEditor: imageEditor,
-    listLots: listLots,
-    lotGallery: lotGallery,
-    inventoryPalletCreation: inventoryPalletCreation,
-    inventoryPalletView: inventoryPalletView,
-    reload: reload,
+    cleanManifest,
+    editLotManifest,
+    history,
+    home,
+    imageEditor,
+    listLots,
+    lotGallery,
+    inventoryPalletCreation,
+    inventoryPalletView,
+    pickOrder,
+    reload,
     repackPallet,
     splitPallet,
-    shipmentCleanManifest: shipmentCleanManifest,
-    shipmentCreation: shipmentCreation,
+    shipmentCleanManifest,
+    shipmentCreation,
     shipmentDetails,
     shipmentList,
     shipmentProcessManifest,
-    shipmentReceiving: shipmentReceiving,
-    submitListing: submitListing,
-    scanLot: scanLot,
-    uploadLotManifest: uploadLotManifest,
-    viewLot: viewLot,
+    shipmentReceiving,
+    submitListing,
+    scanLot,
+    uploadLotManifest,
+    viewLot,
   };
 }]);

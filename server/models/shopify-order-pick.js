@@ -78,6 +78,9 @@ const shopifyOrderPickSchema = mongoose.Schema({
   },
   pickItems: [ pickItemSchema ],
 
+  isFinished: Boolean,
+  finishedDate: Date,
+
   isDeleted: Boolean,
   deletedDate: Date,
 
@@ -101,13 +104,43 @@ shopifyOrderPickSchema.methods.undelete = function() {
   return this.save();
 };
 
+shopifyOrderPickSchema.methods.finish = function() {
+
+  if( !this.allItemsPicked() ) {
+    return this;
+  }
+
+  this.isFinished = true;
+  this.finishedDate = new Date();
+  return this.save();
+};
+
+shopifyOrderPickSchema.methods.unfinish = function() {
+  this.isFinished = false;
+  this.finishedDate = undefined;
+  return this.save();
+};
+
 shopifyOrderPickSchema.methods.reset = function() {
 
   for( let pickItem of this.pickItems ) {
     pickItem.unpick();
   }
 
-  return this;
+  return this.unfinish();
+};
+
+shopifyOrderPickSchema.methods.allItemsPicked = function() {
+
+  for( let pickItem of this.pickItems ) {
+
+    if( !pickItem.isPicked ) {
+      return false;
+    }
+
+  }
+  return true;
+
 };
 
 shopifyOrderPickSchema.methods.pickItem = function( pickItemId, pkg ) {

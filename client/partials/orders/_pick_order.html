@@ -15,6 +15,13 @@
 <!-- <div class="flex-row-item">
   <button class="btn btn-sm btn-primary" ng-click="$ctrl.printPickReceipt()" ng-disabled="$ctrl.order.status !== 'done'">Print Pick Receipt</button>
 </div> -->
+
+          <div class="flex-row-item" ng-hide="$ctrl.orderPick.isFinished">
+            <button class="btn btn-sm btn-primary" ng-click="$ctrl.orderPick.finish()" ng-disabled="!$ctrl.orderPick.allItemsPicked()">Finish</button>
+          </div>
+          <div class="flex-row-item" ng-show="$ctrl.orderPick.isFinished">
+            <button class="btn btn-sm btn-warning" ng-click="$ctrl.orderPick.unfinish()">Re-open</button>
+          </div>
         </div>
       </div>
       <div class="panel panel-default picklist-container">
@@ -37,16 +44,23 @@
               <tbody>
 
                   <tr class="info">
-                    <td colspan="10">{{ $pickList[0].name }}</td>
-                    <td>
-                      <span ng-show="$pickList[0].lot">
-                        <a ng-href="/lots/view/{{ $pickList[0].lot }}">{{ $pickList[0].sku }}</a>
+                    <td colspan="10">
+                      <span>
+                        {{ $pickList[0].name }}
                       </span>
-                      <span ng-hide="$pickList[0].lot">
+                    </td>
+                    <td>
+                      <span>
                         {{ $pickList[0].sku }}
                       </span>
                     </td>
-                    <td></td>
+                    <td>
+                      <span ng-show="$pickList[0].lot">
+                        <button class="btn btn-xs btn-primary" ng-click="$ctrl.goToLotPage( $pickList[0].lot )">
+                          View lot
+                        </button>
+                      </span>
+                    </td>
                   </tr>
 
                   <tr>
