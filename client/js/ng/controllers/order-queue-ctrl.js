@@ -91,7 +91,8 @@ angular.module('myApp').controller( 'OrderQueueCtrl', [
         }
       );
 
-      refreshQueue();
+      return OrderSvc.init().then( refreshQueue );
+
     }
 
     function refreshQueue() {

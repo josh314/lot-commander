@@ -1,4 +1,5 @@
 import angular from 'angular';
+import dayjs from 'dayjs';
 
 import * as util from '../../utilities';
 import * as api from '../../api';
@@ -91,40 +92,90 @@ angular.module('myApp').factory('ListingsSvc', [ '$q', 'ListingTemplatesSvc', fu
 }]);
 
 /*********************** Product Bundle Service */
-angular.module('myApp').factory( 'ProductBundlesSvc', [ 'ListingsSvc', function( ListingsSvc ) {
+angular.module('myApp').factory( 'ProductBundlesSvc', [ '$localStorage', 'ListingsSvc', function( $localStorage, ListingsSvc ) {
 
-  let bundles;
+  function init() {
+    const cache = getCache();
+
+    return cache ? Promise.resolve( cache ) : refresh();
+
+  }
+
+  function getCache() {
+
+    const cache = $localStorage[ 'ProductBundlesSvcCache' ];
+    if( cache && cache.ttl && dayjs() < dayjs( cache.ttl ) ) {
+      return cache.bundles;
+    }
+
+  }
+
+  function updateCache( bundles ) {
+
+    $localStorage[ 'ProductBundlesSvcCache' ] = {
+      bundles,
+      ttl: dayjs().add( 24, 'hours' )
+    };
+
+    console.log('Refreshed ProductBundlesSvc cache:');
+    console.log( $localStorage[ 'ProductBundlesSvcCache' ] );
+
+  }
 
   function get( gid ) {
 
-    if( !bundles ) {
-      return refresh().then( _ => bundles.find( _b => _b.gid === gid ) );
+    const cache = getCache();
+
+    if( !cache ) {
+      return refresh().then( _ => getCache().find( _b => _b.gid === gid ) );
     }
 
-    return Promise.resolve( bundles.find( _b => _b.gid === gid ) );
+    return Promise.resolve( cache.find( _b => _b.gid === gid ) );
   }
 
   function list() {
 
-    if( !bundles ) {
-      return refresh().then( _ => bundles );
+    if( !getCache() ) {
+      return refresh().then( _ => getCache() );
     }
 
-    return Promise.resolve( bundles );
+    return Promise.resolve( getCache() );
   }
 
   function refresh() {
 
-    return ListingsSvc.listProductBundles().then( resp => bundles = resp.bundles );
+    return ListingsSvc.listProductBundles().then( resp => updateCache( resp.bundles ) );
 
   }
 
   function set( gid, bundle ) {
-    return ListingsSvc.setProductBundle( gid, bundle ).then( refresh );
+    return ListingsSvc.setProductBundle( gid, bundle ).then( _ => {
+
+      const bundles = getCache();
+
+      if( bundles ) {
+
+        const foundIndex = bundles.findIndex( _b => _b.gid === gid );
+
+        if( foundIndex > -1 ) {
+
+          bundles[ foundIndex ].bundle = bundle;
+
+          updateCache( bundles );
+
+        }
+
+      }
+      else {
+        return refresh();
+      }
+
+    } );
   }
 
 
   return {
+    init,
     get,
     list,
     refresh,
@@ -135,51 +186,89 @@ angular.module('myApp').factory( 'ProductBundlesSvc', [ 'ListingsSvc', function(
 
 
 /*********************** Listing Shipping Configuration Service */
-angular.module('myApp').factory( 'ShippingConfigurationsSvc', [ 'ListingsSvc', 'ShippingItemsSvc', function( ListingsSvc, ShippingItemsSvc ) {
+angular.module('myApp').factory( 'ShippingConfigurationsSvc', [ '$localStorage', 'ListingsSvc', 'ShippingItemsSvc', function( $localStorage, ListingsSvc, ShippingItemsSvc ) {
 
-  let configurations;
+  function init() {
+
+    const cache = getCache();
+
+    return cache ? Promise.resolve( cache ) : refresh();
+
+  }
+
+  function getCache() {
+
+    const cache = $localStorage[ 'ShippingConfigurationsSvcCache' ];
+    if( cache && cache.ttl && dayjs() < dayjs( cache.ttl ) ) {
+      return cache.configurations;
+    }
+
+  }
+
+  function updateCache( configurations ) {
+
+    $localStorage[ 'ShippingConfigurationsSvcCache' ] = {
+      configurations,
+      ttl: dayjs().add( 24, 'hours' )
+    };
+
+    console.log('Refreshed ShippingConfigurationsSvc cache:');
+    console.log( $localStorage[ 'ShippingConfigurationsSvcCache' ] );
+
+  }
 
   function get( gid ) {
 
-    if( !configurations ) {
-      return refresh().then( _ => configurations.find( _b => _b.gid === gid ) );
+    const cache = getCache();
+
+    if( !cache ) {
+      return refresh().then( _ => getCache().find( _b => _b.gid === gid ) );
     }
 
-    return Promise.resolve( configurations.find( _b => _b.gid === gid ) );
+    return Promise.resolve( cache.find( _b => _b.gid === gid ) );
   }
 
-  function list( { everydayBargainsOnly, includePallets, refreshCache } = {} ) {
+  function list() {
 
-    if( refreshCache || !configurations ) {
-      return refresh( { everydayBargainsOnly, includePallets } ).then( _ => configurations );
+    if( !getCache() ) {
+      return refresh().then( _ => getCache() );
     }
 
-    return Promise.resolve( configurations );
-  }
-
-  function refresh( { everydayBargainsOnly, includePallets } = {} ) {
-
-    return ListingsSvc.listShippingConfigurations( { everydayBargainsOnly, includePallets } ).then( resp => {
-
-      configurations = resp.configurations;
-
-      configurations.forEach( _c => _c.shippingConfiguration = _c.shippingConfiguration || [] );
-
-    });
+    return Promise.resolve( getCache() );
 
   }
 
-  function set( gid, configuration, refreshCache = true ) {
+  function refresh() {
 
-    let p = ListingsSvc.setShippingConfiguration( gid, configuration );
+    return ListingsSvc.listShippingConfigurations( { everydayBargainsOnly: true, includePallets: true } ).then( resp => updateCache( resp.configurations ) );
 
-    if( refreshCache ) {
+  }
 
-      p = p.then( refreshCache );
+  function set( gid, configuration ) {
 
-    }
+    return ListingsSvc.setShippingConfiguration( gid, configuration ).then( _ => {
 
-    return p;
+      const configurations = getCache();
+
+      if( configurations ) {
+
+        const foundIndex = configurations.findIndex( _b => _b.gid === gid );
+
+        if( foundIndex > -1 ) {
+
+          configurations[ foundIndex ].shippingConfiguration = configuration;
+
+          updateCache( configurations );
+
+        }
+
+      }
+      else {
+        return refresh();
+      }
+
+    } );
+
   }
 
 
@@ -191,6 +280,7 @@ angular.module('myApp').factory( 'ShippingConfigurationsSvc', [ 'ListingsSvc', '
       weightUnitsEnum: ShippingItemsSvc.weightUnitsEnum,
     },
 
+    init,
     get,
     list,
     refresh,

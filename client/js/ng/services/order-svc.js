@@ -111,12 +111,20 @@ angular.module('myApp').service( 'OrderSvc', [
   ) {
 
     return {
+      init,
       getOrder,
       list: listOrders,
       count: countOrders,
       unfulfilledOrderQueue,
       startOrderPick
     };
+
+    function init() {
+      return Promise.all([
+        ProductBundlesSvc.init(),
+        ShippingConfigurationsSvc.init( { everydayBargainsOnly: true, includePallets: true } )
+      ]);
+    }
 
     function getOrder( orderId, { populate = [], hydrateLineItems = false } = {}  ) {
       return $q.when( api.getOrder( orderId, { populate } ) ).then( order => new Order( order, { hydrateLineItems } ));
@@ -140,11 +148,6 @@ angular.module('myApp').service( 'OrderSvc', [
         if( !orders ) {
           return [];
         }
-
-        await Promise.all([
-          ProductBundlesSvc.refresh(),
-          ShippingConfigurationsSvc.refresh( { everydayBargainsOnly: true, includePallets: true } )
-        ]);
 
         return orders.map( data => new Order( data, { hydrateLineItems } ) );
 
