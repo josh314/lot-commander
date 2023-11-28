@@ -121,6 +121,11 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     $state.go('main.orders.pick', { orderId } );
   };
 
+  const orderQueue = () => {
+    $anchorScroll();
+    $state.go('main.orders.queue' );
+  };
+
   return {
     cleanManifest,
     editLotManifest,
@@ -131,6 +136,7 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     lotGallery,
     inventoryPalletCreation,
     inventoryPalletView,
+    orderQueue,
     pickOrder,
     reload,
     repackPallet,

@@ -42,6 +42,7 @@ angular.module('myApp').controller( 'PickOrderController', [
           manualPick,
           undoPick,
           goToLotPage,
+          goToOrderQueue,
 
           // expose modules to view
 
@@ -112,6 +113,10 @@ angular.module('myApp').controller( 'PickOrderController', [
       const lotId = typeof lot === 'string' ? lot : lot._id;
       navigate.viewLot( lotId );
 
+    }
+
+    function goToOrderQueue() {
+      navigate.orderQueue();
     }
 
   }

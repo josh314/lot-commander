@@ -1,4 +1,11 @@
 <div class="container" ng-controller="PickOrderController as $ctrl">
+
+  <div class="row" style="margin-bottom:12px;">
+    <button class="btn btn-success" ng-click="$ctrl.goToOrderQueue()">
+      <span class="glyphicon glyphicon-chevron-left"></span> Back to order queue
+    </button>
+  </div>
+
 	<div class="row">
 		<div class="col-xs-12">
       <div class="panel panel-default">
@@ -10,6 +17,7 @@
             <b>Order Number: </b>{{ $ctrl.order.name }}<br>
             <b>Date: </b>{{ $ctrl.util.prettifyDateTime( $ctrl.order.createdAt ) }}<br>
             <b>Shopify fulfillment status: </b>{{ $ctrl.order.displayFulfillmentStatus }}<br>
+            <b>Pick status: </b>{{ $ctrl.orderPick.isFinished ? 'FINISHED' : 'OPEN' }}<br>
           </div>
           <div class="flex-row-divider"></div>
 <!-- <div class="flex-row-item">

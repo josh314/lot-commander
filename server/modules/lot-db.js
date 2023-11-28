@@ -63,9 +63,17 @@ module.exports = function( lotdbClient ) {
   }
 
   function markAsListed( lotId ) {
+    return updateStatus( lotId, 'Listed' );
+  }
+
+  function markAsShipped( lotId ) {
+    return updateStatus( lotId, 'Shipped' );
+  }
+
+  function updateStatus( lotId, status ) {
     const data = {
       _id: lotId,
-      status: 'Listed'
+      status
     };
     return lotdbClient.updateLot( data );
   }
@@ -92,6 +100,7 @@ module.exports = function( lotdbClient ) {
     addImages,
     removeImage,
     markAsListed,
+    markAsShipped,
 
   };
 

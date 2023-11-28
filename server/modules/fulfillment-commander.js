@@ -419,7 +419,25 @@ class FulfillmentCommander {
     }
 
     if( !orderPick.isFinished ) {
+
       await orderPick.finish();
+
+      const lotIds = orderPick.pickItems.reduce( ( acc, _pickItem ) => {
+
+        if( _pickItem.lot ) {
+          acc.add( _pickItem.lot.toString() );
+        }
+
+        return acc;
+
+      } , new Set() );
+
+      for( let lotId of [ ...lotIds ] ) {
+
+        await this.lotdb.markAsShipped( lotId );
+
+      }
+
     }
 
     return { orderPick };
@@ -435,7 +453,25 @@ class FulfillmentCommander {
     }
 
     if( orderPick.isFinished ) {
+
       await orderPick.unfinish();
+
+      const lotIds = orderPick.pickItems.reduce( ( acc, _pickItem ) => {
+
+        if( _pickItem.lot ) {
+          acc.add( _pickItem.lot.toString() );
+        }
+
+        return acc;
+
+      } , new Set() );
+
+      for( let lotId of [ ...lotIds ] ) {
+
+        await this.lotdb.markAsListed( lotId );
+
+      }
+
     }
 
     return { orderPick };

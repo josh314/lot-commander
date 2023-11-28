@@ -46,6 +46,7 @@
           <th>#</th>
           <th>Order Number</th>
           <th>Date</th>
+          <th>Picked</th>
           <th></th>
         </tr></thead>
 
@@ -64,14 +65,18 @@
             <td>{{ $ctrl.prettifyDate( $order.createdAt ) }}</td>
 
             <td>
+              <span class="glyphicon glyphicon-ok" ng-show="$order.orderPick.isFinished"></span>
+            </td>
+
+            <td>
               <span ng-hide="$order.orderPick.isFinished">
                 <button class="btn btn-success btn-sm" ng-click="$ctrl.goToPickOrderPage( $order )">
                   Pick order
                 </button>
               </span>
               <span ng-show="$order.orderPick.isFinished">
-                <button class="btn btn-warning btn-sm" ng-click="$ctrl.reopenOrderPick( $order )">
-                  Re-open
+                <button class="btn btn-warning btn-sm" ng-click="$ctrl.goToPickOrderPage( $order )">
+                  View
                 </button>
               </span>
             </td>
