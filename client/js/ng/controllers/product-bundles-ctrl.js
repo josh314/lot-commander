@@ -22,6 +22,7 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
 
   'ListingsSvc',
   'ModalSvc',
+  'navigate',
   'ProductBundlesSvc',
   'sessionTimeout',
 
@@ -29,6 +30,7 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
 
     ListingsSvc,
     ModalSvc,
+    navigate,
     ProductBundlesSvc,
     sessionTimeout,
 
@@ -48,11 +50,20 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
       vm.saveProductBundleEdit = saveProductBundleEdit;
       vm.validateProductBundleEdit = validateProductBundleEdit;
 
+      vm.refreshCache = refreshCache;
+
       const p = setProductList().then( refreshBundlesList );
 
       ModalSvc.wait( {
         waitFor: p
       } );
+    }
+
+    async function refreshCache() {
+      await ModalSvc.wait( {
+        waitFor: ProductBundlesSvc.refresh()
+      } );
+      navigate.reload();
     }
 
     function refreshBundlesList() {

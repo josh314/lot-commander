@@ -757,7 +757,7 @@ angular.module('myApp').factory( 'PackageLabelDataModalSvc', [ '$uibModal', func
 
           }
 
-          function setProductUnitsPackageOptions( { configurations } ) {
+          function setProductUnitsPackageOptions( configurations ) {
 
             const packageConfigurationMap =  configurations.reduce( ( acc, config ) => {
 

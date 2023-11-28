@@ -5,94 +5,109 @@ import * as util from '../../utilities';
 import * as api from '../../api';
 
 /******************* Listings Service *************************/
-angular.module('myApp').factory('ListingsSvc', [ '$q', 'ListingTemplatesSvc', function( $q, ListingTemplatesSvc ) {
+angular.module('myApp').factory( 'ListingsSvc', [
 
-  const productVariantCache = {};
+  '$q',
+  'ListingTemplatesSvc',
+  'ProductBundlesSvc',
+  'ShippingConfigurationsSvc',
 
-  async function _getProductVariant( gid ) {
+  function(
 
-    let pv = productVariantCache[ gid ];
+    $q,
+    ListingTemplatesSvc,
+    ProductBundlesSvc,
+    ShippingConfigurationsSvc,
 
-    if( !pv ) {
-      const resp = await api.getProductVariant( gid );
-      pv = resp.productVariant;
-      productVariantCache[ gid ] = pv;
+  ) {
+
+    const productVariantCache = {};
+
+    async function _getProductVariant( gid ) {
+
+      let pv = productVariantCache[ gid ];
+
+      if( !pv ) {
+        const resp = await api.getProductVariant( gid );
+        pv = resp.productVariant;
+        productVariantCache[ gid ] = pv;
+      }
+
+      return pv;
+
     }
 
-    return pv;
+    return {
+
+      getLotListingBodyTemplate: ListingTemplatesSvc.lotListingBody.bind( ListingTemplatesSvc ),
+
+      isTitleTooLong: title => {
+        const res = {
+          bstock: false,
+          shopify: false,
+        };
+
+        if(title && title.length >= 68) {
+          res.bstock = true;
+        }
+        if(title && title.length >= 96) {
+          res.shopify = true;
+        }
+        return res;
+      },
+
+      // shipping rates
+
+      editShippingRate: ( gid, newRate ) => $q.when( api.editStoreShippingRate( gid, newRate ) ),
+
+      getPalletBreakdownServiceRate: () => $q.when( api.getPalletBreakdownServiceRate( ) ),
+
+      listShippingRates: qp => $q.when( api.listStoreShippingRates( qp ) ).then( rates =>  {
+
+        return rates.map( _r => Object.assign( {}, _r ) );
+
+      }),
+
+      removeShippingRate: productVariantGid => $q.when( api.removeStoreShippingRate( productVariantGid ) ),
+
+      setPalletBreakdownServiceRate: newRate => $q.when( api.setPalletBreakdownServiceRate( newRate ) ),
+
+      // submission
+
+      submitLotListing: ( lotId, listingData, publish = false ) => $q.when( api.submitLotListing( lotId, listingData, publish ) ),
+
+      // shipping configs
+
+      listShippingConfigurations: ShippingConfigurationsSvc.list.bind( ShippingConfigurationsSvc ),
+
+      getShippingConfiguration: ShippingConfigurationsSvc.get.bind( ShippingConfigurationsSvc ),
+
+      setShippingConfiguration: ShippingConfigurationsSvc.set.bind( ShippingConfigurationsSvc ),
+
+
+      // product bundles
+
+      listProductBundles: ProductBundlesSvc.list.bind( ProductBundlesSvc ),
+
+      getProductBundle: ProductBundlesSvc.get.bind( ProductBundlesSvc ),
+
+      setProductBundle: ProductBundlesSvc.set.bind( ProductBundlesSvc ),
+
+      // active listings
+
+      getProductVariant: gid => $q.when( _getProductVariant( gid ) ),
+
+      listActiveProducts: ( { everydayBargainsOnly = false, includePallets = true } = {} ) => $q.when( api.listActiveProducts( { everydayBargainsOnly, includePallets } ) ),
+
+      listActiveProductVariants: ( { everydayBargainsOnly = false, includePallets = true } = {} ) => $q.when( api.listActiveProductVariants( { everydayBargainsOnly, includePallets } ) ),
+
+    };
 
   }
-
-  return {
-
-    getLotListingBodyTemplate: ListingTemplatesSvc.lotListingBody.bind( ListingTemplatesSvc ),
-
-    isTitleTooLong: title => {
-      const res = {
-        bstock: false,
-        shopify: false,
-      };
-
-      if(title && title.length >= 68) {
-        res.bstock = true;
-      }
-      if(title && title.length >= 96) {
-        res.shopify = true;
-      }
-      return res;
-    },
-
-    // shipping rates
-
-    editShippingRate: ( gid, newRate ) => $q.when( api.editStoreShippingRate( gid, newRate ) ),
-
-    getPalletBreakdownServiceRate: () => $q.when( api.getPalletBreakdownServiceRate( ) ),
-
-    listShippingRates: qp => $q.when( api.listStoreShippingRates( qp ) ).then( rates =>  {
-
-      return rates.map( _r => Object.assign( {}, _r ) );
-
-    }),
-
-    removeShippingRate: productVariantGid => $q.when( api.removeStoreShippingRate( productVariantGid ) ),
-
-    setPalletBreakdownServiceRate: newRate => $q.when( api.setPalletBreakdownServiceRate( newRate ) ),
-
-    // submission
-
-    submitLotListing: ( lotId, listingData, publish = false ) => $q.when( api.submitLotListing( lotId, listingData, publish ) ),
-
-    // shipping configs
-
-    listShippingConfigurations: ( { everydayBargainsOnly, includePallets } ) => $q.when( api.listShippingConfigurations( { everydayBargainsOnly, includePallets } ) ),
-
-    getShippingConfiguration: gid => $q.when( api.getShippingConfiguration( gid ) ),
-
-    setShippingConfiguration: ( gid, configuration ) => $q.when( api.setShippingConfiguration( gid, configuration ) ),
-
-
-    // product bundles
-
-    listProductBundles: () => $q.when( api.listProductBundles() ),
-
-    getProductBundle: gid => $q.when( api.getProductBundle( gid ) ),
-
-    setProductBundle: ( gid, bundle ) => $q.when( api.setProductBundle( gid, bundle ) ),
-
-    // active listings
-
-    getProductVariant: gid => $q.when( _getProductVariant( gid ) ),
-
-    listActiveProducts: ( { everydayBargainsOnly = false, includePallets = true } = {} ) => $q.when( api.listActiveProducts( { everydayBargainsOnly, includePallets } ) ),
-
-    listActiveProductVariants: ( { everydayBargainsOnly = false, includePallets = true } = {} ) => $q.when( api.listActiveProductVariants( { everydayBargainsOnly, includePallets } ) ),
-
-  };
-
-}]);
+]);
 
 /*********************** Product Bundle Service */
-angular.module('myApp').factory( 'ProductBundlesSvc', [ '$localStorage', 'ListingsSvc', function( $localStorage, ListingsSvc ) {
+angular.module('myApp').factory( 'ProductBundlesSvc', [ '$localStorage', '$q', function( $localStorage, $q, ) {
 
   function init() {
     const cache = getCache();
@@ -114,7 +129,7 @@ angular.module('myApp').factory( 'ProductBundlesSvc', [ '$localStorage', 'Listin
 
     $localStorage[ 'ProductBundlesSvcCache' ] = {
       bundles,
-      ttl: dayjs().add( 24, 'hours' )
+      ttl: dayjs().add( 1, 'hours' )
     };
 
     console.log('Refreshed ProductBundlesSvc cache:');
@@ -144,12 +159,13 @@ angular.module('myApp').factory( 'ProductBundlesSvc', [ '$localStorage', 'Listin
 
   function refresh() {
 
-    return ListingsSvc.listProductBundles().then( resp => updateCache( resp.bundles ) );
+    return $q.when( api.listProductBundles() ).then( resp => updateCache( resp.bundles ) );
 
   }
 
   function set( gid, bundle ) {
-    return ListingsSvc.setProductBundle( gid, bundle ).then( _ => {
+
+    return $q.when( api.setProductBundle( gid, bundle ) ).then( _ => {
 
       const bundles = getCache();
 
@@ -186,7 +202,7 @@ angular.module('myApp').factory( 'ProductBundlesSvc', [ '$localStorage', 'Listin
 
 
 /*********************** Listing Shipping Configuration Service */
-angular.module('myApp').factory( 'ShippingConfigurationsSvc', [ '$localStorage', 'ListingsSvc', 'ShippingItemsSvc', function( $localStorage, ListingsSvc, ShippingItemsSvc ) {
+angular.module('myApp').factory( 'ShippingConfigurationsSvc', [ '$localStorage', '$q', 'ShippingItemsSvc', function( $localStorage, $q, ShippingItemsSvc ) {
 
   function init() {
 
@@ -209,7 +225,7 @@ angular.module('myApp').factory( 'ShippingConfigurationsSvc', [ '$localStorage',
 
     $localStorage[ 'ShippingConfigurationsSvcCache' ] = {
       configurations,
-      ttl: dayjs().add( 24, 'hours' )
+      ttl: dayjs().add( 1, 'hours' )
     };
 
     console.log('Refreshed ShippingConfigurationsSvc cache:');
@@ -240,13 +256,13 @@ angular.module('myApp').factory( 'ShippingConfigurationsSvc', [ '$localStorage',
 
   function refresh() {
 
-    return ListingsSvc.listShippingConfigurations( { everydayBargainsOnly: true, includePallets: true } ).then( resp => updateCache( resp.configurations ) );
+    return $q.when( api.listShippingConfigurations( { everydayBargainsOnly: true, includePallets: true } ) ).then( resp => updateCache( resp.configurations ) );
 
   }
 
   function set( gid, configuration ) {
 
-    return ListingsSvc.setShippingConfiguration( gid, configuration ).then( _ => {
+    return $q.when( api.setShippingConfiguration( gid, configuration ) ).then( _ => {
 
       const configurations = getCache();
 

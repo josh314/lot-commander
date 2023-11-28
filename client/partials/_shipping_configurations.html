@@ -1,6 +1,12 @@
 <div class="container" ng-controller="ShippingConfigurationsCtrl as $ctrl">
-  <h2>Product Shipping Configurations</h2>
 
+  <div style="display:flex; justify-content: flex-end;">
+
+    <button class="btn btn-xs btn-warning" ng-click="$ctrl.refreshCache()">Refrech cache</button>
+
+  </div>
+
+  <h2>Product Shipping Configurations</h2>
 
   <div class="row well" style="display: flex; flex-direction: column">
 
