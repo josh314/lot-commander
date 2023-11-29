@@ -899,6 +899,8 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
         vm.shipment.palletsExpected = shipment.palletsExpected.map( p => DisplayPalletFactory( p, { shipment, type: 'expected', checkCost: vm.showPurchasingData } ) );
         vm.shipment.palletsConsolidated = shipment.palletsConsolidated.map( p => DisplayPalletFactory( p, { shipment, type: 'consolidated', checkCost: vm.showPurchasingData } ) );
 
+        console.log( vm.shipment );
+
       });
     }
 

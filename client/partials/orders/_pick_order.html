@@ -37,11 +37,11 @@
           <div class="flex-row">
             <div class="form-group flex-row-item">
               <label for="ScanLabelInput">Scan Label</label>
-              <input id="ScanLabelInput" name="ScanLabelInput" class="form-control" ng-model="$ctrl.label" ng-keyup="$event.keyCode == 13 && $ctrl.scanLabel()" autocomplete="off" />
+              <input id="ScanLabelInput" name="ScanLabelInput" class="form-control" ng-model="$ctrl.label" ng-keyup="$event.keyCode == 13 && $ctrl.scanLabel()" autocomplete="off"  ng-disabled="$ctrl.orderPick.isFinished"/>
             </div>
             <div class="flex-row-divider"></div>
             <div class="flex-row-item">
-              <button class="btn btn-danger btn-sm" ng-click="$ctrl.orderPick.reset()">Reset Picklist</button>
+              <button class="btn btn-danger btn-sm" ng-click="$ctrl.orderPick.reset()" ng-disabled="$ctrl.orderPick.isFinished">Reset Picklist</button>
             </div>
           </div>
         </div>
@@ -96,11 +96,17 @@
 
                             <td><span class="glyphicon glyphicon-ok" ng-show="$pickItem.isPicked"></span><span class="glyphicon glyphicon-remove" ng-hide="$pickItem.isPicked"></span></td>
 
-                            <td><button class="btn btn-xs btn-warning" ng-click="$ctrl.manualPick( $pickItem )" ng-disabled="$pickItem.isPicked">Manual pick</button></td>
+                            <td>
+                              <span ng-hide="$pickItem.isPicked">
+                                <button class="btn btn-xs btn-warning" ng-click="$ctrl.manualPick( $pickItem )" ng-disabled="$ctrl.orderPick.isFinished">
+                                  Manual pick
+                                </button>
+                              </span>
+                            </td>
 
                             <td>
                               <span ng-show="$pickItem.isPicked">
-                                <button class="btn btn-xs btn-danger" ng-click="$ctrl.undoPick( $pickItem )">Undo</button>
+                                <button class="btn btn-xs btn-danger" ng-click="$ctrl.undoPick( $pickItem )" ng-disabled="$ctrl.orderPick.isFinished">Undo</button>
                               </span>
                             </td>
 

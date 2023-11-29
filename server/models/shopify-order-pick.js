@@ -127,7 +127,6 @@ shopifyOrderPickSchema.methods.reset = function() {
     pickItem.unpick();
   }
 
-  return this.unfinish();
 };
 
 shopifyOrderPickSchema.methods.allItemsPicked = function() {

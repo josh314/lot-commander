@@ -72,9 +72,7 @@ const stateData = [
   // orders
   { name: "main.orders", abstract: true, url: "/orders", templateUrl: 'partials/_container.html'},
   { name: "main.orders.queue", navName: 'Queue', navParent: 'Orders', url: "/queue", templateUrl: 'partials/orders/_order_queue.html', userPermission: 'LIST_SHOPIFY_ORDERS' },
-  { name: "main.orders.pick", url: '/{orderId}/pick', templateUrl: '/partials/orders/_pick_order.html',
-//userPermission: 'VIEW_ORDER'
-},
+  { name: "main.orders.pick", url: '/{orderId}/pick', templateUrl: '/partials/orders/_pick_order.html', userPermission: 'PICK_ORDER' },
 
   // Costs aggregation
   { name: "main.costs", abstract: true, url: "/costs", templateUrl: 'partials/_container.html'},

@@ -80,37 +80,37 @@ function routes( { fulfillmentCommander, shopifyOrders } ) {
   // picking
   router.get(
     '/pick/:orderPickId',
-    // auth.isAuthorized( 'LIST_SHOPIFY_ORDERS' ),
+    auth.isAuthorized( 'PICK_ORDER' ),
     getOrderPickById
   );
   router.delete(
     '/pick/:orderPickId',
-    // auth.isAuthorized( 'LIST_SHOPIFY_ORDERS' ),
+    auth.isAuthorized( 'PICK_ORDER' ),
     deleteOrderPickById
   );
   router.post(
     '/:orderId/pick',
-    // auth.isAuthorized( 'LIST_SHOPIFY_ORDERS' ),
+    auth.isAuthorized( 'PICK_ORDER' ),
     startOrderPick
   );
   router.post(
     '/pick/:orderPickId/',
-    // auth.isAuthorized( 'LIST_SHOPIFY_ORDERS' ),
+    auth.isAuthorized( 'PICK_ORDER' ),
     pickOrderPickItem
   );
   router.post(
     '/unpick/:orderPickId/',
-    // auth.isAuthorized( 'LIST_SHOPIFY_ORDERS' ),
+    auth.isAuthorized( 'PICK_ORDER' ),
     unpickOrderPickItem
   );
   router.post(
     '/pick/:orderPickId/reset',
-    // auth.isAuthorized( 'LIST_SHOPIFY_ORDERS' ),
+    auth.isAuthorized( 'PICK_ORDER' ),
     resetOrderPick
   );
   router.put(
     '/pick/:orderPickId/is-finished',
-    // auth.isAuthorized( 'LIST_SHOPIFY_ORDERS' ),
+    auth.isAuthorized( 'PICK_ORDER' ),
     finishOrderPick
   );
 
