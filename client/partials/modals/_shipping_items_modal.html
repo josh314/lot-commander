@@ -1,11 +1,12 @@
 <div class="modal-header">
 	<h3 class="modal-title">Edit Shipping Items</h3>
+  <h4>Total: {{$ctrl.shippingItems.length}}</h4>
 </div>
 <div class="modal-body">
 	<div class="row">
     <table class="table table-striped">
       <thead><tr>
-        <th>Item No.</th>
+        <th>Label</th>
         <th>Weight</th>
         <th>Height</th>
         <th>Length</th>
@@ -14,7 +15,7 @@
       </tr></thead>
       <tbody>
         <tr ng-repeat="item in $ctrl.shippingItems track by $index">
-          <td>{{ $index + 1 }}</td>
+          <td>{{ item._id }}</td>
           <td>
             <input type="number" min="0" class="hide-controls" ng-style='$ctrl.errorStyles[{{$index}}].weight' style="width: 4em" ng-model="item.weight">
             <select ng-model="item.weightUnits"><option ng-repeat="unit in $ctrl.weightUnitsEnum">{{unit}}</option></select>

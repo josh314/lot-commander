@@ -1,130 +1,197 @@
 import angular from 'angular';
+import dayjs from 'dayjs';
 
 import * as util from '../../utilities';
 import * as api from '../../api';
 
 /******************* Listings Service *************************/
-angular.module('myApp').factory('ListingsSvc', [ '$q', 'ListingTemplatesSvc', function( $q, ListingTemplatesSvc ) {
+angular.module('myApp').factory( 'ListingsSvc', [
 
-  const productVariantCache = {};
+  '$q',
+  'ListingTemplatesSvc',
+  'ProductBundlesSvc',
+  'ShippingConfigurationsSvc',
 
-  async function _getProductVariant( gid ) {
+  function(
 
-    let pv = productVariantCache[ gid ];
+    $q,
+    ListingTemplatesSvc,
+    ProductBundlesSvc,
+    ShippingConfigurationsSvc,
 
-    if( !pv ) {
-      const resp = await api.getProductVariant( gid );
-      pv = resp.productVariant;
-      productVariantCache[ gid ] = pv;
+  ) {
+
+    const productVariantCache = {};
+
+    async function _getProductVariant( gid ) {
+
+      let pv = productVariantCache[ gid ];
+
+      if( !pv ) {
+        const resp = await api.getProductVariant( gid );
+        pv = resp.productVariant;
+        productVariantCache[ gid ] = pv;
+      }
+
+      return pv;
+
     }
 
-    return pv;
+    return {
+
+      getLotListingBodyTemplate: ListingTemplatesSvc.lotListingBody.bind( ListingTemplatesSvc ),
+
+      isTitleTooLong: title => {
+        const res = {
+          bstock: false,
+          shopify: false,
+        };
+
+        if(title && title.length >= 68) {
+          res.bstock = true;
+        }
+        if(title && title.length >= 96) {
+          res.shopify = true;
+        }
+        return res;
+      },
+
+      // shipping rates
+
+      editShippingRate: ( gid, newRate ) => $q.when( api.editStoreShippingRate( gid, newRate ) ),
+
+      getPalletBreakdownServiceRate: () => $q.when( api.getPalletBreakdownServiceRate( ) ),
+
+      listShippingRates: qp => $q.when( api.listStoreShippingRates( qp ) ).then( rates =>  {
+
+        return rates.map( _r => Object.assign( {}, _r ) );
+
+      }),
+
+      removeShippingRate: productVariantGid => $q.when( api.removeStoreShippingRate( productVariantGid ) ),
+
+      setPalletBreakdownServiceRate: newRate => $q.when( api.setPalletBreakdownServiceRate( newRate ) ),
+
+      // submission
+
+      submitLotListing: ( lotId, listingData, publish = false ) => $q.when( api.submitLotListing( lotId, listingData, publish ) ),
+
+      // shipping configs
+
+      listShippingConfigurations: ShippingConfigurationsSvc.list.bind( ShippingConfigurationsSvc ),
+
+      getShippingConfiguration: ShippingConfigurationsSvc.get.bind( ShippingConfigurationsSvc ),
+
+      setShippingConfiguration: ShippingConfigurationsSvc.set.bind( ShippingConfigurationsSvc ),
+
+
+      // product bundles
+
+      listProductBundles: ProductBundlesSvc.list.bind( ProductBundlesSvc ),
+
+      getProductBundle: ProductBundlesSvc.get.bind( ProductBundlesSvc ),
+
+      setProductBundle: ProductBundlesSvc.set.bind( ProductBundlesSvc ),
+
+      // active listings
+
+      getProductVariant: gid => $q.when( _getProductVariant( gid ) ),
+
+      listActiveProducts: ( { everydayBargainsOnly = false, includePallets = true } = {} ) => $q.when( api.listActiveProducts( { everydayBargainsOnly, includePallets } ) ),
+
+      listActiveProductVariants: ( { everydayBargainsOnly = false, includePallets = true } = {} ) => $q.when( api.listActiveProductVariants( { everydayBargainsOnly, includePallets } ) ),
+
+    };
+
+  }
+]);
+
+/*********************** Product Bundle Service */
+angular.module('myApp').factory( 'ProductBundlesSvc', [ '$localStorage', '$q', function( $localStorage, $q, ) {
+
+  function init() {
+    const cache = getCache();
+
+    return cache ? Promise.resolve( cache ) : refresh();
 
   }
 
-  return {
+  function getCache() {
 
-    getLotListingBodyTemplate: ListingTemplatesSvc.lotListingBody.bind( ListingTemplatesSvc ),
+    const cache = $localStorage[ 'ProductBundlesSvcCache' ];
+    if( cache && cache.ttl && dayjs() < dayjs( cache.ttl ) ) {
+      return cache.bundles;
+    }
 
-    isTitleTooLong: title => {
-      const res = {
-        bstock: false,
-        shopify: false,
-      };
+  }
 
-      if(title && title.length >= 68) {
-        res.bstock = true;
-      }
-      if(title && title.length >= 96) {
-        res.shopify = true;
-      }
-      return res;
-    },
+  function updateCache( bundles ) {
 
-    // shipping rates
+    $localStorage[ 'ProductBundlesSvcCache' ] = {
+      bundles,
+      ttl: dayjs().add( 1, 'hours' )
+    };
 
-    editShippingRate: ( gid, newRate ) => $q.when( api.editStoreShippingRate( gid, newRate ) ),
+    console.log('Refreshed ProductBundlesSvc cache:');
+    console.log( $localStorage[ 'ProductBundlesSvcCache' ] );
 
-    getPalletBreakdownServiceRate: () => $q.when( api.getPalletBreakdownServiceRate( ) ),
-
-    listShippingRates: qp => $q.when( api.listStoreShippingRates( qp ) ).then( rates =>  {
-
-      return rates.map( _r => Object.assign( {}, _r ) );
-
-    }),
-
-    removeShippingRate: productVariantGid => $q.when( api.removeStoreShippingRate( productVariantGid ) ),
-
-    setPalletBreakdownServiceRate: newRate => $q.when( api.setPalletBreakdownServiceRate( newRate ) ),
-
-    // submission
-
-    submitLotListing: ( lotId, listingData, publish = false ) => $q.when( api.submitLotListing( lotId, listingData, publish ) ),
-
-    // shipping configs
-
-    listShippingConfigurations: ( { everydayBargainsOnly, includePallets } ) => $q.when( api.listShippingConfigurations( { everydayBargainsOnly, includePallets } ) ),
-
-    getShippingConfiguration: gid => $q.when( api.getShippingConfiguration( gid ) ),
-
-    setShippingConfiguration: ( gid, configuration ) => $q.when( api.setShippingConfiguration( gid, configuration ) ),
-
-
-    // product bundles
-
-    listProductBundles: () => $q.when( api.listProductBundles() ),
-
-    getProductBundle: gid => $q.when( api.getProductBundle( gid ) ),
-
-    setProductBundle: ( gid, bundle ) => $q.when( api.setProductBundle( gid, bundle ) ),
-
-    // active listings
-
-    getProductVariant: gid => $q.when( _getProductVariant( gid ) ),
-
-    listActiveProducts: ( { everydayBargainsOnly = false, includePallets = true } = {} ) => $q.when( api.listActiveProducts( { everydayBargainsOnly, includePallets } ) ),
-
-    listActiveProductVariants: ( { everydayBargainsOnly = false, includePallets = true } = {} ) => $q.when( api.listActiveProductVariants( { everydayBargainsOnly, includePallets } ) ),
-
-  };
-
-}]);
-
-/*********************** Product Bundle Service */
-angular.module('myApp').factory( 'ProductBundlesSvc', [ 'ListingsSvc', function( ListingsSvc ) {
-
-  let bundles;
+  }
 
   function get( gid ) {
 
-    if( !bundles ) {
-      return refresh().then( _ => bundles.find( _b => _b.gid === gid ) );
+    const cache = getCache();
+
+    if( !cache ) {
+      return refresh().then( _ => getCache().find( _b => _b.gid === gid ) );
     }
 
-    return Promise.resolve( bundles.find( _b => _b.gid === gid ) );
+    return Promise.resolve( cache.find( _b => _b.gid === gid ) );
   }
 
   function list() {
 
-    if( !bundles ) {
-      return refresh().then( _ => bundles );
+    if( !getCache() ) {
+      return refresh().then( _ => getCache() );
     }
 
-    return Promise.resolve( bundles );
+    return Promise.resolve( getCache() );
   }
 
   function refresh() {
 
-    return ListingsSvc.listProductBundles().then( resp => bundles = resp.bundles );
+    return $q.when( api.listProductBundles() ).then( resp => updateCache( resp.bundles ) );
 
   }
 
   function set( gid, bundle ) {
-    return ListingsSvc.setProductBundle( gid, bundle ).then( refresh );
+
+    return $q.when( api.setProductBundle( gid, bundle ) ).then( _ => {
+
+      const bundles = getCache();
+
+      if( bundles ) {
+
+        const foundIndex = bundles.findIndex( _b => _b.gid === gid );
+
+        if( foundIndex > -1 ) {
+
+          bundles[ foundIndex ].bundle = bundle;
+
+          updateCache( bundles );
+
+        }
+
+      }
+      else {
+        return refresh();
+      }
+
+    } );
   }
 
 
   return {
+    init,
     get,
     list,
     refresh,
@@ -135,51 +202,89 @@ angular.module('myApp').factory( 'ProductBundlesSvc', [ 'ListingsSvc', function(
 
 
 /*********************** Listing Shipping Configuration Service */
-angular.module('myApp').factory( 'ShippingConfigurationsSvc', [ 'ListingsSvc', 'ShippingItemsSvc', function( ListingsSvc, ShippingItemsSvc ) {
+angular.module('myApp').factory( 'ShippingConfigurationsSvc', [ '$localStorage', '$q', 'ShippingItemsSvc', function( $localStorage, $q, ShippingItemsSvc ) {
 
-  let configurations;
+  function init() {
+
+    const cache = getCache();
+
+    return cache ? Promise.resolve( cache ) : refresh();
+
+  }
+
+  function getCache() {
+
+    const cache = $localStorage[ 'ShippingConfigurationsSvcCache' ];
+    if( cache && cache.ttl && dayjs() < dayjs( cache.ttl ) ) {
+      return cache.configurations;
+    }
+
+  }
+
+  function updateCache( configurations ) {
+
+    $localStorage[ 'ShippingConfigurationsSvcCache' ] = {
+      configurations,
+      ttl: dayjs().add( 1, 'hours' )
+    };
+
+    console.log('Refreshed ShippingConfigurationsSvc cache:');
+    console.log( $localStorage[ 'ShippingConfigurationsSvcCache' ] );
+
+  }
 
   function get( gid ) {
 
-    if( !configurations ) {
-      return refresh().then( _ => configurations.find( _b => _b.gid === gid ) );
+    const cache = getCache();
+
+    if( !cache ) {
+      return refresh().then( _ => getCache().find( _b => _b.gid === gid ) );
     }
 
-    return Promise.resolve( configurations.find( _b => _b.gid === gid ) );
+    return Promise.resolve( cache.find( _b => _b.gid === gid ) );
   }
 
-  function list( { everydayBargainsOnly, includePallets, refreshCache } = {} ) {
+  function list() {
 
-    if( refreshCache || !configurations ) {
-      return refresh( { everydayBargainsOnly, includePallets } ).then( _ => configurations );
+    if( !getCache() ) {
+      return refresh().then( _ => getCache() );
     }
 
-    return Promise.resolve( configurations );
-  }
-
-  function refresh( { everydayBargainsOnly, includePallets } = {} ) {
-
-    return ListingsSvc.listShippingConfigurations( { everydayBargainsOnly, includePallets } ).then( resp => {
-
-      configurations = resp.configurations;
-
-      configurations.forEach( _c => _c.shippingConfiguration = _c.shippingConfiguration || [] );
-
-    });
+    return Promise.resolve( getCache() );
 
   }
 
-  function set( gid, configuration, refreshCache = true ) {
+  function refresh() {
 
-    let p = ListingsSvc.setShippingConfiguration( gid, configuration );
+    return $q.when( api.listShippingConfigurations( { everydayBargainsOnly: true, includePallets: true } ) ).then( resp => updateCache( resp.configurations ) );
 
-    if( refreshCache ) {
+  }
 
-      p = p.then( refreshCache );
+  function set( gid, configuration ) {
 
-    }
+    return $q.when( api.setShippingConfiguration( gid, configuration ) ).then( _ => {
 
-    return p;
+      const configurations = getCache();
+
+      if( configurations ) {
+
+        const foundIndex = configurations.findIndex( _b => _b.gid === gid );
+
+        if( foundIndex > -1 ) {
+
+          configurations[ foundIndex ].shippingConfiguration = configuration;
+
+          updateCache( configurations );
+
+        }
+
+      }
+      else {
+        return refresh();
+      }
+
+    } );
+
   }
 
 
@@ -191,6 +296,7 @@ angular.module('myApp').factory( 'ShippingConfigurationsSvc', [ 'ListingsSvc', '
       weightUnitsEnum: ShippingItemsSvc.weightUnitsEnum,
     },
 
+    init,
     get,
     list,
     refresh,
@@ -241,10 +347,10 @@ angular.module('myApp').factory( 'ListingTemplatesSvc', [ function( ) {
       byline1 = `<p>Lot of ${ totalUnits } products${ categoryAdditionalCopyString } with a total retail value of ${ util.displayAsMoney( estimatedRetailValue ) }.</p>`;
     }
     else if ( totalUnits ) {
-      byline1 = `<p>Lot of ${ totalUnits } products${ categoryAdditionalCopyString }.</p>`
+      byline1 = `<p>Lot of ${ totalUnits } products${ categoryAdditionalCopyString }.</p>`;
     }
     else if ( estimatedRetailValue ) {
-      byline1 = `<p>Lot with a total retail value of ${ util.displayAsMoney( estimatedRetailValue ) }.</p>`
+      byline1 = `<p>Lot with a total retail value of ${ util.displayAsMoney( estimatedRetailValue ) }.</p>`;
     }
 
     let byline2;
@@ -252,10 +358,10 @@ angular.module('myApp').factory( 'ListingTemplatesSvc', [ function( ) {
       byline2 = `<li> <span>🔥 <strong>${ totalUnits } Units</strong> valued at <strong>${ util.displayAsMoney( estimatedRetailValue ) }</strong>!</span></li>`;
     }
     else if ( totalUnits ) {
-      byline2 = `<li> <span>🔥 <strong>${ totalUnits } Units</strong>!</span></li>`
+      byline2 = `<li> <span>🔥 <strong>${ totalUnits } Units</strong>!</span></li>`;
     }
     else if ( estimatedRetailValue ) {
-      byline2 = `<li> <span>🔥 Valued at <strong>${ util.displayAsMoney( estimatedRetailValue ) }</strong>!</span></li>`
+      byline2 = `<li> <span>🔥 Valued at <strong>${ util.displayAsMoney( estimatedRetailValue ) }</strong>!</span></li>`;
     }
 
     return `

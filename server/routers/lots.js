@@ -143,6 +143,12 @@ function routes({ inventoryCommander, lotdb }) {
     uploadManifest
   );
 
+  router.put(
+    '/:lotId/lot-number',
+    auth.isAuthorized( 'EDIT_LOT' ),
+    generateLotNumber
+  );
+
   /*******************************************
    * Define Handlers
    * ===============
@@ -465,6 +471,23 @@ function routes({ inventoryCommander, lotdb }) {
 
       const lot = await lotdb.addImages( lotId, images );
 
+
+      res.json( { lot } );
+
+    }
+    catch(e) {
+      return next( e );
+    }
+
+  }
+
+  async function generateLotNumber( req, res, next ) {
+
+    try {
+
+      const lotId = req.params.lotId;
+
+      const lot = await lotdb.generateLotNumber( lotId );
 
       res.json( { lot } );
 

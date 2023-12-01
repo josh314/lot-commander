@@ -654,17 +654,217 @@ angular.module('myApp').factory( 'PackageLabelDataModalSvc', [ '$uibModal', func
           };
         },
       },
-      controller:  [ '$scope', '_packageData', 'dbEnums', 'palletProperties', function( $scope, _packageData, dbEnums, palletProperties ){
+      controllerAs: '$ctrl',
 
-        const vm = this;
-        vm.inputs = {
-          categoryOptions: [''].concat(palletProperties.category),
-          conditionOptions: dbEnums.lotType,
-          data: Object.assign( {}, _packageData )
-        };
+      controller:  [
 
-      }],
-      controllerAs: '$ctrl'
+        '$scope',
+        '_packageData',
+        'dbEnums',
+        'ListingsSvc',
+        'LoggedInUser',
+        'WaitingModalSvc',
+
+        function (
+
+          $scope,
+          _packageData,
+          dbEnums,
+          ListingsSvc,
+          LoggedInUser,
+          WaitingModalSvc
+
+        ){
+
+          const vm = this;
+          init();
+
+          function finish() {
+
+            const {
+              category,
+              condition,
+              units,
+              productUnits,
+              numPackage,
+              instantiate,
+            } = vm.inputs.data;
+
+            let productTitle, productId;
+            if( productUnits ) {
+              ( { productTitle, productId } = productUnits );
+            }
+
+            const res = {
+              category,
+              condition,
+              units,
+              productTitle,
+              productId,
+              numPackage,
+              instantiate,
+            };
+
+            $scope.$close( res );
+          }
+
+          function cmpProductUnitsPackageByDisplayName( a, b ) {
+            if( !a ){
+              return -1;
+            }
+            else if( !b ) {
+              return +1;
+            }
+            else {
+              return a.displayName < b.displayName ? -1 : +1;
+            }
+          }
+
+          function updateInputs() {
+
+            const productUnits = vm.inputs.data.productUnits;
+
+            if( productUnits ) {
+
+              const { units, category } = productUnits;
+              Object.assign( vm.inputs.data, { units, category, condition: 'shelf-pull' } );
+
+            }
+
+          }
+
+          function getCategoryFromProductTags( tags ) {
+
+            if( tags ) {
+
+              if( tags.find( t => t.match( /personal care/i ) ) && tags.find( t => t.match( /cosmetics/i ) ) ) {
+                return 'personal care w/ cosmetics';
+              }
+              else if( tags.find( t => t.match( /personal care/i ) ) ) {
+                return 'personal care';
+              }
+              else if( tags.find( t => t.match( /cosmetics/i ) ) ) {
+                return 'cosmetics';
+              }
+              else if( tags.find( t => t.match( /clothing/i ) ) ) {
+                return 'clothing';
+              }
+              else if( tags.find( t => t.match( /general merchandise/i ) ) ) {
+                return 'general merchandise';
+              }
+
+            }
+
+          }
+
+          function setProductUnitsPackageOptions( configurations ) {
+
+            const packageConfigurationMap =  configurations.reduce( ( acc, config ) => {
+
+              const { productTitle, productId, tags, shippingConfiguration } = config;
+
+              if( tags && tags.includes( 'bundle' ) ) {
+                return acc;
+              }
+
+              if( !shippingConfiguration ) {
+                return acc;
+              }
+
+              const thisPackageUnitsOptionsSet = new Set( config.shippingConfiguration.map( _ => _.units ) );
+
+              const existingPackage = acc.get( productId );
+
+              let $;
+              if( existingPackage ) {
+
+                const existingPackageUnitsOptionsSet = existingPackage.unitsOptionsSet;
+
+                $ = new Set ( [ ...existingPackageUnitsOptionsSet.keys(), ...thisPackageUnitsOptionsSet.keys() ] );
+
+              }
+              else {
+
+                $ = thisPackageUnitsOptionsSet;
+
+              }
+
+              acc.set( productId, { productTitle, category: getCategoryFromProductTags( tags ), unitsOptionsSet: $ } );
+
+              return acc;
+            }, new Map());
+
+            const productUnitsPackageOptions = [ null ];
+            for( let [ productId, value ] of packageConfigurationMap.entries() ) {
+
+              const { productTitle, category, unitsOptionsSet } = value;
+
+              for( let units of unitsOptionsSet.keys() ) {
+
+                let displayName = '';
+                if( productTitle && units ) {
+                  displayName = `${ productTitle } - ${ units }`;
+                }
+                else if( productTitle ) {
+                  displayName = productTitle;
+                }
+                else {
+                  displayName = `ERROR`;
+                }
+
+                productUnitsPackageOptions.push({
+                  productId,
+                  displayName,
+                  productTitle,
+                  units,
+                  category,
+                });
+
+              }
+
+            }
+
+            vm.inputs.productUnitsPackageOptions = productUnitsPackageOptions.sort( cmpProductUnitsPackageByDisplayName );
+            vm.inputs.data.productUnits = productUnitsPackageOptions[0];
+          }
+
+          function init() {
+
+            Object.assign(
+              vm,
+              {
+                isDeveloper: LoggedInUser.isDeveloper(),
+
+                inputs: {
+                  categoryOptions: [
+                    '',
+                    'general merchandise',
+                    'cosmetics',
+                    'personal care',
+                    'personal care w/ cosmetics',
+                    'clothing'
+                  ],
+                  conditionOptions: dbEnums.lotType,
+                  data: Object.assign( { instantiate: false, }, _packageData ),
+                },
+
+                // view methods
+                updateInputs,
+                finish
+              }
+            );
+
+            const p = ListingsSvc.listShippingConfigurations( { everydayBargainsOnly: true } ).then( setProductUnitsPackageOptions );
+
+            WaitingModalSvc.launch( {
+              waitFor: p,
+            } );
+
+          }
+
+        }
+      ],
+
     });
 
     return modalInstance.result;

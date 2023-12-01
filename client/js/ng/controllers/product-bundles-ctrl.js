@@ -22,6 +22,7 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
 
   'ListingsSvc',
   'ModalSvc',
+  'navigate',
   'ProductBundlesSvc',
   'sessionTimeout',
 
@@ -29,6 +30,7 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
 
     ListingsSvc,
     ModalSvc,
+    navigate,
     ProductBundlesSvc,
     sessionTimeout,
 
@@ -48,11 +50,20 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
       vm.saveProductBundleEdit = saveProductBundleEdit;
       vm.validateProductBundleEdit = validateProductBundleEdit;
 
+      vm.refreshCache = refreshCache;
+
       const p = setProductList().then( refreshBundlesList );
 
       ModalSvc.wait( {
         waitFor: p
       } );
+    }
+
+    async function refreshCache() {
+      await ModalSvc.wait( {
+        waitFor: ProductBundlesSvc.refresh()
+      } );
+      navigate.reload();
     }
 
     function refreshBundlesList() {
@@ -68,11 +79,15 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
               res.bundle = _bundle.bundle.map( _ => {
 
                 const productVariant = vm.productVariants.find( _pv => _pv.gid === _.gid );
-  
+
+                if( !productVariant ) {
+                  return null;
+                }
+
                 if( !util.isNan( parseInt( productVariant.title ) ) ) {
                   productVariant.units = parseInt( productVariant.title );
                 }
-  
+
                 return {
                   variant: productVariant,
                   quantity: _.quantity,
@@ -83,9 +98,9 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
               res.bundle = [];
             }
 
-            const everyVariantTitleIsNumerical = res.bundle.every( _item => !util.isNan( _item.variant.units ) );
+            const everyVariantTitleIsNumerical = res.bundle.every( _item => _item && _item.variant && !util.isNan( _item.variant.units ) );
             if( everyVariantTitleIsNumerical ) {
-              res.totalUnits = res.bundle.reduce( ( _total, _item ) => _total += _item.variant.units , 0 );
+              res.totalUnits = res.bundle.reduce( ( _total, _item ) => _total += _item.variant.units * _item.quantity , 0 );
             }
 
             return res;
@@ -100,7 +115,7 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
     function setProductList() {
       return ListingsSvc
         .listActiveProductVariants( { everydayBargainsOnly: true } )
-        .then( resp => { 
+        .then( resp => {
 
           const productVariantsForBundling = resp.productVariants.filter( _ => !_.tags.includes( 'bundle' ) );
 
@@ -147,6 +162,10 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
 
       productBundle.editBundle = productBundle.bundle.map( _bundleItem => {
 
+        if( ! _bundleItem ) {
+          return {};
+        }
+
         const _product = vm.products.find( _p => _p.gid === _bundleItem.variant.productGid );
 
         return {
@@ -178,7 +197,23 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
         return;
       }
 
-      const bundleToSave = productBundle.editBundle.map( _ => ({ gid: _.variantGid, quantity: _.quantity }) );
+      const bundleToSave = productBundle.editBundle.map( editBundleItem => {
+
+        const { variantGid, quantity, product } = editBundleItem;
+
+        const selectedVariant = product.variants.find( _ => _.gid === variantGid );
+
+        const res = {
+          gid: variantGid,
+          variantTitle: selectedVariant.title,
+          units: selectedVariant.units,
+          quantity,
+          productTitle: product.title,
+          productId: product.gid
+        };
+
+        return res;
+      } );
 
       const p = ProductBundlesSvc.set( productBundle.gid, bundleToSave )
         .then( _ => resetProductBundleEdit( productBundle ) )

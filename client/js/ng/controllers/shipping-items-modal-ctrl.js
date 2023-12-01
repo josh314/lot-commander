@@ -1,14 +1,16 @@
 import angular from 'angular';
 
 /***************** Modal Controller ************************/
-angular.module('myApp').controller('ShippingItemsModalCtrl', [ '$uibModalInstance', 'shippingItems', 'ShippingItemsSvc', 'skipValidation',
-  function( $uibModalInstance, shippingItems, ShippingItemsSvc, skipValidation ){ // skipValidation is passed in through the invocation in ShippingItemsModalSvc
+angular.module('myApp').controller('ShippingItemsModalCtrl', [ '$uibModalInstance', 'LoggedInUser', 'shippingItems', 'ShippingItemsSvc', 'skipValidation',
+  function( $uibModalInstance, LoggedInUser, shippingItems, ShippingItemsSvc, skipValidation ){ // skipValidation is passed in through the invocation in ShippingItemsModalSvc
     // copy shippingItems so we can edit the copy without affecting the original
     const _shippingItems = shippingItems ? JSON.parse( JSON.stringify( shippingItems ) ) : [];
     const weightUnitsEnum = ShippingItemsSvc.weightUnitsEnum;
     const lengthUnitsEnum = ShippingItemsSvc.lengthUnitsEnum;
 
     const vm = this;
+
+    vm.showDeveloper = LoggedInUser.isDeveloper();
 
     vm.weightUnitsEnum = weightUnitsEnum;
     vm.lengthUnitsEnum = lengthUnitsEnum;

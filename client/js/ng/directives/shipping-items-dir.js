@@ -10,7 +10,7 @@ angular.module('myApp').directive('shippingItemsDir', function(){
       editShippingItemsCb: '&',
       showPrintControls: '=',
       print: '&', // calls the expression in the directive attribute value (in the parent scope)
-      skipValidation: '='
+      skipValidation: '=',
     },
     controller: [ '$scope', 'ModalSvc', function ( $scope, ModalSvc ) {
 

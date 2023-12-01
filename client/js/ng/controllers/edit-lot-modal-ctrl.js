@@ -3,6 +3,7 @@ import angular from 'angular';
 /****************** Edit Lot Modal Controller ***********************/
 angular.module('myApp').controller( 'EditLotModalCtrl', [
 
+  'CounterSvc',
   'dbEnums',
   'ListingsSvc',
   'LoggedInUser',
@@ -14,6 +15,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
 
   function(
 
+    CounterSvc,
     dbEnums,
     ListingsSvc,
     LoggedInUser,
@@ -146,6 +148,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
           invalidLot,
           editShippingItemsCb,
           generateListingBodyHtml,
+          generateLotNumber
 
         }
       );
@@ -216,6 +219,12 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
         waitFor: p,
       });
 
+    }
+
+    function generateLotNumber() {
+      return CounterSvc.incrementPalletLotCounter().then( counter => {
+        vm.lot.lotNumber = counter.count;
+      } );
     }
 
 

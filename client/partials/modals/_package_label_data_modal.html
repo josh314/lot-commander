@@ -4,28 +4,41 @@
 <div class="modal-body">
 	<div class="row">
         <div class="form-group col-xs-12 col-sm-6">
+          <label for="productUnitsInput">Product</label>
+          <select class="form-control" id="productUnitsInput" ng-model="$ctrl.inputs.data.productUnits" ng-change="$ctrl.updateInputs()">
+              <option ng-repeat="$option in $ctrl.inputs.productUnitsPackageOptions" ng-value="$option">{{ $option.displayName }}</option>
+          </select>
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
             <label for="categoryInput">Category</label>
-            <select class="form-control" name="category" id="categoryInput" ng-model="$ctrl.inputs.data.category">
+            <select class="form-control" name="category" id="categoryInput" ng-model="$ctrl.inputs.data.category" ng-disabled="$ctrl.inputs.data.productUnits && $ctrl.inputs.data.productUnits.category">
                 <option ng-repeat="category in $ctrl.inputs.categoryOptions">{{ category }}</option>
             </select>
         </div>
         <div class="form-group col-xs-12 col-sm-6">
             <label for="conditionInput">Condition</label>
-            <select class="form-control" name="condition" id="conditionInput" ng-model="$ctrl.inputs.data.condition">
+            <select class="form-control" name="condition" id="conditionInput" ng-model="$ctrl.inputs.data.condition" ng-disabled="$ctrl.inputs.data.productUnits">
                 <option ng-repeat="condition in $ctrl.inputs.conditionOptions">{{ condition }}</option>
             </select>
         </div>
         <div class="form-group col-xs-12 col-sm-6">
             <label for="unitsInput">Units per package</label>
-            <input type="number" class="form-control" name="units" id="unitsInput" required ng-model="$ctrl.inputs.data.units"/>
+            <input type="number" class="form-control" name="units" id="unitsInput" required ng-model="$ctrl.inputs.data.units" ng-disabled="$ctrl.inputs.data.productUnits"/>
         </div>
         <div class="form-group col-xs-12 col-sm-6">
             <label for="numPackageInput">Number of packages</label>
             <input type="number" class="form-control" name="numPackage" id="numPackageInput" required ng-model="$ctrl.inputs.data.numPackage"/>
         </div>
+        <div class="form-group col-xs-12 col-sm-6" ng-show="$ctrl.isDeveloper">
+            <label for="instantiateInput">Instantiate?</label>
+            <select class="form-control" name="instantiate" id="instantiateInput" ng-model="$ctrl.inputs.data.instantiate">
+                <option ng-value="true">yes</option>
+                <option ng-value="false">no</option>
+            </select>
+        </div>
 	</div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-danger" type="button" ng-click="$close( $ctrl.inputs.data )" ng-disabled="!$ctrl.inputs.data.numPackage">Next</button>
+    <button class="btn btn-danger" type="button" ng-click="$ctrl.finish()" ng-disabled="!$ctrl.inputs.data.numPackage">Next</button>
     <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
 </div>

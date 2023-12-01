@@ -6,12 +6,14 @@ import * as util from '../../utilities';
 angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
 
   'ModalSvc',
+  'navigate',
   'ShippingConfigurationsSvc',
   'sessionTimeout',
 
   function(
 
     ModalSvc,
+    navigate,
     ShippingConfigurationsSvc,
     sessionTimeout,
 
@@ -37,6 +39,7 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
       vm.setProductGroupStandardBoxToPreset = setProductGroupStandardBoxToPreset;
       vm.updateProductGroupShippingItems = updateProductGroupShippingItems;
 
+      vm.refreshCache = refreshCache;
 
       const p = refreshShippingConfigurationsList();
 
@@ -45,8 +48,15 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
       } );
     }
 
+    async function refreshCache() {
+      await ModalSvc.wait( {
+        waitFor: ShippingConfigurationsSvc.refresh()
+      } );
+      navigate.reload();
+    }
+
     function refreshShippingConfigurationsList() {
-      return ShippingConfigurationsSvc.list( { everydayBargainsOnly: true, includePallets: true, refreshCache: true } )
+      return ShippingConfigurationsSvc.list(  )
         .then( configurations => {
 
           const productGroups = [];

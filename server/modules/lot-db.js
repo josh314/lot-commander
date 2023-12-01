@@ -13,6 +13,10 @@ module.exports = function( lotdbClient ) {
     return lotdbClient.getLotByHandle( handle, { populate } );
   }
 
+  function getLotsByHandles( handles, { populate } = {} ) {
+    return lotdbClient.getLotsByHandles( handles, { populate } );
+  }
+
   function listLots( query ) {
     return lotdbClient.listLots( query );
   }
@@ -59,9 +63,17 @@ module.exports = function( lotdbClient ) {
   }
 
   function markAsListed( lotId ) {
+    return updateStatus( lotId, 'Listed' );
+  }
+
+  function markAsShipped( lotId ) {
+    return updateStatus( lotId, 'Shipped' );
+  }
+
+  function updateStatus( lotId, status ) {
     const data = {
       _id: lotId,
-      status: 'Listed'
+      status
     };
     return lotdbClient.updateLot( data );
   }
@@ -70,6 +82,9 @@ module.exports = function( lotdbClient ) {
     return lotdbClient.deleteLot( lotId );
   }
 
+  function generateLotNumber( lotId ) {
+    return lotdbClient.generateLotNumber( lotId );
+  }
 
   return {
 
@@ -78,6 +93,7 @@ module.exports = function( lotdbClient ) {
     listLots,
     getLotById,
     getLotByHandle,
+    getLotsByHandles,
     deleteLot,
     createLot,
     editLot,
@@ -87,6 +103,8 @@ module.exports = function( lotdbClient ) {
     addImages,
     removeImage,
     markAsListed,
+    markAsShipped,
+    generateLotNumber,
 
   };
 

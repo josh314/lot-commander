@@ -234,7 +234,7 @@ class Server {
 
     // Lot DB
     const LotDbClient = require('./modules/lot-db-client').Client;
-    const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'))( new LotDbClient( models ) );
+    const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'))( new LotDbClient( Object.assign( { countCommander }, models ) ) );
 
     // Inventory commander - pallets, shipments
     const InventoryCommander = require('./modules/inventory-commander');
@@ -299,6 +299,9 @@ class Server {
     const ProductData = require( './modules/product-data' );
     const productData = new ProductData( { upcItemDb, mongo: this.mongooseConnection.db } );
 
+    const FulfillmentCommander = require( './modules/fulfillment-commander' );
+    const fulfillmentCommander = new FulfillmentCommander( Object.assign( { inventoryCommander, lotdb, shopifyOrders, shopifyAdminClient } , models ) );
+
     //======================================================
     // Main app routes =====================================
     //======================================================
@@ -307,6 +310,7 @@ class Server {
       bstock,
       countCommander,
       eventsDbClient,
+      fulfillmentCommander,
       inventoryCommander,
       listings: listingsSubmitter,
       lotdb,

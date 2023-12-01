@@ -46,36 +46,23 @@ function routes({ inventoryCommander, lotdb }) {
    *
    ****/
 
-  router.get('/labels/lots/:lotId', lotLabels);
-  router.get('/labels/incoming-shipments/:shipmentId/pallets-:palletList', incomingShipmentLabels);
-  router.get('/labels/incoming-shipments/:shipmentId/pallets-:palletList/:palletId', incomingShipmentPalletLabel);
+  // DEPRECATED
+  // router.get( '/labels/lots/:lotId', lotLabels );
+  // router.get( '/labels/incoming-shipments/:shipmentId/pallets-:palletList/:palletId', incomingShipmentPalletLabel );
 
+  router.get( '/labels/incoming-shipments/:shipmentId/pallets-:palletList', incomingShipmentLabels );
 
-  router.get('/labels/lots/:lotId/shipping-items', lotShippingItemsLabels );
+  router.get( '/labels/lots/:lotId/shipping-items', lotShippingItemsLabels );
   router.get( '/labels/pallets/:palletId/shipping-items', palletShippingItemsLabels );
   router.get( '/labels/pallets/:palletId/split-groups/:splitGroupId', palletSplitGroupLabels );
 
-  router.post('/labels/packages/', packageLabelsByIdList);
+  router.post( '/labels/packages/', packageLabelsByIdList );
 
   /*******************************************
    * Define handlers
    * ===============
    *
    ****/
-
-  function lotLabels(req, res, next) {
-    const lotId = req.params.lotId;
-    lotdb.getLotById(lotId)
-      .then(lot=>{
-        if(lot) {
-          print.createLotLabels(lot).pipe(res);
-        }
-        else {
-          throw new Error(`No lot found with id ${lotId}`);
-        }
-      })
-      .catch( next );
-  }
 
   function incomingShipmentLabels(req, res, next) {
     const shipmentId = req.params.shipmentId;
@@ -93,37 +80,6 @@ function routes({ inventoryCommander, lotdb }) {
         else {
 
           throw new Error(`No shipment found with id ${shipmentId}`);
-
-        }
-      })
-      .catch( next );
-  }
-
-  function incomingShipmentPalletLabel(req, res, next) {
-    const shipmentId = req.params.shipmentId;
-    const palletId = req.params.palletId;
-
-    inventoryCommander.getIncomingShipmentById( shipmentId )
-      .then( shipment => {
-
-        if( !shipment ) {
-
-          throw new Error(`No shipment found with id ${shipmentId}`);
-
-        }
-
-        const pallets = getPalletList( shipment, req.params.palletList );
-
-        const pallet = pallets.id( palletId );
-
-        if( pallet ) {
-
-          print.createPalletLabels( [ pallet.handle ], shipment.handle ).pipe(res);
-
-        }
-        else {
-
-          throw new Error(`No pallet found with id ${palletId} in shipment ${shipmentId}.`);
 
         }
       })
@@ -219,3 +175,50 @@ function routes({ inventoryCommander, lotdb }) {
   return router;
 
 }
+
+// DEPRECATED
+// function lotLabels(req, res, next) {
+//   const lotId = req.params.lotId;
+//   lotdb.getLotById(lotId)
+//     .then(lot=>{
+//       if(lot) {
+//         print.createLotLabels(lot).pipe(res);
+//       }
+//       else {
+//         throw new Error(`No lot found with id ${lotId}`);
+//       }
+//     })
+//     .catch( next );
+// }
+
+// DEPRECATED
+// function incomingShipmentPalletLabel(req, res, next) {
+//   const shipmentId = req.params.shipmentId;
+//   const palletId = req.params.palletId;
+
+//   inventoryCommander.getIncomingShipmentById( shipmentId )
+//     .then( shipment => {
+
+//       if( !shipment ) {
+
+//         throw new Error(`No shipment found with id ${shipmentId}`);
+
+//       }
+
+//       const pallets = getPalletList( shipment, req.params.palletList );
+
+//       const pallet = pallets.id( palletId );
+
+//       if( pallet ) {
+
+//         print.createPalletLabels( [ pallet.handle ], shipment.handle ).pipe(res);
+
+//       }
+//       else {
+
+//         throw new Error(`No pallet found with id ${palletId} in shipment ${shipmentId}.`);
+
+//       }
+//     })
+//     .catch( next );
+// }

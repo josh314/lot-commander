@@ -7,6 +7,7 @@ const bundle = require('./bundle');
 const lot = require('./lot');
 const counter = require('./counter');
 const shopifyOrder = require('./shopify-order');
+const shopifyOrderPick = require( './shopify-order-pick' );
 
 
 class ModelCommander {
@@ -22,6 +23,7 @@ class ModelCommander {
     this.Lot = mongooseConnection.model( 'Lot', lot.schema );
     this.Counter = mongooseConnection.model( 'Counter', counter.schema );
     this.ShopifyOrder = mongooseConnection.model( 'ShopifyOrder', shopifyOrder.schema );
+    this.ShopifyOrderPick = mongooseConnection.model( 'ShopifyOrderPick', shopifyOrderPick.schema );
 
   }
 

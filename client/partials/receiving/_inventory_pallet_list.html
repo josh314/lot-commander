@@ -9,6 +9,10 @@
         <input class="form-control" name="palletHandleFilter" ng-model="$ctrl.filter.handle" ng-keyup="$ctrl.refreshPalletsData()">
       </div>
       <div class="form-group col-xs-12 col-sm-6">
+        <label for="lotNumberFilter">Lot Number</label>
+        <input class="form-control" name="lotNumberFilter" ng-model="$ctrl.filter.lotNumber" ng-keyup="$ctrl.refreshPalletsData()">
+      </div>
+      <div class="form-group col-xs-12 col-sm-6">
         <label for="categoryFilter">Category</label>
         <select class="form-control" name="categoryFilter" ng-model="$ctrl.filter.category" ng-change="$ctrl.refreshPalletsData()">
           <option ng-repeat="cat in $ctrl.categoryOptions">{{ cat }}</option>

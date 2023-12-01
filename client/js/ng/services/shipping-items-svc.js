@@ -98,6 +98,7 @@ angular.module('myApp').service('ShippingItemsSvc', [ 'dbEnums', function( dbEnu
   function clean( shippingItem ) {
 
     const {
+      _id,
       weight,
       weightUnits,
       height,
@@ -109,6 +110,7 @@ angular.module('myApp').service('ShippingItemsSvc', [ 'dbEnums', function( dbEnu
     } = shippingItem;
 
     return {
+      _id,
       weight,
       weightUnits,
       height,

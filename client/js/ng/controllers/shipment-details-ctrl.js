@@ -807,24 +807,36 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
         condition: vm.shipment.condition,
       };
 
-      ModalSvc.packageLabelData( data ).then( _ => {
+      ModalSvc.packageLabelData( data ).then(
+        ( {
+          productId,
+          productTitle,
+          category,
+          condition,
+          units,
+          numPackage,
+          instantiate
+        } ) => {
 
-        const packageData = {
-          shipment: vm.shipment._id,
-          category: _.category,
-          condition: _.condition,
-          units: _.units,
-        };
+          const packageData = {
+            shipment: vm.shipment._id,
+            productId,
+            productTitle,
+            category,
+            condition,
+            units,
+          };
 
-        PackageSvc.createDuplicatePackages( packageData, _.numPackage ).then( resp => {
+          PackageSvc.createDuplicatePackages( packageData, numPackage, instantiate ).then( resp => {
 
-          const packageIds = resp.packages.map( pkg => pkg._id );
+            const packageIds = resp.packages.map( pkg => pkg._id );
 
-          PrintSvc.printPackageLabels( packageIds );
+            PrintSvc.printPackageLabels( packageIds );
 
-        });
+          });
 
-      });
+        }
+      );
 
     }
 
@@ -886,6 +898,8 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
         vm.shipment.palletsReceived = shipment.palletsReceived.map( p => DisplayPalletFactory( p, { shipment, type: 'received', checkCost: vm.showPurchasingData } ) );
         vm.shipment.palletsExpected = shipment.palletsExpected.map( p => DisplayPalletFactory( p, { shipment, type: 'expected', checkCost: vm.showPurchasingData } ) );
         vm.shipment.palletsConsolidated = shipment.palletsConsolidated.map( p => DisplayPalletFactory( p, { shipment, type: 'consolidated', checkCost: vm.showPurchasingData } ) );
+
+        console.log( vm.shipment );
 
       });
     }

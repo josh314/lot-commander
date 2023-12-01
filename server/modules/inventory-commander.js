@@ -177,6 +177,7 @@ const shipmentQueryFilter = ( { isReceived, handle, vendor, hasProblem, hasProbl
 
 const palletQueryFilter = ( {
   handle,
+  lotNumber,
   isReceived,
   isBrokendown,
   isAnonymous,
@@ -197,6 +198,10 @@ const palletQueryFilter = ( {
 
   if ( handle ) {
     filter.handle = handle;
+  }
+
+  if ( lotNumber ) {
+    filter.lotNumber = lotNumber;
   }
 
   if( shipment ) {
@@ -254,7 +259,7 @@ const palletQueryFilter = ( {
   return filter;
 };
 
-const packageQueryFilter = ( { handle, pallet, shipment, includeVirtual } ) => {
+const packageQueryFilter = ( { handle, pallet, shipment, isFulfilled, isInstantiated, includeVirtual } ) => {
   const filter = {
     isDeleted: false,
   };
@@ -269,6 +274,14 @@ const packageQueryFilter = ( { handle, pallet, shipment, includeVirtual } ) => {
 
   if( shipment ) {
     filter.shipment = shipment;
+  }
+
+  if( isFulfilled !== undefined ) {
+    filter.isFulfilled = isFulfilled;
+  }
+
+  if( isInstantiated !== undefined ) {
+    filter.isInstantiated = isInstantiated;
   }
 
   if( !includeVirtual ) {
@@ -1550,6 +1563,42 @@ class InventoryCommander {
     }
 
     return { package: pkg };
+
+  }
+
+  async fulfillPackage( pkgId ) {
+
+    const pkg = await this.getPackageById( pkgId );
+
+    if( !pkg ) {
+      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
+    }
+
+    if( pkg.isFulfilled ) {
+      return {};
+    }
+
+    await pkg.fulfill();
+
+    return { pkg };
+
+  }
+
+  async unfulfillPackage( pkgId ) {
+
+    const pkg = await this.getPackageById( pkgId );
+
+    if( !pkg ) {
+      throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
+    }
+
+    if( !pkg.isFulfilled ) {
+      return {};
+    }
+
+    await pkg.unfulfill();
+
+    return { pkg };
 
   }
 

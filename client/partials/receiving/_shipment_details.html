@@ -756,7 +756,7 @@
       <table class="table table-striped">
 
         <thead><tr>
-          <th>Category</th>
+          <th>Type</th>
           <th>Condition</th>
           <th>Units</th>
           <th>Number</th>
@@ -765,7 +765,7 @@
         <tbody>
           <tr ng-repeat="$package in $ctrl.shipment.packageAggregation track by $index">
             <td>
-              {{ $package.category }}
+              {{ $package.type }}
             </td>
             <td>
               {{ $package.condition }}

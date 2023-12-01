@@ -31,9 +31,10 @@ const lotQueryFilter = ( { handle, lotNumber, status } ) => {
 
 
 
-exports.Client = function( { Lot } ) {
+exports.Client = function( { Lot, countCommander } ) {
 
   this.LotModel = Lot;
+  this.countCommander = countCommander;
 
   this.countLots = function( filterParams ) {
 
@@ -68,7 +69,7 @@ exports.Client = function( { Lot } ) {
 
   };
 
-  this.submitNewLot = function(lot) {
+  this.submitNewLot = async function(lot) {
     //TODO: validation -> needs handle
     if(!lot.status) {
       lot.status = enums.lotStatus[0];
@@ -76,6 +77,11 @@ exports.Client = function( { Lot } ) {
 
     if( typeof lot.isDeleted !== 'boolean' ) {
       lot.isDeleted = false;
+    }
+
+    if( !lot.lotNumber ) {
+      const counter = await this.countCommander.incrementCounter( 'pallet-lots' , 1 );
+      lot.lotNumber = counter.count;
     }
 
     const newLot = new this.LotModel(lot);
@@ -187,6 +193,29 @@ exports.Client = function( { Lot } ) {
     };
 
     let q = this.LotModel.findOne( findDoc );
+
+    if( populate ) {
+
+      for( let path of populate ) {
+
+        q = q.populate( path );
+
+      }
+
+    }
+
+    return q.exec();
+
+  };
+
+  this.getLotsByHandles = function( handles, { populate } = {} ) {
+
+    const findDoc = {
+      handle: { $in: handles },
+      isDeleted: false
+    };
+
+    let q = this.LotModel.find( findDoc );
 
     if( populate ) {
 
@@ -326,6 +355,31 @@ exports.Client = function( { Lot } ) {
       lot.thirdPartyManifests.push(manifestData);
       return lot.save();
     });
+  };
+
+  this.generateLotNumber = async function( lotId ) {
+
+    const lot = await this.getLotById( lotId );
+
+    if( !lot ) {
+      throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
+    }
+
+
+    if( !lot.lotNumber ) {
+
+      const counter = await this.countCommander.incrementCounter( 'pallet-lots' , 1 );
+      lot.lotNumber = counter.count;
+
+      return lot.save();
+
+    }
+    else {
+
+      return lot;
+
+    }
+
   };
 };
 

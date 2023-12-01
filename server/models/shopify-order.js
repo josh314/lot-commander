@@ -88,6 +88,10 @@ const shopifyOrderSchema = mongoose.Schema({
   closed: Boolean,
   cancelledAt: Date,
   lineItems: [ lineItemSchema ],
+  orderPick: { // parent shopify order
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ShopifyOrderPick'
+  },
 }, { collection: 'shopify-orders', timestamps: true });
 
 shopifyOrderSchema.virtual( 'toBeFulfilled' )
@@ -108,6 +112,11 @@ shopifyOrderSchema.virtual( 'toBeFulfilled' )
     return false;
 
   } );
+
+shopifyOrderSchema.methods.removeOrderPick = function() {
+  this.orderPick = undefined;
+  return this.save();
+};
 
 /***************************
  * Export

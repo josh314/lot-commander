@@ -3,6 +3,12 @@ const { createCanvas } = require('canvas');
 const JsBarcode = require('jsbarcode');
 const dayjs = require( 'dayjs' );
 
+/*****************************************
+ * Constants
+ * =========
+ *
+ *******/
+
 const __LABEL_DIMENSIONS__ = [
   {
     width: 162,// 72/in * 2.25 in
@@ -10,36 +16,20 @@ const __LABEL_DIMENSIONS__ = [
   }
 ];
 
-function createNumBoxesLabels(opts={}) {
+const __MARGIN_HORIZONTAL__ = 10;
+const __MARGIN_VERTICAL__ = 5;
 
-  const doc = new PDFDocument({ autoFirstPage: false });
-  doc.fontSize(8);
-  for(let i=0; i<(opts.numLabels || 1); i++) {
-    doc.addPage({
-      margin: 0,
-      size: [ opts.label.width , opts.label.height ]
-    });
-    let canvas = createCanvas('image');
-    JsBarcode(canvas, opts.barcode.text, {
-      format: 'CODE39',
-      font: "monospace",
-      fontSize: 50,
-      fontOptions: "bold",
-      height: 125
-    });
+const __STANDARD_LABEL_PAGE__ = {
+  margins: {
+    top: __MARGIN_VERTICAL__,
+    bottom: __MARGIN_VERTICAL__,
+    left: __MARGIN_HORIZONTAL__,
+    right: __MARGIN_HORIZONTAL__
+  },
+  size: [ __LABEL_DIMENSIONS__[0].width , __LABEL_DIMENSIONS__[0].height ]
+};
 
-    const margin = 5;
-    doc
-      .image(canvas.toBuffer(), margin, 15, { width: opts.label.width - 2*margin })
-      .font('Helvetica').text(`(${i+1} of  `, 0, 5, { align: 'center', width: opts.label.width, continued: true })
-      .font('Helvetica-Bold').text(`${opts.numLabels}`, { continued: true, underline: true })
-      .font('Helvetica').text(`  )`, { continued: false, underline: false, stroke: false });
-
-  }
-
-  doc.end();
-  return doc;
-}
+const __STANDARD_BARCODE_HEIGHT__ = 125;
 
 const unitAbbreviations = {
   'pounds': 'lbs',
@@ -50,6 +40,12 @@ const unitAbbreviations = {
   'inches': 'in',
   'centimeters': 'cm'
 };
+
+/*****************************************
+ * helper methods
+ * ==============
+ *
+ *******/
 
 const getShippingItemDimString = (item) => {
   const dims = [];
@@ -68,64 +64,59 @@ const getShippingItemDimString = (item) => {
   return dims.join(' / ');
 };
 
-function createShippingItemsLabels(opts={}) {
+function setShippingItemDimString( doc, shippingItems, index ){
+  return doc
+    .fontSize( 5 )
+    .font('Helvetica').text(
+      `[ ${getShippingItemDimString( shippingItems[ index ] )} ] (${ index+1 } of ${ shippingItems.length })`,
+      {
+        align: 'center',
+      }
+    );
+}
 
-  const doc = new PDFDocument({ autoFirstPage: false });
-  doc.fontSize(8);
-  for(let i=0; i<(opts.shippingItems.length || 1); i++) {
-    doc.addPage({
-      margin: 0,
-      size: [ opts.label.width , opts.label.height ]
+function addBarcode( doc, barcodeText ) {
+
+  let canvas = createCanvas('image');
+  JsBarcode(
+    canvas,
+    decodeURIComponent( barcodeText ),
+    {
+      format: 'CODE128',
+      displayValue: true,
+      height: __STANDARD_BARCODE_HEIGHT__,
+    }
+  );
+
+  return doc
+    .image(canvas.toBuffer(), {
+      fit: [
+        __LABEL_DIMENSIONS__[0].width -2*__MARGIN_HORIZONTAL__,
+        __STANDARD_BARCODE_HEIGHT__
+      ]
     });
-    let canvas = createCanvas('image');
-    JsBarcode(canvas, opts.barcode.text, {
-      format: 'CODE39',
-      font: "monospace",
-      fontSize: 50,
-      fontOptions: "bold",
-      height: 125
-    });
+}
 
-    const margin = 5;
-    doc
-      .image(canvas.toBuffer(), margin, 15, { width: opts.label.width - 2*margin })
-      // .text(
-      //   `(${i+1} of ${opts.shippingItems.length}) [ ${getShippingItemDimString(opts.shippingItems[i])} ]`,
-      //   0,
-      //   5,
-      //   { align: 'center', width: opts.label.width }
-      // )
-      .font('Helvetica').text(`( ${i+1} of `, 10, 5, { width: opts.label.width, continued: true })
-      .font('Helvetica-Bold').text(`${opts.shippingItems.length}`, { continued: true, underline: true })
-      .font('Helvetica').text(` ) [ ${getShippingItemDimString(opts.shippingItems[i])} ]`, { continued: false, underline: false });
+function addStandardLabel( doc ) {
+  return doc.addPage( __STANDARD_LABEL_PAGE__ );
+}
 
-  }
+function newShippingItemLabel( doc, shippingItems, index ) {
 
-  doc.end();
+  addStandardLabel( doc );
+
+  setShippingItemDimString( doc, shippingItems, index );
+
+  addBarcode( doc, shippingItems[ index ]._id );
+
   return doc;
 }
 
-function createLotLabels(lot) {
-  const labelProps = {
-    barcode: {
-      text: decodeURIComponent(lot.handle),
-    },
-    label: {
-      width: 162,// 72/in * 2.25 in
-      height: 90, // 72/in * 1.25 in
-    }
-  };
-
-  if(lot.numBoxes) {
-    return createNumBoxesLabels(Object.assign(labelProps, { numLabels: lot.numBoxes}));
-  }
-  else if (lot.shippingItems && lot.shippingItems.length > 0 ) {
-    return createShippingItemsLabels(Object.assign(labelProps, { shippingItems: lot.shippingItems }));
-  }
-  else {
-    throw new Error(`Lot ${lot._id} has no shipping packages data.`);
-  }
-}
+/*****************************************
+ * Exported methods
+ * ================
+ *
+ *******/
 
 function createPickReceipt(order) {
   // Layout dimensions
@@ -268,53 +259,34 @@ function createPalletLabels( palletIds, shipmentId ) {
 
 function createPackageLabels( packages ) {
 
-  const labelDims = {
-    width: 162,// 72/in * 2.25 in
-    height: 90, // 72/in * 1.25 in
-  };
-
 
   const doc = new PDFDocument({ autoFirstPage: false });
-  doc.fontSize(8);
-
 
   for( const pkg of packages ) {
 
-    doc.addPage({
-      margin: 0,
-      size: [ labelDims.width , labelDims.height ]
-    });
+    addStandardLabel( doc );
+    addBarcode( doc, pkg._id );
 
-    let canvas = createCanvas('image');
-    JsBarcode(
-      canvas,
-      decodeURIComponent( pkg._id ),
-      {
-        format: 'CODE128',
-        displayValue: true,
-        height: 125,
-      }
-    );
+    doc
+      .fontSize(5)
+      .moveDown();
 
-    if( pkg.shipment ) {
+    if( pkg.productTitle ) {
       doc
-        .font('Helvetica').text(`Shipment: `, 10, 5, { width: labelDims.width, continued: true })
-        .font('Helvetica-Bold').text(`${pkg.shipment.handle}`, { continued: false, underline: true })
-        .fontSize(5)
-        .font('Helvetica').text(`Category: ${ pkg.category}`, { continued: false } )
-        .font('Helvetica').text(`Condition: ${ pkg.condition}`, { continued: false } )
-        .font('Helvetica').text(`Units: ${ pkg.units}`, { continued: false } );
+        .font('Helvetica').text(`Product: `, { continued: true })
+        .font('Helvetica-Bold').text(`${ pkg.productTitle }`, { underline: true });
+    }
+    else if ( pkg.category ) {
+      doc
+        .font('Helvetica').text(`Category: `, { continued: true })
+        .font('Helvetica-Bold').text(`${ pkg.category }`, { underline: true });
     }
 
-    const margin = 5;
     doc
-      .image(
-        canvas.toBuffer(),
-        margin,
-        36,
-        { width: labelDims.width - 2*margin }
-      );
-
+      .font('Helvetica').text(`Condition: ${ pkg.condition}`, { continued: false } )
+      .font('Helvetica').text(`Units: ${ pkg.units}`, { continued: false } )
+      .font('Helvetica').text(`Date: `, { continued: true })
+      .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
 
   }
 
@@ -324,39 +296,17 @@ function createPackageLabels( packages ) {
 
 function createPalletShippingItemsLabels( pallet ) {
 
-  const labelDims = __LABEL_DIMENSIONS__[0];
-
   const doc = new PDFDocument({ autoFirstPage: false });
-
 
   for( let i=0; i<pallet.shippingItems.length; i++ ) {
 
-    const shippingItem = pallet.shippingItems[i];
-
-    doc.addPage({
-      margins: {
-        top: 5,
-        bottom: 5,
-        left: 10,
-        right: 10
-      },
-      size: [ labelDims.width , labelDims.height ]
-    });
-
-    doc
-      .fontSize( 5 )
-      .font('Helvetica').text(
-        `[ ${getShippingItemDimString( shippingItem )} ] (${ i+1 } of ${ pallet.shippingItems.length })`,
-        {
-          align: 'center',
-        }
-      )
-      .moveDown();
+    newShippingItemLabel( doc, pallet.shippingItems, i );
+    doc.fontSize( 8 ).moveDown();
 
     if( pallet.toBeListed && pallet.lotNumber ) {
 
       doc
-        .fontSize( 12 )
+        .fontSize( 5 )
         .font('Helvetica').text(`Lot number: `, { continued: true })
         .font('Helvetica-Bold').text(`${pallet.lotNumber}`, { underline: true });
 
@@ -365,18 +315,19 @@ function createPalletShippingItemsLabels( pallet ) {
     }
     else {
 
+      const printShipment = !!(pallet.shipment && pallet.shipment.handle);
+
       doc
-        .fontSize( 8 )
+        .fontSize( 5 )
         .font('Helvetica').text(`Pallet: `, { continued: true })
-        .font('Helvetica-Bold').text(`${pallet.handle}`, { underline: true });
-
-      doc.fontSize( 5 ).moveDown();
+        .font('Helvetica-Bold').text(`${pallet.handle}`, { underline: true, continued: printShipment });
 
 
-      if( pallet.shipment && pallet.shipment.handle ) {
+      if( printShipment ) {
 
         doc
           .fontSize( 5 )
+          .text(`     `, { underline: false, continued: true })
           .font('Helvetica').text(`Shipment: `, { continued: true })
           .font('Helvetica-Bold').text(`${pallet.shipment.handle}`, { underline: true });
 
@@ -386,7 +337,7 @@ function createPalletShippingItemsLabels( pallet ) {
     }
 
     doc
-      .fontSize(5)
+      .fontSize( 5 )
       .font('Helvetica').text(`Date: `, { continued: true })
       .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
 
@@ -398,92 +349,64 @@ function createPalletShippingItemsLabels( pallet ) {
 
 function createPalletSplitGroupLabels( splitGroup, pallet ) {
 
-  const labelDims = __LABEL_DIMENSIONS__[0];
-
   const doc = new PDFDocument({ autoFirstPage: false });
-
 
   for( let i=0; i<splitGroup.shippingItems.length; i++ ) {
 
-    const shippingItem = splitGroup.shippingItems[i];
+    newShippingItemLabel( doc, splitGroup.shippingItems, i );
 
-    doc.addPage({
-      margins: {
-        top: 5,
-        bottom: 5,
-        left: 10,
-        right: 10
-      },
-      size: [ labelDims.width , labelDims.height ]
-    });
-
-    doc
-      .fontSize( 5 )
-      .font('Helvetica').text(
-        `[ ${getShippingItemDimString( shippingItem )} ] (${ i+1 } of ${ splitGroup.shippingItems.length })`,
-        {
-          align: 'center',
-        }
-      );
-
-    doc.fontSize( 5 ).moveDown();
-
-
+    doc.fontSize( 3 ).moveDown();
 
     if( splitGroup.toBeListed && splitGroup.lotNumber ) {
 
       // lot number
       doc
-        .fontSize( 12 )
+        .fontSize( 7 )
         .font('Helvetica').text(`Lot number: `, { continued: true })
-        .font('Helvetica-Bold').text(`${splitGroup.lotNumber}`, { underline: true });
-
-      doc.fontSize( 5 ).moveDown();
-
-    } // if( splitGroup.toBeListed && splitGroup.lotNumber )
-
-
-    if( splitGroup.label ) {
-
-      // split group
-      doc
-        .fontSize( 8 )
-        .font('Helvetica').text(`Split group: `, { continued: true })
+        .font('Helvetica-Bold').text(`${splitGroup.lotNumber}`, { underline: true, continued: true })
+        .text(`     `, { underline: false, continued: true })
+        .font('Helvetica').text(`Split group: `, { underline: false, continued: true })
         .font('Helvetica-Bold').text(`${splitGroup.label}`, { underline: true });
 
       doc.fontSize( 5 ).moveDown();
 
-    } // if ( splitGroup.label )
-
-
-    if( pallet && !(splitGroup.toBeListed && splitGroup.lotNumber) ) {
-
-      // pallet id
       doc
-        .fontSize( 12 )
-        .font('Helvetica').text(`Pallet: `, { continued: true })
-        .font('Helvetica-Bold').text(`${pallet.handle}`, { underline: true });
+        .fontSize( 5 )
+        .font('Helvetica').text(`Date: `, { continued: true })
+        .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
+
+    } // if( splitGroup.toBeListed && splitGroup.lotNumber )
+    else {
+
+      // split group
+      doc
+        .fontSize( 7 )
+        .font('Helvetica').text(`Split group: `, { continued: true })
+        .font('Helvetica-Bold').text(`${splitGroup.label}`, { underline: true, continued: true })
+        .text(`     `, { underline: false, continued: true })
+        .font('Helvetica').text(`Date: `, { underline: false, continued: true })
+        .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
 
       doc.fontSize( 5 ).moveDown();
 
-      if( pallet.shipment && pallet.shipment.handle ) {
+      const printShipment = !!(pallet.shipment && pallet.shipment.handle);
+      // pallet id
+      doc
+        .fontSize( 5 )
+        .font('Helvetica').text(`Pallet: `, { continued: true })
+        .font('Helvetica-Bold').text(`${pallet.handle}`, { underline: true, continued: printShipment });
+
+      if( printShipment ) {
 
         // Shipment
         doc
-          .fontSize( 5 )
+          .text(`     `, { underline: false, continued: true })
           .font('Helvetica').text(`Shipment: `, { continued: true })
-          .font('Helvetica-Bold').text(`${pallet.shipment.handle}`, { underline: true })
-          .moveDown();
+          .font('Helvetica-Bold').text(`${pallet.shipment.handle}`, { underline: true });
 
-      } // if( pallet && pallet.shipment && pallet.shipment.handle )
+      } // if( pallet.shipment && pallet.shipment.handle )
 
-    } // else
-
-    // Date
-    doc
-      .fontSize( 8 )
-      .font('Helvetica').text(`Date: `, { continued: true })
-      .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
+    }
 
   }
 
@@ -493,55 +416,37 @@ function createPalletSplitGroupLabels( splitGroup, pallet ) {
 
 function createLotShippingItemsLabels( lot ) {
 
-  const labelDims = __LABEL_DIMENSIONS__[0];
-
   const doc = new PDFDocument({ autoFirstPage: false });
-
 
   for( let i=0; i<lot.shippingItems.length; i++ ) {
 
-    const shippingItem = lot.shippingItems[i];
+    newShippingItemLabel( doc, lot.shippingItems, i );
 
-    doc.addPage({
-      margins: {
-        top: 5,
-        bottom: 5,
-        left: 10,
-        right: 10
-      },
-      size: [ labelDims.width , labelDims.height ]
-    });
-
-    doc
-      .fontSize( 5 )
-      .font('Helvetica').text(
-        `[ ${getShippingItemDimString( shippingItem )} ] (${ i+1 } of ${ lot.shippingItems.length })`,
-        {
-          align: 'center',
-        }
-      )
-      .moveDown();
+    doc.fontSize( 8 ).moveDown();
+    doc.fontSize( 8 );
 
     if( lot.lotNumber ) {
 
+      // lot number
       doc
-        .fontSize( 12 )
         .font('Helvetica').text(`Lot number: `, { continued: true })
-        .font('Helvetica-Bold').text(`${lot.lotNumber}`, { underline: true });
+        .font('Helvetica-Bold').text(`${lot.lotNumber}`, { underline: true, continued: true });
+
     }
-    else if( lot.handle ) {
+    else {
+
+      // lot handle
       doc
-        .fontSize( 8 )
-        .moveDown()
-        .font('Helvetica').text(`Handle: `, { continued: true })
-        .font('Helvetica-Bold').text(`${lot.handle}`, { underline: true });
+        .font('Helvetica').text(`Lot: `, { continued: true })
+        .font('Helvetica-Bold').text(`${lot.handle}`, { underline: true, continued: true });
+
     }
 
     doc
-      .fontSize( 8 )
-      .moveDown()
+      .text(`     `, { underline: false, continued: true })
       .font('Helvetica').text(`Date: `, { continued: true })
       .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
+
 
   }
 
@@ -555,6 +460,102 @@ module.exports = {
   createPalletLabels,
   createPalletShippingItemsLabels,
   createPalletSplitGroupLabels,
-  createLotLabels,
   createPickReceipt,
+
+  // DEPRECATED
+  // createLotLabels,
 };
+
+
+// DEPRECATED
+// function createNumBoxesLabels(opts={}) {
+
+//   const doc = new PDFDocument({ autoFirstPage: false });
+//   doc.fontSize(8);
+//   for(let i=0; i<(opts.numLabels || 1); i++) {
+//     doc.addPage({
+//       margin: 0,
+//       size: [ opts.label.width , opts.label.height ]
+//     });
+//     let canvas = createCanvas('image');
+//     JsBarcode(canvas, opts.barcode.text, {
+//       format: 'CODE39',
+//       font: "monospace",
+//       fontSize: 50,
+//       fontOptions: "bold",
+//       height: 125
+//     });
+
+//     const margin = 5;
+//     doc
+//       .image(canvas.toBuffer(), margin, 15, { width: opts.label.width - 2*margin })
+//       .font('Helvetica').text(`(${i+1} of  `, 0, 5, { align: 'center', width: opts.label.width, continued: true })
+//       .font('Helvetica-Bold').text(`${opts.numLabels}`, { continued: true, underline: true })
+//       .font('Helvetica').text(`  )`, { continued: false, underline: false, stroke: false });
+
+//   }
+
+//   doc.end();
+//   return doc;
+// }
+
+// DEPRECATED
+// function createShippingItemsLabels(opts={}) {
+
+//   const doc = new PDFDocument({ autoFirstPage: false });
+//   doc.fontSize(8);
+//   for(let i=0; i<(opts.shippingItems.length || 1); i++) {
+//     doc.addPage({
+//       margin: 0,
+//       size: [ opts.label.width , opts.label.height ]
+//     });
+//     let canvas = createCanvas('image');
+//     JsBarcode(canvas, opts.barcode.text, {
+//       format: 'CODE39',
+//       font: "monospace",
+//       fontSize: 50,
+//       fontOptions: "bold",
+//       height: 125
+//     });
+
+//     const margin = 5;
+//     doc
+//       .image(canvas.toBuffer(), margin, 15, { width: opts.label.width - 2*margin })
+//       // .text(
+//       //   `(${i+1} of ${opts.shippingItems.length}) [ ${getShippingItemDimString(opts.shippingItems[i])} ]`,
+//       //   0,
+//       //   5,
+//       //   { align: 'center', width: opts.label.width }
+//       // )
+//       .font('Helvetica').text(`( ${i+1} of `, 10, 5, { width: opts.label.width, continued: true })
+//       .font('Helvetica-Bold').text(`${opts.shippingItems.length}`, { continued: true, underline: true })
+//       .font('Helvetica').text(` ) [ ${getShippingItemDimString(opts.shippingItems[i])} ]`, { continued: false, underline: false });
+
+//   }
+
+//   doc.end();
+//   return doc;
+// }
+
+// DEPRECATED
+// function createLotLabels(lot) {
+//   const labelProps = {
+//     barcode: {
+//       text: decodeURIComponent(lot.handle),
+//     },
+//     label: {
+//       width: 162,// 72/in * 2.25 in
+//       height: 90, // 72/in * 1.25 in
+//     }
+//   };
+
+//   if(lot.numBoxes) {
+//     return createNumBoxesLabels(Object.assign(labelProps, { numLabels: lot.numBoxes}));
+//   }
+//   else if (lot.shippingItems && lot.shippingItems.length > 0 ) {
+//     return createShippingItemsLabels(Object.assign(labelProps, { shippingItems: lot.shippingItems }));
+//   }
+//   else {
+//     throw new Error(`Lot ${lot._id} has no shipping packages data.`);
+//   }
+// }

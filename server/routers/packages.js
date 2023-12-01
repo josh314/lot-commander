@@ -28,6 +28,15 @@ const listPackagesFilterParamsFromQueryParams = ( qp ) => {
     fp.units = parseInt(qp.units);
   }
 
+  if( 'is_fulfilled' in qp ) {
+    fp.isFulfilled = !!parseInt(qp.is_fulfilled);
+  }
+
+  if( 'is_instantiated' in qp ) {
+    fp.isInstantiated = !!parseInt(qp.is_instantiated);
+  }
+
+
   if( 'include_virtual' in qp ) {
     fp.includeVirtual = !!parseInt( qp.include_virtual );
   }
@@ -80,6 +89,12 @@ function routes( { eventsDb, inventoryCommander } ) {
     '/:pkgId/is-instantiated',
     auth.isAuthorized( 'EDIT_PACKAGE' ),
     instantiatePackage
+  );
+
+  router.put(
+    '/:pkgId/is-fulfilled',
+    auth.isAuthorized( 'EDIT_PACKAGE' ),
+    fulfillPackage
   );
 
   /*******************************************
@@ -250,6 +265,32 @@ function routes( { eventsDb, inventoryCommander } ) {
         }
 
         res.json( { success: true } );
+
+      }
+      else {
+        throw new InvalidRequestError();
+      }
+
+    }
+    catch(e) {
+      return next( e );
+    }
+
+  }
+
+
+  async function fulfillPackage( req, res, next ) {
+
+    try {
+
+      if( 'isFulfilled' in req.body && typeof req.body.isFulfilled === 'boolean' ) {
+
+        const isFulfilled = req.body.isFulfilled;
+        const pkgId = req.params.pkgId;
+
+        const { pkg } = isFulfilled ? await inventoryCommander.fulfillPackage( pkgId ) : await inventoryCommander.unfulfillPackage( pkgId );
+
+        res.json( { pkg } );
 
       }
       else {

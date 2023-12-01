@@ -19,6 +19,7 @@ function routes({
   bstock,
   countCommander,
   eventsDbClient,
+  fulfillmentCommander,
   inventoryCommander,
   listings,
   lotdb,
@@ -69,7 +70,7 @@ function routes({
   router.use('/api/documents', require('./documents')( ) );
 
   // shopify orders
-  router.use('/api/orders', require('./orders')( { shopifyOrders } ) );
+  router.use('/api/orders', require('./orders')( { shopifyOrders, fulfillmentCommander } ) );
 
   // counter app
   router.use('/api/counters', require('./counters')( { countCommander } ) );

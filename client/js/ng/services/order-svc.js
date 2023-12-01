@@ -111,21 +111,30 @@ angular.module('myApp').service( 'OrderSvc', [
   ) {
 
     return {
-      get: getOrder,
+      init,
+      getOrder,
       list: listOrders,
       count: countOrders,
-      unfulfilledOrderQueue
+      unfulfilledOrderQueue,
+      startOrderPick
     };
 
-    function getOrder( orderId ) {
-      return $q.when( api.getOrder( orderId ) );
+    function init() {
+      return Promise.all([
+        ProductBundlesSvc.init(),
+        ShippingConfigurationsSvc.init( { everydayBargainsOnly: true, includePallets: true } )
+      ]);
     }
 
-    function listOrders( { filter, sort, num, page, hydrateLineItems = false } ) {
+    function getOrder( orderId, { populate = [], hydrateLineItems = false } = {}  ) {
+      return $q.when( api.getOrder( orderId, { populate } ) ).then( order => new Order( order, { hydrateLineItems } ));
+    }
+
+    function listOrders( { filter, sort, num, page, hydrateLineItems = false, populate } ) {
 
       const query = {
         num,
-        page
+        page,
       };
 
       Object.assign( query, queryParams(filter) );
@@ -135,15 +144,10 @@ angular.module('myApp').service( 'OrderSvc', [
         query.sort_dir = sort.ascending ? 1 : -1;
       }
 
-      return $q.when( api.listOrders( query ) ).then( async orders => {
+      return $q.when( api.listOrders( query, { populate } ) ).then( async orders => {
         if( !orders ) {
           return [];
         }
-
-        await Promise.all([
-          ProductBundlesSvc.refresh(),
-          ShippingConfigurationsSvc.refresh( { everydayBargainsOnly: true, includePallets: true } )
-        ]);
 
         return orders.map( data => new Order( data, { hydrateLineItems } ) );
 
@@ -189,6 +193,7 @@ angular.module('myApp').service( 'OrderSvc', [
             ascending: true
           },
           hydrateLineItems: true,
+          populate: [ 'orderPick' ]
         } );
 
         allOrders = allOrders.concat( orders );
@@ -326,6 +331,9 @@ angular.module('myApp').service( 'OrderSvc', [
 
     }
 
+    function startOrderPick( orderId ) {
+      return $q.when( api.startOrderPick( orderId ) ).then( order => new Order( order, { hydrateLineItems: true } ) );
+    }
 
   }
 ]);
@@ -334,10 +342,12 @@ angular.module('myApp').service( 'OrderSvc', [
 angular.module('myApp').factory( 'Order', [
 
   'LineItem',
+  'OrderPick',
 
   function(
 
     LineItem,
+    OrderPick,
 
   ) {
 
@@ -358,7 +368,8 @@ angular.module('myApp').factory( 'Order', [
                 return _lineItemData;
               }
             } ),
-            createdAt: new Date( _data.createdAt )
+            createdAt: new Date( _data.createdAt ),
+            orderPick: new OrderPick( _data )
           }
         );
 
@@ -517,3 +528,310 @@ angular.module('myApp').factory( 'LineItem', [
   }
 ]);
 
+/*********************** OrderPick class */
+angular.module('myApp').factory( 'OrderPick', [
+
+  '$q',
+  'ManualPickItemModalSvc',
+  'PackageSvc',
+
+  function( $q, ManualPickItemModalSvc, PackageSvc ) {
+
+    class PickItem {
+      constructor( _data, orderPick ) {
+
+        Object.assign(
+          this,
+          _data,
+          {
+            orderPick
+          }
+        );
+
+      }
+
+      pick( { pkg, shippingItem } = {} ) {
+        return this.orderPick.pickItem( this._id, { pkg, shippingItem } );
+      }
+
+      manualPick() {
+        return ManualPickItemModalSvc.launch().then( pkg => this.pick( { pkg } ) );
+      }
+
+      undoPick() {
+        return this.orderPick.unpickItem( this._id );
+      }
+
+    }
+
+    class OrderPick {
+      constructor( order ) {
+
+        Object.assign(
+          this,
+          {
+            order
+          }
+        );
+
+        if( !order.orderPick ) {
+          return;
+        }
+
+        if( typeof order.orderPick === 'string' ) {
+          this._id = order.orderPick;
+          return;
+        }
+
+        Object.assign(
+          this,
+          order.orderPick,
+        );
+
+        this.buildPickLists();
+
+      }
+
+      buildPickLists( ) {
+
+        const pickItems = Array.isArray( this.pickItems ) ? this.pickItems : [];
+
+        const pickListMap = pickItems.reduce( ( map, pickItem ) => {
+
+          const {
+
+            lineItemId,
+            lineItemCount,
+
+          } = pickItem;
+
+          const key = `${ lineItemId }:${ lineItemCount }`;
+
+          let value = map.get( key );
+          if( !value ) {
+
+            value = [];
+
+            map.set( key, value );
+
+          }
+
+          value.push( new PickItem( pickItem, this ) );
+
+          return map;
+        }, new Map());
+
+        this.pickLists = [ ...pickListMap.values( ) ];
+
+      }
+
+      pickByLabel( label ) {
+
+        const pickItem = this.getPickItemForShippingItem( label );
+
+        if( pickItem ) {
+
+          if( pickItem.isPicked ) {
+            return Promise.resolve( { pickItem, error: `The shipping item '${label}' has already been picked.` } );
+          }
+          else {
+            return pickItem.pick().then( updatedPickItem => ({ pickItem: updatedPickItem }) );
+          }
+
+        }
+
+        return PackageSvc.get( label ).then( pkg => {
+
+          if( pkg ) {
+
+            if( pkg.isFulfilled ) {
+              return {
+                error: `The package '${label}' has already been fulfilled.`
+              };
+            }
+
+            const _pickItem = this.getPickItemForPackage( pkg );
+
+            if( _pickItem ) {
+              return _pickItem.pick( { pkg: label } ).then( updatedPickItem => ({ pickItem: updatedPickItem }) );
+            }
+            else {
+              return {
+                error: `No valid pick item in this order for package '${label}'.`
+              };
+            }
+          }
+
+          return {
+            error: `The label '${label}' was not found.`,
+          };
+
+        });
+
+      }
+
+
+      getPickItemForPackage( pkg ) {
+
+        for( let pickList of this.pickLists ) {
+
+          const foundPickItem = pickList.find( _item => {
+
+            const itemCompareProductId = _item.bundleProductId || _item.productId;
+
+            return !_item.isPicked && ( itemCompareProductId === pkg.productId ) && ( _item.units === pkg.units );
+
+          });
+
+          if( foundPickItem ) {
+            return foundPickItem;
+          }
+
+        }
+
+      }
+
+      getPickItemForShippingItem( shippingItem ) {
+
+        for( let pickList of this.pickLists ) {
+
+          const foundPickItem = pickList.find( _item => _item.shippingItem === shippingItem );
+
+          if( foundPickItem ) {
+            return foundPickItem;
+          }
+
+        }
+
+      }
+
+      pickItem( pickItemId, { pkg, shippingItem } = {} ) {
+        return $q.when( api.pickItem( this._id, pickItemId, { pkg, shippingItem } ) ).then(  this._updatePickItemFromResponse.bind( this ) );
+      }
+
+      _updatePickItemFromResponse( resp ) {
+
+        const { orderPick: _orderPick, pickItem } = resp;
+
+        let newPickItem;
+        for( let pickList of this.pickLists ) {
+
+          const foundPickListIndex = pickList.findIndex( _item => _item._id === pickItem._id );
+
+          if( foundPickListIndex > -1 ) {
+
+            const foundPickItemsIndex = this.pickItems.findIndex( _item => _item._id === pickItem._id );
+
+            if( foundPickItemsIndex > -1 ) {
+              this.pickItems.splice( foundPickItemsIndex, 1, pickItem );
+            }
+
+            newPickItem = new PickItem( pickItem, this );
+            pickList.splice( foundPickListIndex, 1, newPickItem );
+            break;
+          }
+
+        }
+
+        return newPickItem;
+
+      }
+
+      unpickItem( pickItemId ) {
+        return $q.when( api.unpickItem( this._id, pickItemId ) ).then(  this._updatePickItemFromResponse.bind( this ) );
+      }
+
+      reset() {
+
+        return $q.when( api.resetOrderPick( this._id ) ).then( orderPick => {
+          this.pickItems = orderPick.pickItems;
+          this.buildPickLists();
+        });
+
+      }
+
+      allItemsPicked() {
+
+        for( let pickList of this.pickLists ) {
+
+          for( let pickItem of pickList ) {
+
+            if( !pickItem.isPicked ) {
+              return false;
+            }
+
+          }
+
+        }
+        return true;
+
+      }
+
+      editIsFinished( isFinished ) {
+
+        return $q.when( api.finishOrderPick( this._id, isFinished ) ).then( orderPick => {
+
+          Object.assign(
+            this,
+            {
+              isFinished: orderPick.isFinished,
+              finishedDate: orderPick.finishedDate,
+            }
+          );
+        });
+
+      }
+
+      finish() {
+        return this.editIsFinished( true );
+      }
+
+      unfinish() {
+        return this.editIsFinished( false );
+      }
+
+    }
+
+    return OrderPick;
+
+  }
+]);
+
+/********************* Manual Pick modal **************************/
+angular.module('myApp').factory( 'ManualPickItemModalSvc', [ '$uibModal', function( $uibModal ) {
+
+  return {
+    launch: launch,
+  };
+
+  // launches the modal
+  function launch() {
+
+    const modalInstance = $uibModal.open({
+      templateUrl: '/partials/modals/_manual_pick_item_modal.html',
+      size: 'lg',
+      backdrop: 'static',
+      controller:  [ '$scope', 'focus', function( $scope, focus ){
+
+        focus('ScanLabelInput');
+
+        const vm = this;
+        vm.label = '';
+
+        vm.scanLabel = () => {
+
+          if( vm.label ) {
+
+            $scope.$close( vm.label );
+
+          }
+
+        };
+
+      }],
+      controllerAs: '$ctrl'
+    });
+
+    return modalInstance.result;
+  }
+}]);

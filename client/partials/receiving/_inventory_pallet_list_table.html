@@ -50,6 +50,12 @@
           </span>
         </span>
 
+        <span ng-switch-when="lotNumber">
+          <span>
+            {{ pallet.lotNumber }}
+          </span>
+        </span>
+
         <span ng-switch-when="hasProblem">
           <span class="glyphicon glyphicon-alert" ng-show="pallet.hasProblem"></span>
         </span>

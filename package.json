@@ -1,6 +1,6 @@
 {
   "name": "lot-commander",
-  "version": "10.2.0",
+  "version": "11.0.0",
   "private": true,
   "description": "Multi-purpose inventory management services for product lots.",
   "main": "server/index.js",

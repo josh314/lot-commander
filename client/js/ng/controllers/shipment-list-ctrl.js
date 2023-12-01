@@ -38,7 +38,8 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
       current: 1,
       totalItems: 0,
       pageSize: __PAGE_SIZE__,
-      pageChange: refreshShipmentsList
+      pageChange: refreshShipmentsList,
+      maxSize: 8,
     };
 
     vm.columns = {

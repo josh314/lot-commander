@@ -239,6 +239,85 @@ class Client {
       throw e;
     }
   }
+
+  /***********************************
+   * Shopify GraphQL method wrappers
+   * ===============================
+   *
+   ***********/
+
+  id2Gid( id, type ) {
+    return this.shopifyGql.id2Gid( id, type );
+  }
+
+  gid2Id( gid, type ) {
+    return this.shopifyGql.gid2Id( gid, type );
+  }
+
+  listActiveProducts( { debug, cursor, everydayBargainsOnly } = {} ) {
+    return this.shopifyGql.listActiveProductslistActiveProducts( { debug, cursor, everydayBargainsOnly } );
+  }
+
+  listActiveProductVariants( { debug, cursor, everydayBargainsOnly } = {} ) {
+    return this.shopifyGql.listActiveProductVariants( { debug, cursor, everydayBargainsOnly } );
+  }
+
+  getProductVariant( pvid ) {
+    return this.shopifyGql.getProductVariant( pvid );
+  }
+
+  getPalletBreakdownServiceRate() {
+    return this.shopifyGql.getPalletBreakdownServiceRate();
+  }
+
+  setPalletBreakdownServiceRate( newRate ) {
+    return this.shopifyGql.setPalletBreakdownServiceRate( newRate );
+  }
+
+  listProductVariantShippingRates( { debug, cursor, includePallets } = {} ) {
+    return this.shopifyGql.listProductVariantShippingRates( { debug, cursor, includePallets } );
+  }
+
+  getProductVariantShippingRate( pvid ) {
+    return this.shopifyGql.getProductVariantShippingRate( pvid );
+  }
+
+  setProductVariantShippingRate( pvid, rate ) {
+    return this.shopifyGql.setProductVariantShippingRate( pvid, rate );
+  }
+
+  removeProductVariantShippingRate( pvGid ) {
+    return this.shopifyGql.removeProductVariantShippingRate( pvGid );
+  }
+
+  listProductVariantShippingConfigurations( { debug, cursor, includePallets, everydayBargainsOnly } = {} ) {
+    return this.shopifyGql.listProductVariantShippingConfigurations( { debug, cursor, includePallets, everydayBargainsOnly } );
+  }
+
+  getProductVariantShippingConfiguration( pvid ) {
+    return this.shopifyGql.getProductVariantShippingConfiguration( pvid );
+  }
+
+  setProductVariantShippingConfiguration( pvid, shippingConfiguration ) {
+    return this.shopifyGql.setProductVariantShippingConfiguration( pvid, shippingConfiguration );
+  }
+
+  removeProductVariantShippingConfiguration( pvid ) {
+    return this.shopifyGql.removeProductVariantShippingConfiguration( pvid );
+  }
+
+  listProductVariantBundles( { debug, cursor } = {} ) {
+    return this.shopifyGql.listProductVariantBundles( { debug, cursor } );
+  }
+
+  getProductVariantBundle( pvid ) {
+    return this.shopifyGql.getProductVariantBundle( pvid );
+  }
+
+  setProductVariantBundle( pvid, bundle, { debug = false } = {} ) {
+    return this.shopifyGql.setProductVariantBundle( pvid, bundle, { debug } );
+  }
+
 }
 
 module.exports = Client;

@@ -72,7 +72,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
           // shipping items display
           showShippingItems: false,
-          toggleShowShippingItems: () => vm.showShippingItems = !vm.showShippingItemsfalse,
+          toggleShowShippingItems: () => vm.showShippingItems = !vm.showShippingItems,
 
 
           configureListingForSubmission,
@@ -361,7 +361,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       if(shippingItems) {
         lotStore.shippingItems = shippingItems;
         return LotSvc.edit( lotStore._id , lotStore ).then( _lot => {
-          return true;
+          navigate.reload();
         });
       }
       else {
@@ -463,7 +463,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     }
 
     function showPalletDetails() {
-      InventoryPalletManagerSvc.get( vm.lot.pallet._id, { populate: [ 'shipment' ] } ).then( pallet => pallet.detailsModal() );
+      InventoryPalletManagerSvc.get( vm.lot.pallet._id, { populate: [ 'shipment', 'splitFrom' ] } ).then( pallet => pallet.detailsModal() );
     }
 
     function getBodyHtml() {

@@ -66,6 +66,8 @@ angular.module('myApp').factory( 'LotSvc', [
 
       edit: ( lotId, data ) => $q.when( api.editLot( lotId, data ) ),
 
+      generateLotNumber: lotId => $q.when( api.generateLotNumberForLot( lotId ) ),
+
       generateManifest: ( lotId, save, bstock ) => $q.when( api.generateLotManifest( lotId, save, bstock) ),
 
       get: ( lotId, { populate, hydratePallet, hydratePalletNoDocuments } = {} ) => $q.when( _get( lotId, { populate, hydratePallet, hydratePalletNoDocuments } ) ),

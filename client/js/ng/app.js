@@ -71,8 +71,8 @@ const stateData = [
 
   // orders
   { name: "main.orders", abstract: true, url: "/orders", templateUrl: 'partials/_container.html'},
-  // { name: "main.orders.list", navName: 'All orders', navParent: 'Orders', url: "/list", templateUrl: 'partials/orders/_orders_list.html', userPermission: 'LIST_SHOPIFY_ORDERS' },
   { name: "main.orders.queue", navName: 'Queue', navParent: 'Orders', url: "/queue", templateUrl: 'partials/orders/_order_queue.html', userPermission: 'LIST_SHOPIFY_ORDERS' },
+  { name: "main.orders.pick", url: '/{orderId}/pick', templateUrl: '/partials/orders/_pick_order.html', userPermission: 'PICK_ORDER' },
 
   // Costs aggregation
   { name: "main.costs", abstract: true, url: "/costs", templateUrl: 'partials/_container.html'},

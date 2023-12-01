@@ -1,0 +1,126 @@
+<div class="container" ng-controller="PickOrderController as $ctrl">
+
+  <div class="row" style="margin-bottom:12px;">
+    <button class="btn btn-success" ng-click="$ctrl.goToOrderQueue()">
+      <span class="glyphicon glyphicon-chevron-left"></span> Back to order queue
+    </button>
+  </div>
+
+	<div class="row">
+		<div class="col-xs-12">
+      <div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Order Details</h3>
+        </div>
+        <div class="panel-body flex-row">
+          <div class="flex-row-item">
+            <b>Order Number: </b>{{ $ctrl.order.name }}<br>
+            <b>Date: </b>{{ $ctrl.util.prettifyDateTime( $ctrl.order.createdAt ) }}<br>
+            <b>Shopify fulfillment status: </b>{{ $ctrl.order.displayFulfillmentStatus }}<br>
+            <b>Pick status: </b>{{ $ctrl.orderPick.isFinished ? 'FINISHED' : 'OPEN' }}<br>
+          </div>
+          <div class="flex-row-divider"></div>
+<!-- <div class="flex-row-item">
+  <button class="btn btn-sm btn-primary" ng-click="$ctrl.printPickReceipt()" ng-disabled="$ctrl.order.status !== 'done'">Print Pick Receipt</button>
+</div> -->
+
+          <div class="flex-row-item" ng-hide="$ctrl.orderPick.isFinished">
+            <button class="btn btn-sm btn-primary" ng-click="$ctrl.orderPick.finish()" ng-disabled="!$ctrl.orderPick.allItemsPicked()">Finish</button>
+          </div>
+          <div class="flex-row-item" ng-show="$ctrl.orderPick.isFinished">
+            <button class="btn btn-sm btn-warning" ng-click="$ctrl.orderPick.unfinish()">Re-open</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default picklist-container">
+        <div class="panel-heading">
+          <div class="flex-row">
+            <div class="form-group flex-row-item">
+              <label for="ScanLabelInput">Scan Label</label>
+              <input id="ScanLabelInput" name="ScanLabelInput" class="form-control" ng-model="$ctrl.label" ng-keyup="$event.keyCode == 13 && $ctrl.scanLabel()" autocomplete="off"  ng-disabled="$ctrl.orderPick.isFinished"/>
+            </div>
+            <div class="flex-row-divider"></div>
+            <div class="flex-row-item">
+              <button class="btn btn-danger btn-sm" ng-click="$ctrl.orderPick.reset()" ng-disabled="$ctrl.orderPick.isFinished">Reset Picklist</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <table class="table table-striped" ng-repeat="$pickList in $ctrl.orderPick.pickLists">
+
+              <tbody>
+
+                  <tr class="info">
+                    <td colspan="10">
+                      <span>
+                        {{ $pickList[0].name }}
+                      </span>
+                    </td>
+                    <td>
+                      <span>
+                        {{ $pickList[0].sku }}
+                      </span>
+                    </td>
+                    <td>
+                      <span ng-show="$pickList[0].lot">
+                        <button class="btn btn-xs btn-primary" ng-click="$ctrl.goToLotPage( $pickList[0].lot )">
+                          View lot
+                        </button>
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td></td>
+                    <td>
+                      <table class="table table-striped">
+                        <thead>
+                          <th>Label</th>
+                          <th ng-hide="$pickList[0].lot">Type</th>
+                          <th>Picked</th>
+                          <th></th>
+                          <th></th>
+                        </thead>
+                        <tbody>
+                          <tr ng-repeat="$pickItem in $pickList">
+
+                            <td>
+                              <span ng-show="$pickItem.pkg || $pickItem.shippingItem">{{ $pickItem.pkg || $pickItem.shippingItem }}</span>
+                              <span ng-hide="$pickItem.pkg || $pickItem.shippingItem">Box {{ $index +1 }}</span>
+                            </td>
+
+                            <td ng-hide="$pickList[0].lot">
+                              <span>{{ $pickItem.bundleProductTitle || $pickItem.productTitle }} - {{ $pickItem.units }}</span>
+                            </td>
+
+                            <td><span class="glyphicon glyphicon-ok" ng-show="$pickItem.isPicked"></span><span class="glyphicon glyphicon-remove" ng-hide="$pickItem.isPicked"></span></td>
+
+                            <td>
+                              <span ng-hide="$pickItem.isPicked">
+                                <button class="btn btn-xs btn-warning" ng-click="$ctrl.manualPick( $pickItem )" ng-disabled="$ctrl.orderPick.isFinished">
+                                  Manual pick
+                                </button>
+                              </span>
+                            </td>
+
+                            <td>
+                              <span ng-show="$pickItem.isPicked">
+                                <button class="btn btn-xs btn-danger" ng-click="$ctrl.undoPick( $pickItem )" ng-disabled="$ctrl.orderPick.isFinished">Undo</button>
+                              </span>
+                            </td>
+
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+
+
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,8 +1,9 @@
 const express = require('express');
 const dayjs = require('dayjs');
 
-const auth = require('../auth');
 
+const auth = require('../auth');
+const { populationPathsFromQuery } = require('../helpers');
 
 /**********************************************
  * Helpers
@@ -40,7 +41,7 @@ const listShopifyOrdersParamsFromQueryParams = ( qp ) => {
 };
 
 
-function routes( { shopifyOrders } ) {
+function routes( { fulfillmentCommander, shopifyOrders } ) {
   const router = new express.Router();
 
   /*******************************************
@@ -76,6 +77,42 @@ function routes( { shopifyOrders } ) {
     getShopifyOrderByShopifyOrderNumber
   );
 
+  // picking
+  router.get(
+    '/pick/:orderPickId',
+    auth.isAuthorized( 'PICK_ORDER' ),
+    getOrderPickById
+  );
+  router.delete(
+    '/pick/:orderPickId',
+    auth.isAuthorized( 'PICK_ORDER' ),
+    deleteOrderPickById
+  );
+  router.post(
+    '/:orderId/pick',
+    auth.isAuthorized( 'PICK_ORDER' ),
+    startOrderPick
+  );
+  router.post(
+    '/pick/:orderPickId/',
+    auth.isAuthorized( 'PICK_ORDER' ),
+    pickOrderPickItem
+  );
+  router.post(
+    '/unpick/:orderPickId/',
+    auth.isAuthorized( 'PICK_ORDER' ),
+    unpickOrderPickItem
+  );
+  router.post(
+    '/pick/:orderPickId/reset',
+    auth.isAuthorized( 'PICK_ORDER' ),
+    resetOrderPick
+  );
+  router.put(
+    '/pick/:orderPickId/is-finished',
+    auth.isAuthorized( 'PICK_ORDER' ),
+    finishOrderPick
+  );
 
   /*******************************************
    * Define Handlers & Middleware
@@ -100,6 +137,7 @@ function routes( { shopifyOrders } ) {
 
         // filters
         filterParams: listShopifyOrdersParamsFromQueryParams( req.query ),
+        populate: populationPathsFromQuery( req.query ),
 
       };
 
@@ -121,7 +159,7 @@ function routes( { shopifyOrders } ) {
 
   async function countShopifyOrders( req, res, next ) {
 
-    try { 
+    try {
       const count = await shopifyOrders.countShopifyOrders( listShopifyOrdersParamsFromQueryParams( req.query ) );
 
       res.json({ count });
@@ -138,8 +176,9 @@ function routes( { shopifyOrders } ) {
     try {
 
       const id = req.params.id;
+      const populate = populationPathsFromQuery( req.query );
 
-      let order = await shopifyOrders.getShopifyOrderById( id );
+      let order = await shopifyOrders.getShopifyOrderById( id, { populate } );
 
       if( order && 'annotate' in req.query && !!parseInt( req.query.annotate ) ) {
 
@@ -161,8 +200,9 @@ function routes( { shopifyOrders } ) {
     try {
 
       const id = req.params.id;
+      const populate = populationPathsFromQuery( req.query );
 
-      let order = await shopifyOrders.getShopifyOrderByShopifyId( id );
+      let order = await shopifyOrders.getShopifyOrderByShopifyId( id, { populate } );
 
       if( order && 'annotate' in req.query && !!parseInt( req.query.annotate ) ) {
 
@@ -183,8 +223,9 @@ function routes( { shopifyOrders } ) {
     try {
 
       const orderNumber = req.params.orderNumber;
+      const populate = populationPathsFromQuery( req.query );
 
-      let order = await shopifyOrders.getShopifyOrderByShopifyOrderNumber( orderNumber );
+      let order = await shopifyOrders.getShopifyOrderByShopifyOrderNumber( orderNumber, { populate } );
 
       if( order && 'annotate' in req.query && !!parseInt( req.query.annotate ) ) {
 
@@ -200,7 +241,127 @@ function routes( { shopifyOrders } ) {
 
   }
 
+  async function getOrderPickById( req, res, next ) {
 
+    try {
+
+      const { orderPickId } = req.params;
+      const populate = populationPathsFromQuery( req.query );
+
+      const orderPick = await fulfillmentCommander.getOrderPickById( orderPickId, { populate } );
+
+      res.json( { orderPick } );
+
+    }
+    catch(e) {
+      return next(e);
+    }
+  }
+
+  async function deleteOrderPickById( req, res, next ) {
+
+    try {
+
+      const { orderPickId } = req.params;
+
+      const { orderPick } = await fulfillmentCommander.deleteOrderPickById( orderPickId );
+
+      res.json( { orderPick } );
+
+    }
+    catch(e) {
+      return next(e);
+    }
+  }
+
+  // idempotent if order.orderPick already exists
+  async function startOrderPick( req, res, next ) {
+
+    try {
+
+      const { orderId } = req.params;
+
+      const { order } = await fulfillmentCommander.startOrderPick( orderId );
+
+      res.json( { order } );
+
+    }
+    catch(e) {
+      return next(e);
+    }
+  }
+
+  async function pickOrderPickItem( req, res, next ) {
+
+    try {
+
+      const { orderPickId } = req.params;
+      const { pickItemId, pkg } = req.body;
+
+      const { orderPick, pickItem } = await fulfillmentCommander.pickOrderPickItem( orderPickId, pickItemId, pkg );
+
+      res.json( { orderPick, pickItem } );
+
+    }
+    catch(e) {
+      return next(e);
+    }
+  }
+
+  async function unpickOrderPickItem( req, res, next ) {
+
+    try {
+
+      const { orderPickId } = req.params;
+      const { pickItemId } = req.body;
+
+      const { orderPick, pickItem } = await fulfillmentCommander.unpickOrderPickItem( orderPickId, pickItemId );
+
+      res.json( { orderPick, pickItem } );
+
+    }
+    catch(e) {
+      return next(e);
+    }
+  }
+
+  async function resetOrderPick( req, res, next ) {
+
+    try {
+
+      const { orderPickId } = req.params;
+
+      const { orderPick } = await fulfillmentCommander.resetOrderPick( orderPickId );
+
+      res.json( { orderPick } );
+
+    }
+    catch(e) {
+      return next(e);
+    }
+  }
+
+  async function finishOrderPick( req, res, next ) {
+
+    try {
+
+      const { orderPickId } = req.params;
+      const { isFinished } = req.body;
+
+      let orderPick;
+      if( typeof isFinished !== 'undefined' ) {
+
+        ( { orderPick } = isFinished ? await fulfillmentCommander.finishOrderPick( orderPickId ) : await fulfillmentCommander.unfinishOrderPick( orderPickId ) );
+
+      }
+
+      res.json( { orderPick } );
+
+    }
+    catch(e) {
+      return next(e);
+    }
+  }
 
   return router;
 }
