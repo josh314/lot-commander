@@ -112,7 +112,7 @@ class Server {
       password: mongoSettings.auth && mongoSettings.auth.pwd,
     });
 
-    this.mongooseConnection = mongoose.createConnection().setClient( this.mongoClient );
+    this.mongooseConnection = await mongoose.createConnection().setClient( this.mongoClient );
     global.__mongooseConnection = this.mongooseConnection;
 
     //================================================
@@ -227,6 +227,7 @@ class Server {
     // Mongoose model manager
     const ModelCommander = require('./models');
     const models = new ModelCommander( this.mongooseConnection );
+    this.models = models;
 
     // Counter
     const CountCommander = require('./modules/count-commander');
@@ -372,19 +373,20 @@ class Server {
     return this;
   }
 
-  listen() {
+  async listen() {
     //=================================================
     // Start the server
     //=================================================
-    const _server = this.app.listen(this.app.get('port'), function() {
-      const address = _server.address();
-      if(typeof address === 'string') {
-        debug('Express server listening at address ' + address);
-      }
-      else if( address !== null ) {
-        debug('Express server listening on port ' + address.port);
-      }
-    });
+    const _server = await this.app.listen( this.app.get('port') );
+
+    const address = _server.address();
+    if(typeof address === 'string') {
+      debug('Express server listening at address ' + address);
+    }
+    else if( address !== null ) {
+      debug('Express server listening on port ' + address.port);
+    }
+
     return this;
   }
 }

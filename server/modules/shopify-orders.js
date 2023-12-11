@@ -5,7 +5,7 @@ const {
   IllegalActionError
 } = require('../errors');
 
-const shopifyOrdersQueryFilter = ( { toBeFulfilled, startDate, endDate } ) => {
+const shopifyOrdersQueryFilter = ( { toBeFulfilled, startDate, endDate } = {} ) => {
   const filter = {
     cancelledAt: null
   };
