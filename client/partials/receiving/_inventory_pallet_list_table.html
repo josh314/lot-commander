@@ -19,7 +19,7 @@
   <tbody>
     <tr ng-repeat="pallet in $ctrl.palletsList">
 
-      <td>{{$index+1}}</td>
+      <td>{{ $ctrl.pagination.pageSize * ($ctrl.pagination.current-1) + $index+1}}</td>
 
       <td ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.active" ng-switch="columnKey">
 

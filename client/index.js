@@ -74,7 +74,7 @@ import "./js/ng/controllers/manual-inventory-ctrl.js";
 import "./js/ng/controllers/navbar-ctrl.js";
 import "./js/ng/controllers/new-lot-ctrl.js";
 import "./js/ng/controllers/order-queue-ctrl.js";
-import "./js/ng/controllers/packages-packing-ctrl.js";
+import "./js/ng/controllers/packages-ctrl.js";
 import "./js/ng/controllers/pallets-from-manifest-modal-ctrl.js";
 import "./js/ng/controllers/past-image-gallery-modal-ctrl.js";
 import "./js/ng/controllers/pick-order-ctrl.js";

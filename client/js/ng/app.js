@@ -66,7 +66,8 @@ const stateData = [
 
   // packages
   { name: "main.packages", abstract: true, url: "/packages", templateUrl: 'partials/_container.html'},
-  { name: "main.packages.packing", navName: "Packages", navParent: 'Production', url: '/packing', templateUrl: '/partials/production/_packages_packing.html', userPermission: 'EDIT_PACKAGE', },
+  // { name: "main.packages.packing", navName: "Packages", navParent: 'Production', url: '/packing', templateUrl: '/partials/production/_packages_packing.html', userPermission: 'EDIT_PACKAGE', },
+  { name: "main.packages.manage", navName: "Packages", navParent: 'Production', url: '/', templateUrl: '/partials/production/_packages.html', userPermission: 'EDIT_PACKAGE', },
 
 
   // orders

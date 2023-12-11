@@ -663,6 +663,7 @@ angular.module('myApp').factory( 'PackageLabelDataModalSvc', [ '$uibModal', func
         'dbEnums',
         'ListingsSvc',
         'LoggedInUser',
+        'PackageSvc',
         'WaitingModalSvc',
 
         function (
@@ -672,6 +673,7 @@ angular.module('myApp').factory( 'PackageLabelDataModalSvc', [ '$uibModal', func
           dbEnums,
           ListingsSvc,
           LoggedInUser,
+          PackageSvc,
           WaitingModalSvc
 
         ){
@@ -708,18 +710,6 @@ angular.module('myApp').factory( 'PackageLabelDataModalSvc', [ '$uibModal', func
             $scope.$close( res );
           }
 
-          function cmpProductUnitsPackageByDisplayName( a, b ) {
-            if( !a ){
-              return -1;
-            }
-            else if( !b ) {
-              return +1;
-            }
-            else {
-              return a.displayName < b.displayName ? -1 : +1;
-            }
-          }
-
           function updateInputs() {
 
             const productUnits = vm.inputs.data.productUnits;
@@ -733,101 +723,6 @@ angular.module('myApp').factory( 'PackageLabelDataModalSvc', [ '$uibModal', func
 
           }
 
-          function getCategoryFromProductTags( tags ) {
-
-            if( tags ) {
-
-              if( tags.find( t => t.match( /personal care/i ) ) && tags.find( t => t.match( /cosmetics/i ) ) ) {
-                return 'personal care w/ cosmetics';
-              }
-              else if( tags.find( t => t.match( /personal care/i ) ) ) {
-                return 'personal care';
-              }
-              else if( tags.find( t => t.match( /cosmetics/i ) ) ) {
-                return 'cosmetics';
-              }
-              else if( tags.find( t => t.match( /clothing/i ) ) ) {
-                return 'clothing';
-              }
-              else if( tags.find( t => t.match( /general merchandise/i ) ) ) {
-                return 'general merchandise';
-              }
-
-            }
-
-          }
-
-          function setProductUnitsPackageOptions( configurations ) {
-
-            const packageConfigurationMap =  configurations.reduce( ( acc, config ) => {
-
-              const { productTitle, productId, tags, shippingConfiguration } = config;
-
-              if( tags && tags.includes( 'bundle' ) ) {
-                return acc;
-              }
-
-              if( !shippingConfiguration ) {
-                return acc;
-              }
-
-              const thisPackageUnitsOptionsSet = new Set( config.shippingConfiguration.map( _ => _.units ) );
-
-              const existingPackage = acc.get( productId );
-
-              let $;
-              if( existingPackage ) {
-
-                const existingPackageUnitsOptionsSet = existingPackage.unitsOptionsSet;
-
-                $ = new Set ( [ ...existingPackageUnitsOptionsSet.keys(), ...thisPackageUnitsOptionsSet.keys() ] );
-
-              }
-              else {
-
-                $ = thisPackageUnitsOptionsSet;
-
-              }
-
-              acc.set( productId, { productTitle, category: getCategoryFromProductTags( tags ), unitsOptionsSet: $ } );
-
-              return acc;
-            }, new Map());
-
-            const productUnitsPackageOptions = [ null ];
-            for( let [ productId, value ] of packageConfigurationMap.entries() ) {
-
-              const { productTitle, category, unitsOptionsSet } = value;
-
-              for( let units of unitsOptionsSet.keys() ) {
-
-                let displayName = '';
-                if( productTitle && units ) {
-                  displayName = `${ productTitle } - ${ units }`;
-                }
-                else if( productTitle ) {
-                  displayName = productTitle;
-                }
-                else {
-                  displayName = `ERROR`;
-                }
-
-                productUnitsPackageOptions.push({
-                  productId,
-                  displayName,
-                  productTitle,
-                  units,
-                  category,
-                });
-
-              }
-
-            }
-
-            vm.inputs.productUnitsPackageOptions = productUnitsPackageOptions.sort( cmpProductUnitsPackageByDisplayName );
-            vm.inputs.data.productUnits = productUnitsPackageOptions[0];
-          }
-
           function init() {
 
             Object.assign(
@@ -836,15 +731,8 @@ angular.module('myApp').factory( 'PackageLabelDataModalSvc', [ '$uibModal', func
                 isDeveloper: LoggedInUser.isDeveloper(),
 
                 inputs: {
-                  categoryOptions: [
-                    '',
-                    'general merchandise',
-                    'cosmetics',
-                    'personal care',
-                    'personal care w/ cosmetics',
-                    'clothing'
-                  ],
-                  conditionOptions: dbEnums.lotType,
+                  categoryOptions: PackageSvc.categoryOptions,
+                  conditionOptions: PackageSvc.conditionOptions,
                   data: Object.assign( { instantiate: false, }, _packageData ),
                 },
 
@@ -854,7 +742,12 @@ angular.module('myApp').factory( 'PackageLabelDataModalSvc', [ '$uibModal', func
               }
             );
 
-            const p = ListingsSvc.listShippingConfigurations( { everydayBargainsOnly: true } ).then( setProductUnitsPackageOptions );
+            const p = PackageSvc.getProductUnitsPackageOptions().then( packageOptions => {
+
+              vm.inputs.productUnitsPackageOptions = packageOptions;
+              vm.inputs.data.productUnits = packageOptions[0];
+
+            });
 
             WaitingModalSvc.launch( {
               waitFor: p,

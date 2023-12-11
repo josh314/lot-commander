@@ -12,13 +12,13 @@
         <div class="form-group col-xs-12 col-sm-6">
             <label for="categoryInput">Category</label>
             <select class="form-control" name="category" id="categoryInput" ng-model="$ctrl.inputs.data.category" ng-disabled="$ctrl.inputs.data.productUnits && $ctrl.inputs.data.productUnits.category">
-                <option ng-repeat="category in $ctrl.inputs.categoryOptions">{{ category }}</option>
+                <option ng-repeat="category in $ctrl.inputs.categoryOptions track by $index">{{ category }}</option>
             </select>
         </div>
         <div class="form-group col-xs-12 col-sm-6">
             <label for="conditionInput">Condition</label>
             <select class="form-control" name="condition" id="conditionInput" ng-model="$ctrl.inputs.data.condition" ng-disabled="$ctrl.inputs.data.productUnits">
-                <option ng-repeat="condition in $ctrl.inputs.conditionOptions">{{ condition }}</option>
+                <option ng-repeat="condition in $ctrl.inputs.conditionOptions track by $index">{{ condition }}</option>
             </select>
         </div>
         <div class="form-group col-xs-12 col-sm-6">

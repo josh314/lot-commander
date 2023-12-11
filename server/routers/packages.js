@@ -20,12 +20,24 @@ const listPackagesFilterParamsFromQueryParams = ( qp ) => {
     fp.handle = new RegExp( qp.handle, 'i');
   }
 
-  if( qp.type ) {
-    fp.types = qp.type.split(',').map( _ => new RegExp( `^${_}`, 'i') );
+  if( qp.shipment ) {
+    fp.shipment = qp.shipment;
+  }
+
+  if( qp.pallet ) {
+    fp.pallet = qp.pallet;
   }
 
   if( qp.units ) {
     fp.units = parseInt(qp.units);
+  }
+
+  if( qp.category ) {
+    fp.category = qp.category;
+  }
+
+  if( qp.condition ) {
+    fp.condition = qp.condition;
   }
 
   if( 'is_fulfilled' in qp ) {
@@ -36,9 +48,12 @@ const listPackagesFilterParamsFromQueryParams = ( qp ) => {
     fp.isInstantiated = !!parseInt(qp.is_instantiated);
   }
 
+  if( 'is_fulfilled' in qp ) {
+    fp.isFulfilled = !!parseInt(qp.is_fulfilled);
+  }
 
-  if( 'include_virtual' in qp ) {
-    fp.includeVirtual = !!parseInt( qp.include_virtual );
+  if( qp.product ) {
+    fp.product = qp.product;
   }
 
   return fp;

@@ -1362,11 +1362,13 @@ export function bulkGetProductData( barcodes ) {
 *
 ************/
 
-export function getPackage( pkgId ) {
+export function getPackage( pkgId, { populate = [] } = {} ) {
+
+  const queryParams = getPopulateQueryParamsObject( populate );
 
   return axios({
     method: 'get',
-    url: `/api/packages/${ pkgId }`
+    url: `/api/packages/${ pkgId }?${ qs.stringify( queryParams ) }`
   })
     .then( resp => resp.data.package );
 }

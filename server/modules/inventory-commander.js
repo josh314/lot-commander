@@ -259,7 +259,7 @@ const palletQueryFilter = ( {
   return filter;
 };
 
-const packageQueryFilter = ( { handle, pallet, shipment, isFulfilled, isInstantiated, includeVirtual } ) => {
+const packageQueryFilter = ( { handle, pallet, shipment, product, category, condition, units, isFulfilled, isInstantiated } ) => {
   const filter = {
     isDeleted: false,
   };
@@ -276,16 +276,30 @@ const packageQueryFilter = ( { handle, pallet, shipment, isFulfilled, isInstanti
     filter.shipment = shipment;
   }
 
+  if( product ) {
+    filter.productId = product;
+  }
+  else {
+
+    if( category ) {
+      filter.category = category;
+    }
+
+    if( condition ) {
+      filter.condition = condition;
+    }
+  }
+
+  if( units ) {
+    filter.units = units;
+  }
+
   if( isFulfilled !== undefined ) {
     filter.isFulfilled = isFulfilled;
   }
 
   if( isInstantiated !== undefined ) {
     filter.isInstantiated = isInstantiated;
-  }
-
-  if( !includeVirtual ) {
-    filter.isInstantiated = true;
   }
 
   return filter;

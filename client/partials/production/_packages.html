@@ -1,0 +1,273 @@
+<div class="container" ng-controller="PackagesCtrl as $ctrl">
+
+  <div style="display:flex; justify-content: space-between; align-items: baseline;">
+    <h2>Packages</h2>
+
+    <span>
+      <button class="btn btn-primary btn-xs" ng-click="$ctrl.printLabels()">Print Labels</button>
+    </span>
+
+    </div>
+
+      <div class="form-group">
+        <label for="instantiatePackageBarcodeInput">Scan label here to create package</label>
+        <input type="text" class="form-control" name="scan" ng-model="$ctrl.packageBarcodeToInstantiate" id="instantiatePackageBarcodeInput" ng-keyup="$event.keyCode == 13 && $ctrl.instantiatePackage()" autofocus>
+      </div>
+
+    <div>
+
+  </div>
+
+  <div class="row well">
+{{ $ctrl.foo}}
+    <div class="col-xs-12">
+      <fieldset class="col-xs-12 box-border">
+        <legend class="box-border">Search</legend>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="packageBarcodeSearchInput">Barcode</label>
+          <input
+            id="packageBarcodeSearchInput"
+            class="form-control"
+            ng-model="$ctrl.packageBarcodeToSearch"
+            ng-keyup="( $event.keyCode == 13 && $ctrl.packageBarcodeSearch() ) || ( !$ctrl.packageBarcodeToSearch && $ctrl.refreshPackagesList() )"
+          />
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="productUnitsInput">Product</label>
+          <select class="form-control" id="productUnitsInput" ng-model="$ctrl.filter.productUnits" ng-change="$ctrl.refreshPackagesList()">
+              <option ng-repeat="$option in $ctrl.productUnitsPackageOptions" ng-value="$option">{{ $option.displayName }}</option>
+          </select>
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="categoryFilter">Category</label>
+          <select class="form-control" name="categoryFilter" ng-model="$ctrl.filter.category" ng-disabled="$ctrl.filter.productUnits" ng-change="$ctrl.refreshPackagesList()">
+            <option ng-repeat="cat in $ctrl.categoryOptions">{{ cat }}</option>
+          </select>
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="conditionFilter">Condition</label>
+          <select class="form-control" name="conditionFilter" ng-model="$ctrl.filter.condition" ng-disabled="$ctrl.filter.productUnits"  ng-change="$ctrl.refreshPackagesList()">
+            <option ng-repeat="condition in $ctrl.conditionOptions">{{ condition }}</option>
+          </select>
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
+            <label for="unitsInput">Units per package</label>
+            <input type="number" class="form-control" name="units" id="unitsInput" required ng-model="$ctrl.filter.units" ng-disabled="$ctrl.filter.productUnits" ng-change="$ctrl.refreshPackagesList()"/>
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="isInstantiatedFilter">Packed?</label>
+          <select class="form-control" name="isInstantiatedFilter" ng-model="$ctrl.filter.isInstantiated" ng-change="$ctrl.refreshPackagesList()">
+            <option ng-value="null">any</option>
+            <option ng-value="true">yes</option>
+            <option ng-value="false">no</option>
+          </select>
+        </div>
+        <div class="form-group col-xs-12 col-sm-6">
+          <label for="isFulfilledFilter">Fulfilled?</label>
+          <select class="form-control" name="isFulfilledFilter" ng-model="$ctrl.filter.isFulfilled" ng-change="$ctrl.refreshPackagesList()">
+            <option ng-value="null">any</option>
+            <option ng-value="true">yes</option>
+            <option ng-value="false">no</option>
+          </select>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="col-xs-12" style="display: flex; justify-content: space-between; align-items: baseline;">
+
+      <div class="btn-group dropdown" ng-class="{ open: $ctrl.showColumnOptions }">
+        <button type="button" class="btn btn-default dropdown-toggle" ng-click="$ctrl.toggleShowColumnOptions()">
+          Columns <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.optionAvailable && columnData.permitted" ng-click="$ctrl.toggleColumnActive( columnKey )">
+            <a><label for="{{columnKey}}ColumnDisplayToggleInput">
+              <input type="checkbox" id="{{columnKey}}ColumnDisplayToggleInput" ng-model="$ctrl.columns[columnKey].active" ng-click="$event.stopPropagation();"> {{ columnData.optionName}}
+            </label></a>
+          </li>
+        </ul>
+      </div>
+
+      <ul uib-pagination
+        total-items="$ctrl.pagination.totalItems"
+        items-per-page="$ctrl.pagination.pageSize"
+        ng-model="$ctrl.pagination.current"
+        ng-change="$ctrl.pagination.pageChange()"
+        class="pagination-sm pull-right"
+
+        max-size="$ctrl.pagination.maxSize"
+        boundary-links="true"
+        boundary-link-numbers="true"
+        force-ellipses="true"></ul>
+
+    </div>
+
+    <table class="table table-striped">
+
+      <thead><tr>
+        <th>#</th>
+        <th ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.active">
+        <span ng-click="$ctrl.sortListBy(columnKey)" style="cursor: pointer;" ng-hide="columnData.noSort">
+          {{columnData.header}}
+          <span ng-show="columnKey === $ctrl.sortOpts.key">
+          <span class="glyphicon glyphicon-triangle-bottom" ng-hide="$ctrl.sortOpts.ascending" style="font-size: .75em"></span>
+          <span class="glyphicon glyphicon-triangle-top" ng-show="$ctrl.sortOpts.ascending" style="font-size: .75em"></span>
+          </span>
+        </span>
+        <span ng-show="columnData.noSort">{{columnData.header}}</span>
+        </th>
+        <th></th>
+      </tr></thead>
+
+      <tbody>
+        <tr ng-repeat="pallet in $ctrl.packages">
+
+          <td>{{ $ctrl.pagination.pageSize * ($ctrl.pagination.current-1) + $index+1}}</td>
+
+          <td ng-repeat="(columnKey, columnData) in $ctrl.columns" ng-show="columnData.active" ng-switch="columnKey">
+
+            <span ng-switch-when="handle">
+              <span ng-show="$ctrl.showPalletDetails">
+                <a href ng-click="$ctrl.showPalletDetails( pallet )">{{pallet.handle}}</a>
+              </span>
+              <span ng-show="!$ctrl.showPalletDetails">
+                {{pallet.handle}}
+              </span>
+            </span>
+
+            <span ng-switch-when="shipment">
+              <a ng-href="/shipments/{{pallet.shipment._id}}" ng-show="$ctrl.allowShipmentNavigation">
+                {{ pallet.shipment.handle }}
+              </a>
+              <span ng-hide="$ctrl.allowShipmentNavigation">
+                {{ pallet.shipment.handle }}
+              </span>
+            </span>
+
+            <span ng-switch-when="lot">
+              <a ng-href="/lots/view/{{pallet.lot._id}}" ng-show="$ctrl.allowLotNavigation">
+                {{ pallet.lot.handle }}
+              </a>
+              <span ng-hide="$ctrl.allowLotNavigation">
+                {{ pallet.lot.handle }}
+              </span>
+            </span>
+
+            <span ng-switch-when="lotNumber">
+              <span>
+                {{ pallet.lotNumber }}
+              </span>
+            </span>
+
+            <span ng-switch-when="hasProblem">
+              <span class="glyphicon glyphicon-alert" ng-show="pallet.hasProblem"></span>
+            </span>
+
+            <span ng-switch-when="isRepacked">
+              <span class="glyphicon glyphicon-ok" ng-show="pallet.isRepacked"></span>
+            </span>
+
+            <span ng-switch-when="note">
+              <span ng-show="pallet.showNote">{{pallet.note}}</span>
+              <span ng-show="pallet.note">[<a href ng-hide="pallet.showNote" ng-click="pallet.toggleShowNote()">Show</a><a href ng-show="pallet.showNote" ng-click="pallet.toggleShowNote()">Hide</a>]</span>
+            </span>
+
+            <span ng-switch-when="breakdown">
+              <button type="button" class="btn btn-xs" ng-class="{ 'btn-danger': !pallet.isBrokendown, 'btn-success': pallet.isBrokendown }" ng-click="pallet.breakdown( !pallet.isBrokendown )">
+                {{ pallet.isBrokendown ? 'Undo breakdown' : 'Breakdown' }}
+              </button>
+            </span>
+
+            <span ng-switch-when="makeLot">
+              <span ng-show="pallet.canMakeLot()">
+                <button class="btn btn-xs btn-success" ng-click="$ctrl.createLotFromPallet( pallet )">Make Lot</button>
+              </span>
+            </span>
+
+            <span ng-switch-when="repackPallet">
+              <span ng-show="pallet.canRepack()">
+                <button class="btn btn-xs btn-primary" ng-click="$ctrl.repackPallet( pallet )">Repack Pallet</button>
+              </span>
+            </span>
+
+            <span ng-switch-when="splitPallet">
+              <span ng-show="pallet.canSplit()">
+                <button class="btn btn-xs btn-primary" ng-click="$ctrl.splitPallet( pallet )">Split Pallet</button>
+              </span>
+            </span>
+
+            <span ng-switch-default>
+              {{ columnData.transform ? columnData.transform( pallet[ columnKey ] ) : pallet[ columnKey ] }}
+            </span>
+
+          </td>
+
+        </tr>
+      </tbody>
+
+    </table>
+
+<!--
+    <table class="table table-striped">
+
+      <thead><tr>
+        <th>Package ID</th>
+        <th>Shipment</th>
+        <th>Product</th>
+        <th>Category</th>
+        <th>Condition</th>
+        <th>Units</th>
+        <th>Packed</th>
+        <th>Fulfilled</th>
+      </tr></thead>
+
+      <tbody>
+        <tr ng-repeat="$package in $ctrl.packages">
+
+          <td>
+            {{ $package._id }}
+          </td>
+
+          <td>
+
+            <a ng-href="/shipments/{{$package.shipment._id}}" ng-show="$ctrl.allowShipmentNavigation">
+              {{ $package.shipment.handle }}
+            </a>
+            <span ng-hide="$ctrl.allowShipmentNavigation">
+              {{ $package.shipment.handle }}
+            </span>
+
+          </td>
+
+          <td>
+            {{ $package.productTitle }}
+          </td>
+
+          <td>
+            {{ $package.category }}
+          </td>
+
+          <td>
+            {{ $package.condition }}
+          </td>
+
+          <td>
+            {{ $package.units }}
+          </td>
+
+          <td>
+            {{ $ctrl.prettifyDateTime( $package.instantiatedDate ) }}
+          </td>
+
+          <td>
+            {{ $ctrl.prettifyDateTime( $package.fulfilledDate ) }}
+          </td>
+
+        </tr>
+      </tbody>
+
+    </table> -->
+
+  </div>
+
+</div>
