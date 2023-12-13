@@ -144,7 +144,7 @@ class FulfillmentCommander {
 
   }
 
-  async getBundlePickItems( lineItem ) {
+  async getBundleLineItemPickItems( lineItem ) {
 
     const bundle = await this.shopify.getProductVariantBundle( lineItem.variant.id );
 
@@ -152,43 +152,47 @@ class FulfillmentCommander {
 
     const bundlePickItems = [];
 
-    for( let bundleItem of bundle ) {
+    for( let i=0; i<lineItem.quantity ; i++ ) {
 
-      const {
-        quantity,
-        productTitle: bundleProductTitle,
-        productId: bundleProductId,
-        gid: bundleVariantId,
-        variantTitle: bundleVariantTitle,
-        units: _units,
-      } = bundleItem;
+      for( let bundleItem of bundle ) {
+
+        const {
+          quantity: bundleItemQuantity,
+          productTitle: bundleProductTitle,
+          productId: bundleProductId,
+          gid: bundleVariantId,
+          variantTitle: bundleVariantTitle,
+          units: _units,
+        } = bundleItem;
 
 
-      for( let i=0; i<quantity; i++ ) {
+        for( let j=0; j<bundleItemQuantity; j++ ) {
 
-        const baseBundlePickItem = Object.assign(
-          {},
-          basePickItem,
-          {
-            bundleProductId,
-            bundleProductTitle,
-            bundleVariantId,
-            bundleVariantTitle,
+          const baseBundlePickItem = Object.assign(
+            {},
+            basePickItem,
+            {
+              bundleProductId,
+              bundleProductTitle,
+              bundleVariantId,
+              bundleVariantTitle,
+            }
+          );
+
+          const shippingConfiguration = await this.shopify.getProductVariantShippingConfiguration( bundleVariantId );
+
+          if( shippingConfiguration && shippingConfiguration.length ) {
+
+            for( let shippingConfigurationItem of shippingConfiguration ) {
+              bundlePickItems.push( Object.assign( { units: shippingConfigurationItem.units }, baseBundlePickItem, { lineItemCount: i+1 } ) );
+            }
+
           }
-        );
+          else {
 
-        const shippingConfiguration = await this.shopify.getProductVariantShippingConfiguration( bundleVariantId );
+            bundlePickItems.push( Object.assign( { }, baseBundlePickItem, { lineItemCount: i+1 } ) );
 
-        if( shippingConfiguration && shippingConfiguration.length ) {
-
-          for( let shippingConfigurationItem of shippingConfiguration ) {
-            bundlePickItems.push( Object.assign( { units: shippingConfigurationItem.units }, baseBundlePickItem, { lineItemCount: i+1 } ) );
           }
-
-        }
-        else {
-
-          bundlePickItems.push( Object.assign( { }, baseBundlePickItem, { lineItemCount: i+1 } ) );
 
         }
 
@@ -292,7 +296,7 @@ class FulfillmentCommander {
         let lineItemPickItems;
         if( isBundle ) {
 
-          lineItemPickItems = await this.getBundlePickItems( lineItem );
+          lineItemPickItems = await this.getBundleLineItemPickItems( lineItem );
 
         }
         else if( lot ) {
