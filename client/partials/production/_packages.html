@@ -19,7 +19,7 @@
   </div>
 
   <div class="row well">
-{{ $ctrl.foo}}
+
     <div class="col-xs-12">
       <fieldset class="col-xs-12 box-border">
         <legend class="box-border">Search</legend>
@@ -207,66 +207,6 @@
 
     </table>
 
-<!--
-    <table class="table table-striped">
-
-      <thead><tr>
-        <th>Package ID</th>
-        <th>Shipment</th>
-        <th>Product</th>
-        <th>Category</th>
-        <th>Condition</th>
-        <th>Units</th>
-        <th>Packed</th>
-        <th>Fulfilled</th>
-      </tr></thead>
-
-      <tbody>
-        <tr ng-repeat="$package in $ctrl.packages">
-
-          <td>
-            {{ $package._id }}
-          </td>
-
-          <td>
-
-            <a ng-href="/shipments/{{$package.shipment._id}}" ng-show="$ctrl.allowShipmentNavigation">
-              {{ $package.shipment.handle }}
-            </a>
-            <span ng-hide="$ctrl.allowShipmentNavigation">
-              {{ $package.shipment.handle }}
-            </span>
-
-          </td>
-
-          <td>
-            {{ $package.productTitle }}
-          </td>
-
-          <td>
-            {{ $package.category }}
-          </td>
-
-          <td>
-            {{ $package.condition }}
-          </td>
-
-          <td>
-            {{ $package.units }}
-          </td>
-
-          <td>
-            {{ $ctrl.prettifyDateTime( $package.instantiatedDate ) }}
-          </td>
-
-          <td>
-            {{ $ctrl.prettifyDateTime( $package.fulfilledDate ) }}
-          </td>
-
-        </tr>
-      </tbody>
-
-    </table> -->
 
   </div>
 

@@ -2,14 +2,27 @@ import angular from 'angular';
 import dayjs from 'dayjs';
 import { prettifyDate } from '../../utilities';
 
-const __DISPLAY_MODE_LINE_ITEMS__ = '__DISPLAY_MODE_LINE_ITEMS__';
-const __DISPLAY_MODE_SUMMARY__ = '__DISPLAY_MODE_SUMMARY__';
+const __PAGE_SIZE__ = 25;
 
 const __DISPLAY_MODES__ = {
-  ORDER_QUEUE: __DISPLAY_MODE_LINE_ITEMS__,
-  LINE_ITEMS: __DISPLAY_MODE_LINE_ITEMS__,
-  SUMMARY: __DISPLAY_MODE_SUMMARY__,
+  ORDER_QUEUE: {
+    id: '__DISPLAY_MODE_ORDER_QUEUE__',
+    label: 'Queue',
+  },
+  RECENT_ORDERS: {
+    id: '__DISPLAY_MODE_RECENT_ORDERS__',
+    label: 'Recent',
+  },
+  SUMMARY: {
+    id: '__DISPLAY_MODE_SUMMARY__',
+    label: 'Summary',
+  },
+  LINE_ITEMS: {
+    id: '__DISPLAY_MODE_LINE_ITEMS__',
+    label: 'Items',
+  },
 };
+
 
 const __FILTER_OPTIONS__ = [
   {
@@ -76,10 +89,28 @@ angular.module('myApp').controller( 'OrderQueueCtrl', [
           displayModes: __DISPLAY_MODES__,
           displayModeActive: __DISPLAY_MODES__.ORDER_QUEUE,
 
+          // orders pagination
+          pagination: {
+            queue: {
+              current: 1,
+              totalItems: 0,
+              pageSize: __PAGE_SIZE__,
+              pageChange: refreshQueue,
+              maxSize: 8
+            },
+            recent: {
+              current: 1,
+              totalItems: 0,
+              pageSize: __PAGE_SIZE__,
+              pageChange: refreshRecentOrders,
+              maxSize: 8
+            }
+          },
+
           // methods
 
-          displayModeActiveIs: str => str === vm.displayModeActive,
-          setDisplayModeActive: str => (vm.displayModeActive = str),
+          displayModeActiveIs,
+          setDisplayModeActive,
 
           goToPickOrderPage,
           prettifyDate,
@@ -92,6 +123,19 @@ angular.module('myApp').controller( 'OrderQueueCtrl', [
       );
 
       return OrderSvc.init().then( refreshQueue );
+
+    }
+
+    function displayModeActiveIs( displayMode ) {
+      return vm.displayModeActive === displayMode;
+    }
+
+    function setDisplayModeActive( displayMode ) {
+      vm.displayModeActive = displayMode;
+
+      if( displayMode === __DISPLAY_MODES__.RECENT_ORDERS && !vm.recentOrders ) {
+        return refreshRecentOrders();
+      }
 
     }
 
@@ -110,6 +154,42 @@ angular.module('myApp').controller( 'OrderQueueCtrl', [
       return ModalSvc.wait( {
         waitFor: p
       } );
+    }
+
+    function refreshRecentOrders() {
+
+      const fulfilledOrdersFilter = {
+        toBeFulfilled: false,
+      };
+
+
+      const p = OrderSvc.count( fulfilledOrdersFilter ).then( count  => {
+        vm.pagination.recent.totalItems = count;
+
+        const query = {
+          filter: fulfilledOrdersFilter,
+          sort: {
+            key: 'createdAt',
+            ascending: false
+          },
+          num: __PAGE_SIZE__,
+          page: vm.pagination.recent.current,
+          populate: [ 'orderPick' ]
+        };
+
+        return OrderSvc.list( query )
+          .then( recentOrders => {
+            vm.recentOrders = recentOrders;
+            console.log( 'Recent orders:' );
+            console.log( vm.recentOrders );
+          });
+
+      });
+
+      return ModalSvc.wait( {
+        waitFor: p
+      } );
+
     }
 
     async function showPalletDetails( pallet ) {

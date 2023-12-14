@@ -10,19 +10,28 @@ const shopifyOrdersQueryFilter = ( { toBeFulfilled, startDate, endDate } = {} ) 
     cancelledAt: null
   };
 
-  if( toBeFulfilled ) {
+  if( typeof toBeFulfilled === 'boolean' ) {
 
-    filter.displayFulfillmentStatus = {
-      $in: [
-        'IN_PROGRESS',
-        'OPEN',
-        'PARTIALLY_FULFILLED',
-        'PENDING_FULFILLMENT',
-        'UNFULFILLED',
-      ]
-    };
+    if( toBeFulfilled ) {
 
-    filter.closed  = false;
+      filter.displayFulfillmentStatus = {
+        $in: [
+          'IN_PROGRESS',
+          'OPEN',
+          'PARTIALLY_FULFILLED',
+          'PENDING_FULFILLMENT',
+          'UNFULFILLED',
+        ]
+      };
+
+      filter.closed  = false;
+    }
+    else {
+
+      filter.displayFulfillmentStatus = 'FULFILLED';
+      filter.closed  = true;
+
+    }
 
   }
 

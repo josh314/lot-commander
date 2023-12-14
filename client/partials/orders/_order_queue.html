@@ -1,6 +1,6 @@
 <div class="container" ng-controller="OrderQueueCtrl as $ctrl">
   <div class="page-header">
-    <h2>Order Queue</h2>
+    <h2>Orders</h2>
   </div>
 
 
@@ -30,14 +30,19 @@
 
     <nav style="display: flex; justify-content: flex-end;">
       <ul class="nav nav-tabs">
-        <li role="presentation" ng-class="{ active: $ctrl.displayModeActiveIs( $ctrl.displayModes.ORDER_QUEUE ) }" ng-click="$ctrl.setDisplayModeActive( $ctrl.displayModes.ORDER_QUEUE )"><a href="#">Queue</a></li>
-        <li role="presentation" ng-class="{ active: $ctrl.displayModeActiveIs( $ctrl.displayModes.SUMMARY ) }" ng-click="$ctrl.setDisplayModeActive( $ctrl.displayModes.SUMMARY )"><a href="#">Summary</a></li>
-        <li role="presentation" ng-class="{ active: $ctrl.displayModeActiveIs( $ctrl.displayModes.ITEMS ) }" ng-click="$ctrl.setDisplayModeActive( $ctrl.displayModes.ITEMS )"><a href="#"> Items </a></li>
+
+        <li
+          ng-repeat="$displayMode in $ctrl.displayModes"
+          role="presentation"
+          ng-class="{ active: $ctrl.displayModeActiveIs( $displayMode ) }"
+          ng-click="$ctrl.setDisplayModeActive( $displayMode )"
+        ><a href="#">{{ $displayMode.label }}</a></li>
+
       </ul>
     </nav>
 
     <!-- Order Queue view  -->
-    <section class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.ORDER_QUEUE">
+    <section class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActiveIs( $ctrl.displayModes.ORDER_QUEUE )">
 
       <h3>Unfulfilled orders</h3>
       <table class="table table-striped">
@@ -90,8 +95,74 @@
 
     </section>
 
+    <!-- Recents orders view  -->
+    <section class="row well well-tabs__content" ng-show="$ctrl.displayModeActiveIs( $ctrl.displayModes.RECENT_ORDERS )">
+
+      <h3>Recent orders</h3>
+
+      <ul uib-pagination
+        total-items="$ctrl.pagination.recent.totalItems"
+        items-per-page="$ctrl.pagination.recent.pageSize"
+        ng-model="$ctrl.pagination.recent.current"
+        ng-change="$ctrl.pagination.recent.pageChange()"
+        class="pagination-sm pull-right"
+
+        max-size="$ctrl.pagination.recent.maxSize"
+        boundary-links="true"
+        boundary-link-numbers="true"
+        force-ellipses="true"></ul>
+
+      <table class="table table-striped">
+
+        <thead><tr>
+          <th>#</th>
+          <th>Order Number</th>
+          <th>Date</th>
+          <th>Picked</th>
+          <th></th>
+        </tr></thead>
+
+        <tbody>
+
+          <tr ng-repeat="$order in $ctrl.recentOrders">
+
+            <td>{{ $ctrl.pagination.recent.pageSize * ($ctrl.pagination.recent.current-1) + $index+1}}</td>
+
+            <td>
+              <a ng-href="/orders/{{ $order._id }}/pick">
+                {{ $order.name }}
+              </a>
+            </td>
+
+            <td>{{ $ctrl.prettifyDate( $order.createdAt ) }}</td>
+
+            <td>
+              <span class="glyphicon glyphicon-ok" ng-show="$order.orderPick.isFinished"></span>
+            </td>
+
+            <td>
+              <span ng-hide="$order.orderPick.isFinished">
+                <button class="btn btn-success btn-sm" ng-click="$ctrl.goToPickOrderPage( $order )">
+                  Pick order
+                </button>
+              </span>
+              <span ng-show="$order.orderPick.isFinished">
+                <button class="btn btn-warning btn-sm" ng-click="$ctrl.goToPickOrderPage( $order )">
+                  View
+                </button>
+              </span>
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </section>
+
     <!-- Summary view -->
-    <section class="row well well-tabs__content" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.SUMMARY">
+    <section class="row well well-tabs__content" ng-show="$ctrl.displayModeActiveIs( $ctrl.displayModes.SUMMARY )">
 
       <section style="display: flex; flex-direction: column">
 
@@ -180,7 +251,7 @@
     </section>
 
     <!-- Line Item List view  -->
-    <section class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActive === $ctrl.displayModes.ITEMS">
+    <section class="row well well-tabs__content" style="display: flex; flex-direction: column" ng-show="$ctrl.displayModeActiveIs( $ctrl.displayModes.LINE_ITEMS )">
 
       <h3>Unfulfilled order items</h3>
 

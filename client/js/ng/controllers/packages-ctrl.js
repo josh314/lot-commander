@@ -196,7 +196,7 @@ angular.module('myApp').controller( 'PackagesCtrl', [
 
           }
           else {
-            ModalSvc.message( { header: 'Invalid', type: 'error', body: `This is an invalid label. Please try another.` } ).then(  )
+            ModalSvc.message( { header: 'Invalid', type: 'error', body: `This is an invalid label. Please try another.` } );
             vm.packageBarcodeToSearch = '';
           }
 
@@ -210,7 +210,7 @@ angular.module('myApp').controller( 'PackagesCtrl', [
     }
 
 
-    function refreshPackagesList() {console.log('refreshPackagesList');
+    function refreshPackagesList() {
 
       if( vm.filter.productUnits ) {
         vm.filter.category = null;

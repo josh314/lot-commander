@@ -249,9 +249,16 @@ class FulfillmentCommander {
 
     const basePickItem = this.getBasePickItem( lineItem );
 
-    const shippingConfiguration = await this.shopify.getProductVariantShippingConfiguration( lineItem.variant.id );
-
     const lineItemPickItems = [];
+
+    let shippingConfiguration;
+
+    try {
+      shippingConfiguration = await this.shopify.getProductVariantShippingConfiguration( lineItem.variant.id );
+    }
+    catch( e ) {
+      console.error( `Error getting shipping configuration for variant ${lineItem.variant.id}: ${e.message}` );
+    }
 
     for( let i=0; i<lineItem.quantity ; i++ ) {
 
