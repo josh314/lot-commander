@@ -57,6 +57,13 @@ function isBlank( value ) {
   }
 }
 
+function getListType( type ) {
+  const match = type && type.match( /^list\.(.*)/ );
+  if( match ) {
+    return match[1];
+  }
+}
+
 function isJsonType( type ) {
   switch( type ) {
     case 'dimension':
@@ -93,6 +100,7 @@ function alphaTextCmp( a, b ) {
 }
 
 function getDisplayType( type ) {
+
   if( isJsonType( type ) ) {
     return 'JSON';
   }
@@ -113,6 +121,29 @@ function getDisplayType( type ) {
   }
 }
 
+function getInputType( type ) {
+
+  if( isJsonType( type ) ) {
+    return 'textarea';
+  }
+  else if( isNumberType( type ) ) {
+    return 'number';
+  }
+  else if( type === 'color'  ) {
+    return 'color';
+  }
+  else if( type === 'multi_line_text_field'  ) {
+    return 'textarea';
+  }
+  else if( type === 'boolean'  ) {
+    return 'boolean';
+  }
+  else {
+    return 'text';
+  }
+
+}
+
 function parseKey( key ) {
 
   if( !key ) {
@@ -130,14 +161,19 @@ function parseKey( key ) {
 
 class DisplayContent {
   constructor( { namespace, key, type, description } = {} ) {
+
+    const listType = getListType( type );
+
     this.id = {};
     this.namespace = namespace;
     this.key = key;
     this.subkey = undefined;
     this.group = undefined;
     this.type = type;
+    this.inputType = getInputType( listType || type );
+    this.listType = listType;
     this.description = description;
-    this.displayType = getDisplayType( type );
+    this.displayType = getDisplayType( listType || type );
     this.value = {};
     this.editValue = {};
 
@@ -154,21 +190,36 @@ class DisplayContent {
   setValue( value, env ) {
 
     switch( this.type ) {
-      case 'dimension':
+      case (this.type.match( /^list/ ) || {}).input:
+        return this.setListValue( value, env );
       case 'json':
+        try {
+          value = JSON.parse( value );
+        }
+        catch(e) {
+          'no-op';
+        }
+        if ( Array.isArray( value ) && ( !value.length || typeof value[0] === 'string') ) {
+          this.listType = 'multi_line_text_field';
+          this.displayType = getDisplayType( 'multi_line_text_field' );
+          this.inputType = getInputType( 'multi_line_text_field' );
+          return this.setListValue( value, env );
+        }
+        else {
+          this.value[ env ] = JSON.stringify( value, null, 4 );
+        }
+        break;
+      case 'dimension':
       case 'rating':
       case 'volume':
       case 'weight':
         try {
-          value = JSON.parse(value);
+          value = JSON.parse( value );
         }
         catch(e) {
           'no-op';
         }
         this.value[ env ] = JSON.stringify( value, null, 4 );
-        break;
-      case 'multi_line_text_field':
-        this.value[ env ] = value;
         break;
       case 'number_integer':
         this.value[ env ] = parseInt( value );
@@ -185,22 +236,103 @@ class DisplayContent {
 
   }
 
+
+  setListValue( value, env ) {
+
+    const arr = Array.isArray( value ) ? value : JSON.parse( value );
+
+    this.value[ env ] = arr.map( _v => {
+
+      switch( this.listType ) {
+        case 'dimension':
+        case 'rating':
+        case 'volume':
+        case 'weight':
+          try {
+            _v = JSON.parse( _v );
+          }
+          catch(e) {
+            'no-op';
+          }
+          return JSON.stringify( _v, null, 4 );
+        case 'number_integer':
+          return parseInt( _v );
+        case 'number_decimal':
+          return parseFloat( _v );
+        default:
+          return _v;
+      }
+
+    });
+
+    this.editValue[ env ] = JSON.parse( JSON.stringify( this.value[ env ] ) );
+
+  }
+
   isBlank( env ) {
     return isBlank( this.editValue[ env ] ); // This is the global isBlank() helper function, not the DisplayContent class method!
   }
 
   isDirty( env ) {
-    return ( this.editValue[ env ] !== this.value[ env ] );
+
+    let editValueDiffersFromValue = false;
+    if( this.listType ) {
+
+      editValueDiffersFromValue = ( JSON.stringify( this.editValue[ env ] ) !== JSON.stringify( this.value[ env ] ) );
+
+    }
+    else {
+
+      editValueDiffersFromValue = ( this.editValue[ env ] !== this.value[ env ] );
+
+    }
+
+    return editValueDiffersFromValue;
   }
 
   revert( env ) {
-    this.editValue[ env ] = this.value[ env ] || '';
+
+    if( this.listType ) {
+
+      this.editValue[ env ] = JSON.parse( JSON.stringify( this.value[ env ] ) );
+
+    }
+    else {
+
+      this.editValue[ env ] = this.value[ env ] || '';
+
+    }
   }
 
   isValid( env ) {
 
     if( this.isBlank( env ) ) {
       return false;
+    }
+
+    if( this.listType ) {
+
+      if( !Array.isArray( this.editValue[ env ] ) ) {
+        return false;
+      }
+
+      let res = true;
+      for( let _v of this.editValue[ env ] ) {
+
+        if( this.inputType === 'boolean' ) {
+          res = res && _v === 'true' || _v === 'false';
+        }
+        else if( this.inputType === 'color' ) {
+          res = res && !!_v.match( /^#[0-9a-fA-F]{6}$/ );
+        }
+        else if( this.inputType === 'number' ) {
+          res = res && isNumeric( _v );
+        }
+
+      }
+
+      return res;
+
     }
 
     if( isJsonType( this.type ) ) {
@@ -232,7 +364,45 @@ class DisplayContent {
   }
 
   readyForProd() {
-    return !this.isDirty( 'staging' ) && this.isValid( 'staging' ) && this.editValue.staging !== this.editValue.prod;
+
+    let stagingDiffersFromProd = false;
+    if( this.listType ) {
+
+      stagingDiffersFromProd = ( JSON.stringify( this.editValue.staging ) !== JSON.stringify( this.value.prod ) );
+
+    }
+    else {
+
+      stagingDiffersFromProd = ( this.editValue.staging !== this.value.prod );
+
+    }
+
+    return !this.isDirty( 'staging' ) && this.isValid( 'staging' ) && stagingDiffersFromProd;
+  }
+
+  newListValue() {
+
+    if( this.listType ) {
+
+      if( this.editValue.staging ) {
+        this.editValue.staging.push( '' );
+      }
+      else {
+        this.editValue.staging = [ '' ];
+      }
+
+    }
+
+  }
+
+  deleteListItem( $index ) {
+
+    if( this.listType ) {
+
+      this.editValue.staging.splice( $index, 1 );
+
+    }
+
   }
 
 }
@@ -354,13 +524,23 @@ angular.module('myApp').controller('StoreContentCtrl', [
     }
 
     function saveContent( content, env ) {
-      const { namespace, key, _value, editValue, type } = content;
+      const { namespace, key, _value, editValue, type, listType } = content;
 
       if( isBlank( editValue[ env ] ) ) {
         throw new Error(`Invalid blank value.`);
       }
 
-      if( isJsonType( type ) ) {
+      const saveItem = {
+        namespace,
+        key,
+        type
+      };
+
+
+      if( listType ) {
+        saveItem.value = JSON.stringify( editValue[ env ] );
+      }
+      else if( isJsonType( type ) ) {
         try {
           JSON.parse( editValue[ env ] );
         }
@@ -368,14 +548,11 @@ angular.module('myApp').controller('StoreContentCtrl', [
           console.log('invalid JSON!');
           return false;
         }
+        saveItem.value = editValue[ env ];
       }
-
-      const saveItem = {
-        namespace,
-        key,
-        value: editValue[ env ],
-        type
-      };
+      else {
+        saveItem.value = editValue[ env ];
+      }
 
       return StoreContentSvc.edit( saveItem, env ).then( metafield => {
 
@@ -471,6 +648,7 @@ angular.module('myApp').controller('StoreContentCtrl', [
           dv.setValue( _c.value, _c.env );
           dv.setId( _c.id, _c.env );
         }
+
       }
       vm.allDisplayContent = allDisplayContent;
 

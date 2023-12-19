@@ -14,7 +14,7 @@
       </select>
     </div>
 
-    <div ng-repeat="$displayContent in $ctrl.displayGroup.content" ng-switch="$displayContent.type">
+    <div ng-repeat="$displayContent in $ctrl.displayGroup.content" ng-switch="$displayContent.inputType">
       <div class="panel panel-primary" ng-class="{
           'panel-danger' : !$displayContent.isValid( 'staging' ) && !$displayContent.isBlank( 'staging' ),
           'panel-success': $displayContent.readyToStage(),
@@ -23,11 +23,13 @@
         <div class="panel-heading">
           <span style="display: flex; justify-content: space-between">
             <p>Key: <strong>{{ $displayContent.subkey }}</strong></p>
-            <p>Data type: {{ $displayContent.displayType }}</p>
+            <p>{{ $displayContent.listType ? 'List' :  'Data' }} type: {{ $displayContent.displayType }}</p>
           </span>
           <p>Description: {{ $displayContent.description }}</p>
         </div>
-        <div class="panel-body">
+
+        <!-- regular data types -->
+        <div class="panel-body" ng-hide="$displayContent.listType">
 
           <!-- Current Production -->
           <div class="form-group">
@@ -44,7 +46,7 @@
               <option>false</option>
             </select>
             <!-- numbers -->
-            <input ng-switch-when-separator="|" ng-switch-when="number_integer|number_decimal"
+            <input ng-switch-when="number"
                   type="number"
                   id="content-input-{{$displayContent.key}}-prod"
                   class="form-control"
@@ -72,16 +74,8 @@
                 />
               </div>
             </div>
-            <!-- objects as JSON -->
-            <textarea ng-switch-when="json"
-                      id="content-input-{{$displayContent.key}}-prod"
-                      class="form-control"
-                      rows="{{$displayContent.value[ 'prod' ].split('\n').length}}"
-                      ng-model="$displayContent.value[ 'prod' ]"
-                      disabled
-                    ></textarea>
-            <!-- multi-line text -->
-            <textarea ng-switch-when="multi_line_text_field"
+            <!-- textarea, including multi-line-text and JSON types -->
+            <textarea ng-switch-when="textarea"
                       id="content-input-{{$displayContent.key}}-prod"
                       class="form-control"
                       rows="{{$displayContent.value[ 'prod' ].split('\n').length}}"
@@ -117,7 +111,7 @@
               <option>false</option>
             </select>
             <!-- numbers -->
-            <input ng-switch-when-separator="|" ng-switch-when="number_integer|number_decimal"
+            <input ng-switch-when="number"
                   type="number"
                   id="content-input-{{$displayContent.key}}-staging"
                   class="form-control"
@@ -145,16 +139,8 @@
                 />
               </div>
             </div>
-            <!-- objects as JSON -->
-            <textarea ng-switch-when="json"
-                      id="content-input-{{$displayContent.key}}-staging"
-                      class="form-control"
-                      rows="{{$displayContent.value[ 'staging' ].split('\n').length}}"
-                      ng-model="$displayContent.value[ 'staging' ]"
-                      disabled
-                    ></textarea>
-            <!-- multi-line text -->
-            <textarea ng-switch-when="multi_line_text_field"
+            <!-- textarea, including multi-line-text and JSON types -->
+            <textarea ng-switch-when="textarea"
                       id="content-input-{{$displayContent.key}}-staging"
                       class="form-control"
                       rows="{{$displayContent.value[ 'staging' ].split('\n').length}}"
@@ -191,7 +177,7 @@
               <option>false</option>
             </select>
             <!-- numbers -->
-            <input ng-switch-when-separator="|" ng-switch-when="number_integer|number_decimal"
+            <input ng-switch-when="number"
               type="number"
               id="content-input-{{$displayContent.key}}-edit-staging"
               class="form-control"
@@ -219,16 +205,8 @@
                 />
               </div>
             </div>
-            <!-- objects as JSON -->
-            <textarea ng-switch-when-separator="|" ng-switch-when="json|dimension|rating|volume|weight"
-                      id="content-input-{{$displayContent.key}}-edit-staging"
-                      class="form-control"
-                      rows="{{$displayContent.editValue[ 'staging' ].split('\n').length}}"
-                      ng-model="$displayContent.editValue[ 'staging' ]"
-                      ng-class="{ 'placeholder': !$displayContent.isDirty( 'staging' ) }"
-                    ></textarea>
-            <!-- multi-line text -->
-            <textarea ng-switch-when="multi_line_text_field"
+            <!-- textarea, including multi-line-text and JSON types -->
+            <textarea ng-switch-when="textarea"
                       id="content-input-{{$displayContent.key}}-edit-staging"
                       class="form-control"
                       rows="{{$displayContent.editValue[ 'staging' ].split('\n').length}}"
@@ -245,16 +223,248 @@
                 />
 
             <!-- Error messages -->
-            <span ng-switch-when-separator="|" ng-switch-when="number_integer|number_decimal"
+            <span ng-switch-when="number"
               ng-hide="$displayContent.isValid( 'staging' ) || $displayContent.isBlank( 'staging' )"
               class="text-danger"
               >Not a number</span>
-            <span ng-switch-when-separator="|" ng-switch-when="json|dimension|rating|volume|weight"
+            <span ng-switch-when="json|dimension|rating|volume|weight"
               ng-hide="$displayContent.isValid( 'staging' ) || $displayContent.isBlank( 'staging' )"
               class="text-danger"
               >Not valid JSON</span>
           </div>
         </div>
+
+         <!-- list data types -->
+        <div class="panel-body" ng-show="$displayContent.listType">
+
+
+          <!-- Current Production (list type) -->
+          <div class="form-group">
+
+            <label>Current production values</label>
+            <div class="form-control" style="height: auto; min-height: 34px; overflow-y: auto;">
+
+              <div ng-repeat="$item in $displayContent.value[ 'prod' ] track by $index" style="margin-bottom:8px;">
+
+                <!-- booleans -->
+                <select ng-switch-when="boolean"
+                      id="content-input-{{$displayContent.key}}-prod-{{$index}}"
+                      class="form-control"
+                      ng-model="$item"
+                      disabled
+                    >
+                  <option>true</option>
+                  <option>false</option>
+                </select>
+                <!-- numbers -->
+                <input ng-switch-when="number"
+                      type="number"
+                      id="content-input-{{$displayContent.key}}-prod-{{$index}}"
+                      class="form-control"
+                      ng-model="$item"
+                      disabled
+                    />
+                <!-- color -->
+                <div ng-switch-when="color">
+                  <div class="col-xs-6">
+                    <input
+                      type="color"
+                      id="content-input-{{$displayContent.key}}-color-prod-{{$index}}"
+                      class="form-control"
+                      ng-model="$item"
+                      disabled
+                    />
+                  </div>
+                  <div class="col-xs-6">
+                    <input
+                      type="text"
+                      id="content-input-{{$displayContent.key}}-hex-prod-{{$index}}"
+                      class="form-control"
+                      ng-model="$item"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <!-- textarea, including multi-line-text and JSON types -->
+                <textarea ng-switch-when="textarea"
+                          id="content-input-{{$displayContent.key}}-prod-{{$index}}"
+                          class="form-control"
+                          rows="{{$item.split('\n').length}}"
+                          ng-model="$item"
+                          disabled
+                        ></textarea>
+                <!-- Default to single-line text input -->
+                <input ng-switch-default
+                      type="text"
+                      id="content-input-{{$displayContent.key}}-prod-{{$index}}"
+                      class="form-control"
+                      ng-model="$item"
+                      disabled
+                    />
+
+
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Current staging (list type) -->
+          <div class="form-group">
+
+            <label>Current staging values</label>
+            <div class="form-control" style="height: auto; min-height: 34px; overflow-y: auto;">
+
+              <div ng-repeat="$item in $displayContent.value[ 'staging' ] track by $index" style="margin-bottom:8px;">
+
+                <!-- booleans -->
+                <select ng-switch-when="boolean"
+                      id="content-input-{{$displayContent.key}}-staging-{{$index}}"
+                      class="form-control"
+                      ng-model="$item"
+                      disabled
+                    >
+                  <option>true</option>
+                  <option>false</option>
+                </select>
+                <!-- numbers -->
+                <input ng-switch-when="number"
+                      type="number"
+                      id="content-input-{{$displayContent.key}}-staging-{{$index}}"
+                      class="form-control"
+                      ng-model="$item"
+                      disabled
+                    />
+                <!-- color -->
+                <div ng-switch-when="color">
+                  <div class="col-xs-6">
+                    <input
+                      type="color"
+                      id="content-input-{{$displayContent.key}}-color-staging-{{$index}}"
+                      class="form-control"
+                      ng-model="$item"
+                      disabled
+                    />
+                  </div>
+                  <div class="col-xs-6">
+                    <input
+                      type="text"
+                      id="content-input-{{$displayContent.key}}-hex-staging-{{$index}}"
+                      class="form-control"
+                      ng-model="$item"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <!-- textarea, including multi-line-text and JSON types -->
+                <textarea ng-switch-when="textarea"
+                          id="content-input-{{$displayContent.key}}-staging-{{$index}}"
+                          class="form-control"
+                          rows="{{$item.split('\n').length}}"
+                          ng-model="$item"
+                          disabled
+                        ></textarea>
+                <!-- Default to single-line text input -->
+                <input ng-switch-default
+                      type="text"
+                      id="content-input-{{$displayContent.key}}-staging-{{$index}}"
+                      class="form-control"
+                      ng-model="$item"
+                      disabled
+                    />
+
+
+
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Value to stage (list type) -->
+          <div class="form-group">
+            <label>Value to stage</label>
+            <div class="form-control" style="height: auto; min-height: 34px; overflow-y: auto; display:flex; flex-direction:column;">
+
+              <div ng-repeat="$item in $displayContent.editValue[ 'staging' ] track by $index" style="display:flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+
+                <!-- booleans -->
+                <select ng-if="$displayContent.inputType === 'boolean'"
+                      id="content-input-{{$displayContent.key}}-edit-staging-{{$index}}"
+                      class="form-control"
+                      ng-model="$displayContent.editValue[ 'staging' ][ $index ]"
+                      ng-class="{ 'placeholder': !$displayContent.isDirty( 'staging' ) }"
+                    >
+                  <option>true</option>
+                  <option>false</option>
+                </select>
+                <!-- numbers -->
+                <input ng-if="$displayContent.inputType === 'number'"
+                      type="number"
+                      id="content-input-{{$displayContent.key}}-edit-staging-{{$index}}"
+                      class="form-control"
+                      ng-model="$displayContent.editValue[ 'staging' ][ $index ]"
+                      ng-class="{ 'placeholder': !$displayContent.isDirty( 'staging' ) }"
+                  />
+                <!-- color -->
+                <div class="row" ng-if="$displayContent.inputType === 'color'">
+                  <div class="col-xs-6">
+                    <input
+                      type="color"
+                      id="content-input-{{$displayContent.key}}-color-edit-staging-{{$index}}"
+                      class="form-control"
+                      ng-model="$displayContent.editValue[ 'staging' ][ $index ]"
+                      ng-class="{ 'placeholder': !$displayContent.isDirty( 'staging' ) }"
+                    />
+                  </div>
+                  <div class="col-xs-6">
+                    <input
+                      type="text"
+                      id="content-input-{{$displayContent.key}}-hex-edit-staging-{{$index}}"
+                      class="form-control"
+                      ng-model="$displayContent.editValue[ 'staging' ][ $index ]"
+                      ng-class="{ 'placeholder': !$displayContent.isDirty( 'staging' ) }"
+                    />
+                  </div>
+                </div>
+                <!-- textarea, including multi-line-text and JSON types -->
+                <textarea ng-if="$displayContent.inputType === 'textarea'"
+                  id="content-input-{{$displayContent.key}}-edit-staging-{{$index}}"
+                  class="form-control"
+                  rows="{{$item.split('\n').length}}"
+                  ng-model="$displayContent.editValue[ 'staging' ][ $index ]"
+                  ng-class="{ 'placeholder': !$displayContent.isDirty( 'staging' ) }"
+                ></textarea>
+                <!-- Default to single-line text input -->
+                <input ng-if="$displayContent.inputType === 'text'"
+                  type="text"
+                  id="content-input-{{$displayContent.key}}-edit-staging-{{$index}}"
+                  class="form-control"
+                  ng-model="$displayContent.editValue[ 'staging' ][ $index ]"
+                  ng-class="{ 'placeholder': !$displayContent.isDirty( 'staging' ) }"
+                />
+
+
+                <span style="margin-left:6px;">
+                  <button class="btn btn-xs btn-danger" ng-click="$displayContent.deleteListItem( $index )">
+                    <span class="glyphicon glyphicon-remove"></span>
+                  </button>
+                </span>
+
+              </div>
+
+              <!-- Add item -->
+              <div style="display:flex; justify-content: center;">
+                <button class="btn btn-primary btn-sm" ng-click="$displayContent.newListValue()">Add item</button>
+              </div>
+
+            </div>
+
+
+          </div>
+
+        </div>
+
         <div class="panel-footer" style="display: flex; justify-content: flex-end;">
 
           <div style="margin-right: auto;">
