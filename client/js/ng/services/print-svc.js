@@ -35,6 +35,10 @@ angular.module('myApp').factory('PrintSvc', [ function( ){
     printJS(`/api/print/labels/pallets/${ palletId }/split-groups/${splitGroupId}`);
   };
 
+  const printOrderLabels = ( orderId ) => {
+    printJS(`/api/print/labels/orders/${ orderId }`);
+  };
+
   return {
     printIncomingShipmentLabels,
     printLotShippingItemsLabels,
@@ -42,6 +46,7 @@ angular.module('myApp').factory('PrintSvc', [ function( ){
     printPalletShippingItemsLabels,
     printPalletSplitGroupLabels,
     printPickReceipt,
+    printOrderLabels,
 
     // DEPRECATED
     // printLotLabels,

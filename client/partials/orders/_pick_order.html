@@ -24,11 +24,16 @@
   <button class="btn btn-sm btn-primary" ng-click="$ctrl.printPickReceipt()" ng-disabled="$ctrl.order.status !== 'done'">Print Pick Receipt</button>
 </div> -->
 
-          <div class="flex-row-item" ng-hide="$ctrl.orderPick.isFinished">
-            <button class="btn btn-sm btn-primary" ng-click="$ctrl.orderPick.finish()" ng-disabled="!$ctrl.orderPick.allItemsPicked()">Finish</button>
-          </div>
-          <div class="flex-row-item" ng-show="$ctrl.orderPick.isFinished">
-            <button class="btn btn-sm btn-warning" ng-click="$ctrl.orderPick.unfinish()">Re-open</button>
+          <div class="flex-row-item">
+            <span>
+              <button class="btn btn-sm btn-primary" ng-click="$ctrl.printLabels()">Print Labels</button>
+            </span>
+            <span ng-hide="$ctrl.orderPick.isFinished">
+              <button class="btn btn-sm btn-primary" ng-click="$ctrl.orderPick.finish()" ng-disabled="!$ctrl.orderPick.allItemsPicked()">Finish</button>
+            </span>
+            <span ng-show="$ctrl.orderPick.isFinished">
+              <button class="btn btn-sm btn-warning" ng-click="$ctrl.orderPick.unfinish()">Re-open</button>
+            </span>
           </div>
         </div>
       </div>

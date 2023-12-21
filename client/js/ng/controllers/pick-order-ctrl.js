@@ -10,6 +10,7 @@ angular.module('myApp').controller( 'PickOrderController', [
   'ModalSvc',
   'navigate',
   'OrderSvc',
+  'PrintSvc',
   'sessionTimeout',
 
   function(
@@ -20,6 +21,7 @@ angular.module('myApp').controller( 'PickOrderController', [
     ModalSvc,
     navigate,
     OrderSvc,
+    PrintSvc,
     sessionTimeout,
 
   ) {
@@ -43,6 +45,7 @@ angular.module('myApp').controller( 'PickOrderController', [
           undoPick,
           goToLotPage,
           goToOrderQueue,
+          printLabels,
 
           // expose modules to view
 
@@ -117,6 +120,27 @@ angular.module('myApp').controller( 'PickOrderController', [
 
     function goToOrderQueue() {
       navigate.orderQueue();
+    }
+
+    async function printLabels() {
+
+      let shouldPrint = true;
+
+      if( !vm.orderPick.allItemsPicked() ) {
+
+        shouldPrint = await ModalSvc.confirm( {
+          header: 'Print Labels',
+          body: 'Picking for this order is not complete. Are you sure you want to print labels now?'
+        } );
+
+      }
+
+      if( shouldPrint ) {
+
+        PrintSvc.printOrderLabels( vm.order._id );
+
+      }
+
     }
 
   }

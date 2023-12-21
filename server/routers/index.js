@@ -49,7 +49,7 @@ function routes({
 
   router.use('/api/listings', require('./listings')( { eventsDb: eventsDbClient, inventoryCommander, listings, lotdb, shopifyGql } ));
   router.use('/api/image', require('./images')( { inventoryCommander, lotdb } ) );
-  router.use('/api/print', require('./print')( { inventoryCommander, lotdb: lotdb } ) );
+  router.use('/api/print', require('./print')( { fulfillmentCommander, inventoryCommander, lotdb: lotdb } ) );
   router.use('/api/manifests', require('./manifests')( { manifests } ) );
 
   router.use('/api/content', require('./content')( { shopifyGql, storeMetafieldSchemaDb } ) );

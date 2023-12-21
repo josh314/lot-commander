@@ -1,5 +1,9 @@
 const path = require('path');
 const express = require('express');
+const {
+  ResourceNotFoundError,
+  ChildResourceNotFoundError
+} = require('../errors');
 
 const print = require(path.join(__basedir, __config.modulesPath, 'print'));
 
@@ -36,7 +40,7 @@ function getPalletList( shipment, type ) {
  *
  **********/
 
-function routes({ inventoryCommander, lotdb }) {
+function routes({ fulfillmentCommander, inventoryCommander, lotdb }) {
 
   const router = new express.Router();
 
@@ -57,6 +61,8 @@ function routes({ inventoryCommander, lotdb }) {
   router.get( '/labels/pallets/:palletId/split-groups/:splitGroupId', palletSplitGroupLabels );
 
   router.post( '/labels/packages/', packageLabelsByIdList );
+
+  router.get( '/labels/orders/:orderId', orderLabels );
 
   /*******************************************
    * Define handlers
@@ -165,6 +171,39 @@ function routes({ inventoryCommander, lotdb }) {
 
       })
       .catch( next );
+  }
+
+  async function orderLabels(req, res, next) {
+
+    const orderId = req.params.orderId;
+
+    try {
+
+      const order = await fulfillmentCommander.shopifyOrders.getShopifyOrderById( orderId, { populate: [ 'orderPick.pickItems.package', 'orderPick.pickItems.lot' ] } );
+
+      if ( !order) {
+        throw new ResourceNotFoundError( { type: 'shopify order', id: orderId } );
+      }
+
+      if( order && !order.orderPick ) {
+
+        throw new ChildResourceNotFoundError(
+          {
+            parentType: 'shopify order',
+            parentId: orderId,
+            childType: 'shopify order pick',
+          }
+        );
+
+      }
+
+      print.createOrderPickLabels( order.orderPick ).pipe(res);
+
+    }
+    catch(e) {
+      next(e);
+    }
+
   }
 
   /**************************************

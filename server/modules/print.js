@@ -257,36 +257,43 @@ function createPalletLabels( palletIds, shipmentId ) {
 
 }
 
-function createPackageLabels( packages ) {
+function addPackageLabel( doc, pkg ) {
 
+  addStandardLabel( doc );
+  addBarcode( doc, pkg._id );
+
+  doc
+    .fontSize(5)
+    .moveDown();
+
+  if( pkg.productTitle ) {
+    doc
+      .font('Helvetica').text(`Product: `, { continued: true })
+      .font('Helvetica-Bold').text(`${ pkg.productTitle }`, { underline: true });
+  }
+  else if ( pkg.category ) {
+    doc
+      .font('Helvetica').text(`Category: `, { continued: true })
+      .font('Helvetica-Bold').text(`${ pkg.category }`, { underline: true });
+  }
+
+  doc
+    .font('Helvetica').text(`Condition: ${ pkg.condition}`, { continued: false } )
+    .font('Helvetica').text(`Units: ${ pkg.units}`, { continued: false } )
+    .font('Helvetica').text(`Date: `, { continued: true })
+    .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
+
+  return doc;
+}
+
+
+function createPackageLabels( packages ) {
 
   const doc = new PDFDocument({ autoFirstPage: false });
 
   for( const pkg of packages ) {
 
-    addStandardLabel( doc );
-    addBarcode( doc, pkg._id );
-
-    doc
-      .fontSize(5)
-      .moveDown();
-
-    if( pkg.productTitle ) {
-      doc
-        .font('Helvetica').text(`Product: `, { continued: true })
-        .font('Helvetica-Bold').text(`${ pkg.productTitle }`, { underline: true });
-    }
-    else if ( pkg.category ) {
-      doc
-        .font('Helvetica').text(`Category: `, { continued: true })
-        .font('Helvetica-Bold').text(`${ pkg.category }`, { underline: true });
-    }
-
-    doc
-      .font('Helvetica').text(`Condition: ${ pkg.condition}`, { continued: false } )
-      .font('Helvetica').text(`Units: ${ pkg.units}`, { continued: false } )
-      .font('Helvetica').text(`Date: `, { continued: true })
-      .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
+    addPackageLabel( doc, pkg );
 
   }
 
@@ -414,9 +421,7 @@ function createPalletSplitGroupLabels( splitGroup, pallet ) {
   return doc;
 }
 
-function createLotShippingItemsLabels( lot ) {
-
-  const doc = new PDFDocument({ autoFirstPage: false });
+function addLotShippingItemsLabels( doc, lot ) {
 
   for( let i=0; i<lot.shippingItems.length; i++ ) {
 
@@ -447,12 +452,45 @@ function createLotShippingItemsLabels( lot ) {
       .font('Helvetica').text(`Date: `, { continued: true })
       .font('Helvetica-Bold').text(`${ dayjs().format( 'MM-DD-YYYY' ) }`, { underline: true });
 
+  }
+
+  return doc;
+}
+
+function createLotShippingItemsLabels( lot ) {
+
+  const doc = new PDFDocument({ autoFirstPage: false });
+
+  addLotShippingItemsLabels( doc, lot );
+
+  doc.end();
+  return doc;
+}
+
+function createOrderPickLabels( orderPick ) {
+
+  const doc = new PDFDocument({ autoFirstPage: false });
+
+  for( let pickItem of orderPick.pickItems ) {
+
+    if( pickItem.pkg ) {
+
+      addPackageLabel( doc, pickItem.pkg );
+
+    }
+
+    if( pickItem.lot ) {
+
+      addLotShippingItemsLabels( doc, pickItem.lot );
+
+    }
 
   }
 
   doc.end();
   return doc;
 }
+
 
 module.exports = {
   createLotShippingItemsLabels,
@@ -461,6 +499,7 @@ module.exports = {
   createPalletShippingItemsLabels,
   createPalletSplitGroupLabels,
   createPickReceipt,
+  createOrderPickLabels
 
   // DEPRECATED
   // createLotLabels,
