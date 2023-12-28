@@ -179,7 +179,7 @@ function routes({ fulfillmentCommander, inventoryCommander, lotdb }) {
 
     try {
 
-      const order = await fulfillmentCommander.shopifyOrders.getShopifyOrderById( orderId, { populate: [ 'orderPick.pickItems.package', 'orderPick.pickItems.lot' ] } );
+      const order = await fulfillmentCommander.shopifyOrders.getShopifyOrderById( orderId, { populate: [ 'orderPick.pickItems.pkg', 'orderPick.pickItems.lot' ] } );
 
       if ( !order) {
         throw new ResourceNotFoundError( { type: 'shopify order', id: orderId } );
