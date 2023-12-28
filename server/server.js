@@ -303,6 +303,14 @@ class Server {
     const FulfillmentCommander = require( './modules/fulfillment-commander' );
     const fulfillmentCommander = new FulfillmentCommander( Object.assign( { inventoryCommander, lotdb, shopifyOrders, shopifyAdminClient } , models ) );
 
+    const Scheduler = require('./modules/scheduler');
+    const scheduler = new Scheduler( {
+      mongo: this.mongooseConnection.db,
+      shopifyGql: shopifyGqlClient[ 'prod' ]
+    } );
+
+    await scheduler.init();
+
     //======================================================
     // Main app routes =====================================
     //======================================================
@@ -318,6 +326,7 @@ class Server {
       manifests,
       manualInventoryDbClient,
       productData,
+      scheduler,
       shopifyGql: shopifyGqlClient,
       shopifyOrders,
       storeMetafieldSchemaDb,

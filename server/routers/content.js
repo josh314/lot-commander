@@ -19,7 +19,8 @@ const getClientEnvStr = req => {
  *
  **********/
 
-function routes({ shopifyGql, storeMetafieldSchemaDb }) {
+function routes({ scheduler, shopifyGql, storeMetafieldSchemaDb }) {
+
   const router = new express.Router();
 
   /*******************************************
@@ -53,6 +54,12 @@ function routes({ shopifyGql, storeMetafieldSchemaDb }) {
     '/:id',
     auth.isAuthorized( 'DELETE_STORE_CONTENT' ),
     deleteContent
+  );
+
+  router.post(
+    '/schedule',
+    auth.isAuthorized( 'EDIT_STORE_CONTENT' ),
+    scheduleEditContent
   );
 
   /*******************************************
@@ -158,6 +165,29 @@ function routes({ shopifyGql, storeMetafieldSchemaDb }) {
     catch(e) {
       return next(e);
     }
+  }
+
+  /* Scheduling endpoints */
+
+  async function scheduleEditContent( req, res, next ) {
+
+    try {
+
+      const { content } = req.body;
+
+      const when = new Date( req.body.when );
+
+      const newMetafield = Object.assign( content, { namespace: 'wsn_content' });
+
+      const resp = await scheduler.setShopMetafield( when, newMetafield );
+
+      res.json( resp );
+
+    }
+    catch (e) {
+      next( e );
+    }
+
   }
 
   /**************************************

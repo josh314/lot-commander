@@ -26,6 +26,7 @@ function routes({
   manifests,
   manualInventoryDbClient,
   productData,
+  scheduler,
   shopifyGql,
   shopifyOrders,
   storeMetafieldSchemaDb,
@@ -52,8 +53,9 @@ function routes({
   router.use('/api/print', require('./print')( { fulfillmentCommander, inventoryCommander, lotdb: lotdb } ) );
   router.use('/api/manifests', require('./manifests')( { manifests } ) );
 
-  router.use('/api/content', require('./content')( { shopifyGql, storeMetafieldSchemaDb } ) );
+  router.use('/api/content', require('./content')( { scheduler, shopifyGql, storeMetafieldSchemaDb } ) );
 
+  router.use('/api/mailchimp', require('./mailchimp')( { scheduler } ) );
 
   // inventory commander
   router.use('/api/inventory', require('./inventory')( { inventoryCommander } ) );
