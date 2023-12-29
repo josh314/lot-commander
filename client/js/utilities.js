@@ -128,8 +128,6 @@ export function shopifyGid2Id( gid, type ) {
  *
  ******/
 
-
-
 export function createSubobject( obj, fields ) {
 
   const subobj = {};
@@ -138,4 +136,29 @@ export function createSubobject( obj, fields ) {
   }
 
   return subobj;
+}
+
+export function groupBy( arr, key, type ) {
+
+  const groups = {};
+
+  for( let item of arr ) {
+
+    const k = item[ key ];
+
+    if( !groups[ k ] ) {
+      groups[ k ] = [];
+    }
+
+    groups[ k ].push( item );
+
+  }
+
+  if( type === 'array' ) {
+    return Object.values( groups );
+  }
+  else {
+    return groups;
+  }
+
 }

@@ -1442,3 +1442,30 @@ export function getLabelsforPackageList( packageIds ) {
   })
     .then( resp => resp.data );
 }
+
+/*************************************************
+ * Mailchimp
+ * ==============
+ *
+ * ************/
+
+export function listMailchimpJobs( qp ) {
+  return axios({
+    method: 'get',
+    url: `/api/mailchimp/jobs/?${qs.stringify(qp)}`,
+  })
+    .then( resp => resp.data.jobs );
+}
+
+export function updateMailchimpJob( jobId, { interval, when, data } ) {
+  return axios({
+    method: 'patch',
+    url: `/api/mailchimp/jobs/${ jobId }`,
+    data: {
+      interval,
+      when,
+      data
+    }
+  })
+    .then( resp => resp.data.job );
+}

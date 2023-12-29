@@ -89,6 +89,7 @@ const stateData = [
   { name: "main.store.shipping-configurations", navParent: 'Store', navName: 'Shipping Configs', url: '/shipping-configurations', templateUrl: '/partials/_shipping_configurations.html', userPermission: 'EDIT_STORE_SHIPPING_CONFIGURATIONS' },
   { name: "main.store.content", navParent: 'Store', navName: 'Content', url: '/content', templateUrl: '/partials/_store_content.html', userPermission: 'EDIT_STORE_CONTENT' },
   { name: "main.store.bundles", navParent: 'Store', navName: 'Bundles', url: '/bundles', templateUrl: '/partials/_product_bundles.html', userPermission: 'EDIT_STORE_CONTENT' },
+  { name: "main.store.mailchimp-schedule", navParent: 'Store', navName: 'Emails', url: '/mailchimp-schedule', templateUrl: '/partials/_mailchimp_schedule.html', userPermission: 'EDIT_MAILCHIMP_SCHEDULE' },
 
   // users
   { name: "main.users", abstract:true, url: "/users", templateUrl: 'partials/_container.html'},

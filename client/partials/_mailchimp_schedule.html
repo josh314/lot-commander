@@ -1,0 +1,24 @@
+<div class="container" ng-controller="MailchimpScheduleCtrl as $ctrl">
+  <h1>Mailchimp Schedule</h1>
+
+  <div ng-repeat="( $name, $jobs ) in $ctrl.jobGroups track by $index">
+    <div class="row">
+
+        <h3>{{$name}}</h3>
+        <div ng-repeat="$job in $jobs track by $index">
+
+          <div ng-show="$job.repeatInterval">
+interval
+          </div>
+
+          <div ng-hide="$job.repeatInterval">
+            <input type="text" ng-value="$ctrl.util.prettifyDate( $job.nextRunAt )" disabled/>
+          </div>
+
+        </div>
+
+    </div>
+
+  </div>
+
+</div>
