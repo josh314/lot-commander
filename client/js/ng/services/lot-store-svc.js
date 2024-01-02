@@ -271,5 +271,9 @@ angular.module('myApp').service('lotStore', [ '$sce', 'dbEnums',
       return this.listingData && this.listingData.body ? $sce.trustAsHtml( this.listingData.body ) : '';
     };
 
+    this.hasListing = function() {
+      return this.submittedListings && this.submittedListings.length>0 && this.submittedListings.find(l => l.success);
+    }
+
   }
 ]);

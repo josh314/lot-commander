@@ -283,7 +283,16 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       });
     };
 
-    function configureListingForSubmission() {
+    async function configureListingForSubmission() {
+
+      if( lotStore.hasListing() ) {
+        const isConfirmed = await ModalSvc.confirm( { header: 'Lot has listing', body: 'This lot already has a successfully submitted listing. Proceed anyway?', type: 'warning' } );
+
+        if( !isConfirmed ) {
+          return;
+        }
+
+      }
 
       if( !LoggedInUser.hasMarketplacePermission( lotStore.destinationMarketplace ) ) {
         let msg = `User is not authorized to submit to marketplace: ${lotStore.destinationMarketplace}. Choose another marketplace.`;
@@ -292,16 +301,16 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       }
 
       const missingFields = [];
-      if(!lotStore.listingData.title) {
+      if( !lotStore.listingData.title ) {
         missingFields.push('title');
       }
-      if(!lotStore.listingData.body) {
+      if( !lotStore.listingData.body ) {
         missingFields.push('body');
       }
-      if(!lotStore.getHandle()) {
+      if( !lotStore.handle ) {
         missingFields.push('handle');
       }
-      if(!lotStore.numBoxes && !validateShippingItems() ) {
+      if( !lotStore.numBoxes && !validateShippingItems() ) {
         missingFields.push('shipping items');
       }
       if(vm.images.length <= 0) {
