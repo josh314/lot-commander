@@ -54,34 +54,51 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
       };
     };
 
-    svc.loadRepresentativeImage = async ( { images, containerId, className } ) => {
-      let img;
-      if(!images || !images.length) {
-        img = new Image();
-        img.src = errorImg;
-      }
-      else {
-        img = await Promise.any( images.map( this.loadImageWithTimeoutAndPlaceholder(10000, errorImg) ) );
-      }
+    svc.loadRepresentativeImage = ( { images, containerId, className } ) => {
 
-      img.className = className || '';
+      // using $timeout forces a tick in the digest cycle which ensures that the parent containers have been created from recent changes in the model
+      return $timeout( async () => {
 
-      if(containerId) {
-        const parent = $window.document.getElementById(containerId);
-        parent.appendChild(img);
-      }
-      else {
-        return img;
-      }
+        if( !containerId ) {
+          return;
+        }
+
+        const itemContainer = $window.document.getElementById(containerId);
+
+        // return if there is already a representative image.
+        let representativeImg = itemContainer.querySelector('img.representative-img');
+        if( representativeImg ) {
+          return;
+        }
+
+        let img;
+        if(!images || !images.length) {
+          img = new Image();
+          img.src = errorImg;
+        }
+        else {
+          img = await Promise.any( images.map( this.loadImageWithTimeoutAndPlaceholder(10000, errorImg) ) );
+        }
+
+        img.className = `representative-img${ className ? ` ${ className}` : ''}`;
+
+        // check once more for representative image before adding
+        representativeImg = itemContainer.querySelector('img.representative-img');
+        if( !representativeImg ) {
+          itemContainer.appendChild(img);
+        }
+
+      }, 1);
+
     };
 
-    svc.uploadLotImages = (lot, images) => {
+    svc.uploadLotImages = ( lotId, images ) => {
 
       const uploads = [];
 
       for( let image of images ) {
         uploads.push(
-          fileUpload.uploadFileToUrl(image, urls.upload, { lotId: lot._id, primary: false })
+          fileUpload.uploadFileToUrl(image, urls.upload, { lotId, primary: false })
         );
       }
 
@@ -89,13 +106,13 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
 
     };
 
-    svc.updateLotPrimaryImage = (lot, image) => {
-      return $q.when( api.setPrimaryLotImage( lot._id, image ) );
+    svc.updateLotPrimaryImage = ( lotId, image ) => {
+      return $q.when( api.setPrimaryLotImage( lotId, image ) );
     };
 
-    svc.removeLotImage = async (lot, image) => {
+    svc.removeLotImage = async ( lotId, image ) => {
       const data = {
-        lotId: lot._id,
+        lotId,
         image: image
       };
       let resp;

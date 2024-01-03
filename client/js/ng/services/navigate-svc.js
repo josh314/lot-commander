@@ -22,7 +22,10 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     $state.go( 'main.lots.scan', { lotId: lotId } );
   };
 
-  const editLotManifest = () => $state.go( 'main.lots.edit-manifest' );
+  const editLotManifest = lotId => {
+    $anchorScroll();
+    $state.go( 'main.lots.edit-manifest', { lotId: lotId } );
+  };
 
   const listLots = () => {
     $anchorScroll();
@@ -91,9 +94,9 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     $state.go( 'main.history', { species: species, id: id } );
   };
 
-  const submitListing = () => {
+  const submitListing = lotId => {
     $anchorScroll();
-    $state.go( 'main.lots.submit-listing' );
+    $state.go( 'main.lots.submit-listing', { lotId } );
   };
 
   const imageEditor = () => {

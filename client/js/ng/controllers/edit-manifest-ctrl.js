@@ -2,20 +2,57 @@ import angular from 'angular';
 
 
 /******************* Edit Manifest Page Controller *************************/
-angular.module('myApp').controller('EditManifestCtrl', [ 'lotStore', 'LotSvc', 'navigate', 'sessionTimeout',
-  function( lotStore, LotSvc, navigate, sessionTimeout ) {
+angular.module('myApp').controller('EditManifestCtrl', [
 
-    sessionTimeout.timeoutExpired();
+  'LotSvc',
+  'navigate',
+  'sessionTimeout',
+
+  function(
+
+    LotSvc,
+    navigate,
+    sessionTimeout,
+
+  ) {
 
     const vm = this;
+    init();
 
-    vm.addInventoryItem = lotStore.addInventory.bind( lotStore );
-    vm.getInventory = lotStore.getInventorySortedByBarcode.bind( lotStore );
-    vm.deleteInventoryItem = lotStore.deleteProduct.bind( lotStore );
+    function init() {
 
-    vm.saveManifest = () => LotSvc.saveManifest().then(()=>{
-      navigate.viewLot( lotStore._id );
-    });
+      sessionTimeout.timeoutExpired();
+
+      Object.assign(
+        vm,
+        {
+          addInventoryItem,
+          deleteInventoryItem,
+          saveManifest,
+        }
+      );
+
+      LotSvc.load( )
+        .then( lot => {
+
+          vm.lot = lot;
+
+        } );
+
+    }
+
+    function deleteInventoryItem( barcode ) {
+      vm.lot.deleteProduct( barcode );
+    }
+
+    function addInventoryItem() {
+      vm.lot.inventory.push({});
+    }
+
+    async function saveManifest() {
+      await vm.lot.saveManifest();
+      navigate.viewLot( vm.lot._id );
+    }
 
   }
 ]);

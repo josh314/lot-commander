@@ -104,6 +104,7 @@ export function getLotManifestFile( lotId ) {
 
 export function import3rdPartyManifestBlock( { lot, blockId } ) {
 
+// TODO: does this really need the whole lot or just lotId?
   return axios({
     method: 'post',
     url: `/api/db/import-3p-manifest-block`,

@@ -6,7 +6,6 @@ angular.module('myApp').controller( 'NewLotCtrl', [
   'dbEnums',
   'listingBuilder',
   'lotCategories',
-  'lotStore',
   'LotSvc',
   'ModalSvc',
   'navigate',
@@ -17,7 +16,6 @@ angular.module('myApp').controller( 'NewLotCtrl', [
     dbEnums,
     listingBuilder,
     lotCategories,
-    lotStore,
     LotSvc,
     ModalSvc,
     navigate,
@@ -76,7 +74,7 @@ angular.module('myApp').controller( 'NewLotCtrl', [
       });
     }
 
-    function setHandleForCategory() {console.log(vm.newLotCategory)
+    function setHandleForCategory() {
       if( vm.newLotCategory.value ) {
         buildHandleForPrefix( vm.newLotCategory.prefix ).then(handle => vm.newLot.handle = handle);
       }
@@ -125,16 +123,16 @@ angular.module('myApp').controller( 'NewLotCtrl', [
         }
         else {
           const lot = resp.lot;
-          lotStore.save(lot);
-          if(lot.unmanifested) {
-            navigate.viewLot( lotStore._id );
+
+          if( lot.unmanifested ) {
+            navigate.viewLot( lot._id );
           }
           else {
-            if(vm.willUploadManifest) {
-              navigate.uploadLotManifest( lotStore._id );
+            if( vm.willUploadManifest ) {
+              navigate.uploadLotManifest( lot._id );
             }
             else {
-              navigate.scanLot( lotStore._id );
+              navigate.scanLot( lot._id );
             }
           }
         }

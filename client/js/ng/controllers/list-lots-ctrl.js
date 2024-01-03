@@ -3,43 +3,66 @@ import angular from 'angular';
 const __PAGE_SIZE__ = 25;
 
 /******************* Lot List Page Controller *************************/
-angular.module('myApp').controller('ListLotsCtrl', [ 'dbEnums', 'lotStore', 'LotSvc', 'navigate', 'sessionTimeout',
-  function( dbEnums, lotStore, LotSvc, navigate, sessionTimeout ) {
-    sessionTimeout.timeoutExpired();
+angular.module('myApp').controller('ListLotsCtrl', [
+
+  'dbEnums',
+  'LotSvc',
+  'navigate',
+  'sessionTimeout',
+
+  function(
+
+    dbEnums,
+    LotSvc,
+    navigate,
+    sessionTimeout
+
+  ) {
 
     const vm = this;
-
-    vm.pagination = {
-      current: 1,
-      totalItems: 0,
-      pageSize: __PAGE_SIZE__,
-      pageChange: refreshLotsList,
-      maxSize: 5
-    };
-
-    // list options
-    vm.filter = {
-      status: 'All',
-      handle: '',
-      lotNumber: '',
-    };
-    vm.sortOpts = {
-      key: 'createdAt',
-      ascending: false
-    };
-
-    vm.lots = [];
-    vm.statusOptions = dbEnums.lotStatus;
-    vm.marketplaces = [undefined].concat(dbEnums.marketplaces);
-
-    vm.saveLot = saveLot;
-    vm.scanItems = scanItems;
-    vm.refreshLotsList = refreshLotsList;
-    vm.viewLot = viewLot;
-
     init();
 
+
     function init() {
+
+      sessionTimeout.timeoutExpired();
+
+      Object.assign(
+        vm,
+        {
+
+          pagination: {
+            current: 1,
+            totalItems: 0,
+            pageSize: __PAGE_SIZE__,
+            pageChange: refreshLotsList,
+            maxSize: 5
+          },
+
+          // list options
+          filter: {
+            status: 'All',
+            handle: '',
+            lotNumber: '',
+          },
+          sortOpts: {
+            key: 'createdAt',
+            ascending: false
+          },
+
+          lots: [],
+          statusOptions: dbEnums.lotStatus,
+          marketplaces: [undefined].concat(dbEnums.marketplaces),
+
+          saveLotMarketplace,
+          scanItems,
+          refreshLotsList,
+          viewLot,
+
+        }
+      );
+
+
       // loadUserSettings();
       refreshLotsList();
     }
@@ -101,43 +124,15 @@ angular.module('myApp').controller('ListLotsCtrl', [ 'dbEnums', 'lotStore', 'Lot
     }
 
     function scanItems( lotId ) {
-      const targetLot = vm.lots.find(lot => lot._id === lotId);
-      if(targetLot) {
-        lotStore.save(targetLot);
-
-        let manP;
-        if( lotStore.manifestId ) {
-          manP = LotSvc.getManifest( lotStore.manifestId ).then( manifest => {
-            lotStore.setInventory( manifest.inventory );
-          });
-        }
-
-        manP ? manP.then( _ => navigate.scanLot( lotId ) ) : navigate.scanLot( lotId );
-
-      }
+      navigate.scanLot( lotId );
     }
 
     function viewLot( lotId ) {
-      const targetLot = vm.lots.find(lot => lot._id === lotId);
-      if(targetLot) {
-        lotStore.save(targetLot);
-
-        let manP;
-        if( lotStore.manifestId ) {
-          manP = LotSvc.getManifest( lotStore.manifestId ).then( manifest => {
-            lotStore.setInventory( manifest.inventory );
-          });
-        }
-
-        manP ? manP.then( _ => navigate.viewLot( lotId ) ) : navigate.viewLot( lotId );
-
-      }
+      navigate.viewLot( lotId );
     }
 
-    function saveLot( lot ) {
-
-      return LotSvc.edit( lot._id, lot );
-
+    function saveLotMarketplace( lot ) {console.log(lot);
+      return LotSvc.edit( lot._id, { destinationMarketplace: lot.destinationMarketplace } );
     }
 
   }

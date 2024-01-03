@@ -8,7 +8,7 @@ angular.module('myApp').factory( 'LotSvc', [
   '$q',
   '$stateParams',
   'InventoryPallet',
-  'lotStore',
+  'Lot',
   'ManifestFileHandlerSvc',
 
   function(
@@ -16,7 +16,7 @@ angular.module('myApp').factory( 'LotSvc', [
     $q,
     $stateParams,
     InventoryPallet,
-    lotStore,
+    Lot,
     ManifestFileHandlerSvc,
 
   ) {
@@ -74,8 +74,6 @@ angular.module('myApp').factory( 'LotSvc', [
 
       getLotByHandle,
 
-      getLotStore: () => lotStore,
-
       getManifest: manifestId => $q.when( api.getManifest( manifestId ) ),
 
       getManifestFile: ( lotId, isPrivate ) => $q.when( api.getManifestFile( lotId, isPrivate ) ),
@@ -108,14 +106,14 @@ angular.module('myApp').factory( 'LotSvc', [
         });
       },
 
-      load: ( { populate, hydratePallet, hydratePalletNoDocuments } = {} ) => $q.when( _get( $stateParams.lotId, { populate, hydratePallet, hydratePalletNoDocuments } ).then( async (lot) => {
+      load: ( { populate, hydratePallet, hydratePalletNoDocuments } = {} ) => $q.when( _get( $stateParams.lotId, { populate, hydratePallet, hydratePalletNoDocuments } ).then( async _lot => {
 
-        lotStore.save( lot );
+        const lot = new Lot( _lot );
 
         if( lot.manifestId ) {
 
-          await $q.when( api.getManifest( lot.manifestId) ).then( manifest => {
-            lotStore.setInventory( manifest.inventory );
+          await $q.when( api.getManifest( lot.manifestId ) ).then( manifest => {
+            lot.setInventory( manifest.inventory );
           });
 
         }
@@ -139,23 +137,236 @@ angular.module('myApp').factory( 'LotSvc', [
 
       },
 
-      saveManifest: () => {
-        // This filters out completely empty lines
-        lotStore.inventory = lotStore.inventory.filter(item=>{
-          if(item.barcode || item.description || item.quantity || item.price) {
-            return true;
-          }
-          return false;
-        });
-
-        lotStore.updateTotalUnits();
-
-        return $q.when( api.saveLotManifest( lotStore ) );
-
-      }
-
     };
 
   }
 ]);
 
+
+/******************* Lot class ***/
+angular.module('myApp').factory( 'Lot', [
+
+  '$q',
+  '$sce',
+  'dbEnums',
+
+  function( $q, $sce, dbEnums ) {
+
+    class Lot {
+
+      constructor( data ) {
+
+        // identifiers
+        this.handle = undefined;
+        this.lotNumber = undefined;
+        this._id = undefined;
+
+        // top-level metadata
+        this.description = undefined;
+        this.type = undefined;
+        this.category = undefined;
+        this.status = dbEnums.lotStatus[0];
+
+        // manifest & inventory
+        this.totalUnits = 0;
+        this.estimatedRetailValue = undefined;
+        this.priceValuePercentage = undefined;
+        this.unmanifested = false;
+        this.inventory = [];
+        this.manifestId = undefined;
+        this.thirdPartyManifests = [];
+        this.manifestFileLocation = undefined;
+
+        // images
+        this.images = [];
+
+        // listing and order information
+        this.listingData = {};
+        this.submittedListings = [];
+        this.destinationMarketplace = undefined;
+        this.listedDate = undefined;
+        this.soldDate = undefined;
+        this.shippedDate = undefined;
+
+        // shipping properties
+        this.numBoxes = undefined;
+        this.packagingType = undefined;
+        this.shippingItems = [];
+
+        // link to pallet
+        this.pallet = undefined;
+
+        this.isDeleted = false;
+
+        if( data ) {
+          Object.assign( this, data );
+        }
+
+      }
+
+      /*****************************************
+       * Setters & mutators
+       *
+       **********/
+      // inventory & manifests
+      setInventory( _inventory ) {
+        this.inventory = _inventory.map(i=> i.quantity<0 ? Object.assign(i,{quantity:0}) : i );
+        return this.inventory;
+      }
+
+      updateTotalUnits() {
+        this.totalUnits = this.inventory ? this.inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 ;
+        return this.totalUnits;
+      }
+
+      // main save function
+      save( _lot ) {
+        this.reset();
+        Object.assign( this, _lot );
+      }
+
+      // Inventory mutators
+      addInventory(newBarcode) {
+        let item;
+        if(!newBarcode) {
+          item = { quantity: 0 };
+        }
+        else if(/[0-9]{8,15}/.test(newBarcode)) {
+          const idx = this.inventory.findIndex(i => i.barcode == newBarcode);
+          if(idx>=0) {
+            item = this.inventory[idx];
+            item.quantity += 1;
+            this.inventory.splice(idx, 1);
+          }
+          else {
+            item = {
+              barcode: newBarcode,
+              quantity: 1
+            };
+          }
+          this.totalUnits += 1;
+        }
+        this.inventory = [item].concat(this.inventory);
+        return item;
+      }
+
+      decrementInventory(barcode) {
+        var idx = this.inventory.findIndex(item => item.barcode == barcode);
+        if(idx >= 0) {
+          if(this.inventory[idx].quantity > 1) {
+            this.inventory[idx].quantity -= 1;
+            if(this.inventory[idx].validated == this.inventory[idx].quantity + 1) {
+              this.inventory[idx].validated -= 1;
+            }
+          }
+          else {
+            this.inventory.splice(idx,1);
+          }
+          this.totalUnits -= 1;
+        }
+      }
+
+      deleteProduct(barcode) {
+        var idx = this.inventory.findIndex(item => item.barcode == barcode);
+        if(idx >= 0) {
+          this.totalUnits -= this.inventory[idx].quantity;
+          this.inventory.splice(idx,1);
+        }
+      }
+
+      /****************************************
+       * Getters
+       *
+       ***********/
+
+      getInventorySortedByBarcode() {
+        // Going through these gymnastics since Array.sort() is an inplace action
+
+        // get a new array composed just of the sorting values and their original array indices
+        const mapped = this.inventory.map( (item,i) => { return { index: i, value: item.barcode }; });
+
+        // inplace sort new array
+        mapped.sort(function(a, b) {
+          if (a.value > b.value) {
+            return 1;
+          }
+          if (a.value < b.value) {
+            return -1;
+          }
+          return 0;
+        });
+
+        // Use the new sorted array of indices to traverse the original array
+        return mapped.map(e => this.inventory[e.index]);
+      }
+
+      getInventoryItemByBarcode(barcode) {
+        return this.inventory.find( item => item.barcode == barcode );
+      }
+
+      getInventoryTotal() {
+        return this.inventory.reduce( (acc,val) => { return acc + val.quantity; }, 0);
+      }
+
+      getNumSku() {
+        return this.inventory.length;
+      }
+
+      getEstimatedRetailValue() {
+        let value;
+        if(this.estimatedRetailValue) {
+          value = this.estimatedRetailValue;
+        }
+        else if(this.inventory) {
+          value = this.inventory.reduce( (total, item)=>{
+            return item.price && item.quantity ? total + parseInt(item.quantity)*parseFloat(item.price) : total;
+          }, 0);
+        }
+        return value ? value.toFixed(2) : '';
+      }
+
+      getBodyHtml() {
+        return this.listingData && this.listingData.body ? $sce.trustAsHtml( this.listingData.body ) : '';
+      }
+
+      hasListing() {
+        return this.submittedListings && this.submittedListings.length>0 && this.submittedListings.find(l => l.success);
+      }
+
+      saveManifest() {
+        // This filters out completely empty lines
+        this.inventory = this.inventory.filter( item => {
+
+          if( !item.quantity ) {
+            return false;
+          }
+
+          if( item.barcode || item.description || item.quantity || item.price ) {
+            return true;
+          }
+
+          return false;
+
+        });
+
+        this.updateTotalUnits();
+
+        return $q.when( api.saveLotManifest( this ) );
+
+      }
+
+      saveShippingItems( shippingItems ) {
+        return $q.when( api.editLot( this._id, { shippingItems } ) ).then( ( { lot } ) => {
+
+          this.shippingItems = lot.shippingItems;
+
+          return this;
+        });
+      }
+
+    }
+
+    return Lot;
+  }
+
+]);

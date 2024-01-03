@@ -6,11 +6,11 @@
 					<h3 class="panel-title">Lot Details</h3>
 				</div>
 				<div class="panel-body">
-					<b>Handle: </b>{{ $ctrl.lot.getHandle() }}<br>
+					<b>Handle: </b>{{ $ctrl.lot.handle }}<br>
 					<b>Lot Number: </b>{{ $ctrl.lot.lotNumber }}<br>
-					<b>Description: </b>{{ $ctrl.lot.getDescription() }}<br>
-					<b>Category: </b>{{ $ctrl.lot.getCategory() }}<br>
-					<b>Condition: </b>{{ $ctrl.lot.getType() }}<br>
+					<b>Description: </b>{{ $ctrl.lot.description }}<br>
+					<b>Category: </b>{{ $ctrl.lot.category }}<br>
+					<b>Condition: </b>{{ $ctrl.lot.type }}<br>
 					<b>Manifested: </b>{{ $ctrl.lot.unmanifested ? 'No' : 'Yes' }}<br>
 					<span ng-hide="$ctrl.lot.unmanifested">
 					<b>Scanned SKU count: </b>{{ $ctrl.lot.getNumSku() }}<br>
@@ -19,15 +19,15 @@
           <b>Total Unit Count: </b>{{ $ctrl.lot.totalUnits }}<br>
           <b>Estimated Retail Value: </b>{{ $ctrl.lot.getEstimatedRetailValue() ? $ctrl.lot.getEstimatedRetailValue() : '---' }}<br>
           <span ng-show="$ctrl.showPricingData">
-            <b>Price/value percentage: </b>{{ $ctrl.lot.getPriceValuePercentage() ? $ctrl.lot.getPriceValuePercentage() + '%' : '---' }}<br>
+            <b>Price/value percentage: </b>{{ $ctrl.lot.priceValuePercentage ? $ctrl.lot.priceValuePercentage + '%' : '---' }}<br>
           </span>
           <b>Packaging Type: </b>{{ $ctrl.lot.packagingType }}<br>
-          <span ng-show="$ctrl.lot.numBoxes"><b>Number of Boxes: </b>{{ $ctrl.lot.getNumBoxes() }}<br></span>
-          <span ng-hide="$ctrl.lot.numBoxes"><b>Shipping Items: </b>{{ $ctrl.lot.getShippingItems().length }} <small>[<a href ng-click="$ctrl.toggleShowShippingItems()">{{ $ctrl.showShippingItems ? "Hide Details" : "Show Details" }}</a>]</small><br></span>
+          <span ng-show="$ctrl.lot.numBoxes"><b>Number of Boxes: </b>{{ $ctrl.lot.numBoxes }}<br></span>
+          <span ng-hide="$ctrl.lot.numBoxes"><b>Shipping Items: </b>{{ $ctrl.lot.shippingItems.length }} <small>[<a href ng-click="$ctrl.toggleShowShippingItems()">{{ $ctrl.showShippingItems ? "Hide Details" : "Show Details" }}</a>]</small><br></span>
 
           <div class="well" ng-show="$ctrl.showShippingItems">
             <shipping-items-dir
-              shipping-items="$ctrl.lot.getShippingItems()"
+              shipping-items="$ctrl.lot.shippingItems"
               show-editing-controls="$ctrl.showEditingControls"
               edit-shipping-items-cb="$ctrl.editShippingItemsCb( shippingItems )"
               show-print-controls="true"
@@ -38,7 +38,10 @@
 
 
 
-					<b>Status: </b>{{ $ctrl.lot.getStatus() }}<br>
+					<b>Status: </b>{{ $ctrl.lot.status }}<br>
+          <b>Listed date: </b>{{ $ctrl.util.prettifyDateTime( $ctrl.lot.listedDate ) }}<br>
+          <b>Sold date: </b>{{ $ctrl.util.prettifyDateTime( $ctrl.lot.soldDate ) }}<br>
+          <b>Shipped date: </b>{{ $ctrl.util.prettifyDateTime( $ctrl.lot.shippedDate ) }}<br>
           <span ng-show="$ctrl.lot.pallet"><b>Pallet: </b> <a ng-click="$ctrl.showPalletDetails()">{{ $ctrl.lot.pallet.handle }}</a><br></span>
 					<div class="row">
 						<div class="col-xs-12">
@@ -51,7 +54,7 @@
 						</div>
 						<div class="col-xs-12">
 							<label>Body</label>
-							<!-- <div class="well" style="white-space: pre-wrap;">{{$ctrl.lot.listingData.body + '\n\n' + $ctrl.listingsBoilerplate[$ctrl.lot.getType()]}}</div><br> -->
+							<!-- <div class="well" style="white-space: pre-wrap;">{{$ctrl.lot.listingData.body + '\n\n' + $ctrl.listingsBoilerplate[$ctrl.lot.type]}}</div><br> -->
               <div class="well">
                 <div ng-bind-html="$ctrl.getBodyHtml()"></div>
               </div>
@@ -86,7 +89,7 @@
 					<tbody>
 						<tr ng-repeat="$submission in $ctrl.lot.submittedListings">
 							<td>{{ $submission.marketplace }}</td>
-							<td>{{ $ctrl.readableDate( $submission.dateSubmitted ) }}</td>
+							<td>{{ $ctrl.util.prettifyDateTime( $submission.dateSubmitted ) }}</td>
 							<td>{{ $submission.success ? 'success' : 'error' }}</td>
 							<td>{{ $submission.message }}</td>
 						</tr>

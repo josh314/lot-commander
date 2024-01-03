@@ -8,7 +8,6 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
   'ListingsSvc',
   'LoggedInUser',
   'lot',
-  'lotStore',
   'LotSvc',
   'palletProperties',
   'ModalSvc',
@@ -20,7 +19,6 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
     ListingsSvc,
     LoggedInUser,
     lot,
-    lotStore,
     LotSvc,
     palletProperties,
     ModalSvc,
@@ -206,7 +204,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
           category,
           condition: type,
           totalUnits,
-          estimatedRetailValue: estimatedRetailValue || lotStore.getEstimatedRetailValue(),
+          estimatedRetailValue: estimatedRetailValue || vm.lot.getEstimatedRetailValue(),
           mostExpensiveItemPrice: manifest.mostExpensiveItemPrice(),
           isManifested: !unmanifested
         } );

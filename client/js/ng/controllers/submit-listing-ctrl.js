@@ -9,7 +9,6 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
   'dbEnums',
   'ListingsSvc',
   'LoggedInUser',
-  'lotStore',
   'LotSvc',
   'ModalSvc',
   'navigate',
@@ -21,7 +20,6 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
     dbEnums,
     ListingsSvc,
     LoggedInUser,
-    lotStore,
     LotSvc,
     ModalSvc,
     navigate,
@@ -30,9 +28,6 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
   ) {
     sessionTimeout.timeoutExpired();
 
-    if(!lotStore._id) {
-      navigate.listLots();
-    }
 
     const vm = this;
     init();
@@ -40,10 +35,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
     function init() {
 
       vm.waitingForResponse = false;
-      vm.lot = lotStore;
-      vm.allowEditPricingData = LoggedInUser.hasPermission( 'EDIT_PRICING_DATA' ) || !vm.lot.estimatedRetailValue;
-
-      vm.priceValuePercentage = vm.lot.priceValuePercentage || __DEFAULT_LOT_PRICE_VALUE_PCT__;
+      vm.allowEditPricingData = true;
 
       // Form options
       vm.formOptions = {
@@ -83,20 +75,6 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
         }
       };
 
-      // Default collection selections
-      if( isCasePacked() ) {
-        const casePackedCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'cases' );
-        casePackedCollectionOption.selected = true;
-      }
-      else if( isBoxedLot() ) {
-        const lotCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'lots' );
-        lotCollectionOption.selected = true;
-      }
-      else if( isPallet() ) {
-        const palletCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'pallets' );
-        palletCollectionOption.selected = true;
-      }
-
       vm.inputErrors = {
         noMarketplace: false,
         bstock: {
@@ -121,12 +99,11 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       };
 
       vm.inputs = {
-        totalUnits: vm.lot.totalUnits,
         publish: false,
         shopify: {
           shippingRate: '',
-          additionalTags: defaultTags( lotStore ),
-          packagingType: lotStore.packagingType,
+          additionalTags: '',
+          packagingType: '',
           guarantee: { value: 'standard' },
         }
       };
@@ -134,14 +111,13 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       vm.submitListing = submitListing;
       vm.backToLotDetails = backToLotDetails;
 
-      const estimatedRetailValue = lotStore.getEstimatedRetailValue();
       //Form default values
       vm.listing = {
-        marketplace: LoggedInUser.hasMarketplacePermission( vm.lot.destinationMarketplace ) ? vm.lot.destinationMarketplace : vm.formOptions.marketplaces[0],
+        marketplace: vm.formOptions.marketplaces[0],
         // bstock defaults
         auctionStartPrice: '300',
-        shopifyPrice: estimatedRetailValue ? ( vm.priceValuePercentage*parseFloat(estimatedRetailValue)/100 ).toFixed(2) : '',
-        condition: ({'shelf-pull': 'Shelf Pulls','customer returns': 'Customer Returns','salvage': 'Salvage'})[vm.lot.type] || '',
+        shopifyPrice: '',
+        condition: '',
         packaging: 'Original',
         shipping: {
           allowedDestinations: bstockFormConstants.shippingAllowedDestinations['Continental US only (Alaska and Hawaii excluded)'],
@@ -154,8 +130,53 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
         shopifyInventory: 1,
         shopifyTags: [],
         refreshProductData: false,
-        estimatedRetailValue: estimatedRetailValue,
+        estimatedRetailValue: '',
       };
+
+      LotSvc.load().then( lot => {
+
+        vm.lot = lot;
+
+        vm.allowEditPricingData = LoggedInUser.hasPermission( 'EDIT_PRICING_DATA' ) || !vm.lot.estimatedRetailValue;
+        vm.priceValuePercentage = vm.lot.priceValuePercentage || __DEFAULT_LOT_PRICE_VALUE_PCT__;
+
+        // Default collection selections
+        if( isCasePacked() ) {
+          const casePackedCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'cases' );
+          casePackedCollectionOption.selected = true;
+        }
+        else if( isBoxedLot() ) {
+          const lotCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'lots' );
+          lotCollectionOption.selected = true;
+        }
+        else if( isPallet() ) {
+          const palletCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'pallets' );
+          palletCollectionOption.selected = true;
+        }
+
+        vm.inputs.totalUnits = vm.lot.totalUnits;
+
+        Object.assign(
+          vm.inputs.shopify,
+          {
+            additionalTags: defaultTags( vm.lot ),
+            packagingType: vm.lot.packagingType,
+          }
+        );
+
+        const estimatedRetailValue = vm.lot.getEstimatedRetailValue();
+
+        Object.assign(
+          vm.listing,
+          {
+            marketplace: LoggedInUser.hasMarketplacePermission( vm.lot.destinationMarketplace ) ? vm.lot.destinationMarketplace : vm.formOptions.marketplaces[0],
+            shopifyPrice: estimatedRetailValue ? ( vm.priceValuePercentage*parseFloat(estimatedRetailValue)/100 ).toFixed(2) : '',
+            condition: ({'shelf-pull': 'Shelf Pulls','customer returns': 'Customer Returns','salvage': 'Salvage'})[vm.lot.type] || '',
+            estimatedRetailValue,
+          }
+        );
+
+      });
 
     }
 
@@ -210,7 +231,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       else {
         tags.push('manifested');
       }
-      tags.push(lotStore.packagingType || vm.inputs.shopify.packagingType);
+      tags.push( vm.lot.packagingType || vm.inputs.shopify.packagingType );
       tags.push('review');
 
       tags.push( conditionTag( vm.lot.type ) );
@@ -226,9 +247,9 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       return tags.filter( _ => _ ).join(', ');// remove any empty tags then join as a CSV string before returning
     }
 
-    function isBoxedLot() { return lotStore.packagingType === 'box lot'; }
-    function isPallet() { return !!lotStore.packagingType.match(/pallet/); }
-    function isCasePacked() { return lotStore.type === 'case-packed'; } // type is condition
+    function isBoxedLot() { return vm.lot.packagingType === 'box lot'; }
+    function isPallet() { return !!vm.lot.packagingType.match(/pallet/); }
+    function isCasePacked() { return vm.lot.type === 'case-packed'; } // type is condition
 
     function validateBstockListingOptions() {
       vm.inputErrors.bstock.invalidAuctionPrice = (vm.listing.auctionStartPrice && vm.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;
@@ -257,7 +278,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
     function validateShopifyListingOptions() {
       vm.inputErrors.shopify.invalidPrice = (vm.listing.shopifyPrice && vm.listing.shopifyPrice.match(/^[0-9]+(\.[0-9]{2})?$/)) ? false : true;
       vm.inputErrors.shopify.invalidInventory = (vm.listing.shopifyInventory && (vm.listing.shopifyInventory >= 0)) ? false : true;
-      vm.inputErrors.shopify.invalidUnitCount = vm.inputs.totalUnits <= 0 && !lotStore.unmanifested;
+      vm.inputErrors.shopify.invalidUnitCount = vm.inputs.totalUnits <= 0 && !vm.lot.unmanifested;
       vm.inputErrors.shopify.noPackagingType = !vm.inputs.shopify.packagingType;
 
       vm.inputErrors.shopify.invalidShippingRate = isBoxedLot() ? !vm.inputs.shopify.shippingRate: false;
@@ -306,7 +327,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
         await LotSvc.edit( vm.lot._id, vm.lot );
       }
 
-      ListingsSvc.submitLotListing( lotStore._id, vm.listing, vm.inputs.publish ).then(resp=>{
+      ListingsSvc.submitLotListing( vm.lot._id, vm.listing, vm.inputs.publish ).then(resp=>{
         console.log(resp);
         if(resp.error) {
           ModalSvc.message( { header: 'Error', body: resp.message, type: 'error' } );
@@ -325,7 +346,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
     }
 
     function backToLotDetails() {
-      navigate.viewLot( lotStore._id );
+      navigate.viewLot( vm.lot._id );
     }
 
   }

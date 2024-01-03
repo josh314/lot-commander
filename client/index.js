@@ -18,7 +18,6 @@ import "./js/ng/services/listings-svc.js";
 import "./js/ng/services/listing-builder-svc.js";
 import "./js/ng/services/logged-in-user-svc.js";
 import "./js/ng/services/logout-svc.js";
-import "./js/ng/services/lot-store-svc.js";
 import "./js/ng/services/lot-svc.js";
 import "./js/ng/services/manual-inventory-svc.js";
 import "./js/ng/services/manifest-file-handler-svc.js";

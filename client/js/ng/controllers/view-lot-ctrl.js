@@ -1,5 +1,7 @@
 import angular from 'angular';
 
+import * as util from '../../utilities';
+
 const __MAX_DISPLAY_INVENTORY__ = 50;
 
 /******************* View Lot Controller *************************/
@@ -11,7 +13,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
   'listingsBoilerplate',
   'ListingsSvc',
   'LoggedInUser',
-  'lotStore',
   'LotSvc',
   'ModalSvc',
   'navigate',
@@ -26,7 +27,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     listingsBoilerplate,
     ListingsSvc,
     LoggedInUser,
-    lotStore,
     LotSvc,
     ModalSvc,
     navigate,
@@ -79,7 +79,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           scanItems,
           editManifest,
           linkManifestBlock,
-          readableDate,
           openGallery,
           printShippingItemsLabels,
           generateManifestFileForScannedInventory,
@@ -98,20 +97,22 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
             maxSize: 8
           },
 
+          // export modules
+          util,
+
         }
       );
 
 
       LotSvc.load( { populate: ['pallet'] } )
-        .then( lot =>{
+        .then( lot => {
 
-          vm.lot = lotStore;
+          vm.lot = lot;
 
           vm.images = lot.images;
           refreshDisplayInventory();
-          // initializeAllThumbnailImages( lot );
-        })
-        .then( _ => vm.titleTooLong = ListingsSvc.isTitleTooLong(lotStore.listingData.title) );
+        } )
+        .then( _ => vm.titleTooLong = ListingsSvc.isTitleTooLong( vm.lot.listingData.title ) );
 
     }
 
@@ -132,7 +133,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     };
 
     function refreshDisplayInventory() {
-      const sortedInventory = lotStore.getInventorySortedByBarcode();
+      const sortedInventory = vm.lot.getInventorySortedByBarcode();
       vm.pagination.totalItems = sortedInventory.length;
       const start = ( vm.pagination.current - 1 ) * __MAX_DISPLAY_INVENTORY__;
       const end = start + __MAX_DISPLAY_INVENTORY__;
@@ -146,7 +147,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     // Manage images
     async function updatePrimaryImage(image) {
-      const resp = await ImageSvc.updateLotPrimaryImage(lotStore, image);
+      const resp = await ImageSvc.updateLotPrimaryImage( vm.lot._id, image);
       if(!resp.error) {
         navigate.reload();
       }
@@ -158,7 +159,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     async function uploadImages() {
 
       await ModalSvc.wait( {
-        waitFor: ImageSvc.uploadLotImages(lotStore, vm.imagesToUpload),
+        waitFor: ImageSvc.uploadLotImages( vm.lot._id, vm.imagesToUpload),
         delay: 5000
       } );
 
@@ -174,7 +175,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       });
 
       modalInstance.result.then(async function () {
-        const resp = await ImageSvc.removeLotImage(lotStore, image);
+        const resp = await ImageSvc.removeLotImage( vm.lot._id, image);
         if(!resp.data.error) {
           navigate.reload();
         }
@@ -212,7 +213,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
         backdrop: 'static',
         resolve: {
           lot: function () {
-            return JSON.parse( JSON.stringify( lotStore ) ); // deep clone of lot so edits are ephemeral before save
+            return JSON.parse( JSON.stringify( vm.lot ) ); // deep clone of lot so edits are ephemeral before save
           }
         },
       });
@@ -234,32 +235,20 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
 
     function scanItems() {
-      let manP;
-      if( lotStore.manifestId ) {
-        manP = LotSvc.getManifest( lotStore.manifestId ).then( manifest => {
-          lotStore.setInventory( manifest.inventory );
-        });
-      }
 
-      manP ? manP.then( _ => navigate.scanLot() ) : navigate.scanLot();
+      navigate.scanLot( vm.lot._id );
 
     }
 
     function editManifest() {
-      let manP;
-      if(lotStore.manifestId) {
-        manP = LotSvc.getManifest( lotStore.manifestId ).then( manifest => {
-          lotStore.setInventory( manifest.inventory );
-        });
-      }
 
-      manP ? manP.then( _ => navigate.editLotManifest() ) : navigate.editLotManifest();
+      navigate.editLotManifest( vm.lot._id );
 
     }
 
     function linkManifestBlock() {
       vm.waitingForResponse = true;
-      LotSvc.import3rdPartyManifestBlock( { lot: lotStore, blockId: vm.searchBlockId } ).then( resp => {
+      LotSvc.import3rdPartyManifestBlock( { lot: vm.lot, blockId: vm.searchBlockId } ).then( resp => {
 
         if(resp.data.error) {
           ModalSvc.message( { header: 'Error', body: resp.data.error, type: 'error' } );
@@ -271,11 +260,11 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     }
 
     const validateShippingItems = () => {
-      if(!lotStore.shippingItems || lotStore.shippingItems.length <=0 ) {
+      if( !vm.lot.shippingItems || vm.lot.shippingItems.length <=0 ) {
         return false;
       }
 
-      return lotStore.shippingItems.every(item => {
+      return vm.lot.shippingItems.every(item => {
         return parseInt(item.weight) && item.weightUnits &&
           parseInt(item.height) && item.heightUnits &&
           parseInt(item.length) && item.lengthUnits &&
@@ -285,7 +274,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     async function configureListingForSubmission() {
 
-      if( lotStore.hasListing() ) {
+      if( vm.lot.hasListing() ) {
         const isConfirmed = await ModalSvc.confirm( { header: 'Lot has listing', body: 'This lot already has a successfully submitted listing. Proceed anyway?', type: 'warning' } );
 
         if( !isConfirmed ) {
@@ -294,23 +283,23 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
       }
 
-      if( !LoggedInUser.hasMarketplacePermission( lotStore.destinationMarketplace ) ) {
-        let msg = `User is not authorized to submit to marketplace: ${lotStore.destinationMarketplace}. Choose another marketplace.`;
+      if( !LoggedInUser.hasMarketplacePermission( vm.lot.destinationMarketplace ) ) {
+        let msg = `User is not authorized to submit to marketplace: ${vm.lot.destinationMarketplace}. Choose another marketplace.`;
         ModalSvc.message( { header: 'Unauthorized marketplace', body: msg , type: 'error' } );
         return;
       }
 
       const missingFields = [];
-      if( !lotStore.listingData.title ) {
+      if( !vm.lot.listingData.title ) {
         missingFields.push('title');
       }
-      if( !lotStore.listingData.body ) {
+      if( !vm.lot.listingData.body ) {
         missingFields.push('body');
       }
-      if( !lotStore.handle ) {
+      if( !vm.lot.handle ) {
         missingFields.push('handle');
       }
-      if( !lotStore.numBoxes && !validateShippingItems() ) {
+      if( !vm.lot.numBoxes && !validateShippingItems() ) {
         missingFields.push('shipping items');
       }
       if(vm.images.length <= 0) {
@@ -319,7 +308,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
 
       if(!missingFields.length) {
-        navigate.submitListing();
+        navigate.submitListing( vm.lot._id );
       }
       else {
         let msg = `Must input the following data before submission: ${missingFields}`;
@@ -342,34 +331,14 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       });
     }
 
-    function readableDate(date) {
-      return (new Date(date)).toLocaleString();
-    }
-
     function openGallery() {
-      navigate.lotGallery( lotStore._id );
+      navigate.lotGallery( vm.lot._id );
     }
-
-    // DEPRECATED
-    // function editShippingItems() {
-    //   return ModalSvc.shippingItems( lotStore.shippingItems )
-    //     .then(shippingItems => {
-    //       if(shippingItems) {
-    //         lotStore.shippingItems = shippingItems;
-    //         return LotSvc.edit( lotStore._id , lotStore ).then( _lot => {
-    //           return true;
-    //         });
-    //       }
-    //       else {
-    //         return false;
-    //       }
-    //     });
-    // }
 
     function editShippingItemsCb (shippingItems) {
       if(shippingItems) {
-        lotStore.shippingItems = shippingItems;
-        return LotSvc.edit( lotStore._id , lotStore ).then( _lot => {
+        vm.lot.shippingItems = shippingItems;
+        return LotSvc.edit( vm.lot._id , vm.lot ).then( _lot => {
           navigate.reload();
         });
       }
@@ -378,22 +347,9 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       }
     }
 
-    // DEPRECATED
-    // TODO: is this use of editShippingItems() kosher?
-    // function printLabels() {
-    //   const isPrinting = PrintSvc.printLotLabels( lotStore );
-    //   if(!isPrinting) {
-    //     editShippingItems().then(isEdited=>{
-    //       if(isEdited) {
-    //         PrintSvc.printLotLabels( lotStore );
-    //       }
-    //     });
-    //   }
-    // }
-
     function generateManifestFileForScannedInventory() {
 
-      LotSvc.generateManifest( lotStore._id, true, false ).then( () => {
+      LotSvc.generateManifest( vm.lot._id, true, false ).then( () => {
         navigate.reload();
       });
 
@@ -401,15 +357,15 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     function printShippingItemsLabels() {
 
-      if( !lotStore.shippingItems || lotStore.shippingItems.length === 0 ) {
+      if( !vm.lot.shippingItems || vm.lot.shippingItems.length === 0 ) {
         return ModalSvc.message( {
           header: 'Nothing to print',
-          html: `<p>The split group <strong>${ lotStore.label }</strong> has no shipping items configured.</p>`,
+          html: `<p>The split group <strong>${ vm.lot.label }</strong> has no shipping items configured.</p>`,
           type: 'warning'
         } );
       }
 
-      PrintSvc.printLotShippingItemsLabels( lotStore._id );
+      PrintSvc.printLotShippingItemsLabels( vm.lot._id );
 
     }
 
@@ -426,7 +382,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
         if( res.images.length ) {
 
-          LotSvc.cloneImages( lotStore._id, res.images ).then( resp => {
+          LotSvc.cloneImages( vm.lot._id, res.images ).then( resp => {
             console.log(resp);
             navigate.reload();
           });
@@ -464,7 +420,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
         return;
       }
 
-      LotSvc.cloneImages( lotStore._id, [ url ] ).then( resp => {
+      LotSvc.cloneImages( vm.lot._id, [ url ] ).then( resp => {
         console.log(resp);
         navigate.reload();
       });
@@ -476,7 +432,9 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     }
 
     function getBodyHtml() {
-      return lotStore.getBodyHtml();
+      if( vm.lot ) {
+        return vm.lot.getBodyHtml();
+      }
     }
 
 

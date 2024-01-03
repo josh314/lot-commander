@@ -1,4 +1,4 @@
-<div class="container" ng-controller="ScanCtrl as ctrl">
+<div class="container" ng-controller="ScanCtrl as $ctrl">
 	<h3>Scan Manifest Items</h3>
 	<div class="row well">
 		<div class="col-xs-12">
@@ -6,7 +6,7 @@
 				<div class="row">
 					<div class="form-group" ng-class="{ 'has-error' : (scanForm.barcode.$invalid && !scanForm.barcode.$pristine) || barcodeNotFound || networkError}">
 						<label for="barcodeInput">Scan Barcode here</label>
-						<input type="text" class="form-control" name="barcode" ng-model="ctrl.scannedBarcode" id="barcodeInput" ng-keyup="$event.keyCode == 13 && ctrl.scanBarcode( scanForm )" autocomplete="off" ng-pattern="'[0-9]{8,15}'" autofocus>
+						<input type="text" class="form-control" name="barcode" ng-model="$ctrl.scannedBarcode" id="barcodeInput" ng-keyup="$event.keyCode == 13 && $ctrl.scanBarcode( scanForm )" autocomplete="off" ng-pattern="'[0-9]{8,15}'" autofocus>
 						<span class="text-danger h4" ng-show="scanForm.barcode.$invalid && !scanForm.barcode.$pristine">Invalid Barcode Format</span>
 					</div>
 				</div>
@@ -16,48 +16,14 @@
 
 	<div class="row">
 		<div class="well">
-<!-- 			<div class="col-xs-12">
-				<dl class="dl-horizontal pull-left">
-					<dt>Handle</dt><dd>{{ lot.getHandle() }}</dd>
-					<dt>SKU count</dt><dd>{{ lot.getNumSku() }}</dd>
-					<dt>Inventory count</dt><dd>{{ lot.getInventoryTotal() }}</dd>
-				</dl>
-			</div>
-			<div class="col-xs-12">
-				<table>
-					<tbody>
-						<tr>
-							<td>Handle</td>
-							<td></td>
-							<td>{{ lot.getHandle() }}</td>
-						</tr>
-						<tr>
-							<td>SKU count</td>
-							<td></td>
-							<td>{{ lot.getNumSku() }}</td>
-						</tr>
-						<tr>
-							<td>Inventory count</td>
-							<td></td>
-							<td>{{ lot.getInventoryTotal() }}</td>
-						</tr>
-					</tbody>
-				</table>
-			</div> -->
-<!-- 			<div class="col-xs-12">
-				<ul class="pull-left list-inline">
-					<li><span class="">Handle</span><span>{{ lot.getHandle() }}</span></li>
-					<li><span class="">SKU count</span><span>{{ lot.getNumSku() }}</span></li>
-					<li><span class="">Inventory count</span><span>{{ lot.getInventoryTotal() }}</span></li>
-				</ul>
-			</div> -->
+
 			<div class="col-xs-12 row" style="margin-bottom: 40px">
 				<div class="col-xs-3 row">
 					<div class="col-xs-12 text-center">
 						<h3>Handle</h3>
 					</div>
 					<div class="col-xs-12 text-center">
-						<h4 class="text-danger">{{ ctrl.getLotHandle() }}</h4>
+						<h4 class="text-danger">{{ $ctrl.lot.handle }}</h4>
 					</div>
 				</div>
 				<div class="col-xs-3 row">
@@ -65,7 +31,7 @@
 						<h3>SKU Count</h3>
 					</div>
 					<div class="col-xs-12 text-center">
-						<h4 class="text-danger">{{ ctrl.getLotNumSku() }}</h4>
+						<h4 class="text-danger">{{ $ctrl.lot.getNumSku() }}</h4>
 					</div>
 				</div>
 				<div class="col-xs-3 row">
@@ -73,23 +39,28 @@
 						<h3>Inventory Count</h3>
 					</div>
 					<div class="col-xs-12 text-center" style="background: lightgray; border-radius: 50px; border: solid 1px grey;">
-						<h4 class="text-danger">{{ ctrl.getLotInventoryTotal() }}</h4>
+						<h4 class="text-danger">{{ $ctrl.lot.getInventoryTotal() }}</h4>
 					</div>
 				</div>
-				<div class="col-xs-3 row pull-right">
-            <a class="btn btn-primary" ng-click="ctrl.openEditShippingItemsModal()" ng-hide="ctrl.numLotBoxes">Edit Shipping Items</a>
-            <a class="btn btn-success" ng-click="ctrl.saveManifest()">Done</a>
+				<div class="col-xs-3 row pull-right" style="display:flex; flex-direction:column;">
+          <div style="margin-bottom:8px;">
+            <a class="btn btn-primary" ng-click="$ctrl.editShippingItemsModal()" ng-hide="$ctrl.lot.numBoxes">Edit Shipping Items</a>
+          </div>
+          <div>
+            <a class="btn btn-success" ng-click="$ctrl.saveManifest()">Save</a>
+            <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()">Save & finish</a>
+          </div>
 				</div>
 			</div>
 
       <ul uib-pagination
-      total-items="ctrl.pagination.totalItems"
-      items-per-page="ctrl.pagination.pageSize"
-      ng-model="ctrl.pagination.current"
-      ng-change="ctrl.pagination.pageChange()"
+      total-items="$ctrl.pagination.totalItems"
+      items-per-page="$ctrl.pagination.pageSize"
+      ng-model="$ctrl.pagination.current"
+      ng-change="$ctrl.pagination.pageChange()"
       class="pagination-sm pull-right"
 
-      max-size="ctrl.pagination.maxSize"
+      max-size="$ctrl.pagination.maxSize"
       boundary-links="true"
       boundary-link-numbers="true"
       force-ellipses="true"></ul>
@@ -104,24 +75,24 @@
 					<th>Remove</th>
 				</tr></thead>
 				<tbody>
-					<tr ng-repeat="item in ctrl.displayInventory">
+          <tr ng-repeat="$item in $ctrl.displayInventory">
 						<td>
-              <div id="item-thumbnail-container-{{item.barcode}}">
+              <div id="item-thumbnail-container-{{$item.barcode}}">
               </div>
 						</td>
-						<td><input type="text" size=16 ng-model="item.barcode"></td>
-						<td><input type="text" size="64" ng-model="item.description"></td>
+						<td><input type="text" size=16 ng-model="$item.barcode"></td>
+						<td><input type="text" size="64" ng-model="$item.description"></td>
 						<td>
-							<input type="number" class="hide-controls" style="width: 4em" ng-model="item.quantity" min="0">
-							<button class="btn btn-success btn-xs" ng-click=" item.quantity = item.quantity + 1 "><span class="glyphicon glyphicon-plus"></span></button>
-							<button class="btn btn-warning btn-xs" ng-click=" item.quantity = item.quantity>0 ? item.quantity - 1 : 0" ng-disabled="item.quantity<=0"><span class="glyphicon glyphicon-minus"></span></button>
+							<input type="number" class="hide-controls" style="width: 4em" ng-model="$item.quantity" min="0">
+							<button class="btn btn-success btn-xs" ng-click="$ctrl.incrementInventoryItem( $item )"><span class="glyphicon glyphicon-plus"></span></button>
+							<button class="btn btn-warning btn-xs" ng-click="$ctrl.decrementInventoryItem( $item )" ng-disabled="$item.quantity<=0"><span class="glyphicon glyphicon-minus"></span></button>
 						</td>
-						<td><input type="text" size="6" ng-model="item.price"></td>
-						<td><button class="btn btn-danger btn-xs" ng-click="ctrl.deleteInventoryItem(item.barcode)"><span class="glyphicon glyphicon-remove"></span></button></td>
+						<td><input type="text" size="6" ng-model="$item.price"></td>
+						<td><button class="btn btn-danger btn-xs" ng-click="$ctrl.deleteInventoryItem( $item.barcode )"><span class="glyphicon glyphicon-remove"></span></button></td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
-		<div class="col-xs-6"><a class="btn btn-success btn-lg" ng-click="ctrl.saveManifest()">Done</a></div>
+		<div class="col-xs-6"><a class="btn btn-success btn-lg" ng-click="$ctrl.saveManifestAndExit()">Save & finish</a></div>
 	</div>
 </div>

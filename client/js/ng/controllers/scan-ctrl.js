@@ -8,7 +8,6 @@ angular.module('myApp').controller( 'ScanCtrl', [
   'AudioAlertSvc',
   'focus',
   'ImageSvc',
-  'lotStore',
   'LotSvc',
   'ModalSvc',
   'navigate',
@@ -20,7 +19,6 @@ angular.module('myApp').controller( 'ScanCtrl', [
     AudioAlertSvc,
     focus,
     ImageSvc,
-    lotStore,
     LotSvc,
     ModalSvc,
     navigate,
@@ -29,67 +27,91 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
   ) {
 
-    sessionTimeout.timeoutExpired();
-    focus('barcodeInput');
-
     const vm = this;
+    init();
 
-    vm.getLotHandle = lotStore.getHandle.bind( lotStore );
-    vm.getLotNumSku = lotStore.getNumSku.bind( lotStore );
-    vm.getLotInventoryTotal = lotStore.getInventoryTotal.bind( lotStore );
-    vm.getLotInventory = lotStore.getInventory.bind( lotStore );
-    vm.deleteInventoryItem = deleteInventoryItem;
-    vm.decrementInventory = decrementInventory;
-    vm.saveManifest = saveManifest;
-    vm.openEditShippingItemsModal = openEditShippingItemsModal;
-    vm.scanBarcode = scanBarcode;
+    function init() {
 
-    vm.numLotBoxes = lotStore.numBoxes;
-    vm.loadedImages = {};
+      sessionTimeout.timeoutExpired();
+      refreshScanInput();
 
-    vm.maxDisplayInventory = __MAX_DISPLAY_INVENTORY__;
+      Object.assign(
+        vm,
+        {
 
-    vm.pagination = {
-      current: 1,
-      totalItems: 0,
-      pageSize: __MAX_DISPLAY_INVENTORY__,
-      pageChange: refreshDisplayInventory,
-      maxSize: 8
-    };
+          loadedImages: {},
+          maxDisplayInventory: __MAX_DISPLAY_INVENTORY__,
+          pagination: {
+            current: 1,
+            totalItems: 0,
+            pageSize: __MAX_DISPLAY_INVENTORY__,
+            pageChange: function() {
+              refreshDisplayInventory();
+              refreshScanInput();
+            },
+            maxSize: 8
+          },
 
-    const save = () => {
-      return LotSvc.saveManifest().then( manifest => {
+          scanBarcode,
+          deleteInventoryItem,
+          decrementInventoryItem,
+          incrementInventoryItem,
+          saveManifest,
+          saveManifestAndExit,
+          editShippingItemsModal,
 
-        if( manifest ) {
-          lotStore.manifestId = manifest._id;
         }
+      );
+
+      LotSvc.load().then( _lot => {
+
+        console.log('loaded lot', _lot);
+        vm.lot = _lot;
+        refreshDisplayInventory();
 
       });
-    };
+
+    }
+
+    function refreshScanInput() {
+      vm.scannedBarcode = '';
+      focus('barcodeInput');
+    }
 
     function refreshDisplayInventory() {
-      const inventory = vm.getLotInventory();
+      const inventory = vm.lot.inventory;
       vm.pagination.totalItems = inventory.length;
       const start = ( vm.pagination.current - 1 ) * __MAX_DISPLAY_INVENTORY__;
       const end = start + __MAX_DISPLAY_INVENTORY__;
       vm.displayInventory = inventory.slice( start, end );
-      initializeAllThumbnailImages();
+      loadInventoryThumbnailImages();
     }
 
-    function initializeAllThumbnailImages() {
+    function loadInventoryThumbnailImages() {
 
       const limit = Math.min( vm.displayInventory.length, __MAX_DISPLAY_INVENTORY__ );
 
       for(let i=0; i < limit; i++) {
         const item = vm.displayInventory[i];
-        ImageSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
+        loadThumbnailImage( item );
       }
     }
 
+    function loadThumbnailImage( item ) {
+      ImageSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
+    }
+
     function saveManifest() {
-      console.log(`Auto-saving lot: ${lotStore.handle}`);
-      save().then(()=>{
-        navigate.viewLot( lotStore._id );
+      return vm.lot.saveManifest().then( resp => {
+        console.log('saveManifest resp', resp);
+        refreshScanInput();
+        return resp;
+      } );
+    }
+
+    function saveManifestAndExit() {
+      saveManifest().then(()=>{
+        navigate.viewLot( vm.lot._id );
       });
     }
 
@@ -98,8 +120,11 @@ angular.module('myApp').controller( 'ScanCtrl', [
       const scannedBarcode = scanForm.barcode.$viewValue;
 
       if ( scannedBarcode && scanForm.barcode.$valid ) {
-        const item = lotStore.addInventory( scannedBarcode );
+        const item = vm.lot.addInventory( scannedBarcode );
         if(item) {
+
+          AudioAlertSvc.success();
+
           if(item.quantity==1) {
             const product = await ProductDataSvc.getProductDataByBarcode( item.barcode );
             if(product) {
@@ -108,8 +133,9 @@ angular.module('myApp').controller( 'ScanCtrl', [
               item.images = product.images;
             }
           }
-          AudioAlertSvc.success();
-          navigate.reload();
+          vm.pagination.current = 1;
+          refreshDisplayInventory();
+
         }
         else {
           AudioAlertSvc.fail();
@@ -118,29 +144,33 @@ angular.module('myApp').controller( 'ScanCtrl', [
       else {
         AudioAlertSvc.fail();
       }
+      refreshScanInput();
     }
 
-    function decrementInventory( barcode ) {
-      lotStore.decrementInventory(barcode);
-      // focus('barcodeInput');
-      save().then(()=> navigate.reload());
+    function decrementInventoryItem( item ) {
+      item.quantity = item.quantity>0 ? item.quantity - 1 : 0;
+    }
+
+    function incrementInventoryItem( item ) {
+      item.quantity = item.quantity + 1;
     }
 
     function deleteInventoryItem( barcode ) {
-      lotStore.deleteProduct(barcode);
-      save().then(()=> navigate.reload());
+      vm.lot.deleteProduct( barcode );
+      refreshDisplayInventory();
+      refreshScanInput();
     }
 
-    function openEditShippingItemsModal() {
-      return ModalSvc.shippingItems( lotStore.shippingItems )
-        .then( editShippingItemsCb );
+    function editShippingItemsModal() {
+      return ModalSvc.shippingItems( vm.lot.shippingItems )
+        .then( editShippingItemsCb )
+        .then( refreshScanInput );
     }
 
 
-    function editShippingItemsCb( shippingItems ) {
+    async function editShippingItemsCb( shippingItems ) {
       if(shippingItems) {
-        lotStore.shippingItems = shippingItems;
-        return LotSvc.edit( lotStore._id, lotStore ).then( _resp => {
+        return vm.lot.saveShippingItems( shippingItems ).then( _resp => {
           return true;
         });
       }
@@ -148,8 +178,6 @@ angular.module('myApp').controller( 'ScanCtrl', [
         return false;
       }
     }
-
-    refreshDisplayInventory();
 
   }
 ]);

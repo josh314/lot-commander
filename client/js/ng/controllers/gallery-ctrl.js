@@ -59,9 +59,9 @@ angular.module('myApp').controller('GalleryCtrl', [
         }
       );
 
-      LotSvc.load( { populate: [ 'pallet' ], hydratePallet: true } ).then(()=>{
+      LotSvc.load( { populate: [ 'pallet' ], hydratePallet: true } ).then( lot => {
 
-        vm.lot = LotSvc.getLotStore();
+        vm.lot = lot;
 
         if( vm.lot.pallet ) {
           return loadPalletImageGallery();
@@ -83,7 +83,7 @@ angular.module('myApp').controller('GalleryCtrl', [
 
     function loadLotImageGallery() {
 
-      const inventory = LotSvc.getLotStore().getInventorySortedByBarcode();
+      const inventory = vm.lot.getInventorySortedByBarcode();
 
       const productItems = inventory.map( _ => ({ upc: _.barcode, title: _.description, images: _.images }) );
 
@@ -177,7 +177,7 @@ angular.module('myApp').controller('GalleryCtrl', [
         const file = new File([blob], `collage-img-${ (new Date()).getTime() }.png`);
 
         await ModalSvc.wait( {
-          waitFor: ImageSvc.uploadLotImages( LotSvc.getLotStore(), [ file ] ),
+          waitFor: ImageSvc.uploadLotImages( vm.lot._id, [ file ] ),
           delay: 1000
         } );
         vm.collageSaved = true;
@@ -196,7 +196,7 @@ angular.module('myApp').controller('GalleryCtrl', [
 
       }
       else {
-        ModalSvc.message({ header: 'Error', body: `Error saving image.`, type: 'error' });
+        ModalSvc.message({ header: 'Error', body: `Error saving image. Render another collage and try again.`, type: 'error' });
       }
 
     }
@@ -403,6 +403,7 @@ angular.module('myApp').service( 'CollageSvc', [
             _item.image = image;
           }
           catch( e ) {
+            console.error( `Error loading image ${_item.image.src}` );
             console.error( e );
             return;
           }

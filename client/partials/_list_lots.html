@@ -54,29 +54,29 @@
 				<th></th>
 			</tr></thead>
 			<tbody>
-				<tr ng-repeat="lot in $ctrl.lots">
+				<tr ng-repeat="$lot in $ctrl.lots">
 
           <td>{{$index+1}}</td>
 
-					<td><a ng-href="lots/view/{{lot._id}}">{{lot.handle}}</a></td>
+					<td><a ng-href="lots/view/{{$lot._id}}">{{$lot.handle}}</a></td>
 
-          <td>{{lot.totalUnits ? lot.totalUnits : '---'}}</td>
+          <td>{{$lot.totalUnits ? $lot.totalUnits : '---'}}</td>
 
-          <td>{{lot.readableCreatedAt}}</td>
+          <td>{{$lot.readableCreatedAt}}</td>
 
-          <td>{{lot.readableUpdatedAt}}</td>
+          <td>{{$lot.readableUpdatedAt}}</td>
 
-          <td>{{lot.status}}</td>
+          <td>{{$lot.status}}</td>
 
           <td>
-            <select ng-model="lot.destinationMarketplace" ng-change="$ctrl.saveLot(lot)">
-              <option ng-repeat="marketplace in $ctrl.marketplaces">{{ marketplace }}</option>
+            <select ng-model="$lot.destinationMarketplace" ng-change="$ctrl.saveLotMarketplace( $lot )">
+              <option ng-repeat="$marketplace in $ctrl.marketplaces">{{ $marketplace }}</option>
             </select>
           </td>
 
           <td>
             <span>
-              <button class="btn btn-success btn-xs" ng-click="$ctrl.scanItems( lot._id )" ng-disabled="lot.unmanifested">Scan Items</button>
+              <button class="btn btn-success btn-xs" ng-click="$ctrl.scanItems( $lot._id )" ng-disabled="$lot.unmanifested">Scan Items</button>
             </span>
           </td>
 
