@@ -41,6 +41,11 @@ const lotSchema = mongoose.Schema({
     title: String,
     body: String,
   },
+
+  listedDate: Date,
+  soldDate: Date,
+  shippedDate: Date,
+
   images: [ lotImageSchema ],
 
   /*********** Manifest properties ************/
@@ -97,6 +102,29 @@ lotSchema.methods.edit = function( data ) {
 
 };
 
+lotSchema.methods.ship = function() {
+
+  this.status = 'Shipped';
+  this.shippedDate = new Date();
+  return this.save();
+
+};
+
+lotSchema.methods.unship = function() {
+
+  this.status = 'Sold';
+  this.shippedDate = undefined;
+  return this.save();
+
+};
+
+lotSchema.methods.markAsSold = function( date ) {
+
+  this.status = 'Sold';
+  this.soldDate = date ? new Date( date ) : new Date();
+  return this.save();
+
+};
 
 module.exports = {
   schema: lotSchema,

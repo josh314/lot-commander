@@ -81,9 +81,11 @@ class Client {
 
     listing.bodyBoilerplate = boilerplate[listing.lot.type] ? boilerplate[listing.lot.type] : '';
 
+    const now = new Date();
+
     const newSubmittedListing = {
       marketplace: listing.marketplace,
-      dateSubmitted: new Date()
+      dateSubmitted: now
     };
     try {
 
@@ -98,28 +100,25 @@ class Client {
         message: 'Submission successful.'
       });
       listing.lot.status = 'Listed';
+      listing.lot.listedDate = now;
+
     }
     catch (e) {
+
       Object.assign(newSubmittedListing, {
         success: false,
         message: e.name + ': ' + e.message,
       });
       listing.lot.status = 'Error';
       console.error(e);
+
     }
-    if(listing.lot.submittedListings && listing.lot.submittedListings.length>0) {
-      const submittedListings = [].concat(listing.lot.submittedListings);
-      const idx = submittedListings.findIndex(x => x.marketplace === listing.marketplace);
-      if(idx===-1){
-        submittedListings.push(newSubmittedListing);
-      }
-      else {
-        submittedListings.splice(idx, 1, newSubmittedListing);
-      }
-      listing.lot.submittedListings = submittedListings;
+
+    if(listing.lot.submittedListings && listing.lot.submittedListings.length>0) {console.log('listing.lot.submittedListings', listing.lot.submittedListings);
+      listing.lot.submittedListings.push( newSubmittedListing );
     }
     else {
-      listing.lot.submittedListings = [newSubmittedListing];
+      listing.lot.submittedListings = [ newSubmittedListing ];
     }
 
     const resp = {

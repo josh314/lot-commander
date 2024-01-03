@@ -310,6 +310,12 @@ class FulfillmentCommander {
 
           lineItemPickItems = this.getLotPickItems( lineItem, lot );
 
+          if( lot.status !== 'Sold' && lot.status !== 'Shipped' ) {
+
+            await lot.markAsSold( order.createdAt );
+
+          }
+
         }
         else {
 
@@ -423,7 +429,7 @@ class FulfillmentCommander {
 
   async finishOrderPick( orderPickId ) {
 
-    const orderPick = await this.getOrderPickById( orderPickId );
+    const orderPick = await this.getOrderPickById( orderPickId, { populate: [ 'pickItems.lot' ] } );
 
     if( !orderPick ) {
       throw new ResourceNotFoundError( { type: 'shopify order pick', id: orderPickId } );
@@ -433,21 +439,18 @@ class FulfillmentCommander {
 
       await orderPick.finish();
 
-      const lotIds = orderPick.pickItems.reduce( ( acc, _pickItem ) => {
+      const lotUpdates = [];
+      for( let pickItem of orderPick.pickItems ) {
 
-        if( _pickItem.lot ) {
-          acc.add( _pickItem.lot.toString() );
+        if( pickItem.lot ) {
+
+          lotUpdates.push( pickItem.lot.ship() );
+
         }
 
-        return acc;
-
-      } , new Set() );
-
-      for( let lotId of [ ...lotIds ] ) {
-
-        await this.lotdb.markAsShipped( lotId );
-
       }
+
+      await Promise.all( lotUpdates );
 
     }
 
@@ -457,7 +460,7 @@ class FulfillmentCommander {
 
   async unfinishOrderPick( orderPickId ) {
 
-    const orderPick = await this.getOrderPickById( orderPickId );
+    const orderPick = await this.getOrderPickById( orderPickId, { populate: [ 'pickItems.lot' ] }  );
 
     if( !orderPick ) {
       throw new ResourceNotFoundError( { type: 'shopify order pick', id: orderPickId } );
@@ -467,21 +470,18 @@ class FulfillmentCommander {
 
       await orderPick.unfinish();
 
-      const lotIds = orderPick.pickItems.reduce( ( acc, _pickItem ) => {
+      const lotUpdates = [];
+      for( let pickItem of orderPick.pickItems ) {
 
-        if( _pickItem.lot ) {
-          acc.add( _pickItem.lot.toString() );
+        if( pickItem.lot ) {
+
+          lotUpdates.push( pickItem.lot.unship() );
+
         }
 
-        return acc;
-
-      } , new Set() );
-
-      for( let lotId of [ ...lotIds ] ) {
-
-        await this.lotdb.markAsListed( lotId );
-
       }
+
+      await Promise.all( lotUpdates );
 
     }
 
