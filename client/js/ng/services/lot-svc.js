@@ -93,7 +93,7 @@ angular.module('myApp').factory( 'LotSvc', [
 
         Object.assign( query, filter );
 
-        if( sort.key ) {
+        if( sort && sort.key ) {
           query.sort = sort.key;
           query.sort_dir = sort.ascending ? 1 : -1;
         }

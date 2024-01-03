@@ -32,8 +32,8 @@ angular.module('myApp').controller( 'NewLotCtrl', [
 
     vm.lotTypes = dbEnums.lotType;
     vm.packagingTypes = dbEnums.packagingType;
-    vm.categories = ['None'].concat(lotCategories.map(x=>x.name));
-    vm.newLotCategory = 'None';
+    vm.categories = [ { displayName: 'None' } ].concat( lotCategories ),
+    vm.newLotCategory = vm.categories[0];
     vm.marketplaces = ['wholesaleninjas', 'bstock'];
     vm.newLot = {
       unmanifested: false,
@@ -50,16 +50,16 @@ angular.module('myApp').controller( 'NewLotCtrl', [
     function buildHandleForPrefix(prefix) {
       const today = new Date();//fix time zone to EST
 
-      const categoryDatePrefix = `${prefix}${today.getMonth()+1}.${today.getDate()}.${today.getFullYear()-2000}`;
+      const categoryDatePrefix = `${prefix}-${today.getMonth()+1}-${today.getDate()}-${today.getFullYear()-2000}`;
 
-      const query = {
-        handle: { prefix: true, value: categoryDatePrefix }
+      const filter = {
+        handle: categoryDatePrefix
       };
 
       // TODO: this really just compares against the most recent lots. Might be better off
       // creating a new API endpoint that validates a proposed handle against the existing DB,
       // perhaps using an mongo aggregate function
-      return LotSvc.list( query ).then( lots => {
+      return LotSvc.list( { filter } ).then( lots => {
         const handlePattern = new RegExp(`${categoryDatePrefix}-([0-9]+)`);
         const existingLotNumbers = lots.reduce((numbers, lot) => {
           const lotNumberMatch = lot.handle.match(handlePattern);
@@ -76,10 +76,9 @@ angular.module('myApp').controller( 'NewLotCtrl', [
       });
     }
 
-    function setHandleForCategory() {
-      const categoryObj = lotCategories.find(x=>x.name===vm.newLotCategory);
-      if(categoryObj) {
-        buildHandleForPrefix(categoryObj.prefix).then(handle => vm.newLot.handle = handle);
+    function setHandleForCategory() {console.log(vm.newLotCategory)
+      if( vm.newLotCategory.value ) {
+        buildHandleForPrefix( vm.newLotCategory.prefix ).then(handle => vm.newLot.handle = handle);
       }
     }
 
@@ -107,10 +106,19 @@ angular.module('myApp').controller( 'NewLotCtrl', [
     }
 
     function startLot() {
-      if(!vm.newLot.listingData) {
-        listingBuilder.buildFromCategory(vm.newLot);
+
+      const lotToSubmit = Object.assign(
+        {
+          category: vm.newLotCategory.value
+        },
+        vm.newLot
+      );
+
+      if( !lotToSubmit.listingData ) {
+        listingBuilder.buildFromCategory( lotToSubmit );
       }
-      LotSvc.create( vm.newLot ).then( resp => {
+
+      LotSvc.create( lotToSubmit ).then( resp => {
         if( resp.error ) {
           console.error( resp );
           ModalSvc.message({ header: 'Error', body: resp.message, type: 'error' });

@@ -1,11 +1,11 @@
-<div class="container" ng-controller="NewLotCtrl as ctrl">
+<div class="container" ng-controller="NewLotCtrl as $ctrl">
 	<h1>Create A New Lot</h1>
 	<!-- <div class="row well">
 		<h2 class="col-xs-12">Quick Lots</h2>
 		<div class="col-xs-12">
 			<div class="row">
 	            <div class="form-group col-xs-12 col-sm-6 col-md-3" ng-repeat="lot in quickLots">
-					<button class="btn btn-success" ng-click="ctrl.startQuickLot(lot)">{{lot.name}}<br>{{lot.template.type}}</button>
+					<button class="btn btn-success" ng-click="$ctrl.startQuickLot(lot)">{{lot.name}}<br>{{lot.template.type}}</button>
 				</div>
 			</div>
 		</div>
@@ -16,52 +16,52 @@
 
 			<div class="form-group">
 				<label for="catInput">Category</label>
-				<select class="form-control" id="catInput" ng-model="ctrl.newLotCategory" ng-change="ctrl.setHandleForCategory()">
-					<option ng-repeat="cat in ctrl.categories">{{ cat }}</option>
+				<select class="form-control" id="catInput" ng-model="$ctrl.newLotCategory" ng-change="$ctrl.setHandleForCategory()">
+					<option ng-repeat="$category in $ctrl.categories track by $index" ng-value="$category">{{ $category.displayName }}</option>
 				</select>
 			</div>
 
-			<div class="form-group" ng-class="{ 'has-error' : ctrl.noHandleSubmitted }">
+			<div class="form-group" ng-class="{ 'has-error' : $ctrl.noHandleSubmitted }">
 				<label for="handleInput">Handle (required)</label>
-				<input type="text" class="form-control" name="handle" id="handleInput" ng-model="ctrl.newLot.handle" autocomplete="off" autofocus>
-				<span class="text-danger h4" ng-show="ctrl.noHandleSubmitted">No Handle submitted.</span>
+				<input type="text" class="form-control" name="handle" id="handleInput" ng-model="$ctrl.newLot.handle" autocomplete="off" autofocus>
+				<span class="text-danger h4" ng-show="$ctrl.noHandleSubmitted">No Handle submitted.</span>
 			</div>
 
-			<div class="form-group" ng-class="{ 'has-error' : ctrl.noMarketplaceSubmitted }">
+			<div class="form-group" ng-class="{ 'has-error' : $ctrl.noMarketplaceSubmitted }">
 				<label for="destinationMarketplaceInput">Marketplace (required)</label>
-				<select class="form-control" name="destinationMarketplace" id="destinationMarketplaceInput" ng-model="ctrl.newLot.destinationMarketplace">
-					<option ng-repeat="marketplace in ctrl.marketplaces">{{ marketplace }}</option>
+				<select class="form-control" name="destinationMarketplace" id="destinationMarketplaceInput" ng-model="$ctrl.newLot.destinationMarketplace">
+					<option ng-repeat="marketplace in $ctrl.marketplaces">{{ marketplace }}</option>
         </select>
-        <span class="text-danger h4" ng-show="ctrl.noMarketplaceSubmitted">No Marketplace selected.</span>
+        <span class="text-danger h4" ng-show="$ctrl.noMarketplaceSubmitted">No Marketplace selected.</span>
 			</div>
 
-			<div class="form-group" ng-class="{ 'has-error' : ctrl.noLotTypeSubmitted }">
+			<div class="form-group" ng-class="{ 'has-error' : $ctrl.noLotTypeSubmitted }">
 				<label for="typeInput">Lot Type (required)</label>
-				<select class="form-control" name="type" id="typeInput" ng-model="ctrl.newLot.type">
-					<option ng-repeat="type in ctrl.lotTypes">{{ type }}</option>
+				<select class="form-control" name="type" id="typeInput" ng-model="$ctrl.newLot.type">
+					<option ng-repeat="type in $ctrl.lotTypes">{{ type }}</option>
         </select>
-        <span class="text-danger h4" ng-show="ctrl.noLotTypeSubmitted">No Lot Type selected.</span>
+        <span class="text-danger h4" ng-show="$ctrl.noLotTypeSubmitted">No Lot Type selected.</span>
       </div>
 
-      <div class="form-group" ng-class="{ 'has-error' : ctrl.noPackagingTypeSubmitted }">
-				<label for="packagingTypeInput">Packaging Type (required) <span class="glyphicon glyphicon-question-sign" ng-click="ctrl.openPackagingTypeInfo()"></span></label>
-				<select class="form-control" name="packagingType" id="packagingTypeInput" ng-model="ctrl.newLot.packagingType">
-					<option ng-repeat="packagingType in ctrl.packagingTypes">{{ packagingType }}</option>
+      <div class="form-group" ng-class="{ 'has-error' : $ctrl.noPackagingTypeSubmitted }">
+				<label for="packagingTypeInput">Packaging Type (required) <span class="glyphicon glyphicon-question-sign" ng-click="$ctrl.openPackagingTypeInfo()"></span></label>
+				<select class="form-control" name="packagingType" id="packagingTypeInput" ng-model="$ctrl.newLot.packagingType">
+					<option ng-repeat="packagingType in $ctrl.packagingTypes">{{ packagingType }}</option>
         </select>
-        <span class="text-danger h4" ng-show="ctrl.noPackagingTypeSubmitted">No Packaging Type selected.</span>
+        <span class="text-danger h4" ng-show="$ctrl.noPackagingTypeSubmitted">No Packaging Type selected.</span>
 			</div>
 
 			<div class="form-group">
 				<label for="manifestedInput">Manifested Lot?</label>
-				<select class="form-control" name="manifested" id="manifestedInput" ng-model="ctrl.newLot.unmanifested">
+				<select class="form-control" name="manifested" id="manifestedInput" ng-model="$ctrl.newLot.unmanifested">
 					<option ng-value="false">Yes</option>
 					<option ng-value="true">No</option>
 				</select>
       </div>
 
-      <div class="form-group" ng-hide="ctrl.newLot.unmanifested">
+      <div class="form-group" ng-hide="$ctrl.newLot.unmanifested">
 				<label for="willUploadManifestInput">Are you uploading a manifest file?</label>
-				<select class="form-control" name="willUploadManifest" id="willUploadManifestInput" ng-model="ctrl.willUploadManifest">
+				<select class="form-control" name="willUploadManifest" id="willUploadManifestInput" ng-model="$ctrl.willUploadManifest">
 					<option ng-value="false">No</option>
 					<option ng-value="true">Yes</option>
 				</select>
@@ -69,10 +69,10 @@
 
 			<div class="form-group">
 				<label for="descInput">Description (optional)</label>
-				<input type="text" class="form-control" name="desc" id="descInput" ng-model="ctrl.newLot.description" autocomplete="off">
+				<input type="text" class="form-control" name="desc" id="descInput" ng-model="$ctrl.newLot.description" autocomplete="off">
 			</div>
       <div>
-				<input class="btn btn-success" type="submit" ng-click="ctrl.startCustomLot()" value="Create">
+				<input class="btn btn-success" type="submit" ng-click="$ctrl.startCustomLot()" value="Create">
 			</div>
 		</div>
 

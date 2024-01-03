@@ -195,28 +195,34 @@ angular.module('myApp').constant('bstockConstants', {
 
 angular.module('myApp').constant('lotCategories', [
   {
+    value: 'clothing',
     prefix: 'AP',
-    name: 'Apparel'
+    displayName: 'Apparel'
   },
   {
+    value: 'cosmetics',
     prefix: 'CS',
-    name: 'Cosmetics'
+    displayName: 'Cosmetics'
   },
   {
+    value: 'general merchandise',
     prefix: 'GM',
-    name: 'General Merchandise'
+    displayName: 'General Merchandise'
   },
   {
+    value: 'cosmetics',
     prefix: 'NP',
-    name: 'Nail Polish'
+    displayName: 'Nail Polish'
   },
   {
+    value: 'personal care',
     prefix: 'PC',
-    name: 'Personal Care'
+    displayName: 'Personal Care'
   },
   {
+    value: 'personal care',
     prefix: 'VT',
-    name: 'Vitamins & Supplements'
+    displayName: 'Vitamins & Supplements'
   },
 ]);
 
