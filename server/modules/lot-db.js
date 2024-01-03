@@ -36,14 +36,12 @@ module.exports = function( lotdbClient ) {
     console.log(`Submitting new lot with data:`);
     console.log(`${JSON.stringify( _data, null, 2 )}`);
 
-    _data.listings = [{ platform: 'bstock', body: ''}];
-
     return lotdbClient.submitNewLot( _data );
 
   }
 
-  function editLot( _data ) {
-    return lotdbClient.updateLot( _data );
+  function editLot( lotId, _data ) {
+    return lotdbClient.editLot( lotId, _data );
   }
 
   function setPrimaryImage( lotId, image ) {

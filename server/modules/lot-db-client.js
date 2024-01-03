@@ -88,82 +88,37 @@ exports.Client = function( { Lot, countCommander } ) {
     return newLot.save();
   };
 
-  this.updateLot = async function(lot) {
-    //TODO: validation -> needs handle
-    if(!lot || !lot._id)
-      throw new Error('Not a valid lot.');
+  this.editLot = async function( lotId, _editDocument ) {
 
-    const updateDocument = { };
+    try {
 
-    if(lot.handle) {
-      updateDocument.handle = lot.handle;
+      const lot = await this.getLotById( lotId );
+
+      if( !lot ) {
+        throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
+      }
+
+      const edits = Object.keys( _editDocument ).map( _key => ({ path: _key, oldValue: lot[ _key ], newValue: _editDocument[ _key ] }) ).filter( x => x.oldValue !== x.newValue );
+
+      if( edits.length <= 0 ) {
+        return {};
+      }
+
+      const editDocument = edits.reduce( (acc, _) => {
+        acc[_.path] = _.newValue;
+        return acc;
+      }, {});
+
+      await lot.edit( editDocument );
+
+      return { lot, edits };
+
     }
-    if(lot.lotNumber) {
-      updateDocument.lotNumber = lot.lotNumber;
+    catch( e ) {
+      console.error( e );
+      throw e;
     }
-    if('description' in lot) {
-      updateDocument.description = lot.description;
-    }
-    if('category' in lot) {
-      updateDocument.category = lot.category;
-    }
-    if(lot.type) {
-      updateDocument.type = lot.type;
-    }
-    if(lot.packagingType) {
-      updateDocument.packagingType = lot.packagingType;
-    }
-    if(lot.manifestId) {
-      updateDocument.manifestId = lot.manifestId;
-    }
-    if('totalUnits' in lot) {
-      updateDocument.totalUnits = lot.totalUnits;
-    }
-    if(lot.estimatedRetailValue) {
-      updateDocument.estimatedRetailValue = lot.estimatedRetailValue;
-    }
-    if( lot.priceValuePercentage ) {
-      updateDocument.priceValuePercentage = lot.priceValuePercentage;
-    }
-    if(lot.numBoxes) { // DEPRECATED: use shippingItems for new data
-      updateDocument.numBoxes = lot.numBoxes;
-    }
-    if(lot.status) {
-      updateDocument.status = lot.status;
-    }
-    if(lot.soldOn) {
-      updateDocument.soldOn = lot.soldOn;
-    }
-    if(lot.listedOn) {
-      updateDocument.listedOn = lot.listedOn;
-    }
-    if(lot.destinationMarketplace) {
-      updateDocument.destinationMarketplace = lot.destinationMarketplace;
-    }
-    if(lot.listings) {
-      updateDocument.listings = lot.listings;
-    }
-    if(lot.submittedListings) {
-      updateDocument.submittedListings = lot.submittedListings;
-    }
-    if(lot.listingData) {
-      updateDocument.listingData = lot.listingData;
-    }
-    if("unmanifested" in lot) {
-      updateDocument.unmanifested = lot.unmanifested;
-    }
-    if(lot.manifestFileLocation) {
-      updateDocument.manifestFileLocation = lot.manifestFileLocation;
-    }
-    if(lot.shippingItems) {
-      updateDocument.shippingItems = lot.shippingItems;
-    }
-    return this.LotModel.findOneAndUpdate(
-      { _id: lot._id },
-      { $set: updateDocument },
-      { new: true }
-      // { upsert: true, new: true }
-    );
+
   };
 
   this.getLotById = function( lotId, { populate } = {} ) {

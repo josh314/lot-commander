@@ -204,7 +204,7 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
       }
 
       // then update the lot
-      await lotdb.editLot( submittedListingResponse.lot );
+      await lotdb.editLot( lotId, submittedListingResponse.lot );
 
 
       if( submittedListingResponse.error ) {

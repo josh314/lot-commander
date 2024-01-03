@@ -26,14 +26,9 @@ const lotSchema = mongoose.Schema({
   estimatedRetailValue: Number,
   priceValuePercentage: Number,
   status: { type: String, enum: enums.lotStatus, required: true },
-  listedOn: [{ type: String, enum: enums.marketplace }],
-  soldOn: { type: String, enum: enums.marketplace },
+
+  /*********** Listing properties ************/
   destinationMarketplace: { type: String, enum: enums.marketplace},
-  listings: [{//delete
-    platform: String,
-    body: String,
-    _id: false,
-  }],
   submittedListings: [{
     _id: false,
     marketplace: String,
@@ -88,6 +83,20 @@ lotSchema.pre( 'save', function(next) {
 
   next();
 } );
+
+/***********************
+ * Lot methods
+ *
+ *
+  ******/
+
+lotSchema.methods.edit = function( data ) {
+
+  Object.assign( this, data );
+  return this.save();
+
+};
+
 
 module.exports = {
   schema: lotSchema,

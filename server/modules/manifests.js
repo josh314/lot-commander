@@ -235,7 +235,8 @@ module.exports = function( { lotdb } ) {
 
       if( buildManifestResponse.data.submitted ) {
 
-        lotdb.editLot({ _id: lotId, manifestFileLocation: buildManifestResponse.data.link });
+        console.log(`Manifest for lot ${lot.handle} (lotId: ${lotId}) saved to ${buildManifestResponse.data.link}`);
+        lotdb.editLot( lotId, { manifestFileLocation: buildManifestResponse.data.link });
 
         return {
           lotId: lotId,

@@ -347,11 +347,9 @@ function routes({ inventoryCommander, lotdb }) {
 
     try {
 
-      const _data = req.body;
+      const { lotId } = req.params;
 
-      _data._id = req.params.lotId;
-
-      const lot = await lotdb.editLot( _data );
+      const lot = await lotdb.editLot( lotId, req.body );
 
       res.json( { lot } );
 
@@ -383,7 +381,7 @@ function routes({ inventoryCommander, lotdb }) {
           totalUnits: lot.totalUnits ? lot.totalUnits : 0,
           manifestId: manifest._id,
         };
-        await lotdb.editLot( lotUpdate );
+        await lotdb.editLot( lot._id, lotUpdate );
       }
 
       res.json( { manifest } );
@@ -435,10 +433,12 @@ function routes({ inventoryCommander, lotdb }) {
 
         const storePromise = manifestSvc.put( readStream, s3Key , true).then(resp=>{
           if(resp && resp.data) {
-            return lotdb.editLot({
-              _id: lotId,
-              manifestFileLocation: resp.data.Location
-            });
+            return lotdb.editLot(
+              lotId,
+              {
+                manifestFileLocation: resp.data.Location
+              }
+            );
           }
         })
           .then(_=>{
