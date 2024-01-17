@@ -16,41 +16,7 @@
 
 	<div class="row">
 		<div class="well">
-<!-- 			<div class="col-xs-12">
-				<dl class="dl-horizontal pull-left">
-					<dt>Handle</dt><dd>{{ lot.getHandle() }}</dd>
-					<dt>SKU count</dt><dd>{{ lot.getNumSku() }}</dd>
-					<dt>Inventory count</dt><dd>{{ lot.getInventoryTotal() }}</dd>
-				</dl>
-			</div>
-			<div class="col-xs-12">
-				<table>
-					<tbody>
-						<tr>
-							<td>Handle</td>
-							<td></td>
-							<td>{{ lot.getHandle() }}</td>
-						</tr>
-						<tr>
-							<td>SKU count</td>
-							<td></td>
-							<td>{{ lot.getNumSku() }}</td>
-						</tr>
-						<tr>
-							<td>Inventory count</td>
-							<td></td>
-							<td>{{ lot.getInventoryTotal() }}</td>
-						</tr>
-					</tbody>
-				</table>
-			</div> -->
-<!-- 			<div class="col-xs-12">
-				<ul class="pull-left list-inline">
-					<li><span class="">Handle</span><span>{{ lot.getHandle() }}</span></li>
-					<li><span class="">SKU count</span><span>{{ lot.getNumSku() }}</span></li>
-					<li><span class="">Inventory count</span><span>{{ lot.getInventoryTotal() }}</span></li>
-				</ul>
-			</div> -->
+
 			<div class="col-xs-12 row" style="margin-bottom: 40px">
 				<div class="col-xs-3 row">
 					<div class="col-xs-12 text-center">
@@ -76,9 +42,19 @@
 						<h4 class="text-danger">{{ ctrl.getLotInventoryTotal() }}</h4>
 					</div>
 				</div>
-				<div class="col-xs-3 row pull-right">
+				<!-- <div class="col-xs-3 row pull-right">
             <a class="btn btn-primary" ng-click="ctrl.openEditShippingItemsModal()" ng-hide="ctrl.numLotBoxes">Edit Shipping Items</a>
             <a class="btn btn-success" ng-click="ctrl.saveManifest()">Done</a>
+				</div> -->
+
+				<div class="col-xs-3 row pull-right" style="display:flex; flex-direction:column;">
+          <div style="margin-bottom:8px;">
+            <a class="btn btn-primary" ng-click="ctrl.openEditShippingItemsModal()" ng-hide="ctrl.lot.numBoxes">Edit Shipping Items</a>
+          </div>
+          <div>
+            <a class="btn btn-success" ng-click="ctrl.saveManifest()">Save</a>
+            <a class="btn btn-success" ng-click="ctrl.saveManifestAndExit()">Save & finish</a>
+          </div>
 				</div>
 			</div>
 
@@ -116,12 +92,18 @@
 							<button class="btn btn-success btn-xs" ng-click=" item.quantity = item.quantity + 1 "><span class="glyphicon glyphicon-plus"></span></button>
 							<button class="btn btn-warning btn-xs" ng-click=" item.quantity = item.quantity>0 ? item.quantity - 1 : 0" ng-disabled="item.quantity<=0"><span class="glyphicon glyphicon-minus"></span></button>
 						</td>
-						<td><input type="text" size="6" ng-model="item.price"></td>
+						<td>
+              <form name="foobar">
+                <div class="form-group" ng-class="{ 'has-error' : foobar[ 'price-{{ $index }}' ].$invalid }">
+                  <input type="text" class="form-control" name="price-{{ $index }}" ng-model="item.price" size="6" ng-pattern="ctrl.priceRegex">
+                </div>
+              </form>
+            </td>
 						<td><button class="btn btn-danger btn-xs" ng-click="ctrl.deleteInventoryItem(item.barcode)"><span class="glyphicon glyphicon-remove"></span></button></td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
-		<div class="col-xs-6"><a class="btn btn-success btn-lg" ng-click="ctrl.saveManifest()">Done</a></div>
+		<div class="col-xs-6"><a class="btn btn-success btn-lg" ng-click="ctrl.saveManifestAndExit()">Save & finish</a></div>
 	</div>
 </div>

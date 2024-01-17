@@ -2,6 +2,8 @@ import angular from 'angular';
 
 const __MAX_DISPLAY_INVENTORY__ = 50;
 
+const __PRICE_REGEX__ = /^\d+(\.\d{1,2})?$/;
+
 /******************* Scanning Page Controller *************************/
 angular.module('myApp').controller( 'ScanCtrl', [
 
@@ -41,6 +43,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
     vm.deleteInventoryItem = deleteInventoryItem;
     vm.decrementInventory = decrementInventory;
     vm.saveManifest = saveManifest;
+    vm.saveManifestAndExit = saveManifestAndExit;
     vm.openEditShippingItemsModal = openEditShippingItemsModal;
     vm.scanBarcode = scanBarcode;
 
@@ -57,6 +60,8 @@ angular.module('myApp').controller( 'ScanCtrl', [
       maxSize: 8
     };
 
+    vm.priceRegex = __PRICE_REGEX__;
+
     const save = () => {
       return LotSvc.saveManifest().then( manifest => {
 
@@ -64,6 +69,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
           lotStore.manifestId = manifest._id;
         }
 
+        return manifest;
       });
     };
 
@@ -86,10 +92,63 @@ angular.module('myApp').controller( 'ScanCtrl', [
       }
     }
 
-    function saveManifest() {
-      console.log(`Auto-saving lot: ${lotStore.handle}`);
-      save().then(()=>{
-        navigate.viewLot( lotStore._id );
+
+    function validateInventoryItem( item ) {
+
+      if( !item.barcode ) {
+        return false;
+      }
+
+      if( ! __PRICE_REGEX__.test( item.price ) ) {console.log('price regex fail', item.price)
+        return false;
+      }
+
+      return true;
+
+    }
+
+    function validateInventory() {
+
+      const inventory = vm.getLotInventory();
+
+      for(let i=0; i < inventory.length; i++) {
+        const item = inventory[i];
+        if( !validateInventoryItem( item ) ) {
+          ModalSvc.message( {
+            header: 'Invalid data',
+            body: `The data for item with barcode ${item.barcode} is invalid. Please correct it and try again.`,
+            type: 'error',
+          } );
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+
+    async function saveManifest() {
+
+      if( validateInventory() ) {
+
+        const manifest = await save();
+        console.log('saveManifest result:', manifest);
+        return { success: true, manifest };
+
+      }
+      else {
+        return { success: false };
+      }
+
+    }
+
+    function saveManifestAndExit() {
+      saveManifest().then( ( { success, manifest: _manifest } ) => {
+        if( success ) {
+
+          navigate.viewLot( lotStore._id );
+
+        }
       });
     }
 
