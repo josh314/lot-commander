@@ -11,6 +11,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
   'LotSvc',
   'palletProperties',
   'ModalSvc',
+  'ShippingItemsSvc',
 
   function(
 
@@ -22,6 +23,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
     LotSvc,
     palletProperties,
     ModalSvc,
+    ShippingItemsSvc
 
   ){
 
@@ -151,8 +153,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
         }
       );
 
-
-
+      ShippingItemsSvc.setPackagingTypeFromShippingItems( vm.lot );
 
     }
 
@@ -183,7 +184,8 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
     function editShippingItemsCb( shippingItems ) {
 
       if(shippingItems) {
-        vm.lot.shippingItems = shippingItems;
+        vm.lot.shippingItems = shippingItems;console.log('shippingItems', shippingItems);
+        ShippingItemsSvc.setPackagingTypeFromShippingItems( vm.lot );
       }
 
     }

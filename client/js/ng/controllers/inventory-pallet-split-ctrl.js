@@ -530,6 +530,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         ModalSvc.shippingItems( this.shippingItems, skipValidation ).then( shippingItems => {
           if( shippingItems ) {
             this.shippingItems = shippingItems;
+            ShippingItemsSvc.setPackagingTypeFromShippingItems( this );
           }
         });
       }
@@ -537,6 +538,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       setShippingItems( shippingItems ) {
         if( shippingItems ) {
           this.shippingItems = shippingItems;
+          ShippingItemsSvc.setPackagingTypeFromShippingItems( this );
         }
       }
 
@@ -1167,6 +1169,8 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         header: 'Saved.',
         body: `Successfully saved split items.`
       } );
+
+      navigate.scrollToTop();
 
     }
 

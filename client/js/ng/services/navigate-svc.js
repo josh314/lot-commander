@@ -7,6 +7,10 @@ import angular from 'angular';
 ************/
 angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', function( $anchorScroll, $state ){
 
+  const scrollToTop = () => {
+    $anchorScroll();
+  }
+
   const home = () => {
     $anchorScroll();
     $state.go( 'main.home' );
@@ -143,6 +147,8 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     pickOrder,
     reload,
     repackPallet,
+    scanLot,
+    scrollToTop,
     splitPallet,
     shipmentCleanManifest,
     shipmentCreation,
@@ -151,7 +157,6 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     shipmentProcessManifest,
     shipmentReceiving,
     submitListing,
-    scanLot,
     uploadLotManifest,
     viewLot,
   };

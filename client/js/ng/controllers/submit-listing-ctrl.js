@@ -2,6 +2,39 @@ import angular from 'angular';
 
 const __DEFAULT_LOT_PRICE_VALUE_PCT__ = 15;
 
+const __SHIPPING_RATE_FIRST_BOX__ = 30;
+const __SHIPPING_RATE_MINIMUM_PER_BOX__ = 15;
+const __SHIPPING_RATE_DISCOUNT_FACTOR_PER_BOX__ = 0.05;
+
+function computeShippingRate( lot ) {
+
+  let rate = '';
+
+  if( lot.packagingType === 'box lot' ) {
+
+    if( ( lot.shippingItems && lot.shippingItems.length ) || lot.numBoxes ) {
+
+      const numBoxes = ( lot.shippingItems && lot.shippingItems.length ) || lot.numBoxes;
+
+      rate = 0;
+      for( let i=0; i<numBoxes; i++ ) {
+        let itemRate = __SHIPPING_RATE_FIRST_BOX__ * ( 1 -  i * __SHIPPING_RATE_DISCOUNT_FACTOR_PER_BOX__ );
+
+        if( itemRate < __SHIPPING_RATE_MINIMUM_PER_BOX__ ) {
+          itemRate = __SHIPPING_RATE_MINIMUM_PER_BOX__;
+        }
+
+        rate += itemRate;
+      }
+
+    }
+
+  }
+
+  return rate;
+
+}
+
 /******************* Submit Listing Controller *************************/
 angular.module('myApp').controller( 'SubmitListingCtrl', [
 
@@ -13,6 +46,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
   'ModalSvc',
   'navigate',
   'sessionTimeout',
+  'ShippingItemsSvc',
 
   function(
 
@@ -24,6 +58,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
     ModalSvc,
     navigate,
     sessionTimeout,
+    ShippingItemsSvc,
 
   ) {
     sessionTimeout.timeoutExpired();
@@ -133,50 +168,56 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
         estimatedRetailValue: '',
       };
 
-      LotSvc.load().then( lot => {
+      LotSvc.load()
+        .then( lot => {
+          vm.lot = lot;
 
-        vm.lot = lot;
+          // make sure that packaging type is correctly set based on shipping items. this will only matter for some legacy data
+          ShippingItemsSvc.setPackagingTypeFromShippingItems( vm.lot );
 
-        vm.allowEditPricingData = LoggedInUser.hasPermission( 'EDIT_PRICING_DATA' ) || !vm.lot.estimatedRetailValue;
-        vm.priceValuePercentage = vm.lot.priceValuePercentage || __DEFAULT_LOT_PRICE_VALUE_PCT__;
+        })
+        .then( () => {
 
-        // Default collection selections
-        if( isCasePacked() ) {
-          const casePackedCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'cases' );
-          casePackedCollectionOption.selected = true;
-        }
-        else if( isBoxedLot() ) {
-          const lotCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'lots' );
-          lotCollectionOption.selected = true;
-        }
-        else if( isPallet() ) {
-          const palletCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'pallets' );
-          palletCollectionOption.selected = true;
-        }
+          vm.allowEditPricingData = LoggedInUser.hasPermission( 'EDIT_PRICING_DATA' ) || !vm.lot.estimatedRetailValue;
+          vm.priceValuePercentage = vm.lot.priceValuePercentage || __DEFAULT_LOT_PRICE_VALUE_PCT__;
 
-        vm.inputs.totalUnits = vm.lot.totalUnits;
-
-        Object.assign(
-          vm.inputs.shopify,
-          {
-            additionalTags: defaultTags( vm.lot ),
-            packagingType: vm.lot.packagingType,
+          // Default collection selections
+          if( isCasePacked() ) {
+            const casePackedCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'cases' );
+            casePackedCollectionOption.selected = true;
           }
-        );
-
-        const estimatedRetailValue = vm.lot.getEstimatedRetailValue();
-
-        Object.assign(
-          vm.listing,
-          {
-            marketplace: LoggedInUser.hasMarketplacePermission( vm.lot.destinationMarketplace ) ? vm.lot.destinationMarketplace : vm.formOptions.marketplaces[0],
-            shopifyPrice: estimatedRetailValue ? ( vm.priceValuePercentage*parseFloat(estimatedRetailValue)/100 ).toFixed(2) : '',
-            condition: ({'shelf-pull': 'Shelf Pulls','customer returns': 'Customer Returns','salvage': 'Salvage'})[vm.lot.type] || '',
-            estimatedRetailValue,
+          else if( isBoxedLot() ) {
+            const lotCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'lots' );
+            lotCollectionOption.selected = true;
           }
-        );
+          else if( isPallet() ) {
+            const palletCollectionOption = vm.formOptions.shopify.collections.find( _ => _.name === 'pallets' );
+            palletCollectionOption.selected = true;
+          }
 
-      });
+          vm.inputs.totalUnits = vm.lot.totalUnits;
+
+          Object.assign(
+            vm.inputs.shopify,
+            {
+              additionalTags: defaultTags( vm.lot ),
+              packagingType: vm.lot.packagingType,
+              shippingRate: computeShippingRate( vm.lot ),
+            }
+          );
+
+          const estimatedRetailValue = vm.lot.getEstimatedRetailValue();
+
+          Object.assign(
+            vm.listing,
+            {
+              marketplace: LoggedInUser.hasMarketplacePermission( vm.lot.destinationMarketplace ) ? vm.lot.destinationMarketplace : vm.formOptions.marketplaces[0],
+              shopifyPrice: estimatedRetailValue ? ( vm.priceValuePercentage*parseFloat(estimatedRetailValue)/100 ).toFixed(2) : '',
+              condition: ({'shelf-pull': 'Shelf Pulls','customer returns': 'Customer Returns','salvage': 'Salvage'})[vm.lot.type] || '',
+              estimatedRetailValue,
+            }
+          );
+        });
 
     }
 
@@ -322,7 +363,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
 
       vm.waitingForResponse = true;
 
-      if(vm.inputs.totalUnits!==vm.lot.totalUnits) {
+      if( vm.inputs.totalUnits !== vm.lot.totalUnits ) {
         vm.lot.totalUnits = vm.inputs.totalUnits;
         await LotSvc.edit( vm.lot._id, vm.lot );
       }

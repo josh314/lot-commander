@@ -330,6 +330,7 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         'pallet',
         'palletProperties',
         'PrintSvc',
+        'ShippingItemsSvc',
         'WaitingModalSvc',
 
         InventoryPalletDetailsModalCtrl
@@ -354,6 +355,7 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
     pallet,
     palletProperties,
     PrintSvc,
+    ShippingItemsSvc,
     WaitingModalSvc
   )
 
@@ -423,6 +425,7 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
     vm.editShippingItemsCb = function( _shippingItems ) {
 
       vm.inputs.shippingItems = _shippingItems;
+      ShippingItemsSvc.setPackagingTypeFromShippingItems( vm.inputs );
 
     };
 

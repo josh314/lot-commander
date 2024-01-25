@@ -46,7 +46,14 @@
     </div>
     <div class="form-group col-xs-12 col-sm-6">
 			<label for="packingTypeInput">Packaging Type <span class="glyphicon glyphicon-question-sign" ng-click="$ctrl.openPackagingTypeInfo()"></span></label>
-			<select class="form-control" name="packagingType" id="packingTypeInput" required ng-model="$ctrl.lot.packagingType">
+			<select
+        class="form-control"
+        name="packagingType"
+        id="packingTypeInput"
+        required
+        ng-model="$ctrl.lot.packagingType"
+        ng-disabled="$ctrl.lot.shippingItems && $ctrl.lot.shippingItems.length > 0"
+      >
 				<option ng-repeat="packagingType in $ctrl.packagingTypeEnum">{{ packagingType }}</option>
 			</select>
 		</div>

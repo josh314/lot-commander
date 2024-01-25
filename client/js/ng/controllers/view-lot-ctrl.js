@@ -299,15 +299,17 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       if( !vm.lot.handle ) {
         missingFields.push('handle');
       }
+      if( !vm.lot.packagingType ) {
+        missingFields.push('packaging type');
+      }
       if( !vm.lot.numBoxes && !validateShippingItems() ) {
         missingFields.push('shipping items');
       }
-      if(vm.images.length <= 0) {
+      if( vm.images.length <= 0 ) {
         missingFields.push('images');
       }
 
-
-      if(!missingFields.length) {
+      if( !missingFields.length ) {
         navigate.submitListing( vm.lot._id );
       }
       else {

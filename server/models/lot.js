@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const enums = require( '../modules/enums' );
-const { shippingItemSchema } = require( './shipping-item' );
+const {
+  setPackagingTypeFromShippingItems,
+  shippingItemSchema
+} = require( './shipping-item' );
 const { lotImageSchema } = require( './lot-image' );
 
 /*************************************************
@@ -28,7 +31,7 @@ const lotSchema = mongoose.Schema({
   status: { type: String, enum: enums.lotStatus, required: true },
 
   /*********** Listing properties ************/
-  destinationMarketplace: { type: String, enum: enums.marketplace},
+  destinationMarketplace: { type: String, enum: enums.marketplace },
   submittedListings: [{
     _id: false,
     marketplace: String,
@@ -73,9 +76,18 @@ const lotSchema = mongoose.Schema({
 
 
 /***********************
- *  pre-save hook
+ *  Middleware
  *
  ******/
+
+// Doing this here prevents errors from empty packagingType
+lotSchema.pre( 'validate', function(next) {
+
+  this.setPackagingTypeFromShippingItems();
+
+  next();
+} );
+
 lotSchema.pre( 'save', function(next) {
 
   if( typeof this.isDeleted !== 'boolean' ) {
@@ -94,6 +106,11 @@ lotSchema.pre( 'save', function(next) {
  *
  *
   ******/
+
+
+lotSchema.methods.setPackagingTypeFromShippingItems = function() {
+  return setPackagingTypeFromShippingItems( this );
+};
 
 lotSchema.methods.edit = function( data ) {
 

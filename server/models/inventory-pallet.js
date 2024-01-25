@@ -1,7 +1,44 @@
 const mongoose = require('mongoose');
 const enums = require( '../modules/enums' );
-const { shippingItemSchema } = require( './shipping-item' );
+const {
+  setPackagingTypeFromShippingItems,
+  shippingItemSchema
+} = require( './shipping-item' );
 const { lotImageSchema } = require( './lot-image' );
+
+
+/*************************************************
+ * Split group schema
+ * =============================
+ *
+ *****/
+
+
+const splitGroupSchema = mongoose.Schema({
+  label: String,
+  labelType: String,
+  lotNumber: Number,
+  category: String,
+  condition: String,
+  toBeListed: Boolean,
+  toBeProcessed: Boolean,
+  isAllocatedForUnmanifestedLots: Boolean,
+  isMissing: Boolean,
+  items: [ Object ],
+  packagingType: { type: String, enum: enums.packagingType },
+  shippingItems: [ shippingItemSchema ],
+  images: [ lotImageSchema ],
+});
+
+splitGroupSchema.methods.setPackagingTypeFromShippingItems = function() {
+  return setPackagingTypeFromShippingItems( this );
+};
+
+/*************************************************
+ * InventoryPallet schema
+ * =============================
+ *
+ *****/
 
 const inventoryPalletSchema = mongoose.Schema({
   handle: String,
@@ -11,21 +48,7 @@ const inventoryPalletSchema = mongoose.Schema({
   cost: Number,
   units: Number,
   removedItems: [ Object ], // LEGACY
-  splitGroups: [ {
-    label: String,
-    labelType: String,
-    lotNumber: Number,
-    category: String,
-    condition: String,
-    toBeListed: Boolean,
-    toBeProcessed: Boolean,
-    isAllocatedForUnmanifestedLots: Boolean,
-    isMissing: Boolean,
-    items: [ Object ],
-    packagingType: { type: String, enum: enums.packagingType },
-    shippingItems: [ shippingItemSchema ],
-    images: [ lotImageSchema ],
-  } ],
+  splitGroups: [ splitGroupSchema ],
   splitFrom: { // parent pallet that this pallet was split from
     type: mongoose.Schema.Types.ObjectId,
     ref: 'InventoryPallet'
@@ -67,9 +90,21 @@ const inventoryPalletSchema = mongoose.Schema({
 }, { collection: 'inventory-pallets', timestamps: true });
 
 /***********************
- *  pre-save hook
+ *  Middleware
  *
  ******/
+
+// Doing this here prevents errors from empty packagingType
+inventoryPalletSchema.pre( 'validate', function(next) {
+
+  this.setPackagingTypeFromShippingItems();
+  for( let splitGroup of this.splitGroups ) {
+    splitGroup.setPackagingTypeFromShippingItems();
+  }
+
+  next();
+} );
+
 inventoryPalletSchema.pre( 'save', function(next) {
 
   if( typeof this.isReceived !== 'boolean' ) {
@@ -133,9 +168,12 @@ inventoryPalletSchema.pre( 'save', function(next) {
     this.note = undefined;
   }
 
-
   next();
 } );
+
+inventoryPalletSchema.methods.setPackagingTypeFromShippingItems = function() {
+  return setPackagingTypeFromShippingItems( this );
+};
 
 inventoryPalletSchema.methods.edit = function( data ) {
   Object.assign( this, data );

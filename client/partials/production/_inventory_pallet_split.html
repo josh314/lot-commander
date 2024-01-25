@@ -150,8 +150,14 @@
                     <div class="form-group col-xs-12 col-sm-4">
 
                       <label for="packaging-type-input__{{ $grp.label }}">Packaging Type <span class="glyphicon glyphicon-question-sign" ng-click="$ctrl.openPackagingTypeInfo()"></span></label>
-                      <select class="form-control" name="packagingType" id="packaging-type-input__{{ $grp.label }}"
-                        required ng-model="$grp.packagingType">
+                      <select
+                        class="form-control"
+                        name="packagingType"
+                        id="packaging-type-input__{{ $grp.label }}"
+                        required
+                        ng-model="$grp.packagingType"
+                        ng-disabled="$grp.shippingItems && $grp.shippingItems.length > 0"
+                      >
                         <option ng-repeat="$packagingType in $ctrl.packagingTypeOptions">{{ $packagingType }}</option>
                       </select>
 
@@ -240,7 +246,7 @@
                   <div class="row">
                     <div class="col-xs-12">
 
-                      <label for="shipping-items-section__{{ $grp.label }}">Shipping Items</label>
+                      <label for="shipping-items-section__{{ $grp.label }}">Shipping Items<span ng-show="$grp.shippingItems && $grp.shippingItems.length"> ({{ $grp.shippingItems.length }} {{ $grp.shippingItems.length > 1 ? 'items' : 'item'}})</span></label>
                       <div id="shipping-items-section__{{ $grp.label }}">
                         <shipping-items-dir
                           shipping-items="$grp.shippingItems"
@@ -363,23 +369,6 @@
             <strong>{{ $grp.label }}</strong>
           </span>
         </h4>
-
-        <!-- <div class="row">
-
-          <div class="form-group col-xs-3">
-            <label for="packagingTypeInput">Packaging Type <span class="glyphicon glyphicon-question-sign" ng-click="$ctrl.openPackagingTypeInfo()"></span></label>
-            <select class="form-control" name="packagingType" id="packagingTypeInput" required ng-model="$grp.packagingType">
-              <option ng-repeat="$packagingType in $ctrl.packagingTypeOptions">{{ $packagingType }}</option>
-            </select>
-          </div>
-
-          <div class="col-xs-3">
-
-            <button class="btn btn-primary btn-sm" ng-click="$grp.editShippingItems()">Edit shipping items</button>
-          </div>
-
-
-        </div> -->
 
         <table class="table table-striped table-bordered">
           <thead>

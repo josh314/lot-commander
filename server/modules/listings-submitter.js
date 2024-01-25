@@ -114,7 +114,7 @@ class Client {
 
     }
 
-    if(listing.lot.submittedListings && listing.lot.submittedListings.length>0) {console.log('listing.lot.submittedListings', listing.lot.submittedListings);
+    if( listing.lot.submittedListings && listing.lot.submittedListings.length>0 ) {
       listing.lot.submittedListings.push( newSubmittedListing );
     }
     else {

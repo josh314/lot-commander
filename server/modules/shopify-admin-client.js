@@ -66,7 +66,7 @@ class Client {
         // collection?
       };
 
-      if( listing.lot.packagingType.includes('pallets') ) {
+      if( listing.lot.packagingType.includes('pallets') ) { // This would match the several packagingTypes: pallets, pallets:bulky, pallets:oversized
         productToCreate.variants[0].weight = 2000;
         productToCreate.variants[0].weight_unit = 'lb';
       }

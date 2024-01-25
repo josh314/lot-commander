@@ -5,7 +5,7 @@ const __PALLET_BREAKDOWN_SERVICE_SHIPPING_ITEMS_PRESET__ = '21x21x21';
 const __PALLET_BREAKDOWN_SERVICE_SHIPPING_ITEMS_BOX_WEIGHT_LBS__ = 30;
 
 /***************** Utility Constants and function for Shipping Items ************************/
-angular.module('myApp').service('ShippingItemsSvc', [ 'dbEnums', function( dbEnums ){
+angular.module('myApp').service('ShippingItemsSvc', [ 'dbEnums', 'ServerCodeSvc', function( dbEnums, ServerCodeSvc ){
 
   const presets = [
     {
@@ -153,12 +153,14 @@ angular.module('myApp').service('ShippingItemsSvc', [ 'dbEnums', function( dbEnu
     }
   }
 
+
   return {
     //methods
     getPalletBreakdownServiceConfiguration,
     getPreset,
     clean,
     compare,
+    setPackagingTypeFromShippingItems: ServerCodeSvc.setPackagingTypeFromShippingItems,
 
     // constants
     presets,
