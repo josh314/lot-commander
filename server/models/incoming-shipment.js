@@ -1,3 +1,8 @@
+
+const {
+  __DEFAULT_PRICE_VALUE_PCT__
+} = require( '../constants' );
+
 const mongoose = require('mongoose');
 
 const incomingShipmentSchema = mongoose.Schema({
@@ -79,6 +84,10 @@ incomingShipmentSchema.virtual( 'cost' )
  *
  ******/
 incomingShipmentSchema.pre( 'save', function(next) {
+
+  if( !this.priceValuePercentage || this.priceValuePercentage < 0 ) {
+    this.priceValuePercentage = __DEFAULT_PRICE_VALUE_PCT__;
+  }
 
   if( 'totalUnits' in this ) {
 

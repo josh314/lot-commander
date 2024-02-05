@@ -1,6 +1,6 @@
 import angular from 'angular';
 
-const __DEFAULT_LOT_PRICE_VALUE_PCT__ = 15;
+const __DEFAULT_LOT_PRICE_VALUE_PCT__ = 20;
 
 /******************* Submit Listing Controller *************************/
 angular.module('myApp').controller( 'SubmitListingCtrl', [
