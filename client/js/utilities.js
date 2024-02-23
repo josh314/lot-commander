@@ -128,7 +128,7 @@ export function shopifyGid2Id( gid, type ) {
  *
  ******/
 
-export const priceRegex = /^\d+\.\d{2}?$/;
+export const priceRegex = /^\d+(\.\d{1,2})?$/;
 
 export function createSubobject( obj, fields ) {
 
