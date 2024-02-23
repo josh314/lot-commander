@@ -104,7 +104,6 @@ export function getLotManifestFile( lotId ) {
 
 export function import3rdPartyManifestBlock( { lot, blockId } ) {
 
-// TODO: does this really need the whole lot or just lotId?
   return axios({
     method: 'post',
     url: `/api/db/import-3p-manifest-block`,
@@ -154,16 +153,16 @@ export function editLot( lotId, data ) {
 
 }
 
-export function saveLotManifest( lot ) {
+export function saveLotManifest( lotId, inventory ) {
 
-  if(!lot) {
-    throw new Error('Must supply lot data.');
+  if( !lotId || !inventory ) {
+    throw new Error('Must supply lotId and manifest inventory.');
   }
 
   return axios({
     method: 'post',
-    url: `/api/lots/${lot._id}/manifest`,
-    data: { lot }
+    url: `/api/lots/${lotId}/manifest`,
+    data: { inventory }
   })
     .then( resp => resp.data && resp.data.manifest );
 

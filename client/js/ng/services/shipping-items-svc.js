@@ -124,29 +124,32 @@ angular.module('myApp').service('ShippingItemsSvc', [ 'dbEnums', 'ServerCodeSvc'
   }
 
   function compare( a, b ) {
-    if( a.weight !== b.weight ) {
+    if( a._id !== b._id ) {
+      return a._id < b._id ? -1 : 1;
+    }
+    else if( a.weight !== b.weight ) {
       return a.weight < b.weight ? -1 : 1;
     }
-    else if( dbEnums.weightUnits.findIndex( _ => _ === a.weightUnits ) !== dbEnums.weightUnits.findIndex( _ => _ === a.weightUnits ) ) {
-      return dbEnums.weightUnits.findIndex( _ => _ === a.weightUnits ) < dbEnums.weightUnits.findIndex( _ => _ === a.weightUnits ) ? -1 : 1;
+    else if( dbEnums.weightUnits.findIndex( _ => _ === a.weightUnits ) !== dbEnums.weightUnits.findIndex( _ => _ === b.weightUnits ) ) {
+      return dbEnums.weightUnits.findIndex( _ => _ === a.weightUnits ) < dbEnums.weightUnits.findIndex( _ => _ === b.weightUnits ) ? -1 : 1;
     }
     else if( a.width !== b.width ) {
       return a.width < b.width ? -1 : 1;
     }
-    else if( dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) !== dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) ) {
-      return dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) < dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) ? -1 : 1;
+    else if( dbEnums.lengthUnits.findIndex( _ => _ === a.widthUnits ) !== dbEnums.lengthUnits.findIndex( _ => _ === b.widthUnits ) ) {
+      return dbEnums.lengthUnits.findIndex( _ => _ === a.widthUnits ) < dbEnums.lengthUnits.findIndex( _ => _ === b.widthUnits ) ? -1 : 1;
     }
     else if( a.height !== b.height ) {
       return a.height < b.height ? -1 : 1;
     }
-    else if( dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) !== dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) ) {
-      return dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) < dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) ? -1 : 1;
+    else if( dbEnums.lengthUnits.findIndex( _ => _ === a.heightUnits ) !== dbEnums.lengthUnits.findIndex( _ => _ === b.heightUnits ) ) {
+      return dbEnums.lengthUnits.findIndex( _ => _ === a.heightUnits ) < dbEnums.lengthUnits.findIndex( _ => _ === b.heightUnits ) ? -1 : 1;
     }
     else if( a.length !== b.length ) {
       return a.length < b.length ? -1 : 1;
     }
-    else if( dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) !== dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) ) {
-      return dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) < dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) ? -1 : 1;
+    else if( dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) !== dbEnums.lengthUnits.findIndex( _ => _ === b.lengthUnits ) ) {
+      return dbEnums.lengthUnits.findIndex( _ => _ === a.lengthUnits ) < dbEnums.lengthUnits.findIndex( _ => _ === b.lengthUnits ) ? -1 : 1;
     }
     else {
       return 1;

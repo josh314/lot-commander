@@ -9,7 +9,7 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
 
   const scrollToTop = () => {
     $anchorScroll();
-  }
+  };
 
   const home = () => {
     $anchorScroll();

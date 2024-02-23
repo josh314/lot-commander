@@ -47,8 +47,8 @@
             <a class="btn btn-primary" ng-click="$ctrl.editShippingItemsModal()" ng-hide="$ctrl.lot.numBoxes">Edit Shipping Items</a>
           </div>
           <div>
-            <a class="btn btn-success" ng-click="$ctrl.saveManifest()">Save</a>
-            <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()">Save & finish</a>
+            <a class="btn btn-success" ng-click="$ctrl.saveManifest()" ng-disabled="!$ctrl.validateInventory()">Save</a>
+            <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & finish</a>
           </div>
 				</div>
 			</div>
@@ -87,12 +87,17 @@
 							<button class="btn btn-success btn-xs" ng-click="$ctrl.incrementInventoryItem( $item )"><span class="glyphicon glyphicon-plus"></span></button>
 							<button class="btn btn-warning btn-xs" ng-click="$ctrl.decrementInventoryItem( $item )" ng-disabled="$item.quantity<=0"><span class="glyphicon glyphicon-minus"></span></button>
 						</td>
-						<td><input type="text" size="6" ng-model="$item.price"></td>
-						<td><button class="btn btn-danger btn-xs" ng-click="$ctrl.deleteInventoryItem( $item.barcode )"><span class="glyphicon glyphicon-remove"></span></button></td>
+            <td>
+              <div class="form-group" ng-class="{ 'has-error' : $item.errors.price }">
+                <input type="text" class="form-control" name="price" ng-model="$item.price" size="6">
+              </div>
+            </td>
+
+						<td><button class="btn btn-danger btn-xs" ng-click="$ctrl.deleteInventoryItem( $item )"><span class="glyphicon glyphicon-remove"></span></button></td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
-		<div class="col-xs-6"><a class="btn btn-success btn-lg" ng-click="$ctrl.saveManifestAndExit()">Save & finish</a></div>
+		<div class="col-xs-6"><a class="btn btn-success btn-lg" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & finish</a></div>
 	</div>
 </div>

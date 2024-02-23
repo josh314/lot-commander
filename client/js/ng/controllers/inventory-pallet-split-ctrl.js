@@ -1088,7 +1088,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         }
 
 
-        // .slice() performs shallow copy
+        // .slice() performs shallow copy so that we don't re-order the original arrays
         const items1 = oldGrp.items.slice().sort( cmpSplitGroupItems );
         const items2 = currentGrp.items.slice().sort( cmpSplitGroupItems );
 
@@ -1096,7 +1096,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           return false;
         }
 
-        // .slice() performs shallow copy
+        // .slice() performs shallow copy so that we don't re-order the original arrays
         const shippingItems1 = oldGrp.shippingItems.slice().sort( ShippingItemsSvc.compare.bind( ShippingItemsSvc ) );
         const shippingItems2 = currentGrp.shippingItems.slice().sort( ShippingItemsSvc.compare.bind( ShippingItemsSvc ) );
 

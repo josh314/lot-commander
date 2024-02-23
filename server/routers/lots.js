@@ -283,7 +283,7 @@ function routes({ inventoryCommander, lotdb }) {
           throw new ChildResourceNotFoundError( {
             parentType: 'lot',
             parentId: lotId,
-            childType: 'manifestFilelocation',
+            childType: 'manifestFileLocation',
             childId: lot.manifestFileLocation
           } );
 
@@ -364,27 +364,44 @@ function routes({ inventoryCommander, lotdb }) {
 
     try {
 
-      // save inventory to manifest db
-      // if successful, update lot db
-      const lot = req.body.lot;
-      const _data = {
-        _id: lot.manifestId,
-        handle: lot.handle,
-        inventory: lot.inventory,
-      };
+      const { lotId } = req.params;
+      const lot = await lotdb.getLotById( lotId );
 
-      const manifest = await mandb.submitManifest( _data );
+      if( lot ) {
 
-      if(manifest) {
-        const lotUpdate = {
-          _id: lot._id,
-          totalUnits: lot.totalUnits ? lot.totalUnits : 0,
-          manifestId: manifest._id,
+        const { inventory } = req.body;
+
+        const _data = {
+          _id: lot.manifestId,
+          handle: lot.handle,
+          inventory,
         };
-        await lotdb.editLot( lot._id, lotUpdate );
-      }
 
-      res.json( { manifest } );
+        const manifest = await mandb.submitManifest( _data );
+
+        if(manifest) {
+
+          const totalUnits = inventory.reduce( ( total, inventoryItem ) => total + ( parseInt( inventoryItem.quantity ) || 0 ), 0 );
+          const estimatedRetailValue = inventory.reduce( ( total, inventoryItem ) => total + ( parseFloat( inventoryItem.price )*parseInt( inventoryItem.quantity ) || 0 ), 0 );
+
+          const lotUpdate = {
+            _id: lot._id,
+            totalUnits,
+            estimatedRetailValue,
+            manifestId: manifest._id,
+          };
+          await lotdb.editLot( lot._id, lotUpdate );
+
+        }
+
+        res.json( { manifest } );
+
+      }
+      else {
+
+        throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
+
+      }
 
     }
     catch(e) {

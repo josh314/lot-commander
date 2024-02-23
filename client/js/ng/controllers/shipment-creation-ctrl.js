@@ -63,6 +63,7 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
   'FileModelSvc',
   'LoggedInUser',
   'ManifestFileHandlerSvc',
+  'MiscConst',
   'ModalSvc',
   'navigate',
   'palletProperties',
@@ -74,6 +75,7 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
     FileModelSvc,
     LoggedInUser,
     ManifestFileHandlerSvc,
+    MiscConst,
     ModalSvc,
     navigate,
     palletProperties,
@@ -92,7 +94,7 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
 
     vm.inputs = {
       isPaidFor: null,
-      priceValuePercentage: 15,
+      priceValuePercentage: MiscConst.__DEFAULT_LOT_PRICE_VALUE_PCT__,
       categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _ === 'general merchandise' ? 'GM' : _, value: _ } ) ) ),
       conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _ === 'customer returns' ? 'returns' : _, value: _ } ) ) ),
       documentTypeOptions: ShipmentManagerSvc.shipmentDocumentTypes.map( _ => _ === '' ? { displayName: 'none', value: _ } : { displayName: _, value: _ } ),

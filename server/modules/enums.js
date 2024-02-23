@@ -1,5 +1,3 @@
-
-
 const packagingTypeEnum = ['box lot', 'pallets', 'pallets:bulky', 'pallets:oversized', 'truckloads'];
 const weightUnitsEnum = [ 'pounds', 'ounces', 'grams', 'kilograms' ];
 const lengthUnitsEnum = [ 'inches', 'feet', 'centimeters' ];

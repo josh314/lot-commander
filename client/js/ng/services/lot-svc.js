@@ -1,5 +1,6 @@
 import angular from 'angular';
 
+import * as util from '../../utilities';
 import * as api from '../../api';
 
 /******************* Service for managing lots ***/
@@ -77,6 +78,8 @@ angular.module('myApp').factory( 'LotSvc', [
       getManifest: manifestId => $q.when( api.getManifest( manifestId ) ),
 
       getManifestFile: ( lotId, isPrivate ) => $q.when( api.getManifestFile( lotId, isPrivate ) ),
+
+      hydrateLot: data => new Lot( data ),
 
       import3rdPartyManifestBlock: ( lot, blockId ) => $q.when( api.import3rdPartyManifestBlock({ lot, blockId }) ),
 
@@ -202,6 +205,10 @@ angular.module('myApp').factory( 'Lot', [
           Object.assign( this, data );
         }
 
+        for( let item of this.inventory ) {
+          item.errors = {};
+        }
+
       }
 
       /*****************************************
@@ -229,7 +236,7 @@ angular.module('myApp').factory( 'Lot', [
       addInventory(newBarcode) {
         let item;
         if(!newBarcode) {
-          item = { quantity: 0 };
+          item = { quantity: 0, errors: {} };
         }
         else if(/[0-9]{8,15}/.test(newBarcode)) {
           const idx = this.inventory.findIndex(i => i.barcode == newBarcode);
@@ -266,13 +273,18 @@ angular.module('myApp').factory( 'Lot', [
         }
       }
 
-      deleteProduct(barcode) {
-        var idx = this.inventory.findIndex(item => item.barcode == barcode);
+      deleteInventoryItemByIndex( idx ) {
         if(idx >= 0) {
           this.totalUnits -= this.inventory[idx].quantity;
           this.inventory.splice(idx,1);
         }
       }
+
+      deleteInventoryItem( item ) {
+        const idx = this.inventory.findIndex( _item => _item === item );
+        return this.deleteInventoryItemByIndex( idx );
+      }
+
 
       /****************************************
        * Getters
@@ -351,7 +363,19 @@ angular.module('myApp').factory( 'Lot', [
 
         this.updateTotalUnits();
 
-        return $q.when( api.saveLotManifest( this ) );
+        const inventory = [];
+        for( let item of this.inventory ) {
+          if( item.quantity ) {
+
+            const _ = Object.assign( {}, item );
+            delete _.errors;
+
+            inventory.push( _ );
+
+          }
+        }
+
+        return $q.when( api.saveLotManifest( this._id, inventory ) );
 
       }
 
@@ -362,6 +386,83 @@ angular.module('myApp').factory( 'Lot', [
 
           return this;
         });
+      }
+
+      inventoryItemHasErrors( item ) {
+        return Object.values( item.errors ).reduce( ( acc, val ) => acc || val, false);
+      }
+
+      validateInventory() {
+
+        const barcodes = new Set();
+
+        for( let i=0; i<this.inventory.length; i++ ) {
+
+          const item = this.inventory[i];
+          item.errors = {};
+
+          if( barcodes.has( item.barcode ) ) {
+
+            item.errors.duplicateBarcode = true;
+
+            for( let j=0; j<i; j++ ) {
+              if( this.inventory[j].barcode === item.barcode ) {
+                this.inventory[j].errors.duplicateBarcode = true;
+              }
+            }
+
+          }
+          else {
+            barcodes.add( item.barcode );
+          }
+
+          item.errors.price = item.price && !util.priceRegex.test( item.price );
+
+        }
+
+        return !this.inventory.find( this.inventoryItemHasErrors.bind( this ) );
+
+      }
+
+      composeInventoryErrorsHtmlMessage() {
+
+        const invalidPriceBarcodes = [];
+        const duplicateBarcodes = new Set();
+
+        for( let item of this.inventory ) {
+
+          if( item.errors.price ) {
+            invalidPriceBarcodes.push( item.barcode );
+          }
+
+          if( item.errors.duplicateBarcode ) {
+            duplicateBarcodes.add( item.barcode );
+          }
+
+        }
+
+        let msg = '';
+
+        if( invalidPriceBarcodes.length ) {
+          msg += `
+              <h4>Invalid prices</h4>
+              <ul>
+                ${ invalidPriceBarcodes.map( barcode => `<li>${ barcode }</li>` ).join('') }
+              </ul>
+            `;
+        }
+
+        if( duplicateBarcodes.size ) {
+          msg += `
+              <h4>Duplicate barcodes</h4>
+              <ul>
+                ${ [ ...duplicateBarcodes ].map( barcode => `<li>${ barcode }</li>` ).join('') }
+              </ul>
+            `;
+        }
+
+        return msg;
+
       }
 
     }

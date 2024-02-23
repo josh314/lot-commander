@@ -272,6 +272,10 @@ angular.module('myApp').constant( 'StandardManifestColumnsConst', {
   displayColumns: __STANDARD_MANIFEST_DISPLAY_COLUMNS__,
 });
 
+angular.module('myApp').constant( 'MiscConst', {
+  __DEFAULT_LOT_PRICE_VALUE_PCT__: 20,
+});
+
 //************************************************************************
 //********************* Config Block *************************************
 //************************************************************************

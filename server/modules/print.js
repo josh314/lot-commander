@@ -471,6 +471,8 @@ function createOrderPickLabels( orderPick ) {
 
   const doc = new PDFDocument({ autoFirstPage: false });
 
+  const lotIdsPrinted = new Set();
+
   for( let pickItem of orderPick.pickItems ) {
 
     if( pickItem.pkg ) {
@@ -481,7 +483,15 @@ function createOrderPickLabels( orderPick ) {
 
     if( pickItem.lot ) {
 
-      addLotShippingItemsLabels( doc, pickItem.lot );
+      const lotId = pickItem.lot._id.toString();
+
+      if( !lotIdsPrinted.has( lotId ) ) {
+
+        addLotShippingItemsLabels( doc, pickItem.lot );
+
+        lotIdsPrinted.add( lotId );
+
+      }
 
     }
 

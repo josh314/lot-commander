@@ -1,5 +1,6 @@
 import angular from 'angular';
 
+import * as util from '../../utilities';
 const __MAX_DISPLAY_INVENTORY__ = 50;
 
 /******************* Scanning Page Controller *************************/
@@ -59,6 +60,9 @@ angular.module('myApp').controller( 'ScanCtrl', [
           saveManifest,
           saveManifestAndExit,
           editShippingItemsModal,
+          validateInventory,
+
+          util,
 
         }
       );
@@ -72,6 +76,17 @@ angular.module('myApp').controller( 'ScanCtrl', [
       });
 
     }
+
+    const save = () => {
+      return vm.lot.saveManifest().then( manifest => {
+
+        if( manifest ) {
+          vm.lot.manifestId = manifest._id;
+        }
+
+        return manifest;
+      });
+    };
 
     function refreshScanInput() {
       vm.scannedBarcode = '';
@@ -101,18 +116,43 @@ angular.module('myApp').controller( 'ScanCtrl', [
       ImageSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
     }
 
-    function saveManifest() {
-      return vm.lot.saveManifest().then( resp => {
-        console.log('saveManifest resp', resp);
-        refreshScanInput();
-        return resp;
-      } );
+    function validateInventory() {
+      return vm.lot && vm.lot.validateInventory();
+    }
+
+    async function saveManifest() {
+
+      if( validateInventory() ) {
+
+        const manifest = await save();
+        console.log('saveManifest result:', manifest);
+        return { success: true, manifest };
+
+      }
+      else {
+
+        ModalSvc.message( {
+          header: 'Invalid data',
+          html: `<p>The data for this manifest is invalid. Please correct these errors:</p> ${ vm.lot.composeInventoryErrorsHtmlMessage() }`,
+          type: 'error',
+        } );
+
+        return { success: false };
+
+      }
+
     }
 
     function saveManifestAndExit() {
-      saveManifest().then(()=>{
-        navigate.viewLot( vm.lot._id );
+
+      saveManifest().then( ( { success, manifest: _manifest } ) => {
+        if( success ) {
+
+          navigate.viewLot( vm.lot._id );
+
+        }
       });
+
     }
 
     async function scanBarcode( scanForm ) {
@@ -155,8 +195,8 @@ angular.module('myApp').controller( 'ScanCtrl', [
       item.quantity = item.quantity + 1;
     }
 
-    function deleteInventoryItem( barcode ) {
-      vm.lot.deleteProduct( barcode );
+    function deleteInventoryItem( item ) {
+      vm.lot.deleteInventoryItem( item );
       refreshDisplayInventory();
       refreshScanInput();
     }

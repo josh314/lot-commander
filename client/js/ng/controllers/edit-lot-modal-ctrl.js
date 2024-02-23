@@ -36,7 +36,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
         vm,
         {
 
-          lot,
+          lot: LotSvc.hydrateLot( lot ),
           lotStatusEnum: dbEnums.lotStatus,
           lotCategoryOptions: [''].concat(palletProperties.category),
           lotTypeEnum: dbEnums.lotType,
@@ -141,7 +141,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
             }
           },
 
-          allowEditPricingData: LoggedInUser.hasPermission( 'EDIT_PRICING_DATA' ) || !lot.estimatedRetailValue,
+          allowEditPricingData: LoggedInUser.hasPermission( 'EDIT_PRICING_DATA' ) && lot.unmanifested,
 
 
           verifyTitle,
@@ -152,6 +152,8 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
 
         }
       );
+
+      console.log('vm.lot', vm.lot);
 
       ShippingItemsSvc.setPackagingTypeFromShippingItems( vm.lot );
 
@@ -184,7 +186,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
     function editShippingItemsCb( shippingItems ) {
 
       if(shippingItems) {
-        vm.lot.shippingItems = shippingItems;console.log('shippingItems', shippingItems);
+        vm.lot.shippingItems = shippingItems;
         ShippingItemsSvc.setPackagingTypeFromShippingItems( vm.lot );
       }
 
@@ -192,31 +194,34 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
 
     function generateListingBodyHtml() {
 
-      const p = LotSvc.loadManifestFile( vm.lot._id ).then( manifest => {
+      const {
+        category,
+        type,
+        totalUnits,
+        estimatedRetailValue,
+        unmanifested,
+        manifestFileLocation
+      } = vm.lot;
 
-        const {
-          category,
-          type,
-          totalUnits,
-          estimatedRetailValue,
-          unmanifested
-        } = vm.lot;
-
-        const bodyHtml = ListingsSvc.getLotListingBodyTemplate( {
-          category,
-          condition: type,
-          totalUnits,
-          estimatedRetailValue: estimatedRetailValue || vm.lot.getEstimatedRetailValue(),
-          mostExpensiveItemPrice: manifest.mostExpensiveItemPrice(),
-          isManifested: !unmanifested
-        } );
-
-        vm.lot.listingData.body = bodyHtml;
-
-      });
+      const loadManifestP = manifestFileLocation ? LotSvc.loadManifestFile( vm.lot._id ) : Promise.resolve( undefined );
 
       return ModalSvc.wait({
-        waitFor: p,
+
+        waitFor: loadManifestP.then( manifest => {
+
+          const bodyHtml = ListingsSvc.getLotListingBodyTemplate( {
+            category,
+            condition: type,
+            totalUnits,
+            estimatedRetailValue: estimatedRetailValue || vm.lot.getEstimatedRetailValue(),
+            mostExpensiveItemPrice: manifest && manifest.mostExpensiveItemPrice(),
+            isManifested: !unmanifested
+          } );
+
+          vm.lot.listingData.body = bodyHtml;
+
+        })
+
       });
 
     }

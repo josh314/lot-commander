@@ -51,7 +51,7 @@ function routes({ bstock, listings, quickLots }) {
 
     const ngConstants = [
       { name: 'dbEnums', data: dbEnums },
-{ name: 'listingsBoilerplate', data: listings.boilerplate },
+      { name: 'listingsBoilerplate', data: listings.boilerplate },
       { name: 'bstockFormConstants', data: bstock.constants },
       { name: 'quickLotsBoilerplate', data: quickLots.boilerplate },
     ].reduce((s, item) => { return s + `app.constant('${item.name}', ${JSON.stringify(item.data)});`;}, '');

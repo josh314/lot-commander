@@ -131,7 +131,7 @@ angular.module('myApp').controller('ListLotsCtrl', [
       navigate.viewLot( lotId );
     }
 
-    function saveLotMarketplace( lot ) {console.log(lot);
+    function saveLotMarketplace( lot ) {
       return LotSvc.edit( lot._id, { destinationMarketplace: lot.destinationMarketplace } );
     }
 

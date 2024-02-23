@@ -1,7 +1,5 @@
 import angular from 'angular';
 
-const __DEFAULT_LOT_PRICE_VALUE_PCT__ = 15;
-
 const __SHIPPING_RATE_FIRST_BOX__ = 30;
 const __SHIPPING_RATE_MINIMUM_PER_BOX__ = 15;
 const __SHIPPING_RATE_DISCOUNT_FACTOR_PER_BOX__ = 0.05;
@@ -43,6 +41,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
   'ListingsSvc',
   'LoggedInUser',
   'LotSvc',
+  'MiscConst',
   'ModalSvc',
   'navigate',
   'sessionTimeout',
@@ -55,6 +54,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
     ListingsSvc,
     LoggedInUser,
     LotSvc,
+    MiscConst,
     ModalSvc,
     navigate,
     sessionTimeout,
@@ -179,7 +179,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
         .then( () => {
 
           vm.allowEditPricingData = LoggedInUser.hasPermission( 'EDIT_PRICING_DATA' ) || !vm.lot.estimatedRetailValue;
-          vm.priceValuePercentage = vm.lot.priceValuePercentage || __DEFAULT_LOT_PRICE_VALUE_PCT__;
+          vm.priceValuePercentage = vm.lot.priceValuePercentage || MiscConst.__DEFAULT_LOT_PRICE_VALUE_PCT__;
 
           // Default collection selections
           if( isCasePacked() ) {

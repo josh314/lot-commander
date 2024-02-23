@@ -1,16 +1,18 @@
 import angular from 'angular';
-
+import * as util from '../../utilities';
 
 /******************* Edit Manifest Page Controller *************************/
 angular.module('myApp').controller('EditManifestCtrl', [
 
   'LotSvc',
+  'ModalSvc',
   'navigate',
   'sessionTimeout',
 
   function(
 
     LotSvc,
+    ModalSvc,
     navigate,
     sessionTimeout,
 
@@ -26,9 +28,14 @@ angular.module('myApp').controller('EditManifestCtrl', [
       Object.assign(
         vm,
         {
+
+          validateInventory,
           addInventoryItem,
           deleteInventoryItem,
           saveManifest,
+          saveManifestAndExit,
+
+          util,
         }
       );
 
@@ -41,17 +48,62 @@ angular.module('myApp').controller('EditManifestCtrl', [
 
     }
 
-    function deleteInventoryItem( barcode ) {
-      vm.lot.deleteProduct( barcode );
+    const save = () => {
+      return vm.lot.saveManifest().then( manifest => {
+
+        if( manifest ) {
+          vm.lot.manifestId = manifest._id;
+        }
+
+        return manifest;
+      });
+    };
+
+    function validateInventory() {
+      return vm.lot && vm.lot.validateInventory();
+    }
+
+    function deleteInventoryItem( item ) {
+      vm.lot.deleteInventoryItem( item );
     }
 
     function addInventoryItem() {
-      vm.lot.inventory.push({});
+      vm.lot.addInventory();
     }
 
     async function saveManifest() {
-      await vm.lot.saveManifest();
-      navigate.viewLot( vm.lot._id );
+
+      if( validateInventory() ) {
+
+        const manifest = await save();
+        console.log('saveManifest result:', manifest);
+        return { success: true, manifest };
+
+      }
+      else {
+
+        ModalSvc.message( {
+          header: 'Invalid data',
+          html: `<p>The data for this manifest is invalid. Please correct these errors:</p> ${ vm.lot.composeInventoryErrorsHtmlMessage() }`,
+          type: 'error',
+        } );
+
+        return { success: false };
+
+      }
+
+    }
+
+    function saveManifestAndExit() {
+
+      saveManifest().then( ( { success, manifest: _manifest } ) => {
+        if( success ) {
+
+          navigate.viewLot( vm.lot._id );
+
+        }
+      });
+
     }
 
   }

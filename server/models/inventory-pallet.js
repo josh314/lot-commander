@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const enums = require( '../modules/enums' );
 const {
+  __DEFAULT_PRICE_VALUE_PCT__
+} = require( '../constants' );
+const {
   setPackagingTypeFromShippingItems,
   shippingItemSchema
 } = require( './shipping-item' );
@@ -148,7 +151,7 @@ inventoryPalletSchema.pre( 'save', function(next) {
   }
 
   if( !this.priceValuePercentage || this.priceValuePercentage < 0 ) {
-    this.priceValuePercentage = 15;
+    this.priceValuePercentage = __DEFAULT_PRICE_VALUE_PCT__;
   }
 
   // In the below, we normalize falsy properties for the string-valued fields. This actually completely removes the property
