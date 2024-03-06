@@ -253,6 +253,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
         const editFields = [
           'handle',
+          'description',
           'lotNumber',
           'category',
           'condition',

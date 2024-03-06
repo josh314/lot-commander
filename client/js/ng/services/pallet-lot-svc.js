@@ -104,6 +104,7 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'InventoryPalle
       const _data = {
         handle: handleToSubmit,
         lotNumber,
+        description: pallet.description,
         pallet: pallet._id,
         listingData: {
           title,

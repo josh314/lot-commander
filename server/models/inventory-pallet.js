@@ -19,6 +19,7 @@ const { lotImageSchema } = require( './lot-image' );
 
 const splitGroupSchema = mongoose.Schema({
   label: String,
+  description: String,
   labelType: String,
   lotNumber: Number,
   category: String,
@@ -45,6 +46,7 @@ splitGroupSchema.methods.setPackagingTypeFromShippingItems = function() {
 
 const inventoryPalletSchema = mongoose.Schema({
   handle: String,
+  description: String,
   lotNumber: Number,
   category: String,
   condition: String,

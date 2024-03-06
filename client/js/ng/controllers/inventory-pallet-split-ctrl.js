@@ -136,6 +136,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         _id,
         label,
         labelType,
+        description,
         lotNumber,
         items = [],
         condition,
@@ -163,6 +164,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         this.setData( {
           label,
           labelType,
+          description,
           items,
           condition,
           category,
@@ -210,6 +212,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       getData() {
         return {
           _id: this._id,
+          description: this.description,
           lotNumber: this.lotNumber,
           palletHandle: this.palletHandle,
           lotHandle: this.lotHandle,
@@ -271,6 +274,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       setData( {
         label,
         labelType,
+        description,
         lotNumber,
         lotHandle,
         palletHandle,
@@ -291,6 +295,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           this,
           {
             labelType,
+            description,
             items,
             condition,
             category,
@@ -1059,6 +1064,10 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           return false;
         }
 
+        if( currentGrp.description !== oldGrp.description ) {
+          return false;
+        }
+
         if( currentGrp.category !== oldGrp.category ) {
           return false;
         }
@@ -1179,6 +1188,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       const {
         _id,
         label: _label,
+        description,
         palletHandle,
         lotNumber,
         items,
@@ -1210,6 +1220,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
       const newPalletProperties = {
         handle: palletHandle,
+        description,
         lotNumber,
         condition,
         category,

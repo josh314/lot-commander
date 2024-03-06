@@ -40,6 +40,15 @@
     </div>
   </div>
 
+  <div class="row">
+    <div class="form-group col-xs-12">
+      <label for="descriptionInput">
+        <span>Description</span>
+      </label>
+      <input class="form-control" type="text" id="descriptionInput" ng-model="$ctrl.inputs.description">
+    </div>
+  </div>
+
   <div class="row" ng-show="$ctrl.showPurchasingData">
     <div class="form-group col-xs-12 col-sm-6"  ng-class="{ 'has-error' : $ctrl.errors.invalidCost }">
       <label for="costInput">Cost</label>

@@ -13,6 +13,13 @@
 
         <div>
 
+          <div class="row" ng-show="$grp.original.description">
+            <div class="form-group col-xs-12 col-sm-6">
+              <label for="descriptionInput">Description</label>
+              <input id="descriptionInput" class="form-control" ng-value="$grp.original.description" disabled>
+            </div>
+          </div>
+
           <h4>Pallet</h4>
 
           <div class="row">
