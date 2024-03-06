@@ -258,7 +258,7 @@ class Server {
     const manifests = require('./modules/manifests')( { lotdb } );
 
     // Bstock module
-    const bstock = require( './modules/bstock' );
+    // const bstock = require( './modules/bstock' );
 
     // Shopify client(s)
     const shopifyStoreConfig = __config.shopify.stores;
@@ -287,7 +287,11 @@ class Server {
     } );
 
     const ListingsSubmitter = require( './modules/listings-submitter' );
-    const listingsSubmitter = new ListingsSubmitter( { bstock, shopifyAdminClient, manifests } );
+    const listingsSubmitter = new ListingsSubmitter( {
+      // bstock,
+      shopifyAdminClient,
+      manifests
+    } );
 
     // Product data
 
@@ -308,7 +312,7 @@ class Server {
     //======================================================
 
     const modules = {
-      bstock,
+      // bstock,
       countCommander,
       eventsDbClient,
       fulfillmentCommander,

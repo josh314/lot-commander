@@ -69,7 +69,7 @@ exports.Client = function( { Lot, countCommander } ) {
 
   };
 
-  this.submitNewLot = async function(lot) {
+  this.createLot = async function(lot) {
     //TODO: validation -> needs handle
     if(!lot.status) {
       lot.status = enums.lotStatus[0];

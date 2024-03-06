@@ -41,7 +41,6 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
           lotCategoryOptions: [''].concat(palletProperties.category),
           lotTypeEnum: dbEnums.lotType,
           packagingTypeEnum: dbEnums.packagingType,
-          // selectedListing: 'bstock',
           marketplaces: [undefined].concat( dbEnums.marketplaces ),
           openPackagingTypeInfo: ModalSvc.packagingTypeInfo.bind( ModalSvc ),
           titleTooLong: {},

@@ -3,7 +3,10 @@ const weightUnitsEnum = [ 'pounds', 'ounces', 'grams', 'kilograms' ];
 const lengthUnitsEnum = [ 'inches', 'feet', 'centimeters' ];
 
 
-const marketplaceEnum = ['bstock', 'wholesaleninjas'];
+const marketplaceEnum = [
+  // 'bstock',
+  'wholesaleninjas'
+];
 const lotStatusEnum = ['In Preparation', 'Ready', 'Listed', 'Sold', 'Shipped', 'Error'];
 const conditionEnum = ['shelf-pull', 'case-packed', 'customer returns', 'salvage'];
 

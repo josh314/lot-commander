@@ -8,10 +8,14 @@ const conditionBoilerplateListItems = [
 
 
 class Client {
-  constructor( { bstock, shopifyAdminClient, manifests } ) {
+  constructor( {
+    // bstock,
+    shopifyAdminClient,
+    manifests
+  } ) {
 
     this.submitFn = {
-      bstock: bstock.submitListing,
+      // bstock: bstock.submitListing,
       wholesaleninjas: shopifyAdminClient.submitListing.bind( shopifyAdminClient ),
     };
 

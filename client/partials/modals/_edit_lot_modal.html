@@ -8,7 +8,7 @@
 
       <div class="form-group" ng-class="{ 'has-error' : !$ctrl.verifyTitle()}">
 				<label>Title</label>
-        <input ui-tinymce="$ctrl.tinymceOptions.listingData.title" ng-model="$ctrl.lot.listingData.title"></input>
+        <input ui-tinymce="$ctrl.tinymceOptions.listingData.title" ng-model="$ctrl.lot.listingData.title" ng-show="$ctrl.tinymceOptions.listingData.title"></input>
         <span class="text-danger h4" ng-show="$ctrl.titleTooLong.bstock && $ctrl.lot.destinationMarketplace ==='bstock'">Title too long for a Bstock Listing</span>
         <span class="text-danger h4" ng-show="$ctrl.titleTooLong.shopify && $ctrl.lot.destinationMarketplace ==='wholesaleninjas'">Title too long for a Shopify Listing</span>
         <span class="text-danger h4" ng-show="$ctrl.titleContainsLineBreaks">Please remove any line breaks.</span>

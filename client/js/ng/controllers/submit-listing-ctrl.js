@@ -36,7 +36,7 @@ function computeShippingRate( lot ) {
 /******************* Submit Listing Controller *************************/
 angular.module('myApp').controller( 'SubmitListingCtrl', [
 
-  'bstockFormConstants',
+  // 'bstockFormConstants',
   'dbEnums',
   'ListingsSvc',
   'LoggedInUser',
@@ -49,7 +49,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
 
   function(
 
-    bstockFormConstants,
+    // bstockFormConstants,
     dbEnums,
     ListingsSvc,
     LoggedInUser,
@@ -77,19 +77,19 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
         marketplaces: (function(){
           const opts = [
             'wholesaleninjas',
-            'bstock'
+            // 'bstock'
           ];
 
           return opts.filter( _ => LoggedInUser.hasMarketplacePermission( _ ) );
         })(),
-        bstock: {
-          constants: bstockFormConstants,
-          categories: Object.keys(bstockFormConstants.category),
-          conditions: Object.keys(bstockFormConstants.condition),
-          packagings: Object.keys(bstockFormConstants.packaging),
-          shippingChargeTypes: Object.keys(bstockFormConstants.shippingChargeType),
-          shippingAllowedDestinations: Object.keys(bstockFormConstants.shippingAllowedDestinations),
-        },
+        // bstock: {
+        //   constants: bstockFormConstants,
+        //   categories: Object.keys(bstockFormConstants.category),
+        //   conditions: Object.keys(bstockFormConstants.condition),
+        //   packagings: Object.keys(bstockFormConstants.packaging),
+        //   shippingChargeTypes: Object.keys(bstockFormConstants.shippingChargeType),
+        //   shippingAllowedDestinations: Object.keys(bstockFormConstants.shippingAllowedDestinations),
+        // },
         shopify: {
           packagingTypes: dbEnums.packagingType,
           collections: [ 'lots', 'pallets', 'truckloads', 'cases' ].map( _ => ({ name: _, selected: false }) ),
@@ -112,16 +112,16 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
 
       vm.inputErrors = {
         noMarketplace: false,
-        bstock: {
-          invalidAuctionPrice: false,
-          noChargeType: false,
-          invalidShippingCharge: false,
-          noCarrier: false,
-          noBstockCondition: false,
-          noBstockCategory: false,
-          noBstockPackaging: false,
-          bstockTitleTooLong: false,
-        },
+        // bstock: {
+        //   invalidAuctionPrice: false,
+        //   noChargeType: false,
+        //   invalidShippingCharge: false,
+        //   noCarrier: false,
+        //   noBstockCondition: false,
+        //   noBstockCategory: false,
+        //   noBstockPackaging: false,
+        //   bstockTitleTooLong: false,
+        // },
         shopify: {
           invalidPrice: false,
           invalidShippingRate: false,
@@ -150,17 +150,17 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       vm.listing = {
         marketplace: vm.formOptions.marketplaces[0],
         // bstock defaults
-        auctionStartPrice: '300',
-        shopifyPrice: '',
-        condition: '',
-        packaging: 'Original',
-        shipping: {
-          allowedDestinations: bstockFormConstants.shippingAllowedDestinations['Continental US only (Alaska and Hawaii excluded)'],
-          chargeType: bstockFormConstants.shippingChargeType['Fixed Cost'],
-          charge: '90',
-          carrier: 'UPS',
-          notes: 'Lot will ship within one business day after confirmed payment.'
-        },
+        // auctionStartPrice: '300',
+        // shopifyPrice: '',
+        // condition: '',
+        // packaging: 'Original',
+        // shipping: {
+        //   allowedDestinations: bstockFormConstants.shippingAllowedDestinations['Continental US only (Alaska and Hawaii excluded)'],
+        //   chargeType: bstockFormConstants.shippingChargeType['Fixed Cost'],
+        //   charge: '90',
+        //   carrier: 'UPS',
+        //   notes: 'Lot will ship within one business day after confirmed payment.'
+        // },
         //shopify defaults
         shopifyInventory: 1,
         shopifyTags: [],
@@ -292,29 +292,29 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
     function isPallet() { return !!vm.lot.packagingType.match(/pallet/); }
     function isCasePacked() { return vm.lot.type === 'case-packed'; } // type is condition
 
-    function validateBstockListingOptions() {
-      vm.inputErrors.bstock.invalidAuctionPrice = (vm.listing.auctionStartPrice && vm.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;
-      vm.inputErrors.bstock.noChargeType = vm.listing.shipping.chargeType ? false : true;
+    // function validateBstockListingOptions() {
+    //   vm.inputErrors.bstock.invalidAuctionPrice = (vm.listing.auctionStartPrice && vm.listing.auctionStartPrice.match(/[0-9]+/)) ? false : true;
+    //   vm.inputErrors.bstock.noChargeType = vm.listing.shipping.chargeType ? false : true;
 
-      vm.inputErrors.bstock.noBstockCondition = vm.listing.condition ? false : true;
-      vm.inputErrors.bstock.noBstockCategory = vm.listing.category ? false : true;
-      vm.inputErrors.bstock.noBstockPackaging = vm.listing.packaging ? false : true;
-      vm.inputErrors.bstock.bstockTitleTooLong = ListingsSvc.isTitleTooLong(vm.lot.listingData.title).bstock;
+    //   vm.inputErrors.bstock.noBstockCondition = vm.listing.condition ? false : true;
+    //   vm.inputErrors.bstock.noBstockCategory = vm.listing.category ? false : true;
+    //   vm.inputErrors.bstock.noBstockPackaging = vm.listing.packaging ? false : true;
+    //   vm.inputErrors.bstock.bstockTitleTooLong = ListingsSvc.isTitleTooLong(vm.lot.listingData.title).bstock;
 
-      if(vm.listing.shipping.chargeType===bstockFormConstants.shippingChargeType['Fixed Cost']) {
-        vm.inputErrors.bstock.invalidShippingCharge = (vm.listing.shipping.charge && vm.listing.shipping.charge.match(/[0-9]+/)) ? false : true;
-        vm.inputErrors.bstock.noCarrier = vm.listing.shipping.carrier ? false : true;
-      }
-      else {
-        vm.inputErrors.bstock.invalidShippingCharge = vm.inputErrors.bstock.noCarrier = false;
-      }
+    //   if(vm.listing.shipping.chargeType===bstockFormConstants.shippingChargeType['Fixed Cost']) {
+    //     vm.inputErrors.bstock.invalidShippingCharge = (vm.listing.shipping.charge && vm.listing.shipping.charge.match(/[0-9]+/)) ? false : true;
+    //     vm.inputErrors.bstock.noCarrier = vm.listing.shipping.carrier ? false : true;
+    //   }
+    //   else {
+    //     vm.inputErrors.bstock.invalidShippingCharge = vm.inputErrors.bstock.noCarrier = false;
+    //   }
 
-      if( Object.values( vm.inputErrors.bstock ).some( _ => _ ) ) {
-        return false;
-      }
+    //   if( Object.values( vm.inputErrors.bstock ).some( _ => _ ) ) {
+    //     return false;
+    //   }
 
-      return true;
-    }
+    //   return true;
+    // }
 
     function validateShopifyListingOptions() {
       vm.inputErrors.shopify.invalidPrice = (vm.listing.shopifyPrice && vm.listing.shopifyPrice.match(/^[0-9]+(\.[0-9]{2})?$/)) ? false : true;
@@ -332,15 +332,17 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
     }
 
     function validateListingOptions() {
-      if(vm.listing.marketplace=='bstock') {
-        return validateBstockListingOptions();
-      }
-      else if(vm.listing.marketplace=='wholesaleninjas') {
+
+      // if(vm.listing.marketplace=='bstock') {
+      //   return validateBstockListingOptions();
+      // }
+
+      if(vm.listing.marketplace=='wholesaleninjas') {
         return validateShopifyListingOptions();
       }
-      else {
-        return false;
-      }
+
+      return false;
+
     }
 
     async function submitListing() {

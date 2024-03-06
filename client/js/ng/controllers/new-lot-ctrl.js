@@ -32,7 +32,10 @@ angular.module('myApp').controller( 'NewLotCtrl', [
     vm.packagingTypes = dbEnums.packagingType;
     vm.categories = [ { displayName: 'None' } ].concat( lotCategories ),
     vm.newLotCategory = vm.categories[0];
-    vm.marketplaces = ['wholesaleninjas', 'bstock'];
+    vm.marketplaces = [
+      'wholesaleninjas',
+      // 'bstock'
+    ];
     vm.newLot = {
       unmanifested: false,
       destinationMarketplace: 'wholesaleninjas',

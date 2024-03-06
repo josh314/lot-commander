@@ -36,7 +36,7 @@ module.exports = function( lotdbClient ) {
     console.log(`Submitting new lot with data:`);
     console.log(`${JSON.stringify( _data, null, 2 )}`);
 
-    return lotdbClient.submitNewLot( _data );
+    return lotdbClient.createLot( _data );
 
   }
 

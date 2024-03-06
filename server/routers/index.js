@@ -1,10 +1,8 @@
 const path = require('path');
 const express = require('express');
 
-const auth = require('../auth');
-
 const quickLots = require(path.join(__basedir, __config.modulesPath, 'quick-lots'));
-const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
+// const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
 
 // middleware to stick for testing purposes
 // function testLog(s) {
@@ -16,7 +14,7 @@ const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db')
 
 //routes
 function routes({
-  bstock,
+  // bstock,
   countCommander,
   eventsDbClient,
   fulfillmentCommander,
@@ -40,7 +38,7 @@ function routes({
   router.use('/api/lots', require( './lots' )( { inventoryCommander, lotdb } ) );
 
   // bstock db api
-  router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);
+  // router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);
 
   // product data
   router.use('/api/product-data', require('./product-data')( { productData } ) );
@@ -76,7 +74,11 @@ function routes({
   router.use('/api/counters', require('./counters')( { countCommander } ) );
 
   // dynamically created JS scripts for the client
-  router.use('/build', require('./script-builder')( { bstock, listings, quickLots }) );
+  router.use('/build', require('./script-builder')( {
+    // bstock,
+    listings,
+    quickLots
+  }) );
 
   router.use( express.static(path.join(__basedir, __config.assets.root)) );
   router.use( express.static(path.join(__basedir, __config.imgPath)) );

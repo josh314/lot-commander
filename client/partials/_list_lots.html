@@ -71,6 +71,8 @@
           <td>
             <select ng-model="$lot.destinationMarketplace" ng-change="$ctrl.saveLotMarketplace( $lot )">
               <option ng-repeat="$marketplace in $ctrl.marketplaces">{{ $marketplace }}</option>
+              <!-- The option below is needed to display values that are not included in the standard values -->
+              <option ng-if="!$ctrl.marketplaces.includes( $lot.destinationMarketplace )" ng-value="$lot.destinationMarketplace">{{ $lot.destinationMarketplace }}</option>
             </select>
           </td>
 
