@@ -37,7 +37,7 @@ module.exports = {
         "no-undef": "error",
         "no-unused-vars": [
           "warn",
-          { 
+          {
               "caughtErrors": "none",
               varsIgnorePattern: "^_",
               argsIgnorePattern: "^_",

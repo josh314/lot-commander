@@ -3,21 +3,35 @@ const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 
 module.exports = merge(common, {
+
+  // devtool: 'eval-source-map',
+
   mode: 'development',
-  devtool: 'eval-source-map',
+
   devServer: {
-    hot: true,
-    watchOptions: {
-      poll: true,
+
+    client: {
+      overlay: false,
     },
-    contentBase: path.join(__dirname, 'dist'),
+
     compress: true,
+
     historyApiFallback: true,
+
+    hot: true,
+
     port: 9000,
+
     proxy: {
       '/': {
         target: 'http://localhost:8080',
       }
     },
+
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    }
+
   }
+
 });

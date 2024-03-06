@@ -20,7 +20,6 @@ export class Manifest {
     }
   }
 
-  /* eslint-disable angular/typecheck-array */
   addSheets( sheets ) {
     if( Array.isArray( sheets ) ) {
       for( const s of sheets ) {
@@ -28,7 +27,6 @@ export class Manifest {
       }
     }
   }
-  /* eslint-enable */
 
   removeRow( sheet, idx ) {
     sheet.removeRow( idx );

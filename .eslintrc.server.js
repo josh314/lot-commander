@@ -20,7 +20,7 @@ module.exports = {
     "rules": {
         "array-callback-return": [
             "error",
-            { "allowImplicit": true } 
+            { "allowImplicit": true }
         ],
         "block-scoped-var": "error",
         // "default-case": "error",
@@ -40,14 +40,15 @@ module.exports = {
         "no-template-curly-in-string": "warn",
         "no-throw-literal": "error",
         // "no-undef": "off",
-        "no-unused-vars": [ 
-            "warn", 
-            { 
+        "no-unused-vars": [
+            "warn",
+            {
                 "caughtErrors": "none",
                 varsIgnorePattern: "^_",
                 argsIgnorePattern: "^_",
             }
         ],
+        "no-useless-catch": "off",
         // "quotes": [
         //     "error",
         //     "single"
