@@ -4,19 +4,16 @@ import angular from 'angular';
 angular.module('myApp').factory( 'PalletManifestSvc', [
 
   'InventoryPallet',
-  'ManifestFileHandlerSvc',
   'ShipmentManagerSvc',
 
   function(
 
     InventoryPallet,
-    ManifestFileHandlerSvc,
     ShipmentManagerSvc,
 
   ) {
 
     return {
-      loadPalletManifest,
       uploadInventoryPalletManifest,
       uploadExpectedPalletManifest
     };
@@ -55,17 +52,6 @@ angular.module('myApp').factory( 'PalletManifestSvc', [
       };
 
       return shipment.editExpectedPallet( palletId, palletEditDoc );
-
-    }
-
-    function loadPalletManifest( pallet, manifestFilename ) {
-
-      return pallet.getDocument( manifestFilename ).then( data => {
-
-        ManifestFileHandlerSvc.parse( data, manifestFilename, { skipLastRows: 1 } ); //note we are assuming the last row is a totals row
-
-        return ManifestFileHandlerSvc.getActiveManifest();
-      });
 
     }
 

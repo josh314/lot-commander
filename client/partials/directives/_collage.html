@@ -1,0 +1,19 @@
+<div class="collage-directive">
+
+  <div class="collage-container" ng-show="$ctrl.isRendered">
+    <span  ng-hide="$ctrl.disablePreviewModal">
+      <a href ng-click="$ctrl.openPreviewModal()">
+        <img class="img-responsive img-thumbnail" ng-src="{{ $ctrl.imgSrc }}"/>
+      </a>
+    </span>
+    <span ng-show="$ctrl.disablePreviewModal">
+      <img class="img-responsive img-thumbnail" ng-src="{{ $ctrl.imgSrc }}" />
+    </span>
+  </div>
+
+  <div class="button-row-container" ng-hide="$ctrl.hideRenderBtn && $ctrl.hideSaveBtn">
+    <button class="btn btn-primary" ng-class="$ctrl.btnNgClass" ng-click="$ctrl.renderAndWait()" ng-hide="$ctrl.hideRenderBtn">Render new collage</button>
+    <button class="btn btn-success" ng-class="$ctrl.btnNgClass" ng-click="$ctrl.saveImageToLot()" ng-disabled="$ctrl.isSaved" ng-hide="$ctrl.hideSaveBtn">{{ $ctrl.isSaved ? 'isS!' : 'Save to lot' }}</button>
+  </div>
+
+</div>

@@ -5,14 +5,16 @@
     <h3>Collage</h3>
     <div style="display:flex; flex-direction:column; align-items:center;" ng-show="$ctrl.showCollage">
 
-      <div class="collage-container">
-        <canvas id="collage-canvas" width="{{ $ctrl.collage.width }}" height="{{ $ctrl.collage.height }}"></canvas>
-      </div>
+      <collage-dir
+        items="$ctrl.productImages"
+        lot-id="$ctrl.lot._id"
+        save-cb="$ctrl.saveCollageCb()"
+        do-render="$ctrl.renderCollage"
+        disable-preview-modal="true"
+      ></collage-dir>
 
       <div class="button-row-container" style="margin-top:8px;">
         <button class="btn btn-primary" ng-click="$ctrl.goBackToLot()">Back to lot</button>
-        <button class="btn btn-primary" ng-click="$ctrl.renderCollage()">Render new collage</button>
-        <button class="btn btn-success" ng-click="$ctrl.saveCollageToLot()" style="margin-left: 4px;" ng-disabled="$ctrl.collageSaved">{{ $ctrl.collageSaved ? 'Saved!' : 'Save to lot' }}</button>
       </div>
 
     </div>
@@ -35,7 +37,7 @@
       <h3>Product Gallery</h3>
       <div class="row" style="margin-left: 8px; margin-right: 8px;">
         <div id="gallery-container" class="row">
-          <div ng-repeat="$item in $ctrl.items">
+          <div ng-repeat="$item in $ctrl.galleryItems">
             <div ng-show="$item.images.length">
               <!-- <h4 class="text-center">{{$item.upc}} - {{$item.title}}</h4> -->
               <dl>
