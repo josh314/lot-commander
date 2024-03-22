@@ -12,51 +12,17 @@
 @import "utility.less";
 @import "main.less";
 @import "box-border.less";
+@import "collage.less";
+@import "flex.less";
 @import "footer.less";
+@import "glyphicon.less";
 @import "home.less";
+@import "image.less";
+@import "input.less";
+@import "modal.less";
 @import "product-images.less";
 @import "split-pallets.less";
 @import "image-editor.less";
 @import "manifest-cleaner.less";
 @import "manual-inventory.less";
 @import "tinymce.less";
-
-
-.glyphicon-ok {
-  color:  @brand-success;
-}
-.glyphicon-remove {
-  color: @brand-danger;
-}
-.glyphicon-alert {
-  color: @brand-warning;
-}
-
-
-.btn {
-  .glyphicon-ok,
-  .glyphicon-remove {
-    color: white;
-  }
-}
-
-.flex-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.flex-row-item {
-  flex-grow: 1;
-}
-
-.flex-row-divider {
-  flex-grow: 20;
-}
-
-input[type=search]::search-cancel-button {
-  appearance: searchfield-cancel-button;
-}
-input[type=search]::-webkit-search-cancel-button {
-  -webkit-appearance: searchfield-cancel-button;
-}

@@ -57,6 +57,10 @@ angular.module('myApp').factory( 'LotSvc', [
 
     return {
 
+      Lot,
+
+      clone: lot => new Lot( JSON.parse( JSON.stringify( lot ) ) ),
+
       cloneImages: ( lotId, images ) => $q.when( api.cloneImages( lotId, images ) ),
 
       count: query => $q.when( api.countLots( query ) ),
@@ -152,8 +156,16 @@ angular.module('myApp').factory( 'Lot', [
   '$q',
   '$sce',
   'dbEnums',
+  'ManifestFileHandlerSvc',
+  'ProductDataSvc',
 
-  function( $q, $sce, dbEnums ) {
+  function(
+    $q,
+    $sce,
+    dbEnums,
+    ManifestFileHandlerSvc,
+    ProductDataSvc
+  ) {
 
     class Lot {
 
@@ -211,10 +223,25 @@ angular.module('myApp').factory( 'Lot', [
 
       }
 
+
+      /*****************************************
+       * Synthetic data fields
+       *
+       **********/
+
+      isBoxedLot() { return this.packagingType === 'box lot'; }
+      isPallet() { return !!this.packagingType.match(/pallet/); }
+      isCasePacked() { return this.type === 'case-packed'; } // type is condition
+
       /*****************************************
        * Setters & mutators
        *
        **********/
+
+      save() {
+        return $q.when( api.editLot( this._id, this ) );
+      }
+
       // inventory & manifests
       setInventory( _inventory ) {
         this.inventory = _inventory.map(i=> i.quantity<0 ? Object.assign(i,{quantity:0}) : i );
@@ -224,12 +251,6 @@ angular.module('myApp').factory( 'Lot', [
       updateTotalUnits() {
         this.totalUnits = this.inventory ? this.inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 ;
         return this.totalUnits;
-      }
-
-      // main save function
-      save( _lot ) {
-        this.reset();
-        Object.assign( this, _lot );
       }
 
       // Inventory mutators
@@ -462,6 +483,63 @@ angular.module('myApp').factory( 'Lot', [
         }
 
         return msg;
+
+      }
+
+
+      loadManifestFile( ) {
+
+        if( !this.manifestFileLocation ) {
+          return $q.when( null );
+        }
+
+        return $q.when( api.getLotManifestFile( this._id ) ).then( data => {
+
+          ManifestFileHandlerSvc.parse(
+            data,
+            this.manifestFileLocation,
+            { skipLastRows: 1 }, //note we are assuming the last row is a totals row
+          );
+
+          return ManifestFileHandlerSvc.getActiveManifest();
+
+        });
+
+      }
+
+      async getProductImagesFromManifestFile() {
+
+        await this.loadManifestFile();
+
+        const { barcodes } = ManifestFileHandlerSvc.defaultProcessActiveManifest();
+
+        const { products } = await ProductDataSvc.bulkGetProductData( barcodes );
+
+        return products.filter( _ => _.item && _.item.images ).map( _ => {
+          return {
+            upc: _.item.upc,
+            title: _.item.title,
+            images: _.item.images
+          };
+        } );
+
+      }
+
+      getImageLink( image ) {
+        return image.s3 ? `/api/image/?s3=${encodeURIComponent(image.s3)}` : image.filename;
+      }
+
+      getSubmittedListingLink( listing ) {
+
+        let link;
+
+        if( listing.shopify && listing.shopify.store && listing.shopify.productId ) {
+
+          link = `https://admin.shopify.com/store/${ listing.shopify.store }/products/${ listing.shopify.productId }`;
+
+        }
+
+        return link;
 
       }
 

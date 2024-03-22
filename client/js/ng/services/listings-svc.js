@@ -4,11 +4,16 @@ import dayjs from 'dayjs';
 import * as util from '../../utilities';
 import * as api from '../../api';
 
+const __SHIPPING_RATE_FIRST_BOX__ = 30;
+const __SHIPPING_RATE_MINIMUM_PER_BOX__ = 15;
+const __SHIPPING_RATE_DISCOUNT_FACTOR_PER_BOX__ = 0.05;
+
 /******************* Listings Service *************************/
 angular.module('myApp').factory( 'ListingsSvc', [
 
   '$q',
   'ListingTemplatesSvc',
+  'LotSvc',
   'ProductBundlesSvc',
   'ShippingConfigurationsSvc',
 
@@ -16,6 +21,7 @@ angular.module('myApp').factory( 'ListingsSvc', [
 
     $q,
     ListingTemplatesSvc,
+    LotSvc,
     ProductBundlesSvc,
     ShippingConfigurationsSvc,
 
@@ -37,9 +43,64 @@ angular.module('myApp').factory( 'ListingsSvc', [
 
     }
 
+    function getLotListingTitleTemplate( lot ) {
+
+      const {
+        lotNumber,
+        packagingType,
+        category,
+        totalUnits,
+        unmanifested,
+      } = lot;
+
+      return ListingTemplatesSvc.lotListingTitle( { lotNumber, packagingType, category, totalUnits, isManifested: !unmanifested } );
+
+    }
+
+    function getLotListingBodyTemplate( lot ) {
+
+      const {
+        _id,
+        category,
+        type,
+        totalUnits,
+        estimatedRetailValue,
+        unmanifested,
+        manifestFileLocation,
+        inventory
+      } = lot;
+
+      const loadManifestP = manifestFileLocation ? LotSvc.loadManifestFile( _id ) : Promise.resolve( undefined );
+
+      return loadManifestP.then( manifest => {
+
+        let mostExpensiveItemPrice;
+        if( manifest ) {
+          mostExpensiveItemPrice = manifest.mostExpensiveItemPrice();
+        }
+        else if ( inventory && inventory.length ) {
+          mostExpensiveItemPrice = inventory.reduce( ( _mostExpensiveItemPrice, item ) => item.price && item.price > _mostExpensiveItemPrice ? item.price : _mostExpensiveItemPrice, 0);
+        }
+
+        const bodyHtml = ListingTemplatesSvc.lotListingBody( {
+          category,
+          condition: type,
+          totalUnits,
+          estimatedRetailValue: estimatedRetailValue || lot.getEstimatedRetailValue(),
+          mostExpensiveItemPrice,
+          isManifested: !unmanifested
+        } );
+
+        return bodyHtml;
+
+      });
+
+    }
+
     return {
 
-      getLotListingBodyTemplate: ListingTemplatesSvc.lotListingBody.bind( ListingTemplatesSvc ),
+      getLotListingTitleTemplate,
+      getLotListingBodyTemplate,
 
       isTitleTooLong: title => {
         const res = {
@@ -57,6 +118,34 @@ angular.module('myApp').factory( 'ListingsSvc', [
       },
 
       // shipping rates
+      computeShippingRate: lot => {
+
+        let rate = '';
+
+        if( lot.packagingType === 'box lot' ) {
+
+          if( ( lot.shippingItems && lot.shippingItems.length ) || lot.numBoxes ) {
+
+            const numBoxes = ( lot.shippingItems && lot.shippingItems.length ) || lot.numBoxes;
+
+            rate = 0;
+            for( let i=0; i<numBoxes; i++ ) {
+              let itemRate = __SHIPPING_RATE_FIRST_BOX__ * ( 1 -  i * __SHIPPING_RATE_DISCOUNT_FACTOR_PER_BOX__ );
+
+              if( itemRate < __SHIPPING_RATE_MINIMUM_PER_BOX__ ) {
+                itemRate = __SHIPPING_RATE_MINIMUM_PER_BOX__;
+              }
+
+              rate += itemRate;
+            }
+
+          }
+
+        }
+
+        return rate;
+
+      },
 
       editShippingRate: ( gid, newRate ) => $q.when( api.editStoreShippingRate( gid, newRate ) ),
 
@@ -311,7 +400,16 @@ angular.module('myApp').factory( 'ListingTemplatesSvc', [ function( ) {
 
   return {
     lotListingBody,
+    lotListingTitle,
   };
+
+  function lotListingTitle( { category, totalUnits, isManifested, lotNumber, packagingType } ) {
+    const displayCategory = util.titleCase( category );
+
+    const packagingTypeString = packagingType && packagingType.match(/pallet/) ? `Pallet` : `Lot`;
+
+    return `New${ isManifested ? ' Manifested' : '' }${ displayCategory ? ` ${displayCategory}` : ''} ${packagingTypeString}${ lotNumber ? ' #' + lotNumber : '' }${ totalUnits ? ` (${totalUnits} units)` : '' }`;
+  }
 
   function lotListingBody( { category, condition, totalUnits, estimatedRetailValue, mostExpensiveItemPrice, isManifested } ) {
 

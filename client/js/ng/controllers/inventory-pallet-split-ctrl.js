@@ -893,12 +893,12 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         return ModalSvc.message( { header: 'Error', body: `Pallet ${pallet.handle} is already broken down.`, type: 'error' }).then( _ => navigate.splitPallet() );
       }
 
-      vm.manifestFilename = angular.isArray(pallet.documents) && pallet.documents[0] ? pallet.documents[0].name : null;
+      vm.manifestFilename = pallet.getManifestFilename();
       if( !vm.manifestFilename ) {
         return ModalSvc.message({ header: 'Error', body: `No manifest for pallet ${pallet.handle}.`, type: 'error' });
       }
 
-      PalletManifestSvc.loadPalletManifest( pallet, vm.manifestFilename ).then( manifest => {
+      pallet.loadManifest().then( manifest => {
 
         if( manifest ) {
           vm.manifest = manifest;

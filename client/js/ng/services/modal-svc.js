@@ -7,6 +7,7 @@ angular.module('myApp').factory('ModalSvc', [
 
   'ChooseOptionsModal',
   'ConfirmationModal',
+  'ImagePreviewModalSvc',
   'InventoryPalletDetailsModalSvc',
   'ManifestFileOptionsModal',
   'MergeSheetsOptionsModalSvc',
@@ -21,6 +22,7 @@ angular.module('myApp').factory('ModalSvc', [
 
     ChooseOptionsModal,
     ConfirmationModal,
+    ImagePreviewModalSvc,
     InventoryPalletDetailsModalSvc,
     ManifestFileOptionsModal,
     MergeSheetsOptionsModalSvc,
@@ -37,6 +39,7 @@ angular.module('myApp').factory('ModalSvc', [
 
       chooseOptions: ChooseOptionsModal.launch.bind( ChooseOptionsModal ),
       confirm: ConfirmationModal.launch.bind( ConfirmationModal ),
+      imagePreview: ImagePreviewModalSvc.launch.bind( ImagePreviewModalSvc ),
       inventoryPalletDetails: InventoryPalletDetailsModalSvc.launch.bind( InventoryPalletDetailsModalSvc ),
       manifestFileOptions: ManifestFileOptionsModal.launch.bind( ManifestFileOptionsModal ),
       mergeSheetsOptions: MergeSheetsOptionsModalSvc.launch.bind( MergeSheetsOptionsModalSvc ),
@@ -218,13 +221,16 @@ angular.module('myApp').factory( 'WaitingModalSvc', [ '$uibModal', function( $ui
 
   return {
 
-    launch: function( { waitFor, delay } ) {
+    launch: function( { waitFor, message, delay } ) {
 
       const modalInstance = $uibModal.open({
         templateUrl: '/partials/modals/_waiting_modal.html',
         size: 'lg',
         backdrop: 'static',
         controller: [ '$scope','$timeout', function( $scope, $timeout ){
+
+          const vm = this;
+          Object.assign( vm, { message } );
 
           if( waitFor && delay ) {
 
@@ -764,6 +770,39 @@ angular.module('myApp').factory( 'PackageLabelDataModalSvc', [ '$uibModal', func
     });
 
     return modalInstance.result;
+  }
+
+}]);
+
+/********************* Image preview modal **************************/
+angular.module('myApp').factory( 'ImagePreviewModalSvc', [ '$uibModal', function( $uibModal ) {
+
+  return {
+    launch,
+  };
+
+  // launches the modal
+  function launch( imgSrc ) {
+
+    const modalInstance = $uibModal.open({
+      templateUrl: '/partials/modals/_image_preview_modal.html',
+      size: 'xl',
+      resolve: {
+        imgSrc: function () {
+          return imgSrc;
+        }
+      },
+      controller: [ 'imgSrc', function( imgSrc ){
+
+        const vm = this;
+        vm.imgSrc = imgSrc;
+
+      }],
+      controllerAs: '$ctrl'
+    });
+
+    return modalInstance.result;
+
   }
 
 }]);

@@ -139,3 +139,7 @@ export function createSubobject( obj, fields ) {
 
   return subobj;
 }
+
+export function getRandomArrayIndex( arr ) {
+  return Math.floor(Math.random() * arr.length ); // 0 <= Math.random() < 1
+}

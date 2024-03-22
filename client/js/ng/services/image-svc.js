@@ -18,17 +18,23 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
     *
     * @param {number} timeout - how long to wait for image to load before giving up (in milliseconds)
     * @param {string} [placeholderImg] - an image to use as a placeholder if the requested image is not found
+    * @param {boolean} [proxy] - whether to use the proxy endpoint to load the image
     */
-    svc.loadImageWithTimeoutAndPlaceholder = (timeout, placeholderImg) => {
+    svc.loadImageWithTimeoutAndPlaceholder = (timeout, placeholderImg, proxy = false ) => {
       /**
       * Returns an image object or null.
       * @function
-      * @param {number} imageUrl - link to image
+      * @param {string} imageUrl - link to image
       */
       return (imageUrl) => {
-        return new Promise( resolve => {
+        return new Promise( ( resolve, reject ) => {
           // create img container
           const img = new Image();
+
+          const src = proxy ? `/api/image/proxy?url=${encodeURIComponent(imageUrl)}` : imageUrl;
+          if( proxy ) {
+            img.crossOrigin = 'anonymous';
+          }
 
           // create a timeout in case image ain't found quickly
           const killImg = $timeout(() => {
@@ -48,8 +54,9 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
             $timeout.cancel(killImg);
             resolve(img);
           };
+          img.onerror = reject;
 
-          img.src = imageUrl;
+          img.src = src;
         });
       };
     };

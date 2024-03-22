@@ -99,16 +99,11 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'InventoryPalle
 
       }
 
-      const title = pallet.packagingType.match(/pallet/) ? `Pallet #${lotNumber}` : `Lot #${lotNumber}`;
-
       const _data = {
         handle: handleToSubmit,
         lotNumber,
         description: pallet.description,
         pallet: pallet._id,
-        listingData: {
-          title,
-        },
         packagingType,
         category: pallet.category,
         type: pallet.condition,

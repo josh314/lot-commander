@@ -54,7 +54,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           listingsBoilerplate,
 
           // images methods
-          getImageLink,
           updatePrimaryImage,
           uploadImages,
           removeImage,
@@ -62,6 +61,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           addLotImageMethod: 'file',
           setAddLotImageMethod: s => vm.addLotImageMethod = s,
           addLotImageMethodIs: s => ( vm.addLotImageMethod === s ),
+          openImagePreviewModal,
 
 
           // Lot editing
@@ -141,10 +141,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       initializeAllThumbnailImages();
     }
 
-    function getImageLink(image) {
-      return image.s3 ? `/api/image/?s3=${encodeURIComponent(image.s3)}` : image.filename;
-    }
-
     // Manage images
     async function updatePrimaryImage(image) {
       const resp = await ImageSvc.updateLotPrimaryImage( vm.lot._id, image);
@@ -195,6 +191,10 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       else {
         ModalSvc.message( { header: 'Error', body: 'This image cannot be edited.', type: 'error' } );
       }
+    }
+
+    function openImagePreviewModal( image ) {
+      ModalSvc.imagePreview( vm.lot.getImageLink( image ) );
     }
 
 

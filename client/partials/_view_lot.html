@@ -1,21 +1,21 @@
 <div class="container" ng-controller="ViewLotCtrl as $ctrl">
-	<div class="row">
-		<div class="col-xs-12">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h3 class="panel-title">Lot Details</h3>
-				</div>
-				<div class="panel-body">
-					<b>Handle: </b>{{ $ctrl.lot.handle }}<br>
-					<b>Lot Number: </b>{{ $ctrl.lot.lotNumber }}<br>
-					<b>Description: </b>{{ $ctrl.lot.description }}<br>
-					<b>Category: </b>{{ $ctrl.lot.category }}<br>
-					<b>Condition: </b>{{ $ctrl.lot.type }}<br>
-					<b>Manifested: </b>{{ $ctrl.lot.unmanifested ? 'No' : 'Yes' }}<br>
-					<span ng-hide="$ctrl.lot.unmanifested">
-					<b>Scanned SKU count: </b>{{ $ctrl.lot.getNumSku() }}<br>
-					<b>Scanned Inventory count: </b>{{ $ctrl.lot.getInventoryTotal() }}<br>
-					</span>
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Lot Details</h3>
+        </div>
+        <div class="panel-body">
+          <b>Handle: </b>{{ $ctrl.lot.handle }}<br>
+          <b>Lot Number: </b>{{ $ctrl.lot.lotNumber }}<br>
+          <b>Description: </b>{{ $ctrl.lot.description }}<br>
+          <b>Category: </b>{{ $ctrl.lot.category }}<br>
+          <b>Condition: </b>{{ $ctrl.lot.type }}<br>
+          <b>Manifested: </b>{{ $ctrl.lot.unmanifested ? 'No' : 'Yes' }}<br>
+          <span ng-hide="$ctrl.lot.unmanifested">
+          <b>Scanned SKU count: </b>{{ $ctrl.lot.getNumSku() }}<br>
+          <b>Scanned Inventory count: </b>{{ $ctrl.lot.getInventoryTotal() }}<br>
+          </span>
           <b>Total Unit Count: </b>{{ $ctrl.lot.totalUnits }}<br>
           <b>Estimated Retail Value: </b>{{ $ctrl.lot.getEstimatedRetailValue() ? $ctrl.lot.getEstimatedRetailValue() : '---' }}<br>
           <span ng-show="$ctrl.showPricingData">
@@ -38,92 +38,96 @@
 
 
 
-					<b>Status: </b>{{ $ctrl.lot.status }}<br>
+          <b>Status: </b>{{ $ctrl.lot.status }}<br>
           <b>Listed date: </b>{{ $ctrl.util.prettifyDateTime( $ctrl.lot.listedDate ) }}<br>
           <b>Sold date: </b>{{ $ctrl.util.prettifyDateTime( $ctrl.lot.soldDate ) }}<br>
           <b>Shipped date: </b>{{ $ctrl.util.prettifyDateTime( $ctrl.lot.shippedDate ) }}<br>
           <span ng-show="$ctrl.lot.pallet"><b>Pallet: </b> <a ng-click="$ctrl.showPalletDetails()">{{ $ctrl.lot.pallet.handle }}</a><br></span>
-					<div class="row">
-						<div class="col-xs-12">
-							<h4>Listing Data</h4>
-						</div>
-						<div class="col-xs-12">
-							<label>Title<span class="text-danger h4" ng-show="$ctrl.titleTooLong.bstock && $ctrl.lot.destinationMarketplace==='bstock'"> (Title too long for a Bstock Listing)</span></label>
-							<span class="text-danger h4" ng-show="$ctrl.titleTooLong.shopify && $ctrl.lot.destinationMarketplace==='wholesaleninjas'"> (Title too long for a Shopify Listing)</span></label>
-							<div class="well well-sm">{{$ctrl.lot.listingData.title}}</div><br>
-						</div>
-						<div class="col-xs-12">
-							<label>Body</label>
-							<!-- <div class="well" style="white-space: pre-wrap;">{{$ctrl.lot.listingData.body + '\n\n' + $ctrl.listingsBoilerplate[$ctrl.lot.type]}}</div><br> -->
+          <div class="row">
+            <div class="col-xs-12">
+              <h4>Listing Data</h4>
+            </div>
+            <div class="col-xs-12">
+              <label>Title<span class="text-danger h4" ng-show="$ctrl.titleTooLong.bstock && $ctrl.lot.destinationMarketplace==='bstock'"> (Title too long for a Bstock Listing)</span></label>
+              <span class="text-danger h4" ng-show="$ctrl.titleTooLong.shopify && $ctrl.lot.destinationMarketplace==='wholesaleninjas'"> (Title too long for a Shopify Listing)</span></label>
+              <div class="well well-sm">{{$ctrl.lot.listingData.title}}</div><br>
+            </div>
+            <div class="col-xs-12">
+              <label>Body</label>
+              <!-- <div class="well" style="white-space: pre-wrap;">{{$ctrl.lot.listingData.body + '\n\n' + $ctrl.listingsBoilerplate[$ctrl.lot.type]}}</div><br> -->
               <div class="well">
                 <div ng-bind-html="$ctrl.getBodyHtml()"></div>
               </div>
-						</div>
-					</div>
-					<div class="pull-left" ng-hide="$ctrl.lot.unmanifested">
-						<button class="btn btn-success" ng-click="$ctrl.openGallery()">Image Gallery</button>
-					</div>
-					<div class="pull-right">
-						<button class="btn btn-danger" ng-click="$ctrl.editLot()" ng-show="$ctrl.showEditingControls">Edit <span class="glyphicon glyphicon-pencil"></span></button>
-						<button class="btn btn-success" ng-click="$ctrl.configureListingForSubmission()">Create a Listing</button>
-						<button class="btn btn-success" ng-click="$ctrl.printShippingItemsLabels()">Print Labels</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+            </div>
+          </div>
+          <div class="pull-left" ng-hide="$ctrl.lot.unmanifested">
+            <button class="btn btn-success" ng-click="$ctrl.openGallery()">Image Gallery</button>
+          </div>
+          <div class="pull-right">
+            <button class="btn btn-danger" ng-click="$ctrl.editLot()" ng-show="$ctrl.showEditingControls">Edit <span class="glyphicon glyphicon-pencil"></span></button>
+            <button class="btn btn-success" ng-click="$ctrl.configureListingForSubmission()">Create a Listing</button>
+            <button class="btn btn-success" ng-click="$ctrl.printShippingItemsLabels()">Print Labels</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-	<div class="well" ng-show="$ctrl.lot.submittedListings && $ctrl.lot.submittedListings.length">
-		<div class="row">
-			<div class="col-xs-12">
-				<h3>Submitted Listings</h3>
-			</div>
-			<div class="col-xs-12">
-				<table class="table table-striped">
-					<thead><tr>
-						<th>Marketplace</th>
-						<th>Date submitted</th>
-						<th>Status</th>
-						<th>Message</th>
-					</tr></thead>
-					<tbody>
-						<tr ng-repeat="$submission in $ctrl.lot.submittedListings">
-							<td>{{ $submission.marketplace }}</td>
-							<td>{{ $ctrl.util.prettifyDateTime( $submission.dateSubmitted ) }}</td>
-							<td>{{ $submission.success ? 'success' : 'error' }}</td>
-							<td>{{ $submission.message }}</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
+  <div class="well" ng-show="$ctrl.lot.submittedListings && $ctrl.lot.submittedListings.length">
+    <div class="row">
+      <div class="col-xs-12">
+        <h3>Submitted Listings</h3>
+      </div>
+      <div class="col-xs-12">
+        <table class="table table-striped">
+          <thead><tr>
+            <th>Marketplace</th>
+            <th>Date submitted</th>
+            <th>Status</th>
+            <th>Message</th>
+            <th></th>
+          </tr></thead>
+          <tbody>
+            <tr ng-repeat="$submission in $ctrl.lot.submittedListings">
+              <td>{{ $submission.marketplace }}</td>
+              <td>{{ $ctrl.util.prettifyDateTime( $submission.dateSubmitted ) }}</td>
+              <td>{{ $submission.success ? 'success' : 'error' }}</td>
+              <td>{{ $submission.message }}</td>
+              <td>
+                <a ng-href="{{ $ctrl.lot.getSubmittedListingLink( $submission ) }}" target="_blank" rel="noreferrer noopener" ng-show="$ctrl.lot.getSubmittedListingLink( $submission )">Link</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-	<div class="well">
-		<div class="row">
-			<div class="col-xs-12">
-				<h4>Images</h4>
-			</div>
-			<div class="col-xs-12 col-sm-4" ng-repeat="$image in $ctrl.images">
-        <a ng-href="{{$image.s3}}">
-          <img ng-src="{{$ctrl.getImageLink( $image )}}" class="img-thumbnail primary-image" width="240" height="auto">
+  <div class="well">
+    <div class="row">
+      <div class="col-xs-12">
+        <h4>Images</h4>
+      </div>
+      <div class="col-xs-12 col-sm-4" ng-repeat="$image in $ctrl.images">
+        <a href ng-click="$ctrl.openImagePreviewModal( $image )">
+          <img ng-src="{{$ctrl.lot.getImageLink( $image )}}" class="img-thumbnail primary-image" width="240" height="auto">
         </a>
-				<!-- Checkbox to make primary -->
-				<div class="row">
-					<div class="form-group col-xs-3">
-						<label for="primary-{{$image.s3 || $image.filename}}">Primary
-							<input type="checkbox" id="primary-{{$image.s3 || $image.filename}}" ng-model="$image.primary" ng-click="$ctrl.updatePrimaryImage( $image )">
-						</label>
-					</div>
-					<div class="col-xs-3">
-						<button class="btn btn-warning btn-xs" ng-click="$ctrl.editImage( $image )"><span class="glyphicon glyphicon-pencil"></span> Edit Image</button>
-					</div>
-					<div class="col-xs-3">
-						<button class="btn btn-danger btn-xs" ng-click="$ctrl.removeImage( $image )">Remove Image</button>
-					</div>
-				</div>
-			</div>
-		</div>
+        <!-- Checkbox to make primary -->
+        <div class="row">
+          <div class="form-group col-xs-3">
+            <label for="primary-{{$image.s3 || $image.filename}}">Primary
+              <input type="checkbox" id="primary-{{$image.s3 || $image.filename}}" ng-model="$image.primary" ng-click="$ctrl.updatePrimaryImage( $image )">
+            </label>
+          </div>
+          <div class="col-xs-3">
+            <button class="btn btn-warning btn-xs" ng-click="$ctrl.editImage( $image )"><span class="glyphicon glyphicon-pencil"></span> Edit Image</button>
+          </div>
+          <div class="col-xs-3">
+            <button class="btn btn-danger btn-xs" ng-click="$ctrl.removeImage( $image )">Remove Image</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
 
@@ -162,7 +166,7 @@
     </div>
   </div>
 
-	<div class="well" ng-hide="$ctrl.lot.unmanifested">
+  <div class="well" ng-hide="$ctrl.lot.unmanifested">
     <div class="row" ng-hide="$ctrl.lot.manifestId">
       <div class="col-xs-12">
         <h4>Manifest File</h4>
@@ -192,18 +196,18 @@
     </div>
   </div>
 
-	<div class="well" ng-hide="$ctrl.lot.unmanifested">
-		<div class="row">
-			<div class="col-xs-12">
-				<h4>Scanned Items</h4>
-				<button class="btn btn-success btn-xs" ng-click="$ctrl.scanItems()">Scan More Items</button>
-				<button class="btn btn-success btn-xs" ng-click="$ctrl.editManifest()">Edit Manifest</button>
-			</div>
+  <div class="well" ng-hide="$ctrl.lot.unmanifested">
+    <div class="row">
+      <div class="col-xs-12">
+        <h4>Scanned Items</h4>
+        <button class="btn btn-success btn-xs" ng-click="$ctrl.scanItems()">Scan More Items</button>
+        <button class="btn btn-success btn-xs" ng-click="$ctrl.editManifest()">Edit Manifest</button>
+      </div>
 
-			<div class="col-xs-12" ng-hide="$ctrl.lot.manifestId">
-				No scanned items.
-			</div>
-			<div class="col-xs-12">
+      <div class="col-xs-12" ng-hide="$ctrl.lot.manifestId">
+        No scanned items.
+      </div>
+      <div class="col-xs-12">
 
         <ul uib-pagination
         total-items="$ctrl.pagination.totalItems"
@@ -217,37 +221,37 @@
         boundary-link-numbers="true"
         force-ellipses="true"></ul>
 
-				<table class="table table-striped" ng-show="$ctrl.lot.manifestId">
-					<thead><tr>
-						<th>Image</th>
-						<th>Barcode</th>
-						<th>Title</th>
-						<th>Quantity</th>
-						<th>Price</th>
-					</tr></thead>
-					<tbody>
-						<tr ng-repeat="$item in $ctrl.displayInventory">
-							<td>
-								<div id="item-thumbnail-container-{{$item.barcode}}" ng-click="$ctrl.confirmAddLotImage( $event )">
-								</div>
-							</td>
-							<td>{{ $item.barcode }}</td>
-							<td>{{ $item.description }}</td>
-							<td>{{ $item.quantity }}</td>
-							<td>{{ $item.price }}</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
+        <table class="table table-striped" ng-show="$ctrl.lot.manifestId">
+          <thead><tr>
+            <th>Image</th>
+            <th>Barcode</th>
+            <th>Title</th>
+            <th>Quantity</th>
+            <th>Price</th>
+          </tr></thead>
+          <tbody>
+            <tr ng-repeat="$item in $ctrl.displayInventory">
+              <td>
+                <div id="item-thumbnail-container-{{$item.barcode}}" ng-click="$ctrl.confirmAddLotImage( $event )">
+                </div>
+              </td>
+              <td>{{ $item.barcode }}</td>
+              <td>{{ $item.description }}</td>
+              <td>{{ $item.quantity }}</td>
+              <td>{{ $item.price }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-	</div>
-	<div class="well" ng-show="$ctrl.showDeleteButton">
-		<div class="row">
-			<div class="col-xs-12">
-				<button class="btn btn-danger btn-md" ng-click="$ctrl.deleteLot($ctrl.lot._id)">Delete Lot</button>
-			</div>
-		</div>
-	</div>
+  </div>
+  <div class="well" ng-show="$ctrl.showDeleteButton">
+    <div class="row">
+      <div class="col-xs-12">
+        <button class="btn btn-danger btn-md" ng-click="$ctrl.deleteLot($ctrl.lot._id)">Delete Lot</button>
+      </div>
+    </div>
+  </div>
 </div>
 

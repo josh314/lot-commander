@@ -119,6 +119,10 @@ angular.module('myApp').controller( 'NewLotCtrl', [
         listingBuilder.buildFromCategory( lotToSubmit );
       }
 
+      // if( !lotToSubmit.listingData ) {
+      //   listingBuilder.buildFromCategory( lotToSubmit );
+      // }
+
       LotSvc.create( lotToSubmit ).then( resp => {
         if( resp.error ) {
           console.error( resp );

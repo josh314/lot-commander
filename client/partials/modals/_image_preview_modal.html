@@ -1,0 +1,13 @@
+<div>
+  <div class="modal-header" ng-show="$ctrl.header">
+    <h3 class="modal-title">Preview</h3>
+  </div>
+  <div class="modal-body">
+    <div style="display: flex; justify-content: center;">
+      <img class="img-responsive img-thumbnail" ng-src="{{ $ctrl.imgSrc }}"/>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-danger" type="button" ng-click="$close()">Close</button>
+  </div>
+</div>

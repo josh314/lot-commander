@@ -342,12 +342,12 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
         return ModalSvc.message( { header: 'Error', body: `Pallet ${pallet.handle} has already been repacked.`, type: 'error' }).then( _ => navigate.repackPallet() );
       }
 
-      vm.manifestFilename = angular.isArray(pallet.documents) && pallet.documents[0] ? pallet.documents[0].name : null;
+      vm.manifestFilename = pallet.getManifestFilename();
       if( !vm.manifestFilename ) {
         return ModalSvc.message({ header: 'Error', body: `No manifest for pallet ${pallet.handle}.`, type: 'error' });
       }
 
-      PalletManifestSvc.loadPalletManifest( pallet, vm.manifestFilename ).then( manifest => {
+      pallet.loadManifest().then( manifest => {
 
         if( manifest ) {
           vm.manifest = manifest;
@@ -402,7 +402,11 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
         }
 
-      });
+      })
+        .catch( e => {
+          console.error( e );
+          ModalSvc.message( { header: 'Error', body: `Error loading manifest for pallet ${pallet.handle}.`, type: 'error' } );
+        });
     }
 
     function getDisplayRowsFromManifest( manifest ) {

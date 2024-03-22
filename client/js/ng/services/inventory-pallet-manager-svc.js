@@ -171,12 +171,16 @@ angular.module('myApp').service( 'InventoryPalletManagerSvc', [
 angular.module('myApp').factory( 'InventoryPallet', [
 
   '$q',
+  'ManifestFileHandlerSvc',
   'ModalSvc',
+  'ProductDataSvc',
 
   function(
 
     $q,
+    ManifestFileHandlerSvc,
     ModalSvc,
+    ProductDataSvc
 
   ) {
 
@@ -427,6 +431,10 @@ angular.module('myApp').factory( 'InventoryPallet', [
         }
       }
 
+      getManifestFilename() {
+        return angular.isArray(this.documents) && this.documents[0] ? this.documents[0].name : null;
+      }
+
       hasManifest() {
         return !!this.getManifestMetadata();
       }
@@ -506,7 +514,45 @@ angular.module('myApp').factory( 'InventoryPallet', [
         }
       }
 
+      loadManifest() {
+
+        const manifestFilename = this.getManifestFilename();
+
+        if( !manifestFilename ) {
+          throw new Error(`No manifest for pallet ${this._id}.`);
+        }
+
+        return this.getDocument( manifestFilename ).then( data => {
+
+          ManifestFileHandlerSvc.parse( data, manifestFilename, { skipLastRows: 1 } ); //note we are assuming the last row is a totals row
+
+          return ManifestFileHandlerSvc.getActiveManifest();
+        });
+
+      }
+
+      async getProductImages() {
+
+        await this.documentsAreLoaded;
+
+        await this.loadManifest();
+
+        const { barcodes } = ManifestFileHandlerSvc.defaultProcessActiveManifest();
+
+        const { products } = await ProductDataSvc.bulkGetProductData( barcodes );
+
+        return products.filter( _ => _.item && _.item.images ).map( _ => {
+          return {
+            upc: _.item.upc,
+            title: _.item.title,
+            images: _.item.images
+          };
+        } );
+
+      }
+
     }
+
 
     return InventoryPallet;
   }
