@@ -10,7 +10,7 @@ const s3 = new aws.S3({apiVersion: '2006-03-01'});
 const axios = require('axios');
 
 const sharp = require('sharp');
-const MAX_IMAGE_WIDTH = 640;
+const MAX_IMAGE_WIDTH = 1920;
 
 const BUCKET = 'lot-images';
 

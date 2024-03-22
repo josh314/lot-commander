@@ -5,7 +5,7 @@ const imageServer = require('./image-server');
 const ShopifyRest = require('./shopify-rest');
 
 class Client {
-  constructor( { storeUrl, apiVersion, apiKey, accessToken, shopifyGql, manifests } ) {
+  constructor( { storeName, storeUrl, apiVersion, apiKey, accessToken, shopifyGql, manifests } ) {
 
     this.shopifyRest = new ShopifyRest( {
       storeUrl,
@@ -14,8 +14,10 @@ class Client {
       apiVersion
     } );
 
+    this.storeName = storeName;
     this.shopifyGql = shopifyGql;
     this.manifests = manifests;
+
   }
 
 
@@ -76,6 +78,7 @@ class Client {
 
       const newProductId = addProductResp.product.id;
       const newProductVariant = addProductResp.product.variants[0];
+      const newProductHandle = addProductResp.product.handle;
 
       console.log(`New Shopify product created with id ${ newProductId }:`);
       console.log( JSON.stringify(addProductResp,null,2) );
@@ -230,9 +233,21 @@ class Client {
         listingPromises.push(addMetafieldP);
       }
 
-      const result = publish ? Promise.all(listingPromises).then( _ => this.shopifyRest.publishProduct(newProductId) ) : listingPromises;
+      await Promise.all(listingPromises);
 
-      return result;
+      if( publish ) {
+        await this.shopifyRest.publishProduct(newProductId);
+      }
+
+
+      return {
+        shopify: {
+          store: this.storeName,
+          productId: newProductId,
+          productVariantId: newProductVariant.id,
+          handle: newProductHandle,
+        }
+      };
 
     }
     catch( e ) {

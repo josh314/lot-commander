@@ -98,13 +98,18 @@ class Client {
         listing.lot.manifestFileLocation = generatedManifestResponse.manifest;
       }
 
-      await this.submitFn[listing.marketplace]( listing, { publish: publish } );
+      const submissionResponse = await this.submitFn[listing.marketplace]( listing, { publish: publish } );
+
       Object.assign(newSubmittedListing, {
         success: true,
         message: 'Submission successful.'
       });
       listing.lot.status = 'Listed';
       listing.lot.listedDate = now;
+
+      if( submissionResponse && submissionResponse.shopify ) {
+        newSubmittedListing.shopify = submissionResponse.shopify;
+      }
 
     }
     catch (e) {

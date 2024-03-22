@@ -279,6 +279,7 @@ class Server {
 
     const ShopifyAdminClient = require( './modules/shopify-admin-client' );
     const shopifyAdminClient = new ShopifyAdminClient( {
+      storeName: shopifyStoreConfig['prod'].name,
       storeUrl: shopifyStoreConfig['prod'].url,
       apiKey: shopifyStoreConfig['prod'].auth.apiKey,
       accessToken: shopifyStoreConfig['prod'].auth.accessToken || shopifyStoreConfig['prod'].auth.password,

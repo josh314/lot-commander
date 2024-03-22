@@ -194,30 +194,28 @@ exports.Client = function( { Lot, countCommander } ) {
     );
   };
 
-  this.addImage = function(lotId, metadata){
+  this.addImage = async function( lotId, metadata ){
     if(!lotId) {
       throw new Error('No lot ID submitted.');
     }
-    return this.LotModel.findOne({ _id: lotId }).then(lot=>{
-      if(!lot) {
-        return { error: "Lot ID not found." };
-      }
+    const lot = await this.getLotById( lotId );
 
-      const data = { primary: metadata.primary };
-      if(metadata.s3) {
-        data.s3 = metadata.s3;
-      }
-      if(metadata.filename) {
-        data.filename = metadata.filename;
-      }
+    if( !lot ) {
+      throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
+    }
 
-      return this.LotModel.findOneAndUpdate(
-        { _id: lot._id },
-        { $set: { images: lot.images.concat([data]) } },
-        { new: true }
-        // { upsert: true, new: true }
-      );
-    });
+    const data = { primary: metadata.primary };
+    if(metadata.s3) {
+      data.s3 = metadata.s3;
+    }
+    if(metadata.filename) {
+      data.filename = metadata.filename;
+    }
+
+    lot.images.push( data );
+
+    return lot.save();
+
   };
 
   this.addImages = async function( lotId, images ) {

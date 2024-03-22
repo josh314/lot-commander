@@ -41,6 +41,12 @@ const lotSchema = mongoose.Schema({
     dateSubmitted: Date,
     success: Boolean,
     message: String,
+    shopify: {
+      store: String,
+      productId: Number,
+      productVariantId: Number,
+      handle: String,
+    }
   }],
   listingData: {
     _id: false,
