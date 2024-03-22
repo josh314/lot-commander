@@ -5,7 +5,6 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
 
   'CounterSvc',
   'dbEnums',
-  'ListingsSvc',
   'LoggedInUser',
   'lot',
   'LotSvc',
@@ -17,7 +16,6 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
 
     CounterSvc,
     dbEnums,
-    ListingsSvc,
     LoggedInUser,
     lot,
     LotSvc,
@@ -43,110 +41,13 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
           packagingTypeEnum: dbEnums.packagingType,
           marketplaces: [undefined].concat( dbEnums.marketplaces ),
           openPackagingTypeInfo: ModalSvc.packagingTypeInfo.bind( ModalSvc ),
-          titleTooLong: {},
+          invalidTitle: false,
 
-
-          tinymceOptions: {
-            listingData: {
-              title: {
-                format: 'text',
-                branding: false,
-                promotion: false,
-                menubar: false,
-                statusbar: false,
-                toolbar: [
-                  {
-
-                    name: 'emoticons',
-                    items: [
-                      'emoticons',
-                    ]
-                  },
-                ],
-                toolbar_location: 'bottom',
-                plugins: [
-                  'emoticons'
-                ],
-                height: 20,
-                resize: false,
-              },
-              body: {
-                setup: function( editor ) {
-                  editor.ui.registry.addButton('generateListingBodyHtml', {
-                    text: "Add Template",
-                    onAction: generateListingBodyHtml,
-                  });
-                },
-                branding: false,
-                promotion: false,
-                plugins: [
-                  'emoticons',
-                  'link',
-                  'lists',
-                ],
-                toolbar: [
-                  {
-                    name: 'history',
-                    items: [
-                      'undo',
-                      'redo',
-                    ]
-                  },
-                  {
-                    name: 'styles',
-                    items: [
-                      'styles',
-                    ]
-                  },
-                  {
-                    name: 'formatting',
-                    items: [
-                      'bold',
-                      'italic',
-                      'strikethrough',
-                      'link',
-                      'forecolor',
-                    ]
-                  },
-                  {
-                    name: 'lists',
-                    items: [
-                      'bullist',
-                      'numlist',
-                    ]
-                  },
-                  {
-                    name: 'indentation',
-                    items: [
-                      'outdent',
-                      'indent',
-                    ]
-                  },
-                  {
-                    name: 'emoticons',
-                    items: [
-                      'emoticons',
-                    ]
-                  },
-                  {
-                    name: 'generateListingBodyHtml',
-                    items: [
-                      'generateListingBodyHtml',
-                    ]
-                  },
-                ],
-                height: 500,
-              },
-            }
-          },
 
           allowEditPricingData: LoggedInUser.hasPermission( 'EDIT_PRICING_DATA' ) && lot.unmanifested,
 
-
-          verifyTitle,
           invalidLot,
           editShippingItemsCb,
-          generateListingBodyHtml,
           generateLotNumber
 
         }
@@ -158,28 +59,8 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
 
     }
 
-    function verifyTitle() {
-      vm.titleTooLong = ListingsSvc.isTitleTooLong( vm.lot.listingData.title );
-
-      if(vm.titleTooLong.bstock && vm.lot.destinationMarketplace==='bstock') {
-        return false;
-      }
-
-      if(vm.titleTooLong.shopify && vm.lot.destinationMarketplace==='wholesaleninjas') {
-        return false;
-      }
-
-      vm.titleContainsLineBreaks = vm.lot.listingData.title.includes('\n') | vm.lot.listingData.title.includes('&nbsp;');
-      if( vm.titleContainsLineBreaks ) {
-        return false;
-      }
-
-      return true;
-
-    }
-
     function invalidLot() {
-      return !vm.verifyTitle() || vm.lot.numBoxes < 0;
+      return vm.invalidTitle || vm.lot.numBoxes < 0;
     }
 
     function editShippingItemsCb( shippingItems ) {
@@ -188,40 +69,6 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
         vm.lot.shippingItems = shippingItems;
         ShippingItemsSvc.setPackagingTypeFromShippingItems( vm.lot );
       }
-
-    }
-
-    function generateListingBodyHtml() {
-
-      const {
-        category,
-        type,
-        totalUnits,
-        estimatedRetailValue,
-        unmanifested,
-        manifestFileLocation
-      } = vm.lot;
-
-      const loadManifestP = manifestFileLocation ? LotSvc.loadManifestFile( vm.lot._id ) : Promise.resolve( undefined );
-
-      return ModalSvc.wait({
-
-        waitFor: loadManifestP.then( manifest => {
-
-          const bodyHtml = ListingsSvc.getLotListingBodyTemplate( {
-            category,
-            condition: type,
-            totalUnits,
-            estimatedRetailValue: estimatedRetailValue || vm.lot.getEstimatedRetailValue(),
-            mostExpensiveItemPrice: manifest && manifest.mostExpensiveItemPrice(),
-            isManifested: !unmanifested
-          } );
-
-          vm.lot.listingData.body = bodyHtml;
-
-        })
-
-      });
 
     }
 

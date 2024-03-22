@@ -39,6 +39,7 @@ import "./js/ng/services/user-svc.js";
 
 // Angular directives
 
+import "./js/ng/directives/editor-listing-dir.js";
 import "./js/ng/directives/file-model.js";
 import "./js/ng/directives/file-list-model.js";
 import "./js/ng/directives/footer.js";

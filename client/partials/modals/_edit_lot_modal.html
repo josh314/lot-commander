@@ -4,22 +4,13 @@
 <div class="modal-body">
 	<div class="row">
 
-		<div class="col-xs-12">
+    <div class="col-xs-12">
+      <editor-listing-title-dir lot="$ctrl.lot" invalid-title="$ctrl.invalidTitle"></editor-listing-title-dir>
+    </div>
 
-      <div class="form-group" ng-class="{ 'has-error' : !$ctrl.verifyTitle()}">
-				<label>Title</label>
-        <input ui-tinymce="$ctrl.tinymceOptions.listingData.title" ng-model="$ctrl.lot.listingData.title" ng-show="$ctrl.tinymceOptions.listingData.title"></input>
-        <span class="text-danger h4" ng-show="$ctrl.titleTooLong.bstock && $ctrl.lot.destinationMarketplace ==='bstock'">Title too long for a Bstock Listing</span>
-        <span class="text-danger h4" ng-show="$ctrl.titleTooLong.shopify && $ctrl.lot.destinationMarketplace ==='wholesaleninjas'">Title too long for a Shopify Listing</span>
-        <span class="text-danger h4" ng-show="$ctrl.titleContainsLineBreaks">Please remove any line breaks.</span>
-      </div>
-
-      <div>
-				<label>Body</label>
-        <textarea ui-tinymce="$ctrl.tinymceOptions.listingData.body" ng-model="$ctrl.lot.listingData.body"></textarea>
-      </div>
-
-		</div>
+    <div class="col-xs-12">
+      <editor-listing-body-dir lot="$ctrl.lot"></editor-listing-body-dir>
+    </div>
 
 		<div class="form-group col-xs-12 col-sm-6">
 			<label for="handleInput">Handle</label>
@@ -84,6 +75,10 @@
 				<option ng-value="true">No</option>
 				<option ng-value="false">Yes</option>
 			</select>
+    </div>
+		<div class="form-group col-xs-12">
+			<label for="descriptionInput">Description</label>
+			<input class="form-control" name="description" id="descriptionInput" ng-model="$ctrl.lot.description"/>
     </div>
     <div class="form-group col-xs-12" ng-hide="$ctrl.lot.numBoxes">
         <label for="shippingItems">Shipping Items</label>
