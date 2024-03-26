@@ -149,7 +149,9 @@ angular.module('myApp').factory( 'PalletLotSvc', [ 'CounterSvc', 'InventoryPalle
 
           if( pallet.images && pallet.images.length ) {
 
-            await LotSvc.addImages( lot._id, pallet.images );
+            const imageLocations = pallet.images.map( image => image.s3 );
+
+            await LotSvc.cloneImages( lot._id, imageLocations );
 
           }
 

@@ -9,8 +9,8 @@ const urls = {
 };
 
 //************* Images service
-angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$timeout', '$window', 'fileUpload',
-  function( $http, $localStorage, $q, $timeout, $window, fileUpload ){
+angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$timeout', '$window',
+  function( $http, $localStorage, $q, $timeout, $window ){
     const svc = this;
 
     /**
@@ -101,20 +101,18 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
 
     svc.uploadLotImages = ( lotId, images ) => {
 
-      const uploads = [];
-
-      for( let image of images ) {
-        uploads.push(
-          fileUpload.uploadFileToUrl(image, urls.upload, { lotId, primary: false })
-        );
-      }
-
-      return Promise.all( uploads );
+      return $q.when( api.uploadLotImage( lotId, images ) );
 
     };
 
-    svc.updateLotPrimaryImage = ( lotId, image ) => {
-      return $q.when( api.setPrimaryLotImage( lotId, image ) );
+    svc.uploadLotImage = ( lotId, image, primary = false ) => {
+
+      return $q.when( api.uploadLotImage( lotId, image, primary) );
+
+    };
+
+    svc.updateLotPrimaryImage = ( lotId, imageId ) => {
+      return $q.when( api.setPrimaryLotImage( lotId, imageId ) );
     };
 
     svc.removeLotImage = async ( lotId, image ) => {
@@ -170,29 +168,13 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
 
     svc.uploadPalletImages = ( palletId, images ) => {
 
-      const uploads = [];
-
-      for( let image of images ) {
-        uploads.push(
-          fileUpload.uploadFileToUrl(image, urls.upload, { palletId } )
-        );
-      }
-
-      return Promise.all( uploads );
+      return $q.when( api.uploadPalletImages( palletId, images ) );
 
     };
 
     svc.uploadPalletSplitGroupImages = ( palletId, splitGroupId, images ) => {
 
-      const uploads = [];
-
-      for( let image of images ) {
-        uploads.push(
-          fileUpload.uploadFileToUrl(image, urls.upload, { palletId, splitGroupId })
-        );
-      }
-
-      return Promise.all( uploads );
+      return $q.when( api.uploadPalletSplitGroupImages( palletId, splitGroupId, images ) );
 
     };
 
@@ -207,6 +189,7 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
     svc.getImageLink = image => image.s3 ? `/api/image/?s3=${encodeURIComponent(image.s3)}` : image.filename;
 
     svc.cleanImageObject = imageObj => ({
+      _id: imageObj._id,
       s3: imageObj.s3,
       filename: imageObj.filename,
       primary: imageObj.primary

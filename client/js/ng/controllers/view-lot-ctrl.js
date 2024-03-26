@@ -142,8 +142,8 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     }
 
     // Manage images
-    async function updatePrimaryImage(image) {
-      const resp = await ImageSvc.updateLotPrimaryImage( vm.lot._id, image);
+    async function updatePrimaryImage( imageId ) {
+      const resp = await ImageSvc.updateLotPrimaryImage( vm.lot._id, imageId );
       if(!resp.error) {
         navigate.reload();
       }
@@ -152,14 +152,12 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       }
     }
 
-    async function uploadImages() {
+    function uploadImages() {
 
-      await ModalSvc.wait( {
-        waitFor: ImageSvc.uploadLotImages( vm.lot._id, vm.imagesToUpload),
-        delay: 5000
+      return ModalSvc.wait( {
+        waitFor: vm.lot.uploadImages( vm.imagesToUpload ),
+        message: 'Uploading images...',
       } );
-
-      navigate.reload();
 
     }
 

@@ -128,13 +128,13 @@ function routes({ eventsDb, inventoryCommander }) {
   );
   router.patch(
     '/:palletId',
-    auth.isAuthorizedForAny( 'EDIT_INVENTORY_PALLET', 'REPACK_INVENTORY_PALLET' ),
+    auth.isAuthorizedForAny( 'EDIT_INVENTORY_PALLET', 'REPACK_INVENTORY_PALLET', 'SPLIT_INVENTORY_PALLET' ),
     setEditDocumentBasedUponAuth,
     editInventoryPallet
   );
   router.post(
     '/:palletId/images/',
-    auth.isAuthorizedForAny( 'EDIT_INVENTORY_PALLET', 'REPACK_INVENTORY_PALLET' ),
+    auth.isAuthorizedForAny( 'EDIT_INVENTORY_PALLET', 'REPACK_INVENTORY_PALLET', 'SPLIT_INVENTORY_PALLET' ),
     setEditDocumentBasedUponAuth,
     addInventoryPalletImages,
   );

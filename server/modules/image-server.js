@@ -123,26 +123,26 @@ const storeStream = async function( readStream, key, dedup ) {
     .promise();
 };
 
-const clone = ( location, destLotId ) => {
+const clone = ( location, destId ) => {
 
   if( isImageServerLink(location) ) {
 
-    return cloneFromS3( location, destLotId );
+    return cloneFromS3( location, destId );
 
   }
   else {
 
-    return cloneFromUrl( location, destLotId );
+    return cloneFromUrl( location, destId );
 
   }
 
 };
 
-const cloneFromS3 = async ( srcS3Location, destLotId ) => {
+const cloneFromS3 = async ( srcS3Location, destId ) => {
 
   let { bucket, imgName, key } = parseS3Location( srcS3Location );
 
-  const destKey = `${destLotId}/${imgName.replace(/\+/g, ' ')}`;
+  const destKey = `${destId}/${imgName.replace(/\+/g, ' ')}`;
   const src = `/${bucket}/${key}`;
 
   await s3.copyObject({
@@ -159,7 +159,7 @@ const cloneFromS3 = async ( srcS3Location, destLotId ) => {
 };
 
 
-const cloneFromUrl = async ( urlString, destLotId ) => {
+const cloneFromUrl = async ( urlString, destId ) => {
 
   const urlResponse = await axios({
     method: 'get',
@@ -172,7 +172,7 @@ const cloneFromUrl = async ( urlString, destLotId ) => {
 
   const pathSegments = url.pathname.split('/');
 
-  const key = `${ destLotId }/${ decodeURIComponent( pathSegments[ pathSegments.length - 1 ] ) }`;
+  const key = `${ destId }/${ decodeURIComponent( pathSegments[ pathSegments.length - 1 ] ) }`;
 
   const storeResponse = await storeStream( urlReadStream, key, false );
 

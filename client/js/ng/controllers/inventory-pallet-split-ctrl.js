@@ -1277,7 +1277,9 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
       if( splitGroup.images && splitGroup.images.length ) {
 
-        await updatedPallet.addImages( splitGroup.images );
+        const imageLocations = splitGroup.images.map( img => img.s3 ).filter( _ => _ );
+
+        await updatedPallet.cloneImages( imageLocations );
 
       }
 

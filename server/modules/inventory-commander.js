@@ -1249,6 +1249,12 @@ class InventoryCommander {
 
   }
 
+  async addInventoryPalletImage( palletId, image ) {
+
+    return this.addInventoryPalletImages( palletId, [ image ] );
+
+  }
+
   async addInventoryPalletImages( palletId, images ) {
 
     const pallet = await this.getInventoryPalletById( palletId );
@@ -1292,7 +1298,7 @@ class InventoryCommander {
 
   }
 
-  async removeInventoryPalletImage( palletId, image ) {
+  async removeInventoryPalletImage( palletId, imageId ) {
 
     const pallet = await this.getInventoryPalletById( palletId );
 
@@ -1300,13 +1306,13 @@ class InventoryCommander {
       throw new ResourceNotFoundError( { type: 'inventory pallet', id: palletId } );
     }
 
-    const foundImageToBeRemovedIndex = pallet.images.findIndex(item => image.s3 ? item.s3 === image.s3 : item.filename === image.filename);
-    if(foundImageToBeRemovedIndex==-1) {
+    const foundImageToBeRemovedIndex = pallet.images.findIndex( image => image._id.toString() === imageId );
+    if( foundImageToBeRemovedIndex === -1 ) {
       throw new ChildResourceNotFoundError( {
         parentType: 'inventory pallet',
         parentId: palletId,
         childType: 'image',
-        childId: image.s3 || image.filename
+        childId: imageId
       } );
     }
 
@@ -1316,8 +1322,7 @@ class InventoryCommander {
 
   }
 
-
-  async removeInventoryPalletSplitGroupImage( palletId, splitGroupId, image ) {
+  async removeInventoryPalletSplitGroupImage( palletId, splitGroupId, imageId ) {
 
     const pallet = await this.getInventoryPalletById( palletId );
 
@@ -1336,17 +1341,17 @@ class InventoryCommander {
       } );
     }
 
-    const foundImageToBeRemovedIndex = splitGroup.images.findIndex(item => image.s3 ? item.s3 === image.s3 : item.filename === image.filename);
-    if(foundImageToBeRemovedIndex==-1) {
+    const foundImageToBeRemovedIndex = splitGroup.images.findIndex( image => image._id.toString() === imageId );
+    if( foundImageToBeRemovedIndex === -1 ) {
       throw new ChildResourceNotFoundError( {
         parentType: 'inventory pallet',
         parentId: palletId,
         childType: 'image',
-        childId: image.s3 || image.filename
+        childId: imageId
       } );
     }
 
-    splitGroup.images.splice(foundImageToBeRemovedIndex, 1);
+    splitGroup.images.splice( foundImageToBeRemovedIndex, 1 );
 
     return pallet.save();
 

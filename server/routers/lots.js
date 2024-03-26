@@ -128,7 +128,7 @@ function routes({ inventoryCommander, lotdb }) {
     addImages
   );
   router.post(
-    '/:lotId/primary-image/',
+    '/:lotId/images/:imageId',
     auth.isAuthorized( 'EDIT_LOT' ),
     setPrimaryImage
   );
@@ -413,7 +413,7 @@ function routes({ inventoryCommander, lotdb }) {
   async function setPrimaryImage( req, res, next ) {
 
     try {
-      const lot = await lotdb.setPrimaryImage( req.params.lotId, req.body.image );
+      const lot = await lotdb.setPrimaryImage( req.params.lotId, req.params.imageId );
       res.json( { lot } );
     }
     catch( e ) {

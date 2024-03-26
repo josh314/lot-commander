@@ -152,6 +152,13 @@ lotSchema.methods.markAsSold = function( date ) {
 
 };
 
+lotSchema.methods.addImage = function( { s3, filename, primary }, { save } = { save: true } ) {
+
+  this.images.push( { s3, filename, primary } );
+
+  return save ? this.save() : this;
+}
+
 module.exports = {
   schema: lotSchema,
 };

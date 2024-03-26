@@ -72,7 +72,7 @@ function routes( { inventoryCommander, lotdb } ) {
   async function upload( req, res, next ) {
 
     try {
-      const form = new formidable.IncomingForm( {} );
+      const form = new formidable.IncomingForm( { multiples: true } );
 
       const [ fields, files ] = await form.parse( req );
 
@@ -80,33 +80,43 @@ function routes( { inventoryCommander, lotdb } ) {
       const palletId = fields.palletId && fields.palletId[0];
       const lotId = fields.lotId && fields.lotId[0];
 
+      // FormData doesn't support Booleans so fields.primary[0] will be the strings 'true' or 'false'
+      let primary = false;
+      if( fields.primary && fields.primary[0] === 'true' ) {
+        primary = true;
+      }
+
       const objectId = splitGroupId || palletId || lotId;
 
       if( !objectId ) {
         throw new InvalidRequestError();
       }
 
-      for(let [ _, fileArray ] of Object.entries(files)) {
+      let lot, pallet;
 
-        const f = fileArray[0];
+      for( let f of files.file ) {
 
-        const resp = await imageServer.store( objectId, f.filepath, f.originalFilename );
+        const imageStoreResp = await imageServer.store( objectId, f.filepath, f.originalFilename );
 
-        if( resp ) {
+        if( imageStoreResp ) {
+
+          const s3Location = imageStoreResp.Location;
 
           if( splitGroupId && palletId ) {
 
-            await inventoryCommander.addInventoryPalletSplitGroupImage( palletId, splitGroupId, { s3: resp.Location } );
+            pallet = await inventoryCommander.addInventoryPalletSplitGroupImage( palletId, splitGroupId, { s3: s3Location } );
 
           }
           else if ( palletId ) {
 
-            await inventoryCommander.addInventoryPalletImage( palletId, { s3: resp.Location } );
+            pallet = await inventoryCommander.addInventoryPalletImage( palletId, { s3: s3Location } );
 
           }
           else if ( lotId ) {
 
-            await lotdb.addImage( lotId, { s3: resp.Location });
+            lot = await lotdb.getLotById( lotId );
+
+            await lot.addImage( { s3: s3Location, primary } )
 
           }
 
@@ -116,7 +126,8 @@ function routes( { inventoryCommander, lotdb } ) {
         fs.promises.unlink(f.filepath);
 
       }
-      res.json( { success: true } );
+
+      res.json( { lot, pallet } );
 
     }
     catch(e) {
@@ -133,15 +144,15 @@ function routes( { inventoryCommander, lotdb } ) {
       let p;
       let msg;
       if( splitGroupId && palletId ) {
-        p = inventoryCommander.removeInventoryPalletSplitGroupImage( palletId, splitGroupId, image );
+        p = inventoryCommander.removeInventoryPalletSplitGroupImage( palletId, splitGroupId, image._id );
         msg = `Removed image ${image.s3 || image.filename} from splitGroup ${splitGroupId} in pallet ${palletId}.`;
       }
       else if ( palletId ) {
-        p = inventoryCommander.removeInventoryPalletImage( palletId, image );
+        p = inventoryCommander.removeInventoryPalletImage( palletId, image._id );
         msg = `Removed image ${image.s3 || image.filename} from pallet ${palletId}.`;
       }
       else if ( lotId ) {
-        p = lotdb.removeImage(lotId, image);
+        p = lotdb.removeImage( lotId, image._id );
         msg = `Removed image ${image.s3 || image.filename} from lot ${lotId}.`;
       }
       else {
@@ -222,14 +233,22 @@ function routes( { inventoryCommander, lotdb } ) {
   async function clone( req, res, next ) {
 
     try {
-      const { lotId, images } = req.body;
+      const { lotId, palletId, images } = req.body;
+
+      let lot, pallet;
 
       for( let image of images ) {
-        const resp = await imageServer.clone( image, lotId );
-        await lotdb.addImage( lotId, { s3: resp.s3Location });
+        if( lotId ) {
+          const resp = await imageServer.clone( image, lotId );
+          lot = await lotdb.addImage( lotId, { s3: resp.s3Location });
+        }
+        else if ( palletId ) {
+          const resp = await imageServer.clone( image, palletId );
+          pallet = await inventoryCommander.addInventoryPalletImage( palletId, { s3: resp.s3Location } );
+        }
       }
 
-      res.json( { success: true } );
+      res.json( { lot, pallet } );
     }
     catch(e) {
       return next( e );

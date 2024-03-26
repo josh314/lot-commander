@@ -44,20 +44,20 @@ module.exports = function( lotdbClient ) {
     return lotdbClient.editLot( lotId, _data );
   }
 
-  function setPrimaryImage( lotId, image ) {
-    return lotdbClient.setPrimaryImage( lotId, image );
+  function setPrimaryImage( lotId, imageId ) {
+    return lotdbClient.setPrimaryImage( lotId, imageId );
   }
 
-  function addImage(lotId, imageMetadata ) {
+  function addImage( lotId, imageMetadata ) {
     return lotdbClient.addImage( lotId, imageMetadata );
   }
 
-  function addImages(lotId, images ) {
+  function addImages( lotId, images ) {
     return lotdbClient.addImages( lotId, images );
   }
 
-  function removeImage( lotId, image ) {
-    return lotdbClient.removeImage( lotId, image );
+  function removeImage( lotId, imageId ) {
+    return lotdbClient.removeImage( lotId, imageId );
   }
 
   function deleteLot( lotId ) {

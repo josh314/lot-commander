@@ -378,6 +378,20 @@ angular.module('myApp').factory( 'InventoryPallet', [
         });
       }
 
+      cloneImages( images ) {
+        return $q.when( api.cloneImagesToPallet( this._id, images ) ).then( resp => {
+
+
+          if( resp && resp.pallet ) {
+
+            this.images = resp.pallet.images;
+
+          }
+
+          return this;
+        });
+      }
+
       // Pallet documents
       listDocuments( ) {
         return $q.when( api.listObjectDocuments( this._id, this.isReceived ? 'received-pallet' : 'consolidated-pallet' ) ).then( resp => {

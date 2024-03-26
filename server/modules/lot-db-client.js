@@ -1,6 +1,9 @@
 const enums = require('./enums');
 const helpers = require('../helpers');
-const { ResourceNotFoundError } = require('../errors');
+const {
+  ResourceNotFoundError,
+  ChildResourceNotFoundError,
+} = require('../errors');
 
 const lotQueryFilter = ( { handle, lotNumber, status } ) => {
   const filter = {
@@ -204,17 +207,7 @@ exports.Client = function( { Lot, countCommander } ) {
       throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
     }
 
-    const data = { primary: metadata.primary };
-    if(metadata.s3) {
-      data.s3 = metadata.s3;
-    }
-    if(metadata.filename) {
-      data.filename = metadata.filename;
-    }
-
-    lot.images.push( data );
-
-    return lot.save();
+    return lot.addImage( metadata );
 
   };
 
@@ -227,67 +220,70 @@ exports.Client = function( { Lot, countCommander } ) {
     }
 
     for( let img of images ) {
-      lot.images.push( img );
+      lot.addImage( img, { save: false } );
     }
 
     return lot.save();
 
   };
 
-  this.setPrimaryImage = function(lotId, image){
-    if(!lotId) {
-      throw new Error('No lot ID submitted.');
+  this.setPrimaryImage = async function( lotId, imageId ){
+
+    const lot = await this.getLotById( lotId );
+
+    if( !lot ) {
+      throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
     }
-    return this.LotModel.findOne({ _id: lotId }).then(lot=>{
-      if(!lot) {
-        return { error: "Lot ID not found." };
-      }
 
-      const oldPrimaryImage = lot.images.find(item => item.primary);
-      if(oldPrimaryImage && (image.s3 ? oldPrimaryImage.s3===image.s3 : oldPrimaryImage.filename===image.filename) ){
-        return lot;
-      }
-      const foundImageNewPrimary = lot.images.find(item => image.s3 ? item.s3 === image.s3 : item.filename === image.filename);
-      if(!foundImageNewPrimary) {
-        return { error: `Image ${ image.s3 || image.filename } not associated with lot ${lotId}.` };
-      }
+    const foundImageNewPrimary = lot.images.find( item => item._id.toString() === imageId.toString() );
+    if(!foundImageNewPrimary) {
 
-      foundImageNewPrimary.primary = true;
-      if(oldPrimaryImage) {
-        oldPrimaryImage.primary = false;
-      }
+      throw new ChildResourceNotFoundError( {
+        parentType: 'lot',
+        parentId: lotId,
+        childType: 'image',
+        childId: imageId
+      } );
 
-      return this.LotModel.findOneAndUpdate(
-        { _id: lot._id },
-        { $set: { images: lot.images } },
-        { new: true }
-        // { upsert: true, new: true }
-      );
-    });
+    }
+
+    const oldPrimaryImage = lot.images.find( item => item.primary );
+    if( oldPrimaryImage === foundImageNewPrimary ){
+      return lot;
+    }
+
+    foundImageNewPrimary.primary = true;
+    if(oldPrimaryImage) {
+      oldPrimaryImage.primary = false;
+    }
+
+    return lot.save();
   };
 
-  this.removeImage = function(lotId, image) {
-    if(!lotId) {
-      throw new Error('No lot ID submitted.');
+  this.removeImage = async function( lotId, imageId ) {
+
+    const lot = await this.getLotById( lotId );
+
+    if( !lot ) {
+      throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
     }
-    return this.LotModel.findOne({ _id: lotId }).then(lot=>{
-      if(!lot) {
-        return { error: "Lot ID not found." };
-      }
 
-      const foundImageToBeRemovedIndex = lot.images.findIndex(item => image.s3 ? item.s3 === image.s3 : item.filename === image.filename);
-      if(foundImageToBeRemovedIndex==-1) {
-        return { error: `Image ${image} not associated with lot ${lotId}.` };
-      }
+    const foundIdx = lot.images.findIndex( item => item._id.toString() === imageId.toString() );
+    if( foundIdx === -1 ) {
 
-      lot.images.splice(foundImageToBeRemovedIndex, 1);
-      return this.LotModel.findOneAndUpdate(
-        { _id: lot._id },
-        { $set: { images: lot.images } },
-        { new: true }
-        // { upsert: true, new: true }
-      );
-    });
+      throw new ChildResourceNotFoundError( {
+        parentType: 'lot',
+        parentId: lotId,
+        childType: 'image',
+        childId: imageId
+      } );
+
+    }
+
+    lot.images.splice( foundIdx, 1 );
+
+    return lot.save();
+
   };
 
   this.add3pManifest = function(lotId, manifestData) {

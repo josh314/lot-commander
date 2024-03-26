@@ -188,12 +188,12 @@ export function uploadLotManifestFile( lotId, file, filename ) {
 
 }
 
-export function setPrimaryLotImage( lotId, image ) {
+export function setPrimaryLotImage( lotId, imageId ) {
   return axios({
     method: 'post',
-    url: `/api/lots/${lotId}/primary-image`,
+    url: `/api/lots/${lotId}/images/${imageId}`,
     data: {
-      image: image
+      primary: true
     }
   })
     .then( resp => resp.data );
@@ -782,13 +782,73 @@ export function getIncomingShipmentEvents( shipmentId ) {
 *
 ************/
 
-export function cloneImages( lotId, images ) {
+export function uploadLotImages( lotId, images ) {
+  return uploadImages( images, { lotId } );
+}
+
+export function uploadLotImage( lotId, image, primary = false ) {
+  return uploadImages( image, { lotId, primary } );
+}
+
+export function uploadPalletImages( palletId, images ) {
+  return uploadImages( images, { palletId } );
+}
+
+export function uploadPalletSplitGroupImages( palletId, splitGroupId, images ) {
+  return uploadImages( images, { palletId, splitGroupId } );
+}
+
+export function uploadImages( files, metadata ) {
+
+  const fd = new FormData();
+
+  if( files instanceof FileList ) {
+
+    for( let i=0; i<files.length; i++ ) {
+      fd.append( 'file', files[i] );
+    }
+
+  }
+  else if( files instanceof File ){
+    fd.append( 'file', files );
+  }
+  else {
+    throw new Error('Must supply a File or FileList object.');
+  }
+
+
+  for( let [key, val] of Object.entries( metadata ) ) {
+    fd.append(key, val);
+  }
+
+  return axios({
+    method: 'post',
+    url: `/api/image/upload`,
+    data: fd
+  })
+    .then( resp => resp.data  );
+
+}
+
+export function cloneImagesToLot( lotId, images ) {
   return axios({
     method: 'post',
     url: `/api/image/clone`,
     data: {
       lotId,
-      images
+      images // array of image locations
+    }
+  })
+    .then( resp => resp.data );
+}
+
+export function cloneImagesToPallet( palletId, images ) {
+  return axios({
+    method: 'post',
+    url: `/api/image/clone`,
+    data: {
+      palletId,
+      images // array of image locations
     }
   })
     .then( resp => resp.data );
@@ -799,7 +859,7 @@ export function addInventoryPalletImages( palletId, images ) {
     method: 'post',
     url: `/api/pallets/${ palletId }/images`,
     data: {
-      images
+      images // array of image object
     }
   })
     .then( resp => resp.data );
@@ -810,7 +870,7 @@ export function addLotImages( lotId, images ) {
     method: 'post',
     url: `/api/lots/${ lotId }/images`,
     data: {
-      images
+      images // array of image objects
     }
   })
     .then( resp => resp.data );

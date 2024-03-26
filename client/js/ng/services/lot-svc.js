@@ -61,7 +61,7 @@ angular.module('myApp').factory( 'LotSvc', [
 
       clone: lot => new Lot( JSON.parse( JSON.stringify( lot ) ) ),
 
-      cloneImages: ( lotId, images ) => $q.when( api.cloneImages( lotId, images ) ),
+      cloneImages: ( lotId, images ) => $q.when( api.cloneImagesToLot( lotId, images ) ),
 
       count: query => $q.when( api.countLots( query ) ),
 
@@ -156,6 +156,7 @@ angular.module('myApp').factory( 'Lot', [
   '$q',
   '$sce',
   'dbEnums',
+  'ImageSvc',
   'ManifestFileHandlerSvc',
   'ProductDataSvc',
 
@@ -163,6 +164,7 @@ angular.module('myApp').factory( 'Lot', [
     $q,
     $sce,
     dbEnums,
+    ImageSvc,
     ManifestFileHandlerSvc,
     ProductDataSvc
   ) {
@@ -521,6 +523,22 @@ angular.module('myApp').factory( 'Lot', [
             title: _.item.title,
             images: _.item.images
           };
+        } );
+
+      }
+
+      uploadImages( images ) {
+
+        return ImageSvc.uploadLotImages( this._id, images ).then( ({ lot }) => {
+
+          // this roundabout way of updating the images is to ensure that the images array is mutated but the reference stays the same
+          this.images.splice( 0, this.images.length );
+          for( let image of lot.images ) {
+            this.images.push( image );
+          }
+
+          return this;
+
         } );
 
       }
