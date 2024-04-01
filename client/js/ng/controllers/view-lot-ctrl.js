@@ -7,7 +7,6 @@ const __MAX_DISPLAY_INVENTORY__ = 50;
 /******************* View Lot Controller *************************/
 angular.module('myApp').controller( 'ViewLotCtrl', [
 
-  '$uibModal',
   'ImageSvc',
   'InventoryPalletManagerSvc',
   'listingsBoilerplate',
@@ -21,7 +20,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
   function(
 
-    $uibModal,
     ImageSvc,
     InventoryPalletManagerSvc,
     listingsBoilerplate,
@@ -161,24 +159,23 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     }
 
-    function removeImage(image) {
-      const modalInstance = $uibModal.open({
-        templateUrl: '/partials/modals/_remove_image_modal.html',
-        size: 'lg',
-        backdrop: 'static',
-      });
+    async function removeImage( image ) {
 
-      modalInstance.result.then(async function () {
-        const resp = await ImageSvc.removeLotImage( vm.lot._id, image);
-        if(!resp.data.error) {
-          navigate.reload();
-        }
-        else {
-          ModalSvc.message( { header: 'Error', body: resp.data.error, type: 'error' } );
-        }
-      }, function () {
-        console.log('Modal dismissed at: ' + new Date());
-      });
+      const isConfirmed = await ModalSvc.confirm( {
+        header: 'Remove Image',
+        body: 'Are you sure you want to remove this image?',
+      } );
+
+      if( isConfirmed ) {
+
+        await ModalSvc.wait( {
+          waitFor: ImageSvc.removeLotImage( vm.lot._id, image )
+        } );
+
+        navigate.reload();
+
+      }
+
     }
 
     function editImage( image ) {
@@ -203,32 +200,11 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     ************/
 
 
-    function editLot() {
-      const modalInstance = $uibModal.open({
-        templateUrl: '/partials/modals/_edit_lot_modal.html',
-        size: 'lg',
-        controller: 'EditLotModalCtrl as $ctrl',
-        backdrop: 'static',
-        resolve: {
-          lot: function () {
-            return JSON.parse( JSON.stringify( vm.lot ) ); // deep clone of lot so edits are ephemeral before save
-          }
-        },
-      });
+    async function editLot() {
 
-      modalInstance.result.then( lot => {
+      await ModalSvc.editLot( vm.lot );
+      navigate.reload();
 
-        if( !lot.category ) {
-          lot.category = '';
-        }
-
-        LotSvc.edit( lot._id, lot ).then( _lot =>{
-          navigate.reload();
-        });
-
-      }, function () {
-        console.log('Modal dismissed at: ' + new Date());
-      });
     }
 
 
@@ -270,65 +246,23 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       });
     };
 
-    async function configureListingForSubmission() {
+    async function deleteLot() {
 
-      if( vm.lot.hasListing() ) {
-        const isConfirmed = await ModalSvc.confirm( { header: 'Lot has listing', body: 'This lot already has a successfully submitted listing. Proceed anyway?', type: 'warning' } );
+      const isConfirmed = await ModalSvc.confirm( {
+        header: 'Delete Lot',
+        body: 'Are you sure you want to delete this lot?',
+      } );
 
-        if( !isConfirmed ) {
-          return;
-        }
+      if( isConfirmed ) {
 
-      }
+        await ModalSvc.wait( {
+          waitFor: LotSvc.delete( vm.lot._id ),
+        } );
 
-      if( !LoggedInUser.hasMarketplacePermission( vm.lot.destinationMarketplace ) ) {
-        let msg = `User is not authorized to submit to marketplace: ${vm.lot.destinationMarketplace}. Choose another marketplace.`;
-        ModalSvc.message( { header: 'Unauthorized marketplace', body: msg , type: 'error' } );
-        return;
-      }
-
-      const missingFields = [];
-      if( !vm.lot.listingData.title ) {
-        missingFields.push('title');
-      }
-      if( !vm.lot.listingData.body ) {
-        missingFields.push('body');
-      }
-      if( !vm.lot.handle ) {
-        missingFields.push('handle');
-      }
-      if( !vm.lot.packagingType ) {
-        missingFields.push('packaging type');
-      }
-      if( !vm.lot.numBoxes && !validateShippingItems() ) {
-        missingFields.push('shipping items');
-      }
-      if( vm.images.length <= 0 ) {
-        missingFields.push('images');
-      }
-
-      if( !missingFields.length ) {
-        navigate.submitListing( vm.lot._id );
-      }
-      else {
-        let msg = `Must input the following data before submission: ${missingFields}`;
-        ModalSvc.message( { header: 'Incomplete Lot', body: msg , type: 'error' } );
-      }
-    }
-
-    function deleteLot(lotId) {
-      const modalInstance = $uibModal.open({
-        templateUrl: '/partials/modals/_delete_lot_modal.html',
-        size: 'lg',
-        backdrop: 'static',
-      });
-
-      modalInstance.result.then(function () {
-        LotSvc.delete( lotId );
         navigate.listLots();
-      }, function () {
-        console.log('Modal dismissed at: ' + new Date());
-      });
+
+      }
+
     }
 
     function openGallery() {
@@ -369,29 +303,17 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     }
 
+    async function openRecentImageGallery() {
 
-    function openRecentImageGallery() {
-      const modalInstance = $uibModal.open({
-        templateUrl: '/partials/modals/_past_images_gallery_modal.html',
-        size: 'lg',
-        controller: 'PastImagesGalleryModalCtrl as $ctrl',
-        backdrop: 'static',
-      });
+      const { images } = await ModalSvc.pastImagesGallery();
 
-      modalInstance.result.then(function ( res ) {
+      if( images.length ) {
 
-        if( res.images.length ) {
+        await LotSvc.cloneImages( vm.lot._id, images );
+        navigate.reload();
 
-          LotSvc.cloneImages( vm.lot._id, res.images ).then( resp => {
-            console.log(resp);
-            navigate.reload();
-          });
+      }
 
-        }
-
-      }, function () {
-        console.log('Modal dismissed at: ' + new Date());
-      });
     }
 
     function confirmAddLotImage( event ) {

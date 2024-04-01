@@ -7,6 +7,7 @@ angular.module('myApp').factory('ModalSvc', [
 
   'ChooseOptionsModal',
   'ConfirmationModal',
+  'EditLotModalSvc',
   'ImagePreviewModalSvc',
   'InventoryPalletDetailsModalSvc',
   'ManifestFileOptionsModal',
@@ -15,6 +16,7 @@ angular.module('myApp').factory('ModalSvc', [
   'PackageLabelDataModalSvc',
   'PackagingTypeInfoModalSvc',
   'PalletsFromManifestModalSvc',
+  'PastImagesGalleryModalSvc',
   'ShippingItemsModalSvc',
   'WaitingModalSvc',
 
@@ -22,6 +24,7 @@ angular.module('myApp').factory('ModalSvc', [
 
     ChooseOptionsModal,
     ConfirmationModal,
+    EditLotModalSvc,
     ImagePreviewModalSvc,
     InventoryPalletDetailsModalSvc,
     ManifestFileOptionsModal,
@@ -30,6 +33,7 @@ angular.module('myApp').factory('ModalSvc', [
     PackageLabelDataModalSvc,
     PackagingTypeInfoModalSvc,
     PalletsFromManifestModalSvc,
+    PastImagesGalleryModalSvc,
     ShippingItemsModalSvc,
     WaitingModalSvc,
 
@@ -39,6 +43,7 @@ angular.module('myApp').factory('ModalSvc', [
 
       chooseOptions: ChooseOptionsModal.launch.bind( ChooseOptionsModal ),
       confirm: ConfirmationModal.launch.bind( ConfirmationModal ),
+      editLot: EditLotModalSvc.launch.bind( EditLotModalSvc ),
       imagePreview: ImagePreviewModalSvc.launch.bind( ImagePreviewModalSvc ),
       inventoryPalletDetails: InventoryPalletDetailsModalSvc.launch.bind( InventoryPalletDetailsModalSvc ),
       manifestFileOptions: ManifestFileOptionsModal.launch.bind( ManifestFileOptionsModal ),
@@ -47,6 +52,7 @@ angular.module('myApp').factory('ModalSvc', [
       packageLabelData: PackageLabelDataModalSvc.launch.bind( PackageLabelDataModalSvc ),
       packagingTypeInfo: PackagingTypeInfoModalSvc.launch.bind( PackagingTypeInfoModalSvc ),
       palletsFromManifest: PalletsFromManifestModalSvc.launch.bind( PalletsFromManifestModalSvc ),
+      pastImagesGallery: PastImagesGalleryModalSvc.launch.bind( PastImagesGalleryModalSvc ),
       shippingItems: ShippingItemsModalSvc.launch.bind( ShippingItemsModalSvc ),
       wait: WaitingModalSvc.launch.bind( WaitingModalSvc ),
 
@@ -802,6 +808,73 @@ angular.module('myApp').factory( 'ImagePreviewModalSvc', [ '$uibModal', function
     });
 
     return modalInstance.result;
+
+  }
+
+}]);
+
+/********************* Past images gallery modal **************************/
+angular.module('myApp').factory( 'PastImagesGalleryModalSvc', [ '$uibModal', function( $uibModal ) {
+
+  return {
+    launch,
+  };
+
+  // launches the modal
+  function launch( ) {
+
+    const modalInstance = $uibModal.open({
+      templateUrl: '/partials/modals/_past_images_gallery_modal.html',
+      size: 'lg',
+      controller: 'PastImagesGalleryModalCtrl as $ctrl',
+      backdrop: 'static',
+    });
+
+    return modalInstance.result;
+
+  }
+
+}]);
+
+
+/********************* Edit lot modal **************************/
+angular.module('myApp').factory( 'EditLotModalSvc', [ '$uibModal', function( $uibModal ) {
+
+  return {
+    launch,
+  };
+
+  // launches the modal
+  async function launch( lot ) {
+
+    const modalInstance = $uibModal.open({
+      templateUrl: '/partials/modals/_edit_lot_modal.html',
+      size: 'lg',
+      controller: 'EditLotModalCtrl as $ctrl',
+      backdrop: 'static',
+      resolve: {
+        lot: function () {
+          return JSON.parse( JSON.stringify( lot ) ); // deep clone of lot so edits are ephemeral before save
+        }
+      },
+    });
+
+    try {
+
+      const _lot = await modalInstance.result;
+
+      if( !_lot.category ) {
+        _lot.category = '';
+      }
+
+      Object.assign( lot, _lot );
+
+      return lot.save( );
+
+    }
+    catch( err ) {
+      return lot;
+    }
 
   }
 
