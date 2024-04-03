@@ -71,7 +71,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           toggleShowShippingItems: () => vm.showShippingItems = !vm.showShippingItems,
 
 
-          configureListingForSubmission,
+          verifyListingAndNavigateToSubmission,
           scanItems,
           editManifest,
           linkManifestBlock,
@@ -198,6 +198,41 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           parseInt(item.width) && item.widthUnits;
       });
     };
+
+    function verifyListingAndNavigateToSubmission() {
+
+      if( vm.lot.hasListing() ) {
+        return ModalSvc.message( { header: 'Lot has listing', body: 'This lot already has a successfully submitted listing.' } );
+      }
+
+      if( !LoggedInUser.hasMarketplacePermission( vm.lot.destinationMarketplace ) ) {
+        let msg = `User is not authorized to submit to marketplace: ${vm.lot.destinationMarketplace}. Choose another marketplace.`;
+        return ModalSvc.message( { header: 'Unauthorized marketplace', body: msg , type: 'error' } );
+      }
+
+      const missingFields = [];
+      if( !vm.lot.handle ) {
+        missingFields.push('handle');
+      }
+      if( !vm.lot.packagingType ) {
+        missingFields.push('packaging type');
+      }
+      if( !vm.lot.numBoxes && !validateShippingItems() ) {
+        missingFields.push('shipping items');
+      }
+      if( missingFields.length ) {
+        let msg = `Must input the following data before submission: ${missingFields}`;
+        return ModalSvc.message( { header: 'Incomplete Lot', body: msg , type: 'error' } );
+      }
+
+      if ( !vm.lot.unmanifested && !vm.lot.manifestFileLocation && vm.lot.inventory.length === 0 ) { // marked as manifested but no manifest yet
+
+        return ModalSvc.message( { header: 'No manifest', body: 'This lot has not yet been manifested.' } );
+
+      }
+
+      return navigate.submitListing( vm.lot._id );
+    }
 
     async function deleteLot() {
 

@@ -1,7 +1,7 @@
 /*****************************************
  * Custom Errors
  * =============
- * 
+ *
  ****************/
 
 class MyError extends Error {
@@ -66,6 +66,12 @@ class ChildResourceNotFoundError extends ClientError {
   }
 }
 
+class ExternalImageNotFoundError extends MyError {
+  constructor( url ) {
+    super( url );
+  }
+}
+
 class AuthorizationError extends MyError {
   constructor( endpoint ) {
     super( endpoint || 'UNAUTHORIZED' );
@@ -81,5 +87,6 @@ module.exports = {
   IllegalActionError,
   InvalidRequestError,
   ResourceNotFoundError,
-  ChildResourceNotFoundError
+  ChildResourceNotFoundError,
+  ExternalImageNotFoundError
 };

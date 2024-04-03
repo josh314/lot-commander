@@ -157,7 +157,7 @@ lotSchema.methods.addImage = function( { s3, filename, primary }, { save } = { s
   this.images.push( { s3, filename, primary } );
 
   return save ? this.save() : this;
-}
+};
 
 module.exports = {
   schema: lotSchema,
