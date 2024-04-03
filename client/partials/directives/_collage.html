@@ -3,17 +3,30 @@
   <div class="collage-container" ng-show="$ctrl.isRendered">
     <span  ng-hide="$ctrl.disablePreviewModal">
       <a href ng-click="$ctrl.openPreviewModal()">
-        <img class="img-responsive img-thumbnail" ng-src="{{ $ctrl.imgSrc }}"/>
+        <img id="img-{{ $ctrl.id }}" class="img-responsive img-thumbnail" ng-src="{{ $ctrl.imgSrc }}"/>
       </a>
     </span>
     <span ng-show="$ctrl.disablePreviewModal">
-      <img class="img-responsive img-thumbnail" ng-src="{{ $ctrl.imgSrc }}" />
+      <img id="img-{{ $ctrl.id }}" class="img-responsive img-thumbnail" ng-src="{{ $ctrl.imgSrc }}" />
     </span>
   </div>
 
-  <div class="button-row-container" ng-hide="$ctrl.hideRenderBtn && $ctrl.hideSaveBtn">
-    <button class="btn btn-primary" ng-class="$ctrl.btnNgClass" ng-click="$ctrl.renderAndWait()" ng-hide="$ctrl.hideRenderBtn">Render new collage</button>
-    <button class="btn btn-success" ng-class="$ctrl.btnNgClass" ng-click="$ctrl.saveImageToLot()" ng-disabled="$ctrl.isSaved" ng-hide="$ctrl.hideSaveBtn">{{ $ctrl.isSaved ? 'isS!' : 'Save to lot' }}</button>
+  <div class="collage__footer-controls">
+
+    <div class="checkbox collage__footer-controls__checkbox-container" ng-hide="$ctrl.hideIsPrimaryImage">
+      <label for="primaryImageInput-{{ $ctrl.id }}">
+        <input type="checkbox" id="primaryImageInput-{{ $ctrl.id }}" ng-model="isPrimaryImage">
+        Primary image
+      </label>
+    </div>
+
+    <div class="collage__footer-controls__divider"></div>
+
+    <div class="collage__footer-controls__buttons-container" ng-hide="$ctrl.hideRenderBtn && $ctrl.hideSaveBtn">
+      <button class="btn btn-primary" ng-class="$ctrl.btnNgClass" ng-click="$ctrl.renderAndWait()" ng-hide="$ctrl.hideRenderBtn">Render new collage</button>
+      <button class="btn btn-success" ng-class="$ctrl.btnNgClass" ng-click="$ctrl.saveImageToLot()" ng-disabled="$ctrl.isSaved" ng-hide="$ctrl.hideSaveBtn">{{ $ctrl.isSaved ? 'Saved!' : 'Save to lot' }}</button>
+    </div>
+
   </div>
 
 </div>

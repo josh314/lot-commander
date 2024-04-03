@@ -5,9 +5,10 @@
     <label>Title</label>
     <input ui-tinymce="$ctrl.tinymceOptions" ng-model="$ctrl.lot.listingData.title" ng-show="$ctrl.tinymceOptions" ng-change="$ctrl.verifyTitle()"></input>
 
+    <span class="text-danger h4" ng-show="$ctrl.titleEmpty">Title is missing</span>
     <span class="text-danger h4" ng-show="$ctrl.titleTooLong.bstock && $ctrl.lot.destinationMarketplace ==='bstock'">Title too long for a Bstock Listing</span>
     <span class="text-danger h4" ng-show="$ctrl.titleTooLong.shopify && $ctrl.lot.destinationMarketplace ==='wholesaleninjas'">Title too long for a Shopify Listing</span>
-    <span class="text-danger h4" ng-show="$ctrl.titleContainsLineBreaks">Please remove any line breaks.</span>
+    <span class="text-danger h4" ng-show="$ctrl.titleContainsLineBreaks">Please remove any line breaks</span>
 
   </div>
 

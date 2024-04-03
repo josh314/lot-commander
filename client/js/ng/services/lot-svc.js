@@ -543,6 +543,25 @@ angular.module('myApp').factory( 'Lot', [
 
       }
 
+      removeImage( image ) {
+
+        return ImageSvc.removeLotImage( this._id, image ).then( _ => {
+
+          const removedImageIdx = this.images.findIndex( _image => _image._id === image._id );
+
+          if( removedImageIdx !== -1 ) {
+
+            this.images.splice( removedImageIdx, 1 );
+
+          }
+
+          return this;
+
+        });
+
+      }
+
+
       getImageLink( image ) {
         return image.s3 ? `/api/image/?s3=${encodeURIComponent(image.s3)}` : image.filename;
       }

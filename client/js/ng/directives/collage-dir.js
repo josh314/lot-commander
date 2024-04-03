@@ -25,6 +25,8 @@ angular.module('myApp').directive('collageDir', function(){
       doSave: '=?',
       hideSaveBtn: '<',
       disablePreviewModal: '<',
+      isPrimaryImage: '=?',
+      hideIsPrimaryImage: '<',
     },
     controller: 'CollageDirCtrl as $ctrl',
   };
@@ -73,6 +75,18 @@ angular.module('myApp').controller( 'CollageDirCtrl', [
       }
     });
 
+    $scope.$watch('hideSaveBtn', function() {
+      if( vm ) {
+        vm.hideSaveBtn = $scope.hideSaveBtn;
+      }
+    });
+
+    $scope.$watch('hideIsPrimaryImage', function() {
+      if( vm ) {
+        vm.hideIsPrimaryImage = $scope.hideIsPrimaryImage;
+      }
+    });
+
     function init() {
 
       $scope.isRendered = false;
@@ -82,12 +96,14 @@ angular.module('myApp').controller( 'CollageDirCtrl', [
         vm,
         {
 
+          id: crypto.randomUUID(),
+
           isRendered: $scope.isRendered,
           isSaved: false,
           hideRenderBtn: $scope.hideRenderBtn,
           btnNgClass: {},
           hideSaveBtn: $scope.hideSaveBtn,
-          disablePreviewModal: $scope.disablePreviewModal,
+          hideIsPrimaryImage: $scope.hideIsPrimaryImage,
 
           renderAndWait,
           saveImageToLot,
@@ -118,7 +134,8 @@ angular.module('myApp').controller( 'CollageDirCtrl', [
 
     function renderAndWait() {
       return ModalSvc.wait({
-        waitFor: render()
+        waitFor: render(),
+        message: 'Rendering collage...',
       });
     }
 
@@ -292,7 +309,7 @@ angular.module('myApp').controller( 'CollageDirCtrl', [
 
         console.log(`Saving file ${ filename } to lot ${ $scope.lotId }`);
         await ModalSvc.wait( {
-          waitFor: ImageSvc.uploadLotImages( $scope.lotId, [ file ] ),
+          waitFor: ImageSvc.uploadLotImage( $scope.lotId, file, $scope.isPrimaryImage ),
         } );
 
         console.log('Save successful.');

@@ -44,6 +44,8 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
         vm,
         {
 
+          lot: null,
+
           showEditingControls: LoggedInUser.hasPermission( 'EDIT_LOT' ),
           showDeleteButton: LoggedInUser.hasPermission( 'DELETE_LOT' ),
           showPricingData: LoggedInUser.hasPermission( 'VIEW_PRICING_DATA' ),
@@ -52,14 +54,10 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           listingsBoilerplate,
 
           // images methods
-          updatePrimaryImage,
           uploadImages,
-          removeImage,
-          editImage,
           addLotImageMethod: 'file',
           setAddLotImageMethod: s => vm.addLotImageMethod = s,
           addLotImageMethodIs: s => ( vm.addLotImageMethod === s ),
-          openImagePreviewModal,
 
 
           // Lot editing
@@ -139,17 +137,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       initializeAllThumbnailImages();
     }
 
-    // Manage images
-    async function updatePrimaryImage( imageId ) {
-      const resp = await ImageSvc.updateLotPrimaryImage( vm.lot._id, imageId );
-      if(!resp.error) {
-        navigate.reload();
-      }
-      else {
-        ModalSvc.message( { header: 'Error', body: resp.error, type: 'error' } );
-      }
-    }
-
     function uploadImages() {
 
       return ModalSvc.wait( {
@@ -158,40 +145,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       } );
 
     }
-
-    async function removeImage( image ) {
-
-      const isConfirmed = await ModalSvc.confirm( {
-        header: 'Remove Image',
-        body: 'Are you sure you want to remove this image?',
-      } );
-
-      if( isConfirmed ) {
-
-        await ModalSvc.wait( {
-          waitFor: ImageSvc.removeLotImage( vm.lot._id, image )
-        } );
-
-        navigate.reload();
-
-      }
-
-    }
-
-    function editImage( image ) {
-      if(image.s3) {
-        ImageSvc.setStore(image);
-        navigate.imageEditor();
-      }
-      else {
-        ModalSvc.message( { header: 'Error', body: 'This image cannot be edited.', type: 'error' } );
-      }
-    }
-
-    function openImagePreviewModal( image ) {
-      ModalSvc.imagePreview( vm.lot.getImageLink( image ) );
-    }
-
 
     /*************************************************
     * Editing

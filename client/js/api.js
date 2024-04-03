@@ -830,6 +830,20 @@ export function uploadImages( files, metadata ) {
 
 }
 
+export function removeLotImage( lotId, image ) {
+  const req = {
+    lotId,
+    image
+  };
+
+  return axios({
+    method: 'post',
+    url: `/api/image/remove`,
+    data: req
+  })
+    .then( resp => resp.data );
+}
+
 export function cloneImagesToLot( lotId, images ) {
   return axios({
     method: 'post',

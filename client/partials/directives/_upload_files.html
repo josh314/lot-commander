@@ -1,0 +1,29 @@
+
+<div class="upload-files-directive">
+
+  <div class="upload-files__controls-container">
+
+    <div class="upload-files__file-input-container">
+      <label for="file-input-{{ $ctrl.id }}" class="btn btn-primary btn-sm">Select image(s)</label>
+      <input type="file" id="file-input-{{ $ctrl.id }}" file-list-model="$ctrl.filesToUpload" multiple/>
+    </div>
+
+    <div ng-show="$ctrl.filesToUpload && $ctrl.filesToUpload.length">
+      <button class="btn btn-success btn-sm" ng-click="$ctrl.uploadFiles()">Upload File(s)</button>
+    </div>
+
+  </div>
+
+  <div class="upload-files__selected-files-container" ng-show="$ctrl.filesToUpload && $ctrl.filesToUpload.length">
+    <p>Selected files:</p>
+    <table class="table table-striped">
+      <tbody>
+        <tr ng-repeat="(_, file) in $ctrl.filesToUpload track by $index">
+          <td>{{ file.name }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+</div>

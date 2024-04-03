@@ -1,4 +1,11 @@
 <div>
-  <label>Body</label>
-  <textarea ui-tinymce="$ctrl.tinymceOptions" ng-model="$ctrl.lot.listingData.body"></textarea>
+
+  <div class="form-group" ng-class="{ 'has-error' : $ctrl.invalidBody }">
+
+    <label>Body</label>
+    <textarea ui-tinymce="$ctrl.tinymceOptions" ng-model="$ctrl.lot.listingData.body" ng-change="$ctrl.verifyBody()"></textarea>
+
+    <span class="text-danger h4" ng-show="$ctrl.bodyEmpty">Body is missing</span>
+
+  </div>
 </div>

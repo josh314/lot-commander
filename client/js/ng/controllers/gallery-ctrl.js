@@ -36,6 +36,8 @@ angular.module('myApp').controller('GalleryCtrl', [
 
           productImages: [],
           galleryItems: [],
+
+          isPrimaryImage: false,
         }
       );
 
@@ -128,6 +130,7 @@ angular.module('myApp').controller('GalleryCtrl', [
       });
 
       if( yes ) {
+        vm.isPrimaryImage = false;
         vm.renderCollage = true;
       }
       if( !yes ) {

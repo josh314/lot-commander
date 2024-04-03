@@ -9,6 +9,7 @@ angular.module('myApp').directive('editorListingBodyDir', function(){
     scope: {
       lot: '=', // two-way binding
       generateOnLoadIfEmpty: '<',
+      invalidBody: '=?',
     },
     controllerAs: '$ctrl',
     controller: [ '$scope', 'ListingsSvc', 'ModalSvc', function ( $scope, ListingsSvc, ModalSvc ) {
@@ -17,6 +18,8 @@ angular.module('myApp').directive('editorListingBodyDir', function(){
       init();
 
       function init() {
+
+        $scope.dirty = false;
 
         Object.assign(
           vm,
@@ -93,9 +96,9 @@ angular.module('myApp').directive('editorListingBodyDir', function(){
           }
         );
 
-        if( $scope.generateOnLoadIfEmpty && !vm.lot.listingData.body ) {
-          generateListingBodyHtml();
-        }
+        const p = $scope.generateOnLoadIfEmpty && !vm.lot.listingData.body ? generateListingBodyHtml() : Promise.resolve();
+
+        p.then( verifyBody );
 
       }
 
@@ -105,9 +108,37 @@ angular.module('myApp').directive('editorListingBodyDir', function(){
 
           waitFor: ListingsSvc.getLotListingBodyTemplate( $scope.lot ).then( bodyHtml => $scope.lot.listingData.body = bodyHtml ),
 
+          message: 'Generating Listing Body...',
+
         });
 
       }
+
+      function verifyBody() {
+
+        vm.invalidBody = false;
+
+        if( $scope.originalBody !== vm.lot.listingData.body ) {
+          $scope.dirty = true;
+        }
+
+        if( vm.lot.listingData.body ) {
+
+          vm.bodyEmpty = false;
+
+        }
+        else if ( $scope.dirty ) {
+          vm.bodyEmpty = true;
+          vm.invalidBody = true;
+        }
+
+        // After updating the controller's invalidBody property, it's necessary to assign it to the $scope so that it is communicated to the parent $scope via two-way binding
+        $scope.invalidBody = vm.invalidBody;
+
+      }
+
+      vm.verifyBody = verifyBody;
+
 
     }],
   };
@@ -130,6 +161,9 @@ angular.module('myApp').directive('editorListingTitleDir', function(){
       init();
 
       function init() {
+
+        $scope.dirty = false;
+        $scope.originalTitle = $scope.lot.listingData.title;
 
         Object.assign(
           vm,
@@ -204,7 +238,13 @@ angular.module('myApp').directive('editorListingTitleDir', function(){
 
         vm.invalidTitle = false;
 
+        if( $scope.originalTitle !== vm.lot.listingData.title ) {
+          $scope.dirty = true;
+        }
+
         if( vm.lot.listingData.title ) {
+
+          vm.titleEmpty = false;
 
           vm.titleTooLong = ListingsSvc.isTitleTooLong( vm.lot.listingData.title );
 
@@ -224,6 +264,10 @@ angular.module('myApp').directive('editorListingTitleDir', function(){
             vm.invalidTitle = true;
           }
 
+        }
+        else if ( $scope.dirty ) {
+          vm.titleEmpty = true;
+          vm.invalidTitle = true;
         }
 
         // After updating the controller's invalidTitle property, it's necessary to assign it to the $scope so that it is communicated to the parent $scope via two-way binding

@@ -3,10 +3,6 @@ import angular from "angular";
 import errorImg from '../../../030-warning.svg';
 import * as api from '../../api';
 
-const urls = {
-  upload: '/api/image/upload',
-  remove: '/api/image/remove',
-};
 
 //************* Images service
 angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$timeout', '$window',
@@ -116,15 +112,7 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
     };
 
     svc.removeLotImage = async ( lotId, image ) => {
-      const data = {
-        lotId,
-        image: image
-      };
-      let resp;
-
-      resp = await $http.post(urls.remove, data);
-
-      return resp;
+      return $q.when( api.removeLotImage( lotId, image ) );
     };
 
     svc.getStore = () => $localStorage.image;

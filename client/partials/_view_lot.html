@@ -104,30 +104,17 @@
   </div>
 
   <div class="well">
+
+    <h4>Images</h4>
+
     <div class="row">
-      <div class="col-xs-12">
-        <h4>Images</h4>
-      </div>
-      <div class="col-xs-12 col-sm-4" ng-repeat="$image in $ctrl.images">
-        <a href ng-click="$ctrl.openImagePreviewModal( $image )">
-          <img id="{{ $image._id }}" ng-src="{{$ctrl.lot.getImageLink( $image )}}" class="img-thumbnail primary-image" width="240" height="auto">
-        </a>
-        <!-- Checkbox to make primary -->
-        <div class="row">
-          <div class="form-group col-xs-3">
-            <label for="primary-{{ $image._id }}">Primary
-              <input type="checkbox" id="primary-{{ $image._id }}" ng-model="$image.primary" ng-click="$ctrl.updatePrimaryImage( $image._id )">
-            </label>
-          </div>
-          <div class="col-xs-3">
-            <button class="btn btn-warning btn-xs" ng-click="$ctrl.editImage( $image )"><span class="glyphicon glyphicon-pencil"></span> Edit Image</button>
-          </div>
-          <div class="col-xs-3">
-            <button class="btn btn-danger btn-xs" ng-click="$ctrl.removeImage( $image )">Remove Image</button>
-          </div>
-        </div>
-      </div>
+
+      <lot-image-grid-dir
+        lot="$ctrl.lot"
+      ></lot-image-grid-dir>
+
     </div>
+
   </div>
 
 
