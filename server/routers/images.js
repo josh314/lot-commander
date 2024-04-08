@@ -5,7 +5,10 @@ const express = require('express');
 const formidable = require('formidable');
 const axios = require('axios');
 
-const { InvalidRequestError } = require('../errors');
+const {
+  ExternalImageNotFoundError,
+  InvalidRequestError
+} = require('../errors');
 
 const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
 const notFoundImage = fs.readFileSync(path.join(__basedir, '../assets', 'missing-image.jpg'));
@@ -116,7 +119,7 @@ function routes( { inventoryCommander, lotdb } ) {
 
             lot = await lotdb.getLotById( lotId );
 
-            await lot.addImage( { s3: s3Location, primary } )
+            await lot.addImage( { s3: s3Location, primary } );
 
           }
 
@@ -258,9 +261,11 @@ function routes( { inventoryCommander, lotdb } ) {
 
   async function proxy( req, res, next ) {
 
+    let url;
+
     try {
 
-      const url = decodeURIComponent( req.query.url );
+      url = decodeURIComponent( req.query.url );
 
       const urlResponse = await axios({
         method: 'get',
@@ -272,7 +277,7 @@ function routes( { inventoryCommander, lotdb } ) {
       urlReadStream.pipe( res );
     }
     catch (e) {
-      return next( e );
+      return next( new ExternalImageNotFoundError( url ));
     }
 
   }

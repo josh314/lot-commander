@@ -158,6 +158,7 @@ angular.module('myApp').factory( 'Lot', [
   'dbEnums',
   'ImageSvc',
   'ManifestFileHandlerSvc',
+  'PrintSvc',
   'ProductDataSvc',
 
   function(
@@ -166,6 +167,7 @@ angular.module('myApp').factory( 'Lot', [
     dbEnums,
     ImageSvc,
     ManifestFileHandlerSvc,
+    PrintSvc,
     ProductDataSvc
   ) {
 
@@ -406,9 +408,16 @@ angular.module('myApp').factory( 'Lot', [
         return $q.when( api.editLot( this._id, { shippingItems } ) ).then( ( { lot } ) => {
 
           this.shippingItems = lot.shippingItems;
+          this.packagingType = lot.packagingType;
 
           return this;
         });
+      }
+
+      printShippingItemsLabels() {
+
+        PrintSvc.printLotShippingItemsLabels( this._id );
+
       }
 
       inventoryItemHasErrors( item ) {

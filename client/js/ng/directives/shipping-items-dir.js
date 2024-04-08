@@ -6,11 +6,11 @@ angular.module('myApp').directive('shippingItemsDir', function(){
     templateUrl: '/partials/directives/_shipping_items.html',
     scope: {
       shippingItems: '=',
-      showEditingControls: '=',
+      showEditingControls: '<',
       editShippingItemsCb: '&',
-      showPrintControls: '=',
+      showPrintControls: '<',
       print: '&', // calls the expression in the directive attribute value (in the parent scope)
-      skipValidation: '=',
+      skipValidation: '<',
     },
     controller: [ '$scope', 'ModalSvc', function ( $scope, ModalSvc ) {
 

@@ -15,7 +15,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
   'LotSvc',
   'ModalSvc',
   'navigate',
-  'PrintSvc',
   'sessionTimeout',
 
   function(
@@ -28,7 +27,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     LotSvc,
     ModalSvc,
     navigate,
-    PrintSvc,
     sessionTimeout,
 
   ) {
@@ -71,12 +69,11 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           toggleShowShippingItems: () => vm.showShippingItems = !vm.showShippingItems,
 
 
-          configureListingForSubmission,
+          verifyListingAndNavigateToSubmission,
           scanItems,
           editManifest,
           linkManifestBlock,
           openGallery,
-          printShippingItemsLabels,
           generateManifestFileForScannedInventory,
           openRecentImageGallery,
           confirmAddLotImage,
@@ -199,6 +196,41 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       });
     };
 
+    function verifyListingAndNavigateToSubmission() {
+
+      if( vm.lot.hasListing() ) {
+        return ModalSvc.message( { header: 'Lot has listing', body: 'This lot already has a successfully submitted listing.' } );
+      }
+
+      if( !LoggedInUser.hasMarketplacePermission( vm.lot.destinationMarketplace ) ) {
+        let msg = `User is not authorized to submit to marketplace: ${vm.lot.destinationMarketplace}. Choose another marketplace.`;
+        return ModalSvc.message( { header: 'Unauthorized marketplace', body: msg , type: 'error' } );
+      }
+
+      const missingFields = [];
+      if( !vm.lot.handle ) {
+        missingFields.push('handle');
+      }
+      if( !vm.lot.packagingType ) {
+        missingFields.push('packaging type');
+      }
+      if( !vm.lot.numBoxes && !validateShippingItems() ) {
+        missingFields.push('shipping items');
+      }
+      if( missingFields.length ) {
+        let msg = `Must input the following data before submission: ${missingFields}`;
+        return ModalSvc.message( { header: 'Incomplete Lot', body: msg , type: 'error' } );
+      }
+
+      if ( !vm.lot.unmanifested && !vm.lot.manifestFileLocation && vm.lot.inventory.length === 0 ) { // marked as manifested but no manifest yet
+
+        return ModalSvc.message( { header: 'No manifest', body: 'This lot has not yet been manifested.' } );
+
+      }
+
+      return navigate.submitListing( vm.lot._id );
+    }
+
     async function deleteLot() {
 
       const isConfirmed = await ModalSvc.confirm( {
@@ -239,20 +271,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       LotSvc.generateManifest( vm.lot._id, true, false ).then( () => {
         navigate.reload();
       });
-
-    }
-
-    function printShippingItemsLabels() {
-
-      if( !vm.lot.shippingItems || vm.lot.shippingItems.length === 0 ) {
-        return ModalSvc.message( {
-          header: 'Nothing to print',
-          html: `<p>The split group <strong>${ vm.lot.label }</strong> has no shipping items configured.</p>`,
-          type: 'warning'
-        } );
-      }
-
-      PrintSvc.printLotShippingItemsLabels( vm.lot._id );
 
     }
 

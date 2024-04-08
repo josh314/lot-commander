@@ -64,8 +64,10 @@ const __DEFAULT_SPLIT_GROUP_LABEL_TYPES__ = [
   { value: 'SAL', name: 'SAL - Salvage', condition: 'salvage' },
   { value: 'PC', name: 'PC - Personal Care', category: 'personal care' },
   { value: 'GM', name: 'GM - General Merchandise', category: 'general merchandise' },
+  { value: 'AP', name: 'AP - Apparel/Clothing', category: 'clothing' },
   { value: 'LIQ', name: 'LIQ - Liquid' },
   { value: 'COS', name: 'COS - Cosmetics', category: 'cosmetics' },
+  { value: 'NP', name: 'NP - Nail Polish', category: 'cosmetics' },
   { value: null, name: 'Custom' },
 ];
 

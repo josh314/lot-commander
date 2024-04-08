@@ -22,7 +22,7 @@
       <button class="btn btn-primary btn-sm" ng-click="editShippingItems()">Edit Shipping Items</button>
     </span>
     <span ng-show="showPrintControls">
-      <button class="btn btn-primary btn-sm" ng-click="print()">Print Labels</button>
+      <button class="btn btn-primary btn-sm" ng-click="print()" ng-disabled="!shippingItems.length">Print Labels</button>
     </span>
   </div>
 </div>
