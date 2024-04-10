@@ -51,6 +51,8 @@ import "./js/ng/directives/upload-files-dir.js";
 
 // Angular controllers
 
+
+import "./js/ng/controllers/app-settings-ctrl.js";
 import "./js/ng/controllers/auctions-ctrl.js";
 import "./js/ng/controllers/change-user-password-ctrl.js";
 import "./js/ng/controllers/clean-manifest-ctrl.js";

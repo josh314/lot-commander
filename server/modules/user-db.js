@@ -7,6 +7,10 @@ const bcrypt   = require('bcryptjs');
 //=======================================
 
 const __USER_ROLE_PERMISSIONS__ = {
+  __APP_SETTINGS__: [
+    'EDIT_APP_SETTING',
+    'CREATE_APP_SETTING',
+  ],
   __AUCTIONS__: [
     'LIST_AUCTIONS',
     'SUBMIT_AUCTION'

@@ -8,8 +8,23 @@ const __PAGE_SIZE__ = 25;
 const __USER_SETTINGS_SUBKEY__ = 'shipment-list-page';
 
 /******************* Shipment List Page Controller *************************/
-angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'navigate', 'sessionTimeout', 'SettingsSvc', 'ShipmentManagerSvc',
-  function( LoggedInUser, navigate, sessionTimeout, SettingsSvc, ShipmentManagerSvc ) {
+angular.module('myApp').controller('ShipmentListCtrl', [
+
+  'LocalUserSettingsSvc',
+  'LoggedInUser',
+  'navigate',
+  'sessionTimeout',
+  'ShipmentManagerSvc',
+
+  function(
+
+    LocalUserSettingsSvc,
+    LoggedInUser,
+    navigate,
+    sessionTimeout,
+    ShipmentManagerSvc,
+
+  ) {
     sessionTimeout.timeoutExpired();
 
     const vm = this;
@@ -198,7 +213,7 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
     // Settings
 
     const loadUserSettings = () => {
-      const userSettings = SettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
+      const userSettings = LocalUserSettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
 
       if( userSettings ) {
 
@@ -227,9 +242,9 @@ angular.module('myApp').controller('ShipmentListCtrl', [ 'LoggedInUser', 'naviga
 
       }
 
-      const userSettings = SettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
+      const userSettings = LocalUserSettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
 
-      SettingsSvc.save(
+      LocalUserSettingsSvc.save(
         __USER_SETTINGS_SUBKEY__,
         userSettings ? Object.assign( userSettings, { activeColumns: activeColumns } ) : { activeColumns: activeColumns }
       );

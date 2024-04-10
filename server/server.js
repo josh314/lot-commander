@@ -229,6 +229,10 @@ class Server {
     const models = new ModelCommander( this.mongooseConnection );
     this.models = models;
 
+    // app settings
+    const AppSettingsCommander = require('./modules/app-settings');
+    const appSettings = new AppSettingsCommander( models.AppSetting );
+
     // Counter
     const CountCommander = require('./modules/count-commander');
     const countCommander = new CountCommander( models.Counter );
@@ -313,6 +317,7 @@ class Server {
     //======================================================
 
     const modules = {
+      appSettings,
       // bstock,
       countCommander,
       eventsDbClient,

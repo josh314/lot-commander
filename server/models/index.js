@@ -1,5 +1,5 @@
 
-
+const appSetting = require('./app-setting');
 const pkg = require('./package');
 const incomingShipment = require('./incoming-shipment');
 const inventoryPallet = require('./inventory-pallet');
@@ -16,10 +16,11 @@ class ModelCommander {
     this.conn = mongooseConnection;
 
     // initialize models
-    this.IncomingShipment = mongooseConnection.model('IncomingShipment', incomingShipment.schema);
-    this.Package = mongooseConnection.model('Package', pkg.schema);
-    this.Bundle = mongooseConnection.model('Bundle', bundle.schema);
-    this.InventoryPallet = mongooseConnection.model('InventoryPallet', inventoryPallet.schema);
+    this.AppSetting = mongooseConnection.model( 'AppSetting', appSetting.schema );
+    this.IncomingShipment = mongooseConnection.model( 'IncomingShipment', incomingShipment.schema );
+    this.Package = mongooseConnection.model( 'Package', pkg.schema );
+    this.Bundle = mongooseConnection.model( 'Bundle', bundle.schema );
+    this.InventoryPallet = mongooseConnection.model( 'InventoryPallet', inventoryPallet.schema );
     this.Lot = mongooseConnection.model( 'Lot', lot.schema );
     this.Counter = mongooseConnection.model( 'Counter', counter.schema );
     this.ShopifyOrder = mongooseConnection.model( 'ShopifyOrder', shopifyOrder.schema );

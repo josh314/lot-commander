@@ -14,6 +14,7 @@ const quickLots = require(path.join(__basedir, __config.modulesPath, 'quick-lots
 
 //routes
 function routes({
+  appSettings,
   // bstock,
   countCommander,
   eventsDbClient,
@@ -31,6 +32,8 @@ function routes({
 }) {
 
   const router = new express.Router();
+
+  router.use('/api/app-settings', require('./app-settings')( { appSettings } ) );
 
   router.use('/api/users', require('./users')( { users: userDbClient } ) );
 

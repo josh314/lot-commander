@@ -13,23 +13,23 @@ const __TODAY__ = dayjs().startOf('day');
 angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
 
   'InventoryPalletManagerSvc',
+  'LocalUserSettingsSvc',
   'LoggedInUser',
   'navigate',
   'PalletLotSvc',
   'palletProperties',
   'sessionTimeout',
-  'SettingsSvc',
   'ShipmentManagerSvc',
 
   function(
 
     InventoryPalletManagerSvc,
+    LocalUserSettingsSvc,
     LoggedInUser,
     navigate,
     PalletLotSvc,
     palletProperties,
     sessionTimeout,
-    SettingsSvc,
     ShipmentManagerSvc,
 
   ) {
@@ -189,7 +189,7 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
     }
 
     function loadUserSettings() {
-      const userSettings = SettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
+      const userSettings = LocalUserSettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
 
       if( userSettings ) {
 
@@ -218,9 +218,9 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
 
       }
 
-      const userSettings = SettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
+      const userSettings = LocalUserSettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
 
-      SettingsSvc.save(
+      LocalUserSettingsSvc.save(
         __USER_SETTINGS_SUBKEY__,
         userSettings ? Object.assign( userSettings, { activeColumns: activeColumns } ) : { activeColumns: activeColumns }
       );

@@ -49,12 +49,12 @@ function conditionTag( lotType ) {
 angular.module('myApp').controller( 'SubmitListingCtrl', [
 
   '$scope',
+  'AppSettingsSvc',
   // 'bstockFormConstants',
   'dbEnums',
   'ListingsSvc',
   'LoggedInUser',
   'LotSvc',
-  'MiscConst',
   'ModalSvc',
   'navigate',
   'sessionTimeout',
@@ -63,12 +63,12 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
   function(
 
     $scope,
+    AppSettingsSvc,
     // bstockFormConstants,
     dbEnums,
     ListingsSvc,
     LoggedInUser,
     LotSvc,
-    MiscConst,
     ModalSvc,
     navigate,
     sessionTimeout,
@@ -217,6 +217,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
           ShippingItemsSvc.setPackagingTypeFromShippingItems( vm.lot );
 
         })
+        .then( () => AppSettingsSvc.getDefaultPriceValuePercentage().then( _defaultPriceValuePercentage => vm.defaultPriceValuePercentage = _defaultPriceValuePercentage ) )
         .then( setListingDefaultsFromLot )
         .then( initializeCollageControls )
         .then( resetPrimaryImageWatchers );
@@ -273,7 +274,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
     function setListingDefaultsFromLot() {
 
       vm.allowEditPricingData = LoggedInUser.hasPermission( 'EDIT_PRICING_DATA' ) || !vm.lot.estimatedRetailValue;
-      vm.priceValuePercentage = vm.lot.priceValuePercentage || MiscConst.__DEFAULT_LOT_PRICE_VALUE_PCT__;
+      vm.priceValuePercentage = vm.lot.priceValuePercentage || vm.defaultPriceValuePercentage;
 
       setShopifyCollectionsFromLot();
 

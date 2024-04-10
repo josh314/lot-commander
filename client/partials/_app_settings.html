@@ -1,0 +1,47 @@
+<div class="container" ng-controller="AppSettingsCtrl as $ctrl">
+	<div class="row well">
+		<h2>App settings</h2>
+
+    <div>
+
+      <table class="table table-striped">
+        <thead><tr>
+          <th>Name</th>
+          <th>Value</th>
+          <th></th>
+        </tr></thead>
+        <tbody>
+
+          <tr ng-repeat="$setting in $ctrl.settings track by $index">
+
+            <td>
+              <strong>
+                {{ $setting.displayName }}
+              </strong>
+            </td>
+            <td ng-switch="$setting.type">
+              <span class="col-xs-3" ng-switch-when="number">
+                <input class="form-control" type="number" ng-model="$setting.editValue" ng-disabled="$setting.disableEditValue()" ng-change="$setting.isSaved = false"/>
+              </span>
+              <span class="col-xs-3" ng-switch-default>
+                <input class="form-control" type="text" ng-model="$setting.editValue" ng-disabled="$setting.disableEditValue()" ng-change="$setting.isSaved = false"/>
+              </span>
+            </td>
+            <td>
+              <span ng-show="$setting.showEditControls()">
+                <button class="btn btn-xs btn-danger" ng-click="$setting.updateValue()">Save</button>
+                <button class="btn btn-xs btn-warning" ng-click="$setting.reset()">Reset</button>
+              </span>
+              <span ng-show="$setting.isSaved">
+                <span class="glyphicon glyphicon-ok"></span> <span class="text-success">Saved!</span>
+              </span>
+            </td>
+
+          </tr>
+
+        </tbody>
+
+    </div>
+
+  </div>
+</div>

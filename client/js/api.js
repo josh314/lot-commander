@@ -21,6 +21,43 @@ function getPopulateQueryParamsObject( populateArray = [] ) {
 
 
 /*************************************************
+* App settings
+* ======================
+*
+************/
+
+export function listAppSettings() {
+
+  return axios({
+    method: 'get',
+    url: `/api/app-settings`
+  })
+    .then( resp => resp.data.settings );
+
+}
+
+export function getAppSettingByName( name ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/app-settings/${ name }`
+  })
+    .then( resp => resp.data.setting );
+
+}
+
+export function setAppSettingValue( name, value ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/app-settings/${ name }`,
+    data: { value }
+  })
+    .then( resp => resp.data  );
+
+}
+
+/*************************************************
 * Lot-db and Manifest-db
 * ======================
 *

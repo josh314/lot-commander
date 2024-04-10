@@ -90,6 +90,10 @@ const stateData = [
   { name: "main.store.content", navParent: 'Store', navName: 'Content', url: '/content', templateUrl: '/partials/_store_content.html', userPermission: 'EDIT_STORE_CONTENT' },
   { name: "main.store.bundles", navParent: 'Store', navName: 'Bundles', url: '/bundles', templateUrl: '/partials/_product_bundles.html', userPermission: 'EDIT_STORE_CONTENT' },
 
+  // App settings
+  { name: "main.app-settings", abstract: true, url: '/app-settings', templateUrl: '/partials/_container.html' },
+  { name: "main.app-settings.list", navParent: 'Store', navName: 'App', url: '/', templateUrl: '/partials/_app_settings.html', userPermission: 'EDIT_APP_SETTING' },
+
   // users
   { name: "main.users", abstract:true, url: "/users", templateUrl: 'partials/_container.html'},
   { name: "main.users.list", navName: "List", navParent: "Users", url: "/list", templateUrl: 'partials/users/_list_users.html', userPermission: 'VIEW_USER' },
@@ -270,10 +274,6 @@ angular.module('myApp').constant( 'StandardManifestColumnsConst', {
   __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__,
   columns: __STANDARD_MANIFEST_COLUMNS__,
   displayColumns: __STANDARD_MANIFEST_DISPLAY_COLUMNS__,
-});
-
-angular.module('myApp').constant( 'MiscConst', {
-  __DEFAULT_LOT_PRICE_VALUE_PCT__: 20,
 });
 
 //************************************************************************

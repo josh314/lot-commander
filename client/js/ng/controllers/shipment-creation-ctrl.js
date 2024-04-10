@@ -60,10 +60,10 @@ class ShipmentValidator {
 /******************* Shipment Creation Page Controller *************************/
 angular.module('myApp').controller( 'ShipmentCreationCtrl', [
 
+  'AppSettingsSvc',
   'FileModelSvc',
   'LoggedInUser',
   'ManifestFileHandlerSvc',
-  'MiscConst',
   'ModalSvc',
   'navigate',
   'palletProperties',
@@ -72,10 +72,10 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
 
   function(
 
+    AppSettingsSvc,
     FileModelSvc,
     LoggedInUser,
     ManifestFileHandlerSvc,
-    MiscConst,
     ModalSvc,
     navigate,
     palletProperties,
@@ -87,57 +87,64 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
     sessionTimeout.timeoutExpired();
 
     const vm = this;
-    vm.showRestrictedDocuments = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
-    vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
-    vm.showPricingData = LoggedInUser.hasPermission('VIEW_PRICING_DATA');
-    vm.allowEditPricingData = LoggedInUser.hasPermission('EDIT_PRICING_DATA');
+    init();
 
-    vm.inputs = {
-      isPaidFor: null,
-      priceValuePercentage: MiscConst.__DEFAULT_LOT_PRICE_VALUE_PCT__,
-      categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _ === 'general merchandise' ? 'GM' : _, value: _ } ) ) ),
-      conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _ === 'customer returns' ? 'returns' : _, value: _ } ) ) ),
-      documentTypeOptions: ShipmentManagerSvc.shipmentDocumentTypes.map( _ => _ === '' ? { displayName: 'none', value: _ } : { displayName: _, value: _ } ),
-      category: null,
-      condition: 'shelf-pull',
-      documentToAdd: initDocumentToAdd(),
-      documents: [],
-      pallets: [],
-      numAnonymousPallet: '',
-      palletLevelCosts: false,
-      checkCosts: vm.showPurchasingData
-    };
-    vm.validator = new ShipmentValidator();
+    function init() {
 
-    vm.refreshValidator = refreshValidator;
-    vm.checkShipmentHandle = checkShipmentHandle;
-    vm.isManifestFile = isManifestFile;
-    vm.preloadDocument = preloadDocument;
-    vm.addDocument = addDocument;
-    vm.validateDocumentType = validateDocumentType;
-    vm.removeDocument = removeDocument;
-    vm.setPalletCosts = setPalletCosts;
-    vm.setShipmentCost = setShipmentCost;
-    vm.clearShipmentCategory = ( ) => vm.inputs.category = null;
-    vm.setPalletCategories = ( ) => {
-      if( vm.inputs.category ) {
-        vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
-      }
-    };
-    vm.clearShipmentCondition = ( ) => vm.inputs.condition = null;
-    vm.setPalletConditions = ( ) => {
-      if( vm.inputs.condition ) {
-        vm.inputs.pallets.forEach( p => p.condition = vm.inputs.condition );
-      }
-    };
-    vm.clearPalletUnits = ( ) => vm.inputs.pallets.forEach( p => delete p.units );
-    vm.setAllPalletsToBeListed = _toBeListed => vm.inputs.pallets.forEach( p => p.toBeListed = _toBeListed );
-    vm.setAllPalletsToBeProcessed = _toBeProcessed => vm.inputs.pallets.forEach( p => p.toBeProcessed = _toBeProcessed );
-    vm.addPallet = () => addPallet({ category: vm.inputs.category, condition: vm.inputs.condition });
-    vm.removePallet = removePallet;
-    vm.addAnonymousPallets = addAnonymousPallets;
-    vm.importPalletsFromManifest = importPalletsFromManifest;
-    vm.createShipment = createShipment;
+      vm.showRestrictedDocuments = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+      vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
+      vm.showPricingData = LoggedInUser.hasPermission('VIEW_PRICING_DATA');
+      vm.allowEditPricingData = LoggedInUser.hasPermission('EDIT_PRICING_DATA');
+
+      vm.inputs = {
+        isPaidFor: null,
+        categoryOptions: [ { displayName: "none", value: null } ].concat( palletProperties.category.map( _ => ( { displayName: _ === 'general merchandise' ? 'GM' : _, value: _ } ) ) ),
+        conditionOptions: [ { displayName: "none", value: null } ].concat( palletProperties.condition.map( _ => ( { displayName: _ === 'customer returns' ? 'returns' : _, value: _ } ) ) ),
+        documentTypeOptions: ShipmentManagerSvc.shipmentDocumentTypes.map( _ => _ === '' ? { displayName: 'none', value: _ } : { displayName: _, value: _ } ),
+        category: null,
+        condition: 'shelf-pull',
+        documentToAdd: initDocumentToAdd(),
+        documents: [],
+        pallets: [],
+        numAnonymousPallet: '',
+        palletLevelCosts: false,
+        checkCosts: vm.showPurchasingData
+      };
+      vm.validator = new ShipmentValidator();
+
+      vm.refreshValidator = refreshValidator;
+      vm.checkShipmentHandle = checkShipmentHandle;
+      vm.isManifestFile = isManifestFile;
+      vm.preloadDocument = preloadDocument;
+      vm.addDocument = addDocument;
+      vm.validateDocumentType = validateDocumentType;
+      vm.removeDocument = removeDocument;
+      vm.setPalletCosts = setPalletCosts;
+      vm.setShipmentCost = setShipmentCost;
+      vm.clearShipmentCategory = ( ) => vm.inputs.category = null;
+      vm.setPalletCategories = ( ) => {
+        if( vm.inputs.category ) {
+          vm.inputs.pallets.forEach( p => p.category = vm.inputs.category );
+        }
+      };
+      vm.clearShipmentCondition = ( ) => vm.inputs.condition = null;
+      vm.setPalletConditions = ( ) => {
+        if( vm.inputs.condition ) {
+          vm.inputs.pallets.forEach( p => p.condition = vm.inputs.condition );
+        }
+      };
+      vm.clearPalletUnits = ( ) => vm.inputs.pallets.forEach( p => delete p.units );
+      vm.setAllPalletsToBeListed = _toBeListed => vm.inputs.pallets.forEach( p => p.toBeListed = _toBeListed );
+      vm.setAllPalletsToBeProcessed = _toBeProcessed => vm.inputs.pallets.forEach( p => p.toBeProcessed = _toBeProcessed );
+      vm.addPallet = () => addPallet({ category: vm.inputs.category, condition: vm.inputs.condition });
+      vm.removePallet = removePallet;
+      vm.addAnonymousPallets = addAnonymousPallets;
+      vm.importPalletsFromManifest = importPalletsFromManifest;
+      vm.createShipment = createShipment;
+
+      return AppSettingsSvc.getDefaultPriceValuePercentage().then( _defaultPriceValuePercentage => vm.inputs.priceValuePercentage = _defaultPriceValuePercentage );
+
+    }
 
     function setPalletCosts() {
 

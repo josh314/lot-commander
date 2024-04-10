@@ -13,26 +13,26 @@ angular.module('myApp').controller( 'PackagesCtrl', [
   'AudioAlertSvc',
   'dbEnums',
   'focus',
+  'LocalUserSettingsSvc',
   'LoggedInUser',
   'ModalSvc',
   'navigate',
   'PackageSvc',
   'PrintSvc',
   'sessionTimeout',
-  'SettingsSvc',
 
   function(
 
     AudioAlertSvc,
     dbEnums,
     focus,
+    LocalUserSettingsSvc,
     LoggedInUser,
     ModalSvc,
     navigate,
     PackageSvc,
     PrintSvc,
     sessionTimeout,
-    SettingsSvc,
 
   ) {
 
@@ -135,9 +135,9 @@ angular.module('myApp').controller( 'PackagesCtrl', [
 
       }
 
-      const userSettings = SettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
+      const userSettings = LocalUserSettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
 
-      SettingsSvc.save(
+      LocalUserSettingsSvc.save(
         __USER_SETTINGS_SUBKEY__,
         userSettings ? Object.assign( userSettings, { activeColumns: activeColumns } ) : { activeColumns: activeColumns }
       );
@@ -145,7 +145,7 @@ angular.module('myApp').controller( 'PackagesCtrl', [
     }
 
     function loadUserSettings() {
-      const userSettings = SettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
+      const userSettings = LocalUserSettingsSvc.get( __USER_SETTINGS_SUBKEY__ );
 
       if( userSettings ) {
 
