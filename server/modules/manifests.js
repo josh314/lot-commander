@@ -3,7 +3,6 @@ const path = require('path');
 const documentSvc = require('./document-svc');
 const manifestSvc = require('./manifest-svc');
 
-const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
 const xlsx = require( 'xlsx-js-style' );
@@ -17,7 +16,15 @@ const __STANDARD_COLUMN_NAMES__ = {
 };
 const __STANDARD_COLUMNS__ = Object.values(__STANDARD_COLUMN_NAMES__);
 
-module.exports = function( { lotdb } ) {
+module.exports = function( { lotdb, manifestDb } ) {
+
+  function getManifestById( manifestId ) {
+    return manifestDb.getManifestById( manifestId );
+  }
+
+  function saveManifest( manifest ) {
+    return manifestDb.saveManifest( manifest );
+  }
 
   function getProductData(inventory) {
     console.log(`Retreiving API product data for ${inventory.length} products`);
@@ -137,7 +144,7 @@ module.exports = function( { lotdb } ) {
       opts.defaultProductTitle = defaultProductTitleForLot(lot.handle);
     }
 
-    const scannedManifestP = lot.manifestId ? mandb.getManifestById(lot.manifestId).then(m => m.toObject().inventory) : Promise.resolve([]);
+    const scannedManifestP = lot.manifestId ? manifestDb.getManifestById( lot.manifestId ).then(m => m.toObject().inventory) : Promise.resolve([]);
     return scannedManifestP.then( (scannedInventory) => {
       return buildManifestItems( scannedInventory , opts );
     });
@@ -263,8 +270,14 @@ module.exports = function( { lotdb } ) {
   }
 
   return {
-    getManifestItemsForLot: getManifestItemsForLot,
-    generateLotManifest: generateLotManifest,
+
+    // pass through from manifestDb
+    getManifestById,
+    saveManifest,
+
+    // manifest processing/parsing
+    getManifestItemsForLot,
+    generateLotManifest,
     // CONSTANTS
     __STANDARD_BARCODE_COLUMN__: __STANDARD_COLUMN_NAMES__.barcode,
     __STANDARD_COLUMNS__: __STANDARD_COLUMNS__

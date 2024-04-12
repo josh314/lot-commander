@@ -15,7 +15,6 @@ const {
 } = require('../errors');
 
 const manifestSvc = require(path.join(__basedir, __config.modulesPath, 'manifest-svc'));
-const mandb = require(path.join(__basedir, __config.modulesPath, 'manifest-db'));
 
 module.exports = routes;
 
@@ -56,7 +55,7 @@ function listLotsFilterParamsFromQueryParams( qp ) {
  *
  **********/
 
-function routes({ inventoryCommander, lotdb }) {
+function routes({ inventoryCommander, lotdb, manifests }) {
   const router = new express.Router();
 
   /*******************************************
@@ -247,7 +246,7 @@ function routes({ inventoryCommander, lotdb }) {
     try {
 
       const manifestId = req.params.manifestId;
-      const manifest = await mandb.getManifestById( manifestId );
+      const manifest = await manifests.getManifestById( manifestId );
 
       res.json({ manifest });
 
@@ -377,7 +376,7 @@ function routes({ inventoryCommander, lotdb }) {
           inventory,
         };
 
-        const manifest = await mandb.submitManifest( _data );
+        const manifest = await manifests.saveManifest( _data );
 
         if(manifest) {
 

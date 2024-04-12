@@ -241,6 +241,10 @@ class Server {
     const LotDbClient = require('./modules/lot-db-client').Client;
     const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'))( new LotDbClient( Object.assign( { countCommander }, models ) ) );
 
+    // Managing scanned inventory manifest db entries
+    const ManifestDbClient = require('./modules/manifest-db-client');
+    const manifestDb = new ManifestDbClient( models.Manifest );
+
     // Inventory commander - pallets, shipments
     const InventoryCommander = require('./modules/inventory-commander');
     const inventoryCommander = new InventoryCommander( Object.assign( { countCommander } , models ) );
@@ -258,8 +262,8 @@ class Server {
     const storeMetafieldSchemaDb = new StoreMetafieldSchemaDb.Client( { mongooseConnection: this.mongooseConnection } );
 
 
-    // Old-style scanned lot manifests
-    const manifests = require('./modules/manifests')( { lotdb } );
+    // scanned invnetory lot manifests functionality
+    const manifests = require('./modules/manifests')( { lotdb, manifestDb } );
 
     // Bstock module
     // const bstock = require( './modules/bstock' );
