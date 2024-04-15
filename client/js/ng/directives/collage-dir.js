@@ -116,9 +116,6 @@ angular.module('myApp').controller( 'CollageDirCtrl', [
       }
 
       clearDisplay();
-      if( $scope.doRender ) {
-        renderAndWait();
-      }
 
     }
 

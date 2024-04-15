@@ -1,6 +1,6 @@
 import angular from 'angular';
 
-const __NUM_INITIAL_COLLAGES__ = 3;
+const __NUM_INITIAL_COLLAGES__ = 1;
 
 function defaultTags( lot ) {
 
@@ -15,8 +15,8 @@ function defaultTags( lot ) {
   };
 
   const match = lot.handle.match(/^([a-zA-Z]{2})/);
-  if(match && match[1] && handleTags[match[1]]) {
-    tags.push(handleTags[match[1]]);
+  if( match && match[1] && handleTags[ match[1] ] ) {
+    tags.push( handleTags[ match[1] ] );
   }
 
   if( lot.category && !tags.find( _tag => _tag === lot.category ) ) {
