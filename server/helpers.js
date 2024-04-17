@@ -1,6 +1,8 @@
+
 module.exports = {
   appendPopulationQueries,
   arrayOfScalarsIsEqual,
+  getRandomArrayIndex,
   snake2Camel,
   populationPathsFromQuery,
   setPackagingTypeFromShippingItems,
@@ -11,6 +13,11 @@ module.exports = {
  * ========================
  *
  *********/
+
+
+function getRandomArrayIndex( arr ) {
+  return Math.floor(Math.random() * arr.length ); // 0 <= Math.random() < 1
+}
 
 function snake2Camel( str ) {
   return str.split('_').map( (s, idx) => idx ? s.slice(0,1).toUpperCase() + s.slice(1) : s ).join('');

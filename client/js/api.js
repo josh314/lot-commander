@@ -958,6 +958,15 @@ export function removePalletSplitGroupImage( palletId, splitGroupId, image ) {
     .then( resp => resp.data );
 }
 
+export function renderLotCollage( lotId ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/lots/${lotId}/images/render-collage`,
+  })
+    .then( resp => resp.data );
+}
+
 
 /*************************************************
 * Manual Inventory

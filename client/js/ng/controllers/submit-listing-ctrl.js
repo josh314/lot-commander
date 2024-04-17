@@ -318,18 +318,6 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
 
     async function initializeCollages() {
 
-      let productImages = [];
-
-      if( vm.lot && vm.lot.inventory && vm.lot.inventory.length ) {
-        const inventory = vm.lot.getInventorySortedByBarcode();
-        productImages = inventory.map( _ => ({ upc: _.barcode, title: _.description, images: _.images }) );
-      }
-      else if( vm.lot.manifestFileLocation ) {
-        productImages = await vm.lot.getProductImagesFromManifestFile();
-      }
-
-      vm.productImages = productImages;
-
       for( let i=0; i<__NUM_INITIAL_COLLAGES__; i++ ) {
         addCollage();
       }

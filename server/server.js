@@ -245,6 +245,19 @@ class Server {
     const ManifestDbClient = require('./modules/manifest-db-client');
     const manifestDb = new ManifestDbClient( models.Manifest );
 
+    // Product data
+    const UpcItemDbClient = require( './modules/upc-item-db' );
+    const upcItemDb = new UpcItemDbClient( {
+      connection: this.mongooseConnection,
+      settings: this.config.upcItemDb
+    } );
+
+    const ProductData = require( './modules/product-data' );
+    const productData = new ProductData( { upcItemDb, mongo: this.mongooseConnection.db } );
+
+    // Manifests module
+    const manifests = require('./modules/manifests')( { lotdb, manifestDb, productData } );
+
     // Inventory commander - pallets, shipments
     const InventoryCommander = require('./modules/inventory-commander');
     const inventoryCommander = new InventoryCommander( Object.assign( { countCommander } , models ) );
@@ -260,10 +273,6 @@ class Server {
     // Store metafield schema db
     const StoreMetafieldSchemaDb = require('./modules/store-metafield-schema-db');
     const storeMetafieldSchemaDb = new StoreMetafieldSchemaDb.Client( { mongooseConnection: this.mongooseConnection } );
-
-
-    // scanned invnetory lot manifests functionality
-    const manifests = require('./modules/manifests')( { lotdb, manifestDb } );
 
     // Bstock module
     // const bstock = require( './modules/bstock' );
@@ -301,17 +310,6 @@ class Server {
       shopifyAdminClient,
       manifests
     } );
-
-    // Product data
-
-    const UpcItemDbClient = require( './modules/upc-item-db' );
-    const upcItemDb = new UpcItemDbClient( {
-      connection: this.mongooseConnection,
-      settings: this.config.upcItemDb
-    } );
-
-    const ProductData = require( './modules/product-data' );
-    const productData = new ProductData( { upcItemDb, mongo: this.mongooseConnection.db } );
 
     const FulfillmentCommander = require( './modules/fulfillment-commander' );
     const fulfillmentCommander = new FulfillmentCommander( Object.assign( { inventoryCommander, lotdb, shopifyOrders, shopifyAdminClient } , models ) );

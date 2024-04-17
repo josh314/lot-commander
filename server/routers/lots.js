@@ -9,6 +9,7 @@ const formidable = require('formidable');
 
 const auth = require('../auth');
 const helpers = require('../helpers');
+const collage = require('../modules/collage');
 const {
   ChildResourceNotFoundError,
   ResourceNotFoundError
@@ -125,6 +126,10 @@ function routes({ inventoryCommander, lotdb, manifests }) {
     '/:lotId/images/',
     auth.isAuthorized( 'EDIT_LOT' ),
     addImages
+  );
+  router.post(
+    '/:lotId/images/render-collage',
+    renderCollage
   );
   router.post(
     '/:lotId/images/:imageId',
@@ -506,6 +511,47 @@ function routes({ inventoryCommander, lotdb, manifests }) {
       const lot = await lotdb.generateLotNumber( lotId );
 
       res.json( { lot } );
+
+    }
+    catch(e) {
+      return next( e );
+    }
+
+  }
+
+  async function renderCollage( req, res, next ) {
+
+    try {
+
+      const { lotId } = req.params;
+
+      const lot = await lotdb.getLotById( lotId );
+
+      if( !lot ) {
+        throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
+      }
+
+      const manifestItems = await manifests.getManifestItemsForLot( lot );
+
+      let imageUrls = [];
+      if( manifestItems && manifestItems.length ) {
+
+        imageUrls = manifestItems.filter(_item => Array.isArray( _item.Image ) ).map( _item => _item.Image[ helpers.getRandomArrayIndex( _item.Image ) ] ).filter( _ => _ );
+
+      }
+      else {
+
+        throw new ChildResourceNotFoundError( {
+          parentType: 'lot',
+          parentId: lotId,
+          childType: 'manifest',
+        } );
+
+      }
+
+      const { image } = await collage.createCollageFromProductImageList( imageUrls, { randomize: true } );
+
+      res.json({ image });
 
     }
     catch(e) {

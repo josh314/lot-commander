@@ -182,5 +182,7 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
       filename: imageObj.filename,
       primary: imageObj.primary
     });
+
+    svc.renderLotCollage = lotId => $q.when( api.renderLotCollage( lotId ) );
   }
 ]);

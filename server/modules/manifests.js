@@ -1,9 +1,5 @@
-const path = require('path');
-
 const documentSvc = require('./document-svc');
 const manifestSvc = require('./manifest-svc');
-
-const productData = require(path.join(__basedir, __config.modulesPath, 'product-data'));
 
 const xlsx = require( 'xlsx-js-style' );
 
@@ -16,7 +12,7 @@ const __STANDARD_COLUMN_NAMES__ = {
 };
 const __STANDARD_COLUMNS__ = Object.values(__STANDARD_COLUMN_NAMES__);
 
-module.exports = function( { lotdb, manifestDb } ) {
+module.exports = function( { lotdb, manifestDb, productData } ) {
 
   function getManifestById( manifestId ) {
     return manifestDb.getManifestById( manifestId );
@@ -137,7 +133,7 @@ module.exports = function( { lotdb, manifestDb } ) {
   function getManifestItemsForLot(lot, opts={}) {
 
     if( lot.pallet ) {
-      return getManifestItemsForPallet( lot.pallet );
+      return getManifestItemsForPallet( lot.pallet, true );
     }
 
     if(!opts.defaultProductTitle) {
@@ -151,7 +147,7 @@ module.exports = function( { lotdb, manifestDb } ) {
   }
 
   // Converts the saved excel file manifest into a json array of row objects
-  async function getManifestItemsForPallet( pallet ) {
+  async function getManifestItemsForPallet( pallet, getProductData = false ) {
 
     let manifestItems = [];
 
@@ -188,6 +184,22 @@ module.exports = function( { lotdb, manifestDb } ) {
 
       const rows = xlsx.utils.sheet_to_json( data, sheetParseOpts );
 
+      let productImagesMap;
+      if( getProductData ) {
+
+        const barcodes = rows.filter( _row => _row[ __STANDARD_COLUMN_NAMES__.barcode ] ).map( _row => _row[ __STANDARD_COLUMN_NAMES__.barcode ].replace( "'", "" ) );
+
+        const productDataArray = await productData.bulkGetProductData( barcodes );
+
+        productImagesMap = productDataArray.reduce( ( acc, _productData ) => {
+          if( _productData.item ) {
+            acc.set( _productData.upc, _productData.item.images );
+          }
+          return acc;
+        }, new Map() );
+
+      }
+
       manifestItems = rows.map( _row => {
 
         for( let [ key, value ] of Object.entries( _row ) ) {
@@ -201,8 +213,13 @@ module.exports = function( { lotdb, manifestDb } ) {
 
         }
 
+        if( productImagesMap && productImagesMap.has( _row[ __STANDARD_COLUMN_NAMES__.barcode ] ) ) {
+          _row[ __STANDARD_COLUMN_NAMES__.image ] = productImagesMap.get( _row[ __STANDARD_COLUMN_NAMES__.barcode ] );
+        }
+
         return _row;
       } );
+
     }
 
     return manifestItems;

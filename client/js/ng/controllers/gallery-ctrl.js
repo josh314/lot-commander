@@ -92,8 +92,6 @@ angular.module('myApp').controller('GalleryCtrl', [
 
     function populateGalleryImages( productImages ) {
 
-      vm.productImages = productImages;
-
       for(let i=0; i<productImages.length; i++) {
 
         const { upc, title, images } = productImages[i];
