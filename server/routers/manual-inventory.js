@@ -1,6 +1,7 @@
 const express = require('express');
 const dayjs = require('dayjs');
 
+const { populationPathsFromQuery } = require('../helpers');
 const auth = require('../auth');
 
 module.exports = routes;
@@ -9,7 +10,7 @@ module.exports = routes;
 /**********************************************
  * Helpers
  * =======
- * 
+ *
  *********/
 
 const listManualInventoryFilterParamsFromQueryParams = ( qp ) => {
@@ -39,34 +40,13 @@ const listManualInventoryFilterParamsFromQueryParams = ( qp ) => {
   return fp;
 };
 
-const populationPaths = qps => {
-
-  const populationPaths = [];
-
-  for( let [ key, value ] of Object.entries( qps ) ) {
-
-    const m = key.match(/^populate_(.*)/);
-
-    if( m && parseInt(value) ) {
-
-      populationPaths.push( m[1] );
-
-    }
-
-  }
-
-  return populationPaths;
-
-};
-
-
 function routes({ manualInventoryDb }) {
   const router = new express.Router();
 
   /*******************************************
    * Register route handlers
    * ======
-   * 
+   *
    ****/
 
   // Read
@@ -107,7 +87,7 @@ function routes({ manualInventoryDb }) {
   /*******************************************
    * Define Handlers
    * ===============
-   * 
+   *
    ****/
 
 
@@ -115,7 +95,7 @@ function routes({ manualInventoryDb }) {
 
     const numPage = parseInt( req.query.num ) || 10;
     const page = parseInt( req.query.page ) || 1;
-  
+
     const query = {
       // paging
       skip: ( page - 1 ) * numPage,
@@ -129,7 +109,7 @@ function routes({ manualInventoryDb }) {
       filterParams: listManualInventoryFilterParamsFromQueryParams( req.query ),
 
       // populate options
-      populate: populationPaths( req.query ),
+      populate: populationPathsFromQuery( req.query ),
     };
 
     const manualInventoryDocuments = await manualInventoryDb.listManualInventory(query);
@@ -142,11 +122,11 @@ function routes({ manualInventoryDb }) {
   }
 
   async function countManualInventory( req, res ) {
-  
+
     const count = await manualInventoryDb.countManualInventory( listManualInventoryFilterParamsFromQueryParams( req.query ) );
 
     res.json({ count: count });
-    
+
   }
 
 
@@ -154,7 +134,7 @@ function routes({ manualInventoryDb }) {
 
     const inventoryId = req.params.inventoryId;
 
-    const populate = populationPaths( req.query );
+    const populate = populationPathsFromQuery( req.query );
     const includeDeleted = !!req.query.include_deleted;
 
     const inventory = await manualInventoryDb.getManualInventoryById( inventoryId, { populate, includeDeleted } );
@@ -209,7 +189,7 @@ function routes({ manualInventoryDb }) {
   /**************************************
    * Return routes
    * =============
-   * 
+   *
    ************/
   return router;
 

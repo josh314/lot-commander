@@ -54,7 +54,7 @@
     "less": "^4.2.0",
     "less-loader": "^11.1.4",
     "mini-css-extract-plugin": "^2.7.7",
-    "mongoose": "^5.11.9",
+    "mongoose": "^6.12.8",
     "morgan": "^1.10.0",
     "ngstorage": "^0.3.11",
     "passport": "^0.6.0",

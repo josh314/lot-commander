@@ -107,11 +107,8 @@ function appendPopulationQueries( query, populationPaths ) {
     }
   }
 
-  for( let _po of pathObjects ) {
-    query = query.populate( _po );
-  }
+  return query.populate( pathObjects );
 
-  return query;
 }
 
 

@@ -556,11 +556,7 @@ class InventoryCommander {
 
     if( populate ) {
 
-      for( let path of populate ) {
-
-        q = q.populate( path );
-
-      }
+      q = appendPopulationQueries( q, populate );
 
     }
 

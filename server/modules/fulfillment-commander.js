@@ -337,7 +337,7 @@ class FulfillmentCommander {
       await newShopifyOrderPick.save();
 
       order.orderPick = newShopifyOrderPick._id;
-      await order.save().then( _order => _order.populate( 'orderPick' ).execPopulate() );
+      await order.save().then( _order => _order.populate( 'orderPick' ) );
 
     }
 

@@ -154,11 +154,7 @@ exports.Client = function( { Lot, countCommander } ) {
 
     if( populate ) {
 
-      for( let path of populate ) {
-
-        q = q.populate( path );
-
-      }
+      q = helpers.appendPopulationQueries( q, populate );
 
     }
 
@@ -177,11 +173,7 @@ exports.Client = function( { Lot, countCommander } ) {
 
     if( populate ) {
 
-      for( let path of populate ) {
-
-        q = q.populate( path );
-
-      }
+      q = helpers.appendPopulationQueries( q, populate );
 
     }
 

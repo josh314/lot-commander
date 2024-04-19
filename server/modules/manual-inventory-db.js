@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
 
+const { appendPopulationQueries } = require('../helpers');
 const { ResourceNotFoundError } = require('../errors');
 
 /************************************************
  * Helpers
  * =======
- * 
+ *
  *********/
 
 
@@ -41,10 +42,10 @@ const manualInventoryQueryFilter = ( { includeDeleted, startDate, endDate, group
 
 
 /************************************************
- * 
+ *
  * Mongoose data models
  * ====================
- * 
+ *
  ****/
 
 // ManualInventory
@@ -82,7 +83,7 @@ const manualInventorySchema = mongoose.Schema({
 
 /***********************
  * pre-save hook
- * 
+ *
  ******/
 manualInventorySchema.pre( 'save', function(next) {
 
@@ -95,7 +96,7 @@ manualInventorySchema.pre( 'save', function(next) {
 
 /***********************
  * ManualInventory methods
- * 
+ *
  ******/
 
 manualInventorySchema.methods.delete = function() {
@@ -109,7 +110,7 @@ manualInventorySchema.methods.edit = function( data ) {
 };
 
 manualInventorySchema.methods.addGroup = function( grp ) {
-  
+
   if( ! this.groups.includes( grp ) ) {
 
     this.groups.push( grp );
@@ -122,10 +123,10 @@ manualInventorySchema.methods.addGroup = function( grp ) {
 // TODO: delete group
 
 /************************************************
- * 
+ *
  * Public Database Client
  * ======================
- * 
+ *
  ****/
 
 
@@ -135,11 +136,11 @@ class ManualInventoryDbClient {
 
     // initialize models
     this.ManualInventory = mongooseConnection.model('ManualInventory', manualInventorySchema);
-    
+
   }
 
 
-  listManualInventory( { num, skip, sort, sortDir, filterParams, populate = []  } ) {
+  listManualInventory( { num, skip, sort, sortDir, filterParams, populate } ) {
 
     const filter = manualInventoryQueryFilter(filterParams);
 
@@ -150,7 +151,7 @@ class ManualInventoryDbClient {
     else {
       sortField = 'reportDate';
     }
-  
+
     const sortParams = {
       [ sortField ] : sortDir || 1
     };
@@ -158,14 +159,12 @@ class ManualInventoryDbClient {
 
     let q = this.ManualInventory.find( filter ).skip( skip || 0 ).limit( num || 20 ).sort( sortParams );
 
-    for( let path of populate ) {
-
-      q = q.populate( path );
-
+    if( populate ) {
+      q = appendPopulationQueries( q, populate );
     }
 
     return q.exec();
-  
+
   }
 
   countManualInventory( filterParams ) {
@@ -214,11 +213,7 @@ class ManualInventoryDbClient {
 
     if( populate ) {
 
-      for( let path of populate ) {
-
-        q = q.populate( path );
-
-      }
+      q = appendPopulationQueries( q, populate );
 
     }
 
@@ -227,7 +222,7 @@ class ManualInventoryDbClient {
   }
 
   async deleteManualInventory( inventoryId ) {
- 
+
     const inventory = await this.getManualInventoryById( inventoryId, { includeDeleted: false } );
 
     if( !inventory || inventory.isDeleted ) {

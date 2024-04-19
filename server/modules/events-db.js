@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 
+const { appendPopulationQueries } = require('../helpers');
+
 /************************************************
- * 
+ *
  * Mongoose data models
  * ====================
- * 
+ *
  ****/
 
 const discriminatorOpts = { discriminatorKey: 'type' };
@@ -47,7 +49,7 @@ const eventSchema = new mongoose.Schema(
 
 /************************************************
  * Incoming Shipment Events
- * 
+ *
  ****/
 
 const createIncomingShipmentEventSchema = new mongoose.Schema(
@@ -57,7 +59,7 @@ const createIncomingShipmentEventSchema = new mongoose.Schema(
   discriminatorOpts
 );
 
-const deleteIncomingShipmentEventSchema = new mongoose.Schema( 
+const deleteIncomingShipmentEventSchema = new mongoose.Schema(
   {
     shipment: incomingShipmentRef
   },
@@ -144,7 +146,7 @@ const reopenIncomingShipmentEventSchema = new mongoose.Schema(
 
 /************************************************
  * Inventory Pallet Events
- * 
+ *
  ****/
 
 const createInventoryPalletEventSchema = new mongoose.Schema(
@@ -208,7 +210,7 @@ const unrepackInventoryPalletEventSchema = new mongoose.Schema(
 
 /************************************************
  * Package Events
- * 
+ *
  ****/
 
 const createPackageEventSchema = new mongoose.Schema(
@@ -259,7 +261,7 @@ const addPackageInventoryPalletEventSchema = new mongoose.Schema(
 
 /************************************************
  * Package Events
- * 
+ *
  ****/
 
 const createBundleEventSchema = new mongoose.Schema(
@@ -295,10 +297,10 @@ const packBundleEventSchema = new mongoose.Schema(
 );
 
 /************************************************
- * 
+ *
  * Public Database Client
  * ======================
- * 
+ *
  ****/
 
 
@@ -354,7 +356,7 @@ class EventsDbClient {
     const sortParams = {
       createdAt : -1
     };
-    
+
     const query = { shipment: mongoose.Types.ObjectId( shipmentId ) };
 
     if( opts.eventType ) {
@@ -365,22 +367,18 @@ class EventsDbClient {
 
     if( opts.populate ) {
 
-      for( let path of opts.populate ) {
-
-        q = q.populate( path );
-
-      }
+      q = appendPopulationQueries( q, opts.populate );
 
     }
 
     return q.exec();
-  
+
   }
 
 
   /************************************************
    * Register shipment events
-   * 
+   *
    ****/
 
   createIncomingShipment( { user, shipment } ) {
@@ -519,7 +517,7 @@ class EventsDbClient {
 
   /************************************************
    * Register pallet events
-   * 
+   *
    ****/
 
 
@@ -619,7 +617,7 @@ class EventsDbClient {
 
   /************************************************
    * Register package events
-   * 
+   *
    ****/
 
   createPackage( { user, packageId } ) {
@@ -705,7 +703,7 @@ class EventsDbClient {
 
   /************************************************
    * Register bundle events
-   * 
+   *
    ****/
 
   createBundle( { user, bundleId } ) {

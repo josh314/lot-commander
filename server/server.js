@@ -9,6 +9,8 @@ const debug = require('debug')('lot-commander');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const express = require('express');
+const mongoose = require('mongoose');
+
 
 // dayjs and configuration
 const dayjs = require('dayjs');
@@ -79,6 +81,25 @@ class Server {
 
   }
 
+  connect( { host, port, dbName, user, password } ) {
+
+
+    const location = `${host}:${ port || 27017 }/${dbName}`;
+
+    const connectionOpts = {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    };
+
+    const conn = mongoose.createConnection(
+      `mongodb://${ user && password ? `${user}:${password}@` : ''}${location}`,
+      connectionOpts
+    );
+
+    return conn.asPromise();
+
+  }
+
   async init() {
     //=================================================
     // Database connections
@@ -86,25 +107,7 @@ class Server {
 
     const mongoSettings = this.config.dbHosts.mongo;
 
-    const mongoose = require('mongoose');
-
-    this.mongoClient = await (async ( { host, port, dbName, user, password } ) => {
-
-      const location = `${host}:${ port || 27017 }/${dbName}`;
-
-      const MongoClient = mongoose.mongo.MongoClient;
-      const client = new MongoClient(
-        `mongodb://${ user && password ? `${user}:${password}@` : ''}${location}`,
-        {
-          useNewUrlParser: true,
-          useUnifiedTopology: true
-        }
-      );
-
-      console.log(`Connecting to MongoDb at ${location}`);
-      await client.connect();
-      return client;
-    })({
+    this.mongooseConnection = await this.connect({
       host: mongoSettings.host,
       port: mongoSettings.port,
       dbName: mongoSettings.db,
@@ -112,7 +115,6 @@ class Server {
       password: mongoSettings.auth && mongoSettings.auth.pwd,
     });
 
-    this.mongooseConnection = await mongoose.createConnection().setClient( this.mongoClient );
     global.__mongooseConnection = this.mongooseConnection;
 
     //================================================

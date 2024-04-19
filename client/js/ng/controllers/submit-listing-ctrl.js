@@ -332,7 +332,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
 
       let deregisterPrimaryImageWatchers;
 
-      if( deregisterPrimaryImageWatchers ) {console.log('deregistering watchers');
+      if( deregisterPrimaryImageWatchers ) {
         deregisterPrimaryImageWatchers();
       }
 
