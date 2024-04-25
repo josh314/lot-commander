@@ -71,16 +71,16 @@ module.exports = {
     }),
 
     // overall linting
-    new ESLintPlugin({
-      overrideConfigFile: path.resolve(__dirname, '.eslintrc.client.js'),
-      context: path.join(__dirname, 'client/js/'),
-      exclude: 'ng',
-    }),
+    // new ESLintPlugin({
+    //   overrideConfigFile: path.resolve(__dirname, '.eslintrc.client.js'),
+    //   context: path.join(__dirname, 'client/js/'),
+    //   exclude: 'ng',
+    // }),
 
     // angularjs linting
     new ESLintPlugin({
       overrideConfigFile: path.resolve(__dirname, '.eslintrc.angularjs.js'),
-      context: path.join(__dirname, 'client/js/ng'),
+      context: path.join(__dirname, 'client/js/'),
     }),
 
   ],
