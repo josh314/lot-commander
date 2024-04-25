@@ -191,15 +191,16 @@ function routes( ) {
       if(file) {
 
         const [ _, fileArray ] = file;
-
         const f = fileArray[0];
-
-        const readStream = fs.createReadStream(f.filepath);
+        const isRestricted = fields.isRestricted && fields.isRestricted[0] === 'true';
+        const documentType = fields.documentType && fields.documentType[0];
 
         const tags = {
-          permission: fields.isRestricted === 'true' || fields.documentType === 'invoice' ? __RESTRICTED_DOCUMENT_PERMISSION__ : '',
+          permission: isRestricted || documentType === 'invoice' ? __RESTRICTED_DOCUMENT_PERMISSION__ : '',
           documentType: fields.documentType || '',
         };
+
+        const readStream = fs.createReadStream(f.filepath);
 
         await documentSvc.store( {
           readStream: readStream,
