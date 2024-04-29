@@ -32,6 +32,8 @@ module.exports = merge(common, {
       directory: path.join(__dirname, 'dist'),
     }
 
-  }
+  },
+
+  devtool: 'inline-source-map',
 
 });
