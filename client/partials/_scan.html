@@ -70,6 +70,7 @@
 					<th>Image</th>
 					<th>Barcode</th>
 					<th>Title</th>
+          <th>Brand</th>
 					<th>Quantity</th>
 					<th>Price</th>
 					<th>Remove</th>
@@ -80,12 +81,17 @@
               <div id="item-thumbnail-container-{{$item.barcode}}">
               </div>
 						</td>
-						<td><input type="text" size=16 ng-model="$item.barcode"></td>
-						<td><input type="text" size="64" ng-model="$item.description"></td>
-						<td>
-							<input type="number" class="hide-controls" style="width: 4em" ng-model="$item.quantity" min="0">
-							<button class="btn btn-success btn-xs" ng-click="$ctrl.incrementInventoryItem( $item )"><span class="glyphicon glyphicon-plus"></span></button>
-							<button class="btn btn-warning btn-xs" ng-click="$ctrl.decrementInventoryItem( $item )" ng-disabled="$item.quantity<=0"><span class="glyphicon glyphicon-minus"></span></button>
+						<td><input type="text" size=14 ng-model="$item.barcode"></td>
+						<td><input type="text" size="52" ng-model="$item.description"></td>
+            <td><input type="text" size="12" ng-model="$item.brand"></td>
+						<td style="display:flex; flex-direction:column;">
+              <span>
+                <input type="number" class="hide-controls" style="width: 4em" ng-model="$item.quantity" min="0">
+              </span>
+              <span>
+                <button class="btn btn-success btn-xs" ng-click="$ctrl.incrementInventoryItem( $item )"><span class="glyphicon glyphicon-plus"></span></button>
+                <button class="btn btn-warning btn-xs" ng-click="$ctrl.decrementInventoryItem( $item )" ng-disabled="$item.quantity<=0"><span class="glyphicon glyphicon-minus"></span></button>
+              </span>
 						</td>
             <td>
               <div class="form-group" ng-class="{ 'has-error' : $item.errors.price }">

@@ -1,5 +1,21 @@
 import * as xlsx from 'xlsx-js-style';
 import { Column, Sheet } from './sheet';
+import {
+  __STANDARD_MANIFEST_PALLET_ID_COLUMN__,
+  __STANDARD_MANIFEST_BARCODE_COLUMN__,
+  __STANDARD_MANIFEST_QUANTITY_COLUMN__,
+  __STANDARD_MANIFEST_DESCRIPTION_COLUMN__,
+  __STANDARD_MANIFEST_CATEGORY_COLUMN__,
+  __STANDARD_MANIFEST_BRAND_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_COST_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_COST_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_UNIT_SALE_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__,
+  __STANDARD_MANIFEST_COLUMNS__,
+  __STANDARD_MANIFEST_DISPLAY_COLUMNS__,
+} from './manifest-constants';
 
 export class Manifest {
   constructor( sheets ) {
@@ -144,6 +160,10 @@ export class Manifest {
     return [ ... columnValues ].sort();
   }
 
+  getUniqueBarcodesAllSheets() {
+    return this.getUniqueValuesInColumnAllSheets( __STANDARD_MANIFEST_BARCODE_COLUMN__ );
+  }
+
   setActiveSheet(sheetName) {
     this.activeSheet = this.sheets.find( s => s.name == sheetName );
   }
@@ -170,14 +190,18 @@ export class Manifest {
     for( const displaySheet of this.sheets ) {
 
       let ws;
-      let columnHeaders;
+      let columnHeaders = [];
 
       if( isPretty ) {
 
         // Pretty output is an array of arrays of cell objects
         const output = displaySheet.getPrettyOutput();
 
-        columnHeaders = output[0].map( _ => _.v ); // `v` is the value of the cell
+        if( Array.isArray( output ) && output[0] ) {
+
+          columnHeaders = output[0].map( _ => _.v ); // `v` is the value of the cell
+
+        }
 
         ws = xlsx.utils.aoa_to_sheet(
           output,
@@ -190,7 +214,11 @@ export class Manifest {
         // basic output is an array of objects with keys matching the column headers
         const output = displaySheet.getBasicOutput();
 
-        columnHeaders = Object.keys( output[0] );
+        if( Array.isArray( output ) && output[0] ) {
+
+          columnHeaders = Object.keys( output[0] );
+
+        }
 
         ws = xlsx.utils.json_to_sheet(
           output,
@@ -279,4 +307,11 @@ export class Manifest {
     }
   }
 
+  hasBrandInfo() {
+    for( let sheet of this.sheets ) {
+      if( sheet.hasBrandInfo() ) {
+        return true;
+      }
+    }
+  }
 }

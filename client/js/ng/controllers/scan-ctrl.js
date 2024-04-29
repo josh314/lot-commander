@@ -170,6 +170,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
             if(product) {
               item.description = product.title;
               item.price = product.price;
+              item.brand = product.brand;
               item.images = product.images;
             }
           }

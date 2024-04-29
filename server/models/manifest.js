@@ -14,6 +14,7 @@ const manifestSchema = mongoose.Schema({
     barcode: String,
     quantity: Number,
     description: String,
+    brand: String,
     price: Number,
     isAggPrice: Boolean,
     images: [ String ],

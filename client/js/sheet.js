@@ -5,6 +5,7 @@ import {
   __STANDARD_MANIFEST_QUANTITY_COLUMN__,
   __STANDARD_MANIFEST_DESCRIPTION_COLUMN__,
   __STANDARD_MANIFEST_CATEGORY_COLUMN__,
+  __STANDARD_MANIFEST_BRAND_COLUMN__,
   __STANDARD_MANIFEST_UNIT_COST_COLUMN__,
   __STANDARD_MANIFEST_TOTAL_COST_COLUMN__,
   __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__,
@@ -97,6 +98,10 @@ export class Column {
 
   isCategoryColumn() {
     return this.displayName === __STANDARD_MANIFEST_CATEGORY_COLUMN__;
+  }
+
+  isBrandColumn() {
+    return this.displayName === __STANDARD_MANIFEST_BRAND_COLUMN__;
   }
 
   isCostColumn() {
@@ -271,6 +276,10 @@ export class Sheet {
     return this.columns.find( column => column.isDescriptionColumn() );
   }
 
+  getBrandColumn() {
+    return this.columns.find( column => column.isBrandColumn() );
+  }
+
   getUnitCostColumn() {
     return this.columns.find( column => column.isUnitCostColumn() );
   }
@@ -305,6 +314,56 @@ export class Sheet {
 
     this.columns.forEach( c => c.deselect() );
 
+  }
+
+  getBarcodeColumnName() {
+    const c = this.getBarcodeColumn();
+    return c ? c.name : null;
+  }
+
+  getQuantityColumnName() {
+    const c = this.getQuantityColumn();
+    return c ? c.name : null;
+  }
+
+  getDescriptionColumnName() {
+    const c = this.getDescriptionColumn();
+    return c ? c.name : null;
+  }
+
+  getBrandColumnName() {
+    const c = this.getBrandColumn();
+    return c ? c.name : null;
+  }
+
+  getUnitCostColumnName() {
+    const c = this.getUnitCostColumn();
+    return c ? c.name : null;
+  }
+
+  getTotalCostColumnName() {
+    const c = this.getTotalCostColumn();
+    return c ? c.name : null;
+  }
+
+  getUnitRetailPriceColumnName() {
+    const c = this.getUnitRetailPriceColumn();
+    return c ? c.name : null;
+  }
+
+  getTotalRetailPriceColumnName() {
+    const c = this.getTotalRetailPriceColumn();
+    return c ? c.name : null;
+  }
+
+  getUnitSalePriceColumnName() {
+    const c = this.getUnitSalePriceColumn();
+    return c ? c.name : null;
+  }
+
+  getTotalSalePriceColumnName() {
+    const c = this.getTotalSalePriceColumn();
+    return c ? c.name : null;
   }
 
   updateColumnDisplayName( column ) {
@@ -730,6 +789,10 @@ export class Sheet {
 
     const headerRowArray = [];
     // const columnNames = Object.keys( rows[0] );
+    if( !Array.isArray( rows) || !rows.length ) {
+      return [];
+    }
+
     for( let key of Object.keys( rows[0] ) ) {
       headerRowArray.push({
         v: key,
@@ -1228,6 +1291,25 @@ export class Sheet {
 
     }
 
+  }
+
+  hasBrandInfo() {
+    return this.columns.some( _c => _c.isBrandColumn() );
+  }
+
+  setBrandForBarcode( barcode, brand ) {
+    const row = this.getLineItemByBarcode( barcode );
+    if( row ) {
+      let brandColumn = this.getBrandColumn();
+      if( !brandColumn ) {
+        brandColumn = new Column( {
+          name: __STANDARD_MANIFEST_BRAND_COLUMN__,
+          selected: true,
+        });
+        this.columns.push( brandColumn );
+      }
+      row[ brandColumn.displayName ] = brand;
+    }
   }
 
 }

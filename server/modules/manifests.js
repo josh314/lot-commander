@@ -6,6 +6,7 @@ const xlsx = require( 'xlsx-js-style' );
 const __STANDARD_COLUMN_NAMES__ = {
   barcode: 'UPC/EAN/GTIN',
   description: 'Description',
+  brand: 'Brand',
   quantity: 'Quantity',
   price: 'Unit Price',
   image: 'Image'
@@ -31,6 +32,7 @@ module.exports = function( { lotdb, manifestDb, productData } ) {
           const res = {
             barcode: retrievedProductData.barcode ? retrievedProductData.barcode : manifestItem.barcode,
             title: retrievedProductData.title || retrievedProductData.description || manifestItem.title || manifestItem.description,
+            brand: retrievedProductData.brand || manifestItem.brand,
             quantity: manifestItem.quantity,
             price: retrievedProductData.price || manifestItem.price,
             images: retrievedProductData.images || [],
@@ -88,6 +90,7 @@ module.exports = function( { lotdb, manifestDb, productData } ) {
           item = {
             [ __STANDARD_COLUMN_NAMES__.barcode ]: inventoryItem.barcode,
             [ __STANDARD_COLUMN_NAMES__.description ]: productTitle,
+            [ __STANDARD_COLUMN_NAMES__.brand ]: inventoryItem.brand,
             [ __STANDARD_COLUMN_NAMES__.price ]: inventoryItem.price,
             [ __STANDARD_COLUMN_NAMES__.quantity ]: inventoryItem.quantity,
             [ __STANDARD_COLUMN_NAMES__.image ]: inventoryItem.images || []

@@ -38,6 +38,10 @@ function processItem( item, markup ){
 
   r.title = parseTitle(item.title).title;
 
+  if( item.brand ) {
+    r.brand = item.brand;
+  }
+
   if( item.offers && item.offers.length ) {
     let basePrice = getBestPrice( item.offers );
     if( markup ) {
@@ -49,6 +53,7 @@ function processItem( item, markup ){
   if( item.images ) {
     r.images = item.images;
   }
+
 
   return r;
 }
