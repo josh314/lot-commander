@@ -66,6 +66,7 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
       createFileFromExtractByColumnValue,
       downloadFileFromExtractByColumnValue,
       splitStandardManifestByPallet,
+      defaultProcessManifest,
       defaultProcessActiveManifest,
 
       // expose manifest and sheet classes
@@ -275,7 +276,15 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
       return splitManifests;
     }
 
-    function defaultProcessActiveManifest( ) {
+    function defaultProcessActiveManifest() {
+
+      const manifest = getActiveManifest();
+
+      return defaultProcessManifest( manifest );
+
+    }
+
+    function defaultProcessManifest( manifest ) {
 
       const columnsMap = {
         'Container': __STANDARD_MANIFEST_PALLET_ID_COLUMN__,
@@ -284,8 +293,6 @@ angular.module('myApp').factory( 'ManifestFileHandlerSvc', [
         'Description': __STANDARD_MANIFEST_DESCRIPTION_COLUMN__,
         'Extended Retail': __STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__,
       };
-
-      const manifest = getActiveManifest();
 
       const results = {
         sheets: []

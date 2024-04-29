@@ -210,8 +210,8 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       LotSvc.load()
         .then( lot => {
 
-          vm.lot = lot;
-          vm.originalLot = LotSvc.clone( lot );
+          vm.originalLot = lot;
+          vm.lot = lot.clone();
 
           // make sure that packaging type is correctly set based on shipping items. this will only matter for some legacy data
           ShippingItemsSvc.setPackagingTypeFromShippingItems( vm.lot );

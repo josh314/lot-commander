@@ -1,3 +1,4 @@
+
 import angular from 'angular';
 
 /******************* View Lot Controller *************************/
@@ -74,27 +75,23 @@ angular.module('myApp').controller('GalleryCtrl', [
 
       const inventory = vm.lot.getInventorySortedByBarcode();
 
-      const productImages = inventory.map( _ => ({ upc: _.barcode, title: _.description, images: _.images }) );
+      const productItems = inventory.map( _ => ({ upc: _.barcode, title: _.description, images: _.images }) );
 
-      populateGalleryImages( productImages );
+      populateGalleryImages( productItems );
 
     }
 
     function loadImageGalleryFromManifestFile() {
 
-      vm.lot.getProductImagesFromManifestFile().then( imageItems => {
-
-        populateGalleryImages( imageItems );
-
-      });
+      vm.lot.getProductDataFromManifestFile().then( populateGalleryImages );
 
     }
 
-    function populateGalleryImages( productImages ) {
+    function populateGalleryImages( productItems ) {
 
-      for(let i=0; i<productImages.length; i++) {
+      for(let i=0; i<productItems.length; i++) {
 
-        const { upc, title, images } = productImages[i];
+        const { upc, title, images } = productItems[i];
         const _ = { upc, title, images: [] };
         vm.galleryItems.push(_);
 

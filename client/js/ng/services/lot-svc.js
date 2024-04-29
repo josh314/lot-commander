@@ -1,5 +1,6 @@
 import angular from 'angular';
 
+import * as path from 'path';
 import * as util from '../../utilities';
 import * as api from '../../api';
 
@@ -59,7 +60,7 @@ angular.module('myApp').factory( 'LotSvc', [
 
       Lot,
 
-      clone: lot => new Lot( JSON.parse( JSON.stringify( lot ) ) ),
+      clone: lot => (lot instanceof Lot) ? lot.clone() : new Lot( lot ),
 
       cloneImages: ( lotId, images ) => $q.when( api.cloneImagesToLot( lotId, images ) ),
 
@@ -227,6 +228,20 @@ angular.module('myApp').factory( 'Lot', [
 
       }
 
+      clone() {
+
+        // the loaded manifest is not serializable due to circular references, so we need to remove it before stringifying
+        let originalManifest = this.manifest;
+        if( originalManifest ) {
+          delete this.manifest;
+        }
+
+        const clone = new Lot( JSON.parse( JSON.stringify( this ) ) );
+        this.manifest = originalManifest;
+
+        return clone;
+
+      }
 
       /*****************************************
        * Synthetic data fields
@@ -237,79 +252,25 @@ angular.module('myApp').factory( 'Lot', [
       isPallet() { return !!this.packagingType.match(/pallet/); }
       isCasePacked() { return this.type === 'case-packed'; } // type is condition
 
-      /*****************************************
-       * Setters & mutators
-       *
-       **********/
-
-      save() {
-        return $q.when( api.editLot( this._id, this ) );
+      hasListing() {
+        return this.submittedListings && this.submittedListings.length>0 && this.submittedListings.find(l => l.success);
       }
 
-      // inventory & manifests
-      setInventory( _inventory ) {
-        this.inventory = _inventory.map(i=> i.quantity<0 ? Object.assign(i,{quantity:0}) : i );
-        return this.inventory;
+      hasScannedManifest() {
+        return !this.unmanifested && this.inventory && this.inventory.length > 0;
       }
 
-      updateTotalUnits() {
-        this.totalUnits = this.inventory ? this.inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 ;
-        return this.totalUnits;
+      inventoryHasBrandInfo() {
+        return !!( this.inventory && this.inventory.find( item => item.brand ) );
       }
 
-      // Inventory mutators
-      addInventory(newBarcode) {
-        let item;
-        if(!newBarcode) {
-          item = { quantity: 0, errors: {} };
-        }
-        else if(/[0-9]{8,15}/.test(newBarcode)) {
-          const idx = this.inventory.findIndex(i => i.barcode == newBarcode);
-          if(idx>=0) {
-            item = this.inventory[idx];
-            item.quantity += 1;
-            this.inventory.splice(idx, 1);
-          }
-          else {
-            item = {
-              barcode: newBarcode,
-              quantity: 1
-            };
-          }
-          this.totalUnits += 1;
-        }
-        this.inventory = [item].concat(this.inventory);
-        return item;
+      isManifestFileLoaded() {
+        return !!this.manifest;
       }
 
-      decrementInventory(barcode) {
-        var idx = this.inventory.findIndex(item => item.barcode == barcode);
-        if(idx >= 0) {
-          if(this.inventory[idx].quantity > 1) {
-            this.inventory[idx].quantity -= 1;
-            if(this.inventory[idx].validated == this.inventory[idx].quantity + 1) {
-              this.inventory[idx].validated -= 1;
-            }
-          }
-          else {
-            this.inventory.splice(idx,1);
-          }
-          this.totalUnits -= 1;
-        }
+      manifestFilename() {
+        return this.manifestFileLocation ? path.basename(this.manifestFileLocation) : '';
       }
-
-      deleteInventoryItemByIndex( idx ) {
-        if(idx >= 0) {
-          this.totalUnits -= this.inventory[idx].quantity;
-          this.inventory.splice(idx,1);
-        }
-      }
-
-      deleteInventoryItem( item ) {
-        const idx = this.inventory.findIndex( _item => _item === item );
-        return this.deleteInventoryItemByIndex( idx );
-      }
-
 
       /****************************************
        * Getters
@@ -366,8 +327,36 @@ angular.module('myApp').factory( 'Lot', [
         return this.listingData && this.listingData.body ? $sce.trustAsHtml( this.listingData.body ) : '';
       }
 
-      hasListing() {
-        return this.submittedListings && this.submittedListings.length>0 && this.submittedListings.find(l => l.success);
+      /*****************************************
+       * Setters & mutators
+       *
+       **********/
+
+      save() {
+
+        // This is a bit of a hack to ensure that the manifest is not included in the lot data. Besides being unnecessary, it can't be serialized since it contains circular references
+        let manifest;
+        if( this.manifest ) {
+          manifest = this.manifest;
+          delete this.manifest;
+        }
+
+        const _lot = Object.assign( {}, this );
+
+        this.manifest = manifest;
+
+        return $q.when( api.editLot( this._id, _lot ) );
+      }
+
+      /*****************************************
+       * Inventory
+       *
+       **********/
+
+      // inventory & manifests
+      setInventory( _inventory ) {
+        this.inventory = _inventory.map(i=> i.quantity<0 ? Object.assign(i,{quantity:0}) : i );
+        return this.inventory;
       }
 
       saveManifest() {
@@ -404,20 +393,61 @@ angular.module('myApp').factory( 'Lot', [
 
       }
 
-      saveShippingItems( shippingItems ) {
-        return $q.when( api.editLot( this._id, { shippingItems } ) ).then( ( { lot } ) => {
-
-          this.shippingItems = lot.shippingItems;
-          this.packagingType = lot.packagingType;
-
-          return this;
-        });
+      updateTotalUnits() {
+        this.totalUnits = this.inventory ? this.inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 ;
+        return this.totalUnits;
       }
 
-      printShippingItemsLabels() {
+      addInventory(newBarcode) {
+        let item;
+        if(!newBarcode) {
+          item = { quantity: 0, errors: {} };
+        }
+        else if(/[0-9]{8,15}/.test(newBarcode)) {
+          const idx = this.inventory.findIndex(i => i.barcode == newBarcode);
+          if(idx>=0) {
+            item = this.inventory[idx];
+            item.quantity += 1;
+            this.inventory.splice(idx, 1);
+          }
+          else {
+            item = {
+              barcode: newBarcode,
+              quantity: 1
+            };
+          }
+          this.totalUnits += 1;
+        }
+        this.inventory = [item].concat(this.inventory);
+        return item;
+      }
 
-        PrintSvc.printLotShippingItemsLabels( this._id );
+      decrementInventory(barcode) {
+        var idx = this.inventory.findIndex(item => item.barcode == barcode);
+        if(idx >= 0) {
+          if(this.inventory[idx].quantity > 1) {
+            this.inventory[idx].quantity -= 1;
+            if(this.inventory[idx].validated == this.inventory[idx].quantity + 1) {
+              this.inventory[idx].validated -= 1;
+            }
+          }
+          else {
+            this.inventory.splice(idx,1);
+          }
+          this.totalUnits -= 1;
+        }
+      }
 
+      deleteInventoryItemByIndex( idx ) {
+        if(idx >= 0) {
+          this.totalUnits -= this.inventory[idx].quantity;
+          this.inventory.splice(idx,1);
+        }
+      }
+
+      deleteInventoryItem( item ) {
+        const idx = this.inventory.findIndex( _item => _item === item );
+        return this.deleteInventoryItemByIndex( idx );
       }
 
       inventoryItemHasErrors( item ) {
@@ -498,6 +528,32 @@ angular.module('myApp').factory( 'Lot', [
       }
 
 
+      /*****************************************
+       * Shipping items and labels
+       *
+       **********/
+
+      saveShippingItems( shippingItems ) {
+        return $q.when( api.editLot( this._id, { shippingItems } ) ).then( ( { lot } ) => {
+
+          this.shippingItems = lot.shippingItems;
+          this.packagingType = lot.packagingType;
+
+          return this;
+        });
+      }
+
+      printShippingItemsLabels() {
+
+        PrintSvc.printLotShippingItemsLabels( this._id );
+
+      }
+
+      /*****************************************
+       * Manifest files
+       *
+       **********/
+
       loadManifestFile( ) {
 
         if( !this.manifestFileLocation ) {
@@ -512,29 +568,37 @@ angular.module('myApp').factory( 'Lot', [
             { skipLastRows: 1 }, //note we are assuming the last row is a totals row
           );
 
-          return ManifestFileHandlerSvc.getActiveManifest();
+          const manifest = ManifestFileHandlerSvc.getActiveManifest();
+
+          this.manifest = manifest;
+
+          return manifest;
 
         });
 
       }
 
-      async getProductImagesFromManifestFile() {
+      saveManifestAsFile( filename, isPretty = false ) {
 
-        await this.loadManifestFile();
-
-        const { barcodes } = ManifestFileHandlerSvc.defaultProcessActiveManifest();
-
-        const { products } = await ProductDataSvc.bulkGetProductData( barcodes );
-
-        return products.filter( _ => _.item && _.item.images ).map( _ => {
-          return {
-            upc: _.item.upc,
-            title: _.item.title,
-            images: _.item.images
-          };
-        } );
+        const file = ManifestFileHandlerSvc.createFile( filename, this.manifest, isPretty );
+        return $q.when( api.uploadLotManifestFile( this._id, file, filename ) );
 
       }
+
+      async getProductDataFromManifestFile() {
+
+        if( !this.isManifestFileLoaded() ) {
+          await this.loadManifestFile();
+        }
+
+        return ProductDataSvc.getProductDataFromLoadedManifest( this.manifest );
+
+      }
+
+      /*****************************************
+       * Images
+       *
+       **********/
 
       uploadImages( images ) {
 
@@ -570,10 +634,14 @@ angular.module('myApp').factory( 'Lot', [
 
       }
 
-
       getImageLink( image ) {
         return image.s3 ? `/api/image/?s3=${encodeURIComponent(image.s3)}` : image.filename;
       }
+
+      /*****************************************
+       * Listings
+       *
+       **********/
 
       getSubmittedListingLink( listing ) {
 

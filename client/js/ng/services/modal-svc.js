@@ -854,7 +854,7 @@ angular.module('myApp').factory( 'EditLotModalSvc', [ '$uibModal', function( $ui
       backdrop: 'static',
       resolve: {
         lot: function () {
-          return JSON.parse( JSON.stringify( lot ) ); // deep clone of lot so edits are ephemeral before save
+          return lot.clone();
         }
       },
     });

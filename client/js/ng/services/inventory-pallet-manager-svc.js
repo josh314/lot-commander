@@ -540,28 +540,22 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
           ManifestFileHandlerSvc.parse( data, manifestFilename, { skipLastRows: 1 } ); //note we are assuming the last row is a totals row
 
-          return ManifestFileHandlerSvc.getActiveManifest();
+          const manifest = ManifestFileHandlerSvc.getActiveManifest();
+
+          this.manifest = manifest;
+
+          return manifest;
         });
 
       }
 
-      async getProductImages() {
+      async getProductData() {
 
         await this.documentsAreLoaded;
 
         await this.loadManifest();
 
-        const { barcodes } = ManifestFileHandlerSvc.defaultProcessActiveManifest();
-
-        const { products } = await ProductDataSvc.bulkGetProductData( barcodes );
-
-        return products.filter( _ => _.item && _.item.images ).map( _ => {
-          return {
-            upc: _.item.upc,
-            title: _.item.title,
-            images: _.item.images
-          };
-        } );
+        return ProductDataSvc.getProductDataFromLoadedManifest( this.manifest );
 
       }
 

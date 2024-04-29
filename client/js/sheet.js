@@ -1312,4 +1312,19 @@ export class Sheet {
     }
   }
 
+  setDescriptionForBarcode( barcode, description ) {
+    const row = this.getLineItemByBarcode( barcode );
+    if( row ) {
+      let descriptionColumn = this.getDescriptionColumn();
+      if( !descriptionColumn ) {
+        descriptionColumn = new Column( {
+          name: __STANDARD_MANIFEST_DESCRIPTION_COLUMN__,
+          selected: true,
+        });
+        this.columns.push( descriptionColumn );
+      }
+      row[ descriptionColumn.displayName ] = description;
+    }
+  }
+
 }
