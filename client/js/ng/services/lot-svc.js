@@ -327,6 +327,201 @@ angular.module('myApp').factory( 'Lot', [
         return this.listingData && this.listingData.body ? $sce.trustAsHtml( this.listingData.body ) : '';
       }
 
+
+      /****************************************
+       * Brands
+       *
+       ***********/
+
+      async refreshInventoryProductData() {
+
+        if( !this.hasScannedManifest() ) {
+          return;
+        }
+
+        const barcodes = this.inventory.map( item => item.barcode );
+
+        const { products } = await ProductDataSvc.bulkGetProductData( barcodes );
+
+        for( let product of products ) {
+
+          if( product && product.item && product.item.brand ) {
+
+            const found = this.inventory.find( item => item.barcode === product.upc );
+
+            if( found ) {
+              found.brand = product.item.brand;
+            }
+
+          }
+
+        }
+
+        return this.saveManifest();
+
+      }
+
+      async refreshManifestFileProductData() {
+
+        const products = await this.getProductDataFromManifestFile();
+
+        if( !this.manifest ) {
+          return;
+        }
+
+        const sheet = this.manifest.getActiveSheet();
+
+        for( let product of products.filter( _ => _ && _.upc ) ) {
+
+          if( product.brand ) {
+            sheet.setBrandForBarcode( product.upc, product.brand );
+          }
+          if( product.title ) {
+            sheet.setDescriptionForBarcode( product.upc, product.title );
+          }
+
+        }
+
+        const isPretty = true;
+        return this.saveCurrentManifestAsFile( this.manifestFilename(), isPretty );
+
+      }
+
+      async guaranteeBrandInfo() {
+
+        if( this.hasScannedManifest() ) {
+
+          if( !this.inventoryHasBrandInfo() ) {
+
+            await this.refreshInventoryProductData();
+
+          }
+
+        }
+        else if( this.manifestFileLocation ) {
+
+          if( !this.isManifestFileLoaded() ) {
+            await this.loadManifestFile();
+          }
+
+          if( this.manifest ) {
+
+            if( !this.manifest.hasBrandInfo() ) {
+              await this.refreshManifestFileProductData();
+            }
+
+          }
+
+        }
+
+      }
+
+      manifestItem2BrandItem( manifestItem ) {
+
+        if( this.hasScannedManifest() ) {
+          return {
+            brand: manifestItem.brand,
+            barcode: manifestItem.barcode,
+            description: manifestItem.description,
+            quantity: manifestItem.quantity,
+            price: manifestItem.price
+          };
+        }
+        else if ( this.manifestFileLocation ) {
+          const sheet = this.manifest.getActiveSheet();
+          const brandColumnName = sheet.getBrandColumnName();
+          const barcodeColumnName = sheet.getBarcodeColumnName();
+          const descriptionColumnName = sheet.getDescriptionColumnName();
+          const quantityColumnName = sheet.getQuantityColumnName();
+
+          return {
+            brand: brandColumnName ? manifestItem[ brandColumnName ] : '',
+            barcode: barcodeColumnName ? manifestItem[ barcodeColumnName ] : '',
+            description: descriptionColumnName ? manifestItem[ descriptionColumnName ] : '',
+            quantity: quantityColumnName ? manifestItem[ quantityColumnName ] : '',
+            price: sheet.getUnitPrice( manifestItem ),
+          };
+        }
+
+      }
+
+      async getBrandItems() {
+
+        await this.guaranteeBrandInfo();
+
+        let manifestItems;
+
+        if( this.hasScannedManifest() ) {
+          manifestItems = this.inventory;
+        }
+        else if ( this.manifestFileLocation ) {
+          manifestItems = this.manifest.getActiveSheet().rows;
+        }
+        else {
+          return [];
+        }
+
+        const _brandsItems = manifestItems.map( this.manifestItem2BrandItem.bind( this ) );
+
+        const brandItemsListsMap = _brandsItems.reduce( ( acc, brandItem ) => {
+
+          if( brandItem.barcode && brandItem.brand && brandItem.quantity ) {
+
+            const existingBrandItemList = acc.get( brandItem.brand );
+
+            if( existingBrandItemList ) {
+              existingBrandItemList.push( brandItem );
+            }
+            else {
+              acc.set( brandItem.brand, [ brandItem ] );
+            }
+
+          }
+
+          return acc;
+        }, new Map() );
+
+        const brandItems = [ ...brandItemsListsMap.entries() ].map( ([ brand, _brandItems ]) => Object.assign( {}, { brand, items: _brandItems } ) );
+        return brandItems;
+
+      }
+
+      async getBrandsAggregation() {
+
+        let brandItems = await this.getBrandItems();
+
+        let agg;
+
+        if( Array.isArray( brandItems ) ) {
+
+          agg = brandItems.map( _ => {
+            return {
+              brand: _.brand,
+              quantity: _.items.reduce( ( acc, item ) => acc + parseInt( item.quantity ), 0 ),
+              value: _.items.reduce( ( acc, item ) => acc + parseInt( item.quantity ) * parseFloat( item.price ), 0 )
+            };
+          });
+
+        }
+
+        return agg;
+
+      }
+
+      async getBrandsByMostUnits() {
+
+        const brandCounts = await this.getBrandsAggregation();
+        return brandCounts ? brandCounts.sort( ( a, b ) => b.quantity - a.quantity ).map( _ => _.brand ) : [];
+
+      }
+
+      async getBrandsByMostValue() {
+
+        const brandCounts = await this.getBrandsAggregation();
+        return brandCounts ? brandCounts.sort( ( a, b ) => b.value - a.value ).map( _ => _.brand ) : [];
+
+      }
+
       /*****************************************
        * Setters & mutators
        *
@@ -578,9 +773,18 @@ angular.module('myApp').factory( 'Lot', [
 
       }
 
-      saveManifestAsFile( filename, isPretty = false ) {
+      saveCurrentManifestAsFile( filename, isPretty = false ) {
 
-        const file = ManifestFileHandlerSvc.createFile( filename, this.manifest, isPretty );
+        if( !this.manifest ) {
+          return $q.when( null );
+        }
+
+        return this.saveManifestAsFile( this.manifest, filename, isPretty );
+      }
+
+      saveManifestAsFile( manifest, filename, isPretty = false ) {
+
+        const file = ManifestFileHandlerSvc.createFile( filename, manifest, isPretty );
         return $q.when( api.uploadLotManifestFile( this._id, file, filename ) );
 
       }

@@ -8,12 +8,14 @@ const __SHIPPING_RATE_FIRST_BOX__ = 30;
 const __SHIPPING_RATE_MINIMUM_PER_BOX__ = 15;
 const __SHIPPING_RATE_DISCOUNT_FACTOR_PER_BOX__ = 0.05;
 
+const __MAX_NUM_BRANDS_LISTING_TITLE__ = 3;
+const __MAX_NUM_BRANDS_LISTING_BODY__ = 5;
+
 /******************* Listings Service *************************/
 angular.module('myApp').factory( 'ListingsSvc', [
 
   '$q',
   'ListingTemplatesSvc',
-  'LotSvc',
   'ProductBundlesSvc',
   'ShippingConfigurationsSvc',
 
@@ -21,7 +23,6 @@ angular.module('myApp').factory( 'ListingsSvc', [
 
     $q,
     ListingTemplatesSvc,
-    LotSvc,
     ProductBundlesSvc,
     ShippingConfigurationsSvc,
 
@@ -43,7 +44,7 @@ angular.module('myApp').factory( 'ListingsSvc', [
 
     }
 
-    function getLotListingTitleTemplate( lot ) {
+    async function getLotListingTitleTemplate( lot ) {
 
       const {
         lotNumber,
@@ -53,47 +54,49 @@ angular.module('myApp').factory( 'ListingsSvc', [
         unmanifested,
       } = lot;
 
-      return ListingTemplatesSvc.lotListingTitle( { lotNumber, packagingType, category, totalUnits, isManifested: !unmanifested } );
+      const brands = await lot.getBrandsByMostValue();
+
+      return ListingTemplatesSvc.lotListingTitle( { lotNumber, packagingType, category, brands, totalUnits, isManifested: !unmanifested } );
 
     }
 
-    function getLotListingBodyTemplate( lot ) {
+    async function getLotListingBodyTemplate( lot ) {
 
       const {
-        _id,
         category,
         type,
         totalUnits,
         estimatedRetailValue,
         unmanifested,
-        manifestFileLocation,
         inventory
       } = lot;
 
-      const loadManifestP = manifestFileLocation ? LotSvc.loadManifestFile( _id ) : Promise.resolve( undefined );
+      if( !lot.manifest ) {
+        await lot.loadManifestFile();
+      }
 
-      return loadManifestP.then( manifest => {
+      let mostExpensiveItemPrice;
+      if( lot.manifest ) {
+        mostExpensiveItemPrice = lot.manifest.mostExpensiveItemPrice();
+      }
+      else if ( inventory && inventory.length ) {
+        mostExpensiveItemPrice = inventory.reduce( ( _mostExpensiveItemPrice, item ) => item.price && item.price > _mostExpensiveItemPrice ? item.price : _mostExpensiveItemPrice, 0);
+      }
 
-        let mostExpensiveItemPrice;
-        if( manifest ) {
-          mostExpensiveItemPrice = manifest.mostExpensiveItemPrice();
-        }
-        else if ( inventory && inventory.length ) {
-          mostExpensiveItemPrice = inventory.reduce( ( _mostExpensiveItemPrice, item ) => item.price && item.price > _mostExpensiveItemPrice ? item.price : _mostExpensiveItemPrice, 0);
-        }
+      const brands = await lot.getBrandsByMostValue();
 
-        const bodyHtml = ListingTemplatesSvc.lotListingBody( {
-          category,
-          condition: type,
-          totalUnits,
-          estimatedRetailValue: estimatedRetailValue || lot.getEstimatedRetailValue(),
-          mostExpensiveItemPrice,
-          isManifested: !unmanifested
-        } );
+      const bodyHtml = ListingTemplatesSvc.lotListingBody( {
+        category,
+        brands,
+        condition: type,
+        totalUnits,
+        estimatedRetailValue: estimatedRetailValue || lot.getEstimatedRetailValue(),
+        mostExpensiveItemPrice,
+        isManifested: !unmanifested
+      } );
 
-        return bodyHtml;
+      return bodyHtml;
 
-      });
 
     }
 
@@ -403,15 +406,44 @@ angular.module('myApp').factory( 'ListingTemplatesSvc', [ function( ) {
     lotListingTitle,
   };
 
-  function lotListingTitle( { category, totalUnits, isManifested, lotNumber, packagingType } ) {
+  function getListString( list, maxItems ) {
+
+    let listStr;
+    if( Array.isArray( list ) && list.length ) {
+
+      if( list.length === 1 ) {
+        listStr = list[0];
+      }
+      else if ( list.length <= maxItems ) {
+        listStr = list.slice( 0, list.length - 1 ).join(', ') + ' and ' + list[ list.length - 1 ];
+      }
+      else {
+        listStr = list.slice( 0, maxItems ).join(', ') + ', and more';
+      }
+
+    }
+
+    return listStr;
+  }
+
+  function lotListingTitle( { category, brands, totalUnits, isManifested, lotNumber, packagingType } ) {
     const displayCategory = util.titleCase( category );
 
     const packagingTypeString = packagingType && packagingType.match(/pallet/) ? `Pallet` : `Lot`;
 
-    return `New${ isManifested ? ' Manifested' : '' }${ displayCategory ? ` ${displayCategory}` : ''} ${packagingTypeString}${ lotNumber ? ' #' + lotNumber : '' }${ totalUnits ? ` (${totalUnits} units)` : '' }`;
+    const brandListStr = getListString( brands, __MAX_NUM_BRANDS_LISTING_TITLE__ );
+
+    return 'New'
+      + ( isManifested ? ' Manifested' : '' )
+      + ( displayCategory ? ` ${displayCategory}` : '' ) + ' '
+      + packagingTypeString
+      + ( lotNumber ? ' #' + lotNumber : '' )
+      + ( brandListStr ? ` - ${brandListStr}` : '' )
+      + ( totalUnits ? ` (${totalUnits} units)` : '' );
+
   }
 
-  function lotListingBody( { category, condition, totalUnits, estimatedRetailValue, mostExpensiveItemPrice, isManifested } ) {
+  function lotListingBody( { category, brands, condition, totalUnits, estimatedRetailValue, mostExpensiveItemPrice, isManifested } ) {
 
     const displayCategory = util.titleCase( category );
     const displayCondition = util.titleCase( condition );
@@ -462,6 +494,8 @@ angular.module('myApp').factory( 'ListingTemplatesSvc', [ function( ) {
       byline2 = `<li> <span>🔥 Valued at <strong>${ util.displayAsMoney( estimatedRetailValue ) }</strong>!</span></li>`;
     }
 
+    const brandListStr = getListString( brands, __MAX_NUM_BRANDS_LISTING_BODY__ );
+
     return `
       <h3><strong>💥New ${ displayCategory ? `${ displayCategory } ` : ' ' }Lot! 🌟</strong></h3>
       <p><strong>Experience the Excellence of Quality Products</strong></p>
@@ -471,7 +505,7 @@ angular.module('myApp').factory( 'ListingTemplatesSvc', [ function( ) {
           ${ byline2 || '' }
           ${ isManifested ? `<li> <span>📋 <strong>Product Manifest Available</strong></span></li>` : '' }
           ${ category ? `<li> <span>🛒 <strong>Wide Range of ${ category.toUpperCase() } ITEMS</strong></span></li>` : '' }
-          <li> <span>🌟 <strong>Brand Names Included</strong></span></li>
+          ${ brandListStr ? `<li> <span>🌟 <strong>Brand Names Included</strong>: ${ brandListStr }</span></li>` : '' }
           ${ mostExpensiveItemPrice ? `<li> <span>💰 <strong>Retail Value Per Item</strong>: Up to <strong>${ util.displayAsMoney( mostExpensiveItemPrice ) }</strong></span></li>` : '' }
           ${ displayCondition ? `<li> <span>📦 <strong>Condition</strong>: ${ displayCondition }</span></li>` : '' }
           ${ guaranteeString || '' }

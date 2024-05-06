@@ -139,7 +139,12 @@ class Server {
     //================================================
     // Cookies & Session =============================
     //================================================
-    require(path.join(__basedir, this.config.modulesPath, 'app-session'))(this.app);
+
+    const AppSession = require(path.join(__basedir, this.config.modulesPath, 'app-session'));
+    const session = AppSession( {
+      mongoSettings: this.config.dbHosts.mongo,
+    });
+    this.app.use( session );
 
     this.app.use(express.json({ limit: '50mb' }));//parse json bodies
     this.app.use(bodyParser.urlencoded({ extended: true }));

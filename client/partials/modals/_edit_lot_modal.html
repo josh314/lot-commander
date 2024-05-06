@@ -49,10 +49,6 @@
 			</select>
 		</div>
 		<div class="form-group col-xs-12 col-sm-6">
-			<label for="descriptionInput">Description</label>
-			<input class="form-control" name="description" id="descriptionInput" required ng-model="$ctrl.lot.description">
-		</div>
-		<div class="form-group col-xs-12 col-sm-6">
 			<label for="destinationMarketplaceInput">Destination Marketplace</label>
 			<select class="form-control" name="destinationMarketplace" id="destinationMarketplaceInput" ng-model="$ctrl.lot.destinationMarketplace">
 				<option ng-repeat="marketplace in $ctrl.marketplaces">{{marketplace}}</option>

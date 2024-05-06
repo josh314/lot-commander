@@ -258,16 +258,10 @@ class Client {
 
   changeUserPassword( { user, password } ) {
     // Note that we are passing in a user instance
-    return this.User.findOneAndUpdate(
-      // search users by username
-      {
-        'local.username': user.local.username
-      },
-      // update the found user's password
-      {
-        $set: { 'local.password': user.generateHash(password) }
-      }
-    );
+
+    user.local.password = user.generateHash(password);
+    return user.save();
+
   }
 
   createUser( { username, password, firstName, lastName, roles } ) {

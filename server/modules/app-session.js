@@ -2,33 +2,33 @@
 const session = require('express-session');
 const MongoStore = require('connect-mongodb-session')(session);
 
-const hostData = __config.dbHosts.mongo;
+module.exports = function( { mongoSettings } ) {
 
-const mongoUserStr = hostData.auth && hostData.auth.user && hostData.auth.pwd ? `${hostData.auth.user}:${hostData.auth.pwd}@` : '';
+  const mongoUserStr = mongoSettings.auth && mongoSettings.auth.user && mongoSettings.auth.pwd ? `${mongoSettings.auth.user}:${mongoSettings.auth.pwd}@` : '';
 
-let connectionStr;
-if(hostData.atlas) {
-  connectionStr = `mongodb+srv://${mongoUserStr}${hostData.host}/${hostData.db}`;
-}
-else {
-  connectionStr = `mongodb://${mongoUserStr}${hostData.host}:${hostData.port}/${hostData.db}`;
-} 
+  let connectionStr;
+  if(mongoSettings.atlas) {
+    connectionStr = `mongodb+srv://${mongoUserStr}${mongoSettings.host}/${mongoSettings.db}`;
+  }
+  else {
+    connectionStr = `mongodb://${mongoUserStr}${mongoSettings.host}:${mongoSettings.port}/${mongoSettings.db}`;
+  }
 
-const sessionStore = new MongoStore({
-  ttl: 24 * 60 * 60,//24 hour session lifetime (although browser will logout before this)
-  uri: connectionStr,
-  collection: 'sessions',
-});
+  const sessionStore = new MongoStore({
+    ttl: 24 * 60 * 60,//24 hour session lifetime (although browser will logout before this)
+    uri: connectionStr,
+    collection: `sessions`,
+  });
 
-if(!process.env.SESSION_SECRET) {
-  throw new Error('No secret set for session cookies!');
-}
+  if(!process.env.SESSION_SECRET) {
+    throw new Error('No secret set for session cookies!');
+  }
 
-module.exports = function(app) {
-  app.use(session({
+  return session({
     resave: true,
     saveUninitialized: true,
     secret: process.env.SESSION_SECRET,
     store: sessionStore
-  }));
+  });
+
 };

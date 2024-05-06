@@ -223,9 +223,9 @@ angular.module('myApp').directive('editorListingTitleDir', function(){
 
         // This promise resolves immediately but forces Angular to refresh the model
         return ModalSvc.wait({
-          waitFor: Promise.resolve().then( () => {
+          waitFor: Promise.resolve().then( async () => {
 
-            vm.lot.listingData.title = ListingsSvc.getLotListingTitleTemplate( vm.lot );
+            vm.lot.listingData.title = await ListingsSvc.getLotListingTitleTemplate( vm.lot );
 
             verifyTitle();
 

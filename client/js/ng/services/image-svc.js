@@ -68,6 +68,10 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
 
         const itemContainer = $window.document.getElementById(containerId);
 
+        if( !itemContainer ) {
+          return;
+        }
+
         // return if there is already a representative image.
         let representativeImg = itemContainer.querySelector('img.representative-img');
         if( representativeImg ) {

@@ -9,7 +9,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
   'ImageSvc',
   'InventoryPalletManagerSvc',
-  'listingsBoilerplate',
   'ListingsSvc',
   'LoggedInUser',
   'LotSvc',
@@ -21,7 +20,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     ImageSvc,
     InventoryPalletManagerSvc,
-    listingsBoilerplate,
     ListingsSvc,
     LoggedInUser,
     LotSvc,
@@ -49,7 +47,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           showPricingData: LoggedInUser.hasPermission( 'VIEW_PRICING_DATA' ),
           waitingForResponse: false,
 
-          listingsBoilerplate,
 
           // images methods
           uploadImages,
@@ -105,6 +102,14 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           vm.images = lot.images;
           refreshDisplayInventory();
         } )
+        .then( _ => {
+          if( vm.lot.hasScannedManifest() && !vm.lot.inventoryHasBrandInfo() ) {
+            return ModalSvc.wait( {
+              waitFor: vm.lot.guaranteeBrandInfo(),
+              message: 'Loading brand info...',
+            });
+          }
+        })
         .then( _ => vm.titleTooLong = ListingsSvc.isTitleTooLong( vm.lot.listingData.title ) );
 
     }
