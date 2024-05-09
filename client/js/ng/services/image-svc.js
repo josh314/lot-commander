@@ -62,20 +62,18 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
       // using $timeout forces a tick in the digest cycle which ensures that the parent containers have been created from recent changes in the model
       return $timeout( async () => {
 
-        if( !containerId ) {
-          return;
-        }
+        let itemContainer;
+        if( containerId ) {
+          itemContainer = $window.document.getElementById(containerId);
 
-        const itemContainer = $window.document.getElementById(containerId);
+          if( !itemContainer ) {
+            return;
+          }
 
-        if( !itemContainer ) {
-          return;
-        }
-
-        // return if there is already a representative image.
-        let representativeImg = itemContainer.querySelector('img.representative-img');
-        if( representativeImg ) {
-          return;
+          // return if there is already a representative image.
+          if( itemContainer.querySelector('img.representative-img') ) {
+            return;
+          }
         }
 
         let img;
@@ -87,13 +85,17 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
           img = await Promise.any( images.map( this.loadImageWithTimeoutAndPlaceholder(10000, errorImg) ) );
         }
 
-        img.className = `representative-img${ className ? ` ${ className}` : ''}`;
+        if( containerId ) {
+          img.className = `representative-img${ className ? ` ${ className}` : ''}`;
 
-        // check once more for representative image before adding
-        representativeImg = itemContainer.querySelector('img.representative-img');
-        if( !representativeImg ) {
-          itemContainer.appendChild(img);
+          // check once more for representative image before adding
+          const representativeImg = itemContainer.querySelector('img.representative-img');
+          if( !representativeImg ) {
+            itemContainer.appendChild(img);
+          }
         }
+
+        return img;
 
       }, 1);
 

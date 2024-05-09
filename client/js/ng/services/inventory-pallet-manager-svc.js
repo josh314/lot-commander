@@ -528,7 +528,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
         }
       }
 
-      loadManifest() {
+      loadManifest( refreshProductData = false ) {
 
         const manifestFilename = this.getManifestFilename();
 
@@ -541,10 +541,10 @@ angular.module('myApp').factory( 'InventoryPallet', [
           ManifestFileHandlerSvc.parse( data, manifestFilename, { skipLastRows: 1 } ); //note we are assuming the last row is a totals row
 
           const manifest = ManifestFileHandlerSvc.getActiveManifest();
-
           this.manifest = manifest;
 
-          return manifest;
+          return refreshProductData ? this.refreshProductData() : this.manifest;
+
         });
 
       }
@@ -557,6 +557,33 @@ angular.module('myApp').factory( 'InventoryPallet', [
 
         return ProductDataSvc.getProductDataFromLoadedManifest( this.manifest );
 
+      }
+
+      async refreshProductData() {
+
+        const products = await this.getProductData();
+
+        if( this.manifest ) {
+
+          const sheet = this.manifest.getActiveSheet();
+
+          for( let product of products.filter( _ => _ && _.upc ) ) {
+
+            if( product.brand ) {
+              sheet.setBrandForBarcode( product.upc, product.brand );
+            }
+            if( product.title ) {
+              sheet.setDescriptionForBarcode( product.upc, product.title );
+            }
+            if( product.images ) {
+              sheet.setImagesForBarcode( product.upc, product.images );
+            }
+
+          }
+
+        }
+
+        return this.manifest;
       }
 
     }

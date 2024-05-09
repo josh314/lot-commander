@@ -6,6 +6,7 @@ import {
   __STANDARD_MANIFEST_DESCRIPTION_COLUMN__,
   __STANDARD_MANIFEST_CATEGORY_COLUMN__,
   __STANDARD_MANIFEST_BRAND_COLUMN__,
+  __STANDARD_MANIFEST_IMAGE_COLUMN__,
   __STANDARD_MANIFEST_UNIT_COST_COLUMN__,
   __STANDARD_MANIFEST_TOTAL_COST_COLUMN__,
   __STANDARD_MANIFEST_UNIT_RETAIL_PRICE_COLUMN__,
@@ -102,6 +103,10 @@ export class Column {
 
   isBrandColumn() {
     return this.displayName === __STANDARD_MANIFEST_BRAND_COLUMN__;
+  }
+
+  isImageColumn() {
+    return this.displayName === __STANDARD_MANIFEST_IMAGE_COLUMN__;
   }
 
   isCostColumn() {
@@ -278,6 +283,10 @@ export class Sheet {
 
   getBrandColumn() {
     return this.columns.find( column => column.isBrandColumn() );
+  }
+
+  getImageColumn() {
+    return this.columns.find( column => column.isImageColumn() );
   }
 
   getUnitCostColumn() {
@@ -1324,6 +1333,21 @@ export class Sheet {
         this.columns.push( descriptionColumn );
       }
       row[ descriptionColumn.displayName ] = description;
+    }
+  }
+
+  setImagesForBarcode( barcode, images ) {
+    const row = this.getLineItemByBarcode( barcode );
+    if( row ) {
+      let imageColumn = this.getImageColumn();
+      if( !imageColumn ) {
+        imageColumn = new Column( {
+          name: __STANDARD_MANIFEST_IMAGE_COLUMN__,
+          selected: true,
+        });
+        this.columns.push( imageColumn );
+      }
+      row[ imageColumn.displayName ] = images;
     }
   }
 

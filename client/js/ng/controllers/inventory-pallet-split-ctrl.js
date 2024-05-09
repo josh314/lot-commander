@@ -4,6 +4,7 @@ import {
   upce2upca,
 } from '../../upc';
 import * as util from '../../utilities';
+import _ from 'angular-animate';
 
 const __PAGE_SIZE__ = 5;
 
@@ -388,6 +389,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
             numSplit: 1,
             [ __BARCODE__ ]: displayItem[ __BARCODE__ ],
             [ __DESCRIPTION__ ]: displayItem[ __DESCRIPTION__ ],
+            representativeImgSrc: displayItem.representativeImgSrc,
           };
 
           if( displayItem[ __CATEGORY__ ] ) {
@@ -412,6 +414,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         this.items = [ splitItem ].concat( this.items );
 
         displayItem.numSplit += 1;
+
 
       }
 
@@ -596,6 +599,8 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
     const __RETAIL_PRICE__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_TOTAL_RETAIL_PRICE_COLUMN__;
     const __SALE_PRICE__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_TOTAL_SALE_PRICE_COLUMN__;
     const __CATEGORY__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_CATEGORY_COLUMN__;
+    const __BRAND__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_BRAND_COLUMN__;
+    const __IMAGE__ = StandardManifestColumnsConst.__STANDARD_MANIFEST_IMAGE_COLUMN__;
 
     async function init() {
 
@@ -679,6 +684,49 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
       }
 
     }
+
+    function loadInventoryThumbnailImages() {
+
+      const loadImagePromises = [];
+
+      for( let item of vm.manifestDisplayRows ) {
+
+        const images = item[ __IMAGE__ ];
+
+        if( !images || !images.length ) {
+          continue;
+        }
+
+        loadImagePromises.push(
+          ImageSvc.loadRepresentativeImage({ images }).then( img => {
+
+            if( img ) {
+              item.representativeImgSrc = img.src;
+            }
+
+          } )
+        );
+
+      }
+
+      return Promise.all( loadImagePromises ).then( _ => {
+
+        for( let grp of vm.displaySplitGroups ) {
+          for( let item of grp.items ) {
+
+            const displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === item[ __BARCODE__ ] );
+            if( displayItem ) {
+              item.representativeImgSrc = displayItem.representativeImgSrc;
+            }
+
+          }
+        }
+
+      });
+
+    }
+
+
 
     function allItemsSplitOut() {
 
@@ -888,7 +936,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
     }
 
-    function loadPallet( pallet ) {
+    async function loadPallet( pallet ) {
 
       vm.pallet = pallet;
       if( vm.pallet.isBrokendown ) {
@@ -900,46 +948,52 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         return ModalSvc.message({ header: 'Error', body: `No manifest for pallet ${pallet.handle}.`, type: 'error' });
       }
 
-      pallet.loadManifest().then( manifest => {
+      const refreshProductData = true;
 
-        if( manifest ) {
-          vm.manifest = manifest;
-          if( vm.pallet.splitGroups ) {
-            vm.displaySplitGroups = JSON.parse( JSON.stringify( vm.pallet.splitGroups ) ).map( _ => new DisplaySplitGroup( _ ) );
+      const manifest = await ModalSvc.wait( {
+        waitFor: pallet.loadManifest( refreshProductData ),
+      });
 
-            if( vm.displaySplitGroups.length ) {
-              vm.displaySplitGroupsSorted = vm.displaySplitGroups.map( _ => _ );
-            }
-            else {
-              newSplitGroup();
-            }
+      if( manifest ) {
+        vm.manifest = manifest;
+        if( vm.pallet.splitGroups ) {
+          vm.displaySplitGroups = JSON.parse( JSON.stringify( vm.pallet.splitGroups ) ).map( _ => new DisplaySplitGroup( _ ) );
 
-            vm.currentSplitGroup = vm.displaySplitGroups[0];
+          if( vm.displaySplitGroups.length ) {
+            vm.displaySplitGroupsSorted = vm.displaySplitGroups.map( _ => _ );
+          }
+          else {
+            newSplitGroup();
           }
 
-          vm.manifestDisplayRows = getDisplayRowsFromManifest( manifest );
-
-          if( vm.displaySplitGroups ) {
-
-            for( let grp of vm.displaySplitGroups ) {
-
-              if( grp.items ) {
-
-                grp.items.forEach( _splitItem => {
-                  const displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === _splitItem[ __BARCODE__ ] );
-                  if( displayItem ) {
-                    displayItem.numSplit += _splitItem.numSplit;
-                  }
-                });
-
-              }
-
-            }
-
-          }
+          vm.currentSplitGroup = vm.displaySplitGroups[0];
         }
 
-      });
+        vm.manifestDisplayRows = getDisplayRowsFromManifest( manifest );
+
+        if( vm.displaySplitGroups ) {
+
+          for( let grp of vm.displaySplitGroups ) {
+
+            if( grp.items ) {
+
+              grp.items.forEach( _splitItem => {
+                const displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === _splitItem[ __BARCODE__ ] );
+                if( displayItem ) {
+                  displayItem.numSplit += _splitItem.numSplit;
+                  _splitItem[ __IMAGE__ ] = displayItem[ __IMAGE__ ];
+                }
+              });
+
+            }
+
+          }
+
+        }
+      }
+
+      loadInventoryThumbnailImages();
+
     }
 
     function getDisplayRowsFromManifest( manifest ) {

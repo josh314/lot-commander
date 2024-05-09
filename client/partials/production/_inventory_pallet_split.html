@@ -385,6 +385,7 @@
 
         <table class="table table-striped table-bordered">
           <thead>
+            <th>Image</th>
             <th>Barcode</th>
             <th>Number split</th>
             <th>Description</th>
@@ -393,6 +394,12 @@
           <tbody>
 
             <tr ng-repeat="$item in $grp.items track by $index">
+
+              <td>
+                <div id="item-thumbnail-container__sg-{{ $grp.label }}__{{ $item[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_BARCODE_COLUMN__ ] }}">
+                </div>
+                <img class="representative-img inventory-preview-img" ng-src="{{ $item.representativeImgSrc }}">
+              </td>
 
               <td>{{ $item[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_BARCODE_COLUMN__ ] }}</td>
 
@@ -438,6 +445,8 @@
 
       <table class="table table-striped table-bordered">
         <thead>
+
+          <th>Image</th>
           <th>Barcode</th>
           <th>Quantity</th>
           <th>Description</th>
@@ -446,6 +455,12 @@
         <tbody>
 
           <tr ng-repeat="row in $ctrl.manifestDisplayRows track by $index">
+
+            <td>
+              <div id="item-thumbnail-container__current-manifest__{{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_BARCODE_COLUMN__ ] }}">
+              </div>
+              <img class="representative-img inventory-preview-img" ng-src="{{ row.representativeImgSrc }}">
+						</td>
 
             <td>
               <p>{{ row[ $ctrl.standardManifestColumns.__STANDARD_MANIFEST_BARCODE_COLUMN__ ] }}</p>
