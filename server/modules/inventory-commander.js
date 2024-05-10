@@ -912,7 +912,7 @@ class InventoryCommander {
       throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
     }
 
-    const found = shipment.palletsReceived.includes( mongoose.Types.ObjectId(palletId) );
+    const found = shipment.palletsReceived.includes( new mongoose.Types.ObjectId(palletId) );
 
     if( found ) {
 
@@ -969,7 +969,7 @@ class InventoryCommander {
       throw new ResourceNotFoundError( { type: 'incoming shipment', id: shipmentId } );
     }
 
-    const found = shipment.palletsConsolidated.includes( mongoose.Types.ObjectId(palletId) );
+    const found = shipment.palletsConsolidated.includes( new mongoose.Types.ObjectId(palletId) );
 
     if( found ) {
 

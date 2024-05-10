@@ -35,7 +35,7 @@ class ManifestDbClient {
   }
 
   deleteManifest( manifestId ) {
-    return this.Manifest.remove({ _id: manifestId });
+    return this.Manifest.deleteOne({ _id: manifestId });
   }
 
   saveManifest( manifest ) {

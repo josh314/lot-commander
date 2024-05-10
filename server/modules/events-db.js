@@ -357,7 +357,7 @@ class EventsDbClient {
       createdAt : -1
     };
 
-    const query = { shipment: mongoose.Types.ObjectId( shipmentId ) };
+    const query = { shipment: new mongoose.Types.ObjectId( shipmentId ) };
 
     if( opts.eventType ) {
       query.type = opts.eventType;
