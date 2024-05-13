@@ -47,7 +47,7 @@
             <a class="btn btn-primary" ng-click="$ctrl.editShippingItemsModal()" ng-hide="$ctrl.lot.numBoxes">Edit Shipping Items</a>
           </div>
           <div>
-            <a class="btn btn-success" ng-click="$ctrl.saveManifest()" ng-disabled="!$ctrl.validateInventory()">Save</a>
+            <a class="btn btn-success" ng-click="$ctrl.saveManifestAndContinue()" ng-disabled="!$ctrl.isManifestChanged() || !$ctrl.validateInventory()">Save</a>
             <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & finish</a>
           </div>
 				</div>
