@@ -29,7 +29,9 @@ function cmpManifestItems( a, b ) {
 
 function serializeManifest( manifest ) {
 
-  const sortedManifest = [ ...manifest ].map( _item => {
+  const sortedManifest = [ ...manifest ].map( item => {
+
+    const _item = { ...item };
 
     if( _item.price ) {
       _item.price = parseFloat( _item.price );
@@ -190,6 +192,9 @@ angular.module('myApp').controller( 'ScanCtrl', [
           waitFor: save(),
           message: 'Saving manifest...',
         });
+
+        refreshDisplayInventory();
+
         vm.lastSavedManifest = serializeManifest( vm.lot.inventory );
         console.log('saveManifest result:', manifest);
 
@@ -198,7 +203,6 @@ angular.module('myApp').controller( 'ScanCtrl', [
           html: '<p>The manifest has been saved.</p>',
           buttonText: 'Continue',
         });
-
         return { success: true, manifest };
 
       }
