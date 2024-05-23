@@ -1533,7 +1533,7 @@ class InventoryCommander {
 
   async instantiatePackage( pkgId ) {
 
-    const pkg = await this.getPackageById( pkgId, { populate: [ 'shipment', 'pallet', 'lot' ] } );
+    const pkg = await this.getPackageById( pkgId, { populate: [ 'shipment', 'pallet' ] } );
 
     if( !pkg ) {
       throw new ResourceNotFoundError( { type: 'package', id: pkgId } );
@@ -1559,7 +1559,7 @@ class InventoryCommander {
 
     // TODO: link/unlink bundles, sub-packages, components
 
-    const pkg = await this.getPackageById( pkgId, { populate: [ 'shipment', 'pallet', 'lot' ] } );
+    const pkg = await this.getPackageById( pkgId, { populate: [ 'shipment', 'pallet' ] } );
 
     if( !pkg ) {
       throw new ResourceNotFoundError( { type: 'package', id: pkgId } );

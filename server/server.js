@@ -81,18 +81,26 @@ class Server {
 
   }
 
-  connect( { host, port, dbName, user, password } ) {
+  connect( { host, port, db, auth, atlas, options } ) {
 
+    const user = auth && auth.user;
+    const pwd = auth && auth.pwd;
 
-    const location = `${host}:${ port || 27017 }/${dbName}`;
+    const portStr = atlas ? '' : `:${port || 27017}`;
+    const location = `${host}${ portStr }/${db}`;
 
-    const connectionOpts = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    };
+    const connectionOpts = Object.assign(
+      {
+        retryWrites: true,
+        w: 'majority',
+      },
+      options
+    );
+
+    const connectionStr = `mongodb${ atlas ? '+srv' : '' }://${ user && pwd ? `${user}:${pwd}@` : ''}${location}`;
 
     const conn = mongoose.createConnection(
-      `mongodb://${ user && password ? `${user}:${password}@` : ''}${location}`,
+      connectionStr,
       connectionOpts
     );
 
@@ -107,13 +115,7 @@ class Server {
 
     const mongoSettings = this.config.dbHosts.mongo;
 
-    this.mongooseConnection = await this.connect({
-      host: mongoSettings.host,
-      port: mongoSettings.port,
-      dbName: mongoSettings.db,
-      user: mongoSettings.auth && mongoSettings.auth.user,
-      password: mongoSettings.auth && mongoSettings.auth.pwd,
-    });
+    this.mongooseConnection = await this.connect( mongoSettings );
 
     global.__mongooseConnection = this.mongooseConnection;
 
