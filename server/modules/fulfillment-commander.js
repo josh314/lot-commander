@@ -439,18 +439,18 @@ class FulfillmentCommander {
 
       await orderPick.finish();
 
-      const lotUpdates = [];
+      const lotUpdates = new Map();
       for( let pickItem of orderPick.pickItems ) {
 
-        if( pickItem.lot ) {
+        if( pickItem.lot && !lotUpdates.get( pickItem.lot._id ) ) {
 
-          lotUpdates.push( pickItem.lot.ship() );
+          lotUpdates.set( pickItem.lot._id, pickItem.lot.ship() );
 
         }
 
       }
 
-      await Promise.all( lotUpdates );
+      await Promise.all( [ ...lotUpdates.values() ] );
 
     }
 
@@ -470,18 +470,18 @@ class FulfillmentCommander {
 
       await orderPick.unfinish();
 
-      const lotUpdates = [];
+      const lotUpdates = new Map();
       for( let pickItem of orderPick.pickItems ) {
 
-        if( pickItem.lot ) {
+        if( pickItem.lot  && !lotUpdates.get( pickItem.lot._id ) ) {
 
-          lotUpdates.push( pickItem.lot.unship() );
+          lotUpdates.set( pickItem.lot._id, pickItem.lot.unship() );
 
         }
 
       }
 
-      await Promise.all( lotUpdates );
+      await Promise.all( [ ...lotUpdates.values() ] );
 
     }
 

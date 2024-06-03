@@ -89,6 +89,8 @@ class Server {
     const portStr = atlas ? '' : `:${port || 27017}`;
     const location = `${host}${ portStr }/${db}`;
 
+    console.log(`Connecting to mongo at ${location}`);
+
     const connectionOpts = Object.assign(
       {
         retryWrites: true,
