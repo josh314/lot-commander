@@ -215,31 +215,35 @@ class FulfillmentCommander {
 
     const lotPickItems = [];
 
-    if( lot.shippingItems ) {
+    for( let i=0; i<lineItem.quantity ; i++ ) {
 
-      for( let shippingItem of lot.shippingItems ) {
+      if( lot.shippingItems ) {
 
-        const pickItem = Object.assign( {}, baseLotPickItem );
+        for( let shippingItem of lot.shippingItems ) {
 
-        if( shippingItem._id ) {
+          const pickItem = Object.assign( {}, baseLotPickItem, { lineItemCount: i+1 } );
 
-          pickItem.shippingItem = shippingItem._id;
+          if( shippingItem._id ) {
 
+            pickItem.shippingItem = shippingItem._id;
+
+          }
+
+          lotPickItems.push( pickItem );
         }
 
-        lotPickItems.push( pickItem );
+      }
+      else if( lot.numBoxes ) {
+
+        for( let i=0; i<lot.numBoxes; i++ ) {
+          lotPickItems.push( Object.assign( {}, baseLotPickItem, { lineItemCount: i+1 } ) );
+        }
+
+      }
+      else {
+        lotPickItems.push( Object.assign( {}, baseLotPickItem, { lineItemCount: i+1 } ) );
       }
 
-    }
-    else if( lot.numBoxes ) {
-
-      for( let i=0; i<lot.numBoxes; i++ ) {
-        lotPickItems.push( Object.assign( {}, baseLotPickItem ) );
-      }
-
-    }
-    else {
-      lotPickItems.push( baseLotPickItem );
     }
 
     return lotPickItems;
