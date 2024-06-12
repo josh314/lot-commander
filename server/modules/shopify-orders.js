@@ -5,10 +5,24 @@ const {
   IllegalActionError
 } = require('../errors');
 
-const shopifyOrdersQueryFilter = ( { toBeFulfilled, startDate, endDate } = {} ) => {
+const shopifyOrdersQueryFilter = ( { toBeFulfilled, startDate, endDate, vendor } = {} ) => {
   const filter = {
     cancelledAt: null
   };
+
+  if( vendor ) {
+    filter['lineItems.product.vendor'] = vendor;
+  }
+  else {
+    filter.lineItems = {
+      $elemMatch: {
+        $or: [
+          { 'product.vendor': 'Wholesale Ninjas' },
+          { product: null }
+        ]
+      }
+    };
+  }
 
   if( typeof toBeFulfilled === 'boolean' ) {
 

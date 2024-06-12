@@ -297,9 +297,20 @@ class FulfillmentCommander {
 
       const lots = await this.lotdb.getLotsByHandles( order.lineItems.map( _ => _.sku ) );
 
+      // filter out line items from vendors who are not us
+      const filteredLineItems = order.lineItems.filter( _li => {
+
+        const vendor = _li.getVendor();
+        if( !vendor || vendor === 'Wholesale Ninjas' ) {
+          return true;
+        }
+
+        return false;
+      } );
+
       let pickItems = [];
 
-      for( let lineItem of order.lineItems ) {
+      for( let lineItem of filteredLineItems ) {
 
         const lot = lots.find( _lot => _lot.handle === lineItem.sku );
         const isBundle = !!( lineItem.product.tags && lineItem.product.tags.includes( 'bundle' ) );
@@ -331,17 +342,21 @@ class FulfillmentCommander {
 
       }
 
-      const data = {
-        order: orderId,
-        pickItems,
-        isDeleted: false
-      };
+      if( pickItems.length ) {
 
-      const newShopifyOrderPick = new this.ShopifyOrderPick( data );
-      await newShopifyOrderPick.save();
+        const data = {
+          order: orderId,
+          pickItems,
+          isDeleted: false
+        };
 
-      order.orderPick = newShopifyOrderPick._id;
-      await order.save().then( _order => _order.populate( 'orderPick' ) );
+        const newShopifyOrderPick = new this.ShopifyOrderPick( data );
+        await newShopifyOrderPick.save();
+
+        order.orderPick = newShopifyOrderPick._id;
+        await order.save().then( _order => _order.populate( 'orderPick' ) );
+
+      }
 
     }
 

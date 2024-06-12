@@ -64,6 +64,7 @@ class Client {
             option1: listing.lot.totalUnits || 'Default Title',
           }
         ],
+        vendor: 'Wholesale Ninjas',
         // unit count?
         // collection?
       };

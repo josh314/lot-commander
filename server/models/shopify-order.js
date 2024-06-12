@@ -34,6 +34,7 @@ const lineItemSchema = mongoose.Schema({
       'lot:estimatedRetailValue': Number,
       'lot:totalUnits': Number,
     },
+    vendor: String,
   },
   variant: {
     id: String,
@@ -65,7 +66,7 @@ lineItemSchema.virtual( 'units' )
 
   } );
 
-lineItemSchema.methods.hasTag = tag => {
+lineItemSchema.methods.hasTag = function( tag ) {
   if( this.product && Array.isArray( this.product.tags ) ) {
     return this.product.tags.includes( tag );
   }
@@ -73,6 +74,9 @@ lineItemSchema.methods.hasTag = tag => {
   return false;
 };
 
+lineItemSchema.methods.getVendor = function( ) {
+  return this.product ? this.product.vendor: null;
+};
 
 /***********************
  * Order schema
