@@ -9,6 +9,7 @@ angular.module('myApp').factory( 'LotSvc', [
 
   '$q',
   '$stateParams',
+  'CounterSvc',
   'InventoryPallet',
   'Lot',
   'ManifestFileHandlerSvc',
@@ -17,6 +18,7 @@ angular.module('myApp').factory( 'LotSvc', [
 
     $q,
     $stateParams,
+    CounterSvc,
     InventoryPallet,
     Lot,
     ManifestFileHandlerSvc,
@@ -72,7 +74,11 @@ angular.module('myApp').factory( 'LotSvc', [
 
       edit: ( lotId, data ) => $q.when( api.editLot( lotId, data ) ),
 
-      generateLotNumber: lotId => $q.when( api.generateLotNumberForLot( lotId ) ),
+      // this increments the lot number counter, and returns the lot number
+      generateLotNumber: () => CounterSvc.incrementPalletLotCounter().then( counter => ({ lotNumber: counter.count }) ),
+
+      // this increments the lot number counter, attaches to appropriate lot, and returns the lot
+      generateLotNumberForLot: lotId => $q.when( api.generateLotNumberForLot( lotId ) ),
 
       generateManifest: ( lotId, save, bstock ) => $q.when( api.generateLotManifest( lotId, save, bstock) ),
 

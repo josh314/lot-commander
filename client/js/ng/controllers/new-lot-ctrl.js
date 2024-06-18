@@ -22,64 +22,62 @@ angular.module('myApp').controller( 'NewLotCtrl', [
     sessionTimeout,
 
   ) {
-    sessionTimeout.timeoutExpired();
-
     const vm = this;
+    init();
 
-    vm.quickLots = listingBuilder.quickLotsBoilerplate;
+    function init() {
 
-    vm.lotTypes = dbEnums.lotType;
-    vm.packagingTypes = dbEnums.packagingType;
-    vm.categories = [ { displayName: 'None' } ].concat( lotCategories ),
-    vm.newLotCategory = vm.categories[0];
-    vm.marketplaces = [
-      'wholesaleninjas',
-      // 'bstock'
-    ];
-    vm.newLot = {
-      unmanifested: false,
-      destinationMarketplace: 'wholesaleninjas',
-    };
-    vm.willUploadManifest = false;
-    vm.openPackagingTypeInfo = ModalSvc.packagingTypeInfo.bind( ModalSvc );
+      sessionTimeout.timeoutExpired();
 
-    vm.setHandleForCategory = setHandleForCategory;
-    vm.startQuickLot = startQuickLot;
-    vm.startCustomLot = startCustomLot;
-    vm.startLot = startLot;
+      const categories =  [ { displayName: 'None' } ].concat( lotCategories );
 
-    function buildHandleForPrefix(prefix) {
+      Object.assign(
+        vm,
+        {
+
+          lotTypes: dbEnums.lotType,
+          packagingTypes: dbEnums.packagingType,
+          categories,
+          newLotCategory: categories[0],
+          marketplaces: [
+            'wholesaleninjas',
+            // 'bstock'
+          ],
+          newLot: {
+            unmanifested: false,
+            destinationMarketplace: 'wholesaleninjas',
+          },
+          errors: {},
+          willUploadManifest: false,
+          openPackagingTypeInfo: ModalSvc.packagingTypeInfo.bind( ModalSvc ),
+
+          setHandleForCategory,
+          startQuickLot,
+          startCustomLot,
+          startLot,
+        }
+      );
+
+      LotSvc.generateLotNumber().then(({ lotNumber }) => {
+        vm.newLot.lotNumber = lotNumber;
+        vm.newLot.handle = `lot-${lotNumber}`;
+      });
+
+    }
+
+
+    function buildHandleForPrefix( prefix ) {
       const today = new Date();//fix time zone to EST
 
       const categoryDatePrefix = `${prefix}-${today.getMonth()+1}-${today.getDate()}-${today.getFullYear()-2000}`;
 
-      const filter = {
-        handle: categoryDatePrefix
-      };
+      return `${categoryDatePrefix}-${ vm.newLot.lotNumber }`;
 
-      // TODO: this really just compares against the most recent lots. Might be better off
-      // creating a new API endpoint that validates a proposed handle against the existing DB,
-      // perhaps using an mongo aggregate function
-      return LotSvc.list( { filter } ).then( lots => {
-        const handlePattern = new RegExp(`${categoryDatePrefix}-([0-9]+)`);
-        const existingLotNumbers = lots.reduce((numbers, lot) => {
-          const lotNumberMatch = lot.handle.match(handlePattern);
-          if(lotNumberMatch) {
-            numbers.add(parseInt(lotNumberMatch[1]));
-          }
-          return numbers;
-        }, new Set());
-        let newLotNumber = 1;
-
-        while(existingLotNumbers.has(newLotNumber))
-          newLotNumber++;
-        return `${categoryDatePrefix}-${newLotNumber}`;
-      });
     }
 
     function setHandleForCategory() {
       if( vm.newLotCategory.value ) {
-        buildHandleForPrefix( vm.newLotCategory.prefix ).then(handle => vm.newLot.handle = handle);
+        vm.newLot.handle = buildHandleForPrefix( vm.newLotCategory.prefix );
       }
     }
 
@@ -95,11 +93,15 @@ angular.module('myApp').controller( 'NewLotCtrl', [
     }
 
     function startCustomLot() {
-      vm.noHandleSubmitted = !vm.newLot.handle;
-      vm.noLotTypeSubmitted = !vm.newLot.type;
-      vm.noPackagingTypeSubmitted = !vm.newLot.packagingType;
+      vm.errors.noHandleSubmitted = !vm.newLot.handle;
+      vm.errors.noLotTypeSubmitted = !vm.newLot.type;
+      vm.errors.noPackagingTypeSubmitted = !vm.newLot.packagingType;
 
-      if (vm.noHandleSubmitted || vm.noLotTypeSubmitted || vm.noPackagingTypeSubmitted ) {
+      const p = new RegExp(`${vm.newLot.lotNumber}`);
+
+      vm.errors.invalidHandle = !p.test(vm.newLot.handle);
+
+      if ( vm.errors.invalidHandle || vm.errors.noLotTypeSubmitted || vm.errors.noPackagingTypeSubmitted ) {
         return;
       }
 

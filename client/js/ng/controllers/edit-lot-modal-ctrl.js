@@ -43,10 +43,10 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
           openPackagingTypeInfo: ModalSvc.packagingTypeInfo.bind( ModalSvc ),
           invalidTitle: false,
 
-
           allowEditPricingData: LoggedInUser.hasPermission( 'EDIT_PRICING_DATA' ) && lot.unmanifested,
 
           invalidLot,
+          invalidHandle,
           editShippingItemsCb,
           generateLotNumber
 
@@ -60,7 +60,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
     }
 
     function invalidLot() {
-      return vm.invalidTitle || vm.lot.numBoxes < 0;
+      return invalidHandle() || vm.invalidTitle || vm.lot.numBoxes < 0;
     }
 
     function editShippingItemsCb( shippingItems ) {
@@ -76,6 +76,14 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
       return CounterSvc.incrementPalletLotCounter().then( counter => {
         vm.lot.lotNumber = counter.count;
       } );
+    }
+
+    function invalidHandle() {
+
+      const p = new RegExp(`${vm.lot.lotNumber}`);
+
+      return !p.test(vm.lot.handle);
+
     }
 
 

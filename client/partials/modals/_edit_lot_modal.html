@@ -12,9 +12,10 @@
       <editor-listing-body-dir lot="$ctrl.lot"></editor-listing-body-dir>
     </div>
 
-		<div class="form-group col-xs-12 col-sm-6">
-			<label for="handleInput">Handle</label>
+		<div class="form-group col-xs-12 col-sm-6" ng-class="{ 'has-error' : $ctrl.invalidHandle() }">
+			<label for="handleInput">Handle (must contain the lot number: <span class="text-danger">{{ $ctrl.lot.lotNumber }}</span>)</label>
 			<input class="form-control" name="handle" id="handleInput" required ng-model="$ctrl.lot.handle">
+      <span class="text-danger h4" ng-show="$ctrl.invalidHandle()">Handle must contain the lot number.</span>
 		</div>
 		<div class="form-group col-xs-12 col-sm-6">
       <label for="lotNumberInput" style="display: flex; justify-content: space-between;">
