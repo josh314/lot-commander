@@ -25,6 +25,7 @@ class FulfillmentCommander {
     // other modules
     inventoryCommander,
     lotdb,
+    shippo,
     shopifyAdminClient,
     shopifyOrders,
 
@@ -38,6 +39,7 @@ class FulfillmentCommander {
 
         inventoryCommander,
         lotdb,
+        shippo,
         shopify: shopifyAdminClient,
         shopifyOrders
       }
@@ -221,7 +223,7 @@ class FulfillmentCommander {
 
         for( let shippingItem of lot.shippingItems ) {
 
-          const pickItem = Object.assign( {}, baseLotPickItem, { lineItemCount: i+1 } );
+          const pickItem = Object.assign( { fulfillmentItem: shippingItem }, baseLotPickItem, { lineItemCount: i+1 } );
 
           if( shippingItem._id ) {
 
@@ -269,7 +271,9 @@ class FulfillmentCommander {
       if( shippingConfiguration && shippingConfiguration.length ) {
 
         for( let shippingConfigurationItem of shippingConfiguration ) {
-          lineItemPickItems.push( Object.assign( { units: shippingConfigurationItem.units }, basePickItem, { lineItemCount: i+1 } ) );
+          const units = shippingConfigurationItem.units;
+          const fulfillmentItem = Object.assign( {}, shippingConfigurationItem, { units: undefined } );
+          lineItemPickItems.push( Object.assign( {}, basePickItem, { fulfillmentItem, units }, { lineItemCount: i+1 } ) );
         }
 
       }
@@ -507,6 +511,69 @@ class FulfillmentCommander {
     return { orderPick };
 
   }
+
+
+  // /************************************************
+  //  *
+  //  * Shipping
+  //  * ======================
+  //  *
+  //  ****/
+
+  getShipment( shipmentId ) {
+
+    return this.shippo.getShipment( shipmentId );
+
+  }
+
+  async createShipment( orderPickId ) {
+
+    const orderPick = await this.getOrderPickById( orderPickId, { populate: [ 'order' ] } );
+
+
+    if( !orderPick ) {
+      throw new ResourceNotFoundError( { type: 'shopify order pick', id: orderPickId } );
+    }
+
+    const order = await this.shopifyAdminClient.getOrder( orderPick.order.id );
+
+    const shipment = await this.shippo.createShipment(
+      orderPick.getFulfillmentItems(),
+      order.shipping_address
+    );
+
+    return { shipment };
+
+  }
+
+  // async getOrderShipments( orderPickId ) {
+
+  //   const orderPick = await this.getOrderPickById( orderPickId, { populate: [ 'order' ] } );
+
+
+  //   if( !orderPick ) {
+  //     throw new ResourceNotFoundError( { type: 'shopify order pick', id: orderPickId } );
+  //   }
+
+  //   let shipments = [];
+  //   if( orderPick.shipments && orderPick.shipments.length ) {
+
+  //     const shipmentReqs = orderPick.shipments.map( _shipment => this.getShipment( _shipment ) );
+
+  //     shipments = await Promise.all( shipmentReqs );
+
+  //   }
+
+  //   return { shipments }
+
+  // }
+
+  // async startShipment( orderPickId ) {
+
+  //   const
+
+  // }
+
 
 }
 

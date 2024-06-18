@@ -322,8 +322,11 @@ class Server {
       manifests
     } );
 
+    const Shippo = require( './modules/shippo-client' );
+    const shippo = new Shippo( { apiToken: this.config.shippo.apiToken } );
+
     const FulfillmentCommander = require( './modules/fulfillment-commander' );
-    const fulfillmentCommander = new FulfillmentCommander( Object.assign( { inventoryCommander, lotdb, shopifyOrders, shopifyAdminClient } , models ) );
+    const fulfillmentCommander = new FulfillmentCommander( Object.assign( { inventoryCommander, lotdb, shopifyOrders, shopifyAdminClient, shippo } , models ) );
 
     //======================================================
     // Main app routes =====================================

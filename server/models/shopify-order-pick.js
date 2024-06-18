@@ -1,5 +1,23 @@
 const mongoose = require('mongoose');
 
+const {
+  fulfillmentItemSchema
+} = require( './fulfillment-item' );
+
+
+/***********************
+ * OrderPickShipment schema
+ * ===============
+ *
+ ******/
+
+
+const orderPickShipmentSchema = mongoose.Schema({
+
+  shippoId: String,
+
+});
+
 /***********************
  * PickItem schema
  * ===============
@@ -32,11 +50,12 @@ const pickItemSchema = mongoose.Schema({
 
   shippingItem: mongoose.Schema.Types.ObjectId, // compare against lot.shippingItems[]._id
   pkg: { //
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId, // compare against the _id of documents in the packages collection
     ref: 'Package'
   },
   isPicked: Boolean,
   pickedDate: Date,
+  fulfillmentItem: fulfillmentItemSchema, // the actual linear and weight dims of the sparcel used for fulfillment
 
 });
 
@@ -77,6 +96,8 @@ const shopifyOrderPickSchema = mongoose.Schema({
     ref: 'ShopifyOrder'
   },
   pickItems: [ pickItemSchema ],
+
+  shipments: [ orderPickShipmentSchema ],
 
   isFinished: Boolean,
   finishedDate: Date,
@@ -167,6 +188,13 @@ shopifyOrderPickSchema.methods.unpickItem = function( pickItemId ) {
 
   return pickItem;
 };
+
+shopifyOrderPickSchema.methods.getFulfillmentItems = function( ) {
+
+// TODO: check if isPicked?
+
+  return this.pickItems.map( pickItem => pickItem.fulfillmentItem );
+}
 
 /***************************
  * Export

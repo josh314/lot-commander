@@ -156,6 +156,17 @@ class Client {
 
   }
 
+  getOrder( orderId ) {
+
+      const endpoint = `orders/${ orderId }.json`;
+
+      return this.request( {
+        method: 'GET',
+        endpoint
+      } );
+
+  }
+
 }
 
 module.exports = Client;

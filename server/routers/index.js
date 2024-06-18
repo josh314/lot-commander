@@ -73,6 +73,8 @@ function routes({
   // shopify orders
   router.use('/api/orders', require('./orders')( { shopifyOrders, fulfillmentCommander } ) );
 
+  router.use('/api/fulfillment', require('./fulfillment')( { fulfillmentCommander } ) );
+
   // counter app
   router.use('/api/counters', require('./counters')( { countCommander } ) );
 

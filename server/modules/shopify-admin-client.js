@@ -256,6 +256,20 @@ class Client {
     }
   }
 
+  getOrder( id ) {
+
+    let restId;
+    if( id.startsWith('gid://') ) {
+      restId = this.gid2Id( id, 'Order' );
+    }
+    else {
+      restId = id;
+    }
+
+    return this.shopifyRest.getOrder( restId );
+
+  }
+
   /***********************************
    * Shopify GraphQL method wrappers
    * ===============================
