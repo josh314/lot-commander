@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs').promises;
 
-const imageServer = require('./image-server');
+const mediaServer = require('./media-server');
 const ShopifyRest = require('./shopify-rest');
 
 class Client {
@@ -26,7 +26,7 @@ class Client {
     try {
       let imgBuffer;
       if(imageObj.s3) {
-        imgBuffer = ( await imageServer.get({ s3Location: imageObj.s3 }) ).Body;
+        imgBuffer = ( await mediaServer.get({ s3Location: imageObj.s3 }) ).Body;
       }
       else {
         imgBuffer = await fs.readFile( path.join(__basedir, __config.imgPath, imageObj.filename) );

@@ -7,7 +7,7 @@ const {
   setPackagingTypeFromShippingItems,
   shippingItemSchema
 } = require( './shipping-item' );
-const { lotImageSchema } = require( './lot-image' );
+const { lotMediaDataSchema } = require( './lot-media-data' );
 
 /*************************************************
  * Enums
@@ -58,7 +58,7 @@ const lotSchema = mongoose.Schema({
   soldDate: Date,
   shippedDate: Date,
 
-  images: [ lotImageSchema ],
+  images: [ lotMediaDataSchema ],
 
   /*********** Manifest properties ************/
   unmanifested: Boolean, //marks a generic lot with unmanifested items.

@@ -7,7 +7,7 @@ const {
   setPackagingTypeFromShippingItems,
   shippingItemSchema
 } = require( './shipping-item' );
-const { lotImageSchema } = require( './lot-image' );
+const { lotMediaDataSchema } = require( './lot-media-data' );
 
 
 /*************************************************
@@ -31,7 +31,7 @@ const splitGroupSchema = mongoose.Schema({
   items: [ Object ],
   packagingType: { type: String, enum: enums.packagingType },
   shippingItems: [ shippingItemSchema ],
-  images: [ lotImageSchema ],
+  images: [ lotMediaDataSchema ],
 });
 
 splitGroupSchema.methods.setPackagingTypeFromShippingItems = function() {
@@ -81,7 +81,7 @@ const inventoryPalletSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Lot'
   },
-  images: [ lotImageSchema ],
+  images: [ lotMediaDataSchema ],
 
   /******* Shipping properties ***************/
 

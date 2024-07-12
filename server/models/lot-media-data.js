@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 /*******************************
- * LotImageSchema schema
+ * LotMediaDataSchema schema
  * =============================
  *
  ******/
 
-const lotImageSchema = mongoose.Schema({
+const lotMediaDataSchema = mongoose.Schema({
   filename: String,
   s3: String,
   primary: Boolean,
 });
 
 module.exports = {
-  lotImageSchema
+  lotMediaDataSchema
 };

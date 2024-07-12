@@ -10,7 +10,7 @@ const {
   InvalidRequestError
 } = require('../errors');
 
-const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
+const imageServer = require(path.join(__basedir, __config.modulesPath, 'media-server'));
 const notFoundImage = fs.readFileSync(path.join(__basedir, '../assets', 'missing-image.jpg'));
 
 module.exports = routes;
