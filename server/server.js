@@ -250,7 +250,7 @@ class Server {
 
     // Lot DB
     const LotDbClient = require('./modules/lot-db-client').Client;
-    const lotdb = require(path.join(__basedir, __config.modulesPath, 'lot-db'))( new LotDbClient( Object.assign( { countCommander }, models ) ) );
+    const lotdb = new LotDbClient( Object.assign( { countCommander }, models ) );
 
     // Managing scanned inventory manifest db entries
     const ManifestDbClient = require('./modules/manifest-db-client');

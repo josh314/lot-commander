@@ -3,6 +3,7 @@ const helpers = require('../helpers');
 const {
   ResourceNotFoundError,
   ChildResourceNotFoundError,
+  IllegalActionError,
 } = require('../errors');
 
 const lotQueryFilter = ( { handle, lotNumber, status } ) => {
@@ -72,22 +73,31 @@ exports.Client = function( { Lot, countCommander } ) {
 
   };
 
-  this.createLot = async function(lot) {
-    //TODO: validation -> needs handle
-    if(!lot.status) {
-      lot.status = enums.lotStatus[0];
+  this.createLot = async function( _data ) {
+
+    const existingLot = await this.getLotByHandle( _data.handle );
+
+    if( existingLot ) {
+      throw new IllegalActionError(`Lot with handle ${ _data.handle } already exists.`, 'DUPLICATE_LOT_HANDLE');
     }
 
-    if( typeof lot.isDeleted !== 'boolean' ) {
-      lot.isDeleted = false;
+    console.log(`Submitting new lot with data:`);
+    console.log(`${JSON.stringify( _data, null, 2 )}`);
+
+    if( !_data.status ) {
+      _data.status = enums.lotStatus[0];
     }
 
-    if( !lot.lotNumber ) {
+    if( typeof _data.isDeleted !== 'boolean' ) {
+      _data.isDeleted = false;
+    }
+
+    if( !_data.lotNumber ) {
       const counter = await this.countCommander.incrementCounter( 'pallet-lots' , 1 );
-      lot.lotNumber = counter.count;
+      _data.lotNumber = counter.count;
     }
 
-    const newLot = new this.LotModel(lot);
+    const newLot = new this.LotModel( _data );
     return newLot.save();
   };
 
