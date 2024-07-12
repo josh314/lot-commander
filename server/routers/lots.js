@@ -483,6 +483,8 @@ function routes({ inventoryCommander, lotdb, manifests }) {
 
   }
 
+  // Note that this doesn't save actual images to any host, just adds the image data to the lot
+  // See the /api/media endpoints for image storage
   async function addImages( req, res, next ) {
 
     try {

@@ -3,6 +3,10 @@ const path = require('path');
 const stream = require('stream');
 const { URL } = require('url');
 
+const {
+  IllegalActionError
+} = require('../errors');
+
 const aws = require('aws-sdk');
 aws.config.credentials = new aws.SharedIniFileCredentials({profile: 'lot-commander'});
 const s3 = new aws.S3({apiVersion: '2006-03-01'});
@@ -12,34 +16,46 @@ const axios = require('axios');
 const sharp = require('sharp');
 const MAX_IMAGE_WIDTH = 1920;
 
-const BUCKET = 'lot-images';
+const __BUCKETS__ = {
+  images: 'lot-images',
+  videos: 'lot-videos'
+};
 
-const imageUrl = s3Key => `https://${ BUCKET }.s3.amazonaws.com/${ s3Key }`;
+const mediaUrl = (type, s3Key) => `https://${ __BUCKETS__[ type ] }.s3.amazonaws.com/${ s3Key }`;
 
-const imageName = (s3Location) => {
+const mediaFilenameFromS3Location = (s3Location) => {
   const p = /https:\/\/.*\.s3\.amazonaws\.com\/.*\/(.*)/;
   const match = s3Location.match(p);
   return match ? match[1] : null;
 };
 
-const isImageServerLink = s => {
+const isMediaServerLink = s => {
 
-  const p = new RegExp(`https://${BUCKET}.s3.amazonaws.com/.*`);
+  const p = new RegExp(`https://(${ Object.values( __BUCKETS__ ).join("|") }).s3.amazonaws.com/.*`);
 
   return p.test( s );
 
 };
 
-const parseS3Location = (s3Location) => {
+const parseS3Location = ( s3Location ) => {
   const res = {};
 
   const p = /https:\/\/(.*)\.s3\.amazonaws\.com\/(.*)\/(.*)/;
   const match = s3Location.match(p);
   if(match) {
+
     res.bucket = match[1];
     res.ownerId = match[2];
-    res.imgName = match[3] && decodeURIComponent(match[3]);
-    res.key = `${res.ownerId}/${res.imgName}`;
+    res.filename = match[3] && decodeURIComponent( match[3] );
+    res.key = `${ res.ownerId }/${ res.filename }`;
+
+    if( res.bucket === __BUCKETS__.images ) {
+      res.mediaType = 'images';
+    }
+    else if( res.bucket === __BUCKETS__.videos ) {
+      res.mediaType = 'videos';
+    }
+
   }
 
   return res;
@@ -65,57 +81,53 @@ const formatAsCompressedJpeg = async function(imgPath, opts={}) {
     .toBuffer();
 };
 
-const store = async function(ownerId, imgPath, imgName, opts={}) {
+const storeMedia =  async function( ownerId, pathToFile, filename, mediaType, opts = {} ) {
+
   const compress = 'compress' in opts ? opts.compress : true;
-  const dedup = 'dedup' in opts ? opts.dedup : true;
 
   let readStream;
   let key;
 
-  if(compress) {
-    const imgBuffer = await formatAsCompressedJpeg(imgPath);
+  if( mediaType === 'images' && compress ) {
+    const buffer = await formatAsCompressedJpeg( pathToFile );
 
     readStream = new stream.PassThrough();
-    readStream.end(imgBuffer);
+    readStream.end( buffer );
 
-    key = `${ownerId}/${path.parse(imgName).name}.jpg`;
+    key = `${ ownerId }/${path.parse( filename ).name}.jpg`;
   }
   else {
-    readStream = fs.createReadStream(imgPath);
-    key = `${ownerId}/${imgName}`;
+    readStream = fs.createReadStream( pathToFile );
+    key = `${ ownerId }/${ filename }`;
   }
 
-  return storeStream(readStream, key, dedup);
+  const dedup = 'dedup' in opts ? opts.dedup : true;
+  return storeStream( readStream, mediaType, key, dedup );
 };
 
-const storeStream = async function( readStream, key, dedup ) {
-  try {
-    await s3.headBucket({ Bucket: BUCKET }).promise();
-  }
-  catch (error) {
-    const newBucket = await s3.createBucket({
-      Bucket: BUCKET,
-      ACL: 'public-read',
-    }).promise();
-    console.log('Creating new S3 bucket.');
-    console.log(newBucket);
+const storeStream = async function( readStream, mediaType, key, dedup ) {
+
+  const Bucket = __BUCKETS__[ mediaType ];
+
+  if( !Bucket ) {
+    throw new IllegalActionError( `Invalid media type: ${ mediaType }` );
   }
 
   if(dedup) {
-    const list = await s3.listObjects({ Bucket: BUCKET }).promise();
-    const imageObjects = list.Contents;
-    if(imageObjects && imageObjects.length) {
-      const found = imageObjects.find(_ => _.Key === key);
+    const list = await s3.listObjects({ Bucket }).promise();
+    const mediaObjects = list.Contents;
+    if( mediaObjects && mediaObjects.length) {
+      const found = mediaObjects.find(_ => _.Key === key);
       if(found) {
         const keyProps = path.parse(key);
-        const dupes = imageObjects.filter(_ => path.parse(_.Key).name.match(new RegExp(`${keyProps.name}(-[0-9]+)?`) ) );
+        const dupes = mediaObjects.filter(_ => path.parse(_.Key).name.match(new RegExp(`${keyProps.name}(-[0-9]+)?`) ) );
         key = `${keyProps.name}-${dupes.length}${keyProps.ext}`;
       }
     }
   }
 
   return s3.upload({
-    Bucket: BUCKET,
+    Bucket,
     Key: key,
     Body: readStream,
     ACL: "public-read",
@@ -123,16 +135,16 @@ const storeStream = async function( readStream, key, dedup ) {
     .promise();
 };
 
-const clone = ( location, destId ) => {
+const clone = ( location, destId, mediaType = 'images' ) => {
 
-  if( isImageServerLink(location) ) {
+  if( isMediaServerLink(location) ) {
 
     return cloneFromS3( location, destId );
 
   }
   else {
 
-    return cloneFromUrl( location, destId );
+    return cloneFromUrl( location, destId, mediaType );
 
   }
 
@@ -140,9 +152,9 @@ const clone = ( location, destId ) => {
 
 const cloneFromS3 = async ( srcS3Location, destId ) => {
 
-  let { bucket, imgName, key } = parseS3Location( srcS3Location );
+  let { bucket, filename, key, mediaType } = parseS3Location( srcS3Location );
 
-  const destKey = `${destId}/${imgName.replace(/\+/g, ' ')}`;
+  const destKey = `${destId}/${ filename.replace(/\+/g, ' ') }`;
   const src = `/${bucket}/${key}`;
 
   await s3.copyObject({
@@ -153,13 +165,13 @@ const cloneFromS3 = async ( srcS3Location, destId ) => {
   }).promise();
 
   return {
-    s3Location: imageUrl( destKey )
+    s3Location: mediaUrl( mediaType, destKey )
   };
 
 };
 
 
-const cloneFromUrl = async ( urlString, destId ) => {
+const cloneFromUrl = async ( urlString, destId, mediaType ) => {
 
   const urlResponse = await axios({
     method: 'get',
@@ -174,7 +186,7 @@ const cloneFromUrl = async ( urlString, destId ) => {
 
   const key = `${ destId }/${ decodeURIComponent( pathSegments[ pathSegments.length - 1 ] ) }`;
 
-  const storeResponse = await storeStream( urlReadStream, key, false );
+  const storeResponse = await storeStream( urlReadStream, mediaType, key, false );
 
   return {
     s3Location: storeResponse.Location
@@ -182,9 +194,9 @@ const cloneFromUrl = async ( urlString, destId ) => {
 
 };
 
-const list = async ( { urlEncode } = {} ) => {
+const listImages = async ( { urlEncode } = {} ) => {
 
-  const opts = { Bucket: BUCKET };
+  const opts = { Bucket: __BUCKETS__.images };
   if( urlEncode ) {
     opts.EncodingType = "url";
   }
@@ -206,7 +218,7 @@ const list = async ( { urlEncode } = {} ) => {
 
   // sort by recency
   imageObjects.sort( (a,b) => a.LastModified > b.LastModified ? -1 : 1);
-  const images = imageObjects.map( _ => urlEncode ? imageUrl( _.Key ) : _.Key );
+  const images = imageObjects.map( _ => urlEncode ? mediaUrl( 'images', _.Key ) : _.Key );
 
   return images;
 };
@@ -225,8 +237,9 @@ const get = async function(opts = {}) {
   });
 };
 
-const remove = function(s3Location) {
-  const { bucket, key } = parseS3Location(s3Location);
+const remove = function( s3Location ) {
+
+  const { bucket, key } = parseS3Location( s3Location );
 
   if(key) {
     return s3.deleteObject({
@@ -237,18 +250,19 @@ const remove = function(s3Location) {
   else {
     return Promise({});
   }
+
 };
 
-const replace = (s3Location, imgPath) => {
-  const { ownerId, imgName } = parseS3Location(s3Location);
-  return store( ownerId, imgPath, imgName, { dedup: false } );
+const replace = ( s3Location, path ) => {
+  const { ownerId, filename, mediaType } = parseS3Location( s3Location );
+  return storeMedia( ownerId, path, filename, mediaType, { dedup: false } );
 };
 
-const deleteLotImages = async (lotId) => {
+const deleteLotMedia = async ( lotId, mediaType ) => {
   try {
     //1.) get list of all objects
     // 2.) delete each object s3.deleteObjects
-    const list = await s3.listObjectsV2({ Bucket: BUCKET, Prefix: lotId }).promise();
+    const list = await s3.listObjectsV2({ Bucket: __BUCKETS__[ mediaType ], Prefix: lotId }).promise();
     if(list.Contents && list.Contents.length) {
       const keysToDelete = list.Contents.map(object => {
         return {
@@ -256,7 +270,7 @@ const deleteLotImages = async (lotId) => {
         };
       });
       await s3.deleteObjects({
-        Bucket: BUCKET,
+        Bucket: __BUCKETS__[ mediaType ],
         Delete: {
           Objects: keysToDelete,
         }
@@ -269,18 +283,28 @@ const deleteLotImages = async (lotId) => {
   }
 };
 
+const deleteAllLotMedia = async ( lotId ) => {
+  return Promise.all(
+    [
+      deleteLotMedia( lotId, 'images' ),
+      deleteLotMedia( lotId, 'videos' )
+    ]
+  );
+};
+
 module.exports = {
   // main
-  deleteLotImages: deleteLotImages,
-  clone: clone,
-  get: get,
-  list: list,
-  remove: remove,
-  replace: replace,
-  store: store,
+  deleteAllLotMedia,
+  deleteLotMedia,
+  clone,
+  get,
+  listImages,
+  remove,
+  replace,
+  storeMedia,
 
   // helpers
-  isImageServerLink,
-  imageName,
+  isMediaServerLink,
+  mediaFilenameFromS3Location,
   parseS3Location
 };

@@ -262,7 +262,7 @@ exports.Client = function( { Lot, countCommander } ) {
     return lot.save();
   };
 
-  this.removeImage = async function( lotId, imageId ) {
+  this.removeMedia = async function( lotId, mediaId, mediaType ) {
 
     const lot = await this.getLotById( lotId );
 
@@ -270,14 +270,26 @@ exports.Client = function( { Lot, countCommander } ) {
       throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
     }
 
-    const foundIdx = lot.images.findIndex( item => item._id.toString() === imageId.toString() );
+    let arr;
+    if( mediaType === 'images' ) {
+      arr = lot.images;
+    }
+    else if( mediaType === 'videos' ) {
+      arr = lot.videos;
+    }
+    else {
+      throw new IllegalActionError('Invalid media type.');
+    }
+
+
+    const foundIdx = arr.findIndex( item => item._id.toString() === mediaId.toString() );
     if( foundIdx === -1 ) {
 
       throw new ChildResourceNotFoundError( {
         parentType: 'lot',
         parentId: lotId,
-        childType: 'image',
-        childId: imageId
+        childType: mediaType,
+        childId: mediaType
       } );
 
     }

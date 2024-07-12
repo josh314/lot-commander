@@ -66,7 +66,7 @@ class ChildResourceNotFoundError extends ClientError {
   }
 }
 
-class ExternalImageNotFoundError extends MyError {
+class ExternalMediaNotFoundError extends MyError {
   constructor( url ) {
     super( url );
   }
@@ -88,5 +88,5 @@ module.exports = {
   InvalidRequestError,
   ResourceNotFoundError,
   ChildResourceNotFoundError,
-  ExternalImageNotFoundError
+  ExternalMediaNotFoundError
 };

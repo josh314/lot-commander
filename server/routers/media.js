@@ -6,11 +6,12 @@ const formidable = require('formidable');
 const axios = require('axios');
 
 const {
-  ExternalImageNotFoundError,
+  ExternalMediaNotFoundError,
   InvalidRequestError
 } = require('../errors');
 
-const imageServer = require(path.join(__basedir, __config.modulesPath, 'media-server'));
+const mediaServer = require( '../modules/media-server' );
+
 const notFoundImage = fs.readFileSync(path.join(__basedir, '../assets', 'missing-image.jpg'));
 
 module.exports = routes;
@@ -29,24 +30,24 @@ function routes( { inventoryCommander, lotdb } ) {
     get
   );
   router.post(
-    '/upload',
+    '/:mediaType/upload',
     upload
   );
   router.post(
-    '/remove',
-    removeImage
+    '/:mediaType/remove',
+    remove
   );
   router.post(
     '/replace',
-    replaceImage
+    replaceMedia
   );
   router.get(
-    '/list',
-    list
+    '/images/list',
+    listImages
   );
   router.post(
-    '/clone',
-    clone
+    '/images/clone',
+    cloneImages
   );
   router.get(
     '/proxy',
@@ -60,21 +61,34 @@ function routes( { inventoryCommander, lotdb } ) {
    *
    ****/
 
-  async function get(req, res) {
-    const s3Location = decodeURIComponent(req.query.s3);
-    const imgResp = await imageServer.get( { s3Location: s3Location } );
-    if(imgResp && imgResp.Body) {
-      res.header( 'Content-Disposition', `filename="${imageServer.imageName(s3Location)}"` );
-      res.send(imgResp.Body);
+  async function get( req, res, next ) {
+
+    try {
+
+      const s3Location = decodeURIComponent( req.query.s3 );
+      const resp = await mediaServer.get( { s3Location: s3Location } );
+      if( resp && resp.Body ) {
+        res.header( 'Content-Disposition', `filename="${ mediaServer.mediaFilenameFromS3Location( s3Location ) }"` );
+        res.send( resp.Body );
+      }
+      else {
+        // TODO: response for not found video
+        res.send(notFoundImage);
+      }
+
     }
-    else {
-      res.send(notFoundImage);
+    catch(e) {
+      return next(e);
     }
+
   }
 
   async function upload( req, res, next ) {
 
     try {
+
+      const { mediaType } = req.params;
+
       const form = new formidable.IncomingForm( { multiples: true } );
 
       const [ fields, files ] = await form.parse( req );
@@ -99,18 +113,18 @@ function routes( { inventoryCommander, lotdb } ) {
 
       for( let f of files.file ) {
 
-        const imageStoreResp = await imageServer.store( objectId, f.filepath, f.originalFilename );
+        const mediaStoreResp = await mediaServer.storeMedia( objectId, f.filepath, f.originalFilename, mediaType );
 
-        if( imageStoreResp ) {
+        if( mediaStoreResp ) {
 
-          const s3Location = imageStoreResp.Location;
+          const s3Location = mediaStoreResp.Location;
 
-          if( splitGroupId && palletId ) {
+          if( splitGroupId && palletId  && mediaType === 'images' ) {
 
             pallet = await inventoryCommander.addInventoryPalletSplitGroupImage( palletId, splitGroupId, { s3: s3Location } );
 
           }
-          else if ( palletId ) {
+          else if ( palletId  && mediaType === 'images' ) {
 
             pallet = await inventoryCommander.addInventoryPalletImage( palletId, { s3: s3Location } );
 
@@ -119,8 +133,11 @@ function routes( { inventoryCommander, lotdb } ) {
 
             lot = await lotdb.getLotById( lotId );
 
-            await lot.addImage( { s3: s3Location, primary } );
+            await lot.addMedia( { s3: s3Location, primary }, mediaType );
 
+          }
+          else {
+            throw new InvalidRequestError();
           }
 
         }
@@ -138,61 +155,54 @@ function routes( { inventoryCommander, lotdb } ) {
     }
   }
 
-  async function removeImage( req, res, next ) {
+  async function remove( req, res, next ) {
 
-    const { splitGroupId, palletId, lotId, image } = req.body;
+    const { mediaType } = req.params;
+
+    const { splitGroupId, palletId, lotId, media } = req.body;
 
     try {
 
       let p;
       let msg;
-      if( splitGroupId && palletId ) {
-        p = inventoryCommander.removeInventoryPalletSplitGroupImage( palletId, splitGroupId, image._id );
-        msg = `Removed image ${image.s3 || image.filename} from splitGroup ${splitGroupId} in pallet ${palletId}.`;
+      if( splitGroupId && palletId && mediaType === 'images' ) {
+        p = inventoryCommander.removeInventoryPalletSplitGroupImage( palletId, splitGroupId, media._id );
+        msg = `Removed media file ${ media.s3 || media.filename } from splitGroup ${ splitGroupId } in pallet ${ palletId }.`;
       }
-      else if ( palletId ) {
-        p = inventoryCommander.removeInventoryPalletImage( palletId, image._id );
-        msg = `Removed image ${image.s3 || image.filename} from pallet ${palletId}.`;
+      else if ( palletId && mediaType === 'images' ) {
+        p = inventoryCommander.removeInventoryPalletImage( palletId, media._id );
+        msg = `Removed media file ${ media.s3 || media.filename } from pallet ${ palletId }.`;
       }
       else if ( lotId ) {
-        p = lotdb.removeImage( lotId, image._id );
-        msg = `Removed image ${image.s3 || image.filename} from lot ${lotId}.`;
+        p = lotdb.removeMedia( lotId, media._id, mediaType );
+        msg = `Removed media file ${ media.s3 || media.filename } from lot ${ lotId }.`;
       }
       else {
         throw new InvalidRequestError();
       }
 
-      const removeImageResp = await p;
+      await p;
 
-      if( removeImageResp.error ) {
-        console.error( removeImageResp.error );
-        res.json({error: 'Server error.'});
-      }
-      else {
+      console.log( msg );
+      res.json({ status: "success" });
 
-        console.log( msg );
-        res.json({ status: "success" });
+      if( media.s3 ) {
 
-        if(image.s3) {
+        const objectId = splitGroupId || palletId || lotId;
+        const { ownerId } = mediaServer.parseS3Location( media.s3 );
 
-          const objectId = splitGroupId || palletId || lotId;
-          const { ownerId } = imageServer.parseS3Location( image.s3 );
-
-          if( objectId === ownerId ) {
-            try {
-              const _resp = await imageServer.remove(image.s3);
-              console.log(`Image ${imageServer.imageName(image.s3)} deleted from AWS.`);
-            }
-            catch(e) {
-              console.error(`Image ${imageServer.imageName(image.s3)} could not be deleted from AWS.`);
-              console.error(e);
-            }
+        if( objectId === ownerId ) {
+          try {
+            const _resp = await mediaServer.remove( media.s3 );
+            console.log(`Media file ${ mediaServer.mediaFilenameFromS3Location( media.s3 ) } deleted from AWS.`);
           }
-
+          catch(e) {
+            console.error(`Media file ${ mediaServer.mediaFilenameFromS3Location( media.s3 ) } could not be deleted from AWS.`);
+            console.error(e);
+          }
         }
 
       }
-
 
     }
     catch(e) {
@@ -202,7 +212,7 @@ function routes( { inventoryCommander, lotdb } ) {
 
   }
 
-  async function replaceImage( req, res, next ) {
+  async function replaceMedia( req, res, next ) {
 
     try {
 
@@ -216,10 +226,10 @@ function routes( { inventoryCommander, lotdb } ) {
         const f = fileArray[0];
         const s3 = fields.s3[0];
 
-        const s = imageServer.replace( s3, f.filepath );
+        const s = mediaServer.replace( s3, f.filepath );
         fileUploads.push(s);
       }
-      res.json(Promise.all(fileUploads));
+      res.json( Promise.all( fileUploads ) );
 
     }
     catch(e) {
@@ -228,12 +238,13 @@ function routes( { inventoryCommander, lotdb } ) {
 
   }
 
-  async function list(req, res) {
-    const list = await imageServer.list( { urlEncode: !!req.query.url_encode } );
-    res.json( { images: list } );
+  async function listImages(req, res) {
+    const images = await mediaServer.listImages( { urlEncode: !!req.query.url_encode } );
+    res.json( { images } );
   }
 
-  async function clone( req, res, next ) {
+  // TODO: video
+  async function cloneImages( req, res, next ) {
 
     try {
       const { lotId, palletId, images } = req.body;
@@ -242,11 +253,11 @@ function routes( { inventoryCommander, lotdb } ) {
 
       for( let image of images ) {
         if( lotId ) {
-          const resp = await imageServer.clone( image, lotId );
+          const resp = await mediaServer.clone( image, lotId, 'images' );
           lot = await lotdb.addImage( lotId, { s3: resp.s3Location });
         }
         else if ( palletId ) {
-          const resp = await imageServer.clone( image, palletId );
+          const resp = await mediaServer.clone( image, palletId, 'images' );
           pallet = await inventoryCommander.addInventoryPalletImage( palletId, { s3: resp.s3Location } );
         }
       }
@@ -277,7 +288,7 @@ function routes( { inventoryCommander, lotdb } ) {
       urlReadStream.pipe( res );
     }
     catch (e) {
-      return next( new ExternalImageNotFoundError( url ));
+      return next( new ExternalMediaNotFoundError( url ));
     }
 
   }

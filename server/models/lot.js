@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const enums = require( '../modules/enums' );
 const {
+  IllegalActionError,
+} = require( '../errors' );
+const {
   __DEFAULT_PRICE_VALUE_PCT__
 } = require( '../constants' );
 const {
@@ -59,6 +62,7 @@ const lotSchema = mongoose.Schema({
   shippedDate: Date,
 
   images: [ lotMediaDataSchema ],
+  videos: [ lotMediaDataSchema ],
 
   /*********** Manifest properties ************/
   unmanifested: Boolean, //marks a generic lot with unmanifested items.
@@ -152,9 +156,23 @@ lotSchema.methods.markAsSold = function( date ) {
 
 };
 
-lotSchema.methods.addImage = function( { s3, filename, primary }, { save } = { save: true } ) {
+lotSchema.methods.addImage = function( image, { save } = { save: true } ) {
+  return this.addMedia( image, 'images' , { save } );
+};
 
-  this.images.push( { s3, filename, primary } );
+lotSchema.methods.addVideo = function( video, { save } = { save: true } ) {
+  return this.addMedia( video, 'videos', { save } );
+};
+
+lotSchema.methods.addMedia = function( media, mediaType, { save } = { save: true } ) {
+
+  if( mediaType !== 'images' && mediaType !== 'videos' ) {
+    throw new IllegalActionError( `Invalid media type: ${ mediaType }` );
+  }
+
+  const arr = this[ mediaType ];
+
+  arr.push( media );
 
   return save ? this.save() : this;
 };
