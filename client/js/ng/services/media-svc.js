@@ -4,9 +4,9 @@ import errorImg from '../../../030-warning.svg';
 import * as api from '../../api';
 
 
-//************* Images service
-angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$timeout', '$window',
-  function( $http, $localStorage, $q, $timeout, $window ){
+//************* Media service
+angular.module('myApp').service( 'MediaSvc', [ '$localStorage', '$q', '$timeout', '$window',
+  function( $localStorage, $q, $timeout, $window ){
     const svc = this;
 
     /**
@@ -27,7 +27,7 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
           // create img container
           const img = new Image();
 
-          const src = proxy ? `/api/image/proxy?url=${encodeURIComponent(imageUrl)}` : imageUrl;
+          const src = proxy ? `/api/media/proxy?url=${encodeURIComponent(imageUrl)}` : imageUrl;
           if( proxy ) {
             img.crossOrigin = 'anonymous';
           }
@@ -118,7 +118,11 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
     };
 
     svc.removeLotImage = async ( lotId, image ) => {
-      return $q.when( api.removeLotImage( lotId, image ) );
+      return this.removeLotMedia( lotId, image, 'images' );
+    };
+
+    svc.removeLotMedia = async ( lotId, media, mediaType ) => {
+      return $q.when( api.removeLotMedia( lotId, media, mediaType ) );
     };
 
     svc.getStore = () => $localStorage.image;
@@ -127,23 +131,7 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
 
     svc.resetStore = () => delete $localStorage.image;
 
-    svc.getFromImageServer = (s3Location) => {
-      try {
-        return $http.get(`/api/image/?s3=${encodeURIComponent(s3Location)}`);
-      }
-      catch(e) {
-        throw Error(`Problem obtaining image at ${s3Location}`);
-      }
-    };
-
-    svc.getImageList = ( { urlEncode } = { urlEncode: false }  ) => {
-      try {
-        return $http.get(`/api/image/list?url_encode=${ urlEncode ? 1 : 0 }`).then( _ => _.data );
-      }
-      catch(e) {
-        throw Error(`Problem obtaining images`);
-      }
-    };
+    svc.getImageList = ( { urlEncode } = { urlEncode: false }  ) => $q.when( api.listImages( { urlEncode } ) );
 
     svc.parseS3Location = (s3Location) => {
       const res = {};
@@ -180,7 +168,8 @@ angular.module('myApp').service('ImageSvc', ['$http', '$localStorage', '$q', '$t
       return $q.when( api.removePalletSplitGroupImage( palletId, splitGroupId, image ) );
     };
 
-    svc.getImageLink = image => image.s3 ? `/api/image/?s3=${encodeURIComponent(image.s3)}` : image.filename;
+    svc.getMediaLink = media => media.s3 ? `/api/media/?s3=${ encodeURIComponent( media.s3 ) }` : media.filename;
+    svc.getImageLink = this.getMediaLink;
 
     svc.cleanImageObject = imageObj => ({
       _id: imageObj._id,

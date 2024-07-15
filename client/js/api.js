@@ -813,11 +813,84 @@ export function getIncomingShipmentEvents( shipmentId ) {
     .then( resp => resp.data );
 }
 
+
 /*************************************************
-* Images
+* Media
 * =========
 *
 ************/
+
+export function listImages( { urlEncode } = { urlEncode: false } ) {
+  return axios({
+    method: 'get',
+    url: `/api/media/images/list?url_encode=${ urlEncode ? 1 : 0 }`
+  })
+    .then( resp => resp.data );
+}
+
+export function removeLotImage( lotId, image ) {
+  return removeLotMedia( lotId, image, 'images' );
+}
+
+export function removeLotMedia( lotId, media, mediaType ) {
+  return removeMedia( media, mediaType, { lotId } );
+}
+
+export function removePalletImage( palletId, image ) {
+  return removePalletMedia( image, 'images', { palletId } );
+}
+
+export function removePalletMedia( media, mediaType, { palletId } ) {
+  return removeMedia( media, mediaType, { palletId } );
+}
+
+export function removePalletSplitGroupImage( palletId, splitGroupId, image ) {
+  return removePalletSplitGroupMedia( image, 'images', { palletId, splitGroupId } );
+}
+
+export function removePalletSplitGroupMedia( media, mediaType, { palletId, splitGroupId } ) {
+  return removeMedia( media, mediaType, { palletId, splitGroupId } );
+}
+
+export function removeMedia( media, mediaType, { lotId, palletId, splitGroupId } ) {
+  const req = {
+    lotId,
+    palletId,
+    splitGroupId,
+    media
+  };
+
+  return axios({
+    method: 'post',
+    url: `/api/media/${ mediaType }/remove`,
+    data: req
+  })
+    .then( resp => resp.data );
+}
+
+export function cloneImagesToLot( lotId, images ) {
+  return axios({
+    method: 'post',
+    url: `/api/media/images/clone`,
+    data: {
+      lotId,
+      images // array of image locations
+    }
+  })
+    .then( resp => resp.data );
+}
+
+export function cloneImagesToPallet( palletId, images ) {
+  return axios({
+    method: 'post',
+    url: `/api/media/images/clone`,
+    data: {
+      palletId,
+      images // array of image locations
+    }
+  })
+    .then( resp => resp.data );
+}
 
 export function uploadLotImages( lotId, images ) {
   return uploadImages( images, { lotId } );
@@ -836,6 +909,10 @@ export function uploadPalletSplitGroupImages( palletId, splitGroupId, images ) {
 }
 
 export function uploadImages( files, metadata ) {
+  return uploadMedia( files, 'images', metadata );
+}
+
+export function uploadMedia( files, mediaType, metadata ) {
 
   const fd = new FormData();
 
@@ -860,51 +937,21 @@ export function uploadImages( files, metadata ) {
 
   return axios({
     method: 'post',
-    url: `/api/image/upload`,
+    url: `/api/media/${ mediaType }/upload`,
     data: fd
   })
     .then( resp => resp.data  );
 
 }
 
-export function removeLotImage( lotId, image ) {
-  const req = {
-    lotId,
-    image
-  };
+/*************************************************
+* Lot and Pallet Images
+* =====================
+*
+************/
 
-  return axios({
-    method: 'post',
-    url: `/api/image/remove`,
-    data: req
-  })
-    .then( resp => resp.data );
-}
-
-export function cloneImagesToLot( lotId, images ) {
-  return axios({
-    method: 'post',
-    url: `/api/image/clone`,
-    data: {
-      lotId,
-      images // array of image locations
-    }
-  })
-    .then( resp => resp.data );
-}
-
-export function cloneImagesToPallet( palletId, images ) {
-  return axios({
-    method: 'post',
-    url: `/api/image/clone`,
-    data: {
-      palletId,
-      images // array of image locations
-    }
-  })
-    .then( resp => resp.data );
-}
-
+// Note that this doesn't save actual images to any host, just adds the image data to the lot
+// See the /api/media endpoints for image storage
 export function addInventoryPalletImages( palletId, images ) {
   return axios({
     method: 'post',
@@ -916,6 +963,8 @@ export function addInventoryPalletImages( palletId, images ) {
     .then( resp => resp.data );
 }
 
+// Note that this doesn't save actual images to any host, just adds the image data to the lot
+// See the /api/media endpoints for image storage
 export function addLotImages( lotId, images ) {
   return axios({
     method: 'post',
@@ -923,37 +972,6 @@ export function addLotImages( lotId, images ) {
     data: {
       images // array of image objects
     }
-  })
-    .then( resp => resp.data );
-}
-
-export function removePalletImage( palletId, image ) {
-
-  const req = {
-    palletId,
-    image
-  };
-
-  return axios({
-    method: 'post',
-    url: `/api/image/remove`,
-    data: req
-  })
-    .then( resp => resp.data );
-}
-
-export function removePalletSplitGroupImage( palletId, splitGroupId, image ) {
-
-  const req = {
-    palletId,
-    splitGroupId,
-    image
-  };
-
-  return axios({
-    method: 'post',
-    url: `/api/image/remove`,
-    data: req
   })
     .then( resp => resp.data );
 }

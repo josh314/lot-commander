@@ -19,16 +19,16 @@ angular.module('myApp').directive('lotImageGridDir', function(){
 angular.module('myApp').controller( 'LotImageGridDirCtrl', [
 
   '$scope',
-  'ImageSvc',
-  'navigate',
+  'MediaSvc',
   'ModalSvc',
+  'navigate',
 
   function(
 
     $scope,
-    ImageSvc,
-    navigate,
+    MediaSvc,
     ModalSvc,
+    navigate,
 
   ) {
 
@@ -64,7 +64,7 @@ angular.module('myApp').controller( 'LotImageGridDirCtrl', [
 
       if( $scope.suppressUpdatePrimaryOnClick ) return;
 
-      const resp = await ImageSvc.updateLotPrimaryImage( vm.lot._id, imageId );
+      const resp = await MediaSvc.updateLotPrimaryImage( vm.lot._id, imageId );
       if(!resp.error) {
         navigate.reload();
       }
@@ -92,7 +92,7 @@ angular.module('myApp').controller( 'LotImageGridDirCtrl', [
 
     function editImage( image ) {
       if(image.s3) {
-        ImageSvc.setStore(image);
+        MediaSvc.setStore(image);
         navigate.imageEditor();
       }
       else {
@@ -101,7 +101,7 @@ angular.module('myApp').controller( 'LotImageGridDirCtrl', [
     }
 
     function openImagePreviewModal( image ) {
-      ModalSvc.imagePreview( vm.lot.getImageLink( image ) );
+      ModalSvc.imagePreview( vm.lot.getMediaLink( image ) );
     }
 
 

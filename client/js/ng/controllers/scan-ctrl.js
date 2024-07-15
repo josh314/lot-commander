@@ -59,8 +59,8 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
   'AudioAlertSvc',
   'focus',
-  'ImageSvc',
   'LotSvc',
+  'MediaSvc',
   'ModalSvc',
   'navigate',
   'ProductDataSvc',
@@ -70,8 +70,8 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
     AudioAlertSvc,
     focus,
-    ImageSvc,
     LotSvc,
+    MediaSvc,
     ModalSvc,
     navigate,
     ProductDataSvc,
@@ -177,7 +177,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
     }
 
     function loadThumbnailImage( item ) {
-      ImageSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
+      MediaSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
     }
 
     function validateInventory() {

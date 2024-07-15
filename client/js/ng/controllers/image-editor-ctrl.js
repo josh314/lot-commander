@@ -2,8 +2,8 @@ import angular from 'angular';
 import * as Croppie from 'croppie';
 
 /******************* Image editor controller *******************************/
-angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal', 'fileUpload', 'ImageSvc', 'navigate',
-  function( $document, $uibModal, fileUpload, ImageSvc, navigate) {
+angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal', 'fileUpload', 'MediaSvc', 'navigate',
+  function( $document, $uibModal, fileUpload, MediaSvc, navigate) {
     const vm = this;
 
     const imgProps = {
@@ -12,7 +12,7 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal'
     let editor;
 
 
-    const imageStore = ImageSvc.getStore();
+    const imageStore = MediaSvc.getStore();
 
     const initImg = async () => {
       const img = new Image();
@@ -29,7 +29,7 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal'
           height = height*(maxWidth/width);
           width = maxWidth;
         }
-        
+
         if(height > maxHeight) {
           width = width*(maxHeight/height);
           height = maxHeight;
@@ -47,11 +47,11 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal'
           }
         );
         editor.bind({
-          url: imageStore.s3 ? `/api/image/?s3=${encodeURIComponent(imageStore.s3)}` : imageStore.filename,
+          url: imageStore.s3 ? `/api/media/?s3=${encodeURIComponent(imageStore.s3)}` : imageStore.filename,
           // orientation: 1
         });
       };
-      img.src = imageStore.s3 ? `/api/image/?s3=${encodeURIComponent(imageStore.s3)}` : imageStore.filename;
+      img.src = imageStore.s3 ? `/api/media/?s3=${encodeURIComponent(imageStore.s3)}` : imageStore.filename;
       return img;
     };
     initImg();
@@ -63,7 +63,7 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal'
       }
       else {
         editor.bind({
-          url: imageStore.s3 ? `/api/image/?s3=${encodeURIComponent(imageStore.s3)}` : imageStore.filename,
+          url: imageStore.s3 ? `/api/media/?s3=${encodeURIComponent(imageStore.s3)}` : imageStore.filename,
           oritentation: 1,
         });
       }
@@ -92,8 +92,8 @@ angular.module('myApp').controller('ImageEditorCtrl', [ '$document', '$uibModal'
 
       modalInstance.result.then(async function () {
         const blob = await editor.result({type: 'blob', size: 'original', format: 'jpeg', quality: .99});
-        fileUpload.uploadFileToUrl(blob, '/api/image/replace', ImageSvc.getStore());
-        navigate.viewLot( ImageSvc.parseS3Location(imageStore.s3).lotId );
+        fileUpload.uploadFileToUrl(blob, '/api/media/replace', MediaSvc.getStore());
+        navigate.viewLot( MediaSvc.parseS3Location(imageStore.s3).lotId );
       }, function () {
         console.log('Modal dismissed at: ' + new Date());
       });

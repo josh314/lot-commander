@@ -333,9 +333,9 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         '$scope',
         'CounterSvc',
         'dbEnums',
-        'ImageSvc',
         'InventoryPalletManagerSvc',
         'LoggedInUser',
+        'MediaSvc',
         'messageModal',
         'navigate',
         'PackagingTypeInfoModalSvc',
@@ -358,9 +358,9 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
     $scope,
     CounterSvc,
     dbEnums,
-    ImageSvc,
     InventoryPalletManagerSvc,
     LoggedInUser,
+    MediaSvc,
     messageModal,
     navigate,
     PackagingTypeInfoModalSvc,
@@ -457,14 +457,14 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
 
     vm.openPackagingTypeInfo = PackagingTypeInfoModalSvc.launch.bind( PackagingTypeInfoModalSvc );
 
-    vm.getImageLink = ImageSvc.getImageLink.bind( ImageSvc );
+    vm.getImageLink = MediaSvc.getImageLink.bind( MediaSvc );
 
     vm.uploadImages = () => WaitingModalSvc.launch({
-      waitFor: ImageSvc.uploadPalletImages( vm.pallet._id, vm.imagesToUpload ).then( refreshImages ),
+      waitFor: MediaSvc.uploadPalletImages( vm.pallet._id, vm.imagesToUpload ).then( refreshImages ),
     });
 
     vm.removeImage = image => WaitingModalSvc.launch({
-      waitFor: ImageSvc.removePalletImage( vm.pallet._id, image ).then( refreshImages ),
+      waitFor: MediaSvc.removePalletImage( vm.pallet._id, image ).then( refreshImages ),
     });
 
     function refreshImages() {

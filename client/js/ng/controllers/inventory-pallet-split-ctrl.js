@@ -79,10 +79,10 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
   'dbEnums',
   'FinishSplitPalletModal',
   'focus',
-  'ImageSvc',
   'InventoryPalletManagerSvc',
   'LoggedInUser',
   'ManifestFileHandlerSvc',
+  'MediaSvc',
   'ModalSvc',
   'navigate',
   'PalletLotSvc',
@@ -101,10 +101,10 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
     dbEnums,
     FinishSplitPalletModal,
     focus,
-    ImageSvc,
     InventoryPalletManagerSvc,
     LoggedInUser,
     ManifestFileHandlerSvc,
+    MediaSvc,
     ModalSvc,
     navigate,
     PalletLotSvc,
@@ -229,7 +229,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           items: this.items,
           packagingType: this.packagingType,
           shippingItems: this.shippingItems,
-          images: this.images && this.images.map( ImageSvc.cleanImageObject.bind(ImageSvc) ),
+          images: this.images && this.images.map( MediaSvc.cleanImageObject.bind(MediaSvc) ),
           isMissing: this.isMissing,
         };
       }
@@ -578,13 +578,13 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
       async uploadImages() {
 
-        return ImageSvc.uploadPalletSplitGroupImages( vm.pallet._id, this._id, this.imagesToUpload );
+        return MediaSvc.uploadPalletSplitGroupImages( vm.pallet._id, this._id, this.imagesToUpload );
 
       }
 
       async removeImage( image ) {
 
-        return ImageSvc.removePalletSplitGroupImage( vm.pallet._id, this._id, image );
+        return MediaSvc.removePalletSplitGroupImage( vm.pallet._id, this._id, image );
 
       }
 
@@ -671,7 +671,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           createSplitGroupFromRemainingItems,
           finish,
 
-          getImageLink: ImageSvc.getImageLink.bind( ImageSvc ),
+          getImageLink: MediaSvc.getImageLink.bind( MediaSvc ),
           uploadImages,
           removeImage,
 
@@ -698,7 +698,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         }
 
         loadImagePromises.push(
-          ImageSvc.loadRepresentativeImage({ images }).then( img => {
+          MediaSvc.loadRepresentativeImage({ images }).then( img => {
 
             if( img ) {
               item.representativeImgSrc = img.src;

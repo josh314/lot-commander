@@ -5,15 +5,15 @@ import angular from 'angular';
 angular.module('myApp').controller('GalleryCtrl', [
 
   '$scope',
-  'ImageSvc',
   'LotSvc',
+  'MediaSvc',
   'ModalSvc',
   'navigate',
 
   function(
     $scope,
-    ImageSvc,
     LotSvc,
+    MediaSvc,
     ModalSvc,
     navigate,
   ) {
@@ -97,7 +97,7 @@ angular.module('myApp').controller('GalleryCtrl', [
 
         for( let imageUrl of images ) {
 
-          ImageSvc.loadImageWithTimeoutAndPlaceholder(10000, null)( imageUrl ).then( img => {
+          MediaSvc.loadImageWithTimeoutAndPlaceholder(10000, null)( imageUrl ).then( img => {
 
             // the following test throws out missing images and the single-pixel images
             if( img && img.width > 1 && img.height > 1 ) {

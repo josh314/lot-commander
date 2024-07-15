@@ -26,13 +26,13 @@ angular.module('myApp').directive('collageDir', function(){
 angular.module('myApp').controller( 'CollageDirCtrl', [
 
   '$scope',
-  'ImageSvc',
+  'MediaSvc',
   'ModalSvc',
 
   function(
 
     $scope,
-    ImageSvc,
+    MediaSvc,
     ModalSvc,
 
   ) {
@@ -129,7 +129,7 @@ angular.module('myApp').controller( 'CollageDirCtrl', [
 
         clearDisplay();
 
-        const { image } = await ImageSvc.renderLotCollage( $scope.lotId );
+        const { image } = await MediaSvc.renderLotCollage( $scope.lotId );
 
         vm.imgSrc = image;
 
@@ -157,7 +157,7 @@ angular.module('myApp').controller( 'CollageDirCtrl', [
 
         console.log(`Saving file ${ filename } to lot ${ $scope.lotId }`);
         await ModalSvc.wait( {
-          waitFor: ImageSvc.uploadLotImage( $scope.lotId, file, $scope.isPrimaryImage ),
+          waitFor: MediaSvc.uploadLotImage( $scope.lotId, file, $scope.isPrimaryImage ),
         } );
 
         console.log('Save successful.');

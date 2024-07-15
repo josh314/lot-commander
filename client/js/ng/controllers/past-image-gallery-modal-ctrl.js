@@ -1,8 +1,8 @@
 import angular from 'angular';
 
 /****************** Past images modal controller ***********************/
-angular.module('myApp').controller('PastImagesGalleryModalCtrl', [ '$q', '$uibModalInstance', 'ImageSvc',
-  function( $q, $uibModalInstance, ImageSvc ){
+angular.module('myApp').controller('PastImagesGalleryModalCtrl', [ '$q', '$uibModalInstance', 'MediaSvc',
+  function( $q, $uibModalInstance, MediaSvc ){
 
     const vm = this;
 
@@ -17,7 +17,7 @@ angular.module('myApp').controller('PastImagesGalleryModalCtrl', [ '$q', '$uibMo
 
     const loadImages = () => {
 
-      $q.when( ImageSvc.getImageList( { urlEncode: true } ) ).then( resp => {
+      $q.when( MediaSvc.getImageList( { urlEncode: true } ) ).then( resp => {
 
         vm.images = resp.images.map( _ => ({ link: _, selected: false }) );
         vm.pagination.totalItems = vm.images.length;

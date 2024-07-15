@@ -163,8 +163,8 @@ angular.module('myApp').factory( 'Lot', [
   '$q',
   '$sce',
   'dbEnums',
-  'ImageSvc',
   'ManifestFileHandlerSvc',
+  'MediaSvc',
   'PrintSvc',
   'ProductDataSvc',
 
@@ -172,8 +172,8 @@ angular.module('myApp').factory( 'Lot', [
     $q,
     $sce,
     dbEnums,
-    ImageSvc,
     ManifestFileHandlerSvc,
+    MediaSvc,
     PrintSvc,
     ProductDataSvc
   ) {
@@ -812,7 +812,7 @@ angular.module('myApp').factory( 'Lot', [
 
       uploadImages( images ) {
 
-        return ImageSvc.uploadLotImages( this._id, images ).then( ({ lot }) => {
+        return MediaSvc.uploadLotImages( this._id, images ).then( ({ lot }) => {
 
           // this roundabout way of updating the images is to ensure that the images array is mutated but the reference stays the same
           this.images.splice( 0, this.images.length );
@@ -828,13 +828,30 @@ angular.module('myApp').factory( 'Lot', [
 
       removeImage( image ) {
 
-        return ImageSvc.removeLotImage( this._id, image ).then( _ => {
+        return this.removeMedia( image, 'images' );
 
-          const removedImageIdx = this.images.findIndex( _image => _image._id === image._id );
+      }
 
-          if( removedImageIdx !== -1 ) {
+      removeMedia( media, mediaType ) {
 
-            this.images.splice( removedImageIdx, 1 );
+        return MediaSvc.removeLotMedia( this._id, media, mediaType ).then( _ => {
+
+          let arr;
+          if( mediaType === 'images' ) {
+            arr = this.images;
+          }
+          else if( mediaType === 'videos' ) {
+            arr = this.videos;
+          }
+          else {
+            throw new Error('Invalid media type.');
+          }
+
+          const removedMediaIdx = arr.findIndex( _media => _media._id === media._id );
+
+          if( removedMediaIdx !== -1 ) {
+
+            this.images.splice( removedMediaIdx, 1 );
 
           }
 
@@ -844,8 +861,8 @@ angular.module('myApp').factory( 'Lot', [
 
       }
 
-      getImageLink( image ) {
-        return image.s3 ? `/api/image/?s3=${encodeURIComponent(image.s3)}` : image.filename;
+      getMediaLink( media ) {
+        return media.s3 ? `/api/media/?s3=${encodeURIComponent(media.s3)}` : media.filename;
       }
 
       /*****************************************

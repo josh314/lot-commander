@@ -7,22 +7,22 @@ const __MAX_DISPLAY_INVENTORY__ = 50;
 /******************* View Lot Controller *************************/
 angular.module('myApp').controller( 'ViewLotCtrl', [
 
-  'ImageSvc',
   'InventoryPalletManagerSvc',
   'ListingsSvc',
   'LoggedInUser',
   'LotSvc',
+  'MediaSvc',
   'ModalSvc',
   'navigate',
   'sessionTimeout',
 
   function(
 
-    ImageSvc,
     InventoryPalletManagerSvc,
     ListingsSvc,
     LoggedInUser,
     LotSvc,
+    MediaSvc,
     ModalSvc,
     navigate,
     sessionTimeout,
@@ -126,7 +126,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
       for(let i=0; i < limit; i++) {
         const item = vm.displayInventory[i];
-        ImageSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
+        MediaSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
       }
     };
 
