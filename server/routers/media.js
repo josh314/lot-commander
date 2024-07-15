@@ -254,7 +254,7 @@ function routes( { inventoryCommander, lotdb } ) {
       for( let image of images ) {
         if( lotId ) {
           const resp = await mediaServer.clone( image, lotId, 'images' );
-          lot = await lotdb.addImage( lotId, { s3: resp.s3Location });
+          lot = await lotdb.addMedia( lotId, { s3: resp.s3Location }, 'images' );
         }
         else if ( palletId ) {
           const resp = await mediaServer.clone( image, palletId, 'images' );

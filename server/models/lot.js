@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const enums = require( '../modules/enums' );
 const {
+  ChildResourceNotFoundError,
   IllegalActionError,
 } = require( '../errors' );
 const {
@@ -156,23 +157,69 @@ lotSchema.methods.markAsSold = function( date ) {
 
 };
 
-lotSchema.methods.addImage = function( image, { save } = { save: true } ) {
-  return this.addMedia( image, 'images' , { save } );
-};
-
-lotSchema.methods.addVideo = function( video, { save } = { save: true } ) {
-  return this.addMedia( video, 'videos', { save } );
-};
-
-lotSchema.methods.addMedia = function( media, mediaType, { save } = { save: true } ) {
+lotSchema.methods.getMedia = function( mediaType ) {
 
   if( mediaType !== 'images' && mediaType !== 'videos' ) {
     throw new IllegalActionError( `Invalid media type: ${ mediaType }` );
   }
 
-  const arr = this[ mediaType ];
+  return this[ mediaType ];
+};
+
+lotSchema.methods.addMedia = function( media, mediaType, { save } = { save: true } ) {
+
+  const arr = this.getMedia( mediaType );
 
   arr.push( media );
+
+  return save ? this.save() : this;
+};
+
+lotSchema.methods.removeMedia = function( mediaId, mediaType, { save } = { save: true }  ) {
+
+  const arr = this.getMedia( mediaType );
+
+  const index = arr.findIndex( item => item._id.toString() === mediaId.toString() );
+
+  if( index === -1 ) {
+    throw new ChildResourceNotFoundError( {
+      parentType: 'lot',
+      parentId: this._id,
+      childType: mediaType,
+      childId: mediaId
+    } );
+  }
+
+  arr.splice( index, 1 );
+
+  return save ? this.save() : this;
+};
+
+lotSchema.methods.setPrimaryMedia = function( mediaId, mediaType, { save } = { save: true } ) {
+
+  const arr = this.getMedia( mediaType );
+
+  const foundMediaNewPrimary = arr.find( item => item._id.toString() === mediaId.toString() );
+  if( !foundMediaNewPrimary ) {
+
+    throw new ChildResourceNotFoundError( {
+      parentType: 'lot',
+      parentId: this._id,
+      childType: mediaType,
+      childId: mediaId
+    } );
+
+  }
+
+  const oldPrimaryMedia = arr.find( item => item.primary );
+  if( oldPrimaryMedia === foundMediaNewPrimary ){
+    return this;
+  }
+
+  foundMediaNewPrimary.primary = true;
+  if( oldPrimaryMedia ) {
+    oldPrimaryMedia.primary = false;
+  }
 
   return save ? this.save() : this;
 };

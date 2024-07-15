@@ -48,12 +48,12 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           waitingForResponse: false,
 
 
-          // images methods
+          // media methods
           uploadImages,
           addLotImageMethod: 'file',
           setAddLotImageMethod: s => vm.addLotImageMethod = s,
           addLotImageMethodIs: s => ( vm.addLotImageMethod === s ),
-
+          uploadVideoCb,
 
           // Lot editing
           editLot,
@@ -116,8 +116,8 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
 
     /*************************************************
-    * Images
-    * =========
+    * Media
+    * =====
     *
     ************/
 
@@ -146,6 +146,10 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
         message: 'Uploading images...',
       } );
 
+    }
+
+    function uploadVideoCb( video ) {
+      return vm.lot.uploadMedia( video, 'videos' );
     }
 
     /*************************************************

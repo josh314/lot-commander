@@ -2,7 +2,6 @@ const enums = require('./enums');
 const helpers = require('../helpers');
 const {
   ResourceNotFoundError,
-  ChildResourceNotFoundError,
   IllegalActionError,
 } = require('../errors');
 
@@ -199,21 +198,20 @@ exports.Client = function( { Lot, countCommander } ) {
     );
   };
 
-  this.addImage = async function( lotId, metadata ){
-    if(!lotId) {
-      throw new Error('No lot ID submitted.');
-    }
+  this.setPrimaryMedia = async function( lotId, mediaId, mediaType ) {
+
     const lot = await this.getLotById( lotId );
 
     if( !lot ) {
       throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
     }
 
-    return lot.addImage( metadata );
+    return lot.setPrimaryMedia( mediaId, mediaType );
 
   };
 
-  this.addImages = async function( lotId, images ) {
+
+  this.addMedia = async function( lotId, media, mediaType ) {
 
     const lot = await this.getLotById( lotId );
 
@@ -221,45 +219,24 @@ exports.Client = function( { Lot, countCommander } ) {
       throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
     }
 
-    for( let img of images ) {
-      lot.addImage( img, { save: false } );
+    return lot.addMedia( media, mediaType );
+
+  };
+
+  this.addMultipleMedia = async function( lotId, media, mediaType ) {
+
+    const lot = await this.getLotById( lotId );
+
+    if( !lot ) {
+      throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
+    }
+
+    for( let m of media ) {
+      lot.addMedia( m, mediaType, { save: false } );
     }
 
     return lot.save();
 
-  };
-
-  this.setPrimaryImage = async function( lotId, imageId ){
-
-    const lot = await this.getLotById( lotId );
-
-    if( !lot ) {
-      throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
-    }
-
-    const foundImageNewPrimary = lot.images.find( item => item._id.toString() === imageId.toString() );
-    if(!foundImageNewPrimary) {
-
-      throw new ChildResourceNotFoundError( {
-        parentType: 'lot',
-        parentId: lotId,
-        childType: 'image',
-        childId: imageId
-      } );
-
-    }
-
-    const oldPrimaryImage = lot.images.find( item => item.primary );
-    if( oldPrimaryImage === foundImageNewPrimary ){
-      return lot;
-    }
-
-    foundImageNewPrimary.primary = true;
-    if(oldPrimaryImage) {
-      oldPrimaryImage.primary = false;
-    }
-
-    return lot.save();
   };
 
   this.removeMedia = async function( lotId, mediaId, mediaType ) {
@@ -270,33 +247,7 @@ exports.Client = function( { Lot, countCommander } ) {
       throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
     }
 
-    let arr;
-    if( mediaType === 'images' ) {
-      arr = lot.images;
-    }
-    else if( mediaType === 'videos' ) {
-      arr = lot.videos;
-    }
-    else {
-      throw new IllegalActionError('Invalid media type.');
-    }
-
-
-    const foundIdx = arr.findIndex( item => item._id.toString() === mediaId.toString() );
-    if( foundIdx === -1 ) {
-
-      throw new ChildResourceNotFoundError( {
-        parentType: 'lot',
-        parentId: lotId,
-        childType: mediaType,
-        childId: mediaType
-      } );
-
-    }
-
-    lot.images.splice( foundIdx, 1 );
-
-    return lot.save();
+    return lot.removeMedia( mediaId, mediaType );
 
   };
 

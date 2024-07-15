@@ -1,22 +1,23 @@
 import angular from 'angular';
 
-/*********************** Lot image grid directive & controller ***********************/
-angular.module('myApp').directive('lotImageGridDir', function(){
+/*********************** Lot media grid directive & controller ***********************/
+angular.module('myApp').directive('lotMediaGridDir', function(){
   return {
     restrict: 'E',
     replace: false,
-    templateUrl: '/partials/directives/_lot_image_grid.html',
+    templateUrl: '/partials/directives/_lot_media_grid.html',
     scope: {
       lot: '=',
+      mediaType: '=',
       hideEditControls: '<?',
       suppressUpdatePrimaryOnClick: '<?',
     },
-    controller: 'LotImageGridDirCtrl as $ctrl',
+    controller: 'LotMediaGridDirCtrl as $ctrl',
   };
 });
 
 
-angular.module('myApp').controller( 'LotImageGridDirCtrl', [
+angular.module('myApp').controller( 'LotMediaGridDirCtrl', [
 
   '$scope',
   'MediaSvc',
@@ -32,26 +33,41 @@ angular.module('myApp').controller( 'LotImageGridDirCtrl', [
 
   ) {
 
-    // In case the lot doesn't load in time in the parent scope for the directive to be able to access it
+    // Run init after lot loads
     $scope.$watch('lot', function() {
       if( $scope.lot ) {
-        vm.lot = $scope.lot;
+        init();
       }
     });
 
     const vm = this;
-    init();
+
+    if( $scope.lot ) {
+      init();
+    }
 
     function init() {
+
+      let media;
+      if( isImageGrid() ) {
+        media = $scope.lot && $scope.lot.images;
+      }
+      else if( isVideoGrid() ) {
+        media = $scope.lot && $scope.lot.videos;
+      }
 
       Object.assign(
         vm,
         {
           lot: $scope.lot,
+          media,
+          mediaType: $scope.mediaType,
           hideEditControls: $scope.hideEditControls,
 
-          updatePrimaryImage,
-          removeImage,
+          isImageGrid,
+          isVideoGrid,
+          updatePrimaryMedia,
+          removeMedia,
           editImage,
           openImagePreviewModal
         }
@@ -59,12 +75,20 @@ angular.module('myApp').controller( 'LotImageGridDirCtrl', [
 
     }
 
+    function isImageGrid() {
+      return $scope.mediaType === 'images';
+    }
+
+    function isVideoGrid() {
+      return $scope.mediaType === 'videos';
+    }
+
     // Manage images
-    async function updatePrimaryImage( imageId ) {
+    async function updatePrimaryMedia( mediaId ) {
 
       if( $scope.suppressUpdatePrimaryOnClick ) return;
 
-      const resp = await MediaSvc.updateLotPrimaryImage( vm.lot._id, imageId );
+      const resp = await MediaSvc.updateLotPrimaryMedia( vm.lot._id, mediaId, $scope.mediaType );
       if(!resp.error) {
         navigate.reload();
       }
@@ -73,17 +97,17 @@ angular.module('myApp').controller( 'LotImageGridDirCtrl', [
       }
     }
 
-    async function removeImage( image ) {
+    async function removeMedia( media ) {
 
       const isConfirmed = await ModalSvc.confirm( {
-        header: 'Remove Image',
-        body: 'Are you sure you want to remove this image?',
+        header: `Remove ${ isImageGrid() ? 'Image' : 'Video' }`,
+        body: `Are you sure you want to remove this ${ isImageGrid() ? 'image' : 'video' }?`,
       } );
 
       if( isConfirmed ) {
 
         await ModalSvc.wait( {
-          waitFor: vm.lot.removeImage( image )
+          waitFor: vm.lot.removeMedia( media, $scope.mediaType )
         } );
 
       }

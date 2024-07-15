@@ -806,9 +806,25 @@ angular.module('myApp').factory( 'Lot', [
       }
 
       /*****************************************
-       * Images
+       * Media
        *
        **********/
+
+      getMediaArray( mediaType ) {
+
+        let arr;
+        if( mediaType === 'images' ) {
+          arr = this.images;
+        }
+        else if( mediaType === 'videos' ) {
+          arr = this.videos;
+        }
+        else {
+          throw new Error('Invalid media type.');
+        }
+
+        return arr;
+      }
 
       uploadImages( images ) {
 
@@ -826,6 +842,24 @@ angular.module('myApp').factory( 'Lot', [
 
       }
 
+      uploadMedia( media, mediaType ) {
+
+        return MediaSvc.uploadLotMedia( this._id, media, mediaType ).then( ({ lot }) => {
+
+          const arr = this.getMediaArray( mediaType );
+
+          // this roundabout way of updating the images is to ensure that the images array is mutated but the reference stays the same
+          arr.splice( 0, arr.length );
+          for( let _media of lot[ mediaType ] ) {
+            arr.push( _media );
+          }
+
+          return this;
+
+        });
+
+      }
+
       removeImage( image ) {
 
         return this.removeMedia( image, 'images' );
@@ -836,22 +870,13 @@ angular.module('myApp').factory( 'Lot', [
 
         return MediaSvc.removeLotMedia( this._id, media, mediaType ).then( _ => {
 
-          let arr;
-          if( mediaType === 'images' ) {
-            arr = this.images;
-          }
-          else if( mediaType === 'videos' ) {
-            arr = this.videos;
-          }
-          else {
-            throw new Error('Invalid media type.');
-          }
+          const arr = this.getMediaArray( mediaType );
 
           const removedMediaIdx = arr.findIndex( _media => _media._id === media._id );
 
           if( removedMediaIdx !== -1 ) {
 
-            this.images.splice( removedMediaIdx, 1 );
+            arr.splice( removedMediaIdx, 1 );
 
           }
 

@@ -132,14 +132,14 @@ function routes({ inventoryCommander, lotdb, manifests }) {
     renderCollage
   );
   router.post(
-    '/:lotId/images/:imageId',
-    auth.isAuthorized( 'EDIT_LOT' ),
-    setPrimaryImage
-  );
-  router.post(
     '/:lotId/upload-manifest/:filename',
     auth.isAuthorized( 'EDIT_LOT' ),
     uploadManifest
+  );
+  router.post(
+    '/:lotId/:mediaType/:mediaId/primary',
+    auth.isAuthorized( 'EDIT_LOT' ),
+    setPrimaryMedia
   );
   router.post(
     '/:lotId/upload-manifest',
@@ -414,10 +414,13 @@ function routes({ inventoryCommander, lotdb, manifests }) {
 
   }
 
-  async function setPrimaryImage( req, res, next ) {
+  async function setPrimaryMedia( req, res, next ) {
 
     try {
-      const lot = await lotdb.setPrimaryImage( req.params.lotId, req.params.imageId );
+
+      const { lotId, mediaType, mediaId } = req.params;
+
+      const lot = await lotdb.setPrimaryMedia( lotId, mediaId, mediaType );
       res.json( { lot } );
     }
     catch( e ) {
@@ -492,7 +495,7 @@ function routes({ inventoryCommander, lotdb, manifests }) {
       const lotId = req.params.lotId;
       const { images } = req.body;
 
-      const lot = await lotdb.addImages( lotId, images );
+      const lot = await lotdb.addMedia( lotId, images, 'images' );
 
 
       res.json( { lot } );

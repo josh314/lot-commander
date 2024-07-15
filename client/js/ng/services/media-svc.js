@@ -113,12 +113,20 @@ angular.module('myApp').service( 'MediaSvc', [ '$localStorage', '$q', '$timeout'
 
     };
 
-    svc.updateLotPrimaryImage = ( lotId, imageId ) => {
-      return $q.when( api.setPrimaryLotImage( lotId, imageId ) );
+    svc.uploadLotMultipleMedia = ( lotId, mediaArray, mediaType ) => {
+
+      return $q.when( api.uploadLotMedia( lotId, mediaArray, mediaType ) );
+
     };
 
-    svc.removeLotImage = async ( lotId, image ) => {
-      return this.removeLotMedia( lotId, image, 'images' );
+    svc.uploadLotMedia = ( lotId, media, mediaType, primary = false ) => {
+
+      return $q.when( api.uploadLotMedia( lotId, media, mediaType, primary) );
+
+    };
+
+    svc.updateLotPrimaryMedia = ( lotId, mediaId, mediaType ) => {
+      return $q.when( api.setPrimaryLotMedia( lotId, mediaId, mediaType ) );
     };
 
     svc.removeLotMedia = async ( lotId, media, mediaType ) => {

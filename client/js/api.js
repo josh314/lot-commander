@@ -225,10 +225,10 @@ export function uploadLotManifestFile( lotId, file, filename ) {
 
 }
 
-export function setPrimaryLotImage( lotId, imageId ) {
+export function setPrimaryLotMedia( lotId, mediaId, mediaType ) {
   return axios({
     method: 'post',
-    url: `/api/lots/${lotId}/images/${imageId}`,
+    url: `/api/lots/${lotId}/${ mediaType }/${mediaId}/primary`,
     data: {
       primary: true
     }
@@ -828,10 +828,6 @@ export function listImages( { urlEncode } = { urlEncode: false } ) {
     .then( resp => resp.data );
 }
 
-export function removeLotImage( lotId, image ) {
-  return removeLotMedia( lotId, image, 'images' );
-}
-
 export function removeLotMedia( lotId, media, mediaType ) {
   return removeMedia( media, mediaType, { lotId } );
 }
@@ -900,6 +896,14 @@ export function uploadLotImage( lotId, image, primary = false ) {
   return uploadImages( image, { lotId, primary } );
 }
 
+export function uploadLotVideo( lotId, video, primary = false ) {
+  return uploadVideo( video, { lotId, primary } );
+}
+
+export function uploadLotMedia( lotId, media, mediaType, primary = false ) {
+  return uploadMedia( media, { lotId, primary }, mediaType );
+}
+
 export function uploadPalletImages( palletId, images ) {
   return uploadImages( images, { palletId } );
 }
@@ -909,10 +913,14 @@ export function uploadPalletSplitGroupImages( palletId, splitGroupId, images ) {
 }
 
 export function uploadImages( files, metadata ) {
-  return uploadMedia( files, 'images', metadata );
+  return uploadMedia( files, metadata, 'images' );
 }
 
-export function uploadMedia( files, mediaType, metadata ) {
+export function uploadVideo( files, metadata ) {
+  return uploadMedia( files, metadata, 'videos' );
+}
+
+export function uploadMedia( files, metadata, mediaType ) {
 
   const fd = new FormData();
 

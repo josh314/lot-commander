@@ -1,0 +1,44 @@
+<div class="lot-media-grid-directive__container">
+
+  <div class="row" ng-if="$ctrl.lot">
+
+    <div class="col-xs-12 col-sm-4" ng-repeat="$media in $ctrl.media">
+
+      <div class="lot-media-grid__image-container" ng-show="$ctrl.isImageGrid()">
+        <a href ng-click="$ctrl.openImagePreviewModal( $media )">
+          <img id="{{ $media._id }}" ng-src="{{ $ctrl.lot.getMediaLink( $media ) }}" class="img-thumbnail primary-image">
+        </a>
+      </div>
+      <div class="lot-media-grid__video-container" ng-show="$ctrl.isVideoGrid()">
+        <video controls>
+          <source ng-src="{{ $media.s3 }}">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <!-- Checkbox to make primary -->
+      <div class="lot-media-grid__controls-footer">
+
+        <div class="checkbox lot-media-grid__controls-footer__checkbox-container">
+          <label for="primary-{{ $media._id }}">
+            <input type="checkbox" id="primary-{{ $media._id }}" ng-model="$media.primary" ng-click="$ctrl.updatePrimaryMedia( $media._id )">
+            Primary
+          </label>
+        </div>
+
+        <div class="lot-media-grid__controls-footer__divider"></div>
+
+        <div class="lot-media-grid__controls-footer__buttons-container">
+          <div ng-hide="$ctrl.hideEditControls || $ctrl.isVideoGrid()">
+            <button class="btn btn-warning btn-xs" ng-click="$ctrl.editImage( $media )"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+          </div>
+          <div>
+            <button class="btn btn-danger btn-xs" ng-click="$ctrl.removeMedia( $media )">Remove</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
