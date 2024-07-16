@@ -110,6 +110,21 @@ class Client {
         updateInventoryLevelP,
       ];
 
+      if( Array.isArray( listing.lot.videos ) && listing.lot.videos.length > 0 ) {
+
+        const addMetafieldP = this.shopifyRest.addProductMetafield(
+          newProductId,
+          {
+            namespace: 'lot',
+            key: 'videos',
+            value: listing.lot.videos.map( _ => _.s3 ).join(','),
+            type: 'single_line_text_field',
+          }
+        );
+        listingPromises.push(addMetafieldP);
+
+      }
+
       // // Schedule manifest promise if applicable
       if(!listing.lot.unmanifested && manifestItems && manifestItems.length) {
         manifestItems.sort(function(a, b) {

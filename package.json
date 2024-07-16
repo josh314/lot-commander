@@ -1,6 +1,6 @@
 {
   "name": "lot-commander",
-  "version": "13.1.0",
+  "version": "14.0.0",
   "private": true,
   "description": "Multi-purpose inventory management services for product lots.",
   "main": "server/index.js",
@@ -11,7 +11,8 @@
     "demon": ". .env && nodemon server/index.js",
     "dev-server": "webpack-dev-server --config webpack.dev.js",
     "lint-server": "eslint --config .eslintrc.server.js server/",
-    "start": ". .env && DEBUG=lot-commander node server/index.js"
+    "start": ". .env && DEBUG=lot-commander node server/index.js",
+    "ngrok": "ngrok http 9000 --subdomain=josh-wsn --host-header=localhost:9000"
   },
   "keywords": [
     "app"

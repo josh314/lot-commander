@@ -1,8 +1,56 @@
 import angular from "angular";
+import * as path from 'path';
 
 import errorImg from '../../../030-warning.svg';
 import * as api from '../../api';
 
+/******************************************************
+ * Helpers & constants
+ * ===================
+ *
+ ***********/
+
+const __IMAGE_FILE_EXT__ = [
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".gif",
+  ".bmp",
+  ".tiff",
+  ".tif",
+  ".svg",
+  ".webp",
+  ".heic",
+  ".heif",
+  ".raw"
+];
+
+const __VIDEO_FILE_EXT__ = [
+  ".mp4",
+  ".avi",
+  ".mkv",
+  ".mov",
+  ".wmv",
+  ".flv",
+  ".m4v",
+  ".webm",
+  ".mpg",
+  ".mpeg",
+  ".3gp",
+  ".3g2",
+  ".ogv",
+  ".mts",
+  ".m2ts"
+];
+
+function isImageFile( filename ) {
+  const ext = path.extname(filename).toLowerCase();
+  return __IMAGE_FILE_EXT__.includes(ext);
+}
+function isVideoFile( filename ) {
+  const ext = path.extname(filename).toLowerCase();
+  return __VIDEO_FILE_EXT__.includes(ext);
+}
 
 //************* Media service
 angular.module('myApp').service( 'MediaSvc', [ '$localStorage', '$q', '$timeout', '$window',
@@ -56,6 +104,9 @@ angular.module('myApp').service( 'MediaSvc', [ '$localStorage', '$q', '$timeout'
         });
       };
     };
+
+    svc.isImageFile = isImageFile;
+    svc.isVideoFile = isVideoFile;
 
     svc.loadRepresentativeImage = ( { images, containerId, className } ) => {
 

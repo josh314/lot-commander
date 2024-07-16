@@ -49,11 +49,10 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
 
           // media methods
-          uploadImages,
           addLotImageMethod: 'file',
           setAddLotImageMethod: s => vm.addLotImageMethod = s,
           addLotImageMethodIs: s => ( vm.addLotImageMethod === s ),
-          uploadVideoCb,
+          uploadMediaCb,
 
           // Lot editing
           editLot,
@@ -139,18 +138,10 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       initializeAllThumbnailImages();
     }
 
-    function uploadImages() {
-
-      return ModalSvc.wait( {
-        waitFor: vm.lot.uploadImages( vm.imagesToUpload ),
-        message: 'Uploading images...',
-      } );
-
+    function uploadMediaCb( files, mediaType ) {
+      return vm.lot.uploadMedia( files, mediaType );
     }
 
-    function uploadVideoCb( video ) {
-      return vm.lot.uploadMedia( video, 'videos' );
-    }
 
     /*************************************************
     * Editing

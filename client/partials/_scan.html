@@ -1,5 +1,66 @@
 <div class="container" ng-controller="ScanCtrl as $ctrl">
 	<h3>Scan Manifest Items</h3>
+
+  <span>[<a href ng-click="$ctrl.toggleShowMedia()">{{ $ctrl.showMedia ? "Hide Media" : "Show Media" }}</a>]</span>
+  <div class="row well" ng-show="$ctrl.showMedia">
+
+    <div class="row">
+
+      <lot-media-grid-dir
+        lot="$ctrl.lot"
+        media-type="'images'"
+      ></lot-media-grid-dir>
+
+    </div>
+
+
+    <h4>Upload Images</h4>
+
+    <div class="row">
+
+      <div class="col-xs-12">
+
+        <upload-files-dir
+          upload-fn="$ctrl.uploadImageCb( files )"
+          select-files-btn-text="'Select Image(s)'"
+          upload-files-btn-text="'Upload Image(s)'"
+          wait-text="'Uploading image...'"
+        ></upload-files-dir>
+
+      </div>
+
+    </div>
+
+    <div class="row">
+
+      <lot-media-grid-dir
+        lot="$ctrl.lot"
+        media-type="'videos'"
+      ></lot-media-grid-dir>
+
+    </div>
+
+
+    <h4>Upload Videos</h4>
+
+    <div class="row">
+
+      <div class="col-xs-12">
+
+        <upload-files-dir
+          upload-fn="$ctrl.uploadVideoCb( files )"
+          select-files-btn-text="'Select Video(s)'"
+          upload-files-btn-text="'Upload Video(s)'"
+          wait-text="'Uploading video...'"
+        ></upload-files-dir>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
 	<div class="row well">
 		<div class="col-xs-12">
 		    <form name="scanForm">

@@ -86,7 +86,7 @@ const storeMedia =  async function( ownerId, pathToFile, filename, mediaType, op
   const compress = 'compress' in opts ? opts.compress : true;
 
   let readStream;
-  let key;
+  let _key;
 
   if( mediaType === 'images' && compress ) {
     const buffer = await formatAsCompressedJpeg( pathToFile );
@@ -94,12 +94,15 @@ const storeMedia =  async function( ownerId, pathToFile, filename, mediaType, op
     readStream = new stream.PassThrough();
     readStream.end( buffer );
 
-    key = `${ ownerId }/${path.parse( filename ).name}.jpg`;
+    _key = `${ ownerId }/${path.parse( filename ).name}.jpg`;
   }
   else {
     readStream = fs.createReadStream( pathToFile );
-    key = `${ ownerId }/${ filename }`;
+    _key = `${ ownerId }/${ filename }`;
   }
+
+  // spaces in S3 keys are allowed but cause confusion when reconstructing key from S3 object URL. So nix that here.
+  const key = _key.replace( / /g , '+' );
 
   const dedup = 'dedup' in opts ? opts.dedup : true;
   return storeStream( readStream, mediaType, key, dedup );
@@ -228,11 +231,12 @@ const get = async function(opts = {}) {
   if(!bucket || !key) {
     return null;
   }
+
   return s3.getObject({
     Bucket: bucket,
     Key: key,
   }).promise().catch(_e=> {
-    console.error(`No image for key ${key}.`);
+    console.error(`No S3 object in bucket ${ bucket } for key ${ key }.`);
     return null;
   });
 };

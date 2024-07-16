@@ -114,6 +114,12 @@ angular.module('myApp').controller( 'ScanCtrl', [
           validateInventory,
           isManifestChanged,
 
+          // media files
+          showMedia: false,
+          toggleShowMedia,
+          uploadImageCb,
+          uploadVideoCb,
+
           util,
 
         }
@@ -303,6 +309,18 @@ angular.module('myApp').controller( 'ScanCtrl', [
       else {
         return false;
       }
+    }
+
+    function toggleShowMedia() {
+      vm.showMedia = !vm.showMedia;
+    }
+
+    function uploadImageCb( image ) {
+      return vm.lot.uploadMedia( image, 'images' );
+    }
+
+    function uploadVideoCb( video ) {
+      return vm.lot.uploadMedia( video, 'videos' );
     }
 
   }

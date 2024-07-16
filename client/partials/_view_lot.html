@@ -129,10 +129,14 @@
     <div class="well well-tabs__content">
 
       <div ng-show="$ctrl.addLotImageMethodIs( 'file' )">
-          <div class="form-group">
-          <input type="file" file-list-model="$ctrl.imagesToUpload" multiple/>
-          </div>
-          <button class="btn btn-success btn-sm" ng-click="$ctrl.uploadImages()">Upload File</button>
+
+          <upload-files-dir
+            upload-fn="$ctrl.uploadMediaCb( files, 'images' )"
+            select-files-btn-text="'Select Images(s)'"
+            upload-files-btn-text="'Upload Images(s)'"
+            wait-text="'Uploading image(s)...'"
+          ></upload-files-dir>
+
       </div>
 
       <div ng-show="$ctrl.addLotImageMethodIs( 'url' )">
@@ -174,10 +178,10 @@
       <div class="col-xs-12">
 
         <upload-files-dir
-          upload-fn="$ctrl.uploadVideoCb( files )"
+          upload-fn="$ctrl.uploadMediaCb( files, 'videos' )"
           select-files-btn-text="'Select Video(s)'"
           upload-files-btn-text="'Upload Video(s)'"
-          wait-text="'Uploading video...'"
+          wait-text="'Uploading video(s)...'"
         ></upload-files-dir>
 
       </div>
