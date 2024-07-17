@@ -22,8 +22,15 @@ function priceCheck( productData ) {
 
 class $_ {
 
-  constructor( { upcItemDb, mongo } ) {
-    this.upcItemDb = upcItemDb;
+  constructor( { upcItemDb, FallbackProductData, mongo } ) {
+
+    Object.assign(
+      this,
+      {
+        upcItemDb,
+        FallbackProductData,
+      }
+    );
 
     this.agenda = new Agenda( {
       db: { collection: 'product-data-fetch-scheduled-tasks' },
@@ -31,17 +38,45 @@ class $_ {
       name: 'lot-commander',
       disableAutoIndex: true,
     } );
+
   }
 
   async getProductDataByBarcode( barcode ) {
+
+    const productData = {};
 
     let normalizedBarcode = libBarcodes.normalizeBarcodeByType( barcode, 'upca' );
     if( !normalizedBarcode ) {
       normalizedBarcode = libBarcodes.normalizeBarcodeByType( barcode, 'ean' );
     }
 
-    return this.upcItemDb.getProductData( normalizedBarcode )
-      .then( priceCheck );
+    const upcItemDbResult =  await this.upcItemDb.getProductData( normalizedBarcode );
+
+    if( !upcItemDbResult.title && !upcItemDbResult.brand ) {
+
+      const fallbackProductDataResult = await this.FallbackProductData.findOne( {
+        // this query compares `normalizedBarcode` against each document's `pattern` field (compiled as a regex)
+        $expr: {
+          $regexMatch: {
+            input: normalizedBarcode,
+            regex: "$pattern",
+          }
+        }
+      } );
+
+      if( fallbackProductDataResult && fallbackProductDataResult.data ) {
+        console.log(`Fallback product data found for barcode ${normalizedBarcode}...`);
+        const fallbackData = fallbackProductDataResult.toObject().data;
+        Object.assign( productData, fallbackData );
+      }
+    }
+    else {
+      Object.assign( productData, upcItemDbResult );
+    }
+
+    priceCheck( productData );
+
+    return productData;
   }
 
   async queueProductDataFetching( barcodes ) {
