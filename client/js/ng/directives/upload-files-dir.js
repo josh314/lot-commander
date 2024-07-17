@@ -8,6 +8,7 @@ angular.module('myApp').directive('uploadFilesDir', function(){
     templateUrl: '/partials/directives/_upload_files.html',
     scope: {
       uploadFn: '&',
+      isProcessing: '<?',
       selectFilesBtnText: "<?",
       uploadFilesBtnText: "<?",
       waitText: "<?",
@@ -28,8 +29,6 @@ angular.module('myApp').controller( 'UploadFilesDirCtrl', [
     ModalSvc,
 
   ) {
-
-
 
     const vm = this;
     init();
@@ -55,12 +54,18 @@ angular.module('myApp').controller( 'UploadFilesDirCtrl', [
 
     }
 
-    function uploadFiles( ) {
+    async function uploadFiles() {
 
-      return ModalSvc.wait( {
+      await ModalSvc.wait( {
         message: 'Uploading files...',
         waitFor: $scope.uploadFn( { files: vm.filesToUpload } ),
-      } ).then( () => vm.filesToUpload = null );
+      } );
+
+      if( $scope.isProcessing ) {
+        await ModalSvc.message( { header: 'Processing', body: 'File upload is processing. Please check back later.' } );
+      }
+
+      vm.filesToUpload = null;
 
     }
 

@@ -7,14 +7,17 @@ const {
   IllegalActionError
 } = require('../errors');
 
+const {
+  convertToH264,
+  formatAsCompressedJpeg,
+  probeVideo
+} = require('./media-processing');
+
 const aws = require('aws-sdk');
 aws.config.credentials = new aws.SharedIniFileCredentials({profile: 'lot-commander'});
 const s3 = new aws.S3({apiVersion: '2006-03-01'});
 
 const axios = require('axios');
-
-const sharp = require('sharp');
-const MAX_IMAGE_WIDTH = 1920;
 
 const __BUCKETS__ = {
   images: 'lot-images',
@@ -61,56 +64,72 @@ const parseS3Location = ( s3Location ) => {
   return res;
 };
 
-const formatAsCompressedJpeg = async function(imgPath, opts={}) {
-
-  const img = sharp(imgPath);
-
-  const meta = await img.metadata();
-
-  if(!meta.width || meta.width > MAX_IMAGE_WIDTH) {
-    img.resize(MAX_IMAGE_WIDTH);
-  }
-
-  return img
-    .jpeg({
-      quality: opts.quality || 80,
-      progressive: true,
-      chromaSubsampling: '4:2:0',
-      force: true
-    })
-    .toBuffer();
-};
-
-const storeMedia =  async function( ownerId, pathToFile, filename, mediaType, opts = {} ) {
+const storeImage =  async function( ownerId, pathToFile, filename, opts = {} ) {
 
   const compress = 'compress' in opts ? opts.compress : true;
 
   let readStream;
-  let _key;
+  let key;
 
-  if( mediaType === 'images' && compress ) {
+  if( compress ) {
     const buffer = await formatAsCompressedJpeg( pathToFile );
 
     readStream = new stream.PassThrough();
     readStream.end( buffer );
 
-    _key = `${ ownerId }/${path.parse( filename ).name}.jpg`;
+    key = `${ ownerId }/${path.parse( filename ).name}.jpg`;
   }
   else {
     readStream = fs.createReadStream( pathToFile );
-    _key = `${ ownerId }/${ filename }`;
+    key = `${ ownerId }/${ filename }`;
   }
 
-  // spaces in S3 keys are allowed but cause confusion when reconstructing key from S3 object URL. So nix that here.
-  const key = _key.replace( / /g , '+' );
-
   const dedup = 'dedup' in opts ? opts.dedup : true;
-  return storeStream( readStream, mediaType, key, dedup );
+  return storeStream( readStream, 'images', key, dedup );
 };
 
-const storeStream = async function( readStream, mediaType, key, dedup ) {
+const storeVideo = async function( ownerId, pathToFile, filename, cb, opts = {} ) {
+
+  const metadata = await probeVideo( pathToFile );
+
+  const videoStream = metadata.streams.find( _ => _.codec_type === 'video' );
+  const convert = opts.convert || (videoStream.codec_name !== 'h264');
+
+  const finish = async ( pathToFile, unlink ) => {
+
+    const readStream = fs.createReadStream( pathToFile );
+    const key = `${ ownerId }/${ path.parse( filename ).name }.mp4`;
+    const resp = await storeStream( readStream, 'videos', key, true );
+
+    if( unlink ) {
+      fs.unlinkSync( pathToFile );
+    }
+
+    return cb( resp.Location );
+
+  };
+
+  if( convert ) {
+    console.log(`Converting file \`${ filename }\` to H264...`);
+    const convertedFile = 'tmp.mp4';
+
+    return convertToH264( pathToFile, convertedFile, filename )
+      .then( () => finish( convertedFile, true ) );
+
+  }
+  else {
+    return finish( pathToFile, false );
+  }
+
+};
+
+
+const storeStream = async function( readStream, mediaType, _key, dedup ) {
 
   const Bucket = __BUCKETS__[ mediaType ];
+
+  // spaces in S3 keys are allowed but cause confusion when reconstructing key from S3 object URL. So nix that here.
+  let key = _key.replace( / /g , '+' );
 
   if( !Bucket ) {
     throw new IllegalActionError( `Invalid media type: ${ mediaType }` );
@@ -257,10 +276,10 @@ const remove = function( s3Location ) {
 
 };
 
-const replace = ( s3Location, path ) => {
-  const { ownerId, filename, mediaType } = parseS3Location( s3Location );
-  return storeMedia( ownerId, path, filename, mediaType, { dedup: false } );
-};
+// const replace = ( s3Location, path ) => {
+//   const { ownerId, filename, mediaType } = parseS3Location( s3Location );
+//   return storeMedia( ownerId, path, filename, mediaType, { dedup: false } );
+// };
 
 const deleteLotMedia = async ( lotId, mediaType ) => {
   try {
@@ -304,8 +323,9 @@ module.exports = {
   get,
   listImages,
   remove,
-  replace,
-  storeMedia,
+  // replace,
+  storeImage,
+  storeVideo,
 
   // helpers
   isMediaServerLink,

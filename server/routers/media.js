@@ -37,10 +37,10 @@ function routes( { inventoryCommander, lotdb } ) {
     '/:mediaType/remove',
     remove
   );
-  router.post(
-    '/replace',
-    replaceMedia
-  );
+  // router.post(
+  //   '/replace',
+  //   replaceMedia
+  // );
   router.get(
     '/images/list',
     listImages
@@ -106,25 +106,34 @@ function routes( { inventoryCommander, lotdb } ) {
       const objectId = splitGroupId || palletId || lotId;
 
       if( !objectId ) {
-        throw new InvalidRequestError();
+        throw new InvalidRequestError(`Media must be associated with a lot, pallet, or split group.`);
+      }
+      if( splitGroupId && !palletId ) {
+        throw new InvalidRequestError(`Split groups must be associated with a pallet.`);
+      }
+      if( mediaType !== 'images' && mediaType !== 'videos' ) {
+        throw new InvalidRequestError(`Invalid media type ${ mediaType }.`);
+      }
+      if( mediaType === 'videos' && !lotId ) {
+        throw new InvalidRequestError(`Videos must be associated with a lot.`);
       }
 
       let lot, pallet;
 
       for( let f of files.file ) {
 
-        const mediaStoreResp = await mediaServer.storeMedia( objectId, f.filepath, f.originalFilename, mediaType );
+        if( mediaType === 'images' ) {
 
-        if( mediaStoreResp ) {
+          const mediaStoreResp = await mediaServer.storeImage( objectId, f.filepath, f.originalFilename );
 
           const s3Location = mediaStoreResp.Location;
 
-          if( splitGroupId && palletId  && mediaType === 'images' ) {
+          if( splitGroupId && palletId ) {
 
             pallet = await inventoryCommander.addInventoryPalletSplitGroupImage( palletId, splitGroupId, { s3: s3Location } );
 
           }
-          else if ( palletId  && mediaType === 'images' ) {
+          else if ( palletId ) {
 
             pallet = await inventoryCommander.addInventoryPalletImage( palletId, { s3: s3Location } );
 
@@ -140,10 +149,26 @@ function routes( { inventoryCommander, lotdb } ) {
             throw new InvalidRequestError();
           }
 
-        }
+          console.log(`Unlinking temp file ${f.filepath}`);
+          fs.promises.unlink(f.filepath);
 
-        console.log(`Unlinking temp file ${f.filepath}`);
-        fs.promises.unlink(f.filepath);
+        }
+        else if( mediaType === 'videos' && lotId ) {
+
+          const cb = async ( s3Location ) => {
+
+            lot = await lotdb.getLotById( lotId );
+
+            await lot.addMedia( { s3: s3Location, primary }, mediaType );
+
+            console.log(`Unlinking temp file ${f.filepath}`);
+            return fs.promises.unlink(f.filepath);
+
+          };
+
+          mediaServer.storeVideo( objectId, f.filepath, f.originalFilename, cb );
+
+        }
 
       }
 
@@ -212,31 +237,31 @@ function routes( { inventoryCommander, lotdb } ) {
 
   }
 
-  async function replaceMedia( req, res, next ) {
+  // async function replaceMedia( req, res, next ) {
 
-    try {
+  //   try {
 
-      const form = new formidable.IncomingForm( {} );
+  //     const form = new formidable.IncomingForm( {} );
 
-      const [ fields, files ] = await form.parse(req);
+  //     const [ fields, files ] = await form.parse(req);
 
-      const fileUploads = [];
-      for(let [_, fileArray] of Object.entries(files)){
+  //     const fileUploads = [];
+  //     for(let [_, fileArray] of Object.entries(files)){
 
-        const f = fileArray[0];
-        const s3 = fields.s3[0];
+  //       const f = fileArray[0];
+  //       const s3 = fields.s3[0];
 
-        const s = mediaServer.replace( s3, f.filepath );
-        fileUploads.push(s);
-      }
-      res.json( Promise.all( fileUploads ) );
+  //       const s = mediaServer.replace( s3, f.filepath );
+  //       fileUploads.push(s);
+  //     }
+  //     res.json( Promise.all( fileUploads ) );
 
-    }
-    catch(e) {
-      return next(e);
-    }
+  //   }
+  //   catch(e) {
+  //     return next(e);
+  //   }
 
-  }
+  // }
 
   async function listImages(req, res) {
     const images = await mediaServer.listImages( { urlEncode: !!req.query.url_encode } );

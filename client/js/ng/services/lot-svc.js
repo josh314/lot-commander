@@ -846,12 +846,16 @@ angular.module('myApp').factory( 'Lot', [
 
         return MediaSvc.uploadLotMedia( this._id, media, mediaType ).then( ({ lot }) => {
 
-          const arr = this.getMediaArray( mediaType );
+          if( lot ) {
 
-          // this roundabout way of updating the images is to ensure that the images array is mutated but the reference stays the same
-          arr.splice( 0, arr.length );
-          for( let _media of lot[ mediaType ] ) {
-            arr.push( _media );
+            const arr = this.getMediaArray( mediaType );
+
+            // this roundabout way of updating the images is to ensure that the images array is mutated but the reference stays the same
+            arr.splice( 0, arr.length );
+            for( let _media of lot[ mediaType ] ) {
+              arr.push( _media );
+            }
+
           }
 
           return this;
