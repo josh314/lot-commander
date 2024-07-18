@@ -1,8 +1,9 @@
 const ffmpeg = require('fluent-ffmpeg');
-const ffmpegPath = require('ffmpeg-static');
+const { ffmpegPath, ffprobePath } = require('ffmpeg-ffprobe-static');
 const dayjs = require('dayjs');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
+ffmpeg.setFfprobePath(ffprobePath);
 
 const sharp = require('sharp');
 const MAX_IMAGE_WIDTH = 1920;
