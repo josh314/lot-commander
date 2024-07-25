@@ -170,6 +170,12 @@ angular.module('myApp').service( 'MediaSvc', [ '$localStorage', '$q', '$timeout'
 
     };
 
+    svc.uploadLotVideo = ( lotId, video, primary = false ) => {
+
+      return $q.when( api.uploadLotMedia( lotId, video, 'videos', primary) );
+
+    };
+
     svc.uploadLotMedia = ( lotId, media, mediaType, primary = false ) => {
 
       return $q.when( api.uploadLotMedia( lotId, media, mediaType, primary) );

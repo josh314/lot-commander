@@ -5,6 +5,10 @@ import './less/app.less';
 // Angular setup
 import "./js/ng/app";
 
+
+// Angular filters
+import "./js/ng/filters.js";
+
 // Angular services
 
 import "./js/ng/services/audio-alert-svc.js";
@@ -39,6 +43,7 @@ import "./js/ng/services/user-svc.js";
 
 // Angular directives
 
+import "./js/ng/directives/camera-dir.js";
 import "./js/ng/directives/collage-dir.js";
 import "./js/ng/directives/editor-listing-dir.js";
 import "./js/ng/directives/file-model.js";

@@ -7,7 +7,8 @@ const axios = require('axios');
 
 const {
   ExternalMediaNotFoundError,
-  InvalidRequestError
+  InvalidRequestError,
+  IllegalActionError
 } = require('../errors');
 
 const mediaServer = require( '../modules/media-server' );
@@ -89,7 +90,12 @@ function routes( { inventoryCommander, lotdb } ) {
 
       const { mediaType } = req.params;
 
-      const form = new formidable.IncomingForm( { multiples: true } );
+      const formOptions = {
+        multiples: true,
+        maxFileSize: 500*1024*1024
+      };
+
+      const form = new formidable.IncomingForm( formOptions );
 
       const [ fields, files ] = await form.parse( req );
 
@@ -106,16 +112,16 @@ function routes( { inventoryCommander, lotdb } ) {
       const objectId = splitGroupId || palletId || lotId;
 
       if( !objectId ) {
-        throw new InvalidRequestError(`Media must be associated with a lot, pallet, or split group.`);
+        throw new IllegalActionError(`Media must be associated with a lot, pallet, or split group.`);
       }
       if( splitGroupId && !palletId ) {
-        throw new InvalidRequestError(`Split groups must be associated with a pallet.`);
+        throw new IllegalActionError(`Split groups must be associated with a pallet.`);
       }
       if( mediaType !== 'images' && mediaType !== 'videos' ) {
-        throw new InvalidRequestError(`Invalid media type ${ mediaType }.`);
+        throw new IllegalActionError(`Invalid media type ${ mediaType }.`);
       }
       if( mediaType === 'videos' && !lotId ) {
-        throw new InvalidRequestError(`Videos must be associated with a lot.`);
+        throw new IllegalActionError(`Videos must be associated with a lot.`);
       }
 
       let lot, pallet;

@@ -8,7 +8,7 @@ const {
 } = require('../errors');
 
 const {
-  convertToH264,
+  convertVideo,
   formatAsCompressedJpeg,
   probeVideo
 } = require('./media-processing');
@@ -88,12 +88,15 @@ const storeImage =  async function( ownerId, pathToFile, filename, opts = {} ) {
   return storeStream( readStream, 'images', key, dedup );
 };
 
+function shouldConvertVideo( metadata ) {
+  const videoStreamMetadata = metadata.streams.find( _ => _.codec_type === 'video' );
+  return videoStreamMetadata.codec_name !== 'h264' || videoStreamMetadata.profile !== 'High';
+}
+
 const storeVideo = async function( ownerId, pathToFile, filename, cb, opts = {} ) {
 
   const metadata = await probeVideo( pathToFile );
-
-  const videoStream = metadata.streams.find( _ => _.codec_type === 'video' );
-  const convert = opts.convert || (videoStream.codec_name !== 'h264');
+  const convert = opts.convert || shouldConvertVideo( metadata );
 
   const finish = async ( pathToFile, unlink ) => {
 
@@ -113,7 +116,7 @@ const storeVideo = async function( ownerId, pathToFile, filename, cb, opts = {} 
     console.log(`Converting file \`${ filename }\` to H264...`);
     const convertedFile = 'tmp.mp4';
 
-    return convertToH264( pathToFile, convertedFile, filename )
+    return convertVideo( pathToFile, convertedFile, filename )
       .then( () => finish( convertedFile, true ) );
 
   }

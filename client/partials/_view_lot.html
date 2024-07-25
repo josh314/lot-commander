@@ -191,6 +191,19 @@
 
   </div>
 
+  <div class="well hidden-xs">
+
+    <h3>Camera</h3>
+
+    <div class="row">
+
+      <camera-dir
+        upload-fn="$ctrl.uploadMediaCb( file, 'videos' )"
+      ></camera-dir>
+
+    </div>
+
+  </div>
 
   <div class="well" ng-hide="$ctrl.lot.unmanifested">
     <div class="row" ng-hide="$ctrl.lot.manifestId">

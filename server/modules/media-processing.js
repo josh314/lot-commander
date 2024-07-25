@@ -23,9 +23,8 @@ function probeVideo( inputPath ) {
 
 }
 
-async function convertToH264( inputPath, outputPath, loggingFilename ) {
+async function convertVideo( inputPath, outputPath, loggingFilename ) {
 
-  // TODO: frame-rate, resize, etc
   const startTime = dayjs();
   const metadata = await probeVideo( inputPath );
   const totalFrames = metadata.streams.find( _ => _.codec_type === 'video' ).nb_frames;
@@ -37,7 +36,10 @@ async function convertToH264( inputPath, outputPath, loggingFilename ) {
       .videoCodec('libx264')
       .on('progress', function( progress ) {
 
-        if( totalFrames && totalFrames > 0 ) {
+        if( progress.percent ) {
+          console.log(`Converting file \`${ loggingFilename }\`: ${ progress.percent.toFixed(2) }%`);
+        }
+        else if( totalFrames && totalFrames > 0 ) {
 
           if( progress.frames > 0 ) {
 
@@ -87,7 +89,7 @@ async function formatAsCompressedJpeg( imgPath, opts={} ) {
 
 
 module.exports = {
-  convertToH264,
+  convertVideo,
   formatAsCompressedJpeg,
   probeVideo
 };

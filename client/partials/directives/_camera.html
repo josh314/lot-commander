@@ -1,0 +1,91 @@
+<div class="camera-directive__directive-container">
+
+  <div class="row" ng-show="$ctrl.currentStream">
+
+    <div class="camera-directive__video-header">
+      <div class="camera-directive__video-header__recording-status-container">
+        <span>
+          <h4>RECORDING:
+            <span class="camera-directive__video-header__recording-status-text__inactive" ng-hide="$ctrl.isRecording() || $ctrl.isPaused()">OFF</span>
+            <span class="camera-directive__video-header__recording-status-text__recording" ng-show="$ctrl.isRecording()">ON</span>
+            <span class="camera-directive__video-header__recording-status-text__paused" ng-show="$ctrl.isPaused()">STOPPED</span>
+          </h4>
+        </span>
+      </div>
+      <div lass="camera-directive__video-header__recording-time-container">
+        <h4>Elapsed time: {{ $ctrl.elapsedRecordingTimeSeconds | numberToTime }}</h4>
+      </div>
+    </div>
+
+    <div class="camera-directive__video-container">
+
+      <video
+        ng-class="{
+          'camera-directive__video__is-recording': $ctrl.isRecording(),
+          'camera-directive__video__is-paused': $ctrl.isPaused(),
+        }"
+        video-src-object="$ctrl.currentStream"
+        autoplay
+      >
+        Your browser does not support the video tag.
+      </video>
+
+    </div>
+
+    <div class="camera-directive__controls-container">
+
+
+      <div class="camera-directive__controls__device-selector-container">
+
+        <div class="form-group">
+
+          <label for="cameraDirectiveDeviceSelector" class="control-label">Select camera</label>
+
+          <select class="form-control" class="camera-directive__device-selector" name="cameraDirectiveDeviceSelector" ng-model="$ctrl.selectedDevice">
+            <option ng-repeat="$device in $ctrl.videoDevices" ng-value="$device">{{ $device.label }}</option>
+          </select>
+
+        </div>
+
+      </div>
+
+      <div class="camera-directive__controls__button-row-container">
+
+        <button class="camera-directive__start-recording-button" ng-click="$ctrl.startRecording()" ng-show="$ctrl.canStartRecording()">Record</button>
+        <button class="camera-directive__pause-recording-button" ng-click="$ctrl.pauseRecording()" ng-show="$ctrl.isRecording()">Stop</button>
+        <button class="camera-directive__resume-recording-button" ng-click="$ctrl.resumeRecording()" ng-show="$ctrl.isPaused()">Continue</button>
+        <button class="camera-directive__cancel-recording-button" ng-click="$ctrl.cancelRecording()" ng-show="$ctrl.hasRecorded()">Clear</button>
+
+      </div>
+
+    </div>
+
+
+  </div>
+
+  <!-- Controls for opening/closing the camera widget -->
+  <div class="camera-directive__open-camera-controls-row">
+
+    <div class="camera-directive__open-camera-controls-row__controls-container">
+
+      <button class="camera-directive__open-camera-button" ng-click="$ctrl.openCamera()" ng-hide="$ctrl.cameraIsOpened">
+        <span>
+          Open camera
+        </span>
+      </button>
+
+      <button class="camera-directive__finish-recording-button" ng-click="$ctrl.finishRecording()" ng-show="$ctrl.readyToFinish()">
+        Finish & save
+      </button>
+
+      <button class="camera-directive__close-camera-button" ng-click="$ctrl.closeCamera()" ng-show="$ctrl.cameraIsOpened">
+
+          Close camera
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

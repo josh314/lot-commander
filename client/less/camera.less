@@ -1,0 +1,127 @@
+@camera-directive-inactive-color: @brand-primary;
+@camera-directive-recording-color: @brand-success;
+@camera-directive-pause-color: @brand-warning;
+
+.camera-directive__directive-container {
+  margin: 16px;
+}
+
+.camera-directive__video-header {
+  margin-left: 8px;
+  margin-right: 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  .camera-directive__video-header__recording-status-container {
+    .camera-directive__video-header__recording-status-text__inactive {
+      color: @camera-directive-inactive-color;
+    }
+    .camera-directive__video-header__recording-status-text__recording {
+      color: @camera-directive-recording-color;
+    }
+    .camera-directive__video-header__recording-status-text__paused {
+      color: @camera-directive-pause-color;
+    }
+  }
+
+}
+
+.camera-directive__video-header .camera-directive__video-header__recording-status-container {
+  .text-center();
+  .camera-directive__video-header__recording-status-text__inactive {
+    color: @camera-directive-inactive-color;
+  }
+  .camera-directive__video-header__recording-status-text__recording {
+    color: @camera-directive-recording-color;
+  }
+  .camera-directive__video-header__recording-status-text__paused {
+    color: @camera-directive-pause-color;
+  }
+}
+
+.camera-directive__video-container {
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  video {
+    border-width: 8px;
+    border-style: solid;
+    border-color: @camera-directive-inactive-color;
+    border-radius: 6px;
+    max-width: 100%;
+    // max-height: 400px;
+  }
+
+  .camera-directive__video__is-recording {
+    border-color: @camera-directive-recording-color;
+  }
+
+  .camera-directive__video__is-paused {
+    border-color: @camera-directive-pause-color;
+  }
+
+}
+
+.camera-directive__controls-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 8px;
+  margin-right: 20px;
+}
+
+.camera-directive__controls__button-row-container {
+  margin-top: 16px;
+}
+
+.camera-directive__controls__device-selector-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.camera-directive__start-recording-button {
+  .btn();
+  .btn-sm();
+  .btn-success();
+}
+.camera-directive__pause-recording-button {
+  .btn();
+  .btn-sm();
+  .btn-warning();
+}
+.camera-directive__resume-recording-button {
+  .btn();
+  .btn-sm();
+  .btn-success();
+}
+.camera-directive__cancel-recording-button {
+  .btn();
+  .btn-sm();
+  .btn-danger();
+}
+
+.camera-directive__open-camera-controls-row {
+  display: flex;
+  justify-content: center;
+}
+
+.camera-directive__open-camera-button {
+  .btn();
+  // .btn-sm();
+  .btn-primary();
+}
+.camera-directive__finish-recording-button {
+  .btn();
+  // .btn-sm();
+  .btn-primary();
+}
+.camera-directive__close-camera-button {
+  .btn();
+  // .btn-sm();
+  .btn-danger();
+}
