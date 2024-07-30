@@ -7,6 +7,7 @@ import * as api from '../../api';
 /******************* Service for managing lots ***/
 angular.module('myApp').factory( 'LotSvc', [
 
+  '$interval',
   '$q',
   '$stateParams',
   'CounterSvc',
@@ -16,6 +17,7 @@ angular.module('myApp').factory( 'LotSvc', [
 
   function(
 
+    $interval,
     $q,
     $stateParams,
     CounterSvc,
@@ -24,6 +26,96 @@ angular.module('myApp').factory( 'LotSvc', [
     ManifestFileHandlerSvc,
 
   ) {
+
+    /*************************************************
+     * Media Polling
+     *
+     ********************/
+
+    const __MEDIA_POLL_INTERVAL_MS__ = 30*1000;
+
+    const mediaPollers = {};
+
+    const mediaPollerKey = ( lotId, mediaId, mediaType ) => `${ lotId }-${ mediaType }-${ mediaId }`;
+
+    function getMediaPoller( lotId, mediaId, mediaType ) {
+      const key = mediaPollerKey( lotId, mediaId, mediaType );
+      return mediaPollers[ key ];
+    }
+
+    function cancelMediaPoller( lotId, mediaId, mediaType ) {
+      const key = mediaPollerKey( lotId, mediaId, mediaType );
+      const poller = mediaPollers[ key ];
+      if( poller ) {
+        $interval.cancel( poller.fn );
+        delete mediaPollers[ key ];
+        console.log('canceled poller for', key);
+      }
+    }
+
+    // This method create a repeated callback invocation that will check if the media is done processing.
+    // If this is called multiple times for the same media on the same lotId, it will not create a new poller
+    // but will transfer the existing poller to the current lot object. This is useful when a poller is created for one lot object but
+    // then the user navigates away to a different page with loads a new lot object of the same lotId.
+    function createMediaPoller( lot, mediaId, mediaType ) {
+
+      const key = mediaPollerKey( lot._id, mediaId, mediaType );
+
+      if( mediaPollers[ key ] ) {
+        console.log('poller already exists for', key);
+
+        // update the lot reference. i.e. hand the poller over to the current version of this lot
+        mediaPollers[ key ].lot = lot;
+        return mediaPollers[ key ];
+      }
+
+      console.log('creating media poller for', key );
+      const fn = $interval( function() {
+
+        const lotId = lot._id;
+
+        return $q.when( api.getLotMedia( lotId, mediaId, mediaType ) ).then( ({ media }) => {
+
+          console.log( 'polling for media:', key );
+          if( !media ) {
+            console.log(`No media found for ${ key }`);
+            return cancelMediaPoller( lotId, mediaId, mediaType );
+          }
+
+          if( !media.isProcessing ) {
+
+            const poller = getMediaPoller( lotId, mediaId, mediaType );
+            if( poller ) {
+
+              const arr = poller.lot.getMediaArray( mediaType );
+              const idx = arr.findIndex( _ => _._id === mediaId );
+              if( idx > -1 ) {
+                arr[ idx ] = media;
+              }
+
+              // poller.lot.refreshMediaArray( [ ...arr ], mediaType );
+
+            }
+
+            // we're now done with the interval and can cancel it
+            console.log(`Media ${ mediaId } is done processing`);
+            return cancelMediaPoller( lotId, mediaId, mediaType );
+
+          }
+          console.log( `active media pollers:`, mediaPollers );
+        });
+
+      }, __MEDIA_POLL_INTERVAL_MS__ );
+
+
+      mediaPollers[ key ] = {
+        lot,
+        fn
+      };
+      return mediaPollers[ key ];
+
+    }
+
 
     async function _get( lotId, { populate, hydratePallet, hydratePalletNoDocuments } = {} ) {
 
@@ -61,6 +153,8 @@ angular.module('myApp').factory( 'LotSvc', [
     return {
 
       Lot,
+
+      createMediaPoller,
 
       clone: lot => (lot instanceof Lot) ? lot.clone() : new Lot( lot ),
 
@@ -120,7 +214,7 @@ angular.module('myApp').factory( 'LotSvc', [
         });
       },
 
-      load: ( { populate, hydratePallet, hydratePalletNoDocuments } = {} ) => $q.when( _get( $stateParams.lotId, { populate, hydratePallet, hydratePalletNoDocuments } ).then( async _lot => {
+      load: ( { populate, hydratePallet, hydratePalletNoDocuments, pollProcessingMedia } = {} ) => $q.when( _get( $stateParams.lotId, { populate, hydratePallet, hydratePalletNoDocuments } ).then( async _lot => {
 
         const lot = new Lot( _lot );
 
@@ -130,6 +224,11 @@ angular.module('myApp').factory( 'LotSvc', [
             lot.setInventory( manifest.inventory );
           });
 
+        }
+
+        if( pollProcessingMedia ) {
+          lot.startPollingForMediaFinishedProcessing( 'images' );
+          lot.startPollingForMediaFinishedProcessing( 'videos' );
         }
 
         return lot;
@@ -167,16 +266,22 @@ angular.module('myApp').factory( 'Lot', [
   'MediaSvc',
   'PrintSvc',
   'ProductDataSvc',
+  'ServiceLocator',
 
   function(
+
     $q,
     $sce,
     dbEnums,
     ManifestFileHandlerSvc,
     MediaSvc,
     PrintSvc,
-    ProductDataSvc
+    ProductDataSvc,
+    ServiceLocator,
+
   ) {
+
+    let LotSvc;
 
     class Lot {
 
@@ -203,8 +308,9 @@ angular.module('myApp').factory( 'Lot', [
         this.thirdPartyManifests = [];
         this.manifestFileLocation = undefined;
 
-        // images
+        // media
         this.images = [];
+        this.videos = [];
 
         // listing and order information
         this.listingData = {};
@@ -231,6 +337,8 @@ angular.module('myApp').factory( 'Lot', [
         for( let item of this.inventory ) {
           item.errors = {};
         }
+
+        LotSvc = ServiceLocator.get( 'LotSvc' );
 
       }
 
@@ -842,19 +950,46 @@ angular.module('myApp').factory( 'Lot', [
 
       }
 
+      startPollingForMediaFinishedProcessing( mediaType ) {
+
+        const arr = this.getMediaArray( mediaType );
+
+        for( let media of arr ) {
+
+          if( media.isProcessing ) {
+
+            LotSvc.createMediaPoller( this, media._id, mediaType );
+
+          }
+
+        }
+
+      }
+
+      refreshMediaArray( newMediaArray, mediaType ) {
+
+        const arr = this.getMediaArray( mediaType );
+
+        // this roundabout way of updating the media is to ensure that the media array contents are mutated but the reference to the array stays the same
+        // we first clear the array with splice(), then push the new media objects
+        arr.splice( 0, arr.length );
+        for( let _media of newMediaArray ) {
+
+          arr.push( _media );
+
+        }
+
+      }
+
       uploadMedia( media, mediaType ) {
 
         return MediaSvc.uploadLotMedia( this._id, media, mediaType ).then( ({ lot }) => {
 
           if( lot ) {
 
-            const arr = this.getMediaArray( mediaType );
+            this.refreshMediaArray( lot[ mediaType ], mediaType );
 
-            // this roundabout way of updating the images is to ensure that the images array is mutated but the reference stays the same
-            arr.splice( 0, arr.length );
-            for( let _media of lot[ mediaType ] ) {
-              arr.push( _media );
-            }
+            this.startPollingForMediaFinishedProcessing( mediaType );
 
           }
 

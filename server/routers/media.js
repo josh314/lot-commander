@@ -124,7 +124,7 @@ function routes( { inventoryCommander, lotdb } ) {
         throw new IllegalActionError(`Videos must be associated with a lot.`);
       }
 
-      let lot, pallet;
+      let lot, pallet, media;
 
       for( let f of files.file ) {
 
@@ -148,7 +148,8 @@ function routes( { inventoryCommander, lotdb } ) {
 
             lot = await lotdb.getLotById( lotId );
 
-            await lot.addMedia( { s3: s3Location, primary }, mediaType );
+            ( { media } = await lot.addMedia( { s3: s3Location, primary }, mediaType ) );
+
 
           }
           else {
@@ -161,11 +162,13 @@ function routes( { inventoryCommander, lotdb } ) {
         }
         else if( mediaType === 'videos' && lotId ) {
 
+          lot = await lotdb.getLotById( lotId );
+
+          ( { media } = await lot.addMedia( { isProcessing: true, primary }, mediaType ) );
+
           const cb = async ( s3Location ) => {
 
-            lot = await lotdb.getLotById( lotId );
-
-            await lot.addMedia( { s3: s3Location, primary }, mediaType );
+            await lot.finishProcessingMedia( media._id, mediaType, s3Location );
 
             console.log(`Unlinking temp file ${f.filepath}`);
             return fs.promises.unlink(f.filepath);
@@ -285,7 +288,7 @@ function routes( { inventoryCommander, lotdb } ) {
       for( let image of images ) {
         if( lotId ) {
           const resp = await mediaServer.clone( image, lotId, 'images' );
-          lot = await lotdb.addMedia( lotId, { s3: resp.s3Location }, 'images' );
+          ( { lot } = await lotdb.addMedia( lotId, { s3: resp.s3Location }, 'images' ) );
         }
         else if ( palletId ) {
           const resp = await mediaServer.clone( image, palletId, 'images' );

@@ -157,7 +157,7 @@ lotSchema.methods.markAsSold = function( date ) {
 
 };
 
-lotSchema.methods.getMedia = function( mediaType ) {
+lotSchema.methods.getMediaArray = function( mediaType ) {
 
   if( mediaType !== 'images' && mediaType !== 'videos' ) {
     throw new IllegalActionError( `Invalid media type: ${ mediaType }` );
@@ -166,18 +166,33 @@ lotSchema.methods.getMedia = function( mediaType ) {
   return this[ mediaType ];
 };
 
-lotSchema.methods.addMedia = function( media, mediaType, { save } = { save: true } ) {
+lotSchema.methods.getMedia = function( mediaId, mediaType ) {
 
-  const arr = this.getMedia( mediaType );
+  const arr = this.getMediaArray( mediaType );
+  return arr.id( mediaId );
+
+};
+
+lotSchema.methods.addMedia = async function( media, mediaType, { save } = { save: true } ) {
+
+  const arr = this.getMediaArray( mediaType );
+
+  const _id = new mongoose.Types.ObjectId();
+  media._id = _id;
 
   arr.push( media );
 
-  return save ? this.save() : this;
+  if( save ) {
+    await this.save();
+  }
+
+  return { lot: this, media };
+
 };
 
 lotSchema.methods.removeMedia = function( mediaId, mediaType, { save } = { save: true }  ) {
 
-  const arr = this.getMedia( mediaType );
+  const arr = this.getMediaArray( mediaType );
 
   const index = arr.findIndex( item => item._id.toString() === mediaId.toString() );
 
@@ -197,9 +212,9 @@ lotSchema.methods.removeMedia = function( mediaId, mediaType, { save } = { save:
 
 lotSchema.methods.setPrimaryMedia = function( mediaId, mediaType, { save } = { save: true } ) {
 
-  const arr = this.getMedia( mediaType );
+  const arr = this.getMediaArray( mediaType );
 
-  const foundMediaNewPrimary = arr.find( item => item._id.toString() === mediaId.toString() );
+  const foundMediaNewPrimary = arr.id( mediaId );
   if( !foundMediaNewPrimary ) {
 
     throw new ChildResourceNotFoundError( {
@@ -222,6 +237,22 @@ lotSchema.methods.setPrimaryMedia = function( mediaId, mediaType, { save } = { s
   }
 
   return save ? this.save() : this;
+};
+
+lotSchema.methods.finishProcessingMedia = async function( mediaId, mediaType, s3Location, { save } = { save: true } ) {
+
+  const arr = this.getMediaArray( mediaType );
+  const media = arr.id( mediaId );
+  if( media ) {
+    media.finishProcessing( s3Location );
+  }
+
+  if( save ) {
+    await this.save();
+  }
+
+  return { lot: this, media };
+
 };
 
 module.exports = {

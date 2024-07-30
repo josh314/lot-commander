@@ -93,7 +93,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       );
 
 
-      LotSvc.load( { populate: ['pallet'] } )
+      LotSvc.load( { populate: ['pallet'], pollProcessingMedia: true } )
         .then( lot => {
 
           vm.lot = lot;

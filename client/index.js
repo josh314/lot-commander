@@ -33,6 +33,7 @@ import "./js/ng/services/pallet-lot-svc.js";
 import "./js/ng/services/pallet-manifest-svc.js";
 import "./js/ng/services/print-svc.js";
 import "./js/ng/services/product-data-svc.js";
+import "./js/ng/services/service-locator.js";
 import "./js/ng/services/session-timeout-svc.js";
 import "./js/ng/services/settings-svc.js";
 import "./js/ng/services/shipment-manager-svc.js";

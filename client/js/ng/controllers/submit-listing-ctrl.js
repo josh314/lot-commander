@@ -195,8 +195,9 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
           // shipping items and labels
           editShippingItemsCb,
 
-          // images and collages
-          uploadImagesCb,
+          // media
+          uploadMediaCb,
+          removeMediaCb,
           collages: [],
           showCollages: false,
           renderAndShowCollages,
@@ -207,7 +208,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
 
       );
 
-      LotSvc.load()
+      LotSvc.load( { pollProcessingMedia: true } )
         .then( lot => {
 
           vm.originalLot = lot;
@@ -220,7 +221,10 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
         .then( () => AppSettingsSvc.getDefaultPriceValuePercentage().then( _defaultPriceValuePercentage => vm.defaultPriceValuePercentage = _defaultPriceValuePercentage ) )
         .then( setListingDefaultsFromLot )
         .then( initializeCollageControls )
-        .then( resetPrimaryImageWatchers );
+        .then( () => {
+          resetPrimaryMediaWatchers( 'images' );
+          resetPrimaryMediaWatchers( 'videos' );
+        });
 
     }
 
@@ -322,26 +326,26 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
         addCollage();
       }
 
-      resetPrimaryImageWatchers();
+      resetPrimaryMediaWatchers( 'images' );
 
       vm.showCollages = true;
 
     }
 
-    function resetPrimaryImageWatchers() {
+    function resetPrimaryMediaWatchers( mediaType ) {
 
-      let deregisterPrimaryImageWatchers;
+      const deregisterPrimaryMediaWatchers = {};
 
-      if( deregisterPrimaryImageWatchers ) {
-        deregisterPrimaryImageWatchers();
+      if( deregisterPrimaryMediaWatchers[ mediaType] ) {
+        deregisterPrimaryMediaWatchers[ mediaType ]();
       }
 
       const watchList = [].concat(
-        vm.lot.images ? vm.lot.images.map( ( _, idx ) => () => vm.lot.images[ idx ].primary ): [],
+        vm.lot.getMediaArray( mediaType ) ? vm.lot.getMediaArray( mediaType ).map( ( _, idx ) => () => vm.lot.getMediaArray( mediaType )[ idx ] && vm.lot.getMediaArray( mediaType )[ idx ].primary ): [],
         vm.collages ? vm.collages.map( ( _, idx ) => () => vm.collages[ idx ].primary ) : [],
       );
 
-      deregisterPrimaryImageWatchers = $scope.$watchGroup( watchList, function( newVals, oldVals ) {
+      deregisterPrimaryMediaWatchers[ mediaType ] = $scope.$watchGroup( watchList, function( newVals, oldVals ) {
 
         if( newVals.filter( _ => _ ).length > 1 ) {
 
@@ -351,16 +355,20 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
 
           if( changedIdx >= 0 ) {
 
+            let media = [].concat( vm.lot.getMediaArray( mediaType ) || [] );
+            if( mediaType === 'images' ) {
 
-            const images = [].concat(
-              vm.lot.images || [],
-              vm.collages || [],
-            );
+              media = [].concat(
+                media,
+                vm.collages || [],
+              );
 
-            for( let i=0; i<images.length; i++ ) {
+            }
+
+            for( let i=0; i<media.length; i++ ) {
 
               if( i !== changedIdx ) {
-                images[ i ].primary = false;
+                media[ i ].primary = false;
               }
 
             }
@@ -398,7 +406,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
 
       vm.collages.push( collage );
 
-      resetPrimaryImageWatchers();
+      resetPrimaryMediaWatchers( 'images' );
 
     }
 
@@ -447,8 +455,12 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
 
     }
 
-    function uploadImagesCb( images ) {
-      return vm.lot.uploadImages( images );
+    function uploadMediaCb( media, mediaType ) {
+      return vm.lot.uploadMedia( media, mediaType ).then( () => resetPrimaryMediaWatchers( mediaType ) );
+    }
+
+    function removeMediaCb( mediaType ) {
+      return resetPrimaryMediaWatchers( mediaType );
     }
 
     function saveCollages() {

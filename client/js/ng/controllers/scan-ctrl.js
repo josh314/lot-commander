@@ -125,7 +125,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
         }
       );
 
-      LotSvc.load().then( _lot => {
+      LotSvc.load( { pollProcessingMedia: true } ).then( _lot => {
 
         console.log('loaded lot', _lot);
         vm.lot = _lot;

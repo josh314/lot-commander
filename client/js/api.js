@@ -225,6 +225,14 @@ export function uploadLotManifestFile( lotId, file, filename ) {
 
 }
 
+export function getLotMedia( lotId, mediaId, mediaType ) {
+  return axios({
+    method: 'get',
+    url: `/api/lots/${lotId}/${ mediaType }/${mediaId}`,
+  })
+    .then( resp => resp.data );
+}
+
 export function setPrimaryLotMedia( lotId, mediaId, mediaType ) {
   return axios({
     method: 'post',

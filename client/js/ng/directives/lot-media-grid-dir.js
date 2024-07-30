@@ -9,6 +9,7 @@ angular.module('myApp').directive('lotMediaGridDir', function(){
     scope: {
       lot: '=',
       mediaType: '=',
+      removeMediaCb: '&',
       hideEditControls: '<?',
       suppressUpdatePrimaryOnClick: '<?',
     },
@@ -106,8 +107,14 @@ angular.module('myApp').controller( 'LotMediaGridDirCtrl', [
 
       if( isConfirmed ) {
 
+        let p = vm.lot.removeMedia( media, $scope.mediaType );
+
+        if( $scope.removeMediaCb ) {
+          p = p.then( () => $scope.removeMediaCb() );
+        }
+
         await ModalSvc.wait( {
-          waitFor: vm.lot.removeMedia( media, $scope.mediaType )
+          waitFor: p
         } );
 
       }

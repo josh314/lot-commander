@@ -136,6 +136,11 @@ function routes({ inventoryCommander, lotdb, manifests }) {
     auth.isAuthorized( 'EDIT_LOT' ),
     uploadManifest
   );
+  router.get(
+    '/:lotId/:mediaType/:mediaId',
+    auth.isAuthorized( 'VIEW_LOT' ),
+    getLotMedia
+  );
   router.post(
     '/:lotId/:mediaType/:mediaId/primary',
     auth.isAuthorized( 'EDIT_LOT' ),
@@ -414,6 +419,24 @@ function routes({ inventoryCommander, lotdb, manifests }) {
 
   }
 
+  async function getLotMedia( req, res, next ) {
+
+    try {
+
+      const { lotId, mediaId, mediaType } = req.params;
+
+      const lot = await lotdb.getLotById( lotId );
+      const media = lot.getMedia( mediaId, mediaType );
+
+      res.json( { media } );
+
+    }
+    catch(e) {
+      return next( e );
+    }
+
+  }
+
   async function setPrimaryMedia( req, res, next ) {
 
     try {
@@ -495,10 +518,9 @@ function routes({ inventoryCommander, lotdb, manifests }) {
       const lotId = req.params.lotId;
       const { images } = req.body;
 
-      const lot = await lotdb.addMedia( lotId, images, 'images' );
+      const { lot, media } = await lotdb.addMedia( lotId, images, 'images' );
 
-
-      res.json( { lot } );
+      res.json( { lot, media } );
 
     }
     catch(e) {

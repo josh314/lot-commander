@@ -279,6 +279,11 @@ angular.module('myApp').controller( 'CameraDirCtrl', [
             waitFor: $scope.uploadFn({ file })
           });
 
+          await ModalSvc.message({
+            header: 'Processing',
+            body: 'The video has been uploaded and is currently processing. It may take some time before it is available for viewing.'
+          });
+
         };
         vm.mediaRecorder.stop();
 
