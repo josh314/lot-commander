@@ -241,13 +241,25 @@ angular.module('myApp').controller( 'CameraDirCtrl', [
       }
     }
 
-    function createFile( _chunks ) {
+    function saveLocalFile( blob, filename ) {
+      // Create a Blob URL for the Blob object
+      const url = $window.URL.createObjectURL(blob);
 
-      const blob = new Blob( _chunks, { type: 'video/mp4' } );
-      const filename = `video-${ crypto.randomUUID() }.mp4`;
-      return new File( [ blob ], filename, { type: blob.type, lastModified: Date.now() });
+      // Create a link element and append to the document
+      const a = $window.document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      $window.document.body.appendChild(a);
+
+      // Programmatically click the link to trigger the download
+      a.click();
+
+      // Cleanup: remove the link from the document and revoke the Blob URL to release memory
+      $window.document.body.removeChild(a);
+      $window.URL.revokeObjectURL(url);
 
     }
+
 
     async function finishRecording() {
 
@@ -274,7 +286,21 @@ angular.module('myApp').controller( 'CameraDirCtrl', [
 
           }
 
-          const file = createFile( _chunks );
+          const blob = new Blob( _chunks, { type: 'video/mp4' } );
+          const filename = `video-${ crypto.randomUUID() }.mp4`;
+          const file = new File( [ blob ], filename, { type: blob.type, lastModified: Date.now() });
+
+          const doSaveLocalFile = await ModalSvc.confirm({
+            header: 'Save a local copy to your device?',
+            html: `<p>In the event of a problem on the server, the video you have recorded may be lost.</p>
+                    <p>It is therefore suggested that you save a local copy of this video to your device.</p>
+                    <p>Would you like to save a copy?</p>`,
+          });
+
+          if( doSaveLocalFile ) {
+            saveLocalFile( blob, filename );
+          }
+
           await ModalSvc.wait({
             waitFor: $scope.uploadFn({ file })
           });
