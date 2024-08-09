@@ -93,31 +93,45 @@ function shouldConvertVideo( metadata ) {
   return videoStreamMetadata.codec_name !== 'h264' || videoStreamMetadata.profile !== 'High';
 }
 
-const storeVideo = async function( ownerId, pathToFile, filename, cb, opts = {} ) {
+const storeVideo = async function( ownerId, pathToFile, filename, { successCb, failureCb, jobKey, convert } ) {
 
   const metadata = await probeVideo( pathToFile );
-  const convert = opts.convert || shouldConvertVideo( metadata );
+  const _convert = convert || shouldConvertVideo( metadata );
+  const key = `${ ownerId }/${ path.parse( filename ).name }.mp4`;
 
   const finish = async ( pathToFile, unlink ) => {
 
     const readStream = fs.createReadStream( pathToFile );
-    const key = `${ ownerId }/${ path.parse( filename ).name }.mp4`;
     const resp = await storeStream( readStream, 'videos', key, true );
 
     if( unlink ) {
       fs.unlinkSync( pathToFile );
     }
 
-    return cb( resp.Location );
+    if( successCb ) {
+      return successCb( resp.Location );
+    }
+    else {
+      return resp;
+    }
 
   };
 
-  if( convert ) {
+  if( _convert ) {
     console.log(`Converting file \`${ filename }\` to H264...`);
     const convertedFile = 'tmp.mp4';
 
-    return convertVideo( pathToFile, convertedFile, filename )
-      .then( () => finish( convertedFile, true ) );
+    return convertVideo( pathToFile, convertedFile, filename, jobKey )
+      .then( () => finish( convertedFile, true ) )
+      .catch( e => {
+        fs.unlinkSync( convertedFile );
+        if ( failureCb ) {
+          return failureCb( e );
+        }
+        else {
+          return e;
+        }
+      } );
 
   }
   else {

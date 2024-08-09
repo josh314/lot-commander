@@ -1,3 +1,4 @@
+
 const ffmpeg = require('fluent-ffmpeg');
 const { ffmpegPath, ffprobePath } = require('ffmpeg-ffprobe-static');
 const dayjs = require('dayjs');
@@ -7,6 +8,8 @@ ffmpeg.setFfprobePath(ffprobePath);
 
 const sharp = require('sharp');
 const MAX_IMAGE_WIDTH = 1920;
+
+const __ACTIVE_PROCESSES__ = new Map();
 
 function probeVideo( inputPath ) {
 
@@ -23,15 +26,18 @@ function probeVideo( inputPath ) {
 
 }
 
-async function convertVideo( inputPath, outputPath, loggingFilename ) {
+async function convertVideo( inputPath, outputPath, loggingFilename, jobKey ) {
 
   const startTime = dayjs();
   const metadata = await probeVideo( inputPath );
   const totalFrames = metadata.streams.find( _ => _.codec_type === 'video' ).nb_frames;
 
-  return new Promise((resolve, reject) => {
 
-    ffmpeg( inputPath )
+  let ffmpegCommand;
+
+  const p = new Promise((resolve, reject) => {
+
+    ffmpegCommand = ffmpeg( inputPath )
       .output( outputPath )
       .videoCodec('libx264')
       .on('progress', function( progress ) {
@@ -49,6 +55,12 @@ async function convertVideo( inputPath, outputPath, loggingFilename ) {
           }
 
         }
+        else if ( progress.timemark ) {
+          console.log(`Converting file \`${ loggingFilename }\`: ${ progress.timemark }`);
+        }
+        else {
+          console.log(`Converting file \`${ loggingFilename }\`: ${ progress }`);
+        }
 
       })
       .on('end', () => {
@@ -60,10 +72,43 @@ async function convertVideo( inputPath, outputPath, loggingFilename ) {
         console.error(`Converting file \`${ loggingFilename }\`: conversion failed.`);
         console.error( err.message );
         reject( err );
-      })
-      .run();
-  });
+      });
 
+    ffmpegCommand.run();
+
+  });
+    // .catch( console.error );
+
+  const cancel = () => {
+    try {
+
+      if ( ffmpegCommand ) {
+        ffmpegCommand.kill('SIGKILL');
+        if( ffmpegCommand.ffmpegProc ) {
+          // Kill the entire process group
+          process.kill(-ffmpegCommand.ffmpegProc.pid, 'SIGKILL');
+        }
+      }
+
+    }
+    catch( e ) {
+      // seems killing processes throw an error no matter what
+      console.error( e );
+    }
+  };
+
+  __ACTIVE_PROCESSES__.set( jobKey, { process: p, cancel } );
+
+  return p;
+
+}
+
+async function cancelActiveProcess( jobKey ) {
+  const activeProcess = __ACTIVE_PROCESSES__.get( jobKey );
+  if( activeProcess ) {
+    __ACTIVE_PROCESSES__.delete( jobKey );
+    activeProcess.cancel();
+  }
 }
 
 
@@ -89,6 +134,7 @@ async function formatAsCompressedJpeg( imgPath, opts={} ) {
 
 
 module.exports = {
+  cancelActiveProcess,
   convertVideo,
   formatAsCompressedJpeg,
   probeVideo

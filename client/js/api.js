@@ -872,6 +872,22 @@ export function removeMedia( media, mediaType, { lotId, palletId, splitGroupId }
     .then( resp => resp.data );
 }
 
+export function cancelMediaProcessing( mediaId, mediaType, { lotId, palletId, splitGroupId } ) {
+  const req = {
+    lotId,
+    palletId,
+    splitGroupId,
+    mediaId
+  };
+
+  return axios({
+    method: 'post',
+    url: `/api/media/${ mediaType }/cancel-processing`,
+    data: req
+  })
+    .then( resp => resp.data );
+}
+
 export function cloneImagesToLot( lotId, images ) {
   return axios({
     method: 'post',

@@ -10,6 +10,7 @@ angular.module('myApp').directive('lotMediaGridDir', function(){
       lot: '=',
       mediaType: '=',
       removeMediaCb: '&',
+      cancelMediaProcessingCb: '&',
       hideEditControls: '<?',
       suppressUpdatePrimaryOnClick: '<?',
     },
@@ -69,6 +70,7 @@ angular.module('myApp').controller( 'LotMediaGridDirCtrl', [
           isVideoGrid,
           updatePrimaryMedia,
           removeMedia,
+          cancelMediaProcessing,
           editImage,
           openImagePreviewModal
         }
@@ -119,6 +121,28 @@ angular.module('myApp').controller( 'LotMediaGridDirCtrl', [
 
       }
 
+    }
+
+    async function cancelMediaProcessing( media ) {
+
+      const isConfirmed = await ModalSvc.confirm( {
+        header: `Cancel ${ isImageGrid() ? 'Image' : 'Video' } Processing`,
+        body: `Are you sure you want to cancel this ${ isImageGrid() ? 'image' : 'video' } processing?`,
+      } );
+
+      if( isConfirmed ) {
+
+        let p = vm.lot.cancelMediaProcessing( media, $scope.mediaType );
+
+        if( $scope.cancelMediaProcessingCb ) {
+          p = p.then( () => $scope.cancelMediaProcessingCb() );
+        }
+
+        await ModalSvc.wait( {
+          waitFor: p
+        } );
+
+      }
     }
 
     function editImage( image ) {

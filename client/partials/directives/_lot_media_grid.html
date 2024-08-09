@@ -5,10 +5,22 @@
     <div class="lot-media-grid__grid-item" ng-repeat="$media in $ctrl.media">
 
       <div class="lot-media-grid__processing-item-container" ng-show="$media.isProcessing">
-        <div class="center-block loader"></div>
-        <div class="lot-media-grid__media__is-processing-text-container">
-          <span class="lot-media-grid__media__is-processing-text">This media item is processing...</span>
+
+        <div class="lot-media-grid__processing-graphic-container">
+          <div class="center-block loader"></div>
+          <div class="lot-media-grid__media__is-processing-text-container">
+            <span class="lot-media-grid__media__is-processing-text">This media item is processing...</span>
+          </div>
         </div>
+
+        <div class="lot-media-grid__controls-footer">
+
+          <div class="lot-media-grid__controls-footer__spacer"></div>
+          <div class="lot-media-grid__controls-footer__buttons-container">
+            <button class="btn btn-danger btn-xs" ng-click="$ctrl.cancelMediaProcessing( $media )">Cancel processing</button>
+          </div>
+        </div>
+
       </div>
 
       <div class="lot-media-grid__media-item-container"  ng-hide="$media.isProcessing">

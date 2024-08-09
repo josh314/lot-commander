@@ -1025,6 +1025,26 @@ angular.module('myApp').factory( 'Lot', [
 
       }
 
+      cancelMediaProcessing( media, mediaType ) {
+
+        return $q.when( api.cancelMediaProcessing( media._id, mediaType, { lotId: this._id } ) ).then( _ => {
+
+          const arr = this.getMediaArray( mediaType );
+
+          const removedMediaIdx = arr.findIndex( _media => _media._id === media._id );
+
+          if( removedMediaIdx !== -1 ) {
+
+            arr.splice( removedMediaIdx, 1 );
+
+          }
+
+          return this;
+
+        });
+
+      }
+
       getMediaLink( media ) {
         return media.s3 ? `/api/media/?s3=${encodeURIComponent(media.s3)}` : media.filename;
       }

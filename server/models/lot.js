@@ -196,16 +196,9 @@ lotSchema.methods.removeMedia = function( mediaId, mediaType, { save } = { save:
 
   const index = arr.findIndex( item => item._id.toString() === mediaId.toString() );
 
-  if( index === -1 ) {
-    throw new ChildResourceNotFoundError( {
-      parentType: 'lot',
-      parentId: this._id,
-      childType: mediaType,
-      childId: mediaId
-    } );
+  if( index !== -1 ) {
+    arr.splice( index, 1 );
   }
-
-  arr.splice( index, 1 );
 
   return save ? this.save() : this;
 };
@@ -243,13 +236,17 @@ lotSchema.methods.finishProcessingMedia = async function( mediaId, mediaType, s3
 
   const arr = this.getMediaArray( mediaType );
   const media = arr.id( mediaId );
+
   if( media ) {
+
     media.finishProcessing( s3Location );
+
+    if( save ) {
+      await this.save();
+    }
+
   }
 
-  if( save ) {
-    await this.save();
-  }
 
   return { lot: this, media };
 

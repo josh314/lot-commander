@@ -198,6 +198,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
           // media
           uploadMediaCb,
           removeMediaCb,
+          cancelMediaProcessingCb,
           collages: [],
           showCollages: false,
           renderAndShowCollages,
@@ -460,6 +461,10 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
     }
 
     function removeMediaCb( mediaType ) {
+      return resetPrimaryMediaWatchers( mediaType );
+    }
+
+    function cancelMediaProcessingCb( mediaType ) {
       return resetPrimaryMediaWatchers( mediaType );
     }
 

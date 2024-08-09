@@ -12,6 +12,9 @@ const {
 } = require('../errors');
 
 const mediaServer = require( '../modules/media-server' );
+const {
+  cancelActiveProcess
+} = require('../modules/media-processing');
 
 const notFoundImage = fs.readFileSync(path.join(__basedir, '../assets', 'missing-image.jpg'));
 
@@ -37,6 +40,10 @@ function routes( { inventoryCommander, lotdb } ) {
   router.post(
     '/:mediaType/remove',
     remove
+  );
+  router.post(
+    '/:mediaType/cancel-processing',
+    cancelProcessing
   );
   // router.post(
   //   '/replace',
@@ -166,7 +173,7 @@ function routes( { inventoryCommander, lotdb } ) {
 
           ( { media } = await lot.addMedia( { isProcessing: true, primary }, mediaType ) );
 
-          const cb = async ( s3Location ) => {
+          const successCb = async ( s3Location ) => {
 
             // retrieve the lot again to make sure we have the latest version
             const _lot = await lotdb.getLotById( lotId );
@@ -178,7 +185,19 @@ function routes( { inventoryCommander, lotdb } ) {
 
           };
 
-          mediaServer.storeVideo( objectId, f.filepath, f.originalFilename, cb );
+          const failureCb = async ( err ) => {
+
+            console.log(`Error processing video file ${f.filepath}:`);
+            console.error( err );
+
+            await lotdb.removeMedia( lotId, media._id, mediaType );
+
+            console.log(`Unlinking temp file ${f.filepath}`);
+            return fs.promises.unlink(f.filepath);
+
+          };
+
+          mediaServer.storeVideo( objectId, f.filepath, f.originalFilename, { successCb, failureCb, jobKey: media._id.toString() } );
 
         }
 
@@ -246,6 +265,28 @@ function routes( { inventoryCommander, lotdb } ) {
       return next(e);
     }
 
+
+  }
+
+  async function cancelProcessing( req, res, next ) {
+
+    try {
+
+      const { mediaType } = req.params;
+
+      const { lotId, mediaId } = req.body;
+
+      await cancelActiveProcess( mediaId );
+
+      // this is cleanup for any hanging media metadata not associated with a current processing job
+      await lotdb.removeMedia( lotId, mediaId, mediaType );
+
+      res.json({ status: "success" });
+
+    }
+    catch(e) {
+      return next(e);
+    }
 
   }
 
