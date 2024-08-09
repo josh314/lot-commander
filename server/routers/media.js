@@ -92,7 +92,7 @@ function routes( { inventoryCommander, lotdb } ) {
 
       const formOptions = {
         multiples: true,
-        maxFileSize: 500*1024*1024
+        maxFileSize: 3*1024*1024*1024
       };
 
       const form = new formidable.IncomingForm( formOptions );
@@ -168,7 +168,10 @@ function routes( { inventoryCommander, lotdb } ) {
 
           const cb = async ( s3Location ) => {
 
-            await lot.finishProcessingMedia( media._id, mediaType, s3Location );
+            // retrieve the lot again to make sure we have the latest version
+            const _lot = await lotdb.getLotById( lotId );
+
+            await _lot.finishProcessingMedia( media._id, mediaType, s3Location );
 
             console.log(`Unlinking temp file ${f.filepath}`);
             return fs.promises.unlink(f.filepath);
