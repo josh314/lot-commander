@@ -243,13 +243,17 @@ lotSchema.methods.finishProcessingMedia = async function( mediaId, mediaType, s3
 
   const arr = this.getMediaArray( mediaType );
   const media = arr.id( mediaId );
+
   if( media ) {
+
     media.finishProcessing( s3Location );
+
+    if( save ) {
+      await this.save();
+    }
+
   }
 
-  if( save ) {
-    await this.save();
-  }
 
   return { lot: this, media };
 

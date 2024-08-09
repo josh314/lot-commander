@@ -14,23 +14,29 @@
 
 @lot-media-grid-item-loader-size: 180px;
 .lot-media-grid__processing-item-container {
-  background-color: white;
-  border-width: 3px;
-  border-style: solid;
-  border-color: @brand-primary;
-  border-radius: 4px;
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  .lot-media-grid__processing-graphic-container {
+    background-color: white;
+    border-width: 3px;
+    border-style: solid;
+    border-color: @brand-primary;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
   .loader {
     max-width: @lot-media-grid-item-loader-size;
     max-height: @lot-media-grid-item-loader-size;
     margin: 24px;
   }
+
   .lot-media-grid__media__is-processing-text {
     .h4();
   }
+
 }
 
 

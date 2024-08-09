@@ -49,6 +49,12 @@ async function convertVideo( inputPath, outputPath, loggingFilename ) {
           }
 
         }
+        else if ( progress.timemark ) {
+          console.log(`Converting file \`${ loggingFilename }\`: ${ progress.timemark }`);
+        }
+        else {
+          console.log(`Converting file \`${ loggingFilename }\`: ${ progress }`);
+        }
 
       })
       .on('end', () => {

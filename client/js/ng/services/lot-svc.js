@@ -1025,6 +1025,13 @@ angular.module('myApp').factory( 'Lot', [
 
       }
 
+      // TODO: implement this properly. requires some juice on the server to keep track of processing tasks so they can be found and cancelled. Although this does is remove the metadata from lot
+      cancelMediaProcessing( media, mediaType ) {
+
+        return this.removeMedia( media, mediaType );
+
+      }
+
       getMediaLink( media ) {
         return media.s3 ? `/api/media/?s3=${encodeURIComponent(media.s3)}` : media.filename;
       }
