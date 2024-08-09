@@ -11,7 +11,7 @@
         </div>
       </div>
 
-      <div ng-hide="$media.isProcessing">
+      <div class="lot-media-grid__media-item-container"  ng-hide="$media.isProcessing">
 
         <div class="lot-media-grid__image-container" ng-show="$ctrl.isImageGrid()">
           <a href ng-click="$ctrl.openImagePreviewModal( $media )">
@@ -36,7 +36,7 @@
             </label>
           </div>
 
-          <div class="lot-media-grid__controls-footer__divider"></div>
+          <div class="lot-media-grid__controls-footer__spacer"></div>
 
           <div class="lot-media-grid__controls-footer__buttons-container">
             <div ng-hide="$ctrl.hideEditControls || $ctrl.isVideoGrid()">

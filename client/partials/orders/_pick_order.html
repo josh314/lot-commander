@@ -19,7 +19,7 @@
             <b>Shopify fulfillment status: </b>{{ $ctrl.order.displayFulfillmentStatus }}<br>
             <b>Pick status: </b>{{ $ctrl.orderPick.isFinished ? 'FINISHED' : 'OPEN' }}<br>
           </div>
-          <div class="flex-row-divider"></div>
+          <div class="flex-row-spacer"></div>
 <!-- <div class="flex-row-item">
   <button class="btn btn-sm btn-primary" ng-click="$ctrl.printPickReceipt()" ng-disabled="$ctrl.order.status !== 'done'">Print Pick Receipt</button>
 </div> -->
@@ -44,7 +44,7 @@
               <label for="ScanLabelInput">Scan Label</label>
               <input id="ScanLabelInput" name="ScanLabelInput" class="form-control" ng-model="$ctrl.label" ng-keyup="$event.keyCode == 13 && $ctrl.scanLabel()" autocomplete="off"  ng-disabled="$ctrl.orderPick.isFinished"/>
             </div>
-            <div class="flex-row-divider"></div>
+            <div class="flex-row-spacer"></div>
             <div class="flex-row-item">
               <button class="btn btn-danger btn-sm" ng-click="$ctrl.orderPick.reset()" ng-disabled="$ctrl.orderPick.isFinished">Reset Picklist</button>
             </div>
