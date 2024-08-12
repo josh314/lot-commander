@@ -190,7 +190,8 @@ function routes( { inventoryCommander, lotdb } ) {
             console.log(`Error processing video file ${f.filepath}:`);
             console.error( err );
 
-            await lotdb.removeMedia( lotId, media._id, mediaType );
+            // await lotdb.removeMedia( lotId, media._id, mediaType );
+            await lotdb.mediaProcessingFailed( lotId, media._id, mediaType );
 
             console.log(`Unlinking temp file ${f.filepath}`);
             return fs.promises.unlink(f.filepath);

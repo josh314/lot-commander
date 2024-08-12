@@ -247,6 +247,24 @@ lotSchema.methods.finishProcessingMedia = async function( mediaId, mediaType, s3
 
   }
 
+  return { lot: this, media };
+
+};
+
+lotSchema.methods.mediaProcessingFailed = async function( mediaId, mediaType, { save } = { save: true } ) {
+
+  const arr = this.getMediaArray( mediaType );
+  const media = arr.id( mediaId );
+
+  if( media ) {
+
+    media.setProcessingFailed();
+
+    if( save ) {
+      await this.save();
+    }
+
+  }
 
   return { lot: this, media };
 

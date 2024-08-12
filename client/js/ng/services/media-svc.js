@@ -57,6 +57,8 @@ angular.module('myApp').service( 'MediaSvc', [ '$localStorage', '$q', '$timeout'
   function( $localStorage, $q, $timeout, $window ){
     const svc = this;
 
+    svc.errorImg = errorImg;
+
     /**
     * Returns a function which loads an image.
     *

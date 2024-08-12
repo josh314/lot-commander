@@ -251,6 +251,18 @@ exports.Client = function( { Lot, countCommander } ) {
 
   };
 
+  this.mediaProcessingFailed = async function( lotId, mediaId, mediaType ) {
+
+    const lot = await this.getLotById( lotId );
+
+    if( !lot ) {
+      throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
+    }
+
+    return lot.mediaProcessingFailed( mediaId, mediaType );
+
+  }
+
   this.add3pManifest = function(lotId, manifestData) {
     if(!lotId) {
       throw new Error('No lot ID submitted.');

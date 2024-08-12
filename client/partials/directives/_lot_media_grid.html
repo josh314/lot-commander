@@ -7,23 +7,37 @@
       <div class="lot-media-grid__processing-item-container" ng-show="$media.isProcessing">
 
         <div class="lot-media-grid__processing-graphic-container">
-          <div class="center-block loader"></div>
-          <div class="lot-media-grid__media__is-processing-text-container">
-            <span class="lot-media-grid__media__is-processing-text">This media item is processing...</span>
+
+          <div class="lot-media-grid__processing-graphic__failed-image-container" ng-show="$media.processingFailed">
+            <img ng-src="{{ $ctrl.errorImg }}" class="primary-image">
           </div>
+
+          <div class="lot-media-grid__processing-graphic__loader-container" ng-hide="$media.processingFailed">
+            <div class="center-block loader"></div>
+          </div>
+
+          <div class="lot-media-grid__media__is-processing-text-container">
+            <span class="lot-media-grid__media__is-processing-text">{{ $media.processingFailed ? 'Processing failed' : 'This media item is processing...' }}</span>
+          </div>
+
         </div>
 
         <div class="lot-media-grid__controls-footer">
 
           <div class="lot-media-grid__controls-footer__spacer"></div>
           <div class="lot-media-grid__controls-footer__buttons-container">
-            <button class="btn btn-danger btn-xs" ng-click="$ctrl.cancelMediaProcessing( $media )">Cancel processing</button>
+            <button class="btn btn-danger btn-xs" ng-click="$ctrl.cancelMediaProcessing( $media )">{{ $media.processingFailed ? 'Remove' : 'Cancel' }}</button>
           </div>
+
         </div>
 
       </div>
 
       <div class="lot-media-grid__media-item-container"  ng-hide="$media.isProcessing">
+
+        <div class="" ng-show="$medi.a">
+
+        </div>
 
         <div class="lot-media-grid__image-container" ng-show="$ctrl.isImageGrid()">
           <a href ng-click="$ctrl.openImagePreviewModal( $media )">

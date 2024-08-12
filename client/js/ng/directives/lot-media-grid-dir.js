@@ -66,6 +66,8 @@ angular.module('myApp').controller( 'LotMediaGridDirCtrl', [
           mediaType: $scope.mediaType,
           hideEditControls: $scope.hideEditControls,
 
+          errorImg: MediaSvc.errorImg,
+
           isImageGrid,
           isVideoGrid,
           updatePrimaryMedia,
