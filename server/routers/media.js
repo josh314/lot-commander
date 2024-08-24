@@ -67,10 +67,11 @@ function routes( { inventoryCommander, lotdb } ) {
     try {
 
       const s3Location = decodeURIComponent( req.query.s3 );
-      const resp = await mediaServer.get( { s3Location: s3Location } );
+      const resp = await mediaServer.get( s3Location );
+
       if( resp && resp.Body ) {
         res.header( 'Content-Disposition', `filename="${ mediaServer.mediaFilenameFromS3Location( s3Location ) }"` );
-        res.send( resp.Body );
+        resp.Body.pipe( res );
       }
       else {
         // TODO: response for not found video
@@ -288,7 +289,7 @@ function routes( { inventoryCommander, lotdb } ) {
 
       let lot, pallet;
 
-      for( let image of images ) {
+      for( let image of images ) {console.log(image);
         if( lotId ) {
           const resp = await mediaServer.clone( image, lotId, 'images' );
           ( { lot } = await lotdb.addMedia( lotId, { s3: resp.s3Location }, 'images' ) );

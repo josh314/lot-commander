@@ -72,6 +72,28 @@ class Client {
 
   }
 
+  addProductImageByUrl( productId, url, primary ) {
+
+    const endpoint = `products/${productId}/images.json`;
+
+    const body = {
+      image: {
+        src: url
+      }
+    };
+
+    if( primary ) {
+      body.image.position = 1;
+    }
+
+    return this.request( {
+      method: 'POST',
+      endpoint,
+      body
+    } );
+
+  }
+
   trackSkuInventoryItem( sku, inventoryItemId ) {
 
     const inventory_item = {

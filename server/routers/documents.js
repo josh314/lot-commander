@@ -143,21 +143,27 @@ function routes( ) {
     }
   }
 
-  async function getObjectDocument( req, res ) {
+  async function getObjectDocument( req, res, next ) {
 
-    const documentName = req.params.documentName;
+    try {
 
-    const stream = documentSvc.get( {
-      folder: documentSvc.folder( __FOLDER_PREFIX__[ req.query.object_type ] )( req.params.objectId ),
-      name: documentName
-    } );
+      const documentName = req.params.documentName;
 
-    stream.on('error', _e => {
-      res.json({ error: true, message: `Unable to get object: '${documentName}'` });
-    });
+      const stream = await documentSvc.get( {
+        folder: documentSvc.folder( __FOLDER_PREFIX__[ req.query.object_type ] )( req.params.objectId ),
+        name: documentName
+      } );
 
-    stream.pipe(res);
+      stream.on('error', _e => {
+        res.json({ error: true, message: `Unable to get object: '${documentName}'` });
+      });
 
+      stream.pipe(res);
+
+    }
+    catch(e) {
+      next(e);
+    }
   }
 
   function removeObjectDocument( req, res ) {
@@ -225,7 +231,7 @@ function routes( ) {
   }
 
 
-  function editObjectDocumentProperties( req, res, next ) {
+  async function editObjectDocumentProperties( req, res, next ) {
 
     try {
 
@@ -247,12 +253,13 @@ function routes( ) {
         throw new InvalidRequestError();
       }
 
-      documentSvc.addDocumentTags({
+      await documentSvc.addDocumentTags({
         folder: documentSvc.folder( __FOLDER_PREFIX__[ req.query.object_type ] )( req.params.objectId ),
         name: documentName,
         tags: newTags
-      })
-        .then( _ => res.json( { success: true } ) );
+      });
+
+      res.json( { success: true } );
 
     }
     catch(e) {

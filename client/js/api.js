@@ -1,5 +1,14 @@
-import qs from 'querystring';
 import axios from 'axios';
+
+function getQueryString( obj ) {
+
+  // filter out undefined values
+  const filteredParams = Object.fromEntries(
+    Object.entries( obj ).filter(( [_, value]) => value !== undefined )
+  );
+  return new URLSearchParams( filteredParams ).toString();
+
+}
 
 
 /*************************************************
@@ -67,7 +76,7 @@ export function listLots( queryParams ) {
 
   return axios({
     method: 'get',
-    url: `/api/lots/?${ queryParams ? qs.stringify( queryParams ) : ''}`
+    url: `/api/lots/?${ queryParams ? getQueryString( queryParams ) : '' }`
   })
     .then( resp => resp.data && resp.data.lots );
 
@@ -77,7 +86,7 @@ export function countLots( queryParams ) {
 
   return axios({
     method: 'get',
-    url: `/api/lots/count?${ queryParams ? qs.stringify( queryParams ) : ''}`
+    url: `/api/lots/count?${ queryParams ? getQueryString( queryParams ) : '' }`
   })
     .then( resp => resp.data );
 
@@ -93,7 +102,7 @@ export function getLotByHandle( handle, { populate = [] } = {} ) {
 
   return axios({
     method: 'get',
-    url: `/api/lots/by-handle/${handle}?${ qs.stringify( queryParams ) }`
+    url: `/api/lots/by-handle/${ encodeURIComponent( handle ) }?${ getQueryString( queryParams ) }`
   })
     .then( resp => resp.data && resp.data.lot );
 
@@ -109,7 +118,7 @@ export function getLot( lotId, { populate = [] } = {} ) {
 
   return axios({
     method: 'get',
-    url: `/api/lots/${ lotId }?${ qs.stringify( queryParams ) }`
+    url: `/api/lots/${ lotId }?${ getQueryString( queryParams ) }`
   })
     .then( resp => resp.data && resp.data.lot );
 
@@ -265,7 +274,7 @@ export function listManifests( isPublic = false ) {
     prefix: isPublic ? 'public' : 'private'
   };
 
-  const uri = `/api/manifests/?${qs.stringify(qp)}`;
+  const uri = `/api/manifests/?${ getQueryString( qp ) }`;
 
   return axios.get(uri).then( resp => {
     const manifests = resp.data.manifests;
@@ -353,7 +362,7 @@ export function listAuctions( query ) {
 //     qp.bin_size = binSize;
 //   }
 
-//   const uri = `/api/reports/units-sold?${qs.stringify(qp)}`;
+//   const uri = `/api/reports/units-sold?${ getQueryString( qp ) }`;
 
 //   return axios.get(uri).then( resp => resp.data );
 // }
@@ -374,7 +383,7 @@ export function listAuctions( query ) {
 //     qp.bin_size = binSize;
 //   }
 
-//   const uri = `/api/reports/pallets-sold?${qs.stringify(qp)}`;
+//   const uri = `/api/reports/pallets-sold?${ getQueryString( qp ) }`;
 
 //   return axios.get(uri).then( resp => resp.data );
 // }
@@ -397,7 +406,7 @@ export function createNewUser( newUserData ) {
 }
 
 export function countUsers( queryParams ) {
-  const uri = `/api/users/count/?${ queryParams ? qs.stringify( queryParams ) : ''}`;
+  const uri = `/api/users/count/?${ queryParams ? getQueryString( queryParams ) : '' }`;
 
   return axios({
     method: 'get',
@@ -408,7 +417,7 @@ export function countUsers( queryParams ) {
 }
 
 export function listUsers( queryParams ) {
-  const uri = `/api/users/?${ queryParams ? qs.stringify( queryParams ) : ''}`;
+  const uri = `/api/users/?${ queryParams ? getQueryString( queryParams ) : '' }`;
 
   return axios({
     method: 'get',
@@ -472,14 +481,14 @@ export function changeUserPassword( newPassword ) {
 export function listIncomingShipments( qp ) {
   return axios({
     method: 'get',
-    url: `/api/receiving/?${qs.stringify(qp)}`,
+    url: `/api/receiving/?${ getQueryString( qp ) }`,
   })
     .then( resp => resp.data );
 }
 export function countIncomingShipments( qp ) {
   return axios({
     method: 'get',
-    url: `/api/receiving/count/?${qs.stringify(qp)}`,
+    url: `/api/receiving/count/?${ getQueryString( qp ) }`,
   })
     .then( resp => resp.data );
 }
@@ -501,7 +510,7 @@ export function getIncomingShipmentById( shipmentId, { populate = [], getPalletP
 
   return axios({
     method: 'get',
-    url: `/api/receiving/${ shipmentId }?${ qs.stringify( queryParams ) }`,
+    url: `/api/receiving/${ shipmentId }?${ getQueryString( queryParams ) }`,
   })
     .then( resp => resp.data );
 }
@@ -513,7 +522,7 @@ export function getIncomingShipmentByHandle( handle, { populate = [] } = {} ) {
 
   return axios({
     method: 'get',
-    url: `/api/receiving/by-handle/${ handle }?${ qs.stringify( queryParams ) }`,
+    url: `/api/receiving/by-handle/${ encodeURIComponent( handle ) }?${ getQueryString( queryParams ) }`,
   })
     .then( resp => resp.data );
 }
@@ -646,7 +655,7 @@ export function aggregateExpectedPallets( startDate, endDate ) {
 
   return axios({
     method: 'get',
-    url: `/api/inventory/expected-pallets?${ qs.stringify( queryParams ) }`,
+    url: `/api/inventory/expected-pallets?${ getQueryString( queryParams ) }`,
   })
     .then( resp => resp.data && resp.data.pallets );
 }
@@ -661,7 +670,7 @@ export function aggregateTransportationCosts( startDate, endDate, period ) {
 
   return axios({
     method: 'get',
-    url: `/api/receiving/transportation?${ qs.stringify( queryParams ) }`,
+    url: `/api/receiving/transportation?${ getQueryString( queryParams ) }`,
   })
     .then( resp => resp.data && resp.data.costs );
 }
@@ -683,7 +692,7 @@ export function listObjectDocuments( objectId, objectType ) {
 export function getObjectDocument( objectId, objectType, documentName ) {
   return axios({
     method: 'get',
-    url: `/api/documents/${ objectId }/${ documentName }?object_type=${ objectType }`,
+    url: `/api/documents/${ objectId }/${ encodeURIComponent( documentName ) }?object_type=${ objectType }`,
     responseType: 'arraybuffer'
   })
     .then( resp => resp.data );
@@ -692,13 +701,12 @@ export function getObjectDocument( objectId, objectType, documentName ) {
 export function removeObjectDocument( objectId, objectType, documentName ) {
   return axios({
     method: 'delete',
-    url: `/api/documents/${ objectId }/${ documentName }?object_type=${ objectType }`,
+    url: `/api/documents/${ objectId }/${ encodeURIComponent( documentName ) }?object_type=${ objectType }`,
   })
     .then( resp => resp.data );
 }
 
 export function uploadObjectDocument( objectId, objectType, _document, { documentType, isRestricted }) {
-
   const fd = new FormData();
   fd.append('file', _document);
   fd.append('isRestricted', isRestricted);
@@ -708,7 +716,7 @@ export function uploadObjectDocument( objectId, objectType, _document, { documen
 
   return axios({
     method: 'put',
-    url: `/api/documents/${ objectId }/${ _document.name }?object_type=${ objectType }`,
+    url: `/api/documents/${ objectId }/${ encodeURIComponent( _document.name ) }?object_type=${ objectType }`,
     data: fd
   })
     .then( resp => resp.data );
@@ -717,7 +725,7 @@ export function uploadObjectDocument( objectId, objectType, _document, { documen
 export function updateObjectDocumentProperties( objectId, objectType, documentName, { documentType, isRestricted } ) {
   return axios({
     method: 'patch',
-    url: `/api/documents/${ objectId }/${ documentName }?object_type=${ objectType }`,
+    url: `/api/documents/${ objectId }/${ encodeURIComponent( documentName ) }?object_type=${ objectType }`,
     data: {
       isRestricted,
       documentType
@@ -739,21 +747,21 @@ export function getInventoryPallet( palletId,  { populate = [] } = {} ) {
 
   return axios({
     method: 'get',
-    url: `/api/pallets/${ palletId }?${ qs.stringify( queryParams ) }`
+    url: `/api/pallets/${ palletId }?${ getQueryString( queryParams ) }`
   })
     .then( resp => resp.data );
 }
 export function listInventoryPallets( qp ) {
   return axios({
     method: 'get',
-    url: `/api/pallets/?${qs.stringify(qp)}`,
+    url: `/api/pallets/?${ getQueryString( qp ) }`,
   })
     .then( resp => resp.data.pallets );
 }
 export function countInventoryPallets( qp ) {
   return axios({
     method: 'get',
-    url: `/api/pallets/count/?${qs.stringify(qp)}`,
+    url: `/api/pallets/count/?${ getQueryString( qp ) }`,
   })
     .then( resp => resp.data.count );
 }
@@ -1017,7 +1025,7 @@ export function listManualInventory( qp ) {
 
   return axios({
     method: 'get',
-    url: `/api/manual-inventory/?${qs.stringify(queryParams)}`
+    url: `/api/manual-inventory/?${ getQueryString( queryParams ) }`
   })
     .then( resp => resp.data );
 }
@@ -1026,7 +1034,7 @@ export function countManualInventory( qp ) {
 
   return axios({
     method: 'get',
-    url: `/api/manual-inventory/count?${qs.stringify(qp)}`
+    url: `/api/manual-inventory/count?${ getQueryString( qp ) }`
   })
     .then( resp => resp.data );
 }
@@ -1039,7 +1047,7 @@ export function getManualInventory( inventoryId, qp ) {
 
   return axios({
     method: 'get',
-    url: `/api/manual-inventory/${inventoryId}?${qs.stringify(queryParams)}`
+    url: `/api/manual-inventory/${inventoryId}?${ getQueryString( queryParams ) }`
   })
     .then( resp => resp.data );
 }
@@ -1107,7 +1115,7 @@ export function listStoreShippingRates( qp ) {
 
   return axios({
     method: 'get',
-    url: `/api/listings/shipping/rates?${qs.stringify(queryParams)}`
+    url: `/api/listings/shipping/rates?${ getQueryString( queryParams ) }`
   })
     .then( resp => resp.data.rates );
 }
@@ -1187,7 +1195,7 @@ export function listShippingConfigurations( { everydayBargainsOnly, includePalle
 
   return axios({
     method: 'get',
-    url: `/api/listings/shipping/configurations?${ qs.stringify( queryParams ) }`
+    url: `/api/listings/shipping/configurations?${ getQueryString( queryParams ) }`
   })
     .then( resp => resp.data );
 
@@ -1224,7 +1232,7 @@ export function listActiveProducts( { everydayBargainsOnly = false } = {} ) {
 
   return axios({
     method: 'get',
-    url: `/api/listings/products?${qs.stringify( queryParams )}`
+    url: `/api/listings/products?${ getQueryString( queryParams ) }`
   })
     .then( resp => resp.data );
 
@@ -1238,7 +1246,7 @@ export function listActiveProductVariants( { everydayBargainsOnly = false } = {}
 
   return axios({
     method: 'get',
-    url: `/api/listings/product-variants?${qs.stringify( queryParams )}`
+    url: `/api/listings/product-variants?${ getQueryString( queryParams ) }`
   })
     .then( resp => resp.data );
 
@@ -1296,7 +1304,7 @@ export function getCounter( handle ) {
 
   return axios({
     method: 'get',
-    url: `/api/counters/${ handle }`
+    url: `/api/counters/${ encodeURIComponent( handle ) }`
   })
     .then( resp => resp.data.counter );
 
@@ -1306,7 +1314,7 @@ export function incrementCounter( handle, increment ) {
 
   return axios({
     method: 'post',
-    url: `/api/counters/${ handle }`,
+    url: `/api/counters/${ encodeURIComponent( handle ) }`,
     data: {
       increment
     }
@@ -1336,7 +1344,7 @@ export function getStoreContent( gid, queryParams ) {
 
   return axios({
     method: 'get',
-    url: `/api/content/${ encodeURIComponent(gid) }?${ queryParams ? qs.stringify( queryParams ) : ''}`
+    url: `/api/content/${ encodeURIComponent(gid) }?${ queryParams ? getQueryString( queryParams ) : '' }`
   })
     .then( resp => resp.data );
 
@@ -1346,7 +1354,7 @@ export function listStoreContent( queryParams ) {
 
   return axios({
     method: 'get',
-    url: `/api/content/?${ queryParams ? qs.stringify( queryParams ) : ''}`
+    url: `/api/content/?${ queryParams ? getQueryString( queryParams ) : '' }`
   })
     .then( resp => resp.data );
 
@@ -1356,7 +1364,7 @@ export function editStoreContent( content, queryParams ) {
 
   return axios({
     method: 'post',
-    url: `/api/content?${ queryParams ? qs.stringify( queryParams ) : ''}`,
+    url: `/api/content?${ queryParams ? getQueryString( queryParams ) : '' }`,
     data: { content }
   })
     .then( resp => resp.data.metafields[0] );
@@ -1367,7 +1375,7 @@ export function deleteStoreContent( gid, queryParams ) {
 
   return axios({
     method: 'delete',
-    url: `/api/content/${ encodeURIComponent(gid) }?${ queryParams ? qs.stringify( queryParams ) : ''}`
+    url: `/api/content/${ encodeURIComponent(gid) }?${ queryParams ? getQueryString( queryParams ) : '' }`
   })
     .then( resp => resp.data );
 
@@ -1385,7 +1393,7 @@ export function getOrder( orderId , { populate = [] } = {} ) {
 
   return axios({
     method: 'get',
-    url: `/api/orders/${ orderId }?${ qs.stringify( queryParams ) }`
+    url: `/api/orders/${ orderId }?${ getQueryString( queryParams ) }`
   })
     .then( resp => resp.data.order );
 }
@@ -1403,7 +1411,7 @@ export function listOrders( _qp, { populate = [] } = {} ) {
 
   return axios({
     method: 'get',
-    url: `/api/orders/?${qs.stringify(qp)}`,
+    url: `/api/orders/?${ getQueryString( qp ) }`,
   })
     .then( resp => resp.data.orders );
 }
@@ -1411,7 +1419,7 @@ export function listOrders( _qp, { populate = [] } = {} ) {
 export function countOrders( qp ) {
   return axios({
     method: 'get',
-    url: `/api/orders/count/?${qs.stringify(qp)}`,
+    url: `/api/orders/count/?${ getQueryString( qp ) }`,
   })
     .then( resp => resp.data.count );
 }
@@ -1488,7 +1496,7 @@ export function getProductDataByBarcode( barcode ) {
 
   return axios({
     method: 'get',
-    url: `/api/product-data/${ barcode }`
+    url: `/api/product-data/${ encodeURIComponent( barcode ) }`
   })
     .then( resp => resp.data );
 }
@@ -1522,21 +1530,21 @@ export function getPackage( pkgId, { populate = [] } = {} ) {
 
   return axios({
     method: 'get',
-    url: `/api/packages/${ pkgId }?${ qs.stringify( queryParams ) }`
+    url: `/api/packages/${ pkgId }?${ getQueryString( queryParams ) }`
   })
     .then( resp => resp.data.package );
 }
 export function listPackages( qp ) {
   return axios({
     method: 'get',
-    url: `/api/packages/?${qs.stringify(qp)}`,
+    url: `/api/packages/?${ getQueryString( qp ) }`,
   })
     .then( resp => resp.data.packages );
 }
 export function countPackages( qp ) {
   return axios({
     method: 'get',
-    url: `/api/packages/count/?${qs.stringify(qp)}`,
+    url: `/api/packages/count/?${ getQueryString( qp ) }`,
   })
     .then( resp => resp.data.count );
 }

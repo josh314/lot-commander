@@ -1,8 +1,19 @@
-const aws = require('aws-sdk');
-aws.config.credentials = new aws.SharedIniFileCredentials({profile: 'lot-commander'});
-const s3 = new aws.S3({
-  apiVersion: '2006-03-01',
-  region: 'us-east-1'
+const { fromIni } = require('@aws-sdk/credential-providers');
+const {
+  S3Client,
+  CopyObjectCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
+  GetObjectTaggingCommand,
+  ListObjectsV2Command,
+  PutObjectTaggingCommand,
+} = require('@aws-sdk/client-s3');
+const { Upload } = require("@aws-sdk/lib-storage");
+
+// Create a new S3 client using credentials from the specified profile
+const s3 = new S3Client({
+  region: 'us-east-1',
+  credentials: fromIni({ profile: 'lot-commander' }),
 });
 
 const __EXPRESSHOP_DOCUMENTS_BUCKET__ = 'expresshop-documents';
@@ -19,26 +30,32 @@ module.exports = {
   store
 };
 
-function get( { bucket, folder, name } ) {
-  return s3.getObject({
+async function get( { bucket, folder, name } ) {
+
+  const command = new GetObjectCommand({
     Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
     Key: folder ? `${folder}/${name}` : name,
-  })
-    .createReadStream();
+  });
+
+  const resp = await s3.send( command );
+
+  return resp.Body;
+
 }
 
 function remove( { bucket, folder, name } ) {
 
-  return s3.deleteObject({
+  const command = new DeleteObjectCommand({
     Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
     Key: folder ? `${folder}/${name}` : name,
-  }).promise();
+  });
+  return s3.send( command );
 
 }
 
 function store( { readStream, bucket, folder, name, tags } ) {
 
-  const req = {
+  const params = {
     Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
     Key: folder ? `${folder}/${name}` : name,
     Body: readStream,
@@ -48,18 +65,24 @@ function store( { readStream, bucket, folder, name, tags } ) {
   const tagSet = new URLSearchParams(tags);
   const tagsetStr = tagSet.toString();
   if( tagsetStr ) {
-    req.Tagging = tagsetStr;
+    params.Tagging = tagsetStr;
   }
 
-  return s3.upload( req ).promise();
-    
+  const upload = new Upload({
+    client: s3,
+    params,
+  });
+
+  return upload.done();
+
+
 }
 
 async function list({ num, bucket, folder, continuationToken }) {
 
   const params = {
     Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
-    MaxKeys: num || 50 + ( folder ? 1 : 0 ) // add an extra since we will delete the folder result 
+    MaxKeys: num || 50 + ( folder ? 1 : 0 ) // add an extra since we will delete the folder result
   };
 
   if( folder ) {
@@ -69,7 +92,8 @@ async function list({ num, bucket, folder, continuationToken }) {
     params.ContinuationToken = continuationToken;
   }
 
-  const response = await s3.listObjectsV2(params).promise();
+  const command = new ListObjectsV2Command( params );
+  const response = await s3.send( command );
 
   let documents = response.Contents || [];
 
@@ -93,21 +117,27 @@ async function list({ num, bucket, folder, continuationToken }) {
 }
 
 function clone( { bucket, srcFolder, destFolder, name } ) {
+
   // TODO: metadata, ACL
-  return s3.copyObject({
+
+  const command = new CopyObjectCommand({
     Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
     CopySource: `${__EXPRESSHOP_DOCUMENTS_BUCKET__}/${srcFolder}/${name}`,
     Key: `${destFolder}/${name}`
-  })
-    .promise();
+  });
+
+  return s3.send( command );
+
 }
 
 function getDocumentTags( { bucket, folder, name } ) {
-  return s3.getObjectTagging({
+
+  const command = new GetObjectTaggingCommand({
     Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
     Key: folder ? `${folder}/${name}` : name,
-  })
-    .promise();
+  });
+  return s3.send( command );
+
 }
 
 async function addDocumentTags( { bucket, folder, name, tags } ) {
@@ -127,22 +157,29 @@ async function addDocumentTags( { bucket, folder, name, tags } ) {
 
   }
 
-  return s3.putObjectTagging({
+  const command = new PutObjectTaggingCommand({
     Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
     Key: folder ? `${folder}/${name}` : name,
     Tagging: {
       TagSet: tagSet
     }
-  }).promise();
+  });
+
+  return s3.send( command );
 
 }
 
 function setDocumentTags( { bucket, folder, name, tagset } ) {
-  return s3.putObjectTagging({
+
+
+  const command = new PutObjectTaggingCommand({
     Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
     Key: folder ? `${folder}/${name}` : name,
     Tagging: {
       TagSet: tagset
     }
-  }).promise();
+  });
+
+  return s3.send( command );
+
 }

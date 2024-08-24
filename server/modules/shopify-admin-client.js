@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs').promises;
 
+const { streamToBuffer } = require('../helpers');
 const mediaServer = require('./media-server');
 const ShopifyRest = require('./shopify-rest');
 
@@ -24,15 +25,19 @@ class Client {
 
   async addImage( productId, imageObj ) {
     try {
-      let imgBuffer;
-      if(imageObj.s3) {
-        imgBuffer = ( await mediaServer.get({ s3Location: imageObj.s3 }) ).Body;
+
+      if( imageObj.s3 ) {
+        // TODO: it would be better to just have Shopify stream the image directly from S3 (using this.shopifyRest.addProductImageByUrl() ), but requires the S3 object to have the right content-type
+        // TODO: can explicitly check for the content-type and if correct just use this.shopifyRest.addProductImageByUrl(). Or maybe just try this.shopifyRest.addProductImageByUrl(), catch the error and fallback to streaming into a buffer
+        const stream = ( await mediaServer.get( imageObj.s3 ) ).Body;
+        const imgBuffer = await streamToBuffer( stream );
+        return this.shopifyRest.addProductImage( productId, imgBuffer, imageObj.primary );
       }
       else {
-        imgBuffer = await fs.readFile( path.join(__basedir, __config.imgPath, imageObj.filename) );
+        const imgBuffer = await fs.readFile( path.join(__basedir, __config.imgPath, imageObj.filename) );
+        return this.shopifyRest.addProductImage( productId, imgBuffer, imageObj.primary );
       }
 
-      return this.shopifyRest.addProductImage( productId, imgBuffer, imageObj.primary );
     }
     catch(e) {
       console.error( e );

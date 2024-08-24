@@ -214,7 +214,7 @@
         <a class="btn btn-primary" href="{{$ctrl.lot.manifestFileLocation}}">View Manifest</a>
       </div>
       <div class="col-xs-12" ng-hide="$ctrl.lot.manifestFileLocation">
-        <a class="btn btn-primary" href="/lots/upload-manifest/{{$ctrl.lot._id}}">Upload Manifest</a>
+        <a class="btn btn-primary" href ng-click="$ctrl.uploadManifestPage()">Upload Manifest</a>
       </div>
     </div>
     <div class="row" ng-show="$ctrl.lot.manifestId">

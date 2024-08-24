@@ -409,12 +409,9 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
             doc.updateDocumentType = oldDocumentType => {
 
-              if( doc.documentType !== 'manifest' ) {
-                return vm.shipment.updateShipmentDocumentProperties( doc.name, { documentType: doc.documentType } ).then( updateDocumentList );
-              }
-              else if( !ManifestFileHandlerSvc.isManifestFile( doc.name ) ) {
+              if( doc.documentType === 'manifest' && !ManifestFileHandlerSvc.isManifestFile( doc.name ) ) {
 
-                ModalSvc.confirm({
+                return ModalSvc.confirm({
                   header: 'Filetype mismatch',
                   body: 'File extension is unexpected for a manifest. Proceed anyway?',
                 }).then( isConfirmed => {
@@ -427,6 +424,12 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
                   }
 
                 });
+
+              }
+              else {
+
+                return vm.shipment.updateShipmentDocumentProperties( doc.name, { documentType: doc.documentType } ).then( updateDocumentList );
+
 
               }
 

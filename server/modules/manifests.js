@@ -162,7 +162,7 @@ module.exports = function( { lotdb, manifestDb, productData } ) {
 
     if( docListResp && docListResp.documents && docListResp.documents[0] ) {
 
-      const docStream = documentSvc.get( {
+      const docStream = await documentSvc.get( {
         folder: documentSvc.folder( 'inventory-pallet' )( palletId ),
         name: docListResp.documents[0].name
       } );

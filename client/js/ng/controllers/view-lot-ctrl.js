@@ -75,6 +75,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
           confirmAddLotImage,
           cloneImageFromSelectedUrl: () => cloneImageFromUrl( vm.imageUrlToClone ),
           showPalletDetails,
+          uploadManifestPage,
 
           getBodyHtml,
 
@@ -330,6 +331,9 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       }
     }
 
+    function uploadManifestPage() {
+      navigate.uploadLotManifest( vm.lot._id );
+    }
 
   }]
 );

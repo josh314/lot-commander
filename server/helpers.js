@@ -1,3 +1,4 @@
+const { pipeline } = require('stream/promises');
 
 module.exports = {
   appendPopulationQueries,
@@ -6,6 +7,7 @@ module.exports = {
   snake2Camel,
   populationPathsFromQuery,
   setPackagingTypeFromShippingItems,
+  streamToBuffer,
 };
 
 /**********************************************
@@ -39,6 +41,25 @@ function arrayOfScalarsIsEqual( a1, a2 ) {
 
   return true;
 
+}
+
+async function streamToBuffer(stream) {
+  const chunks = [];
+
+  // Use a promise to handle the data and end events
+  await pipeline(
+    stream,
+    /* eslint-disable require-yield */
+    async function* (source) {
+      for await (const chunk of source) {
+        chunks.push(chunk);
+      }
+    }
+    /* eslint-enable require-yield */
+  );
+
+  // Concatenate all chunks into a single Buffer
+  return Buffer.concat(chunks);
 }
 
 /**********************************************
