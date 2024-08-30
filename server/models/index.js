@@ -10,6 +10,7 @@ const counter = require('./counter');
 const shopifyOrder = require('./shopify-order');
 const shopifyOrderPick = require( './shopify-order-pick' );
 const fallbackProductData = require( './fallback-product-data' );
+const announcement = require( './announcement' );
 
 
 class ModelCommander {
@@ -29,6 +30,7 @@ class ModelCommander {
     this.ShopifyOrder = mongooseConnection.model( 'ShopifyOrder', shopifyOrder.schema );
     this.ShopifyOrderPick = mongooseConnection.model( 'ShopifyOrderPick', shopifyOrderPick.schema );
     this.FallbackProductData = mongooseConnection.model( 'FallbackProductData', fallbackProductData.schema );
+    this.Announcement = mongooseConnection.model( 'Announcement', announcement.schema );
 
   }
 

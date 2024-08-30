@@ -27,11 +27,14 @@ function routes({
   productData,
   shopifyGql,
   shopifyOrders,
+  siteAnnouncements,
   storeMetafieldSchemaDb,
   userDbClient
 }) {
 
   const router = new express.Router();
+
+  router.use( '/api/announcements', require('./announcements')( { siteAnnouncements } ) );
 
   router.use('/api/app-settings', require('./app-settings')( { appSettings } ) );
 

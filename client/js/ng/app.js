@@ -94,6 +94,10 @@ const stateData = [
   { name: "main.app-settings", abstract: true, url: '/app-settings', templateUrl: '/partials/_container.html' },
   { name: "main.app-settings.list", navParent: 'Store', navName: 'App', url: '/', templateUrl: '/partials/_app_settings.html', userPermission: 'EDIT_APP_SETTING' },
 
+  // Site announcements
+  { name: "main.site-announcements", abstract: true, url: '/site-announcements', templateUrl: '/partials/_container.html', },
+  { name: "main.site-announcements.manage", navParent: 'Store', navName: 'Announcements', url: '/', templateUrl: '/partials/_site_announcements.html', userPermission: 'EDIT_APP_SETTING' },
+
   // users
   { name: "main.users", abstract:true, url: "/users", templateUrl: 'partials/_container.html'},
   { name: "main.users.list", navName: "List", navParent: "Users", url: "/list", templateUrl: 'partials/users/_list_users.html', userPermission: 'VIEW_USER' },

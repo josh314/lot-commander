@@ -3,7 +3,6 @@ const LocalStrategy = require('passport-local').Strategy;
 
 const flashMessages = require('./modules/flash-messages');
 const { AuthorizationError } = require('./errors');
-// const users = require('./modules/users');
 
 let users;
 
@@ -32,7 +31,7 @@ passport.deserializeUser(function(id, done) {
 // we are using named strategies since we have one for login and one for signup
 // by default, if there was no name, it would just be called 'local'
 
-passport.use('local-login', 
+passport.use('local-login',
   new LocalStrategy(
     {
       // // by default, local strategy uses username and password, we will override with name
@@ -45,7 +44,7 @@ passport.use('local-login',
       // find a user whose name is the same as the forms name
       // we are checking to see if the user trying to login already exists
       users.getUserByUsername( username ).then( user => {
-    
+
         // if no valid user is found, return the message
         if( !user || user.isDisabled ) {
           req.session.flash = flashMessages.userNotFound;
@@ -72,28 +71,27 @@ passport.use('local-login',
 /****************************************************
  * Exports
  * =======
- * 
+ *
  *****************************************************/
 
 function init( userDbClient ) {
   users = userDbClient;
-  return [ 
+  return [
     passport.initialize(),
     passport.session()
   ];
 }
 
-function authenticate( { success, failure } ) {
+function authenticate() {
   return passport.authenticate('local-login', {
-    successRedirect : success, // redirect to main
-    failureRedirect : failure, // redirect back to the login page if there is an error
+    failureRedirect : '/login', // redirect back to the login page if there is an error
     failureFlash : false // allow flash messages
   });
 }
 
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {
-  // if user is authenticated in the session, carry on 
+  // if user is authenticated in the session, carry on
   if ( __config.skipAuth || req.isAuthenticated() )
     return next();
 
@@ -128,11 +126,19 @@ function isAuthorizedForAny( ...permissions ) {
   };
 }
 
+function isSuperuser( req, _res, next ) {
+  if( __config.skipAuth || req.user.isSuperuser ) {
+    return next();
+  }
+  return next( new AuthorizationError( req.originalUrl ) );
+}
+
 module.exports = {
   init,
   authenticate,
   isLoggedIn,
   isAuthorized,
   isAuthorizedForAll,
-  isAuthorizedForAny
+  isAuthorizedForAny,
+  isSuperuser
 };

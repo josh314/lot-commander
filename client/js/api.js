@@ -1,14 +1,5 @@
 import axios from 'axios';
 
-function getQueryString( obj ) {
-
-  // filter out undefined values
-  const filteredParams = Object.fromEntries(
-    Object.entries( obj ).filter(( [_, value]) => value !== undefined )
-  );
-  return new URLSearchParams( filteredParams ).toString();
-
-}
 
 
 /*************************************************
@@ -27,6 +18,97 @@ function getPopulateQueryParamsObject( populateArray = [] ) {
 
   return obj;
 }
+
+function getQueryString( obj ) {
+
+  // filter out undefined values
+  const filteredParams = Object.fromEntries(
+    Object.entries( obj ).filter(( [_, value]) => value !== undefined )
+  );
+  return new URLSearchParams( filteredParams ).toString();
+
+}
+
+/*************************************************
+* Site Announcements settings
+* ======================
+*
+************/
+
+export function listAnnouncements( queryParams ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/announcements/?${ queryParams ? getQueryString( queryParams ) : '' }`
+  })
+    .then( resp => resp.data && resp.data );
+
+}
+
+export function countAnnouncements( queryParams ) {
+
+  return axios({
+    method: 'get',
+    url: `/api/announcements/count?${ queryParams ? getQueryString( queryParams ) : '' }`
+  })
+    .then( resp => resp.data );
+
+}
+
+export function getAnnouncement( anouncementId ) {
+
+  if( !anouncementId ) {
+    throw new Error( 'Must supply announcement ID.' );
+  }
+
+  return axios({
+    method: 'get',
+    url: `/api/announcements/${ anouncementId }`
+  })
+    .then( resp => resp.data && resp.data );
+
+}
+
+export function createAnnouncement( data ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/announcements/`,
+    data
+  })
+    .then( resp => resp.data );
+
+}
+
+export function deleteAnnouncement( anouncementId ) {
+
+  if( !anouncementId ) {
+    throw new Error( 'Must supply announcement ID.' );
+  }
+
+  return axios({
+    method: 'delete',
+    url: `/api/announcements/${ anouncementId }`
+  })
+    .then( resp => resp.data );
+
+}
+
+export function editAnnouncement( anouncementId, data ) {
+
+  if( !anouncementId ) {
+    throw new Error( 'Must supply announcement ID.' );
+  }
+
+  return axios({
+    method: 'patch',
+    url: `/api/announcements/${ anouncementId }`,
+    data
+  })
+    .then( resp => resp.data && resp.data );
+
+}
+
 
 
 /*************************************************

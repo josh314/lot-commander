@@ -112,7 +112,7 @@ class Server {
 
   async init() {
     //=================================================
-    // Database connections
+    // Database shizz
     //=================================================
 
     const mongoSettings = this.config.dbHosts.mongo;
@@ -139,6 +139,15 @@ class Server {
       }, stream: process.stdout
     }));
 
+
+    // Initialize mongoose models
+    const ModelCommander = require('./models');
+    const models = new ModelCommander( this.mongooseConnection );
+    this.models = models;
+
+    // initialize site notifications module
+    const SiteAnnouncements = require('./modules/site-announcements');
+    const siteAnnouncements = new SiteAnnouncements( models );
 
     //================================================
     // Cookies & Session =============================
@@ -180,7 +189,30 @@ class Server {
       res.render('login.hbs', { authFlash: req.session.flash });
     });
 
-    this.app.post('/login', auth.authenticate({ success: '/', failure: '/login' }) );
+    this.app.post(
+      '/login',
+
+      // authenticate the user
+      auth.authenticate(),
+
+      // set site notification cookie
+      async ( _req, res, _next ) => {
+
+        const announcements = await siteAnnouncements.listCurrent();
+
+        res.cookie(
+          'site-announcements',
+          JSON.stringify( { announcements } ),
+          {
+            // maxAge: 900000,
+            httpOnly: false
+          }
+        );
+
+        res.redirect('/');
+      }
+
+    );
 
     this.app.get('/logout', function( req, res, next ) {
       req.logout( err => {
@@ -234,11 +266,6 @@ class Server {
     // events and history
     const EventsDb = require('./modules/events-db');
     const eventsDbClient = new EventsDb.Client( this.mongooseConnection );
-
-    // Mongoose model manager
-    const ModelCommander = require('./models');
-    const models = new ModelCommander( this.mongooseConnection );
-    this.models = models;
 
     // app settings
     const AppSettingsCommander = require('./modules/app-settings');
@@ -343,6 +370,7 @@ class Server {
       productData,
       shopifyGql: shopifyGqlClient,
       shopifyOrders,
+      siteAnnouncements,
       storeMetafieldSchemaDb,
       userDbClient: this.users,
     };
