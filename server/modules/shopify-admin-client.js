@@ -48,6 +48,8 @@ class Client {
 
   async submitListing( listing, { publish } = { publish: false } ) {
 
+    let newProductId;
+
     try {
 
       // Start the manifest promise if applicable
@@ -82,7 +84,7 @@ class Client {
       console.log('Creating new Shopify product.');
       const addProductResp = await this.shopifyRest.createProduct( productToCreate );
 
-      const newProductId = addProductResp.product.id;
+      newProductId = addProductResp.product.id;
       const newProductVariant = addProductResp.product.variants[0];
       const newProductHandle = addProductResp.product.handle;
 
@@ -272,6 +274,14 @@ class Client {
 
     }
     catch( e ) {
+
+      if( newProductId ) {
+
+        console.log(`Error occurred during listing submission. Deleting product with id ${ newProductId }.`);
+        await this.shopifyGql.deleteProduct( newProductId );
+
+      }
+
       throw e;
     }
   }

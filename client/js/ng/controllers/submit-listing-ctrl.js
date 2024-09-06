@@ -617,7 +617,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
 
       console.log('submissionResponse', submissionResponse );
       if( submissionResponse.error ) {
-        ModalSvc.message( { header: 'Error', body: submissionResponse.message, type: 'error' } );
+        ModalSvc.message( { header: 'Error', body: 'Please try again later.', type: 'error' } );
       }
       else {
         ModalSvc.message( { header: 'Status', body: 'Listing submitted. Submission may take several minutes. Return to lot page to view results.', type: 'success' } );

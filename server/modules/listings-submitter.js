@@ -114,10 +114,17 @@ class Client {
     }
     catch (e) {
 
-      Object.assign(newSubmittedListing, {
-        success: false,
-        message: e.name + ': ' + e.message,
-      });
+      Object.assign(
+
+        newSubmittedListing,
+
+        {
+          success: false,
+          message: 'Error: submission failed. Please try again later.',
+        }
+
+      );
+
       listing.lot.status = 'Error';
       console.error(e);
 

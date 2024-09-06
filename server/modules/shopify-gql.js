@@ -947,6 +947,27 @@ class Client {
     }
   }
 
+  deleteProduct( productId, { debug } = {} ) {
+
+    return this.gqlRequest( {
+      gqlQuery: `
+        mutation {
+          productDelete(
+            input: { id: "${ this.id2Gid( productId, 'Product' ) }" }
+          ) {
+            deletedProductId
+            userErrors {
+              field
+              message
+            }
+          }
+        }
+      `,
+      debug
+    });
+
+  }
+
 }
 
 module.exports = Client;
