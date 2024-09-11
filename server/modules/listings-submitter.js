@@ -66,7 +66,7 @@ class Client {
     return boilerplateByLotType;
   }
 
-  async submit( { lotId, listing, publish = false } ) {
+  async submit( { lotId, listing } ) {
 
 
     if( !listing.lot.images || !listing.lot.images.length ) {
@@ -98,7 +98,7 @@ class Client {
         listing.lot.manifestFileLocation = generatedManifestResponse.manifest;
       }
 
-      const submissionResponse = await this.submitFn[listing.marketplace]( listing, { publish: publish } );
+      const submissionResponse = await this.submitFn[listing.marketplace]( listing );
 
       Object.assign(newSubmittedListing, {
         success: true,

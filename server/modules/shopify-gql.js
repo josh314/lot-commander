@@ -4,6 +4,11 @@ const {
   IllegalActionError
 } = require('../errors');
 
+/*****************************************
+ * Helpers
+ * =======
+ *
+ ********/
 
 // for pretty-printing in debug mode
 const _prettyPrintGqlQuery = q => {
@@ -20,16 +25,54 @@ const _prettyPrintGqlQuery = q => {
   console.log('-----------------------------------------');
 };
 
+function flattenEdges( connection ) {
+  if ( connection && connection.edges ) {
+    return connection.edges.map( edge => edge.node );
+  }
+  return [];
+}
+
 const _arrayifyGqlMultiData = gqlMultiData => Object.entries(gqlMultiData).map( x => x[1] ).filter( _ => _ );
 
+
+function metafieldsReturnFormat( metafields ) {
+
+  let metafieldsReturnFormat = '';
+  if( metafields && metafields.length ) {
+    metafieldsReturnFormat = `
+      metafields ( first: ${ metafields.length } ) {
+        edges {
+          node {
+            id
+            namespace
+            key
+            value
+          }
+        }
+      }
+    `;
+  }
+
+  return metafieldsReturnFormat;
+
+}
+
 // Trimming the query of unnecessary whitespace
-const compressGqlQuery = q => q.split('\n').map( s => s.trim() ).join(' ');
+// const compressGqlQuery = q => q.split('\n').map( s => s.trim() ).join(' ');
 
 class Client {
-  constructor({ storeId, storeName, accessToken }) {
-    this.storeId = storeId,
-    this.storeName = storeName;
-    this.accessToken = accessToken;
+  constructor({ storeId, storeName, locationId, accessToken }) {
+
+    Object.assign(
+      this,
+      {
+        storeId,
+        storeName,
+        locationId,
+        accessToken
+      }
+    );
+
   }
 
   id2Gid( id, type ) {
@@ -52,30 +95,45 @@ class Client {
     return null;
   }
 
-  gqlRequest({ gqlQuery, debug = false }) {
-    if(debug) {
-      // prettyPrintGqlQuery(gqlQuery);
-      console.log(gqlQuery);
+  gqlRequest( { gqlQuery, variables, debug = false } ) {
+    if (debug) {
+      console.log(JSON.stringify(gqlQuery, null, 2)); // Pretty print the query
     }
 
     const req = {
+
       method: 'POST',
-      url: `https://${this.storeName}.myshopify.com/admin/api/2021-10/graphql.json`,
+
+      url: `https://${this.storeName}.myshopify.com/admin/api/2024-07/graphql.json`,
+
       headers: {
-        "Content-Type": "application/graphql",
+        "Content-Type": "application/json", // Use application/json instead of application/graphql
         "X-Shopify-Access-Token": this.accessToken
       },
-      data: compressGqlQuery(gqlQuery),
+
+      // check if `gqlQuery` is an object with `query` field, if not, wrap it in an object
+      data: {
+        query: gqlQuery,
+        variables,
+      },
+
       responseType: 'json'
+
     };
 
-    return axios(req)
+    return axios( req )
       .then( resp => resp.data )
-      .catch( e => {
-        throw e;
+      .catch(e => {
+        if ( e.response && e.response.data && e.response.data.errors ) {
+          console.error( JSON.stringify( e.response.data.errors, null, 2) ); // Log detailed error
+          throw e.response.data.errors;
+        } else {
+          console.error(e.message); // Log basic error if no detailed response
+          throw e.message;
+        }
       });
-
   }
+
 
   // Basic getters and listers
 
@@ -105,7 +163,7 @@ class Client {
     if( queryType === 'shopMetafields' ) {
       gqlQuery =`
       {
-        shop{
+        shop {
           page: metafields(${ Object.entries(queryArgs).map( ([key, val]) => `${key}: ${ typeof val === 'string' ? `"${val}"` : val }` ).join(', ') }) {${queryReturnFormat}
           }
         }
@@ -947,6 +1005,77 @@ class Client {
     }
   }
 
+  /******************************************************
+   * Product & variant management
+   * ============================
+   *
+   *
+   ***************/
+
+
+  async createProduct( product, media, { debug } = {} ) {
+
+    const gqlQuery = `
+      mutation productCreate( $product: ProductInput!, $media: [CreateMediaInput!] ) {
+        productCreate( input: $product, media: $media ) {
+          product {
+            id
+            handle
+            status
+            title
+            mediaCount {
+              count
+              precision
+            }
+            ${ metafieldsReturnFormat( product.metafields ) }
+            variants ( first: 1 ) {
+              edges {
+                node {
+                  id
+                  inventoryItem {
+                    id
+                  }
+                }
+              }
+            }
+          }
+          userErrors {
+            message
+            field
+          }
+        }
+      }
+    `;
+
+    const variables = {
+      product,
+      media
+    };
+
+    const resp = await this.gqlRequest( {
+      gqlQuery,
+      variables,
+      debug
+    });
+
+    try {
+      const product = resp.data.productCreate.product;
+      if( product.variants ) {
+        product.variants = flattenEdges( product.variants ); // Replace the variants connection with a flat array
+      }
+      if( product.metafields ) {
+        product.metafields = flattenEdges( product.metafields ); // Replace the variants connection with a flat array
+      }
+
+      return { product };
+    }
+    catch(e) {
+      console.log( JSON.stringify(resp,null,2) );
+      throw e;
+    }
+
+  }
+
   deleteProduct( productId, { debug } = {} ) {
 
     return this.gqlRequest( {
@@ -967,6 +1096,63 @@ class Client {
     });
 
   }
+
+  async createProductVariants( productId, variants, { debug, replace } = {} ) {
+
+    const gqlQuery = `
+      mutation productVariantsBulkCreate( $productId: ID!, $variants: [ProductVariantsBulkInput!]!, $strategy: ProductVariantsBulkCreateStrategy ) {
+        productVariantsBulkCreate( productId: $productId, variants: $variants, strategy: $strategy ) {
+          product {
+            id
+          }
+          productVariants {
+            id
+            inventoryItem {
+              id
+              measurement {
+                id
+                weight {
+                  unit
+                  value
+                }
+              }
+              sku
+              tracked
+            }
+            inventoryQuantity
+          }
+          userErrors {
+            message
+            field
+          }
+        }
+      }
+    `;
+
+    const variables = {
+      productId,
+      variants,
+      strategy: replace ? 'REMOVE_STANDALONE_VARIANT' : 'DEFAULT'
+    };
+
+    const resp = await this.gqlRequest( {
+      gqlQuery,
+      variables,
+      debug
+    });
+
+    try {
+
+      const { productVariants } = resp.data.productVariantsBulkCreate;
+      return { productVariants };
+    }
+    catch(e) {
+      console.log( JSON.stringify(resp,null,2) );
+      throw e;
+    }
+
+  }
+
 
 }
 

@@ -174,9 +174,7 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
   async function submit( req, res, next ) {
 
     try {
-      const lotId = req.body.lotId;
-      const listing = req.body.listing;
-      const publish = !!req.body.publish;
+      const { lotId, listing } = req.body;
 
       const lot = await lotdb.getLotById( lotId );
       if( !lotId || !lot ) {
@@ -186,7 +184,7 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
       }
       listing.lot = lot;
 
-      const submittedListingResponse = await listings.submit( { lotId, listing, publish } );
+      const submittedListingResponse = await listings.submit( { lotId, listing } );
 
       // for pallet lots, mark the corresponding pallet as broken down
       if( lot.pallet ) {
