@@ -17,7 +17,7 @@ angular.module('myApp').controller('PastImagesGalleryModalCtrl', [ '$q', '$uibMo
 
     const loadImages = () => {
 
-      $q.when( MediaSvc.getImageList( { urlEncode: true } ) ).then( resp => {
+      $q.when( MediaSvc.getImageList(  ) ).then( resp => {
 
         vm.images = resp.images.map( _ => ({ link: _, selected: false }) );
         vm.pagination.totalItems = vm.images.length;

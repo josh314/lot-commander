@@ -1070,7 +1070,7 @@ class Client {
       return { product };
     }
     catch(e) {
-      console.log( JSON.stringify(resp,null,2) );
+      console.error( JSON.stringify(resp,null,2) );
       throw e;
     }
 

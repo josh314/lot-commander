@@ -208,15 +208,21 @@ const clone = ( location, destId, mediaType = 'images' ) => {
 
 const cloneFromS3 = async ( srcS3Location, destId ) => {
 
+  // Note that the source and destination addressing is somewhat asymmetric in the CopyObjectCommand:
+  // The src is specified as a single string with the bucket and key separated by a '/' while destination key and bucket are separate params.
+  // The destination uses a literal '/' within the key while the src uses a URL-encoded '%2F' within the key.
+
   let { bucket, filename, key, mediaType } = parseS3Location( srcS3Location );
 
-  const destKey = `${destId}/${ filename.replace(/\+/g, ' ') }`;
+  const subkey = decodeURIComponent(filename).replace(/ /g, '+');
+
+  const destKey = `${destId}/${ subkey }`;
   const src = `/${bucket}/${encodeURIComponent(key)}`;
 
   const command = new CopyObjectCommand({
-    Bucket: bucket,
-    CopySource: src,
-    Key: destKey,
+    Bucket: bucket, // destination bucket
+    Key: destKey, // destination key
+    CopySource: src, // source bucket AND key
     ACL: 'public-read',
     ContentType: mime.lookup( filename ) || 'application/octet-stream',
     MetadataDirective: 'REPLACE'
@@ -224,7 +230,7 @@ const cloneFromS3 = async ( srcS3Location, destId ) => {
   await s3.send( command );
 
   return {
-    s3Location: mediaUrl( mediaType, destKey )
+    s3Location: mediaUrl( mediaType, `${ destId }/${ encodeURIComponent( subkey) }` )
   };
 
 };
@@ -253,12 +259,12 @@ const cloneFromUrl = async ( urlString, destId, mediaType ) => {
 
 };
 
-const listImages = async ( { urlEncode } = {} ) => {
+const listImages = async ( ) => {
 
-  const opts = { Bucket: __BUCKETS__.images };
-  if( urlEncode ) {
-    opts.EncodingType = "url";
-  }
+  const opts = {
+    Bucket: __BUCKETS__.images,
+    EncodingType: "url",
+  };
 
   let imageObjects = [];
   let continuationToken;
@@ -279,7 +285,7 @@ const listImages = async ( { urlEncode } = {} ) => {
 
   // sort by recency
   imageObjects.sort( (a,b) => a.LastModified > b.LastModified ? -1 : 1);
-  const images = imageObjects.map( _ => urlEncode ? mediaUrl( 'images', _.Key ) : _.Key );
+  const images = imageObjects.map( _ => mediaUrl( 'images', _.Key ) );
 
   return images;
 };

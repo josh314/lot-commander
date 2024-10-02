@@ -276,8 +276,8 @@ function routes( { inventoryCommander, lotdb } ) {
 
   // }
 
-  async function listImages(req, res) {
-    const images = await mediaServer.listImages( { urlEncode: !!req.query.url_encode } );
+  async function listImages( _req, res ) {
+    const images = await mediaServer.listImages();
     res.json( { images } );
   }
 

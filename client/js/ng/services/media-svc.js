@@ -196,7 +196,7 @@ angular.module('myApp').service( 'MediaSvc', [ '$localStorage', '$q', '$timeout'
 
     svc.resetStore = () => delete $localStorage.image;
 
-    svc.getImageList = ( { urlEncode } = { urlEncode: false }  ) => $q.when( api.listImages( { urlEncode } ) );
+    svc.getImageList = ( ) => $q.when( api.listImages(  ) );
 
     svc.parseS3Location = (s3Location) => {
       const res = {};

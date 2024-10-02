@@ -918,10 +918,10 @@ export function getIncomingShipmentEvents( shipmentId ) {
 *
 ************/
 
-export function listImages( { urlEncode } = { urlEncode: false } ) {
+export function listImages( ) {
   return axios({
     method: 'get',
-    url: `/api/media/images/list?url_encode=${ urlEncode ? 1 : 0 }`
+    url: `/api/media/images/list`
   })
     .then( resp => resp.data );
 }
