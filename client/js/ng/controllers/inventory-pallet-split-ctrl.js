@@ -389,8 +389,17 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
             numSplit: 1,
             [ __BARCODE__ ]: displayItem[ __BARCODE__ ],
             [ __DESCRIPTION__ ]: displayItem[ __DESCRIPTION__ ],
-            representativeImgSrc: displayItem.representativeImgSrc,
           };
+
+          MediaSvc.loadRepresentativeImage( { images: displayItem.Image } ).then( img => {
+
+            if( img ) {
+              displayItem.representativeImgSrc = img.src;
+              splitItem.representativeImgSrc = img.src;
+            }
+
+          });
+
 
           if( displayItem[ __CATEGORY__ ] ) {
             splitItem[ __CATEGORY__ ] = displayItem[ __CATEGORY__ ];
@@ -685,49 +694,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
     }
 
-    function loadInventoryThumbnailImages() {
-
-      const loadImagePromises = [];
-
-      for( let item of vm.manifestDisplayRows ) {
-
-        const images = item[ __IMAGE__ ];
-
-        if( !images || !images.length ) {
-          continue;
-        }
-
-        loadImagePromises.push(
-          MediaSvc.loadRepresentativeImage({ images }).then( img => {
-
-            if( img ) {
-              item.representativeImgSrc = img.src;
-            }
-
-          } )
-        );
-
-      }
-
-      return Promise.all( loadImagePromises ).then( _ => {
-
-        for( let grp of vm.displaySplitGroups ) {
-          for( let item of grp.items ) {
-
-            const displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === item[ __BARCODE__ ] );
-            if( displayItem ) {
-              item.representativeImgSrc = displayItem.representativeImgSrc;
-            }
-
-          }
-        }
-
-      });
-
-    }
-
-
-
     function allItemsSplitOut() {
 
       if( !vm.manifestDisplayRows ) {
@@ -991,8 +957,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
         }
       }
-
-      loadInventoryThumbnailImages();
 
     }
 
@@ -1756,3 +1720,48 @@ angular.module('myApp').controller( 'FinishSplitPalletModalCtrl', [
 
   }
 ]);
+
+
+/******************* Deprecated code ******************************/
+
+// function loadInventoryThumbnailImages() {
+
+//   const loadImagePromises = [];
+
+//   for( let item of vm.manifestDisplayRows ) {
+
+//     const images = item[ __IMAGE__ ];
+
+//     if( !images || !images.length ) {
+//       continue;
+//     }
+
+//     loadImagePromises.push(
+//       MediaSvc.loadRepresentativeImage({ images }).then( img => {
+
+//         if( img ) {
+//           item.representativeImgSrc = img.src;
+//         }
+
+//       } )
+//     );
+
+//   }
+
+//   return Promise.all( loadImagePromises ).then( _ => {
+
+//     for( let grp of vm.displaySplitGroups ) {
+//       for( let item of grp.items ) {
+
+//         const displayItem = vm.manifestDisplayRows.find( _r => _r[ __BARCODE__ ]  === item[ __BARCODE__ ] );
+//         if( displayItem ) {
+//           item.representativeImgSrc = displayItem.representativeImgSrc;
+//         }
+
+//       }
+//     }
+
+//   });
+
+// }
+
