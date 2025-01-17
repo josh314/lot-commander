@@ -74,15 +74,13 @@
 
 	<div class="row well">
 		<div class="col-xs-12">
-		    <form name="scanForm">
-				<div class="row">
-					<div class="form-group" ng-class="{ 'has-error' : (scanForm.barcode.$invalid && !scanForm.barcode.$pristine) || barcodeNotFound || networkError}">
-						<label for="barcodeInput">Scan Barcode here</label>
-						<input type="text" class="form-control" name="barcode" ng-model="$ctrl.scannedBarcode" id="barcodeInput" ng-keyup="$event.keyCode == 13 && $ctrl.scanBarcode( scanForm )" autocomplete="off" ng-pattern="'[0-9]{8,15}'" autofocus>
-						<span class="text-danger h4" ng-show="scanForm.barcode.$invalid && !scanForm.barcode.$pristine">Invalid Barcode Format</span>
-					</div>
-				</div>
-			</form>
+      <div class="row">
+        <div class="form-group" ng-class="{ 'has-error' : $ctrl.scannedBarcodeInvalid }">
+          <label for="barcodeInput">Scan Barcode here</label>
+          <input type="text" class="form-control" ng-model="$ctrl.scannedBarcode" id="barcodeInput" ng-keyup="$event.keyCode == 13 && $ctrl.scanBarcode()" autocomplete="off" autofocus>
+          <span class="text-danger h4" ng-show="$ctrl.scannedBarcodeInvalid">Invalid Barcode Format</span>
+        </div>
+      </div>
 		</div>
 	</div>
 

@@ -712,7 +712,7 @@ angular.module('myApp').factory( 'Lot', [
         if(!newBarcode) {
           item = { quantity: 0, errors: {} };
         }
-        else if(/[0-9]{8,15}/.test(newBarcode)) {
+        else {
           const idx = this.inventory.findIndex(i => i.barcode == newBarcode);
           if(idx>=0) {
             item = this.inventory[idx];

@@ -248,11 +248,23 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
     }
 
-    async function scanBarcode( scanForm ) {
+    function validateBarcode( barcode ) {
 
-      const scannedBarcode = scanForm.barcode.$viewValue;
+      if( barcode.length < 7 || barcode.length > 14 ) {
+        return false;
+      }
 
-      if ( scannedBarcode && scanForm.barcode.$valid ) {
+      return true;
+    }
+
+    async function scanBarcode( ) {
+
+      const scannedBarcode = vm.scannedBarcode;
+
+      const valid = validateBarcode( scannedBarcode );
+      vm.scannedBarcodeInvalid = !valid;
+
+      if ( scannedBarcode && valid ) {
         const item = vm.lot.addInventory( scannedBarcode );
         if(item) {
 
