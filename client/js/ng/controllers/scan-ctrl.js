@@ -178,12 +178,14 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
       for(let i=0; i < limit; i++) {
         const item = vm.displayInventory[i];
-        loadThumbnailImage( item );
+        if( !item.waiting ) {
+          loadThumbnailImage( item );
+        }
       }
     }
 
     function loadThumbnailImage( item ) {
-      MediaSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
+      return MediaSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
     }
 
     function validateInventory() {
@@ -257,13 +259,24 @@ angular.module('myApp').controller( 'ScanCtrl', [
           AudioAlertSvc.success();
 
           if(item.quantity==1) {
-            const product = await ProductDataSvc.getProductDataByBarcode( item.barcode );
-            if(product) {
-              item.description = product.title;
-              item.price = product.price;
-              item.brand = product.brand;
-              item.images = product.images;
-            }
+
+            item.waiting = true;
+            console.log('waiting for product data for barcode:', item.barcode);
+
+            ProductDataSvc.getProductDataByBarcode( item.barcode ).then( product => {
+              console.log('product data:', product);
+              delete item.waiting;
+              if(product) {
+                item.description = product.title;
+                item.price = product.price;
+                item.brand = product.brand;
+                item.images = product.images;
+              }
+              console.log('item:', item);
+
+              return item;
+            }).then( loadThumbnailImage );
+
           }
           vm.pagination.current = 1;
           refreshDisplayInventory();

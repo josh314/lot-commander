@@ -150,6 +150,9 @@
 				<tbody>
           <tr ng-repeat="$item in $ctrl.displayInventory">
 						<td>
+              <div ng-if="$item.waiting">
+                <div class="loader-thumbnail"></div>
+              </div>
               <div id="item-thumbnail-container-{{$item.barcode}}">
               </div>
 						</td>
