@@ -5,6 +5,7 @@ const xlsx = require( 'xlsx-js-style' );
 
 const __STANDARD_COLUMN_NAMES__ = {
   barcode: 'UPC/EAN/GTIN',
+  asin: 'ASIN',
   description: 'Description',
   brand: 'Brand',
   quantity: 'Quantity',
@@ -89,6 +90,7 @@ module.exports = function( { lotdb, manifestDb, productData } ) {
         else {
           item = {
             [ __STANDARD_COLUMN_NAMES__.barcode ]: inventoryItem.barcode,
+            [ __STANDARD_COLUMN_NAMES__.asin ]: inventoryItem.asin,
             [ __STANDARD_COLUMN_NAMES__.description ]: productTitle,
             [ __STANDARD_COLUMN_NAMES__.brand ]: inventoryItem.brand,
             [ __STANDARD_COLUMN_NAMES__.price ]: inventoryItem.price,

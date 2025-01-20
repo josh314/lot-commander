@@ -1,9 +1,50 @@
 const Agenda = require('agenda');
 
 const libBarcodes = require('barcodes/lib');
+const { isNumericString } = require('../helpers');
 
+/**********************************************
+ * Helper functions
+ * ========================
+ *
+ *********/
 
-// helpers
+function cleanTitle(title) {
+  //TODO
+  return title;
+}
+
+const parseListingTitlePatterns = [
+  /(.*?)Pack of ([0-9]+)/i,
+  /(.*?)Case of ([0-9]+)/i,
+  /(.*?)([0-9]?)[- ]?P(ac)?k/i
+];
+function parseListingTitle( title ) {
+
+  let quantity;
+
+  if( title ) {
+
+    for( let i=0; i < parseListingTitlePatterns.length; i++ ) {
+      const match = title.match( parseListingTitlePatterns[i] );
+      if( match && match[2] ) {
+        quantity = match[2];
+        break;
+      }
+    }
+
+  }
+
+  return {
+    title: cleanTitle( title ),
+    quantity: parseInt( quantity ) || 1
+  };
+}
+
+function parseMoneyAsNumber( moneyString ) {
+  return parseFloat( moneyString.replace(/[^0-9.]+/g,"") );
+}
+
 
 function fillerPrice() {
   const max = 16;
@@ -22,13 +63,19 @@ function priceCheck( productData ) {
 
 class $_ {
 
-  constructor( { upcItemDb, FallbackProductData, mongo } ) {
+  constructor( {
+    FallbackProductData,
+    fnskuToAsin,
+    mongo,
+    upcItemDb,
+  } ) {
 
     Object.assign(
       this,
       {
-        upcItemDb,
         FallbackProductData,
+        fnskuToAsin,
+        upcItemDb,
       }
     );
 
@@ -43,40 +90,53 @@ class $_ {
 
   async getProductDataByBarcode( barcode ) {
 
-    const productData = {};
-
-    let normalizedBarcode = libBarcodes.normalizeBarcodeByType( barcode, 'upca' );
-    if( !normalizedBarcode ) {
-      normalizedBarcode = libBarcodes.normalizeBarcodeByType( barcode, 'ean' );
+    let product;
+    if ( isNumericString( barcode ) ) {
+      product = await this.getProductDataByUpc( barcode );
+    }
+    else {
+      product = await this.getProductDataByFnsku( barcode );
     }
 
-    const upcItemDbResult =  await this.upcItemDb.getProductData( normalizedBarcode );
-
-    if( !upcItemDbResult.title && !upcItemDbResult.brand ) {
+    if( !product.title && !product.brand ) {
 
       const fallbackProductDataResult = await this.FallbackProductData.findOne( {
-        // this query compares `normalizedBarcode` against each document's `pattern` field (compiled as a regex)
+        // this query compares `barcode` against each document's `pattern` field (compiled as a regex)
         $expr: {
           $regexMatch: {
-            input: normalizedBarcode,
+            input: barcode,
             regex: "$pattern",
           }
         }
       } );
 
       if( fallbackProductDataResult && fallbackProductDataResult.data ) {
-        console.log(`Fallback product data found for barcode ${normalizedBarcode}...`);
+        console.log(`Fallback product data found for barcode ${ barcode }...`);
         const fallbackData = fallbackProductDataResult.toObject().data;
-        Object.assign( productData, fallbackData );
+        Object.assign( product, fallbackData );
       }
     }
-    else {
-      Object.assign( productData, upcItemDbResult );
+
+    priceCheck( product );
+
+    return product;
+  }
+
+  async getProductDataByUpc( barcode ) {
+
+    let normalizedBarcode = libBarcodes.normalizeBarcodeByType( barcode, 'upca' );
+    if( !normalizedBarcode ) {
+      normalizedBarcode = libBarcodes.normalizeBarcodeByType( barcode, 'ean' );
     }
 
-    priceCheck( productData );
+    return this.upcItemDb.getProductData( normalizedBarcode );
 
-    return productData;
+  }
+
+  async getProductDataByFnsku( fnsku ) {
+
+    return this.fnskuToAsin.fetchProductDataByFnsku( fnsku );
+
   }
 
   async queueProductDataFetching( barcodes ) {
@@ -88,5 +148,14 @@ class $_ {
   }
 
 }
+
+// add static methods to the class
+Object.assign(
+  $_,
+  {
+    parseListingTitle,
+    parseMoneyAsNumber,
+  }
+);
 
 module.exports = $_;

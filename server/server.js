@@ -290,8 +290,16 @@ class Server {
       settings: this.config.upcItemDb
     } );
 
+    const FnskuToAsinClient = require( './modules/fnsku-to-asin' );
+    const fnskuToAsin = new FnskuToAsinClient(
+      Object.assign(
+        {},
+        { connection: this.mongooseConnection },
+        this.config.fnskuToAsin
+      ) );
+
     const ProductData = require( './modules/product-data' );
-    const productData = new ProductData( Object.assign( { upcItemDb, mongo: this.mongooseConnection.db }, models ) );
+    const productData = new ProductData( Object.assign( { fnskuToAsin, upcItemDb, mongo: this.mongooseConnection.db }, models ) );
 
     // Manifests module
     const manifests = require('./modules/manifests')( { lotdb, manifestDb, productData } );

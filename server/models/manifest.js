@@ -12,6 +12,7 @@ const manifestSchema = mongoose.Schema({
 
   inventory: [{
     barcode: String,
+    asin: String,
     quantity: Number,
     description: String,
     brand: String,

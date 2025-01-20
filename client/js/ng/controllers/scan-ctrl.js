@@ -279,6 +279,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
               console.log('product data:', product);
               delete item.waiting;
               if(product) {
+                item.asin = product.asin;
                 item.description = product.title;
                 item.price = product.price;
                 item.brand = product.brand;

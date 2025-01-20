@@ -1,42 +1,14 @@
 const UpcItemDb = require('upc-item-db');
+const { parseListingTitle } = require('./product-data');
 
 // Helpers
-
-function cleanTitle(title) {
-  //TODO
-  return title;
-}
-
-
-const parseTitlePatterns = [
-  /(.*?)Pack of ([0-9]+)/i,
-  /(.*?)Case of ([0-9]+)/i,
-  /(.*?)([0-9]?)[- ]?P(ac)?k/i
-];
-function parseTitle(title) {
-
-  let quantity;
-
-  for( let i=0; i < parseTitlePatterns.length; i++ ) {
-    const match = title.match( parseTitlePatterns[i] );
-    if( match && match[2] ) {
-      quantity = match[2];
-      break;
-    }
-  }
-
-  return {
-    title: cleanTitle( title ),
-    quantity: parseInt( quantity ) || 1
-  };
-}
 
 const getBestPrice = getAverageUnitPrice;
 
 function processItem( item, markup ){
   const r = {};
 
-  r.title = parseTitle(item.title).title;
+  r.title = parseListingTitle(item.title).title;
 
   if( item.brand ) {
     r.brand = item.brand;
@@ -66,7 +38,7 @@ function getAverageUnitPrice( offers ) {
     if( offer.condition.toLowerCase() === 'new' ) {// only count "New" condition
       const curPrice = offer.list_price || offer.price || 0;
       if( curPrice ) { // ignore missing prices
-        const offerUnitQuantity = parseTitle( offer.title ).quantity || 1;
+        const offerUnitQuantity = parseListingTitle( offer.title ).quantity || 1;
         const curUnitPrice = curPrice / offerUnitQuantity;
         sumPrice += curUnitPrice;
         numOffers += 1;
@@ -77,7 +49,7 @@ function getAverageUnitPrice( offers ) {
 }
 
 //==========================================================
-// Constants
+// Client
 //==========================================================
 
 class Client {

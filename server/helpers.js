@@ -1,6 +1,8 @@
 const { pipeline } = require('stream/promises');
 
 module.exports = {
+  isDigit,
+  isNumericString,
   appendPopulationQueries,
   arrayOfScalarsIsEqual,
   getRandomArrayIndex,
@@ -16,6 +18,13 @@ module.exports = {
  *
  *********/
 
+function isDigit(c) {
+  return ('0123456789'.split('')).includes(c);
+}
+
+function isNumericString( s ) {
+  return typeof s === 'string' && s.split('').every(isDigit);
+}
 
 function getRandomArrayIndex( arr ) {
   return Math.floor(Math.random() * arr.length ); // 0 <= Math.random() < 1
@@ -63,7 +72,7 @@ async function streamToBuffer(stream) {
 }
 
 /**********************************************
- * Query helpers
+ * MongoDB Query helpers
  * ========================
  *
  *********/
