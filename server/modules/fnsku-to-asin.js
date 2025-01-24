@@ -188,6 +188,9 @@ class ApiClient {
     }
     catch( e ) {
       console.error(e);
+      if(e.response && e.response.data) {
+        console.log(JSON.stringify(e.response.data, null, 2));
+      }
       throw e;
     }
 
@@ -361,9 +364,10 @@ class $_ {
       if( this.cache && ( !this.cache.hit || forceCacheRefresh ) ) {
 
         // This is true if an ASIN was submitted when the FNSKU query was expected. That's legal to do but shouldn't be cached
-        const isFnskuQueryForAsin = idType === 'fnsku' && ( item.barCode === item.asin );
+        const isFnskuQueryForAsin = idType === 'fnsku' && ( !item.asin || ( item.barCode === item.asin ) );
+        const isEmptyAsinResult = idType === 'asin' && !item.title;
 
-        if( !isFnskuQueryForAsin ) {
+        if( !isFnskuQueryForAsin && !isEmptyAsinResult ) {
 
           await this.cache.store( id, idType, item );
           resp.cache.store = true;
@@ -378,18 +382,25 @@ class $_ {
 
   }
 
-  async fetchProductDataByFnsku( fnsku ) {
+  async fetchProductData( fnskuOrAsin ) {
 
     const productData = {
-      barcode: fnsku
+      barcode: fnskuOrAsin
     };
 
-    const { item: fnskuItem } = await this.fetchCacheableData( fnsku, 'fnsku' );
+    const { item: fnskuItem } = await this.fetchCacheableData( fnskuOrAsin, 'fnsku' );
 
+    let asin;
     if( fnskuItem && fnskuItem.asin ) {
-      const { item: asinItem } = await this.fetchCacheableData( fnskuItem.asin, 'asin' );
-      Object.assign( productData, processItem( asinItem ) );
+      console.log(`Found ASIN ${ fnskuItem.asin } for FNSKU ${ fnskuOrAsin }...`);
+      asin = fnskuItem.asin;
     }
+    else {
+      asin = fnskuOrAsin;
+    }
+
+    const { item: asinItem } = await this.fetchCacheableData( asin, 'asin' );
+    Object.assign( productData, processItem( asinItem ) );
 
     return productData;
   }

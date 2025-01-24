@@ -95,7 +95,7 @@ class $_ {
       product = await this.getProductDataByUpc( barcode );
     }
     else {
-      product = await this.getProductDataByFnsku( barcode );
+      product = await this.getProductDataByFnskuOrAsin( barcode );
     }
 
     if( !product.title && !product.brand ) {
@@ -133,9 +133,9 @@ class $_ {
 
   }
 
-  async getProductDataByFnsku( fnsku ) {
+  async getProductDataByFnskuOrAsin( barcode ) {
 
-    return this.fnskuToAsin.fetchProductDataByFnsku( fnsku );
+    return this.fnskuToAsin.fetchProductData( barcode );
 
   }
 
