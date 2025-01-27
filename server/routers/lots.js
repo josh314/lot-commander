@@ -478,15 +478,17 @@ function routes({ inventoryCommander, lotdb, manifests }) {
 
         const s3Key = filename ? `${ lotId }/${ filename }` : `${ lotId }/${ lot.handle }${ path.extname(f.originalFilename)  }`;
 
-        const storePromise = manifestSvc.put( readStream, s3Key , true).then(resp=>{
-          if(resp && resp.data) {
+        const storePromise = manifestSvc.put( readStream, s3Key , true).then( resp => {
+
+          if( resp && resp.Location ) {
             return lotdb.editLot(
               lotId,
               {
-                manifestFileLocation: resp.data.Location
+                manifestFileLocation: resp.Location
               }
             );
           }
+
         })
           .then(_=>{
             console.log(`Unlinking temp file ${f.filepath}`);

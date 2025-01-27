@@ -262,15 +262,15 @@ module.exports = function( { lotdb, manifestDb, productData } ) {
 
       const buildManifestResponse = await manifestSvc.build( sheets, saveAs, isPublic );
 
-      if( buildManifestResponse.data.submitted ) {
+      if( buildManifestResponse.Location ) {
 
-        console.log(`Manifest for lot ${lot.handle} (lotId: ${lotId}) saved to ${buildManifestResponse.data.link}`);
-        lotdb.editLot( lotId, { manifestFileLocation: buildManifestResponse.data.link });
+        console.log(`Manifest for lot ${lot.handle} (lotId: ${lotId}) saved to ${buildManifestResponse.Location}`);
+        lotdb.editLot( lotId, { manifestFileLocation: buildManifestResponse.Location });
 
         return {
           lotId: lotId,
           handle: lot.handle,
-          manifest: buildManifestResponse.data.link
+          manifest: buildManifestResponse.Location
         };
 
       }

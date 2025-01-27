@@ -49,30 +49,32 @@ function routes( { manifests } ) {
    * Get an individual manifest. The URI path parameter(s) is the full S3 key
    *
    ********************/
-  router.get('/*', function get( req, res ) {
+  router.get('/*', async function get( req, res, next ) {
 
     const key = req.params[0];
 
-    manifestSvc.get(key)
-      .then( resp => {
-        if( resp.data.error === 'NoSuchKey') {
-          res.json({
-            status: "failed",
-            message: `File does not exist: ${key}`
-          });
-        }
-        else {
-          console.log('Streaming response...');
-          resp.data.pipe(res);
-        }
-      })
-      .catch(e => {
-        console.error(e);
+    try {
+
+      const readableStream = await manifestSvc.get( key );
+
+      console.log('Streaming response...');
+      readableStream.pipe(res);
+
+    }
+    catch( e ) {
+
+      if( e.Code === 'NoSuchKey' ) {
         res.json({
-          "status": "failed",
-          "message": `Unable to get object: '${key}'`
+          status: "failed",
+          message: `File does not exist: ${key}`
         });
-      });
+      }
+      else {
+        next(e);
+      }
+
+    }
+
   });
 
   /**************************************
