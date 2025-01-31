@@ -112,15 +112,30 @@ class Client {
         }
         return 0;
       });
-      const manifest = JSON.stringify(manifestItems);
 
-      const metafield = {
-        namespace: 'manifest',
-        key: 'json',
-        value: manifest,
-        type: 'multi_line_text_field',
-      };
-      productToCreate.metafields.push( metafield );
+      for( let manifestItem of manifestItems ) {
+
+        if( manifestItem.Image && Array.isArray( manifestItem.Image ) && manifestItem.Image.length > 0 ) {
+
+          manifestItem.Image = manifestItem.Image[0];
+
+        }
+
+      }
+
+      const saveManifestJsonResp = await this.manifests.saveLotManifestItems( listing.lot._id, manifestItems );
+
+      if( saveManifestJsonResp.Location ) {
+
+        const metafield = {
+          namespace: 'manifest',
+          key: 'json-location',
+          value: saveManifestJsonResp.Location,
+          type: 'single_line_text_field',
+        };
+        productToCreate.metafields.push( metafield );
+
+      }
 
     }
 

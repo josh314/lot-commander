@@ -1,6 +1,8 @@
 const documentSvc = require('./document-svc');
 const manifestSvc = require('./manifest-svc');
 
+const { Readable } = require('stream');
+
 const xlsx = require( 'xlsx-js-style' );
 
 const __STANDARD_COLUMN_NAMES__ = {
@@ -291,6 +293,17 @@ module.exports = function( { lotdb, manifestDb, productData } ) {
     }
   }
 
+  function saveLotManifestItems( lotId, manifestItems ) {
+
+    const saveManifestJsonAs = `${ lotId }/manifest-items.json`;
+    const isPublic = true;
+
+    const manifestItemsJson = JSON.stringify( manifestItems );
+
+    return manifestSvc.put( Readable.from( manifestItemsJson ), saveManifestJsonAs, isPublic );
+
+  }
+
   return {
 
     // pass through from manifestDb
@@ -300,6 +313,7 @@ module.exports = function( { lotdb, manifestDb, productData } ) {
     // manifest processing/parsing
     getManifestItemsForLot,
     generateLotManifest,
+    saveLotManifestItems,
     // CONSTANTS
     __STANDARD_BARCODE_COLUMN__: __STANDARD_COLUMN_NAMES__.barcode,
     __STANDARD_COLUMNS__: __STANDARD_COLUMNS__
