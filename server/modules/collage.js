@@ -1,4 +1,6 @@
 const { createCanvas, loadImage } = require('canvas');
+const sharp = require('sharp');
+const axios = require('axios');
 
 const __COLLAGE_WIDTH__ = 1280;
 const __COLLAGE_HEIGHT__ = 720;
@@ -6,6 +8,18 @@ const __COLLAGE_NUM_ROWS__ = 2;
 const __COLLAGE_FILL__ = "white";
 
 const __COLLAGE_HORIZONTAL_GUTTER_SIZE__ = 10;
+
+async function loadCompatibleImage( url ) {
+  const response = await axios.get( url, { responseType: 'arraybuffer' } );
+  const inputBuffer = Buffer.from( response.data );
+
+  const metadata = await sharp( inputBuffer ).metadata();
+  const buffer = metadata.format === 'webp'
+    ? await sharp( inputBuffer ).png().toBuffer()
+    : inputBuffer;
+
+  return await loadImage( buffer );
+}
 
 function draw( canvas, layout ) {
 
@@ -65,8 +79,7 @@ async function getLayout( imageUrls, { randomize = false } = {} ) {
       try {
 
         console.log(`Loading image ${ _imageUrl }`);
-
-        const image = await loadImage( _imageUrl );
+        const image = await loadCompatibleImage( _imageUrl );
 
         if( !image || image.width <= 1 || image.height <= 1 ) {
           console.log(`Rejecting image ${ _imageUrl }: ${ image.width } x ${ image.height }`);
