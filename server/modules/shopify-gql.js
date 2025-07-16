@@ -104,7 +104,7 @@ class Client {
 
       method: 'POST',
 
-      url: `https://${this.storeName}.myshopify.com/admin/api/2024-07/graphql.json`,
+      url: `https://${this.storeName}.myshopify.com/admin/api/2025-07/graphql.json`,
 
       headers: {
         "Content-Type": "application/json", // Use application/json instead of application/graphql
