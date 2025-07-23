@@ -47,7 +47,7 @@ angular.module('myApp').controller('GalleryCtrl', [
 
           vm.lot = lot;
 
-          if( vm.lot && vm.lot.inventory && vm.lot.inventory.length ) {
+          if( vm.lot && vm.lot.hasInventory ) {
             return loadImageGalleryFromInventory();
           }
           else if( vm.lot.manifestFileLocation ) {

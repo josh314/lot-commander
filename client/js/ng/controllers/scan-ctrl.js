@@ -3,57 +3,6 @@ import angular from 'angular';
 import * as util from '../../utilities';
 const __MAX_DISPLAY_INVENTORY__ = 50;
 
-
-function cmpManifestItems( a, b ) {
-
-  if( a.barcode && b.barcode && a.barcode !== b.barcode ) {
-    return a.barcode < b.barcode ? -1 : +1;
-  }
-  else if ( a.description && b.description && a.description !== b.description ) {
-    return a.description < b.description ? -1: +1;
-  }
-  else if ( a.brand && b.brand && a.brand !== b.brand ) {
-    return a.brand < b.brand ? -1: +1;
-  }
-  else if ( a.price && b.price && a.price !== b.price ) {
-    return a.price < b.price ? -1: +1;
-  }
-  else if ( a.quantity && b.quantity && a.quantity !== b.quantity ) {
-    return a.quantity < b.quantity ? -1 : +1;
-  }
-  else {
-    return 0;
-  }
-
-}
-
-function serializeManifest( manifest ) {
-
-  const sortedManifest = [ ...manifest ].map( item => {
-
-    const _item = { ...item };
-
-    if( _item.price ) {
-      _item.price = parseFloat( _item.price );
-    }
-
-    if( _item.errors ){
-      delete _item.errors;
-    }
-    /* eslint-disable angular/no-private-call */
-    if( _item.$$hashKey ) {
-      delete _item.$$hashKey;
-    }
-    /* eslint-enable angular/no-private-call */
-
-    return _item;
-
-  } ).sort( cmpManifestItems );
-
-  return JSON.stringify( sortedManifest );
-
-}
-
 /******************* Scanning Page Controller *************************/
 angular.module('myApp').controller( 'ScanCtrl', [
 
@@ -129,7 +78,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
         console.log('loaded lot', _lot);
         vm.lot = _lot;
-        vm.lastSavedManifest = serializeManifest( vm.lot.inventory );
+        vm.lastSavedInventory = vm.lot.serializedInventory();
         refreshDisplayInventory();
 
       });
@@ -139,9 +88,9 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
     function isManifestChanged() {
 
-      if( vm.lot && vm.lot.inventory ) {
+      if( vm.lot && vm.lot.hasInventory() ) {
 
-        return serializeManifest( vm.lot.inventory ) !== vm.lastSavedManifest;
+        return vm.lot.serializedInventory() !== vm.lastSavedInventory;
 
       }
 
@@ -164,7 +113,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
     }
 
     function refreshDisplayInventory() {
-      const inventory = vm.lot.inventory;
+      const inventory = vm.lot.getInventory();
       vm.pagination.totalItems = inventory.length;
       const start = ( vm.pagination.current - 1 ) * __MAX_DISPLAY_INVENTORY__;
       const end = start + __MAX_DISPLAY_INVENTORY__;
@@ -200,7 +149,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
           waitFor: save(),
           message: 'Saving manifest...',
         });
-        vm.lastSavedManifest = serializeManifest( vm.lot.inventory );
+        vm.lastSavedInventory = vm.lot.serializedInventory();
         console.log('saveManifest result:', manifest);
 
         await ModalSvc.message( {

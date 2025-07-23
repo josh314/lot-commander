@@ -223,7 +223,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
         return ModalSvc.message( { header: 'Incomplete Lot', body: msg , type: 'error' } );
       }
 
-      if ( !vm.lot.unmanifested && !vm.lot.manifestFileLocation && vm.lot.inventory.length === 0 ) { // marked as manifested but no manifest yet
+      if ( !vm.lot.unmanifested && !vm.lot.manifestFileLocation && !vm.lot.hasInventory() ) { // marked as manifested but no manifest yet
 
         return ModalSvc.message( { header: 'No manifest', body: 'This lot has not yet been manifested.' } );
 
