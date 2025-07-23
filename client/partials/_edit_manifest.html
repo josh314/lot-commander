@@ -12,6 +12,7 @@
 			<table class="table table-striped">
 				<thead><tr>
 					<th>Barcode</th>
+          <th ng-show="$ctrl.showAsin">ASIN</th>
 					<th>Title</th>
 					<th>Quantity</th>
 					<th>Price</th>
@@ -27,6 +28,7 @@
                 </span>
               </div>
             </td>
+            <td ng-show="$ctrl.showAsin"><input type="text" size="12" ng-model="$item.asin"></td>
 						<td><input type="text" size="64" ng-model="$item.description"></td>
 						<td><input type="number" style="width: 4em" ng-model="$item.quantity" min="0"></td>
             <td>

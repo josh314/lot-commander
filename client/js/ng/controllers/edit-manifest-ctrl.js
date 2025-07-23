@@ -29,6 +29,8 @@ angular.module('myApp').controller('EditManifestCtrl', [
         vm,
         {
 
+          showAsin: false,
+
           validateInventory,
           addInventoryItem,
           deleteInventoryItem,
@@ -43,6 +45,10 @@ angular.module('myApp').controller('EditManifestCtrl', [
         .then( lot => {
 
           vm.lot = lot;
+
+          if( lot && lot.hasAsins() ) {
+            vm.showAsin = true;
+          }
 
         } );
 

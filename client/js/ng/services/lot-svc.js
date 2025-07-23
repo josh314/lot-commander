@@ -386,6 +386,10 @@ angular.module('myApp').factory( 'Lot', [
         return this.manifestFileLocation ? path.basename(this.manifestFileLocation) : '';
       }
 
+      hasAsins() {
+        return this.inventory && this.inventory.some( item => item.asin );
+      }
+
       /****************************************
        * Getters
        *
