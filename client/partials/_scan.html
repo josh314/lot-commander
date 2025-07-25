@@ -151,24 +151,24 @@
               <div ng-if="$item.waiting">
                 <div class="loader-thumbnail"></div>
               </div>
-              <div id="item-thumbnail-container-{{$item.barcode}}">
+              <div id="item-thumbnail-container-{{$item.data.barcode}}">
               </div>
 						</td>
-						<td><input type="text" size=14 ng-model="$item.barcode"></td>
-						<td><input type="text" size="52" ng-model="$item.description"></td>
-            <td><input type="text" size="12" ng-model="$item.brand"></td>
+						<td><input type="text" size=14 ng-model="$item.data.barcode"></td>
+						<td><input type="text" size="52" ng-model="$item.data.description"></td>
+            <td><input type="text" size="12" ng-model="$item.data.brand"></td>
 						<td style="display:flex; flex-direction:column;">
               <span>
-                <input type="number" class="hide-controls" style="width: 4em" ng-model="$item.quantity" min="0">
+                <input type="number" class="hide-controls" style="width: 4em" ng-model="$item.data.quantity" min="0">
               </span>
               <span>
                 <button class="btn btn-success btn-xs" ng-click="$ctrl.incrementInventoryItem( $item )"><span class="glyphicon glyphicon-plus"></span></button>
-                <button class="btn btn-warning btn-xs" ng-click="$ctrl.decrementInventoryItem( $item )" ng-disabled="$item.quantity<=0"><span class="glyphicon glyphicon-minus"></span></button>
+                <button class="btn btn-warning btn-xs" ng-click="$ctrl.decrementInventoryItem( $item )" ng-disabled="$item.data.quantity<=0"><span class="glyphicon glyphicon-minus"></span></button>
               </span>
 						</td>
             <td>
               <div class="form-group" ng-class="{ 'has-error' : $item.errors.price }">
-                <input type="text" class="form-control" name="price" ng-model="$item.price" size="6">
+                <input type="text" class="form-control" name="price" ng-model="$item.data.price" size="6">
               </div>
             </td>
 

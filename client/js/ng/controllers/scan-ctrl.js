@@ -134,7 +134,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
     }
 
     function loadThumbnailImage( item ) {
-      return MediaSvc.loadRepresentativeImage({images: item.images, containerId: `item-thumbnail-container-${item.barcode}`, className: "inventory-preview-img"});
+      return MediaSvc.loadRepresentativeImage({images: item.data.images, containerId: `item-thumbnail-container-${item.data.barcode}`, className: "inventory-preview-img"});
     }
 
     function validateInventory() {
@@ -219,20 +219,20 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
           AudioAlertSvc.success();
 
-          if(item.quantity==1) {
+          if(item.data.quantity==1) {
 
             item.waiting = true;
-            console.log('waiting for product data for barcode:', item.barcode);
+            console.log('waiting for product data for barcode:', item.data.barcode);
 
-            ProductDataSvc.getProductDataByBarcode( item.barcode ).then( product => {
+            ProductDataSvc.getProductDataByBarcode( item.data.barcode ).then( product => {
               console.log('product data:', product);
               delete item.waiting;
               if(product) {
-                item.asin = product.asin;
-                item.description = product.title;
-                item.price = product.price;
-                item.brand = product.brand;
-                item.images = product.images;
+                item.data.asin = product.asin;
+                item.data.description = product.title;
+                item.data.price = product.price;
+                item.data.brand = product.brand;
+                item.data.images = product.images;
               }
               console.log('item:', item);
 
@@ -255,11 +255,11 @@ angular.module('myApp').controller( 'ScanCtrl', [
     }
 
     function decrementInventoryItem( item ) {
-      item.quantity = item.quantity>0 ? item.quantity - 1 : 0;
+      item.data.quantity = item.data.quantity>0 ? item.data.quantity - 1 : 0;
     }
 
     function incrementInventoryItem( item ) {
-      item.quantity = item.quantity + 1;
+      item.data.quantity = item.data.quantity + 1;
     }
 
     function deleteInventoryItem( item ) {

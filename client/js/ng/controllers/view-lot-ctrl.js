@@ -131,7 +131,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     };
 
     function refreshDisplayInventory() {
-      const sortedInventory = vm.lot.getInventorySortedByBarcode();
+      const sortedInventory = vm.lot.getInventoryDataSortedByBarcode();
       vm.pagination.totalItems = sortedInventory.length;
       const start = ( vm.pagination.current - 1 ) * __MAX_DISPLAY_INVENTORY__;
       const end = start + __MAX_DISPLAY_INVENTORY__;

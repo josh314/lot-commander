@@ -73,7 +73,7 @@ angular.module('myApp').controller('GalleryCtrl', [
 
     function loadImageGalleryFromInventory() {
 
-      const inventory = vm.lot.getInventorySortedByBarcode();
+      const inventory = vm.lot.getInventoryDataSortedByBarcode();
 
       const productItems = inventory.map( _ => ({ upc: _.barcode, title: _.description, images: _.images }) );
 

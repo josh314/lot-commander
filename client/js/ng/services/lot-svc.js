@@ -5,7 +5,7 @@ import * as util from '../../utilities';
 import * as api from '../../api';
 
 /********************* Helpers ***/
-function cmpLotInventoryItems( a, b ) {
+function cmpLotInventoryData( a, b ) {
 
   if( a.barcode && b.barcode && a.barcode !== b.barcode ) {
     return a.barcode < b.barcode ? -1 : +1;
@@ -307,6 +307,43 @@ angular.module('myApp').factory( 'Lot', [
 
     let LotSvc;
 
+    class LotInventoryItem {
+
+      constructor( data ) {
+
+        this.data = data;
+        this.errors = {};
+
+        if( !this.data.quantity || this.data.quantity<0 ) {
+          this.data.quantity = 0;
+        }
+
+
+      }
+
+      validate() {
+        return this.validatePrice();
+      }
+
+      validatePrice() {
+
+        const priceError = this.data.price && !util.priceRegex.test( this.data.price );
+
+        this.errors.price = priceError;
+
+        return !priceError;
+      }
+
+      resetErrors() {
+        this.errors = {};
+      }
+
+      hasError() {
+        return Object.values( this.errors ).reduce( ( acc, val ) => acc || val, false);
+      }
+
+    }
+
     class Lot {
 
       constructor( data ) {
@@ -403,7 +440,7 @@ angular.module('myApp').factory( 'Lot', [
       }
 
       inventoryHasBrandInfo() {
-        return !!( this._inventory && this._inventory.find( item => item.brand ) );
+        return !!( this._inventory && this._inventory.find( item => item.data.brand ) );
       }
 
       isManifestFileLoaded() {
@@ -415,33 +452,23 @@ angular.module('myApp').factory( 'Lot', [
       }
 
       hasAsins() {
-        return this._inventory && this._inventory.some( item => item.asin );
+        return this._inventory && this._inventory.some( item => item.data.asin );
       }
 
       serializedInventory() {
 
-        const sortedInventory = [ ...this._inventory ].map( item => {
+        const sortedInventoryData = [ ...this._inventory ].map( item => {
 
-          const _item = { ...item };
+          const _data = { ...item.data };
 
-          if( _item.price ) {
-            _item.price = parseFloat( _item.price );
+          if( _data.price ) {
+            _data.price = parseFloat( _data.price );
           }
+          return _data;
 
-          if( _item.errors ){
-            delete _item.errors;
-          }
-          /* eslint-disable angular/no-private-call */
-          if( _item.$$hashKey ) {
-            delete _item.$$hashKey;
-          }
-          /* eslint-enable angular/no-private-call */
+        } ).sort( cmpLotInventoryData );
 
-          return _item;
-
-        } ).sort( cmpLotInventoryItems );
-
-        return JSON.stringify( sortedInventory );
+        return JSON.stringify( sortedInventoryData );
       }
 
       /****************************************
@@ -453,33 +480,38 @@ angular.module('myApp').factory( 'Lot', [
         return this._inventory;
       }
 
-      getInventorySortedByBarcode() {
-        // Going through these gymnastics since Array.sort() is an inplace action
+      getInventoryDataItems() {
+        return this._inventory.map( item => item.data );
+      }
 
-        // get a new array composed just of the sorting values and their original array indices
-        const mapped = this._inventory.map( (item,i) => { return { index: i, value: item.barcode }; });
+      getInventorySortedByBarcode() {
+
+        const copy = [ ...this._inventory ];
 
         // inplace sort new array
-        mapped.sort(function(a, b) {
-          if (a.value > b.value) {
+        copy.sort(function(a, b) {
+          if (a.data.barcode > b.data.barcode) {
             return 1;
           }
-          if (a.value < b.value) {
+          if (a.data.barcode < b.data.barcode) {
             return -1;
           }
           return 0;
         });
 
-        // Use the new sorted array of indices to traverse the original array
-        return mapped.map(e => this._inventory[e.index]);
+        return copy;
+      }
+
+      getInventoryDataSortedByBarcode() {
+        return this.getInventorySortedByBarcode().map( item => item.data );
       }
 
       getInventoryItemByBarcode(barcode) {
-        return this._inventory.find( item => item.barcode == barcode );
+        return this._inventory.find( item => item.data.barcode == barcode );
       }
 
       getInventoryTotal() {
-        return this._inventory.reduce( (acc,val) => { return acc + val.quantity; }, 0);
+        return this._inventory.reduce( (acc,val) => { return acc + val.data.quantity; }, 0);
       }
 
       getNumSku() {
@@ -493,7 +525,7 @@ angular.module('myApp').factory( 'Lot', [
         }
         else if(this._inventory) {
           value = this._inventory.reduce( (total, item)=>{
-            return item.price && item.quantity ? total + parseInt(item.quantity)*parseFloat(item.price) : total;
+            return item.data.price && item.data.quantity ? total + parseInt(item.data.quantity)*parseFloat(item.data.price) : total;
           }, 0);
         }
         return value ? value.toFixed(2) : '';
@@ -515,7 +547,7 @@ angular.module('myApp').factory( 'Lot', [
           return;
         }
 
-        const barcodes = this._inventory.map( item => item.barcode );
+        const barcodes = this._inventory.map( item => item.data.barcode );
 
         const { products } = await ProductDataSvc.bulkGetProductData( barcodes );
 
@@ -523,10 +555,10 @@ angular.module('myApp').factory( 'Lot', [
 
           if( product && product.item && product.item.brand ) {
 
-            const found = this._inventory.find( item => item.barcode === product.upc );
+            const found = this._inventory.find( item => item.data.barcode === product.upc );
 
             if( found ) {
-              found.brand = product.item.brand;
+              found.data.brand = product.item.brand;
             }
 
           }
@@ -628,7 +660,7 @@ angular.module('myApp').factory( 'Lot', [
         let manifestItems;
 
         if( this.hasScannedManifest() ) {
-          manifestItems = this._inventory;
+          manifestItems = this.getInventoryDataItems();
         }
         else if ( this.manifestFileLocation ) {
           manifestItems = this.manifest.getActiveSheet().rows;
@@ -726,7 +758,7 @@ angular.module('myApp').factory( 'Lot', [
 
       // inventory & manifests
       setInventory( _inventory ) {
-        this._inventory = _inventory.map(i=> i.quantity<0 ? Object.assign(i,{quantity:0}) : i );
+        this._inventory = _inventory.map( i => new LotInventoryItem(i) );
         return this._inventory;
       }
 
@@ -734,11 +766,11 @@ angular.module('myApp').factory( 'Lot', [
         // This filters out completely empty lines
         this._inventory = this._inventory.filter( item => {
 
-          if( !item.quantity ) {
+          if( !item.data.quantity ) {
             return false;
           }
 
-          if( item.barcode || item.description || item.quantity || item.price ) {
+          if( item.data.barcode || item.data.description || item.data.quantity || item.data.price ) {
             return true;
           }
 
@@ -748,44 +780,42 @@ angular.module('myApp').factory( 'Lot', [
 
         this.updateTotalUnits();
 
-        const inventory = [];
+        const inventoryData = [];
         for( let item of this._inventory ) {
-          if( item.quantity ) {
+          if( item.data.quantity ) {
 
-            const _ = Object.assign( {}, item );
-            delete _.errors;
-
-            inventory.push( _ );
+            inventoryData.push( { ...item.data } );
 
           }
         }
 
-        return $q.when( api.saveLotManifest( this._id, inventory ) );
+        return $q.when( api.saveLotManifest( this._id, inventoryData ) );
 
       }
 
       updateTotalUnits() {
-        this.totalUnits = this._inventory ? this._inventory.reduce((sum,item) => sum + parseInt(item.quantity), 0) : 0 ;
+        this.totalUnits = this._inventory ? this._inventory.reduce((sum,item) => sum + parseInt(item.data.quantity), 0) : 0 ;
         return this.totalUnits;
       }
 
       addInventory(newBarcode) {
         let item;
         if(!newBarcode) {
-          item = { quantity: 0, errors: {} };
+          item = new LotInventoryItem( { quantity: 0 } );
         }
         else {
-          const idx = this._inventory.findIndex(i => i.barcode == newBarcode);
+          const idx = this._inventory.findIndex(i => i.data.barcode == newBarcode);
           if(idx>=0) {
             item = this._inventory[idx];
-            item.quantity += 1;
+            item.data.quantity += 1;
+            // remove the item because we will add it back later at the top of the inventory
             this._inventory.splice(idx, 1);
           }
           else {
-            item = {
+            item = new LotInventoryItem({
               barcode: newBarcode,
               quantity: 1
-            };
+            });
           }
           this.totalUnits += 1;
         }
@@ -796,11 +826,9 @@ angular.module('myApp').factory( 'Lot', [
       decrementInventory(barcode) {
         var idx = this._inventory.findIndex(item => item.barcode == barcode);
         if(idx >= 0) {
-          if(this._inventory[idx].quantity > 1) {
-            this._inventory[idx].quantity -= 1;
-            if(this._inventory[idx].validated == this._inventory[idx].quantity + 1) {
-              this._inventory[idx].validated -= 1;
-            }
+          const item = this._inventory[idx];
+          if(item.data.quantity > 1) {
+            item.data.quantity -= 1;
           }
           else {
             this._inventory.splice(idx,1);
@@ -811,7 +839,7 @@ angular.module('myApp').factory( 'Lot', [
 
       deleteInventoryItemByIndex( idx ) {
         if(idx >= 0) {
-          this.totalUnits -= this._inventory[idx].quantity;
+          this.totalUnits -= this._inventory[idx].data.quantity;
           this._inventory.splice(idx,1);
         }
       }
@@ -821,39 +849,36 @@ angular.module('myApp').factory( 'Lot', [
         return this.deleteInventoryItemByIndex( idx );
       }
 
-      inventoryItemHasErrors( item ) {
-        return Object.values( item.errors ).reduce( ( acc, val ) => acc || val, false);
-      }
-
       validateInventory() {
 
         const barcodes = new Set();
 
         for( let i=0; i<this._inventory.length; i++ ) {
-
           const item = this._inventory[i];
-          item.errors = {};
+          item.resetErrors();
 
-          if( barcodes.has( item.barcode ) ) {
+          const barcode = item.data.barcode;
+
+          if( barcodes.has( barcode ) ) {
 
             item.errors.duplicateBarcode = true;
 
             for( let j=0; j<i; j++ ) {
-              if( this._inventory[j].barcode === item.barcode ) {
+              if( this._inventory[j].data.barcode === barcode ) {
                 this._inventory[j].errors.duplicateBarcode = true;
               }
             }
 
           }
           else {
-            barcodes.add( item.barcode );
+            barcodes.add( barcode );
           }
 
-          item.errors.price = item.price && !util.priceRegex.test( item.price );
+          item.validate();
 
         }
 
-        return !this._inventory.find( this.inventoryItemHasErrors.bind( this ) );
+        return !this._inventory.find( item => item.hasError() );
 
       }
 
@@ -865,11 +890,11 @@ angular.module('myApp').factory( 'Lot', [
         for( let item of this._inventory ) {
 
           if( item.errors.price ) {
-            invalidPriceBarcodes.push( item.barcode );
+            invalidPriceBarcodes.push( item.data.barcode );
           }
 
           if( item.errors.duplicateBarcode ) {
-            duplicateBarcodes.add( item.barcode );
+            duplicateBarcodes.add( item.data.barcode );
           }
 
         }
