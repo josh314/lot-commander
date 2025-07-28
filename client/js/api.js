@@ -1598,6 +1598,21 @@ export function bulkGetProductData( barcodes ) {
   })
     .then( resp => resp.data );
 }
+export function getInternalProductData( barcode ) {
+  return axios({
+    method: 'get',
+    url: `/api/product-data/internal/${ barcode }`
+  })
+    .then( resp => resp.data );
+}
+export function saveInternalProductData( productData ) {
+  return axios({
+    method: 'post',
+    url: `/api/product-data/internal`,
+    data: { productData }
+  })
+    .then( resp => resp.data );
+}
 
 
 /*************************************************

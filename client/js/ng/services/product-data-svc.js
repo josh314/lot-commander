@@ -13,6 +13,8 @@ angular.module('myApp').factory( 'ProductDataSvc', [ '$q',
 
     const bulkGetProductData = barcodes => $q.when( api.bulkGetProductData( barcodes ) );
 
+    const saveInternalProductData = productData => $q.when( api.saveInternalProductData( productData ) );
+
     // expects an instance of the Manifest class
     async function getProductDataFromLoadedManifest( manifest ) {
 
@@ -39,6 +41,7 @@ angular.module('myApp').factory( 'ProductDataSvc', [ '$q',
       getProductDataByBarcode,
       queueProductDataFetching,
       bulkGetProductData,
+      saveInternalProductData,
       getProductDataFromLoadedManifest
     };
   }

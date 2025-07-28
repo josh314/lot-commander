@@ -66,6 +66,7 @@ class $_ {
   constructor( {
     FallbackProductData,
     fnskuToAsin,
+    InternalProductData,
     mongo,
     upcItemDb,
   } ) {
@@ -75,6 +76,7 @@ class $_ {
       {
         FallbackProductData,
         fnskuToAsin,
+        InternalProductData,
         upcItemDb,
       }
     );
@@ -90,13 +92,18 @@ class $_ {
 
   async getProductDataByBarcode( barcode ) {
 
-    let product;
-    if ( isNumericString( barcode ) ) {
-      product = await this.getProductDataByUpc( barcode );
+    let product = await this.getInternalProductData( barcode );
+
+    if( !product ) {
+      if ( isNumericString( barcode ) ) {
+        product = await this.getProductDataByUpc( barcode );
+      }
+      else {
+        product = await this.getProductDataByFnskuOrAsin( barcode );
+      }
     }
-    else {
-      product = await this.getProductDataByFnskuOrAsin( barcode );
-    }
+
+    product.title = product.title || product.description;
 
     if( !product.title && !product.brand ) {
 
@@ -145,6 +152,38 @@ class $_ {
 
   bulkGetProductData( barcodes ) {
     return this.upcItemDb.bulkGetProductData( barcodes );
+  }
+
+  getInternalProductData( barcode ) {
+    return this.InternalProductData.findOne( { barcode } );
+  }
+
+  saveInternalProductData( productData ) {
+
+    if( Array.isArray( productData ) ) {
+
+      const upsertDocs = productData.map( data => {
+        return {
+          updateOne: {
+            filter: { barcode: data.barcode },
+            update: { $set: data },
+            upsert: true
+          }
+        };
+      });
+
+      return this.InternalProductData.bulkWrite( upsertDocs );
+    }
+    else {
+
+      return this.InternalProductData.updateOne(
+        { barcode: productData.barcode },
+        { $set: productData },
+        { upsert: true }
+      );
+
+    }
+
   }
 
 }

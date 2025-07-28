@@ -19,7 +19,6 @@ function routes( { productData } ) {
    *
    ****/
 
-  // view pallet(s)
   router.get(
     '/:barcode',
     getProductDataByBarcode
@@ -32,6 +31,17 @@ function routes( { productData } ) {
     '/queue',
     queueProductDataFetching
   );
+
+  // endpoints for internal data
+  router.get(
+    '/internal/:barcode',
+    getInternalProductDataByBarcode
+  );
+  router.post(
+    '/internal',
+    saveInternalProductData
+  );
+
 
   /*******************************************
    * Define Handlers & Middleware
@@ -88,6 +98,39 @@ function routes( { productData } ) {
     }
 
   }
+
+  async function getInternalProductDataByBarcode( req, res, next ) {
+
+    try {
+      const barcode = req.params.barcode;
+
+      const product = await productData.getInternalProductData( barcode );
+
+      res.json( { product } );
+
+    }
+    catch(e) {
+      next( e );
+    }
+
+  }
+
+  async function saveInternalProductData( req, res, next ) {
+
+    try {
+      const { productData: data } = req.body;
+
+      const response = await productData.saveInternalProductData( data );
+
+      res.json( response );
+
+    }
+    catch(e) {
+      next( e );
+    }
+
+  }
+
 
   /**************************************
    * Return routes
