@@ -34,6 +34,7 @@ angular.module('myApp').controller('EditManifestCtrl', [
           validateInventory,
           addInventoryItem,
           deleteInventoryItem,
+          editProductData,
           saveManifest,
           saveManifestAndExit,
 
@@ -75,6 +76,10 @@ angular.module('myApp').controller('EditManifestCtrl', [
 
     function addInventoryItem() {
       vm.lot.addInventory();
+    }
+
+    function editProductData( item ) {
+      item.setAsDirty();
     }
 
     async function saveManifest() {

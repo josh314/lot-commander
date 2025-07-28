@@ -312,6 +312,7 @@ angular.module('myApp').factory( 'Lot', [
       constructor( data ) {
 
         this.data = data;
+        this.isDirty = false;
         this.errors = {};
 
         if( !this.data.quantity || this.data.quantity<0 ) {
@@ -319,6 +320,10 @@ angular.module('myApp').factory( 'Lot', [
         }
 
 
+      }
+
+      setAsDirty() {
+        this.isDirty = true;
       }
 
       validate() {
@@ -789,7 +794,33 @@ angular.module('myApp').factory( 'Lot', [
           }
         }
 
-        return $q.when( api.saveLotManifest( this._id, inventoryData ) );
+        return this.saveManuallyInputProductData().then( _ => {
+
+          return $q.when( api.saveLotManifest( this._id, inventoryData ) );
+
+        });
+
+      }
+
+      saveManuallyInputProductData() {
+
+        if( !this._inventory ) {
+          return Promise.resolve();
+        }
+
+        const dirtyProductData = this._inventory.filter( item => item.isDirty ).map( item => {
+          const data = { ...item.data };
+          if( data.quantity ) {
+            delete data.quantity;
+          }
+          return data;
+        });
+
+        if( dirtyProductData.length === 0 ) {
+          return Promise.resolve();
+        }
+
+        return ProductDataSvc.saveInternalProductData( dirtyProductData );
 
       }
 

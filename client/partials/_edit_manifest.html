@@ -22,18 +22,18 @@
 					<tr ng-repeat="$item in $ctrl.lot.getInventorySortedByBarcode()">
 						<td>
               <div style="display:flex; flex-direction:column;">
-                <input type="text" size=16 ng-model="$item.data.barcode">
+                <input type="text" size=16 ng-model="$item.data.barcode" ng-change="$ctrl.editProductData( $item )">
                 <span ng-show="$item.errors.duplicateBarcode" class="text-danger" role="alert">
                   <strong>Duplicate barcode!</strong>
                 </span>
               </div>
             </td>
-            <td ng-show="$ctrl.showAsin"><input type="text" size="12" ng-model="$item.data.asin"></td>
-						<td><input type="text" size="64" ng-model="$item.data.description"></td>
+            <td ng-show="$ctrl.showAsin"><input type="text" size="12" ng-model="$item.data.asin" ng-change="$ctrl.editProductData( $item )"></td>
+						<td><input type="text" size="64" ng-model="$item.data.description" ng-change="$ctrl.editProductData( $item )"></td>
 						<td><input type="number" style="width: 4em" ng-model="$item.data.quantity" min="0"></td>
             <td>
               <div class="form-group" ng-class="{ 'has-error' : $item.errors.price }">
-                <input type="text" class="form-control" name="price" ng-model="$item.data.price" size="6">
+                <input type="text" class="form-control" name="price" ng-model="$item.data.price" size="6" ng-change="$ctrl.editProductData( $item )">
               </div>
             </td>
 						<td><button class="btn btn-danger btn-xs" ng-click="$ctrl.deleteInventoryItem( $item )"><span class="glyphicon glyphicon-remove"></span></button></td>

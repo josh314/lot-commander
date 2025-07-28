@@ -62,6 +62,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
           editShippingItemsModal,
           validateInventory,
           isManifestChanged,
+          editProductData,
 
           // media files
           showMedia: false,
@@ -94,6 +95,10 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
       }
 
+    }
+
+    function editProductData( item ) {
+      item.setAsDirty();
     }
 
     const save = () => {
