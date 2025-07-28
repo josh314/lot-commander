@@ -9,15 +9,14 @@ const mongoose = require('mongoose');
 const productDataSchema = mongoose.Schema({
 
   barcode: String,
-  title: String,
+  asin: String,
+  description: String,
   brand: String,
-  price: String,
-  images: [
-    String
-  ]
+  price: Number,
+  images: [ String ],
 
 });
 
 module.exports = {
-  productDataSchema
+  schema: productDataSchema
 };

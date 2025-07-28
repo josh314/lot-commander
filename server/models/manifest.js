@@ -1,4 +1,8 @@
 const mongoose = require('mongoose');
+const productData = require( './product-data' );
+
+const { extendSchema } = require( './mongoose-extend-schema' );
+
 
 const manifestSchema = mongoose.Schema({
 
@@ -10,17 +14,7 @@ const manifestSchema = mongoose.Schema({
 
   description: String,
 
-  inventory: [{
-    barcode: String,
-    asin: String,
-    quantity: Number,
-    description: String,
-    brand: String,
-    price: Number,
-    isAggPrice: Boolean,
-    images: [ String ],
-    _id: false
-  }],
+  inventory: [ extendSchema( productData.schema, { _id: false, quantity: Number } ) ],
 
 }, { collection: 'manifests', timestamps: true } );
 

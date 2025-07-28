@@ -112,7 +112,7 @@ class $_ {
 
       if( fallbackProductDataResult && fallbackProductDataResult.data ) {
         console.log(`Fallback product data found for barcode ${ barcode }...`);
-        const fallbackData = fallbackProductDataResult.toObject().data;
+        const fallbackData = fallbackProductDataResult.getData();
         Object.assign( product, fallbackData );
       }
     }
