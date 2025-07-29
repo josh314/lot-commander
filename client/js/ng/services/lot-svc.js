@@ -318,7 +318,7 @@ angular.module('myApp').factory( 'Lot', [
         if( !this.data.quantity || this.data.quantity<0 ) {
           this.data.quantity = 0;
         }
-
+        this.data.title = this.data.title || this.data.description;
 
       }
 

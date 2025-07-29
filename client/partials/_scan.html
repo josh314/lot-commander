@@ -154,8 +154,15 @@
               <div id="item-thumbnail-container-{{$item.data.barcode}}">
               </div>
 						</td>
-						<td><input type="text" size=14 ng-model="$item.data.barcode" ng-change="$ctrl.editProductData( $item )"></td>
-						<td><input type="text" size="52" ng-model="$item.data.description" ng-change="$ctrl.editProductData( $item )"></td>
+            <td>
+              <div style="display:flex; flex-direction:column;">
+                <input type="text" size=16 ng-model="$item.data.barcode" ng-change="$ctrl.editProductData( $item )">
+                <span ng-show="$item.errors.duplicateBarcode" class="text-danger" role="alert">
+                  <strong>Duplicate barcode!</strong>
+                </span>
+              </div>
+            </td>
+						<td><input type="text" size="52" ng-model="$item.data.title" ng-change="$ctrl.editProductData( $item )"></td>
             <td><input type="text" size="12" ng-model="$item.data.brand" ng-change="$ctrl.editProductData( $item )"></td>
 						<td style="display:flex; flex-direction:column;">
               <span>
