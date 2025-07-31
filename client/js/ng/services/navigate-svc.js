@@ -26,9 +26,9 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     $state.go( 'main.lots.scan', { lotId: lotId } );
   };
 
-  const editLotManifest = lotId => {
+  const reviewLotManifest = lotId => {
     $anchorScroll();
-    $state.go( 'main.lots.edit-manifest', { lotId: lotId } );
+    $state.go( 'main.lots.review-manifest', { lotId: lotId } );
   };
 
   const listLots = () => {
@@ -135,7 +135,6 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
 
   return {
     cleanManifest,
-    editLotManifest,
     history,
     home,
     imageEditor,
@@ -147,6 +146,7 @@ angular.module('myApp').factory( 'navigate', [ '$anchorScroll', '$state', functi
     pickOrder,
     reload,
     repackPallet,
+    reviewLotManifest,
     scanLot,
     scrollToTop,
     splitPallet,

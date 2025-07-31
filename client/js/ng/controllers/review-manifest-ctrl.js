@@ -1,8 +1,8 @@
 import angular from 'angular';
 import * as util from '../../utilities';
 
-/******************* Edit Manifest Page Controller *************************/
-angular.module('myApp').controller('EditManifestCtrl', [
+/******************* Review Manifest Page Controller *************************/
+angular.module('myApp').controller('ReviewManifestCtrl', [
 
   'LotSvc',
   'ModalSvc',

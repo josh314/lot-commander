@@ -67,7 +67,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
           verifyListingAndNavigateToSubmission,
           scanItems,
-          editManifest,
+          reviewManifest,
           linkManifestBlock,
           openGallery,
           generateManifestFileForScannedInventory,
@@ -165,9 +165,9 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
     }
 
-    function editManifest() {
+    function reviewManifest() {
 
-      navigate.editLotManifest( vm.lot._id );
+      navigate.reviewLotManifest( vm.lot._id );
 
     }
 
