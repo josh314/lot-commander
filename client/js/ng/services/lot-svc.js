@@ -556,6 +556,40 @@ angular.module('myApp').factory( 'Lot', [
         return this.listingData && this.listingData.body ? $sce.trustAsHtml( this.listingData.body ) : '';
       }
 
+      /****************************************
+       * Status
+       *
+       ***********/
+
+      setStatus( status ) {
+        const idx = dbEnums.lotStatus.find( _status => status == _status );
+        if( idx < 0 ) {
+          throw new Error(`Invalid lot status: ${ status }`);
+        }
+
+        this.status = status;
+      }
+
+      statusIsAtLeast( status ) {
+        const idx = dbEnums.lotStatus.find( _status => status == _status );
+        if( idx < 0 ) {
+          throw new Error(`Invalid lot status: ${ status }`);
+        }
+
+        return this.getStatusIndex() >= idx;
+      }
+
+      getStatusIndex() {
+        return dbEnums.lotStatus.find( _status => this.status == _status );
+      }
+
+      markAsReviewed() {
+
+        if( !this.statusIsAtLeast( 'Reviewed' ) ) {
+          this.setStatus( 'Reviewed' );
+        }
+
+      }
 
       /****************************************
        * Brands

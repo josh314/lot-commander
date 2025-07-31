@@ -35,12 +35,13 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
           showQuantity: true,
           showPrice: true,
 
-          validateInventory,
           addInventoryItem,
           deleteInventoryItem,
+          finishReviewing,
           editProductData,
           saveManifest,
           saveManifestAndExit,
+          validateInventory,
 
           util,
         }
@@ -118,6 +119,27 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
 
         }
       });
+
+    }
+
+    async function finishReviewing() {
+
+      const isConfirmed = await ModalSvc.confirm({
+        header: 'Finished?',
+        body: 'This will save the current manifest and mark the lot as reviewed. Continue?'
+      });
+
+      if( isConfirmed ) {
+
+        const { success, manifest: _manifest } = await saveManifest();
+
+        if( success ) {
+          vm.lot.markAsReviewed();
+          await vm.lot.save();
+          navigate.viewLot( vm.lot._id );
+        }
+
+      }
 
     }
 

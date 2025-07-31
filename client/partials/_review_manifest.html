@@ -1,14 +1,50 @@
 <div class="container" ng-controller="ReviewManifestCtrl as $ctrl">
 	<div class="row">
 		<div class="well">
-			<h3>Review Manifest</h3>
+			<h2>Review Manifest</h2>
 
-      <div class="col-xs-3 row pull-right" style="display:flex; flex-direction:column;">
-        <div>
+      <div class="col-xs-12 row" style="margin-bottom: 40px">
+				<div class="col-xs-3 row">
+					<div class="col-xs-12 text-center">
+						<h3>Handle</h3>
+					</div>
+					<div class="col-xs-12 text-center">
+						<h4 class="text-danger">{{ $ctrl.lot.handle }}</h4>
+					</div>
+				</div>
+				<div class="col-xs-3 row">
+					<div class="col-xs-12 text-center">
+						<h3>SKU Count</h3>
+					</div>
+					<div class="col-xs-12 text-center">
+						<h4 class="text-danger">{{ $ctrl.lot.getNumSku() }}</h4>
+					</div>
+				</div>
+				<div class="col-xs-3 row">
+					<div class="col-xs-12 text-center">
+						<h3>Inventory Count</h3>
+					</div>
+					<div class="col-xs-12 text-center" style="background: lightgray; border-radius: 50px; border: solid 1px grey;">
+						<h4 class="text-danger">{{ $ctrl.lot.getInventoryTotal() }}</h4>
+					</div>
+				</div>
+				<div class="col-xs-3 row pull-right" style="display:flex; flex-direction:column;">
+          <div style="margin-bottom:8px;">
+            <a class="btn btn-primary" ng-click="$ctrl.finishReviewing()">Finish reviewing</a>
+          </div>
+          <div>
           <a class="btn btn-success" ng-click="$ctrl.saveManifest()" ng-disabled="!$ctrl.validateInventory()">Save</a>
-          <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & finish</a>
+          <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & exit</a>
         </div>
-      </div>
+				</div>
+			</div>
+<!--
+  <div class="col-xs-3 row pull-right" style="display:flex; flex-direction:column;">
+    <div>
+      <a class="btn btn-success" ng-click="$ctrl.saveManifest()" ng-disabled="!$ctrl.validateInventory()">Save</a>
+      <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & finish</a>
+    </div>
+  </div> -->
 			<table class="table table-striped">
 				<thead><tr>
 					<th>Barcode</th>
@@ -77,7 +113,7 @@
             </td>
 						<td>
               <span ng-show="$ctrl.showQuantity" ng-class="{ 'has-error' : $item.errors.quantity }">
-                <input class="form-control" type="text" inputmode="numeric" size="5" ng-model="$item.data.quantity" ng-change="$ctrl.editProductData( $item )" min="0">
+                <input class="form-control" type="number" size="5" ng-model="$item.data.quantity" ng-change="$ctrl.editProductData( $item )" min="0">
               </span>
             </td>
             <td>
