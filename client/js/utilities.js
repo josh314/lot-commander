@@ -143,3 +143,7 @@ export function createSubobject( obj, fields ) {
 export function getRandomArrayIndex( arr ) {
   return Math.floor(Math.random() * arr.length ); // 0 <= Math.random() < 1
 }
+
+export function isAsin( str ) {
+  return typeof str === 'string' && str.match(/^B[A-Z0-9]{9}$/);
+}

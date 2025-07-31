@@ -12,29 +12,78 @@
 			<table class="table table-striped">
 				<thead><tr>
 					<th>Barcode</th>
-          <th ng-show="$ctrl.showAsin">ASIN</th>
-					<th>Title</th>
-					<th>Quantity</th>
-					<th>Price</th>
+          <th ng-click="$ctrl.showAsin = !$ctrl.showAsin">
+            <span ng-show="$ctrl.showAsin">ASIN <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
+            <span ng-hide="$ctrl.showAsin"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
+          </th>
+          <th ng-click="$ctrl.showTitle = !$ctrl.showTitle">
+            <span ng-show="$ctrl.showTitle">Title <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
+            <span ng-hide="$ctrl.showTitle"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
+          </th>
+          <th ng-click="$ctrl.showBrand = !$ctrl.showBrand">
+            <span ng-show="$ctrl.showBrand">Brand <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
+            <span ng-hide="$ctrl.showBrand"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
+          </th>
+          <th ng-click="$ctrl.showQuantity = !$ctrl.showQuantity">
+            <span ng-show="$ctrl.showQuantity">Quantity <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
+            <span ng-hide="$ctrl.showQuantity"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
+          </th>
+          <th ng-click="$ctrl.showPrice = !$ctrl.showPrice">
+            <span ng-show="$ctrl.showPrice">Price <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
+            <span ng-hide="$ctrl.showPrice"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
+          </th>
 					<th>Delete</th>
 				</tr></thead>
 				<tbody>
 					<tr ng-repeat="$item in $ctrl.lot.getInventorySortedByBarcode()">
 						<td>
               <div style="display:flex; flex-direction:column;">
-                <input type="text" size=14 ng-model="$item.data.barcode" ng-change="$ctrl.editProductData( $item )">
+                <input class="form-control" type="text" size="12" ng-model="$item.data.barcode" ng-change="$ctrl.editProductData( $item )">
                 <span ng-show="$item.errors.duplicateBarcode" class="text-danger" role="alert">
                   <strong>Duplicate barcode!</strong>
                 </span>
               </div>
             </td>
-            <td ng-show="$ctrl.showAsin"><input type="text" size="12" ng-model="$item.data.asin" ng-change="$ctrl.editProductData( $item )"></td>
-            <td><input type="text" size="64" ng-model="$item.data.title" ng-change="$ctrl.editProductData( $item )"></td>
-						<td><input type="number" style="width: 4em" ng-model="$item.data.quantity" min="0"></td>
             <td>
-              <div class="form-group" ng-class="{ 'has-error' : $item.errors.price }">
+              <span ng-show="$ctrl.showAsin">
+                <input class="form-control" type="text" size="12" ng-model="$item.data.asin" ng-change="$ctrl.editProductData( $item )" ng-disabled="$item.barcodeIsAsin">
+              </span>
+            </td>
+						<td>
+              <span ng-show="$ctrl.showTitle">
+                <textarea
+                  class="form-control"
+                  cols="54"
+                  rows="{{ $item.titleIsFocused ? 4 : 1 }}"
+                  ng-model="$item.data.title"
+                  ng-change="$ctrl.editProductData( $item )"
+                  ng-focus="$item.titleIsFocused = true"
+                  ng-blur="$item.titleIsFocused = false"
+                ></textarea>
+              </span>
+            </td>
+            <td>
+              <span ng-show="$ctrl.showBrand">
+                <textarea
+                  class="form-control"
+                  cols="{{ $item.brandIsFocused ? 16 : 10 }}"
+                  rows="{{ $item.brandIsFocused ? 3 : 1 }}"
+                  ng-model="$item.data.brand"
+                  ng-change="$ctrl.editProductData( $item )"
+                  ng-focus="$item.brandIsFocused = true"
+                  ng-blur="$item.brandIsFocused = false"
+                ></textarea>
+              </span>
+            </td>
+						<td>
+              <span ng-show="$ctrl.showQuantity" ng-class="{ 'has-error' : $item.errors.quantity }">
+                <input class="form-control" type="text" inputmode="numeric" size="5" ng-model="$item.data.quantity" ng-change="$ctrl.editProductData( $item )" min="0">
+              </span>
+            </td>
+            <td>
+              <span ng-show="$ctrl.showPrice" ng-class="{ 'has-error' : $item.errors.price }">
                 <input type="text" class="form-control" name="price" ng-model="$item.data.price" size="6" ng-change="$ctrl.editProductData( $item )">
-              </div>
+              </span>
             </td>
 						<td><button class="btn btn-danger btn-xs" ng-click="$ctrl.deleteInventoryItem( $item )"><span class="glyphicon glyphicon-remove"></span></button></td>
 					</tr>

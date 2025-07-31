@@ -30,6 +30,10 @@ angular.module('myApp').controller('EditManifestCtrl', [
         {
 
           showAsin: false,
+          showTitle: true,
+          showBrand: true,
+          showQuantity: true,
+          showPrice: true,
 
           validateInventory,
           addInventoryItem,

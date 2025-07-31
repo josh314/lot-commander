@@ -315,11 +315,17 @@ angular.module('myApp').factory( 'Lot', [
         this.isDirty = false;
         this.errors = {};
 
-        if( !this.data.quantity || this.data.quantity<0 ) {
+        // validation and normalization
+        this.data.quantity = parseInt(this.data.quantity);
+        if( this.data.quantity<0 || isNaN( this.data.quantity )  ) {
           this.data.quantity = 0;
         }
         this.data.title = this.data.title || this.data.description;
 
+        if( this.data.barcode && util.isAsin( this.data.barcode ) ) {
+          this.barcodeIsAsin = true;
+          this.data.asin = this.data.asin || this.data.barcode;
+        }
       }
 
       setAsDirty() {
@@ -327,7 +333,17 @@ angular.module('myApp').factory( 'Lot', [
       }
 
       validate() {
-        return this.validatePrice();
+        const quantityValid = this.validateQuantity();
+        const priceValid = this.validatePrice();
+        return quantityValid && priceValid;
+      }
+
+      validateQuantity() {
+        const quantityError = this.data.quantity === undefined || this.data.quantity === null || isNaN(this.data.quantity) || parseInt(this.data.quantity) < 0;
+
+        this.errors.quantity = quantityError;
+
+        return !quantityError;
       }
 
       validatePrice() {
