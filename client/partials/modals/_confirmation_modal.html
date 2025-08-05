@@ -1,8 +1,8 @@
 <div>
-  <div class="modal-header">
+  <div class="modal-header warning">
     <h3 class="modal-title" ng-class="$ctrl.messageSeverity">{{ $ctrl.message.header }}</h3>
   </div>
-  <div class="modal-body">
+  <div class="modal-body warning">
     <div class="row">
       <div class="col-xs-12">
         <p ng-show="$ctrl.message.body">{{ $ctrl.message.body }}</p>
@@ -10,8 +10,8 @@
       </div>
     </div>
   </div>
-  <div class="modal-footer">
-    <button class="btn btn-danger" type="button" ng-click="$close( true )">Yes</button>
-    <button class="btn btn-warning" type="button" ng-click="$close( false )">No</button>
+  <div class="modal-footer warning">
+    <button class="btn btn-danger" type="button" ng-click="$close( true )">{{ $ctrl.message.trueText || 'Yes' }}</button>
+    <button class="btn btn-warning" type="button" ng-click="$close( false )">{{ $ctrl.message.falseText || 'No' }}</button>
   </div>
 </div>
