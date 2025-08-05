@@ -1,6 +1,7 @@
 import angular from 'angular';
 
 import * as util from '../../utilities';
+import { palletProperties } from '../../constants';
 
 /******************* Shipment Details Page Controller *************************/
 angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
@@ -16,7 +17,6 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
   'PackageSvc',
   'PalletLotSvc',
   'PalletManifestSvc',
-  'palletProperties',
   'PrintSvc',
   'sessionTimeout',
   'ShipmentManagerSvc',
@@ -34,7 +34,6 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     PackageSvc,
     PalletLotSvc,
     PalletManifestSvc,
-    palletProperties,
     PrintSvc,
     sessionTimeout,
     ShipmentManagerSvc,

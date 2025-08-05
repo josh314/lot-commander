@@ -1,4 +1,5 @@
 import angular from 'angular';
+import { palletProperties } from '../../constants';
 
 /****************** Edit Lot Modal Controller ***********************/
 angular.module('myApp').controller( 'EditLotModalCtrl', [
@@ -8,7 +9,6 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
   'LoggedInUser',
   'lot',
   'LotSvc',
-  'palletProperties',
   'ModalSvc',
   'ShippingItemsSvc',
 
@@ -19,7 +19,6 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
     LoggedInUser,
     lot,
     LotSvc,
-    palletProperties,
     ModalSvc,
     ShippingItemsSvc
 

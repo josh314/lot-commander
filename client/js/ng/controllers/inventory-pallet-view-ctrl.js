@@ -2,6 +2,7 @@ import angular from 'angular';
 import dayjs from 'dayjs';
 
 import * as util from '../../utilities';
+import { palletProperties } from '../../constants';
 
 const __PAGE_SIZE__ = 25;
 const __USER_SETTINGS_SUBKEY__ = 'inventory-pallet-view-page';
@@ -17,7 +18,6 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
   'LoggedInUser',
   'navigate',
   'PalletLotSvc',
-  'palletProperties',
   'sessionTimeout',
   'ShipmentManagerSvc',
 
@@ -28,7 +28,6 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
     LoggedInUser,
     navigate,
     PalletLotSvc,
-    palletProperties,
     sessionTimeout,
     ShipmentManagerSvc,
 

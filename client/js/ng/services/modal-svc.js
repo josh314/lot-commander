@@ -1,6 +1,7 @@
 import angular from 'angular';
 
 import * as util from '../../utilities';
+import { palletProperties } from '../../constants';
 
 /******************* One Modal Service to Rule Them All ******************************/
 angular.module('myApp').factory('ModalSvc', [
@@ -340,7 +341,6 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         'navigate',
         'PackagingTypeInfoModalSvc',
         'pallet',
-        'palletProperties',
         'PrintSvc',
         'ShippingItemsSvc',
         'WaitingModalSvc',
@@ -365,7 +365,6 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
     navigate,
     PackagingTypeInfoModalSvc,
     pallet,
-    palletProperties,
     PrintSvc,
     ShippingItemsSvc,
     WaitingModalSvc
@@ -614,7 +613,7 @@ angular.module('myApp').factory( 'MergeSheetsOptionsModalSvc', [ '$uibModal', fu
             return JSON.parse( JSON.stringify( sheetnames ) );
           },
         },
-        controller:  [ 'palletProperties', 'sheetnames', 'StandardManifestColumnsConst', function( palletProperties, sheetnames, StandardManifestColumnsConst ){
+        controller:  [ 'sheetnames', 'StandardManifestColumnsConst', function( sheetnames, StandardManifestColumnsConst ){
 
           const vm = this;
           vm.inputs = {

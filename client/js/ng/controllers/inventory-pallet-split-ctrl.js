@@ -4,6 +4,7 @@ import {
   upce2upca,
 } from '../../upc';
 import * as util from '../../utilities';
+import { palletProperties } from '../../constants';
 import _ from 'angular-animate';
 
 const __PAGE_SIZE__ = 5;
@@ -87,7 +88,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
   'navigate',
   'PalletLotSvc',
   'PalletManifestSvc',
-  'palletProperties',
   'PrintSvc',
   'sessionTimeout',
   'ShipmentFactory',
@@ -109,7 +109,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
     navigate,
     PalletLotSvc,
     PalletManifestSvc,
-    palletProperties,
     PrintSvc,
     sessionTimeout,
     ShipmentFactory,

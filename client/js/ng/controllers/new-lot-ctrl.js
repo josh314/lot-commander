@@ -1,11 +1,12 @@
 import angular from 'angular';
+import { lotCategories } from '../../constants';
+
 
 /******************* New Lot Controller *************************/
 angular.module('myApp').controller( 'NewLotCtrl', [
 
   'dbEnums',
   'listingBuilder',
-  'lotCategories',
   'LotSvc',
   'ModalSvc',
   'navigate',
@@ -15,7 +16,6 @@ angular.module('myApp').controller( 'NewLotCtrl', [
 
     dbEnums,
     listingBuilder,
-    lotCategories,
     LotSvc,
     ModalSvc,
     navigate,

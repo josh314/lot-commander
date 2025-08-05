@@ -1,4 +1,5 @@
 import angular from 'angular';
+import { palletProperties } from '../../constants';
 
 class InventoryPalletValidator {
   constructor( inputs ) {
@@ -51,7 +52,6 @@ angular.module('myApp').controller( 'InventoryPalletCreationCtrl', [
   'LoggedInUser',
   'ModalSvc',
   'navigate',
-  'palletProperties',
   'sessionTimeout',
   'InventoryPalletManagerSvc',
 
@@ -61,7 +61,6 @@ angular.module('myApp').controller( 'InventoryPalletCreationCtrl', [
     LoggedInUser,
     ModalSvc,
     navigate,
-    palletProperties,
     sessionTimeout,
     InventoryPalletManagerSvc,
 
@@ -137,7 +136,7 @@ angular.module('myApp').controller( 'InventoryPalletCreationCtrl', [
   }
 ]);
 
-angular.module('myApp').factory( 'AddPalletGroupParamsModalSvc', [ '$uibModal', 'palletProperties', function( $uibModal, palletProperties ) {
+angular.module('myApp').factory( 'AddPalletGroupParamsModalSvc', [ '$uibModal', function( $uibModal ) {
 
   return {
     launch: launch,

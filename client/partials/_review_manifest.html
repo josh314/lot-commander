@@ -33,46 +33,62 @@
             <a class="btn btn-primary" ng-click="$ctrl.finishReviewing()">Finish reviewing</a>
           </div>
           <div>
-          <a class="btn btn-success" ng-click="$ctrl.saveManifest()" ng-disabled="!$ctrl.validateInventory()">Save</a>
-          <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & exit</a>
-        </div>
+            <a class="btn btn-success" ng-click="$ctrl.saveManifest()" ng-disabled="!$ctrl.validateInventory()">Save</a>
+            <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & exit</a>
+          </div>
 				</div>
 			</div>
-<!--
-  <div class="col-xs-3 row pull-right" style="display:flex; flex-direction:column;">
-    <div>
-      <a class="btn btn-success" ng-click="$ctrl.saveManifest()" ng-disabled="!$ctrl.validateInventory()">Save</a>
-      <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & finish</a>
-    </div>
-  </div> -->
-			<table class="table table-striped">
+
+      <div class="col-xs-12 row missing-data-top-matter-row" ng-show="$ctrl.lot.numInventoryItemsInvalid() > 0">
+				<div class="col-xs-3 row">
+					<div class="col-xs-12 text-center">
+						<h3>Missing Data</h3>
+					</div>
+					<div class="col-xs-12 text-center missing-data-number-container">
+						<h4 class="text-danger">{{ $ctrl.lot.numInventoryItemsInvalid() }}</h4>
+					</div>
+				</div>
+        <div class="col-xs-3 row" style="display:flex; flex-direction:column;">
+          <div>
+            <a class="btn btn-warning" ng-click="$ctrl.addFallbackData()" ng-disabled="!$ctrl.validateInventory()">Add fallback data</a>
+          </div>
+				</div>
+			</div>
+
+			<table class="table table-striped table-review-manifest">
 				<thead><tr>
-					<th>Barcode</th>
-          <th ng-click="$ctrl.showAsin = !$ctrl.showAsin">
+          <th class="checkbox-col">
+            <input type="checkbox" ng-model="$ctrl.selectAll">
+          </th>
+					<th class="barcode-col">Barcode</th>
+          <th class="asin-col" ng-click="$ctrl.showAsin = !$ctrl.showAsin">
             <span ng-show="$ctrl.showAsin">ASIN <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
             <span ng-hide="$ctrl.showAsin"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
           </th>
-          <th ng-click="$ctrl.showTitle = !$ctrl.showTitle">
+          <th class="title-col" ng-click="$ctrl.showTitle = !$ctrl.showTitle">
             <span ng-show="$ctrl.showTitle">Title <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
             <span ng-hide="$ctrl.showTitle"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
           </th>
-          <th ng-click="$ctrl.showBrand = !$ctrl.showBrand">
+          <th class="brand-col" ng-click="$ctrl.showBrand = !$ctrl.showBrand">
             <span ng-show="$ctrl.showBrand">Brand <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
             <span ng-hide="$ctrl.showBrand"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
           </th>
-          <th ng-click="$ctrl.showQuantity = !$ctrl.showQuantity">
+          <th class="quantity-col" ng-click="$ctrl.showQuantity = !$ctrl.showQuantity">
             <span ng-show="$ctrl.showQuantity">Quantity <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
             <span ng-hide="$ctrl.showQuantity"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
           </th>
-          <th ng-click="$ctrl.showPrice = !$ctrl.showPrice">
+          <th class="price-col" ng-click="$ctrl.showPrice = !$ctrl.showPrice">
             <span ng-show="$ctrl.showPrice">Price <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
             <span ng-hide="$ctrl.showPrice"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
           </th>
-					<th>Delete</th>
+					<th class="delete-col">Delete</th>
 				</tr></thead>
 				<tbody>
-					<tr ng-repeat="$item in $ctrl.lot.getInventorySortedByBarcode()">
-						<td>
+					<tr ng-repeat="$item in $ctrl.lot.getInventorySortedByBarcode()" ng-class="{ 'problem-line-item' : !$item.validate() }">
+            <td>
+              <input type="checkbox" ng-model="$item.selected">
+            </td>
+            <td>
               <div style="display:flex; flex-direction:column;">
                 <input class="form-control" type="text" size="12" ng-model="$item.data.barcode" ng-change="$ctrl.editProductData( $item )">
                 <span ng-show="$item.errors.duplicateBarcode" class="text-danger" role="alert">
@@ -86,7 +102,7 @@
               </span>
             </td>
 						<td>
-              <span ng-show="$ctrl.showTitle">
+              <span ng-show="$ctrl.showTitle" ng-class="{ 'has-error' : $item.errors.title }">
                 <textarea
                   class="form-control"
                   cols="54"

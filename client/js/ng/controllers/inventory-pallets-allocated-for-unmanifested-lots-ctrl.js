@@ -1,4 +1,5 @@
 import angular from 'angular';
+import { palletProperties } from '../../constants';
 
 const __PAGE_SIZE__ = 25;
 
@@ -7,7 +8,6 @@ angular.module('myApp').controller( 'InventoryPalletsAllocatedForUnmanifestedLot
 
   'InventoryPalletManagerSvc',
   'LoggedInUser',
-  'palletProperties',
   'sessionTimeout',
   'ShipmentManagerSvc',
 
@@ -15,7 +15,6 @@ angular.module('myApp').controller( 'InventoryPalletsAllocatedForUnmanifestedLot
 
     InventoryPalletManagerSvc,
     LoggedInUser,
-    palletProperties,
     sessionTimeout,
     ShipmentManagerSvc,
 

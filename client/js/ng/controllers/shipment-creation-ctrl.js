@@ -1,6 +1,7 @@
 import angular from 'angular';
 
 import * as util from '../../utilities';
+import { palletProperties } from '../../constants';
 
 class ShipmentValidator {
   constructor( inputs ) {
@@ -66,7 +67,6 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
   'ManifestFileHandlerSvc',
   'ModalSvc',
   'navigate',
-  'palletProperties',
   'sessionTimeout',
   'ShipmentManagerSvc',
 
@@ -78,7 +78,6 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
     ManifestFileHandlerSvc,
     ModalSvc,
     navigate,
-    palletProperties,
     sessionTimeout,
     ShipmentManagerSvc,
 

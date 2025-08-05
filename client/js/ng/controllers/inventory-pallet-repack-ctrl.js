@@ -3,6 +3,7 @@ import {
   isUpce,
   upce2upca,
 } from '../../upc';
+import { palletProperties } from '../../constants';
 
 const __PAGE_SIZE__ = 5;
 
@@ -36,7 +37,6 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
   'ModalSvc',
   'navigate',
   'PalletManifestSvc',
-  'palletProperties',
   'sessionTimeout',
   'StandardManifestColumnsConst',
 
@@ -50,7 +50,6 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
     ModalSvc,
     navigate,
     PalletManifestSvc,
-    palletProperties,
     sessionTimeout,
     StandardManifestColumnsConst,
 
