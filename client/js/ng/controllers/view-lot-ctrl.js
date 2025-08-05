@@ -197,7 +197,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       });
     };
 
-    function verifyListingAndNavigateToSubmission() {
+    async function verifyListingAndNavigateToSubmission() {
 
       if( vm.lot.hasListing() ) {
         return ModalSvc.message( { header: 'Lot has listing', body: 'This lot already has a successfully submitted listing.' } );
@@ -227,6 +227,15 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
         return ModalSvc.message( { header: 'No manifest', body: 'This lot has not yet been manifested.' } );
 
+      }
+
+      if( vm.lot.hasScannedManifest() && !vm.lot.statusIsAtLeast( 'Reviewed' ) ) {
+        // return ModalSvc.message( { header: 'Manifest not reviewed', body: 'The lot manifest has not yet been reviewed.' } );
+        const reviewNow = await ModalSvc.confirm( {
+          header: 'Manifest not reviewed',
+          body: 'The lot manifest has not yet been reviewed. Would you like to review it now?',
+        } );
+        return reviewNow && vm.reviewManifest();
       }
 
       return navigate.submitListing( vm.lot._id );

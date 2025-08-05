@@ -29,18 +29,25 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
         vm,
         {
 
+          displayItems: [],
+
+          selectAll: false,
           showAsin: false,
           showTitle: true,
           showBrand: true,
           showQuantity: true,
           showPrice: true,
 
+          addFallbackData,
           addInventoryItem,
           deleteInventoryItem,
+          disableAddFallbackData,
           finishReviewing,
           editProductData,
           saveManifest,
           saveManifestAndExit,
+          toggleSelectAll,
+          toggleSelected,
           validateInventory,
 
           util,
@@ -50,11 +57,18 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
       LotSvc.load( )
         .then( lot => {
 
-          vm.lot = lot;
+          if( lot ) {
 
-          if( lot && lot.hasAsins() ) {
-            vm.showAsin = true;
+            vm.lot = lot;
+
+            vm.displayItems = vm.lot.getInventorySortedByBarcode();
+
+            if( lot.hasAsins() ) {
+              vm.showAsin = true;
+            }
+
           }
+
 
         } );
 
@@ -87,26 +101,67 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
       item.setAsDirty();
     }
 
+    function toggleSelectAll() {
+      vm.displayItems.filter( item => item.hasError() ).forEach( item => item.selected = vm.selectAll );
+    }
+
+    function toggleSelected() {
+      vm.selectAll = vm.displayItems.filter( item => item.hasError() ).every( item => item.selected );
+    }
+
+    function disableAddFallbackData() {
+      return !vm.displayItems.some( item => item.selected );
+    }
+
+    async function addFallbackData() {
+
+      const selectedItems = vm.displayItems.filter( item => item.selected );
+      if( selectedItems.length === 0 ) {
+        return;
+      }
+
+      const isConfirmed = await ModalSvc.confirm( {
+        header: 'Add fallback data?',
+        body: `This will add fallback data to ${ selectedItems.length } selected item(s) that are missing data. Continue?`,
+        type: 'warning',
+        trueText: 'Yes',
+        falseText: 'Cancel'
+      } );
+
+      if( isConfirmed ) {
+
+        selectedItems.forEach( item => {
+          item.addFallbackData();
+          item.selected = false;
+        });
+
+        vm.selectAll = false;
+
+      }
+
+    }
+
     async function saveManifest() {
 
-      if( validateInventory() ) {
+      if( !validateInventory() ) {
 
-        const manifest = await save();
-        console.log('saveManifest result:', manifest);
-        return { success: true, manifest };
-
-      }
-      else {
-
-        ModalSvc.message( {
+        const isConfirmed = await ModalSvc.confirm( {
           header: 'Invalid data',
-          html: `<p>The data for this manifest is invalid. Please correct these errors:</p> ${ vm.lot.composeInventoryErrorsHtmlMessage() }`,
+          html: `<p>The data for this manifest is invalid with the following errors:</p> ${ vm.lot.composeInventoryErrorsHtmlMessage() }`,
           type: 'error',
+          trueText: 'Save anyway',
+          falseText: 'Cancel'
         } );
 
-        return { success: false };
+        if( !isConfirmed ) {
+          return { success: false };
+        }
 
       }
+
+      const manifest = await save();
+      console.log('saveManifest result:', manifest);
+      return { success: true, manifest };
 
     }
 

@@ -1613,7 +1613,13 @@ export function saveInternalProductData( productData ) {
   })
     .then( resp => resp.data );
 }
-
+export function getFallbackProductData( barcode ) {
+  return axios({
+    method: 'get',
+    url: `/api/product-data/fallback/${ barcode }`
+  })
+    .then( resp => resp.data );
+}
 
 /*************************************************
 * Packages

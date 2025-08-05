@@ -42,6 +42,15 @@ function routes( { productData } ) {
     saveInternalProductData
   );
 
+  router.get(
+    '/fallback/:barcode',
+    getFallbackDataForBarcode
+  );
+  router.post(
+    '/fallback/bulk-get',
+    bulkGetFallbackData
+  );
+
 
   /*******************************************
    * Define Handlers & Middleware
@@ -131,6 +140,37 @@ function routes( { productData } ) {
 
   }
 
+  async function getFallbackDataForBarcode( req, res, next ) {
+
+    try {
+      const barcode = req.params.barcode;
+
+      const product = await productData.getFallbackData( barcode );
+
+      res.json( { product } );
+
+    }
+    catch(e) {
+      next( e );
+    }
+
+  }
+
+  async function bulkGetFallbackData( req, res, next ) {
+
+    try {
+      const barcodes = req.body.barcodes;
+
+      const products = await productData.bulkGetFallbackData( barcodes );
+
+      res.json( { products } );
+
+    }
+    catch(e) {
+      next( e );
+    }
+
+  }
 
   /**************************************
    * Return routes

@@ -15,6 +15,8 @@ angular.module('myApp').factory( 'ProductDataSvc', [ '$q',
 
     const saveInternalProductData = productData => $q.when( api.saveInternalProductData( productData ) );
 
+    const getFallbackProductData = barcode => $q.when( api.getFallbackProductData( barcode ) ).then( resp => resp.product );
+
     // expects an instance of the Manifest class
     async function getProductDataFromLoadedManifest( manifest ) {
 
@@ -38,6 +40,7 @@ angular.module('myApp').factory( 'ProductDataSvc', [ '$q',
     }
 
     return {
+      getFallbackProductData,
       getProductDataByBarcode,
       queueProductDataFetching,
       bulkGetProductData,

@@ -52,7 +52,7 @@ function fillerPrice() {
   return Math.floor(Math.random() * (max - min) ) + min + 0.99;
 }
 
-function priceCheck( productData ) {
+function _priceCheck( productData ) {
   if( !productData.price ) {
     productData.price = fillerPrice();
   }
@@ -104,27 +104,6 @@ class $_ {
     }
 
     product.title = product.title || product.description;
-
-    if( !product.title && !product.brand ) {
-
-      const fallbackProductDataResult = await this.FallbackProductData.findOne( {
-        // this query compares `barcode` against each document's `pattern` field (compiled as a regex)
-        $expr: {
-          $regexMatch: {
-            input: barcode,
-            regex: "$pattern",
-          }
-        }
-      } );
-
-      if( fallbackProductDataResult && fallbackProductDataResult.data ) {
-        console.log(`Fallback product data found for barcode ${ barcode }...`);
-        const fallbackData = fallbackProductDataResult.getData();
-        Object.assign( product, fallbackData );
-      }
-    }
-
-    priceCheck( product );
 
     return product;
   }
@@ -183,6 +162,47 @@ class $_ {
       );
 
     }
+
+  }
+
+  async getFallbackData( barcode ) {
+
+    const fallbackProductDataResult = await this.FallbackProductData.findOne( {
+      // this query compares `barcode` against each document's `pattern` field (compiled as a regex)
+      $expr: {
+        $regexMatch: {
+          input: barcode,
+          regex: "$pattern",
+        }
+      }
+    } );
+
+    let fallbackData;
+    if( fallbackProductDataResult && fallbackProductDataResult.data ) {
+      console.log(`Fallback product data found for barcode ${ barcode }...`);
+      fallbackData = fallbackProductDataResult.getData();
+    }
+
+    return fallbackData;
+
+  }
+
+  async bulkGetFallbackData( barcodes ) {
+    // get all fallback product data
+    const fallbackDataArr = await this.FallbackProductData.find( {} );
+
+    return barcodes.map( barcode => {
+
+      const productData = { barcode };
+
+      const match = fallbackDataArr.find( fallbackData => barcode.match( fallbackData.pattern ) );
+      if( match ) {
+        Object.assign( productData, match.getData() );
+      }
+
+      return productData;
+
+    });
 
   }
 

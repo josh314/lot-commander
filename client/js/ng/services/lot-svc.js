@@ -309,9 +309,10 @@ angular.module('myApp').factory( 'Lot', [
 
     class LotInventoryItem {
 
-      constructor( data ) {
+      constructor( data, lot ) {
 
-        this.data = data;
+        this.lot = lot;
+        this.data = JSON.parse( JSON.stringify(data) ); // deep clone
         this.isDirty = false;
         this.errors = {};
 
@@ -333,9 +334,19 @@ angular.module('myApp').factory( 'Lot', [
       }
 
       validate() {
+        this.resetErrors();
+        const titleValid = this.validateTitle();
         const quantityValid = this.validateQuantity();
         const priceValid = this.validatePrice();
-        return quantityValid && priceValid;
+        return quantityValid && priceValid && titleValid;
+      }
+
+      validateTitle() {
+        const titleError = !this.data.title || this.data.title.length === 0;
+
+        this.errors.title = titleError;
+
+        return !titleError;
       }
 
       validateQuantity() {
@@ -348,7 +359,7 @@ angular.module('myApp').factory( 'Lot', [
 
       validatePrice() {
 
-        const priceError = this.data.price && !util.priceRegex.test( this.data.price );
+        const priceError = !util.priceRegex.test( this.data.price );
 
         this.errors.price = priceError;
 
@@ -361,6 +372,28 @@ angular.module('myApp').factory( 'Lot', [
 
       hasError() {
         return Object.values( this.errors ).reduce( ( acc, val ) => acc || val, false);
+      }
+
+      addFallbackData() {
+
+        if( this.hasError() ) {
+
+          if( this.errors.title ) {
+            this.data.title = util.productTitleForCategory( this.lot.category );
+          }
+
+          if( this.errors.quantity ) {
+            this.data.quantity = 0;
+          }
+
+          if( this.errors.price ) {
+            this.data.price = util.fillerPrice();
+          }
+
+          this.validate();
+
+        }
+
       }
 
     }
@@ -490,6 +523,10 @@ angular.module('myApp').factory( 'Lot', [
         } ).sort( cmpLotInventoryData );
 
         return JSON.stringify( sortedInventoryData );
+      }
+
+      numInventoryItemsInvalid() {
+        return this._inventory.filter( item => item.hasError() ).length;
       }
 
       /****************************************
@@ -813,7 +850,7 @@ angular.module('myApp').factory( 'Lot', [
 
       // inventory & manifests
       setInventory( _inventory ) {
-        this._inventory = _inventory.map( i => new LotInventoryItem(i) );
+        this._inventory = _inventory.map( i => new LotInventoryItem( i, this ) );
         return this._inventory;
       }
 

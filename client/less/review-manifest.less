@@ -2,8 +2,17 @@
 
 .table.table-review-manifest {
 
+  table-layout: auto;
+
   .problem-line-item, .missing-data-top-matter {
     background: @missing-data-color;
+  }
+
+  .checkbox-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 20px;
   }
 
 }
@@ -21,4 +30,10 @@
     border: solid 1px grey;
   }
 
+}
+
+.well-footer {
+  display: flex;
+  justify-content: flex-start;
+  padding: 10px 40px;
 }

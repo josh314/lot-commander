@@ -30,11 +30,11 @@
 				</div>
 				<div class="col-xs-3 row pull-right" style="display:flex; flex-direction:column;">
           <div style="margin-bottom:8px;">
-            <a class="btn btn-primary" ng-click="$ctrl.finishReviewing()">Finish reviewing</a>
+            <button class="btn btn-primary" ng-click="$ctrl.finishReviewing()" ng-disabled="!$ctrl.validateInventory()">Finish reviewing</button>
           </div>
           <div>
-            <a class="btn btn-success" ng-click="$ctrl.saveManifest()" ng-disabled="!$ctrl.validateInventory()">Save</a>
-            <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & exit</a>
+            <button class="btn btn-success" ng-click="$ctrl.saveManifest()">Save</button>
+            <button class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()">Save & exit</button>
           </div>
 				</div>
 			</div>
@@ -50,62 +50,63 @@
 				</div>
         <div class="col-xs-3 row" style="display:flex; flex-direction:column;">
           <div>
-            <a class="btn btn-warning" ng-click="$ctrl.addFallbackData()" ng-disabled="!$ctrl.validateInventory()">Add fallback data</a>
+            <button class="btn btn-warning" ng-click="$ctrl.addFallbackData()" ng-disabled="$ctrl.disableAddFallbackData()">Add fallback data</button>
           </div>
 				</div>
 			</div>
 
 			<table class="table table-striped table-review-manifest">
+
 				<thead><tr>
-          <th class="checkbox-col">
-            <input type="checkbox" ng-model="$ctrl.selectAll">
+          <th>
+            <input type="checkbox" ng-model="$ctrl.selectAll" ng-change="$ctrl.toggleSelectAll()">
           </th>
-					<th class="barcode-col">Barcode</th>
-          <th class="asin-col" ng-click="$ctrl.showAsin = !$ctrl.showAsin">
+					<th>Barcode</th>
+          <th ng-click="$ctrl.showAsin = !$ctrl.showAsin">
             <span ng-show="$ctrl.showAsin">ASIN <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
             <span ng-hide="$ctrl.showAsin"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
           </th>
-          <th class="title-col" ng-click="$ctrl.showTitle = !$ctrl.showTitle">
+          <th ng-click="$ctrl.showTitle = !$ctrl.showTitle">
             <span ng-show="$ctrl.showTitle">Title <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
             <span ng-hide="$ctrl.showTitle"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
           </th>
-          <th class="brand-col" ng-click="$ctrl.showBrand = !$ctrl.showBrand">
+          <th ng-click="$ctrl.showBrand = !$ctrl.showBrand">
             <span ng-show="$ctrl.showBrand">Brand <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
             <span ng-hide="$ctrl.showBrand"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
           </th>
-          <th class="quantity-col" ng-click="$ctrl.showQuantity = !$ctrl.showQuantity">
+          <th ng-click="$ctrl.showQuantity = !$ctrl.showQuantity">
             <span ng-show="$ctrl.showQuantity">Quantity <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
             <span ng-hide="$ctrl.showQuantity"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
           </th>
-          <th class="price-col" ng-click="$ctrl.showPrice = !$ctrl.showPrice">
+          <th ng-click="$ctrl.showPrice = !$ctrl.showPrice">
             <span ng-show="$ctrl.showPrice">Price <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
             <span ng-hide="$ctrl.showPrice"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
           </th>
-					<th class="delete-col">Delete</th>
+					<th>Delete</th>
 				</tr></thead>
 				<tbody>
-					<tr ng-repeat="$item in $ctrl.lot.getInventorySortedByBarcode()" ng-class="{ 'problem-line-item' : !$item.validate() }">
-            <td>
-              <input type="checkbox" ng-model="$item.selected">
+					<tr ng-repeat="$item in $ctrl.displayItems" ng-class="{ 'problem-line-item' : !$item.validate() }">
+            <td class="checkbox-cell">
+              <input type="checkbox" ng-model="$item.selected" ng-change="$ctrl.toggleSelected()" ng-disabled="!$item.hasError()">
             </td>
             <td>
               <div style="display:flex; flex-direction:column;">
-                <input class="form-control" type="text" size="12" ng-model="$item.data.barcode" ng-change="$ctrl.editProductData( $item )">
+                <input class="form-control" type="text" size="14" ng-model="$item.data.barcode" ng-change="$ctrl.editProductData( $item )">
                 <span ng-show="$item.errors.duplicateBarcode" class="text-danger" role="alert">
                   <strong>Duplicate barcode!</strong>
                 </span>
               </div>
             </td>
             <td>
-              <span ng-show="$ctrl.showAsin">
-                <input class="form-control" type="text" size="12" ng-model="$item.data.asin" ng-change="$ctrl.editProductData( $item )" ng-disabled="$item.barcodeIsAsin">
+              <span ng-show="$ctrl.showAsin" ng-class="{ 'col-collapsed': !$ctrl.showAsin }">
+                <input class="form-control" type="text" size="14" ng-model="$item.data.asin" ng-change="$ctrl.editProductData( $item )" ng-disabled="$item.barcodeIsAsin">
               </span>
             </td>
 						<td>
               <span ng-show="$ctrl.showTitle" ng-class="{ 'has-error' : $item.errors.title }">
                 <textarea
                   class="form-control"
-                  cols="54"
+                  cols="50"
                   rows="{{ $item.titleIsFocused ? 4 : 1 }}"
                   ng-model="$item.data.title"
                   ng-change="$ctrl.editProductData( $item )"
@@ -139,16 +140,14 @@
             </td>
 						<td><button class="btn btn-danger btn-xs" ng-click="$ctrl.deleteInventoryItem( $item )"><span class="glyphicon glyphicon-remove"></span></button></td>
 					</tr>
-					<tr>
-						<td><a class="btn btn-primary btn-xs" ng-click="$ctrl.addInventoryItem()">Add New Item</a></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-					</tr>
 				</tbody>
 			</table>
+
+      <div class="well-footer">
+        <button class="btn btn-primary btn-xs" ng-click="$ctrl.addInventoryItem()">Add New Item</button>
+      </div>
+
 		</div>
-		<div class="col-xs-6"><a class="btn btn-success btn-lg" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & finish</a></div>
+		<div class="col-xs-6"><button class="btn btn-success btn-lg" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & finish</button></div>
 	</div>
 </div>
