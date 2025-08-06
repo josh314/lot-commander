@@ -60,12 +60,14 @@ function routes({
       { name: 'quickLotsBoilerplate', data: quickLots.boilerplate },
     ].reduce((s, item) => { return s + `app.constant('${item.name}', ${JSON.stringify(item.data)});`;}, '');
 
+    res.type( 'text/javascript' );
     res.send( `(function() { 'use strict'; var app = angular.module("myApp"); ${ngConstants} })();` );
 
   }
 
   async function ngAppServerFunctions( _req, res, _next ) {
 
+    res.type( 'text/javascript' );
     res.send(
       `
         (function() {
