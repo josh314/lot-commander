@@ -333,16 +333,17 @@ angular.module('myApp').factory( 'Lot', [
         this.isDirty = true;
       }
 
-      validate() {
+      validate( { allowMissingTitle, allowMissingPrice } = {} ) {
         this.resetErrors();
-        const titleValid = this.validateTitle();
+        const titleValid = this.validateTitle( allowMissingTitle );
         const quantityValid = this.validateQuantity();
-        const priceValid = this.validatePrice();
+        const priceValid = this.validatePrice( allowMissingPrice );
         return quantityValid && priceValid && titleValid;
       }
 
-      validateTitle() {
-        const titleError = !this.data.title || this.data.title.length === 0;
+      validateTitle( allowMissingTitle ) {
+
+        const titleError = allowMissingTitle ? false : !this.data.title || this.data.title.length === 0;
 
         this.errors.title = titleError;
 
@@ -357,9 +358,9 @@ angular.module('myApp').factory( 'Lot', [
         return !quantityError;
       }
 
-      validatePrice() {
+      validatePrice( allowMissingPrice ) {
 
-        const priceError = !util.priceRegex.test( this.data.price );
+        const priceError = allowMissingPrice && !this.data.price ? false : !util.priceRegex.test( this.data.price );
 
         this.errors.price = priceError;
 
@@ -967,7 +968,7 @@ angular.module('myApp').factory( 'Lot', [
         return this.deleteInventoryItemByIndex( idx );
       }
 
-      validateInventory() {
+      validateInventory( options = {} ) {
 
         const barcodes = new Set();
 
@@ -992,12 +993,16 @@ angular.module('myApp').factory( 'Lot', [
             barcodes.add( barcode );
           }
 
-          item.validate();
+          item.validate( options );
 
         }
 
         return !this._inventory.find( item => item.hasError() );
 
+      }
+
+      validateInventoryQuantity() {
+        return this._inventory.every( item => item.validateQuantity() );
       }
 
       composeInventoryErrorsHtmlMessage() {

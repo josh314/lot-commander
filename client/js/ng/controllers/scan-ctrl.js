@@ -3,6 +3,11 @@ import angular from 'angular';
 import * as util from '../../utilities';
 const __MAX_DISPLAY_INVENTORY__ = 50;
 
+const __INVENTORY_VALIDATION_OPTIONS__ = {
+  allowMissingTitle: true,
+  allowMissingPrice: true,
+};
+
 /******************* Scanning Page Controller *************************/
 angular.module('myApp').controller( 'ScanCtrl', [
 
@@ -55,8 +60,6 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
           scanBarcode,
           deleteInventoryItem,
-          decrementInventoryItem,
-          incrementInventoryItem,
           saveManifestAndContinue,
           saveManifestAndExit,
           editShippingItemsModal,
@@ -143,12 +146,12 @@ angular.module('myApp').controller( 'ScanCtrl', [
     }
 
     function validateInventory() {
-      return vm.lot && vm.lot.validateInventory();
+      return vm.lot && vm.lot.validateInventory( __INVENTORY_VALIDATION_OPTIONS__ );
     }
 
     async function saveManifest() {
 
-      if( validateInventory() ) {
+      if( validateInventory( __INVENTORY_VALIDATION_OPTIONS__ ) ) {
 
         const manifest = await ModalSvc.wait({
           waitFor: save(),
@@ -253,14 +256,6 @@ angular.module('myApp').controller( 'ScanCtrl', [
         AudioAlertSvc.fail();
       }
       refreshScanInput();
-    }
-
-    function decrementInventoryItem( item ) {
-      item.data.quantity = item.data.quantity>0 ? item.data.quantity - 1 : 0;
-    }
-
-    function incrementInventoryItem( item ) {
-      item.data.quantity = item.data.quantity + 1;
     }
 
     function deleteInventoryItem( item ) {
