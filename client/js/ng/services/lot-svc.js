@@ -461,13 +461,20 @@ angular.module('myApp').factory( 'Lot', [
       clone() {
 
         // the loaded manifest is not serializable due to circular references, so we need to remove it before stringifying
-        let originalManifest = this.manifest;
+        const originalManifest = this.manifest;
         if( originalManifest ) {
           delete this.manifest;
         }
 
+        // LotInventoryItems are not serializable due to circular references, so we need to remove before stringifying
+        const rawInventory = this.getInventoryDataItems();
+        if( this._inventory ) {
+          delete this._inventory
+        }
+
         const clone = new Lot( JSON.parse( JSON.stringify( this ) ) );
         this.manifest = originalManifest;
+        this.setInventory( rawInventory );
 
         return clone;
 
