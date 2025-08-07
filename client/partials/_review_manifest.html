@@ -97,10 +97,17 @@
                 </span>
               </div>
             </td>
-            <td>
-              <span ng-show="$ctrl.showAsin" ng-class="{ 'col-collapsed': !$ctrl.showAsin }">
-                <input class="form-control" type="text" size="14" ng-model="$item.data.asin" ng-change="$ctrl.editProductData( $item )" ng-disabled="$item.barcodeIsAsin">
-              </span>
+            <td class="asin-cell">
+              <div class="asin-cell-content-container">
+                <span ng-show="$ctrl.showAsin">
+                  <input class="form-control" type="text" size="14" ng-model="$item.data.asin" ng-change="$ctrl.editProductData( $item )" ng-disabled="$item.barcodeIsAsin">
+                </span>
+                <span class="asin-link-container" ng-show="$item.data.asin && $ctrl.showAsin">
+                  <a href="https://www.amazon.com/dp/{{ $item.data.asin }}" target="_blank" ng-show="$item.data.asin">
+                    Open on Amazon
+                  </a>
+                </span>
+              </div>
             </td>
 						<td>
               <span ng-show="$ctrl.showTitle" ng-class="{ 'has-error' : $item.errors.title }">
