@@ -461,13 +461,20 @@ angular.module('myApp').factory( 'Lot', [
       clone() {
 
         // the loaded manifest is not serializable due to circular references, so we need to remove it before stringifying
-        let originalManifest = this.manifest;
+        const originalManifest = this.manifest;
         if( originalManifest ) {
           delete this.manifest;
         }
 
+        // LotInventoryItems are not serializable due to circular references, so we need to remove before stringifying
+        const rawInventory = this.getInventoryDataItems();
+        if( this._inventory ) {
+          delete this._inventory;
+        }
+
         const clone = new Lot( JSON.parse( JSON.stringify( this ) ) );
         this.manifest = originalManifest;
+        this.setInventory( rawInventory );
 
         return clone;
 
@@ -830,16 +837,17 @@ angular.module('myApp').factory( 'Lot', [
 
       save() {
 
-        // This is a bit of a hack to ensure that the manifest is not included in the lot data. Besides being unnecessary, it can't be serialized since it contains circular references
-        let manifest;
-        if( this.manifest ) {
-          manifest = this.manifest;
-          delete this.manifest;
-        }
+        // the manifest and inventory have circular references, so we need to remove
+        // them before serializing for the editLot request. These elements are saved elsewhere, anyway
 
         const _lot = Object.assign( {}, this );
 
-        this.manifest = manifest;
+        if( _lot._inventory ) {
+          delete _lot._inventory;
+        }
+        if( _lot.manifest ) {
+          delete _lot.manifest;
+        }
 
         return $q.when( api.editLot( this._id, _lot ) );
       }
