@@ -299,7 +299,7 @@ class Server {
       ) );
 
     const ProductData = require( './modules/product-data' );
-    const productData = new ProductData( Object.assign( { fnskuToAsin, upcItemDb, mongo: this.mongooseConnection.db }, models ) );
+    const productData = new ProductData( Object.assign( { fnskuToAsin, upcItemDb }, models ) );
 
     // Manifests module
     const manifests = require('./modules/manifests')( { lotdb, manifestDb, productData } );
