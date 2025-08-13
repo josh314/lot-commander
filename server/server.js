@@ -296,10 +296,17 @@ class Server {
         {},
         { connection: this.mongooseConnection },
         this.config.fnskuToAsin
-      ) );
+      )
+    );
+
+    const TrajectClient = require( './modules/traject' );
+    const traject = new TrajectClient({
+      connection: this.mongooseConnection,
+      api: this.config.traject,
+    });
 
     const ProductData = require( './modules/product-data' );
-    const productData = new ProductData( Object.assign( { fnskuToAsin, upcItemDb }, models ) );
+    const productData = new ProductData( Object.assign( { fnskuToAsin, upcItemDb, traject }, models ) );
 
     // Manifests module
     const manifests = require('./modules/manifests')( { lotdb, manifestDb, productData } );

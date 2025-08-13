@@ -21,26 +21,24 @@ const s3 = new S3Client({
  *
  *********/
 
-function cleanTitle(title) {
-  //TODO
-  return title;
-}
-
 const parseListingTitlePatterns = [
-  /(.*?)Pack of ([0-9]+)/i,
-  /(.*?)Case of ([0-9]+)/i,
-  /(.*?)([0-9]?)[- ]?P(ac)?k/i
+  /\(?Pack of ([0-9]+)\)?/i,
+  /\(?Case of ([0-9]+)\)?/i,
+  /\(?([0-9]?)[- ]?P(ac)?k\)?/i
 ];
 function parseListingTitle( title ) {
 
   let quantity;
 
+  let cleanTitle;
   if( title ) {
 
     for( let i=0; i < parseListingTitlePatterns.length; i++ ) {
       const match = title.match( parseListingTitlePatterns[i] );
-      if( match && match[2] ) {
-        quantity = match[2];
+
+      if( match && match[1] ) {
+        quantity = match[1];
+        cleanTitle = title.replace( match[0], '' ).trim();
         break;
       }
     }
@@ -48,7 +46,7 @@ function parseListingTitle( title ) {
   }
 
   return {
-    title: cleanTitle( title ),
+    title: cleanTitle || title,
     quantity: parseInt( quantity ) || 1
   };
 }
@@ -79,6 +77,7 @@ class $_ {
     FallbackProductData,
     fnskuToAsin,
     InternalProductData,
+    traject,
     upcItemDb,
   } ) {
 
@@ -88,6 +87,7 @@ class $_ {
         FallbackProductData,
         fnskuToAsin,
         InternalProductData,
+        traject,
         upcItemDb,
       }
     );
@@ -107,9 +107,14 @@ class $_ {
       }
     }
 
-    product.title = product.title || product.description;
+    if( product ) {
+      product.title = product.title || product.description;
+    }
 
-    return product;
+    return {
+      ...{ barcode },
+      ...( product || {} )
+    };
   }
 
   async getProductDataByUpc( barcode ) {
@@ -119,14 +124,76 @@ class $_ {
       normalizedBarcode = libBarcodes.normalizeBarcodeByType( barcode, 'ean' );
     }
 
-    return this.upcItemDb.getProductData( normalizedBarcode );
+    let product;
+    product = await this.traject.fetchProductDataById( barcode, 'gtin' );
+
+    if( !product ) {
+      product = await this.upcItemDb.getProductData( normalizedBarcode );
+    }
+
+    return product;
 
   }
 
   async getProductDataByFnskuOrAsin( barcode ) {
 
-    return this.fnskuToAsin.fetchProductData( barcode );
+    let product;
 
+    if( barcode.match(/^X/) ) {  // if it begins with 'X', it's probably an FNSKU, but we check ASIN as a fallback.
+
+      product = await this.getProductDataByFnsku( barcode );
+      if( !product ) {
+        product = await this.getProductDataByAsin( barcode );
+      }
+
+    }
+    else { // Otherwise, it's probably ASIN but we check FNSKU as a fallback.
+
+      product = await this.getProductDataByAsin( barcode );
+      if( !product ) {
+        product = await this.getProductDataByFnsku( barcode );
+      }
+
+    }
+
+    return product;
+
+  }
+
+  async getProductDataByFnsku( fnsku ) {
+
+    const fnskuItem = await this.fnskuToAsin.fetchProductDataByIdType( fnsku, 'fnsku' );
+
+    if( !fnskuItem?.asin ) {
+      return null;
+    }
+
+    return this.getProductDataByAsin( fnskuItem.asin );
+
+  }
+
+  async getProductDataByAsin( asin ) {
+
+    let product;
+    product = await this.traject.fetchProductDataById( asin, 'asin' );
+
+    if( !product?.title ) {
+      product = await this.fnskuToAsin.fetchProductDataByIdType( asin, 'asin' );
+    }
+    else if( !product.price ) {
+      // if partial data is returned (no price), merge with fnskuToAsin data
+      console.log(`No price found for ASIN ${ asin }, attempting to fetch from FNSKUtoASIN service...`);
+      const _product = await this.fnskuToAsin.fetchProductDataByIdType( asin, 'asin' );
+      product.price = _product.price;
+    }
+
+    return product?.title ? product : null;
+
+  }
+
+  searchForProductData( str ) {
+    const results = this.traject.search( str );
+    return results;
   }
 
   async queueProductDataFetching( barcodes ) {
@@ -154,7 +221,7 @@ class $_ {
   }
 
   getInternalProductData( barcode ) {
-    return this.InternalProductData.findOne( { barcode } );
+    return this.InternalProductData.findOne( { barcode } ).lean();
   }
 
   saveInternalProductData( productData ) {

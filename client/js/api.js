@@ -1582,6 +1582,15 @@ export function getProductDataByBarcode( barcode ) {
   })
     .then( resp => resp.data );
 }
+export function searchForProductData( query ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/product-data/search`,
+    data: { query }
+  })
+    .then( resp => resp.data );
+}
 export function queueProductDataFetching( barcodes ) {
   return axios({
     method: 'post',

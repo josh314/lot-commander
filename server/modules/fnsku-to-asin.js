@@ -57,10 +57,6 @@ function processItem( asinItem, markup ) {
   r.title = parseListingTitle( asinItem.title ).title;
   r.price = getPrice( asinItem, markup );
 
-  if( asinItem.images ) {
-    r.images = asinItem.images;
-  }
-
   r.images = [];
   for( let key of IMAGE_KEYS ) {
     if( asinItem[key] ) {
@@ -151,7 +147,7 @@ class Cache {
 
 class ApiClient {
 
-  constructor( { apiKey } ) {
+  constructor( apiKey ) {
 
     const headers = { 'accept': 'application/json', 'api-key': apiKey };
 
@@ -305,9 +301,9 @@ class ApiClient {
 
 class $_ {
 
-  constructor( { apiKey, limiter, connection, cacheTtl /* should be in milliseconds */ } ) {
+  constructor( { apiKey, connection, cacheTtl /* should be in milliseconds */ } ) {
 
-    this.api = new ApiClient( { apiKey, limiter } );
+    this.api = new ApiClient( apiKey );
 
     this.cache = new Cache( connection );
 
@@ -315,7 +311,7 @@ class $_ {
 
   }
 
-  async fetchCacheableData( id, idType, cacheTtl = this.cacheTtl /* should be in milliseconds. */, forceCacheRefresh = false ) {
+  async fetchAndCacheDataByIdType( id, idType, cacheTtl = this.cacheTtl /* should be in milliseconds. */, forceCacheRefresh = false ) {
 
     const resp = {
       id,
@@ -359,8 +355,6 @@ class $_ {
       const item = await pollFn;
       resp.item = item;
 
-      // if( asin ) {
-
       if( this.cache && ( !this.cache.hit || forceCacheRefresh ) ) {
 
         // This is true if an ASIN was submitted when the FNSKU query was expected. That's legal to do but shouldn't be cached
@@ -382,13 +376,13 @@ class $_ {
 
   }
 
-  async fetchProductData( fnskuOrAsin ) {
+  async fetchProductDataForFnskuOrAsin( fnskuOrAsin ) {
 
     const productData = {
       barcode: fnskuOrAsin
     };
 
-    const { item: fnskuItem } = await this.fetchCacheableData( fnskuOrAsin, 'fnsku' );
+    const { item: fnskuItem } = await this.fetchAndCacheDataByIdType( fnskuOrAsin, 'fnsku' );
 
     let asin;
     if( fnskuItem && fnskuItem.asin ) {
@@ -399,8 +393,20 @@ class $_ {
       asin = fnskuOrAsin;
     }
 
-    const { item: asinItem } = await this.fetchCacheableData( asin, 'asin' );
+    const { item: asinItem } = await this.fetchAndCacheDataByIdType( asin, 'asin' );
     Object.assign( productData, processItem( asinItem ) );
+
+    return productData;
+  }
+
+  async fetchProductDataByIdType( id, idType ) {
+
+    const productData = {
+      barcode: id
+    };
+
+    const { item } = await this.fetchAndCacheDataByIdType( id, idType );
+    Object.assign( productData, processItem( item ) );
 
     return productData;
   }

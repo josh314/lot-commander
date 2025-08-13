@@ -9,6 +9,8 @@ angular.module('myApp').factory( 'ProductDataSvc', [ '$q',
 
     const getProductDataByBarcode = barcode => $q.when( api.getProductDataByBarcode( barcode ) ).then( resp => resp.product );
 
+    const searchForProductData = query => $q.when( api.searchForProductData( query ) ).then( resp => resp.products );
+
     const queueProductDataFetching = barcodes => $q.when( api.queueProductDataFetching( barcodes ) );
 
     const bulkGetProductData = barcodes => $q.when( api.bulkGetProductData( barcodes ) );
@@ -42,6 +44,7 @@ angular.module('myApp').factory( 'ProductDataSvc', [ '$q',
     return {
       getFallbackProductData,
       getProductDataByBarcode,
+      searchForProductData,
       queueProductDataFetching,
       bulkGetProductData,
       saveInternalProductData,
