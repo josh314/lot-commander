@@ -7,7 +7,7 @@ import { Manifest } from '../../manifest';
 angular.module('myApp').factory( 'ProductDataSvc', [ '$q',
   function( $q ) {
 
-    const getProductDataByBarcode = barcode => $q.when( api.getProductDataByBarcode( barcode ) ).then( resp => resp.product );
+    const getProductDataByBarcode = ( barcode, { source, type } = {} ) => $q.when( api.getProductDataByBarcode( barcode, { source, type } ) ).then( resp => resp.product );
 
     const searchForProductData = query => $q.when( api.searchForProductData( query ) ).then( resp => resp.products );
 

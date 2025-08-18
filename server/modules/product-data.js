@@ -2,6 +2,7 @@ const { Readable } = require('stream');
 
 const libBarcodes = require('barcodes/lib');
 const { isNumericString } = require('../helpers');
+const { InvalidRequestError } = require('../errors');
 
 const { fromIni } = require('@aws-sdk/credential-providers');
 const {
@@ -94,27 +95,64 @@ class $_ {
 
   }
 
-  async getProductDataByBarcode( barcode ) {
+  async getProductDataByBarcode( barcode, { source, type } ) {
 
-    let product = await this.getInternalProductData( barcode );
+    let product;
 
-    if( !product ) {
-      if ( isNumericString( barcode ) ) {
-        product = await this.getProductDataByUpc( barcode );
+    if( source ) {
+
+      product = await this.getProductDataFromSource( barcode, source, type );
+
+    }
+    else {
+
+      product = await this.getInternalProductData( barcode );
+
+      if( !product ) {
+        if ( isNumericString( barcode ) ) {
+          product = await this.getProductDataByUpc( barcode );
+        }
+        else {
+          product = await this.getProductDataByFnskuOrAsin( barcode );
+        }
       }
-      else {
-        product = await this.getProductDataByFnskuOrAsin( barcode );
+
+      if( product ) {
+        product.title = product.title || product.description;
       }
+
     }
 
-    if( product ) {
-      product.title = product.title || product.description;
-    }
 
     return {
       ...{ barcode },
       ...( product || {} )
     };
+  }
+
+  getProductDataFromSource( barcode, source, type ) {
+
+    if( isNumericString( barcode ) ) {
+      let normalizedBarcode = libBarcodes.normalizeBarcodeByType( barcode, 'upca' );
+      if( !normalizedBarcode ) {
+        normalizedBarcode = libBarcodes.normalizeBarcodeByType( barcode, 'ean' );
+      }
+      barcode = normalizedBarcode;
+    }
+
+    if( source === 'upcitemdb' ) {
+      return this.upcItemDb.getProductData( barcode );
+    }
+    else if( source === 'traject' ) {
+      return this.traject.fetchProductDataById( barcode, type );
+    }
+    else if( source === 'fnskutoasin' ) {
+      return this.fnskuToAsin.fetchProductDataByIdType( barcode, type );
+    }
+    else {
+      throw new InvalidRequestError(`Unknown data source '${ source }'`);
+    }
+
   }
 
   async getProductDataByUpc( barcode ) {
@@ -125,7 +163,7 @@ class $_ {
     }
 
     let product;
-    product = await this.traject.fetchProductDataById( barcode, 'gtin' );
+    product = await this.traject.fetchProductDataById( normalizedBarcode, 'gtin' );
 
     if( !product ) {
       product = await this.upcItemDb.getProductData( normalizedBarcode );

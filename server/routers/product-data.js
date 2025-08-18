@@ -66,9 +66,9 @@ function routes( { productData } ) {
 
     try {
 
-      const barcode = req.params.barcode;
+      const { barcode } = req.params;
 
-      const product = await productData.getProductDataByBarcode( barcode );
+      const product = await productData.getProductDataByBarcode( barcode, req.query );
 
       res.json( { product } );
 

@@ -1574,11 +1574,11 @@ export function finishOrderPick( orderPickId, isFinished ) {
 *
 ************/
 
-export function getProductDataByBarcode( barcode ) {
+export function getProductDataByBarcode( barcode, { source, type } = {} ) {
 
   return axios({
     method: 'get',
-    url: `/api/product-data/${ encodeURIComponent( barcode ) }`
+    url: `/api/product-data/${ encodeURIComponent( barcode ) }${ source || type ? '?' + getQueryString({ source, type })  : '' }`
   })
     .then( resp => resp.data );
 }

@@ -351,9 +351,11 @@ class $_ {
     if( resp?.search_results ) {
       results = resp.search_results.map( sr => ({
         title: sr.title,
+        brand: sr.brand,
         asin: sr.asin,
         image: sr.image,
-        price: sr.price?.value
+        price: sr.price?.value,
+        link: sr.link,
       }));
     }
 

@@ -30,8 +30,8 @@ class IllegalActionError extends ClientError {
 }
 
 class InvalidRequestError extends ClientError {
-  constructor() {
-    super(`Invalid request`);
+  constructor( msg ) {
+    super(`Invalid request${ msg ? ': ' + msg : '' }`);
   }
 }
 
