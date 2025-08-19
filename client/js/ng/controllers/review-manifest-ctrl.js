@@ -1,5 +1,6 @@
 import angular from 'angular';
 import * as util from '../../utilities';
+const __MAX_DISPLAY_INVENTORY__ = 50;
 
 /******************* Review Manifest Page Controller *************************/
 angular.module('myApp').controller('ReviewManifestCtrl', [
@@ -29,7 +30,15 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
         vm,
         {
 
-          displayItems: [],
+          pagination: {
+            current: 1,
+            totalItems: 0,
+            pageSize: __MAX_DISPLAY_INVENTORY__,
+            pageChange: refreshDisplayInventory,
+            maxSize: 8
+          },
+
+          displayInventory: [],
 
           selectAll: false,
           showAsin: false,
@@ -40,10 +49,12 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
 
           addFallbackData,
           addInventoryItem,
+          amazonUrlFromAsin: util.amazonUrlFromAsin,
           deleteInventoryItem,
           disableAddFallbackData,
           finishReviewing,
           editProductData,
+          numInventoryItemsInvalidOnPage,
           saveManifest,
           saveManifestAndExit,
           toggleSelectAll,
@@ -61,7 +72,7 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
 
             vm.lot = lot;
 
-            refreshDisplayItems();
+            refreshDisplayInventory();
 
             if( lot.hasAsins() ) {
               vm.showAsin = true;
@@ -74,8 +85,12 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
 
     }
 
-    function refreshDisplayItems() {
-      vm.displayItems = vm.lot.getInventorySortedByBarcode();
+    function refreshDisplayInventory() {
+      const inventory = vm.lot.getInventorySortedByBarcode();
+      vm.pagination.totalItems = inventory.length;
+      const start = ( vm.pagination.current - 1 ) * __MAX_DISPLAY_INVENTORY__;
+      const end = start + __MAX_DISPLAY_INVENTORY__;
+      vm.displayInventory = inventory.slice( start, end );
     }
 
     const save = () => {
@@ -93,14 +108,20 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
       return vm.lot && vm.lot.validateInventory();
     }
 
+    function numInventoryItemsInvalidOnPage() {
+      if( vm.displayInventory ) {
+        return vm.displayInventory.filter( item => item.hasError() ).length;
+      }
+    }
+
     function deleteInventoryItem( item ) {
       vm.lot.deleteInventoryItem( item );
-      refreshDisplayItems();
+      refreshDisplayInventory();
     }
 
     function addInventoryItem() {
       vm.lot.addInventory();
-      refreshDisplayItems();
+      refreshDisplayInventory();
     }
 
     function editProductData( item ) {
@@ -108,20 +129,20 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
     }
 
     function toggleSelectAll() {
-      vm.displayItems.filter( item => item.hasError() ).forEach( item => item.selected = vm.selectAll );
+      vm.displayInventory.filter( item => item.hasError() ).forEach( item => item.selected = vm.selectAll );
     }
 
     function toggleSelected() {
-      vm.selectAll = vm.displayItems.filter( item => item.hasError() ).every( item => item.selected );
+      vm.selectAll = vm.displayInventory.filter( item => item.hasError() ).every( item => item.selected );
     }
 
     function disableAddFallbackData() {
-      return !vm.displayItems.some( item => item.selected );
+      return !vm.displayInventory.some( item => item.selected );
     }
 
     async function addFallbackData() {
 
-      const selectedItems = vm.displayItems.filter( item => item.selected );
+      const selectedItems = vm.displayInventory.filter( item => item.selected );
       if( selectedItems.length === 0 ) {
         return;
       }

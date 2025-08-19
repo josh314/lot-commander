@@ -1,0 +1,17 @@
+.table-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  .table-pagination {
+    align-self: flex-end;
+  }
+}
+
+// Bootstrap's .table-striped is a nice effect but overly rigid for some use cases (e.g. hidden rows throw off the striping).
+// The style below is used to give an effect like .table-striped but assignable to rows on an ad-hoc basis.
+// This is convenient for giving consecutive rows the same color, e.g. if you are using a dummy row to provide a header/footer for a given data row,
+// or if you want to have hidden and/or dynamically revealed rows without throwing off the natural striping of the table.
+tr.table-row-alt {
+  background-color: @table-bg-accent;
+}

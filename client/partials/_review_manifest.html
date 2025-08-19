@@ -45,7 +45,8 @@
 						<h3>Missing Data</h3>
 					</div>
 					<div class="col-xs-12 text-center missing-data-number-container">
-						<h4 class="text-danger">{{ $ctrl.lot.numInventoryItemsInvalid() }}</h4>
+						<h4 class="text-danger">Total: {{ $ctrl.lot.numInventoryItemsInvalid() }}</h4>
+            <h4 class="text-danger">Page: {{ $ctrl.numInventoryItemsInvalidOnPage() }}</h4>
 					</div>
 				</div>
         <div class="col-xs-3 row" style="display:flex; flex-direction:column;">
@@ -55,11 +56,32 @@
 				</div>
 			</div>
 
+      <div class="col-xs-12 table-header">
+        <span>
+          <button class="btn btn-primary btn-xs" ng-click="$ctrl.addInventoryItem()">Add New Item</button>
+        </span>
+
+        <span style="flex-grow:100;"></span>
+
+        <ul uib-pagination
+          total-items="$ctrl.pagination.totalItems"
+          items-per-page="$ctrl.pagination.pageSize"
+          ng-model="$ctrl.pagination.current"
+          ng-change="$ctrl.pagination.pageChange()"
+          class="pagination-sm table-pagination"
+
+          max-size="$ctrl.pagination.maxSize"
+          boundary-links="true"
+          boundary-link-numbers="true"
+          force-ellipses="true">
+        </ul>
+      </div>
+
 			<table class="table table-striped table-review-manifest">
 
 				<thead><tr>
           <th>
-            <input type="checkbox" ng-model="$ctrl.selectAll" ng-change="$ctrl.toggleSelectAll()">
+            <input type="checkbox" ng-model="$ctrl.selectAll" ng-change="$ctrl.toggleSelectAll()" uib-tooltip="{{ $ctrl.selectAll ? 'Deselect' : 'Select' }} All">
           </th>
 					<th>Barcode</th>
           <th ng-click="$ctrl.showAsin = !$ctrl.showAsin">
@@ -85,9 +107,9 @@
 					<th>Delete</th>
 				</tr></thead>
 				<tbody>
-					<tr ng-repeat="$item in $ctrl.displayItems" ng-class="{ 'problem-line-item' : !$item.validate() }">
+					<tr ng-repeat="$item in $ctrl.displayInventory" ng-class="{ 'problem-line-item' : !$item.validate() }">
             <td class="checkbox-cell">
-              <input type="checkbox" ng-model="$item.selected" ng-change="$ctrl.toggleSelected()" ng-disabled="!$item.hasError()">
+              <input type="checkbox" ng-model="$item.selected" ng-change="$ctrl.toggleSelected()" ng-disabled="!$item.hasError()" uib-tooltip="{{ $item.selected ? 'Deselect' : 'Select' }}" tooltip-enable="$item.hasError()">
             </td>
             <td>
               <div style="display:flex; flex-direction:column;">
@@ -103,8 +125,8 @@
                   <input class="form-control" type="text" size="14" ng-model="$item.data.asin" ng-change="$ctrl.editProductData( $item )" ng-disabled="$item.barcodeIsAsin">
                 </span>
                 <span class="asin-link-container" ng-show="$item.data.asin && $ctrl.showAsin">
-                  <a href="https://www.amazon.com/dp/{{ $item.data.asin }}" target="_blank" ng-show="$item.data.asin">
-                    Open on Amazon
+                  <a ng-href="{{ $ctrl.amazonUrlFromAsin( $item.data.asin ) }}" target="_blank" ng-show="$item.data.asin">
+                    View on Amazon
                   </a>
                 </span>
               </div>
@@ -149,10 +171,6 @@
 					</tr>
 				</tbody>
 			</table>
-
-      <div class="well-footer">
-        <button class="btn btn-primary btn-xs" ng-click="$ctrl.addInventoryItem()">Add New Item</button>
-      </div>
 
 		</div>
 		<div class="col-xs-6"><button class="btn btn-success btn-lg" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & finish</button></div>

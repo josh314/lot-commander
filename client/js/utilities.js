@@ -152,6 +152,8 @@ export function isAsin( str ) {
   return typeof str === 'string' && str.match(/^B[A-Z0-9]{9}$/);
 }
 
+export const amazonUrlFromAsin = ( asin ) => `https://www.amazon.com/dp/${ asin }`;
+
 /*************************************************
  * Misc
  * ====
