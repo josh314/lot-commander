@@ -61,7 +61,7 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
 
             vm.lot = lot;
 
-            vm.displayItems = vm.lot.getInventorySortedByBarcode();
+            refreshDisplayItems();
 
             if( lot.hasAsins() ) {
               vm.showAsin = true;
@@ -72,6 +72,10 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
 
         } );
 
+    }
+
+    function refreshDisplayItems() {
+      vm.displayItems = vm.lot.getInventorySortedByBarcode();
     }
 
     const save = () => {
@@ -91,10 +95,12 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
 
     function deleteInventoryItem( item ) {
       vm.lot.deleteInventoryItem( item );
+      refreshDisplayItems();
     }
 
     function addInventoryItem() {
       vm.lot.addInventory();
+      refreshDisplayItems();
     }
 
     function editProductData( item ) {
