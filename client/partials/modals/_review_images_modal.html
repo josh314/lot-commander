@@ -1,0 +1,32 @@
+<div class="product-images-modal">
+
+  <div class="modal-header">
+    <h3 class="modal-title">Review Images</h3>
+  </div>
+  <div class="modal-body">
+    <div>
+      <p>Select the images to be used for this product. Selected images will be checked and highlighted in red.</p>
+      <media-grid-dir
+        media="$ctrl.images"
+        media-type="'images'"
+        items-per-row="4"
+        default-selected="true"
+        selected-media="$ctrl.selectedImages"
+      ></media-grid-dir>
+    </div>
+
+    <div>
+      <p>Add an image by providing a URL:</p>
+      <div class="review-images-modal__add-image-controls-container">
+        <input type="text" class="form-control" ng-model="$ctrl.newImageUrl" placeholder="Image URL" ng-keyup="$event.keyCode == 13 && $ctrl.addImage()"/>
+        <button class="btn btn-primary btn-xs" type="button" ng-click="$ctrl.addImage()">Add Image</button>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+      <button class="btn btn-danger" type="button" ng-click="$ctrl.confirm()">Confirm</button>
+      <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+  </div>
+
+</div>

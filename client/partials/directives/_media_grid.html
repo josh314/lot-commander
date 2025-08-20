@@ -1,0 +1,43 @@
+<div class="media-grid__directive-container">
+
+  <div class="media-grid__grid-container">
+
+    <div class="media-grid__grid-item-{{ itemsPerRow }}" ng-repeat="$media in $ctrl.gridMedia">
+
+      <div class="media-grid__media-item-container">
+
+        <div class="media-grid__media-container" ng-show="$ctrl.isImageGrid()">
+          <a href ng-click="$media.toggleSelect()">
+            <img ng-src="{{ $media.src }}" class="img-thumbnail" ng-class="{ 'img-thumbnail-highlighted': $media.selected }">
+          </a>
+        </div>
+
+        <!-- Selection Checkbox -->
+        <div class="media-grid__controls-footer">
+
+          <div class="checkbox media-grid__controls-footer__checkbox-container">
+            <span>
+              <label>
+                <input type="checkbox" ng-model="$media.selected" uib-tooltip="{{ $media.selected ? 'Deselect' : 'Select' }} Image">
+                Selected
+              </label>
+            </span>
+          </div>
+
+          <div class="media-grid__controls-footer__button-container">
+
+            <span>
+              <button class="btn btn-primary btn-xs" ng-click="$media.preview()">Preview</button>
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

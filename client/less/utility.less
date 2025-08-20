@@ -99,3 +99,29 @@
 input.placeholder, textarea.placeholder, select.placeholder {
   color: lightgray;
 }
+
+/**********************************************************************************/
+// "for loop" mixin
+//
+// Usage example: generate classes foobar-1 through foobar-12
+//
+// foobar( @num ) {
+//   margin: 0px @num * 10px;
+// }
+//
+// .for( 1, 12, {
+//   foobar-@{i} {
+//     foobar( @i );
+//   }
+// });
+
+.for( @from, @to, @rules ) when ( @from =< @to ) {
+  @i: @from;
+  // apply the caller's rules with @i in scope
+  @rules();
+
+  // recurse to the next iteration
+  .for( ( @from + 1 ), @to, @rules );
+}
+
+.for( @from, @to, @rules ) when ( @from > @to ) { }

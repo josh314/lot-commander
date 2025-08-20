@@ -6,6 +6,7 @@ const __MAX_DISPLAY_INVENTORY__ = 50;
 angular.module('myApp').controller('ReviewManifestCtrl', [
 
   'LotSvc',
+  'MediaSvc',
   'ModalSvc',
   'navigate',
   'sessionTimeout',
@@ -13,6 +14,7 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
   function(
 
     LotSvc,
+    MediaSvc,
     ModalSvc,
     navigate,
     sessionTimeout,
@@ -41,6 +43,7 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
           displayInventory: [],
 
           selectAll: false,
+          showImage: true,
           showAsin: false,
           showTitle: true,
           showBrand: true,
@@ -55,6 +58,7 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
           finishReviewing,
           editProductData,
           numInventoryItemsInvalidOnPage,
+          editItemImages,
           saveManifest,
           saveManifestAndExit,
           toggleSelectAll,
@@ -85,12 +89,39 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
 
     }
 
+    const initializeAllThumbnailImages = () => {
+      const limit = Math.min( vm.displayInventory.length, __MAX_DISPLAY_INVENTORY__ );
+
+      for(let i=0; i < limit; i++) {
+        const item = vm.displayInventory[i];
+        MediaSvc.loadRepresentativeImage({
+          images: item.data.images,
+          containerId: `item-thumbnail-container-${item.data.barcode}`,
+          className: "inventory-preview-img"
+        });
+      }
+    };
+
     function refreshDisplayInventory() {
       const inventory = vm.lot.getInventorySortedByBarcode();
       vm.pagination.totalItems = inventory.length;
       const start = ( vm.pagination.current - 1 ) * __MAX_DISPLAY_INVENTORY__;
       const end = start + __MAX_DISPLAY_INVENTORY__;
       vm.displayInventory = inventory.slice( start, end );
+      initializeAllThumbnailImages();
+    }
+
+    async function editItemImages( inventoryItem ) {
+      const images = await ModalSvc.reviewImages( inventoryItem.data.images );
+      if( !util.isEqual( images , inventoryItem.data.images ) ) {
+        inventoryItem.update( { images } );
+        MediaSvc.loadRepresentativeImage({
+          images: inventoryItem.data.images,
+          containerId: `item-thumbnail-container-${inventoryItem.data.barcode}`,
+          className: "inventory-preview-img",
+          replace: true
+        });
+      }
     }
 
     const save = () => {

@@ -18,6 +18,7 @@ angular.module('myApp').factory('ModalSvc', [
   'PackagingTypeInfoModalSvc',
   'PalletsFromManifestModalSvc',
   'PastImagesGalleryModalSvc',
+  'ReviewImagesModalSvc',
   'ShippingItemsModalSvc',
   'WaitingModalSvc',
 
@@ -35,6 +36,7 @@ angular.module('myApp').factory('ModalSvc', [
     PackagingTypeInfoModalSvc,
     PalletsFromManifestModalSvc,
     PastImagesGalleryModalSvc,
+    ReviewImagesModalSvc,
     ShippingItemsModalSvc,
     WaitingModalSvc,
 
@@ -54,6 +56,7 @@ angular.module('myApp').factory('ModalSvc', [
       packagingTypeInfo: PackagingTypeInfoModalSvc.launch.bind( PackagingTypeInfoModalSvc ),
       palletsFromManifest: PalletsFromManifestModalSvc.launch.bind( PalletsFromManifestModalSvc ),
       pastImagesGallery: PastImagesGalleryModalSvc.launch.bind( PastImagesGalleryModalSvc ),
+      reviewImages: ReviewImagesModalSvc.launch.bind( ReviewImagesModalSvc ),
       shippingItems: ShippingItemsModalSvc.launch.bind( ShippingItemsModalSvc ),
       wait: WaitingModalSvc.launch.bind( WaitingModalSvc ),
 
@@ -874,6 +877,65 @@ angular.module('myApp').factory( 'EditLotModalSvc', [ '$uibModal', function( $ui
     catch( err ) {
       return lot;
     }
+
+  }
+
+}]);
+
+/********************* Review Images modal **************************/
+angular.module('myApp').factory( 'ReviewImagesModalSvc', [ '$uibModal', function( $uibModal ) {
+
+  return {
+    launch,
+  };
+
+  // launches the modal
+  function launch( images ) {
+
+    const modalInstance = $uibModal.open({
+      templateUrl: '/partials/modals/_review_images_modal.html',
+      size: 'xl',
+      backdrop: 'static',
+      resolve: {
+        data: function () {
+          return {
+            images: JSON.parse( JSON.stringify( images ) ),
+          };
+        }
+      },
+      controller: [ '$uibModalInstance', 'data', function( $uibModalInstance, data ){
+
+        const { images } = data;
+
+        const vm = this;
+        Object.assign(
+          vm,
+
+          {
+            images,
+            selectedImages: [],
+            newImageUrl: '',
+
+            addImage,
+            confirm,
+          }
+
+        );
+
+        function confirm() {
+          $uibModalInstance.close( vm.selectedImages );
+        }
+
+        function addImage() {
+          vm.images = [ vm.newImageUrl, ...vm.images ];
+          vm.newImageUrl = '';
+        }
+
+      }],
+      controllerAs: '$ctrl'
+    });
+
+    return modalInstance.result;
 
   }
 

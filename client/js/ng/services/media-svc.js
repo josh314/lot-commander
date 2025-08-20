@@ -108,7 +108,7 @@ angular.module('myApp').service( 'MediaSvc', [ '$localStorage', '$q', '$timeout'
     svc.isImageFile = isImageFile;
     svc.isVideoFile = isVideoFile;
 
-    svc.loadRepresentativeImage = ( { images, containerId, className } ) => {
+    svc.loadRepresentativeImage = ( { images, containerId, className, replace } ) => {
 
       // using $timeout forces a tick in the digest cycle which ensures that the parent containers have been created from recent changes in the model
       return $timeout( async () => {
@@ -122,7 +122,7 @@ angular.module('myApp').service( 'MediaSvc', [ '$localStorage', '$q', '$timeout'
           }
 
           // return if there is already a representative image.
-          if( itemContainer.querySelector('img.representative-img') ) {
+          if( !replace && itemContainer.querySelector('img.representative-img') ) {
             return;
           }
         }
@@ -140,7 +140,11 @@ angular.module('myApp').service( 'MediaSvc', [ '$localStorage', '$q', '$timeout'
           img.className = `representative-img${ className ? ` ${ className}` : ''}`;
 
           // check once more for representative image before adding
-          const representativeImg = itemContainer.querySelector('img.representative-img');
+          let representativeImg = itemContainer.querySelector('img.representative-img');
+          if( replace ) {
+            itemContainer.removeChild(representativeImg);
+            representativeImg = null;
+          }
           if( !representativeImg ) {
             itemContainer.appendChild(img);
           }

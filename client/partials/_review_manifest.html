@@ -83,6 +83,10 @@
           <th>
             <input type="checkbox" ng-model="$ctrl.selectAll" ng-change="$ctrl.toggleSelectAll()" uib-tooltip="{{ $ctrl.selectAll ? 'Deselect' : 'Select' }} All">
           </th>
+          <th ng-click="$ctrl.showImage = !$ctrl.showImage">
+            <span ng-show="$ctrl.showImage">Images <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
+            <span ng-hide="$ctrl.showImage"><small><span class="glyphicon glyphicon-triangle-right"></span></small></span>
+          </th>
 					<th>Barcode</th>
           <th ng-click="$ctrl.showAsin = !$ctrl.showAsin">
             <span ng-show="$ctrl.showAsin">ASIN <small><span class="glyphicon glyphicon-triangle-bottom"></span></small></span>
@@ -110,6 +114,13 @@
 					<tr ng-repeat="$item in $ctrl.displayInventory" ng-class="{ 'problem-line-item' : !$item.validate() }">
             <td class="checkbox-cell">
               <input type="checkbox" ng-model="$item.selected" ng-change="$ctrl.toggleSelected()" ng-disabled="!$item.hasError()" uib-tooltip="{{ $item.selected ? 'Deselect' : 'Select' }}" tooltip-enable="$item.hasError()">
+            </td>
+            <td>
+              <div ng-show="$ctrl.showImage">
+                <div id="item-thumbnail-container-{{ $item.data.barcode }}" ng-show="$ctrl.showImage">
+                </div>
+                <a href ng-click="$ctrl.editItemImages( $item )">Show all</a>
+              </div>
             </td>
             <td>
               <div style="display:flex; flex-direction:column;">

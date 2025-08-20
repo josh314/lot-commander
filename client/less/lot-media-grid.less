@@ -1,15 +1,9 @@
 .lot-media-grid__grid-container {
-  .row();
-  display: flex;
-  flex-wrap: wrap;
+  .media-grid__grid-container();
 }
 
 .lot-media-grid__grid-item {
-  flex: 0 0 33.3333%; /* 33.3333% width for col-xs-4 equivalent */
-  box-sizing: border-box;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
+  .media-grid__grid-item(3);
 }
 
 @lot-media-grid-item-loader-size: 180px;

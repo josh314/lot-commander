@@ -52,6 +52,7 @@ import "./js/ng/directives/file-model.js";
 import "./js/ng/directives/file-list-model.js";
 import "./js/ng/directives/footer.js";
 import "./js/ng/directives/lot-media-grid-dir.js";
+import "./js/ng/directives/media-grid-dir.js";
 import "./js/ng/directives/navbar.js";
 import "./js/ng/directives/shipping-items-dir.js";
 import "./js/ng/directives/upload-files-dir.js";

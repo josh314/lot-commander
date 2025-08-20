@@ -1,0 +1,30 @@
+.media-grid__grid-container {
+  .row();
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.media-grid__grid-item( @num ) {
+  flex: 0 0 (1/@num)*100%;
+  box-sizing: border-box;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+// generate classes .media-grid__grid-item-1 through -12
+.for( 1, 12, {
+  .media-grid__grid-item-@{i} {
+    .media-grid__grid-item( @i );
+  }
+});
+
+.media-grid__controls-footer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;;
+}
