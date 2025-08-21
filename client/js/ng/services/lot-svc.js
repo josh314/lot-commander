@@ -327,6 +327,10 @@ angular.module('myApp').factory( 'Lot', [
           this.barcodeIsAsin = true;
           this.data.asin = this.data.asin || this.data.barcode;
         }
+
+        if( !Array.isArray( this.data.images ) ) {
+          this.data.images = [];
+        }
       }
 
       setAsDirty() {

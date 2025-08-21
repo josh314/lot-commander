@@ -1,0 +1,81 @@
+<div class="product-data-search-modal">
+
+  <div class="modal-header product-data-search-modal">
+    <h3 class="modal-title">Search</h3>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="product-data-search__search-bar-container">
+        <div class="col-xs-11">
+          <label for="product-data-search__search-input">Query</label>
+          <textarea class="form-control" id="product-data-search__search-input" ng-model="$ctrl.query" ng-keyup="$event.keyCode == 13 && $ctrl.search()"></textarea>
+        </div>
+        <div class="col-xs-1">
+          <button class="btn btn-primary btn-sm" ng-click="$ctrl.search()">Search</button>
+        </div>
+      </div>
+
+    </div>
+    <div class="row">
+      <table class="table table-review-manifest">
+
+        <tbody>
+          <tr
+            ng-repeat-start="$item in $ctrl.displayItems track by $item.product.asin"
+            ng-click="$ctrl.viewSearchItemDetails( $item )"
+            ng-class="{ 'table-row-alt': ($index+1) % 2  }"
+            ng-hide="$item.detailedView"
+          >
+
+            <td>{{ $item.product.title }}</td>
+            <td>{{ $ctrl.displayAsMoney( $item.product.price ) }}</td>
+
+          </tr>
+          <tr
+            ng-repeat-end
+            class="product-data-search__search-result-detailed-view-row"
+            ng-class="{ 'table-row-alt': ($index+1) % 2  }"
+            ng-show="$item.detailedView"
+          >
+            <td colspan="2">
+
+              <div class="product-data-search__search-result-detailed-view__content-container">
+
+                <div class="product-data-search__search-result-detailed-view__content-item">
+                  <img ng-src="{{ $item.product.image }}" class="img-thumbnail">
+                </div>
+
+                <div class="product-data-search__search-result-detailed-view__content-item">
+                  <dl>
+                    <dt>ASIN</dt>
+                    <dd>{{ $item.product.asin }}</dd>
+                    <dt>Title</dt>
+                    <dd>{{ $item.product.title }}</dd>
+                    <span ng-show="$item.product.brand">
+                      <dt>Brand</dt>
+                      <dd>{{ $item.product.brand }}</dd>
+                    </span>
+                    <dt>Price</dt>
+                    <dd>{{ $ctrl.displayAsMoney( $item.product.price ) }}</dd>
+                    <dt>View on Amazon</dt>
+                    <dd><a ng-href="{{ $item.product.link || $ctrl.amazonUrlFromAsin( $item.product.asin ) }}" target="_blank">Link</a></dd>
+                  </dl>
+                </div>
+
+                <div class="product-data-search__search-result-detailed-view__content-item">
+                  <button class="btn btn-success" ng-click="$ctrl.selectProduct( $item )">Select</button>
+                </div>
+
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+  </div>
+
+</div>

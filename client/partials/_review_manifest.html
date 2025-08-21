@@ -154,6 +154,9 @@
                   ng-blur="$item.titleIsFocused = false"
                 ></textarea>
               </span>
+              <span ng-show="$item.data.title">
+                <a href ng-click="$ctrl.updateItemFromTitleSearch( $item )">Search by title</a>
+              </span>
             </td>
             <td>
               <span ng-show="$ctrl.showBrand">

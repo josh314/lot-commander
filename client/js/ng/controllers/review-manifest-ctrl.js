@@ -63,6 +63,7 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
           saveManifestAndExit,
           toggleSelectAll,
           toggleSelected,
+          updateItemFromTitleSearch,
           validateInventory,
 
           util,
@@ -111,16 +112,22 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
       initializeAllThumbnailImages();
     }
 
+    function refreshInventoryItemImage( inventoryItem) {
+
+      MediaSvc.loadRepresentativeImage({
+        images: inventoryItem.data.images,
+        containerId: `item-thumbnail-container-${inventoryItem.data.barcode}`,
+        className: "inventory-preview-img",
+        replace: true
+      });
+
+    }
+
     async function editItemImages( inventoryItem ) {
       const images = await ModalSvc.reviewImages( inventoryItem.data.images );
       if( !util.isEqual( images , inventoryItem.data.images ) ) {
         inventoryItem.update( { images } );
-        MediaSvc.loadRepresentativeImage({
-          images: inventoryItem.data.images,
-          containerId: `item-thumbnail-container-${inventoryItem.data.barcode}`,
-          className: "inventory-preview-img",
-          replace: true
-        });
+        refreshInventoryItemImage( inventoryItem );
       }
     }
 
@@ -195,6 +202,27 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
 
         vm.selectAll = false;
 
+      }
+
+    }
+
+    async function updateItemFromTitleSearch( inventoryItem ) {
+
+      const query = inventoryItem.data.title;
+
+      const selectedProduct = await ModalSvc.productDataSearch( query );
+
+      if( !selectedProduct ) {
+        return;
+      }
+
+      const replacementData = await ModalSvc.productDataMerge( inventoryItem.data, selectedProduct );
+
+      if( replacementData ) {
+        inventoryItem.update( replacementData );
+        if( replacementData.images ) {
+          refreshInventoryItemImage( inventoryItem );
+        }
       }
 
     }

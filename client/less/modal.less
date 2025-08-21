@@ -13,3 +13,42 @@
     margin-right: 4px;
   }
 }
+
+.product-data-search-modal {
+
+  @product-data-search__search-bar-side-margin: 12px;
+  @product-data-search__search-bar-bottom-margin: 16px;
+
+  .product-data-search__search-bar-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    margin-bottom: @product-data-search__search-bar-bottom-margin;
+    margin-left: @product-data-search__search-bar-side-margin;
+    margin-right: @product-data-search__search-bar-side-margin;
+
+    #product-data-search__search-input {
+      size: 100%;
+    }
+  }
+
+  .product-data-search__search-result-detailed-view-row {
+    border: 1px solid @brand-primary;
+  }
+
+  .product-data-search__search-result-detailed-view__content-container {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    .text-center();
+  }
+
+  .product-data-search__search-result-detailed-view__content-item {
+    margin: 6px 0;
+    dt, dd {
+      margin: 2px 0;
+    }
+  }
+
+}

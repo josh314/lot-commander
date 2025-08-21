@@ -1,0 +1,74 @@
+<div class="product-data-search-modal">
+
+  <div class="modal-header product-data-search-modal">
+    <h3 class="modal-title">Merge product data</h3>
+  </div>
+  <div class="modal-body">
+
+    <p>Check all desired replacements</p>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>
+            <input type="checkbox" ng-model="$ctrl.selectAll" ng-change="$ctrl.toggleSelectAll()" uib-tooltip="{{ $ctrl.selectAll ? 'Deselect' : 'Select' }} All">
+          </th>
+          <th></th>
+          <th>Current Value</th>
+          <th>Replace with</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="$field in $ctrl.dataFields track by $index">
+          <td class="checkbox-cell">
+            <input type="checkbox" ng-model="$field.selected" ng-change="$ctrl.toggleSelected()" uib-tooltip="{{ $field.selected ? 'Deselect' : 'Select' }} {{ $field.label }}">
+          </td>
+          <td>{{ $field.label }}</td>
+          <td ng-switch="$field.type">
+            <span ng-switch-when="textarea">
+              <textarea class="form-control" ng-model="$field.current" disabled></textarea>
+            </span>
+            <span ng-switch-default>
+              <input type="$field.type" class="form-control" ng-model="$field.current" disabled/>
+            </span>
+          </td>
+          <td ng-switch="$field.type">
+            <span ng-switch-when="textarea">
+              <textarea class="form-control" ng-model="$field.incoming"></textarea>
+            </span>
+            <span ng-switch-default>
+              <input type="$field.type" class="form-control" ng-model="$field.incoming"/>
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Images</h3>
+    <p>Images to be included are checked and highlighted in red. Check or un-check the desired images to make your selection. Click on the preview button to see it full-sized.</p>
+
+    <h4>New Images</h4>
+    <media-grid-dir
+      media="$ctrl.images.incoming"
+      media-type="'images'"
+      items-per-row="4"
+      default-selected="false"
+      selected-media="$ctrl.selectedImages.incoming"
+    ></media-grid-dir>
+
+    <h4>Existing Images</h4>
+    <media-grid-dir
+      media="$ctrl.images.current"
+      media-type="'images'"
+      items-per-row="4"
+      default-selected="true"
+      selected-media="$ctrl.selectedImages.current"
+    ></media-grid-dir>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="$ctrl.confirm()">Confirm</button>
+    <button class="btn btn-warning" type="button" ng-click="$dismiss()">Cancel</button>
+  </div>
+
+
+</div>

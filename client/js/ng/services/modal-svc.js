@@ -18,6 +18,8 @@ angular.module('myApp').factory('ModalSvc', [
   'PackagingTypeInfoModalSvc',
   'PalletsFromManifestModalSvc',
   'PastImagesGalleryModalSvc',
+  'ProductDataMergeModalSvc',
+  'ProductDataSearchModalSvc',
   'ReviewImagesModalSvc',
   'ShippingItemsModalSvc',
   'WaitingModalSvc',
@@ -36,6 +38,8 @@ angular.module('myApp').factory('ModalSvc', [
     PackagingTypeInfoModalSvc,
     PalletsFromManifestModalSvc,
     PastImagesGalleryModalSvc,
+    ProductDataMergeModalSvc,
+    ProductDataSearchModalSvc,
     ReviewImagesModalSvc,
     ShippingItemsModalSvc,
     WaitingModalSvc,
@@ -56,6 +60,8 @@ angular.module('myApp').factory('ModalSvc', [
       packagingTypeInfo: PackagingTypeInfoModalSvc.launch.bind( PackagingTypeInfoModalSvc ),
       palletsFromManifest: PalletsFromManifestModalSvc.launch.bind( PalletsFromManifestModalSvc ),
       pastImagesGallery: PastImagesGalleryModalSvc.launch.bind( PastImagesGalleryModalSvc ),
+      productDataMerge: ProductDataMergeModalSvc.launch.bind( ProductDataMergeModalSvc ),
+      productDataSearch: ProductDataSearchModalSvc.launch.bind( ProductDataSearchModalSvc ),
       reviewImages: ReviewImagesModalSvc.launch.bind( ReviewImagesModalSvc ),
       shippingItems: ShippingItemsModalSvc.launch.bind( ShippingItemsModalSvc ),
       wait: WaitingModalSvc.launch.bind( WaitingModalSvc ),
@@ -899,7 +905,7 @@ angular.module('myApp').factory( 'ReviewImagesModalSvc', [ '$uibModal', function
       resolve: {
         data: function () {
           return {
-            images: JSON.parse( JSON.stringify( images ) ),
+            images: images ? JSON.parse( JSON.stringify( images ) ) : [],
           };
         }
       },
@@ -933,6 +939,69 @@ angular.module('myApp').factory( 'ReviewImagesModalSvc', [ '$uibModal', function
 
       }],
       controllerAs: '$ctrl'
+    });
+
+    return modalInstance.result;
+
+  }
+
+}]);
+
+/********************* Product Data Search modal **************************/
+angular.module('myApp').factory( 'ProductDataSearchModalSvc', [ '$uibModal', function( $uibModal ) {
+
+  return {
+    launch,
+  };
+
+  // launches the modal
+  async function launch( query ) {
+
+    const modalInstance = $uibModal.open({
+      templateUrl: '/partials/modals/_product_data_search_modal.html',
+      size: 'lg',
+      backdrop: 'static',
+      controller: 'ProductDataSearchModalCtrl as $ctrl',
+      resolve: {
+        data: function () {
+          return {
+            query,
+          };
+        }
+      },
+    });
+
+    return modalInstance.result;
+
+  }
+
+}]);
+
+
+/********************* Product Data Merge modal **************************/
+angular.module('myApp').factory( 'ProductDataMergeModalSvc', [ '$uibModal', function( $uibModal ) {
+
+  return {
+    launch,
+  };
+
+  // launches the modal
+  async function launch( current, incoming ) {
+
+    const modalInstance = $uibModal.open({
+      templateUrl: '/partials/modals/_product_data_merge_modal.html',
+      size: 'lg',
+      backdrop: 'static',
+      resolve: {
+        data: function () {
+          return {
+            // deep copies to avoid modifying the originals
+            current: JSON.parse( JSON.stringify( current ) ),
+            incoming: JSON.parse( JSON.stringify( incoming ) ),
+          };
+        }
+      },
+      controller: 'ProductDataMergeModalCtrl as $ctrl',
     });
 
     return modalInstance.result;
