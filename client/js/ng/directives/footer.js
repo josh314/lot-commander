@@ -6,5 +6,12 @@ angular.module('myApp').directive('footerDirective', function(){
     restrict: 'A',
     replace: true,
     templateUrl: '/partials/_footer.html',
+    controller: [ 'AppData', function( AppData ) {
+      const vm = this;
+      vm.version = AppData.version;
+      vm.author = AppData.author;
+      vm.year = (new Date()).getFullYear();
+    } ],
+    controllerAs: "$ctrl"
   };
 });

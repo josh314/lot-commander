@@ -17,7 +17,7 @@
   "keywords": [
     "app"
   ],
-  "author": "Jorshua \"El\" Davis",
+  "author": "Joshua \"El\" Davis",
   "license": "UNLICENSED",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.637.0",

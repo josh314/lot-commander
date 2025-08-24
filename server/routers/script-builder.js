@@ -3,6 +3,7 @@
 const express = require('express');
 const enums = require('../modules/enums');
 const helpers = require('../helpers');
+const packageJson = require('../package-json');
 
 module.exports = routes;
 
@@ -53,7 +54,10 @@ function routes({
       lengthUnits: enums.lengthUnits,
     };
 
+    const { version, author } = packageJson;
+
     const ngConstants = [
+      { name: 'AppData', data: { version, author } },
       { name: 'dbEnums', data: dbEnums },
       { name: 'listingsBoilerplate', data: listings.boilerplate },
       // { name: 'bstockFormConstants', data: bstock.constants },
