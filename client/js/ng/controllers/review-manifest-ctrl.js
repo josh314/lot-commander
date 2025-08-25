@@ -98,7 +98,7 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
         const item = vm.displayInventory[i];
         MediaSvc.loadRepresentativeImage({
           images: item.data.images,
-          containerId: `item-thumbnail-container-${item.data.barcode}`,
+          containerId: `item-thumbnail-container-${ item.data.barcode || '' }`,
           className: "inventory-preview-img"
         });
       }
@@ -113,11 +113,11 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
       initializeAllThumbnailImages();
     }
 
-    function refreshInventoryItemImage( inventoryItem) {
+    function refreshInventoryItemImage( inventoryItem ) {
 
       MediaSvc.loadRepresentativeImage({
         images: inventoryItem.data.images,
-        containerId: `item-thumbnail-container-${inventoryItem.data.barcode}`,
+        containerId: `item-thumbnail-container-${ inventoryItem.data.barcode || ''}`,
         className: "inventory-preview-img",
         replace: true
       });
