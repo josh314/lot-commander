@@ -6,11 +6,13 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
 
   '$uibModalInstance',
   'data',
+  'ProductDataSvc',
 
   function(
 
     $uibModalInstance,
     data,
+    ProductDataSvc,
 
   ) {
 
@@ -29,31 +31,31 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
           label: 'ASIN',
           key: 'asin',
           type: 'text',
-          incoming: incoming.asin,
-          current: current.asin,
+          replaceWith: incoming.asin,
+          currentValue: current.asin,
           selected: false,
         },        {
           label: 'Title',
           key: 'title',
           type: 'textarea',
-          incoming: incoming.title,
-          current: current.title,
+          replaceWith: incoming.title,
+          currentValue: current.title,
           selected: false,
         },
         {
           label: 'Brand',
           key: 'brand',
           type: 'text',
-          incoming: incoming.brand,
-          current: current.brand,
+          replaceWith: incoming.brand,
+          currentValue: current.brand,
           selected: false,
         },
         {
           label: 'Price',
           key: 'price',
           type: 'number',
-          incoming: incoming.price,
-          current: current.price,
+          replaceWith: incoming.price,
+          currentValue: current.price,
           selected: false,
         },
       ];
@@ -61,6 +63,11 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
       Object.assign(
         vm,
         {
+
+          incoming,
+          current,
+
+          replaceWithIsBundle: ProductDataSvc.isBundleListingTitle( incoming.title ),
 
           images: {
             current: Array.isArray( current.images ) ? current.images : [],
@@ -73,11 +80,16 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
           dataFields,
 
           confirm,
+          splitIncomingBundle,
           toggleSelectAll,
           toggleSelected,
         }
       );
 
+    }
+
+    function getDataField( key ) {
+      return vm.dataFields.find( _ => _.key === key );
     }
 
     function toggleSelectAll() {
@@ -88,6 +100,17 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
       vm.selectAll = vm.dataFields.every( item => item.selected );
     }
 
+    function splitIncomingBundle() {
+      const cleanTitle = ProductDataSvc.cleanBundleTitle( vm.incoming.title );
+      if( cleanTitle ) {
+        getDataField( 'title' ).replaceWith = cleanTitle;
+      }
+      const splitPrice = ProductDataSvc.splitBundlePrice( vm.incoming.title, vm.incoming.price );
+      if( splitPrice ) {
+        getDataField( 'price' ).replaceWith = splitPrice.toFixed(2);
+      }
+      vm.replaceWithIsBundle = false;
+    }
 
     function confirm() {
 
@@ -95,7 +118,7 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
 
       vm.dataFields.forEach( field => {
         if( field.selected ) {
-          result[ field.key ] = field.incoming;
+          result[ field.key ] = field.replaceWith;
         }
       });
 

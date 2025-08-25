@@ -2,8 +2,6 @@ const mongoose = require('mongoose');
 const axios = require('axios');
 const qs = require('querystring');
 
-const { parseListingTitle } = require('./product-data');
-
 /**********************************************
  * Constants & helpers
  * ==========
@@ -18,7 +16,6 @@ const ID_TYPE_ENUM = [
 function getPrice( product ) {
 
   const {
-    title,
     buybox_winner,
     more_buying_choices,
   } = product;
@@ -45,10 +42,7 @@ function getPrice( product ) {
     return null;
   }
 
-  const listingUnitQuantity = parseListingTitle( title ).quantity || 1;
-  const price = asinPrice / listingUnitQuantity;
-
-  return price.toFixed(2);
+  return asinPrice.toFixed(2);
 
 }
 
@@ -74,7 +68,7 @@ function processApiLookupProduct( product ) {
 
   const r = {
     asin: product.asin,
-    title: parseListingTitle( product.title ).title,
+    title: product.title,
     price: getPrice( product ),
     brand: getBrand( product ),
     images: getImages( product )

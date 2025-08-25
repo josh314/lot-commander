@@ -29,7 +29,7 @@ angular.module('myApp').controller( 'ProductDataSearchModalCtrl', [
           displayItems: [],
           query: data.query,
 
-          amazonUrlFromAsin: util.amazonUrlFromAsin,
+          amazonUrlFromAsin: ProductDataSvc.amazonUrlFromAsin,
           displayAsMoney: util.displayAsMoney,
           search,
           selectProduct,
@@ -56,7 +56,7 @@ angular.module('myApp').controller( 'ProductDataSearchModalCtrl', [
           continue;
         }
 
-        vm.displayItems.push( { product: _product } );
+        vm.displayItems.push( { product: _product, isBundle: ProductDataSvc.isBundleListingTitle( _product.title ) } );
 
       }
 

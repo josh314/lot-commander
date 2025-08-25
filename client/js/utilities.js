@@ -1,5 +1,3 @@
-import { lotCategories } from './constants';
-
 /*************************************************
  * text output
  * ===========
@@ -122,37 +120,6 @@ export function shopifyGid2Id( gid, type ) {
   return null;
 }
 
-/*************************************************
- * Product Data
- * ============
- *
- ******/
-
-export function productTitleForCategory( category ) {
-
-  const cat = lotCategories.find( c => c.value === category );
-  if( cat ) {
-    return `${ cat.displayName } item`;
-  }
-  else {
-    return 'Miscellaneous item';
-  }
-
-}
-
-export const priceRegex = /^\d+(\.\d{1,2})?$/;
-
-export function fillerPrice() {
-  const max = 16;
-  const min = 11;
-  return Math.floor(Math.random() * (max - min) ) + min + 0.99;
-}
-
-export function isAsin( str ) {
-  return typeof str === 'string' && str.match(/^B[A-Z0-9]{9}$/);
-}
-
-export const amazonUrlFromAsin = ( asin ) => `https://www.amazon.com/dp/${ asin }`;
 
 /*************************************************
  * Misc

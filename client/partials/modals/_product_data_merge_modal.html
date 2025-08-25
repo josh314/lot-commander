@@ -1,9 +1,16 @@
-<div class="product-data-search-modal">
+<div class="product-data-merge-modal">
 
-  <div class="modal-header product-data-search-modal">
+  <div class="modal-header">
     <h3 class="modal-title">Merge product data</h3>
   </div>
   <div class="modal-body">
+
+    <div class="product-data-merge__is-bundle-warning-container" ng-show="$ctrl.replaceWithIsBundle">
+      <p>The product listing selected for merging appears to be a bundle listing. Click the button below to split the bundle. This will clean the listing title of references to the bundle size and normalize the price to a single unit.</p>
+      <div class="product-data-merge__is-bundle-warning__split-pack-button-container">
+        <button ng-click="$ctrl.splitIncomingBundle()">Split bundle</button>
+      </div>
+    </div>
 
     <p>Check all desired replacements</p>
     <table class="table table-striped">
@@ -25,18 +32,18 @@
           <td>{{ $field.label }}</td>
           <td ng-switch="$field.type">
             <span ng-switch-when="textarea">
-              <textarea class="form-control" ng-model="$field.current" disabled></textarea>
+              <textarea class="form-control" ng-model="$field.currentValue" disabled></textarea>
             </span>
             <span ng-switch-default>
-              <input type="$field.type" class="form-control" ng-model="$field.current" disabled/>
+              <input type="$field.type" class="form-control" ng-model="$field.currentValue" disabled/>
             </span>
           </td>
           <td ng-switch="$field.type">
             <span ng-switch-when="textarea">
-              <textarea class="form-control" ng-model="$field.incoming"></textarea>
+              <textarea class="form-control" ng-model="$field.replaceWith"></textarea>
             </span>
             <span ng-switch-default>
-              <input type="$field.type" class="form-control" ng-model="$field.incoming"/>
+              <input type="$field.type" class="form-control" ng-model="$field.replaceWith"/>
             </span>
           </td>
         </tr>

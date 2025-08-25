@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const axios = require('axios');
 
-const { parseListingTitle, parseMoneyAsNumber } = require('./product-data');
+const { parseMoneyAsNumber } = require('./product-data');
 
 /**********************************************
  * Constants
@@ -33,29 +33,22 @@ const IMAGE_KEYS = [
  *
  *********/
 
-function getPrice( asinItem, markup ) {
+function getPrice( asinItem ) {
 
-  const price = asinItem.retailPrice || asinItem.price;
-  if( price ) {
-    let basePrice = parseMoneyAsNumber( price );
-
-    const listingUnitQuantity = parseListingTitle( asinItem.title ).quantity || 1;
-    basePrice = basePrice / listingUnitQuantity;
-
-    if( markup ) {
-      basePrice = basePrice*( 1 + markup );
-    }
-    return basePrice.toFixed(2);
+  const priceStr = asinItem.retailPrice || asinItem.price;
+  if( priceStr ) {
+    const price = parseMoneyAsNumber( price ); // this API returns prices as strings like "$12.34"
+    return price.toFixed(2);
   }
 
 }
 
-function processItem( asinItem, markup ) {
+function processItem( asinItem ) {
   const r = {};
 
   r.asin = asinItem.asin;
-  r.title = parseListingTitle( asinItem.title ).title;
-  r.price = getPrice( asinItem, markup );
+  r.title = asinItem.title;
+  r.price = getPrice( asinItem );
 
   r.images = [];
   for( let key of IMAGE_KEYS ) {

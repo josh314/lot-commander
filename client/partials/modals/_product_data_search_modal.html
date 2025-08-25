@@ -47,6 +47,7 @@
 
                 <div class="product-data-search__search-result-detailed-view__content-item">
                   <dl>
+                    <dt class="text-danger" ng-show="$item.isBundle">This item appears to be a bundle listing</dt>
                     <dt>ASIN</dt>
                     <dd>{{ $item.product.asin }}</dd>
                     <dt>Title</dt>

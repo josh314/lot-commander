@@ -1,7 +1,6 @@
 import angular from 'angular';
 
 import * as path from 'path';
-import * as util from '../../utilities';
 import * as api from '../../api';
 
 /********************* Helpers ***/
@@ -323,7 +322,7 @@ angular.module('myApp').factory( 'Lot', [
         }
         this.data.title = this.data.title || this.data.description;
 
-        if( this.data.barcode && util.isAsin( this.data.barcode ) ) {
+        if( this.data.barcode && ProductDataSvc.isAsin( this.data.barcode ) ) {
           this.barcodeIsAsin = true;
           this.data.asin = this.data.asin || this.data.barcode;
         }
@@ -365,7 +364,7 @@ angular.module('myApp').factory( 'Lot', [
 
       validatePrice( allowMissingPrice ) {
 
-        const priceError = allowMissingPrice && !this.data.price ? false : !util.priceRegex.test( this.data.price );
+        const priceError = allowMissingPrice && !this.data.price ? false : !ProductDataSvc.isPrice( this.data.price );
 
         this.errors.price = priceError;
 
@@ -395,7 +394,7 @@ angular.module('myApp').factory( 'Lot', [
         if( this.hasError() ) {
 
           if( this.errors.title ) {
-            this.data.title = util.productTitleForCategory( this.lot.category );
+            this.data.title = ProductDataSvc.productTitleForCategory( this.lot.category );
           }
 
           if( this.errors.quantity ) {
@@ -403,7 +402,7 @@ angular.module('myApp').factory( 'Lot', [
           }
 
           if( this.errors.price ) {
-            this.data.price = util.fillerPrice();
+            this.data.price = ProductDataSvc.fillerPrice();
           }
 
           this.validate();

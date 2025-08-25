@@ -9,6 +9,7 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
   'MediaSvc',
   'ModalSvc',
   'navigate',
+  'ProductDataSvc',
   'sessionTimeout',
 
   function(
@@ -17,6 +18,7 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
     MediaSvc,
     ModalSvc,
     navigate,
+    ProductDataSvc,
     sessionTimeout,
 
   ) {
@@ -52,7 +54,7 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
 
           addFallbackData,
           addInventoryItem,
-          amazonUrlFromAsin: util.amazonUrlFromAsin,
+          amazonUrlFromAsin: ProductDataSvc.amazonUrlFromAsin,
           deleteInventoryItem,
           disableAddFallbackData,
           finishReviewing,
@@ -66,7 +68,6 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
           updateItemFromTitleSearch,
           validateInventory,
 
-          util,
         }
       );
 
