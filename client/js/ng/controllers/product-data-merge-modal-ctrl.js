@@ -80,6 +80,7 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
           dataFields,
 
           confirm,
+          primarySetCb,
           splitIncomingBundle,
           toggleSelectAll,
           toggleSelected,
@@ -112,6 +113,16 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
       vm.replaceWithIsBundle = false;
     }
 
+    function primarySetCb( source ) {
+      if( source === 'incoming' ) {
+        vm.clearCurrentImagesPrimary = true;
+      }
+      else if( source === 'current' ) {
+        vm.clearIncomingImagesPrimary = true;
+      }
+      vm.primarySource = source;
+    }
+
     function confirm() {
 
       const result = {};
@@ -122,12 +133,7 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
         }
       });
 
-      if( vm.selectedImages.incoming.length > 0 || vm.selectedImages.current.length !== vm.images.current.length ) {
-        result.images = [
-          ...vm.selectedImages.incoming,
-          ...vm.selectedImages.current,
-        ];
-      }
+      result.images = vm.primarySource === 'incoming' ? [ ...vm.selectedImages.incoming, ...vm.selectedImages.current ] : [ ...vm.selectedImages.current, ...vm.selectedImages.incoming ];
 
       $uibModalInstance.close( result );
 

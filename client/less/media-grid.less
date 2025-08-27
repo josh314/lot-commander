@@ -1,7 +1,7 @@
 .media-grid__grid-container {
-  .row();
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-around;
 }
 
 .media-grid__grid-item( @num ) {
@@ -26,5 +26,15 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 0 4px;;
+
+  &__button-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+
+    & > span {
+      margin: 0 4px;
+    }
+  }
 }

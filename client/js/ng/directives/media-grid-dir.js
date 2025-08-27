@@ -1,5 +1,6 @@
 import angular from 'angular';
 
+
 /*********************** media grid directive & controller ***********************/
 angular.module('myApp').directive('mediaGridDir', function(){
   return {
@@ -11,7 +12,11 @@ angular.module('myApp').directive('mediaGridDir', function(){
       mediaType: '=',
       itemsPerRow: '<',
       defaultSelected: '=',
+      clearPrimary: '=?',
+
+      // output
       selectedMedia: '=',
+      primarySetCb: '&?',
     },
     controller: 'MediaGridDirCtrl as $ctrl',
   };
@@ -30,11 +35,13 @@ angular.module('myApp').controller( 'MediaGridDirCtrl', [
 
   ) {
 
+
     class GridImage {
 
       constructor( src, selected = false ) {
         this.src = src;
         this.selected = !!selected;
+        this.isPrimary = false;
       }
 
       preview() {
@@ -43,6 +50,24 @@ angular.module('myApp').controller( 'MediaGridDirCtrl', [
 
       toggleSelect() {
         this.selected = !this.selected;
+      }
+
+      setPrimary() {
+        this.selected = true;
+        this.isPrimary = true;
+        if( $scope.primarySetCb ) {
+          $scope.primarySetCb();
+        }
+      }
+
+      unsetPrimary() {
+        this.isPrimary = false;
+      }
+
+      reconcilePrimaryStatus() {
+        if( !this.selected ) {
+          this.isPrimary = false;
+        }
       }
 
     }
@@ -58,9 +83,11 @@ angular.module('myApp').controller( 'MediaGridDirCtrl', [
 
           gridMedia: [],
           mediaType: $scope.mediaType || 'images',
+          primarySet: false,
 
           isImageGrid,
           previewMedia,
+          setMediaAsPrimary,
 
         }
       );
@@ -71,7 +98,30 @@ angular.module('myApp').controller( 'MediaGridDirCtrl', [
         $scope.gridMedia = $scope.media.map( m => new GridImage( m, $scope.defaultSelected ) );
         vm.gridMedia = $scope.gridMedia;
       } );
-      $scope.$watch( 'gridMedia', updateSelectedMedia, true );
+
+      $scope.$watch(
+        'gridMedia',
+
+        // this function keeps $scope.selectedMedia updated
+        function() {
+
+          const selectedMedia = vm.gridMedia.filter( m => m.selected );
+          if( selectedMedia.length === 0 ) {
+            $scope.selectedMedia = [];
+          }
+          const primary = vm.gridMedia.find( m => m.isPrimary );
+          $scope.selectedMedia = ( primary ? [ primary, ...selectedMedia.filter( m => m !== primary ) ] : selectedMedia ).map( m => m.src );
+
+        },
+        true // watches deeply
+      );
+
+      $scope.$watch( 'clearPrimary', function( newVal ) {
+        if( newVal ) {
+          vm.gridMedia.forEach( m => m.unsetPrimary() );
+          $scope.clearPrimary = false;
+        }
+      } );
 
     }
 
@@ -85,8 +135,13 @@ angular.module('myApp').controller( 'MediaGridDirCtrl', [
       }
     }
 
-    function updateSelectedMedia() {
-      $scope.selectedMedia = vm.gridMedia.filter( m => m.selected ).map( m => m.src );
+    function setMediaAsPrimary( media ) {
+
+      if( !media ) { return; }
+
+      vm.gridMedia.forEach( m => m.unsetPrimary() );
+      media.setPrimary();
+
     }
 
   }

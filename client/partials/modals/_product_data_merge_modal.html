@@ -6,7 +6,7 @@
   <div class="modal-body">
 
     <div class="product-data-merge__is-bundle-warning-container" ng-show="$ctrl.replaceWithIsBundle">
-      <p>The product listing selected for merging appears to be a bundle listing. Click the button below to split the bundle. This will clean the listing title of references to the bundle size and normalize the price to a single unit.</p>
+      <p class="text-center">The product listing selected for merging appears to be a bundle listing. Click the button below to split the bundle. This will clean the listing title of references to the bundle size and normalize the price to a single unit.</p>
       <div class="product-data-merge__is-bundle-warning__split-pack-button-container">
         <button ng-click="$ctrl.splitIncomingBundle()">Split bundle</button>
       </div>
@@ -51,7 +51,7 @@
     </table>
 
     <h3>Images</h3>
-    <p>Images to be included are checked and highlighted in red. Check or un-check the desired images to make your selection. Click on the preview button to see it full-sized.</p>
+    <p class="text-center">Images to be included are checked and highlighted in red (primary image will be highlighted in green). Check or un-check the desired images to make your selection. Click on the preview button to see it full-sized.</p>
 
     <h4>New Images</h4>
     <media-grid-dir
@@ -60,6 +60,8 @@
       items-per-row="4"
       default-selected="false"
       selected-media="$ctrl.selectedImages.incoming"
+      clear-primary="$ctrl.clearIncomingImagesPrimary"
+      primary-set-cb="$ctrl.primarySetCb( 'incoming' )"
     ></media-grid-dir>
 
     <h4>Existing Images</h4>
@@ -69,6 +71,8 @@
       items-per-row="4"
       default-selected="true"
       selected-media="$ctrl.selectedImages.current"
+      clear-primary="$ctrl.clearCurrentImagesPrimary"
+      primary-set-cb="$ctrl.primarySetCb( 'current' )"
     ></media-grid-dir>
 
   </div>

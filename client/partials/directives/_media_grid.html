@@ -8,7 +8,13 @@
 
         <div class="media-grid__media-container" ng-show="$ctrl.isImageGrid()">
           <a href ng-click="$media.toggleSelect()">
-            <img ng-src="{{ $media.src }}" class="img-thumbnail" ng-class="{ 'img-thumbnail-highlighted': $media.selected }">
+            <img
+              ng-src="{{ $media.src }}"
+              class="img-thumbnail"
+              ng-class="{
+                'img-thumbnail-highlighted': $media.selected,
+                'img-thumbnail-highlighted-primary': $media.isPrimary
+              }">
           </a>
         </div>
 
@@ -18,13 +24,17 @@
           <div class="checkbox media-grid__controls-footer__checkbox-container">
             <span>
               <label>
-                <input type="checkbox" ng-model="$media.selected" uib-tooltip="{{ $media.selected ? 'Deselect' : 'Select' }} Image">
+                <input type="checkbox" ng-model="$media.selected" uib-tooltip="{{ $media.selected ? 'Deselect' : 'Select' }} Image" ng-change="$media.reconcilePrimaryStatus()"/>
                 Selected
               </label>
             </span>
           </div>
 
           <div class="media-grid__controls-footer__button-container">
+
+            <span>
+              <button class="btn btn-warning btn-xs" ng-click="$ctrl.setMediaAsPrimary( $media )">Set as Primary</button>
+            </span>
 
             <span>
               <button class="btn btn-primary btn-xs" ng-click="$media.preview()">Preview</button>
