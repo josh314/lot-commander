@@ -82,8 +82,8 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
           confirm,
           primarySetCb,
           splitIncomingBundle,
-          toggleSelectAll,
-          toggleSelected,
+          onToggleSelectAllDataFields,
+          setSelectAllDataFields,
         }
       );
 
@@ -93,12 +93,12 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
       return vm.dataFields.find( _ => _.key === key );
     }
 
-    function toggleSelectAll() {
-      vm.dataFields.forEach( item => item.selected = vm.selectAll );
+    function onToggleSelectAllDataFields() {
+      vm.dataFields.forEach( item => item.selected = vm.selectAllDataFields );
     }
 
-    function toggleSelected() {
-      vm.selectAll = vm.dataFields.every( item => item.selected );
+    function setSelectAllDataFields() {
+      vm.selectAllDataFields = vm.dataFields.every( item => item.selected );
     }
 
     function splitIncomingBundle() {

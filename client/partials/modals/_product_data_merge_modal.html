@@ -17,7 +17,7 @@
       <thead>
         <tr>
           <th>
-            <input type="checkbox" ng-model="$ctrl.selectAll" ng-change="$ctrl.toggleSelectAll()" uib-tooltip="{{ $ctrl.selectAll ? 'Deselect' : 'Select' }} All">
+            <input type="checkbox" ng-model="$ctrl.selectAllDataFields" ng-change="$ctrl.onToggleSelectAllDataFields()" uib-tooltip="{{ $ctrl.selectAllDataFields ? 'Deselect' : 'Select' }} All">
           </th>
           <th></th>
           <th>Current Value</th>
@@ -27,7 +27,7 @@
       <tbody>
         <tr ng-repeat="$field in $ctrl.dataFields track by $index">
           <td class="checkbox-cell">
-            <input type="checkbox" ng-model="$field.selected" ng-change="$ctrl.toggleSelected()" uib-tooltip="{{ $field.selected ? 'Deselect' : 'Select' }} {{ $field.label }}">
+            <input type="checkbox" ng-model="$field.selected" ng-change="$ctrl.setSelectAllDataFields()" uib-tooltip="{{ $field.selected ? 'Deselect' : 'Select' }} {{ $field.label }}">
           </td>
           <td>{{ $field.label }}</td>
           <td ng-switch="$field.type">
