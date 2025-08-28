@@ -5,8 +5,12 @@
   </div>
   <div class="modal-body">
 
-    <div class="product-data-merge__is-bundle-warning-container" ng-show="$ctrl.replaceWithIsBundle">
-      <p class="text-center">The product listing selected for merging appears to be a bundle listing. Click the button below to split the bundle. This will clean the listing title of references to the bundle size and normalize the price to a single unit.</p>
+    <div class="product-data-merge__is-bundle-warning-container" ng-show="$ctrl.showIsBundleWarning">
+      <p>
+        The product listing selected for merging appears to be a bundle listing.
+        Click the button below to split the bundle.
+        This will clean the listing title of references to the bundle size and normalize the price to that of a single unit.
+      </p>
       <div class="product-data-merge__is-bundle-warning__split-pack-button-container">
         <button ng-click="$ctrl.splitIncomingBundle()">Split bundle</button>
       </div>
@@ -17,7 +21,12 @@
       <thead>
         <tr>
           <th>
-            <input type="checkbox" ng-model="$ctrl.selectAllDataFields" ng-change="$ctrl.onToggleSelectAllDataFields()" uib-tooltip="{{ $ctrl.selectAllDataFields ? 'Deselect' : 'Select' }} All">
+            <input
+              type="checkbox"
+              ng-checked="$ctrl.allDataFieldsSelected()"
+              ng-click="$ctrl.toggleAllDataFieldsSelected( !$ctrl.allDataFieldsSelected() )"
+              uib-tooltip="{{ $ctrl.allDataFieldsSelected() ? 'Deselect' : 'Select' }} All"
+            >
           </th>
           <th></th>
           <th>Current Value</th>
@@ -27,7 +36,7 @@
       <tbody>
         <tr ng-repeat="$field in $ctrl.dataFields track by $index">
           <td class="checkbox-cell">
-            <input type="checkbox" ng-model="$field.selected" ng-change="$ctrl.setSelectAllDataFields()" uib-tooltip="{{ $field.selected ? 'Deselect' : 'Select' }} {{ $field.label }}">
+            <input type="checkbox" ng-model="$field.selected" uib-tooltip="{{ $field.selected ? 'Deselect' : 'Select' }} {{ $field.label }}">
           </td>
           <td>{{ $field.label }}</td>
           <td ng-switch="$field.type">
@@ -50,8 +59,26 @@
       </tbody>
     </table>
 
+    <hr/>
+
     <h3>Images</h3>
-    <p class="text-center">Images to be included are checked and highlighted in red (primary image will be highlighted in green). Check or un-check the desired images to make your selection. Click on the preview button to see it full-sized.</p>
+    <div class="product-data-merge__images-section__top-matter-container">
+
+      <p>Images to be included are checked and highlighted in red and the primary image will be highlighted in green. Click on the preview button to see it full-sized.</p>
+
+      <div class="checkbox product-data-merge__select-all-images-checkbox-container">
+        <span>
+          <label>
+            <input type="checkbox"
+                  ng-checked="$ctrl.allImagesSelected()"
+                  ng-click="$ctrl.toggleAllImagesSelected( !$ctrl.allImagesSelected())"
+                  uib-tooltip="{{ $ctrl.allImagesSelected() ? 'Deselect' : 'Select' }} All">
+            <span class="h4">Select All Images</span>
+          </label>
+        </span>
+      </div>
+
+    </div>
 
     <h4>New Images</h4>
     <media-grid-dir
@@ -62,6 +89,8 @@
       selected-media="$ctrl.selectedImages.incoming"
       clear-primary="$ctrl.clearIncomingImagesPrimary"
       primary-set-cb="$ctrl.primarySetCb( 'incoming' )"
+      hide-select-all="true"
+      register-api="$ctrl.registerGridApi( api )"
     ></media-grid-dir>
 
     <h4>Existing Images</h4>
@@ -73,6 +102,8 @@
       selected-media="$ctrl.selectedImages.current"
       clear-primary="$ctrl.clearCurrentImagesPrimary"
       primary-set-cb="$ctrl.primarySetCb( 'current' )"
+      hide-select-all="true"
+      register-api="$ctrl.registerGridApi( api )"
     ></media-grid-dir>
 
   </div>

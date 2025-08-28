@@ -1,5 +1,23 @@
 <div class="media-grid__directive-container">
 
+  <div class="media-grid__select-all-container" ng-show="$ctrl.showSelectAll">
+
+    <div class="checkbox media-grid__select-all-checkbox-container">
+      <span>
+        <label>
+          <input
+            type="checkbox"
+            ng-checked="$ctrl.allSelected()"
+            ng-click="$ctrl.toggleAllSelected( !$ctrl.allSelected() )"
+            uib-tooltip="{{ $ctrl.allSelected() ? 'Deselect' : 'Select' }} All"
+          >
+          <span class="h4">Select All</span>
+        </label>
+      </span>
+    </div>
+
+  </div>
+
   <div class="media-grid__grid-container">
 
     <div class="media-grid__grid-item-{{ itemsPerRow }}" ng-repeat="$media in $ctrl.gridMedia">
@@ -24,7 +42,7 @@
           <div class="checkbox media-grid__controls-footer__checkbox-container">
             <span>
               <label>
-                <input type="checkbox" ng-model="$media.selected" uib-tooltip="{{ $media.selected ? 'Deselect' : 'Select' }} Image" ng-change="$media.reconcilePrimaryStatus()"/>
+                <input type="checkbox" ng-model="$media.selected" uib-tooltip="{{ $media.selected ? 'Deselect' : 'Select' }} Image"/>
                 Selected
               </label>
             </span>

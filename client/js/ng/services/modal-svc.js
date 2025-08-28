@@ -933,7 +933,7 @@ angular.module('myApp').factory( 'ReviewImagesModalSvc', [ '$uibModal', function
         }
 
         function addImage() {
-          vm.images = [ vm.newImageUrl, ...vm.images ];
+          vm.images.push( vm.newImageUrl );
           vm.newImageUrl = '';
         }
 

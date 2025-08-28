@@ -67,7 +67,7 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
           incoming,
           current,
 
-          replaceWithIsBundle: ProductDataSvc.isBundleListingTitle( incoming.title ),
+          showIsBundleWarning: ProductDataSvc.isBundleListingTitle( incoming.title ),
 
           images: {
             current: Array.isArray( current.images ) ? current.images : [],
@@ -78,12 +78,19 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
             incoming: [],
           },
           dataFields,
+          imageGridApis: [],
 
           confirm,
           primarySetCb,
           splitIncomingBundle,
-          onToggleSelectAllDataFields,
-          setSelectAllDataFields,
+
+          allDataFieldsSelected,
+          toggleAllDataFieldsSelected,
+
+          allImagesSelected,
+          toggleAllImagesSelected,
+
+          registerGridApi,
         }
       );
 
@@ -93,12 +100,12 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
       return vm.dataFields.find( _ => _.key === key );
     }
 
-    function onToggleSelectAllDataFields() {
-      vm.dataFields.forEach( item => item.selected = vm.selectAllDataFields );
+    function allDataFieldsSelected() {
+      return vm.dataFields.every( item => item.selected );
     }
 
-    function setSelectAllDataFields() {
-      vm.selectAllDataFields = vm.dataFields.every( item => item.selected );
+    function toggleAllDataFieldsSelected( val ) {
+      vm.dataFields.forEach( item => item.selected = !!val );
     }
 
     function splitIncomingBundle() {
@@ -110,7 +117,7 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
       if( splitPrice ) {
         getDataField( 'price' ).replaceWith = splitPrice.toFixed(2);
       }
-      vm.replaceWithIsBundle = false;
+      vm.showIsBundleWarning = false;
     }
 
     function primarySetCb( source ) {
@@ -121,6 +128,18 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
         vm.clearIncomingImagesPrimary = true;
       }
       vm.primarySource = source;
+    }
+
+    function registerGridApi( api ) {
+      vm.imageGridApis.push( api );
+    }
+
+    function allImagesSelected() {
+      return vm.imageGridApis.every( api => api.allSelected() );
+    }
+
+    function toggleAllImagesSelected( val ) {
+      vm.imageGridApis.forEach( api => api.toggleAllSelected( val ) );
     }
 
     function confirm() {
@@ -138,6 +157,7 @@ angular.module('myApp').controller( 'ProductDataMergeModalCtrl', [
       $uibModalInstance.close( result );
 
     }
+
 
   }
 ]);

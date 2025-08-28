@@ -13,10 +13,12 @@ angular.module('myApp').directive('mediaGridDir', function(){
       itemsPerRow: '<',
       defaultSelected: '=',
       clearPrimary: '=?',
+      hideSelectAll: '<?',
 
       // output
       selectedMedia: '=',
       primarySetCb: '&?',
+      registerApi: '&?',
     },
     controller: 'MediaGridDirCtrl as $ctrl',
   };
@@ -84,10 +86,14 @@ angular.module('myApp').controller( 'MediaGridDirCtrl', [
           gridMedia: [],
           mediaType: $scope.mediaType || 'images',
           primarySet: false,
+          showSelectAll: $scope.hideSelectAll !== true,
 
           isImageGrid,
           previewMedia,
           setMediaAsPrimary,
+
+          allSelected,
+          toggleAllSelected,
 
         }
       );
@@ -123,6 +129,15 @@ angular.module('myApp').controller( 'MediaGridDirCtrl', [
         }
       } );
 
+      if( $scope.registerApi ) {
+        $scope.registerApi( {
+          api: {
+            allSelected,
+            toggleAllSelected,
+          }
+        } );
+      }
+
     }
 
     function isImageGrid() {
@@ -133,6 +148,14 @@ angular.module('myApp').controller( 'MediaGridDirCtrl', [
       if( isImageGrid() ) {
         media.preview();
       }
+    }
+
+    function allSelected() {
+      return vm.gridMedia.length > 0 && vm.gridMedia.every( m => m.selected );
+    }
+
+    function toggleAllSelected( val ) {
+      vm.gridMedia.forEach( m => m.selected = !!val );
     }
 
     function setMediaAsPrimary( media ) {
