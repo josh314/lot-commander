@@ -1035,6 +1035,8 @@ angular.module('myApp').factory( 'Lot', [
 
       composeInventoryErrorsHtmlMessage() {
 
+        const invalidQuantityBarcodes = [];
+        const missingImageBarcodes = [];
         const invalidPriceBarcodes = [];
         const duplicateBarcodes = new Set();
 
@@ -1046,6 +1048,14 @@ angular.module('myApp').factory( 'Lot', [
 
           if( item.errors.duplicateBarcode ) {
             duplicateBarcodes.add( item.data.barcode );
+          }
+
+          if( item.errors.images ) {
+            missingImageBarcodes.push( item.data.barcode );
+          }
+
+          if( item.errors.quantity ) {
+            invalidQuantityBarcodes.push( item.data.barcode );
           }
 
         }
@@ -1066,6 +1076,24 @@ angular.module('myApp').factory( 'Lot', [
               <h4>Duplicate barcodes</h4>
               <ul>
                 ${ [ ...duplicateBarcodes ].map( barcode => `<li>${ barcode }</li>` ).join('') }
+              </ul>
+            `;
+        }
+
+        if( missingImageBarcodes.length ) {
+          msg += `
+              <h4>Missing images</h4>
+              <ul>
+                ${ missingImageBarcodes.map( barcode => `<li>${ barcode }</li>` ).join('') }
+              </ul>
+            `;
+        }
+
+        if( invalidQuantityBarcodes.length ) {
+          msg += `
+              <h4>Invalid quantity</h4>
+              <ul>
+                ${ invalidQuantityBarcodes.map( barcode => `<li>${ barcode }</li>` ).join('') }
               </ul>
             `;
         }
