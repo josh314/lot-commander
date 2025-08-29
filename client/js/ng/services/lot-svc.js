@@ -336,12 +336,12 @@ angular.module('myApp').factory( 'Lot', [
         this.isDirty = true;
       }
 
-      validate( { allowMissingTitle, allowMissingPrice } = {} ) {
+      validate( { allowMissingTitle, allowMissingPrice, allowMissingImages } = {} ) {
         this.resetErrors();
         const titleValid = this.validateTitle( allowMissingTitle );
         const quantityValid = this.validateQuantity();
         const priceValid = this.validatePrice( allowMissingPrice );
-        const imagesValid = this.validateImages();
+        const imagesValid = this.validateImages( allowMissingImages );
         return quantityValid && priceValid && titleValid && imagesValid;
       }
 
@@ -364,16 +364,16 @@ angular.module('myApp').factory( 'Lot', [
 
       validatePrice( allowMissingPrice ) {
 
-        const priceError = allowMissingPrice && !this.data.price ? false : !ProductDataSvc.isPrice( this.data.price );
+        const priceError = ( allowMissingPrice && !this.data.price ) ? false : !ProductDataSvc.isPrice( this.data.price );
 
         this.errors.price = priceError;
 
         return !priceError;
       }
 
-      validateImages() {
+      validateImages( allowMissingImages ) {
 
-        const imagesError = !Array.isArray( this.data.images ) || this.data.images <= 0;
+        const imagesError = allowMissingImages ? false : !Array.isArray( this.data.images ) || this.data.images <= 0;
 
         this.errors.images = imagesError;
 

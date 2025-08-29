@@ -228,9 +228,9 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
 
     }
 
-    async function saveManifest() {
+    async function saveManifest( ignoreValidation = false ) {
 
-      if( !validateInventory() ) {
+      if( !ignoreValidation && !validateInventory() ) {
 
         const isConfirmed = await ModalSvc.confirm( {
           header: 'Invalid data',
@@ -266,6 +266,8 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
 
     async function finishReviewing() {
 
+      let ignoreValidation = false;
+
       const isConfirmed = await ModalSvc.confirm({
         header: 'Finished?',
         body: 'This will save the current manifest and mark the lot as reviewed. Continue?'
@@ -273,14 +275,30 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
 
       if( isConfirmed ) {
 
-        const { success, manifest: _manifest } = await saveManifest();
+        if( !validateInventory() ) {
 
-        if( success ) {
-          vm.lot.markAsReviewed();
-          await vm.lot.save();
-          navigate.viewLot( vm.lot._id );
+          ignoreValidation = await ModalSvc.confirm( {
+            header: 'Finish despite errors?',
+            html: `<p>The data for this manifest still has the following errors:</p> ${ vm.lot.composeInventoryErrorsHtmlMessage() }<p>Finish anyway?</p>`,
+            type: 'error',
+            trueText: 'Finish anyway',
+            falseText: 'Cancel'
+          } );
+
+          if( !ignoreValidation ) {
+            return { success: false };
+          }
+
         }
 
+      }
+
+      const { success, manifest: _manifest } = await saveManifest( ignoreValidation );
+
+      if( success ) {
+        vm.lot.markAsReviewed();
+        await vm.lot.save();
+        navigate.viewLot( vm.lot._id );
       }
 
     }

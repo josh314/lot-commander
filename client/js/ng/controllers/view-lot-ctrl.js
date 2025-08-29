@@ -267,7 +267,7 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     function editShippingItemsCb (shippingItems) {
       if(shippingItems) {
         vm.lot.shippingItems = shippingItems;
-        return LotSvc.edit( vm.lot._id , vm.lot ).then( _lot => {
+        return vm.lot.save().then( _lot => {
           navigate.reload();
         });
       }

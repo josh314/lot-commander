@@ -6,6 +6,7 @@ const __MAX_DISPLAY_INVENTORY__ = 50;
 const __INVENTORY_VALIDATION_OPTIONS__ = {
   allowMissingTitle: true,
   allowMissingPrice: true,
+  allowMissingImages: true,
 };
 
 /******************* Scanning Page Controller *************************/
@@ -151,34 +152,35 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
     async function saveManifest() {
 
-      if( validateInventory( __INVENTORY_VALIDATION_OPTIONS__ ) ) {
+      if( !validateInventory( __INVENTORY_VALIDATION_OPTIONS__ )) {
 
-        const manifest = await ModalSvc.wait({
-          waitFor: save(),
-          message: 'Saving manifest...',
-        });
-        vm.lastSavedInventory = vm.lot.serializedInventory();
-        console.log('saveManifest result:', manifest);
-
-        await ModalSvc.message( {
-          header: 'Success',
-          html: '<p>The manifest has been saved.</p>',
-          buttonText: 'Continue',
-        });
-        return { success: true, manifest };
-
-      }
-      else {
-
-        ModalSvc.message( {
+        const isConfirmed = await ModalSvc.confirm( {
           header: 'Invalid data',
-          html: `<p>The data for this manifest is invalid. Please correct these errors:</p> ${ vm.lot.composeInventoryErrorsHtmlMessage() }`,
+          html: `<p>The data for this manifest is invalid with these errors:</p> ${ vm.lot.composeInventoryErrorsHtmlMessage() }`,
           type: 'error',
+          trueText: 'Save anyway',
+          falseText: 'Cancel'
         } );
 
-        return { success: false };
+        if( !isConfirmed ) {
+          return { success: false };
+        }
 
       }
+
+      const manifest = await ModalSvc.wait({
+        waitFor: save(),
+        message: 'Saving manifest...',
+      });
+      vm.lastSavedInventory = vm.lot.serializedInventory();
+      console.log('saveManifest result:', manifest);
+
+      await ModalSvc.message( {
+        header: 'Success',
+        html: '<p>The manifest has been saved.</p>',
+        buttonText: 'Continue',
+      });
+      return { success: true, manifest };
 
     }
 
