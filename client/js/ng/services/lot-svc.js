@@ -899,7 +899,7 @@ angular.module('myApp').factory( 'Lot', [
 
         });
 
-        this.updateTotalUnits();
+        this.updateSyntheticFieldsFromInventory();
 
         const inventoryData = [];
         for( let item of this._inventory ) {
@@ -940,9 +940,22 @@ angular.module('myApp').factory( 'Lot', [
 
       }
 
+      updateSyntheticFieldsFromInventory() {
+        this.updateTotalUnits();
+        this.updateEstimatedRetailValue();
+      }
+
+
       updateTotalUnits() {
         this.totalUnits = this._inventory ? this._inventory.reduce((sum,item) => sum + parseInt(item.data.quantity), 0) : 0 ;
         return this.totalUnits;
+      }
+
+      updateEstimatedRetailValue() {
+        this.estimatedRetailValue = this._inventory ? this._inventory.reduce((sum,item) => {
+          return sum + ( item.data.price && item.data.quantity ? parseInt(item.data.quantity)*parseFloat(item.data.price) : 0 );
+        }, 0) : 0;
+        return this.estimatedRetailValue;
       }
 
       addInventory(newBarcode) {
