@@ -26,6 +26,30 @@ function getProductType( lot ) {
 
 }
 
+function getUnitCountRange( totalUnits ) {
+
+  if( !totalUnits || isNaN(totalUnits) ) {
+    return null;
+  }
+  else if( totalUnits < 100 ) {
+    return 'Under 100';
+  }
+  else if( totalUnits >= 100 && totalUnits <= 299 ) {
+    return '100-299';
+  }
+  else if( totalUnits >= 300 && totalUnits <= 499 ) {
+    return '300-499';
+  }
+  else if( totalUnits >= 500 && totalUnits <= 999 ) {
+    return '500-999';
+  }
+  else if( totalUnits >= 1000 ) {
+    return '1000+';
+  }
+
+}
+
+
 /****************************************************
  * Shopify Admin Client
  * =====================
@@ -57,6 +81,19 @@ class Client {
       metafields: [],
       productType: getProductType( listing.lot ),
     };
+
+    if( listing.lot.totalUnits ) {
+      productToCreate.productOptions = [
+        {
+          name: 'Unit Count',
+          values: [
+            {
+              name: `${listing.lot.totalUnits}`
+            }
+          ]
+        }
+      ];
+    }
 
     // video metafield
     if( Array.isArray( listing.lot.videos ) && listing.lot.videos.length > 0 ) {
@@ -240,7 +277,7 @@ class Client {
     // Now define the product variant
     const variant = {
       barcode: listing.lot.handle,
-      optionValues: [ { "optionName": "Title", "name": listing.lot.totalUnits ? `${listing.lot.totalUnits}` : 'Default Title' } ],
+      optionValues: [ { "optionName": "Unit Count", "name": listing.lot.totalUnits ? `${listing.lot.totalUnits}` : 'Default Title' } ],
       price: listing.shopifyPrice,
       metafields: [],
       inventoryItem: {
@@ -301,6 +338,18 @@ class Client {
         key: 'flat_rate',
         value: `${ listing.shopifyShippingRate }`,
         type: 'number_decimal',
+      };
+      variant.metafields.push( metafield );
+
+    }
+
+    if( listing.lot.totalUnits ) {
+
+      const metafield = {
+        namespace: 'wsn',
+        key: 'unitCountRange',
+        value: getUnitCountRange( listing.lot.totalUnits ),
+        type: 'single_line_text_field',
       };
       variant.metafields.push( metafield );
 

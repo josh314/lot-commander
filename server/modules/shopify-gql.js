@@ -1027,6 +1027,13 @@ class Client {
               count
               precision
             }
+            options {
+              id
+              name
+              optionValues {
+                name
+              }
+            }
             ${ metafieldsReturnFormat( product.metafields ) }
             variants ( first: 1 ) {
               edges {
