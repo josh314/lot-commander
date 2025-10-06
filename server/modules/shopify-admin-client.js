@@ -1,3 +1,37 @@
+
+/****************************************************
+ * Helpers
+ * =======
+ *
+ *****************************************************/
+
+function getProductType( lot ) {
+
+  const { category } = lot;
+
+  if( category === 'personal care' ) {
+    return 'Personal Care';
+  }
+  if( category === 'cosmetics' ) {
+    return 'Cosmetics';
+  }
+  if( category === 'clothing' ) {
+    return 'Clothing';
+  }
+  if( category === 'general merchandise' ) {
+    return 'General Merchandise';
+  }
+
+  return '';
+
+}
+
+/****************************************************
+ * Shopify Admin Client
+ * =====================
+ *
+ *****************************************************/
+
 class Client {
   constructor( { shopifyGql, manifests } ) {
 
@@ -21,6 +55,7 @@ class Client {
       tags: listing.shopifyTags,
       vendor: 'Wholesale Ninjas',
       metafields: [],
+      productType: getProductType( listing.lot ),
     };
 
     // video metafield
@@ -67,7 +102,7 @@ class Client {
         namespace: 'lot',
         key: 'totalUnits',
         value: `${ parseInt( listing.lot.totalUnits ) }`,
-        type: 'integer',
+        type: 'number_integer',
       };
       productToCreate.metafields.push( metafield );
 
