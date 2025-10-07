@@ -301,10 +301,16 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
       const imgUrl = event.target.currentSrc;
 
+      const html = `
+        <div class="confirm-add-lot-image-modal__container">
+          <img class="confirm-add-lot-image-modal__image" src="${ imgUrl }"/>
+        </div>
+      `;
+
       ModalSvc.confirm({
         header: "Add Image",
         body: "Add this as a lot image?",
-        html: `<img src="${ imgUrl }" />`
+        html,
       }).then( isConfirmed => {
 
         if( isConfirmed ) {
