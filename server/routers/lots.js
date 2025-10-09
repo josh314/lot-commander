@@ -565,7 +565,7 @@ function routes({ inventoryCommander, lotdb, manifests }) {
       let imageUrls = [];
       if( manifestItems && manifestItems.length ) {
 
-        imageUrls = manifestItems.filter(_item => Array.isArray( _item.Image ) ).map( _item => _item.Image[ helpers.getRandomArrayIndex( _item.Image ) ] ).filter( _ => _ );
+        imageUrls = manifestItems.filter(_item => Array.isArray( _item.Image ) ).map( _item => _item.Image[ 0 ] ).filter( _ => _ );
 
       }
       else {
