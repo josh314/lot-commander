@@ -1,6 +1,8 @@
 
 import angular from 'angular';
 
+import * as util from '../../utilities';
+
 /******************* View Lot Controller *************************/
 angular.module('myApp').controller('GalleryCtrl', [
 
@@ -31,11 +33,12 @@ angular.module('myApp').controller('GalleryCtrl', [
           saveCollageCb,
 
           revealAndRenderCollage,
+          previewImage,
+          reviewImages,
 
           showCollage: false,
           collageSaved: false,
 
-          productImages: [],
           galleryItems: [],
 
           isPrimaryImage: false,
@@ -75,7 +78,7 @@ angular.module('myApp').controller('GalleryCtrl', [
 
       const inventory = vm.lot.getInventoryDataSortedByBarcode();
 
-      const productItems = inventory.map( _ => ({ upc: _.barcode, title: _.description, images: _.images }) );
+      const productItems = inventory.map( _ => ({ upc: _.barcode, title: _.title || _.description, images: _.images }) );
 
       populateGalleryImages( productItems );
 
@@ -133,6 +136,45 @@ angular.module('myApp').controller('GalleryCtrl', [
       }
 
     }
+
+    function previewImage( image ) {
+      ModalSvc.imagePreview( image.src );
+    }
+
+    async function reviewImages( item ) {
+
+      console.log('reviewImages', item);
+
+      const reviewedImages = await ModalSvc.reviewImages( item.images.map( img => img.src ) );
+
+      const inventoryItem = vm.lot.getInventoryItemByBarcode( item.upc );
+
+      if( util.isEqual( reviewedImages , inventoryItem.data.images ) ) {
+        return;
+      }
+
+      inventoryItem.update( { images: reviewedImages } );
+      await ModalSvc.wait({
+        waitFor: vm.lot.saveManifest(),
+        message: 'Saving manifest...',
+      });
+
+      const images = [];
+
+      for ( const imgSrc of reviewedImages ) {
+        let img = item.images.find( _ => _.src === imgSrc );
+        if( !img ) {
+          img = await MediaSvc.loadImageWithTimeoutAndPlaceholder(10000, null)( imgSrc );
+        }
+        if( img && img.width > 1 && img.height > 1 ) {
+          images.push( img );
+        }
+      }
+
+      item.images = images;
+
+    }
+
 
   }
 ]);

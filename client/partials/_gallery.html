@@ -38,18 +38,20 @@
       <div class="row" style="margin-left: 8px; margin-right: 8px;">
         <div id="gallery-container" class="row">
           <div ng-repeat="$item in $ctrl.galleryItems">
-            <div ng-show="$item.images.length">
-
+            <div class="gallery-item__content-container" ng-show="$item.images.length">
               <dl>
                 <dt>UPC</dt>
                 <dd>{{ $item.upc }}</dd>
                 <dt>Title</dt>
                 <dd>{{ $item.title }}</dd>
               </dl>
-              <div class="row">
-                <div class="col-xs-6 col-sm-4 col-md-3 col-lg-1" ng-repeat="$image in $item.images track by $index">
-                  <a ng-href="{{$image.src}}"><img class="img-responsive" ng-src="{{$image.src}}"></a>
+              <div class="gallery-item__item-images">
+                <div class="gallery-item__image-container" ng-repeat="$image in $item.images track by $index">
+                  <a ng-click="$ctrl.previewImage( $image )"><img class="img-responsive img-thumbnail" ng-src="{{$image.src}}"></a>
                 </div>
+              </div>
+              <div class="gallery-item__review-images-button-container">
+                <button class="btn btn-primary btn-xs" ng-click="$ctrl.reviewImages($item)">review images</button>
               </div>
             </div>
           </div>
