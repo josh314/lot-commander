@@ -75,6 +75,8 @@ class Client {
     // product metafields
     //////////////////////
 
+    const metafieldFeaturesSet = new Set();
+
     let estimatedRetailValue;
     if( listing.estimatedRetailValue ) {
       estimatedRetailValue = listing.estimatedRetailValue;
@@ -118,6 +120,8 @@ class Client {
         type: 'url',
       };
       productToCreate.metafields.push( metafield );
+
+      metafieldFeaturesSet.add( "manifested");
 
     }
 
@@ -172,6 +176,18 @@ class Client {
 
       }
 
+      metafieldFeaturesSet.add( "manifested" );
+
+    }
+
+    if( metafieldFeaturesSet.size > 0 ) {
+
+      const metafield = {
+        namespace: 'wsn',
+        key: 'features',
+        value: JSON.stringify( [ ...metafieldFeaturesSet ] ),
+      };
+      productToCreate.metafields.push( metafield );
     }
 
     // add images
