@@ -74,7 +74,6 @@ class Client {
       status: 'DRAFT',
       title: listing.lot.listingData.title,
       descriptionHtml: listing.lot.listingData.body + '<br><br>' + listing.bodyBoilerplate,
-      templateSuffix: 'lot',
       publishedAt: null,
       tags: listing.shopifyTags,
       vendor: 'Wholesale Ninjas',
