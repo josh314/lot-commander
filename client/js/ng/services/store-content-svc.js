@@ -5,7 +5,7 @@ import * as api from '../../api';
 /******************* Store Content Service *************************/
 angular.module('myApp').factory('StoreContentSvc', [ '$q', function( $q ) {
 
-  const deleteContent = ( gid, env ) => $q.when( api.deleteStoreContent( gid, { env } ) );
+  const deleteContent = ( content ) => $q.when( api.deleteStoreContent( content ) );
 
   return {
 
@@ -23,7 +23,7 @@ angular.module('myApp').factory('StoreContentSvc', [ '$q', function( $q ) {
 
     delete: deleteContent,
 
-    deleteMany: ( content ) => $q.when( Promise.all( content.map( _c => deleteContent( _c.gid, _c.env ) ) ) ),
+    deleteMany: contents => $q.when( Promise.all( contents.map( deleteContent ) ) ),
 
   };
 

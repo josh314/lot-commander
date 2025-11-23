@@ -50,7 +50,7 @@ function routes({ shopifyGql, storeMetafieldSchemaDb }) {
     editContent
   );
   router.delete(
-    '/:id',
+    '/',
     auth.isAuthorized( 'DELETE_STORE_CONTENT' ),
     deleteContent
   );
@@ -149,11 +149,16 @@ function routes({ shopifyGql, storeMetafieldSchemaDb }) {
 
       const env = getClientEnvStr( req );
 
-      const gid = decodeURIComponent( req.params.id );
+      const ownerId = req.query.ownerId ? decodeURIComponent( req.query.ownerId ) : undefined;
 
-      const { deletedId } = await shopifyGql[ env ].deleteMetafield( gid );
+      const {
+        namespace,
+        key
+      } = req.query;
 
-      res.json( { deletedId } );
+      const { deletedMetafields: _ } = await shopifyGql[ env ].removeMetafield( ownerId, namespace, key );
+
+      res.json( { success: true, deletedContent: { ownerId, namespace, key, env } } );
     }
     catch(e) {
       return next(e);

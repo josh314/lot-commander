@@ -1453,11 +1453,20 @@ export function editStoreContent( content, queryParams ) {
 
 }
 
-export function deleteStoreContent( gid, queryParams ) {
+export function deleteStoreContent( content ) {
+
+  const { ownerId, namespace, key, env } = content;
+
+  const queryParams = {
+    ownerId,
+    namespace,
+    key,
+    env
+  };
 
   return axios({
     method: 'delete',
-    url: `/api/content/${ encodeURIComponent(gid) }?${ queryParams ? getQueryString( queryParams ) : '' }`
+    url: `/api/content/?${ getQueryString( queryParams ) }`
   })
     .then( resp => resp.data );
 

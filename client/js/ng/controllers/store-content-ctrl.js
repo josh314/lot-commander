@@ -588,15 +588,22 @@ angular.module('myApp').controller('StoreContentCtrl', [
         return;
       }
 
-      const contentToDelete = Object.entries( content.id ).map( entry => ( { gid: entry[1], env: entry[0] } ) );
+      const contentToDelete = Object.entries( content.id ).map( entry => ( {
+        ownerId: '',
+        namespace: content.namespace,
+        key: content.key,
+        env: entry[0]
+      } ) );
 
       return StoreContentSvc.deleteMany( contentToDelete ).then( responses => {
 
         for( let resp of responses ) {
 
-          if( resp.deletedId ) {
+          const { deletedContent } = resp;
 
-            const idx = __ALL_CONTENT__.findIndex( _c => _c.id === resp.deletedId );
+          if( deletedContent && deletedContent.namespace && deletedContent.key && deletedContent.env ) {
+
+            const idx = __ALL_CONTENT__.findIndex( _c => _c.namespace === deletedContent.namespace && _c.key === deletedContent.key && _c.env === deletedContent.env );
 
             if( idx >= 0 ) {
 

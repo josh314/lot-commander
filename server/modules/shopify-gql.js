@@ -778,68 +778,63 @@ class Client {
     }
   }
 
-  async deleteMetafield( gid ) {
+  async removeMetafield( ownerId, namespace, key ) {
 
     try {
-      const resp = await this.gqlRequest( {
-        gqlQuery: `
-          mutation
-          {
-            metafieldDelete(input: {
-              id: "${ gid }"
-            }) {
-              deletedId
-              userErrors {
-                field
-                message
-              }
+
+      const gqlQuery = `
+        mutation MetafieldsDelete($metafields: [MetafieldIdentifierInput!]!) {
+          metafieldsDelete(metafields: $metafields) {
+            deletedMetafields {
+              key
+              namespace
+              ownerId
+            }
+            userErrors {
+              field
+              message
             }
           }
-        `,
+        }
+      `;
+
+      if( !ownerId ) {
+        ownerId = this.storeId;
+      }
+
+      const variables = {
+        metafields: [
+          {
+            ownerId,
+            namespace,
+            key
+          }
+        ]
+      };
+
+      const resp = await this.gqlRequest( {
+        gqlQuery,
+        variables,
         debug: false
       });
 
-      if( resp.data.metafieldDelete.userErrors.length ) {
-        throw new Error(resp.data.metafieldDelete.userErrors);
+      if( resp.data.metafieldsDelete.userErrors.length ) {
+        throw new Error( JSON.stringify(resp.data.metafieldsDelete.userErrors, null, 2) );
       }
 
-      return resp.data.metafieldDelete;
+      return { deletedMetafields: resp.data.metafieldsDelete.deletedMetafields };
+
     }
     catch(e) {
       throw e;
     }
-  }
 
+  }
 
   async removeProductVariantShippingRate( pvGid ) {
 
-    try {
+    return this.removeMetafield( pvGid, 'wsn_shipping', 'flat_rate' );
 
-      const resp = await this.gqlRequest( {
-        gqlQuery: `
-          {
-            productVariant(id: "${ pvGid }") {
-              id
-              displayName
-              rate: metafield(namespace:"wsn_shipping", key:"flat_rate") {
-                id
-              }
-            }
-          }
-        `,
-        debug: false
-      });
-
-      const gid = resp.data.productVariant.rate.id;
-
-      await this.deleteMetafield( gid );
-
-      return { success: true };
-
-    }
-    catch(e) {
-      throw e;
-    }
   }
 
   getPalletBreakdownServiceRate() {
@@ -974,35 +969,10 @@ class Client {
 
   async removeProductVariantShippingConfiguration( pvid ) {
 
-    const gqlPvid = this.id2Gid( pvid, 'ProductVariant' );
+    const pvGid = this.id2Gid( pvid, 'ProductVariant' );
 
-    try {
+    return this.removeMetafield( pvGid, 'shipping', 'shippingItems' );
 
-      const resp = await this.gqlRequest( {
-        gqlQuery: `
-          {
-            productVariant(id: "${ gqlPvid }") {
-              id
-              displayName
-              shippingConfiguration: metafield(namespace:"shipping", key:"shippingItems") {
-                id
-              }
-            }
-          }
-        `,
-        debug: false
-      });
-
-      const gid = resp.data.productVariant.shippingConfiguration.id;
-
-      await this.deleteMetafield( gid );
-
-      return { success: true };
-
-    }
-    catch(e) {
-      throw e;
-    }
   }
 
   /******************************************************
