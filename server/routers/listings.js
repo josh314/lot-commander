@@ -85,6 +85,16 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
   );
 
   router.get(
+    '/shipping/rates/default-box-rate',
+    auth.isAuthorized( 'VIEW_STORE_SHIPPING_RATES' ),
+    getDefaultBoxRate
+  );
+  router.post(
+    '/shipping/rates/default-box-rate',
+    auth.isAuthorized( 'EDIT_STORE_SHIPPING_RATES' ),
+    setDefaultBoxRate
+  );
+  router.get(
     '/shipping/rates/pallet-breakdown-service',
     auth.isAuthorized( 'VIEW_STORE_SHIPPING_RATES' ),
     getPalletBreakdownServiceRate
@@ -296,7 +306,21 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
 
   }
 
-  async function getPalletBreakdownServiceRate( req, res, next ) {
+  async function getDefaultBoxRate( _req, res, next ) {
+
+    try {
+
+      const rate = await listings.shopify.shopifyGql.getDefaultBoxShippingRate( );
+      res.json( { rate } );
+
+    }
+    catch (e) {
+      next( e );
+    }
+
+  }
+
+  async function getPalletBreakdownServiceRate( _req, res, next ) {
 
     try {
 
@@ -322,6 +346,22 @@ function routes({ eventsDb, inventoryCommander, listings, lotdb }) {
       rates.sort( cmpProductVariant );
 
       res.json( { rates } );
+
+    }
+    catch (e) {
+      next( e );
+    }
+
+  }
+
+  async function setDefaultBoxRate( req, res, next ) {
+
+    const newRate = req.body.rate;
+
+    try {
+
+      const { rate } = await listings.shopify.shopifyGql.setDefaultBoxShippingRate( newRate );
+      res.json( { rate } );
 
     }
     catch (e) {

@@ -4,10 +4,6 @@ import dayjs from 'dayjs';
 import * as util from '../../utilities';
 import * as api from '../../api';
 
-const __SHIPPING_RATE_FIRST_BOX__ = 30;
-const __SHIPPING_RATE_MINIMUM_PER_BOX__ = 15;
-const __SHIPPING_RATE_DISCOUNT_FACTOR_PER_BOX__ = 0.05;
-
 const __MAX_NUM_BRANDS_LISTING_TITLE__ = 3;
 const __MAX_NUM_BRANDS_LISTING_BODY__ = 5;
 
@@ -29,6 +25,8 @@ angular.module('myApp').factory( 'ListingsSvc', [
   ) {
 
     const productVariantCache = {};
+
+    const getDefaultBoxRate = () => $q.when( api.getDefaultBoxRate( ) );
 
     async function _getProductVariant( gid ) {
 
@@ -121,7 +119,7 @@ angular.module('myApp').factory( 'ListingsSvc', [
       },
 
       // shipping rates
-      computeShippingRate: lot => {
+      computeShippingRate: async ( lot ) => {
 
         let rate = '';
 
@@ -131,16 +129,9 @@ angular.module('myApp').factory( 'ListingsSvc', [
 
             const numBoxes = ( lot.shippingItems && lot.shippingItems.length ) || lot.numBoxes;
 
-            rate = 0;
-            for( let i=0; i<numBoxes; i++ ) {
-              let itemRate = __SHIPPING_RATE_FIRST_BOX__ * ( 1 -  i * __SHIPPING_RATE_DISCOUNT_FACTOR_PER_BOX__ );
+            const defaultBoxRate = (await getDefaultBoxRate()).rate;
 
-              if( itemRate < __SHIPPING_RATE_MINIMUM_PER_BOX__ ) {
-                itemRate = __SHIPPING_RATE_MINIMUM_PER_BOX__;
-              }
-
-              rate += itemRate;
-            }
+            rate = defaultBoxRate * numBoxes;
 
           }
 
@@ -152,8 +143,6 @@ angular.module('myApp').factory( 'ListingsSvc', [
 
       editShippingRate: ( gid, newRate ) => $q.when( api.editStoreShippingRate( gid, newRate ) ),
 
-      getPalletBreakdownServiceRate: () => $q.when( api.getPalletBreakdownServiceRate( ) ),
-
       listShippingRates: qp => $q.when( api.listStoreShippingRates( qp ) ).then( rates =>  {
 
         return rates.map( _r => Object.assign( {}, _r ) );
@@ -161,6 +150,12 @@ angular.module('myApp').factory( 'ListingsSvc', [
       }),
 
       removeShippingRate: productVariantGid => $q.when( api.removeStoreShippingRate( productVariantGid ) ),
+
+      getDefaultBoxRate,
+
+      setDefaultBoxRate: newRate => $q.when( api.setDefaultBoxRate( newRate ) ),
+
+      getPalletBreakdownServiceRate: () => $q.when( api.getPalletBreakdownServiceRate( ) ),
 
       setPalletBreakdownServiceRate: newRate => $q.when( api.setPalletBreakdownServiceRate( newRate ) ),
 

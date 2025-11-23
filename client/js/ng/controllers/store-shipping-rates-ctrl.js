@@ -29,12 +29,29 @@ class DisplayRate {
 }
 
 /******************* Store Shippinbg Rates Controller *************************/
-angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'ListingsSvc', 'ModalSvc', 'sessionTimeout',
-  function( focus, ListingsSvc, ModalSvc, sessionTimeout ) {
+angular.module('myApp').controller('StoreShippingRatesCtrl', [ '$scope', 'focus', 'ListingsSvc', 'ModalSvc', 'sessionTimeout',
+  function( $scope, focus, ListingsSvc, ModalSvc, sessionTimeout ) {
 
     sessionTimeout.timeoutExpired();
 
     const vm = this;
+
+    function refreshDefaultRates() {
+
+      vm.waiting.defaultRates = true;
+
+      return Promise.all( [
+        refreshDefaultBoxRate(),
+        refreshPalletBreakdownServiceRate(),
+      ] ).then( rates => {
+
+        vm.defaultDisplayRates = rates;
+        vm.waiting.defaultRates = false;
+
+        $scope.$apply();
+      });
+
+    }
 
     function refreshRates() {
       refreshListingRates();
@@ -60,15 +77,23 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'Listing
 
     }
 
+    function refreshDefaultBoxRate() {
+
+      return ListingsSvc.getDefaultBoxRate().then( _rate => {
+
+        vm.defaultBoxRateDisplayRate = new DisplayRate( {name: 'Individual box rate', rate: _rate.rate } );
+
+        return vm.defaultBoxRateDisplayRate;
+      });
+    }
+
     function refreshPalletBreakdownServiceRate() {
 
-      vm.waiting.palletRate = true;
       return ListingsSvc.getPalletBreakdownServiceRate().then( _rate => {
 
-        // refreshVisibleDisplayRates( );
-        vm.palletBreakdownServiceDisplayRate = new DisplayRate( { rate: _rate.rate } );
-        vm.waiting.palletRate = false;
+        vm.palletBreakdownServiceDisplayRate = new DisplayRate( { name: 'Pallet breakdown service', rate: _rate.rate } );
 
+        return vm.palletBreakdownServiceDisplayRate;
       });
     }
 
@@ -97,9 +122,13 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'Listing
         }
         else {
 
+          const defaultValueStr = vm.filter.packageType === 'pallets' ?
+            `$${ vm.palletBreakdownServiceDisplayRate.displayValue } for Pallet Breakdown Service` :
+            `$${ vm.defaultBoxRateDisplayRate.displayValue }/box for boxed lots`;
+
           const isConfirmed = await ModalSvc.confirm({
             header: 'Reset rate?',
-            html: '<p>This will set the shipping rate to default values: $180 for pallets and $30/box for boxed lots.</p><p>Continue?</p>',
+            html: `<p>This will set the shipping rate to default values: ${ defaultValueStr }.</p><p>Continue?</p>`,
           });
 
           if( !isConfirmed ) {
@@ -127,9 +156,15 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'Listing
 
     }
 
+    function saveDefaultBoxRate( ) {
+      ListingsSvc.setDefaultBoxRate( vm.defaultBoxRateDisplayRate.displayValue ).then( _rate => {
+        vm.defaultBoxRateDisplayRate = new DisplayRate( { name: 'Individual box rate', rate: _rate.rate } );
+      } );
+    }
+
     function savePalletBreakdownServiceRate( ) {
       ListingsSvc.setPalletBreakdownServiceRate( vm.palletBreakdownServiceDisplayRate.displayValue ).then( _rate => {
-        vm.palletBreakdownServiceDisplayRate = new DisplayRate( { rate: _rate.rate } );
+        vm.palletBreakdownServiceDisplayRate = new DisplayRate( { name: 'Pallet breakdown service', rate: _rate.rate } );
       } );
     }
 
@@ -143,26 +178,37 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ 'focus', 'Listing
 
     function init() {
 
-      vm.waiting = {
-        listingRates: false,
-        palletRate: false,
-      };
-      vm.allDisplayRates =[];
-      vm.visibleDisplayRates = [];
-      vm.filter = {
-        // includePallets: false,
-        packageType: 'lots',
-        productName: ''
-      };
-      vm.refreshRates = refreshRates;
-      vm.refreshVisibleDisplayRates = refreshVisibleDisplayRates;
-      vm.saveRate = saveRate;
-      vm.clearRate = clearRate;
-      vm.focusOnRate = focusOnRate;
+      Object.assign(
+        vm,
+        {
+          waiting: {
+            defaultRates: false,
+            listingRates: false,
+            palletRate: false,
+          },
+          defaultDisplayRates: [],
+          allDisplayRates: [],
+          visibleDisplayRates: [],
+          filter: {
+            // includePallets: false,
+            packageType: null,
+            productName: ''
+          },
+          refreshRates: refreshRates,
+          refreshVisibleDisplayRates: refreshVisibleDisplayRates,
+          saveRate: saveRate,
+          clearRate: clearRate,
+          focusOnRate: focusOnRate,
 
-      vm.savePalletBreakdownServiceRate = savePalletBreakdownServiceRate;
+          saveDefaultBoxRate: saveDefaultBoxRate,
+          savePalletBreakdownServiceRate: savePalletBreakdownServiceRate,
 
-      refreshListingRates().then( _ => focusOnRate('0') );
+        }
+      );
+
+
+      refreshDefaultRates();
+
 
     }
     init();

@@ -334,7 +334,7 @@ class Client {
     });
 
     try {
-      return JSON.parse( resp.data.shop.metafield.value );
+      return resp.data.shop.metafield ? JSON.parse( resp.data.shop.metafield.value ) : null;
     }
     catch(e) {
       throw e;
@@ -835,6 +835,22 @@ class Client {
 
     return this.removeMetafield( pvGid, 'wsn_shipping', 'flat_rate' );
 
+  }
+
+  getDefaultBoxShippingRate() {
+    return this.getShopMetafield( 'wsn_shipping', 'defaultBoxRate' );
+  }
+
+  async setDefaultBoxShippingRate( newRate ) {
+
+    const resp = await this.setShopMetafield({
+      namespace: 'wsn_shipping',
+      key: 'defaultBoxRate',
+      value: newRate,
+      type: 'number_decimal'
+    });
+
+    return { rate: parseFloat( resp.metafields[0].value ) };
   }
 
   getPalletBreakdownServiceRate() {

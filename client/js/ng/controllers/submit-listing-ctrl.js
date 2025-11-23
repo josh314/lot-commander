@@ -276,7 +276,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
       }
     }
 
-    function setListingDefaultsFromLot() {
+    async function setListingDefaultsFromLot() {
 
       vm.allowEditPricingData = LoggedInUser.hasPermission( 'EDIT_PRICING_DATA' ) || !vm.lot.estimatedRetailValue;
       vm.priceValuePercentage = vm.lot.priceValuePercentage || vm.defaultPriceValuePercentage;
@@ -288,7 +288,7 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
         {
           additionalTags: defaultTags( vm.lot ),
           packagingType: vm.lot.packagingType,
-          shippingRate: ListingsSvc.computeShippingRate( vm.lot ),
+          shippingRate: await ListingsSvc.computeShippingRate( vm.lot ),
         }
       );
 

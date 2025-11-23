@@ -1242,6 +1242,27 @@ export function removeStoreShippingRate( productVariantGid ) {
     .then( resp => resp.data );
 }
 
+export function getDefaultBoxRate() {
+
+  return axios({
+    method: 'get',
+    url: `/api/listings/shipping/rates/default-box-rate`
+  })
+    .then( resp => resp.data );
+}
+
+export function setDefaultBoxRate( newRate ) {
+
+  return axios({
+    method: 'post',
+    url: `/api/listings/shipping/rates/default-box-rate`,
+    data: {
+      rate: newRate
+    }
+  })
+    .then( resp => resp.data );
+}
+
 export function getPalletBreakdownServiceRate() {
 
   return axios({
@@ -1250,6 +1271,7 @@ export function getPalletBreakdownServiceRate() {
   })
     .then( resp => resp.data );
 }
+
 
 export function setPalletBreakdownServiceRate( newRate ) {
 
