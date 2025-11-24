@@ -157,12 +157,24 @@ angular.module('myApp').controller('StoreShippingRatesCtrl', [ '$scope', 'focus'
     }
 
     function saveDefaultBoxRate( ) {
+      if( !vm.palletBreakdownServiceDisplayRate.displayValue ) {
+        return ModalSvc.message( {
+          header: 'Invalid rate',
+          html: '<p>Please enter a valid rate before saving.</p>'
+        } );
+      }
       ListingsSvc.setDefaultBoxRate( vm.defaultBoxRateDisplayRate.displayValue ).then( _rate => {
         vm.defaultBoxRateDisplayRate = new DisplayRate( { name: 'Individual box rate', rate: _rate.rate } );
       } );
     }
 
     function savePalletBreakdownServiceRate( ) {
+      if( !vm.palletBreakdownServiceDisplayRate.displayValue ) {
+        return ModalSvc.message( {
+          header: 'Invalid rate',
+          html: '<p>Please enter a valid rate before saving.</p>'
+        } );
+      }
       ListingsSvc.setPalletBreakdownServiceRate( vm.palletBreakdownServiceDisplayRate.displayValue ).then( _rate => {
         vm.palletBreakdownServiceDisplayRate = new DisplayRate( { name: 'Pallet breakdown service', rate: _rate.rate } );
       } );
