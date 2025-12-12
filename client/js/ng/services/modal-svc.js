@@ -1,6 +1,7 @@
 import angular from 'angular';
 
 import * as util from '../../utilities';
+import * as print from '../../print';
 import { palletProperties } from '../../constants';
 
 /******************* One Modal Service to Rule Them All ******************************/
@@ -350,7 +351,6 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         'navigate',
         'PackagingTypeInfoModalSvc',
         'pallet',
-        'PrintSvc',
         'ShippingItemsSvc',
         'WaitingModalSvc',
 
@@ -374,7 +374,6 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
     navigate,
     PackagingTypeInfoModalSvc,
     pallet,
-    PrintSvc,
     ShippingItemsSvc,
     WaitingModalSvc
   )
@@ -459,7 +458,7 @@ angular.module('myApp').factory( 'InventoryPalletDetailsModalSvc', [ '$uibModal'
         } );
       }
 
-      PrintSvc.printPalletShippingItemsLabels( vm.pallet._id );
+      print.printPalletShippingItemsLabels( vm.pallet._id );
 
     };
 

@@ -5,7 +5,8 @@ import {
 } from '../../upc';
 import * as util from '../../utilities';
 import { palletProperties } from '../../constants';
-import _ from 'angular-animate';
+import * as audioAlerts from '../../audio-alerts';
+import * as print from '../../print';
 
 const __PAGE_SIZE__ = 5;
 
@@ -76,7 +77,6 @@ const __DEFAULT_SPLIT_GROUP_LABEL_TYPES__ = [
 /******************* Pallet Split Controller *************************/
 angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
-  'AudioAlertSvc',
   'dbEnums',
   'FinishSplitPalletModal',
   'focus',
@@ -88,7 +88,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
   'navigate',
   'PalletLotSvc',
   'PalletManifestSvc',
-  'PrintSvc',
   'sessionTimeout',
   'ShipmentFactory',
   'ShippingItemsSvc',
@@ -97,7 +96,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
   function(
 
-    AudioAlertSvc,
     dbEnums,
     FinishSplitPalletModal,
     focus,
@@ -109,7 +107,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
     navigate,
     PalletLotSvc,
     PalletManifestSvc,
-    PrintSvc,
     sessionTimeout,
     ShipmentFactory,
     ShippingItemsSvc,
@@ -523,7 +520,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
         const totalNumItemsAvailableToSplit =  manifestDisplayRow[ __QUANTITY__ ] - manifestDisplayRow.numSplit;
 
         if( numItemsToSplit > totalNumItemsAvailableToSplit ) {
-          AudioAlertSvc.fail();
+          audioAlerts.fail();
           ModalSvc.message( { header: 'Error', body: `Fewer than ${numItemsToSplit} items with barcode ${ barcode } left in original manifest.`, type: 'error' } );
           return;
         }
@@ -573,7 +570,7 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
           await __saveProgress();
         }
 
-        PrintSvc.printPalletSplitGroupLabels( vm.pallet._id, this._id );
+        print.printPalletSplitGroupLabels( vm.pallet._id, this._id );
 
       }
 
@@ -884,15 +881,15 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
         vm.currentSplitGroup.splitItem( displayItem );
 
-        AudioAlertSvc.success();
+        audioAlerts.success();
 
       }
       catch (e) {
         if( e.alertType === 'warning' ) {
-          AudioAlertSvc.warning();
+          audioAlerts.warning();
         }
         else if ( e.alertType === 'fail' ) {
-          AudioAlertSvc.fail();
+          audioAlerts.fail();
         }
         ModalSvc.message( { header: 'Error', body: e.message, type: 'error' } );
       }

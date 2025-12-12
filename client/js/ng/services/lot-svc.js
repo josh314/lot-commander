@@ -2,6 +2,7 @@ import angular from 'angular';
 
 import * as path from 'path';
 import * as api from '../../api';
+import * as print from '../../print';
 
 /********************* Helpers ***/
 function cmpLotInventoryData( a, b ) {
@@ -287,7 +288,6 @@ angular.module('myApp').factory( 'Lot', [
   'dbEnums',
   'ManifestFileHandlerSvc',
   'MediaSvc',
-  'PrintSvc',
   'ProductDataSvc',
   'ServiceLocator',
 
@@ -298,7 +298,6 @@ angular.module('myApp').factory( 'Lot', [
     dbEnums,
     ManifestFileHandlerSvc,
     MediaSvc,
-    PrintSvc,
     ProductDataSvc,
     ServiceLocator,
 
@@ -1133,7 +1132,7 @@ angular.module('myApp').factory( 'Lot', [
 
       printShippingItemsLabels() {
 
-        PrintSvc.printLotShippingItemsLabels( this._id );
+        print.printLotShippingItemsLabels( this._id );
 
       }
 

@@ -1,27 +1,25 @@
 import angular from 'angular';
 import * as util from '../../utilities';
+import * as audioAlerts from '../../audio-alerts';
+import * as print from '../../print';
 
 /******************* Lot List Page Controller *************************/
 angular.module('myApp').controller( 'PickOrderController', [
 
   '$stateParams',
-  'AudioAlertSvc',
   'focus',
   'ModalSvc',
   'navigate',
   'OrderSvc',
-  'PrintSvc',
   'sessionTimeout',
 
   function(
 
     $stateParams,
-    AudioAlertSvc,
     focus,
     ModalSvc,
     navigate,
     OrderSvc,
-    PrintSvc,
     sessionTimeout,
 
   ) {
@@ -77,12 +75,12 @@ angular.module('myApp').controller( 'PickOrderController', [
 
           if( pickItem && !error ) {
 
-            AudioAlertSvc.success();
+            audioAlerts.success();
 
           }
           else {
 
-            AudioAlertSvc.warning();
+            audioAlerts.warning();
             ModalSvc.message( {
               header: 'Error',
               body: error,
@@ -137,7 +135,7 @@ angular.module('myApp').controller( 'PickOrderController', [
 
       if( shouldPrint ) {
 
-        PrintSvc.printOrderLabels( vm.order._id );
+        print.printOrderLabels( vm.order._id );
 
       }
 

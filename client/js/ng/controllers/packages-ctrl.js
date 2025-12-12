@@ -1,6 +1,9 @@
 import angular from 'angular';
 
 import * as util from '../../utilities';
+import * as print from '../../print';
+import * as audioAlerts from '../../audio-alerts';
+
 
 const __PAGE_SIZE__ = 100;
 
@@ -10,7 +13,6 @@ const __USER_SETTINGS_SUBKEY__ = 'packages-page';
 /******************* Shipment List Page Controller *************************/
 angular.module('myApp').controller( 'PackagesCtrl', [
 
-  'AudioAlertSvc',
   'dbEnums',
   'focus',
   'LocalUserSettingsSvc',
@@ -18,12 +20,10 @@ angular.module('myApp').controller( 'PackagesCtrl', [
   'ModalSvc',
   'navigate',
   'PackageSvc',
-  'PrintSvc',
   'sessionTimeout',
 
   function(
 
-    AudioAlertSvc,
     dbEnums,
     focus,
     LocalUserSettingsSvc,
@@ -31,7 +31,6 @@ angular.module('myApp').controller( 'PackagesCtrl', [
     ModalSvc,
     navigate,
     PackageSvc,
-    PrintSvc,
     sessionTimeout,
 
   ) {
@@ -244,7 +243,7 @@ angular.module('myApp').controller( 'PackagesCtrl', [
 
         if( !existingPackage ) {
 
-          AudioAlertSvc.fail();
+          audioAlerts.fail();
           await ModalSvc.message( { header: 'Invalid', type: 'error', body: `This is an invalid label. Please try another.` } );
 
           return clearInstantiatePackageInput();
@@ -253,7 +252,7 @@ angular.module('myApp').controller( 'PackagesCtrl', [
 
         if( existingPackage.isInstantiated ) {
 
-          AudioAlertSvc.warning();
+          audioAlerts.warning();
           await ModalSvc.message( { header: 'Already exists', type: 'error', body: `A package with ID ${vm.packageBarcodeToInstantiate} already exists.` } );
 
           return clearInstantiatePackageInput();
@@ -262,7 +261,7 @@ angular.module('myApp').controller( 'PackagesCtrl', [
 
         await PackageSvc.instantiate( vm.packageBarcodeToInstantiate );
 
-        AudioAlertSvc.success();
+        audioAlerts.success();
         navigate.reload();
 
       }
@@ -295,7 +294,7 @@ angular.module('myApp').controller( 'PackagesCtrl', [
 
             const packageIds = resp.packages.map( pkg => pkg._id );
 
-            PrintSvc.printPackageLabels( packageIds );
+            print.printPackageLabels( packageIds );
 
           }).then( refreshPackagesList );
 

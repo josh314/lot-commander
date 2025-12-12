@@ -1,4 +1,5 @@
 import angular from 'angular';
+import * as audioAlerts from '../../audio-alerts';
 
 const invalidBarcode = barcode => !barcode.match(/^[0-9]{8,15}$/);
 
@@ -36,8 +37,8 @@ function Counter($localStorage) {
 
 
 /******************* Counter Tool Controller *************************/
-angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'AudioAlertSvc', 'counterToolModal', 'focus', 'navigate', 'sessionTimeout',
-  function($localStorage, AudioAlertSvc, counterToolModal, focus, navigate, sessionTimeout) {
+angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counterToolModal', 'focus', 'navigate', 'sessionTimeout',
+  function($localStorage, counterToolModal, focus, navigate, sessionTimeout) {
     sessionTimeout.timeoutExpired();
     const vm = this;
 
@@ -87,7 +88,7 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'AudioAl
         startCounter( vm.counterUnitsInput );
       }
       else {
-        AudioAlertSvc.fail();
+        audioAlerts.fail();
         resetCounterUnitsInput();
       }
     };
@@ -145,11 +146,11 @@ angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'AudioAl
       vm.barcodeInvalid = invalidBarcode( vm.scannedBarcode );
       if ( vm.scannedBarcode && !vm.barcodeInvalid ){
         vm.counter.addBarcode( vm.scannedBarcode );
-        AudioAlertSvc.success();
+        audioAlerts.success();
         notifyIfDone();
       }
       else {
-        AudioAlertSvc.fail();
+        audioAlerts.fail();
       }
       refreshDisplay();
     };

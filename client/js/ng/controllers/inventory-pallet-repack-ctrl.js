@@ -4,6 +4,7 @@ import {
   upce2upca,
 } from '../../upc';
 import { palletProperties } from '../../constants';
+import * as audioAlerts from '../../audio-alerts';
 
 const __PAGE_SIZE__ = 5;
 
@@ -29,7 +30,6 @@ class RepackError extends MyError {
 /******************* Pallet Edit Manifest Controller *************************/
 angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
-  'AudioAlertSvc',
   'focus',
   'InventoryPalletManagerSvc',
   'LoggedInUser',
@@ -42,7 +42,6 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
   function(
 
-    AudioAlertSvc,
     focus,
     InventoryPalletManagerSvc,
     LoggedInUser,
@@ -197,15 +196,15 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
         __removeItem( displayItem );
 
-        AudioAlertSvc.success();
+        audioAlerts.success();
 
       }
       catch (e) {
         if( e.alertType === 'warning' ) {
-          AudioAlertSvc.warning();
+          audioAlerts.warning();
         }
         else if ( e.alertType === 'fail' ) {
-          AudioAlertSvc.fail();
+          audioAlerts.fail();
         }
         ModalSvc.message( { header: 'Error', body: e.message, type: 'error' } );
       }
@@ -228,7 +227,7 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
       const totalNumItemsAvailableToRemove = displayItems.reduce( ( _total, _r ) => _total + _r[ __QUANTITY__ ] - _r.numRemoved, 0 );
 
       if( numItemsToRemove > totalNumItemsAvailableToRemove ) {
-        AudioAlertSvc.fail();
+        audioAlerts.fail();
         ModalSvc.message( { header: 'Error', body: `Fewer than ${numItemsToRemove} items with barcode ${ barcode } left to remove.`, type: 'error' } );
         return;
       }

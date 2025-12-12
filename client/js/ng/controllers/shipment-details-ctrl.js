@@ -2,11 +2,12 @@ import angular from 'angular';
 
 import * as util from '../../utilities';
 import { palletProperties } from '../../constants';
+import * as audioAlerts from '../../audio-alerts';
+import * as print from '../../print';
 
 /******************* Shipment Details Page Controller *************************/
 angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
-  'AudioAlertSvc',
   'DisplayPalletFactory',
   'FileModelSvc',
   'focus',
@@ -17,13 +18,11 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
   'PackageSvc',
   'PalletLotSvc',
   'PalletManifestSvc',
-  'PrintSvc',
   'sessionTimeout',
   'ShipmentManagerSvc',
 
   function (
 
-    AudioAlertSvc,
     DisplayPalletFactory,
     FileModelSvc,
     focus,
@@ -34,7 +33,6 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     PackageSvc,
     PalletLotSvc,
     PalletManifestSvc,
-    PrintSvc,
     sessionTimeout,
     ShipmentManagerSvc,
 
@@ -659,23 +657,23 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
         const found = vm.shipment.palletsReceived.find( p => p.handle === vm.receivedPalletId );
 
         if( found ) {
-          AudioAlertSvc.warning();
+          audioAlerts.warning();
           return ModalSvc.message( duplicatePalletMessageObj ).then( _ => vm.receivedPalletId = '' );
         }
 
         const expected = vm.shipment.palletsExpected.find( p => p.handle === vm.receivedPalletId );
         if( expected ) {
-          AudioAlertSvc.success();
+          audioAlerts.success();
         }
         else {
-          AudioAlertSvc.fail();
+          audioAlerts.fail();
         }
 
         return vm.shipment.receivePallet( { handle: vm.receivedPalletId } ).then( _response => {
 
           if( _response.error ) {
 
-            AudioAlertSvc.warning();
+            audioAlerts.warning();
 
             let messageObj = _response.code === 'DUPLICATE_PALLET_HANDLE' ? duplicatePalletMessageObj : { header: 'Error', body: `Server error.`, type: 'error' };
 
@@ -768,7 +766,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
           if( _response.error ) {
 
-            AudioAlertSvc.warning();
+            audioAlerts.warning();
 
             let messageObj = _response.code === 'DUPLICATE_PALLET_HANDLE' ? duplicatePalletMessageObj : { header: 'Error', body: `Server error.`, type: 'error' };
 
@@ -799,7 +797,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
      *******/
 
     function printShipmentLabels( palletList ) {
-      PrintSvc.printIncomingShipmentLabels( vm.shipment._id, palletList );
+      print.printIncomingShipmentLabels( vm.shipment._id, palletList );
     }
 
     function printPackageLabels() {
@@ -833,7 +831,7 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
 
             const packageIds = resp.packages.map( pkg => pkg._id );
 
-            PrintSvc.printPackageLabels( packageIds );
+            print.printPackageLabels( packageIds );
 
           });
 

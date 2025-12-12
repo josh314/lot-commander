@@ -1,13 +1,14 @@
-# Node stuff
+# Node and npm stuff
 node_modules
 npm-debug.log
 
-# Temp files
+# Temp, scratch or intentionally hidden files
 *~
 *\#
 *.josh
 *sandbox
 foo
+__*
 
 #Bower stuff
 bower_components
@@ -33,11 +34,8 @@ files/
 logs/
 dump/
 mongodump-tmp
-_dev-data
 
 # assorted
-todo*
-notes
 angular-console-commands
 demo*
 

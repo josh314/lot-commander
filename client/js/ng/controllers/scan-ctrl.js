@@ -1,6 +1,7 @@
 import angular from 'angular';
 
 import * as util from '../../utilities';
+import * as audioAlerts from '../../audio-alerts';
 const __MAX_DISPLAY_INVENTORY__ = 50;
 
 const __INVENTORY_VALIDATION_OPTIONS__ = {
@@ -12,7 +13,6 @@ const __INVENTORY_VALIDATION_OPTIONS__ = {
 /******************* Scanning Page Controller *************************/
 angular.module('myApp').controller( 'ScanCtrl', [
 
-  'AudioAlertSvc',
   'focus',
   'LotSvc',
   'MediaSvc',
@@ -23,7 +23,6 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
   function(
 
-    AudioAlertSvc,
     focus,
     LotSvc,
     MediaSvc,
@@ -227,7 +226,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
         const item = vm.lot.addInventory( scannedBarcode );
         if(item) {
 
-          AudioAlertSvc.success();
+          audioAlerts.success();
 
           if(item.data.quantity==1) {
 
@@ -251,11 +250,11 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
         }
         else {
-          AudioAlertSvc.fail();
+          audioAlerts.fail();
         }
       }
       else {
-        AudioAlertSvc.fail();
+        audioAlerts.fail();
       }
       refreshScanInput();
     }

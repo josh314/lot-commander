@@ -1,6 +1,4 @@
-import angular from 'angular';
-
-const categoryListingBodyBoilerplate = {
+export const categoryListingBodyBoilerplate = {
   'GM': {
     name: 'General Merchandise',
     title: 'Brand Name General Merchandise Variety',
@@ -33,7 +31,7 @@ const categoryListingBodyBoilerplate = {
   },
 };
 
-const quickLotsBoilerplate = [
+export const quickLotsBoilerplate = [
   {
     handlePrefix: 'GM',
     name: 'General Merchandise',
@@ -158,23 +156,13 @@ const quickLotsBoilerplate = [
   },
 ];
 
-/*********************** Listing Builder ****************************/
-angular.module('myApp').factory('listingBuilder', [function(){
-
-  function buildFromCategory(lot) {
-    const lotHandlePrefix = lot.handle.match('^[A-Z]{2}') ? lot.handle.match('^([A-Z]{2})')[1] : null;
-    const boilerplate = categoryListingBodyBoilerplate[lotHandlePrefix];
-    if(boilerplate) {
-      lot.listingData = {
-        title: boilerplate.title,
-        body: boilerplate.body,
-      };
-    }
+export function buildFromCategory(lot) {
+  const lotHandlePrefix = lot.handle.match('^[A-Z]{2}') ? lot.handle.match('^([A-Z]{2})')[1] : null;
+  const boilerplate = categoryListingBodyBoilerplate[lotHandlePrefix];
+  if(boilerplate) {
+    lot.listingData = {
+      title: boilerplate.title,
+      body: boilerplate.body,
+    };
   }
-
-  return {
-    buildFromCategory: buildFromCategory,
-    quickLotsBoilerplate: quickLotsBoilerplate,
-    categoryListingBodyBoilerplate: categoryListingBodyBoilerplate
-  };
-}]);
+}
