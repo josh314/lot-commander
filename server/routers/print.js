@@ -1,11 +1,10 @@
-const path = require('path');
 const express = require('express');
 const {
   ResourceNotFoundError,
   ChildResourceNotFoundError
 } = require('../errors');
 
-const print = require(path.join(__basedir, __config.modulesPath, 'print'));
+const print = require( '../modules/print' );
 
 module.exports = routes;
 

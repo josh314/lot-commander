@@ -1,7 +1,7 @@
 const path = require('path');
 const express = require('express');
 
-const quickLots = require(path.join(__basedir, __config.modulesPath, 'quick-lots'));
+const quickLots = require('../modules/quick-lots');
 // const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
 
 // middleware to stick for testing purposes

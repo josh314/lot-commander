@@ -153,7 +153,7 @@ class Server {
     // Cookies & Session =============================
     //================================================
 
-    const AppSession = require(path.join(__basedir, this.config.modulesPath, 'app-session'));
+    const AppSession = require( './modules/app-session' );
     const session = AppSession( {
       mongoSettings: this.config.dbHosts.mongo,
     });
@@ -390,7 +390,7 @@ class Server {
     this.modules = modules;
 
     // Load routes based on layout
-    const router = require(path.join(__basedir,'routers'))( modules );
+    const router = require('./routers')( modules );
 
     // Login users on all main routes
     this.app.use(
