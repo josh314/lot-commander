@@ -90,7 +90,7 @@ function routes({
   router.use( express.static(path.join(__basedir, __config.imgPath)) );
 
   //default route. the front-end rendering will all hit this.
-  router.get('*',
+  router.get('/{*splat}',
     (req,res) => res.render('main.hbs', {
       title: "Lot Commander",
       description: "App for creating and managing product lots and associated manifests.",

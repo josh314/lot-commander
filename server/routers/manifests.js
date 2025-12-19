@@ -49,9 +49,9 @@ function routes( { manifests } ) {
    * Get an individual manifest. The URI path parameter(s) is the full S3 key
    *
    ********************/
-  router.get('/*', async function get( req, res, next ) {
+  router.get('/*splat', async function get( req, res, next ) {
 
-    const key = req.params[0];
+    const key = req.path.replace(/^\//, '');
 
     try {
 
@@ -86,8 +86,8 @@ function routes( { manifests } ) {
    * If not, 'private' will end up being prepended to create the final S3 key (therefore somewhat violating RESTful principles)
    *
    ********************/
-  router.put('/*', ( req, res ) => {
-    const paths = req.params[0].split('/');
+  router.put('/*splat', ( req, res ) => {
+    const paths = req.params.splat;
 
     let isPublic, saveAs;
     if( paths[0] === 'public' || paths[0] === 'private' ) {
@@ -103,7 +103,6 @@ function routes( { manifests } ) {
 
     manifestSvc.build( sheets, saveAs, isPublic )
       .then( resp => {
-      //
         console.log('JSON response...');
         res.json(resp.data);
       });
