@@ -87,7 +87,6 @@ function routes({
   }) );
 
   router.use( express.static(path.join(__basedir, __config.assets.root)) );
-  router.use( express.static(path.join(__basedir, __config.imgPath)) );
 
   //default route. the front-end rendering will all hit this.
   router.get('/{*splat}',

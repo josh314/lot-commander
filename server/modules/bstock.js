@@ -1,5 +1,4 @@
 const path = require('path');
-const fs = require('fs').promises;
 
 const bstockWeb = require('bstock/bstock-web');
 
@@ -32,9 +31,6 @@ async function submitListing(data) {
       try {
         if(_.s3) {
           imgContents = ( await imageServer.get({ s3Location: _.s3 }) ).Body;
-        }
-        else {
-          imgContents = await fs.readFile( path.join(__basedir, __config.imgPath, _.filename) );
         }
       }
       catch(e) {
