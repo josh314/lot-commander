@@ -4,6 +4,7 @@ const express = require('express');
 const enums = require('../modules/enums');
 const helpers = require('../helpers');
 const packageJson = require('../package-json');
+const manifestSvc = require('../modules/manifest-svc');
 
 module.exports = routes;
 
@@ -60,6 +61,7 @@ function routes({
       { name: 'dbEnums', data: dbEnums },
       // { name: 'bstockFormConstants', data: bstock.constants },
       { name: 'quickLotsBoilerplate', data: quickLots.boilerplate },
+      { name: 'ManifestSvcConstants', data: manifestSvc.constants }
     ].reduce((s, item) => { return s + `app.constant('${item.name}', ${JSON.stringify(item.data)});`;}, '');
 
     res.type( 'text/javascript' );

@@ -280,7 +280,7 @@ function routes({ inventoryCommander, lotdb, manifests }) {
 
           const resp = await axios({
             method: 'get',
-            url: lot.manifestFileLocation,
+            url: manifestSvc.getPublicManifestFileUrl( lot.manifestFileLocation ),
             responseType: 'stream'
           });
 

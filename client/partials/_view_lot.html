@@ -211,8 +211,12 @@
       <div class="col-xs-12">
         <h4>Manifest File</h4>
       </div>
-      <div class="col-xs-12" ng-show="$ctrl.lot.manifestFileLocation">
-        <a class="btn btn-primary" href="{{$ctrl.lot.manifestFileLocation}}">View Manifest</a>
+      <div class="col-xs-12 text-center" ng-show="$ctrl.lot.manifestFileLocation" style="margin-bottom: 20px;">
+        <a class="btn btn-primary" href="{{$ctrl.lot.getPublicManifestFileUrl()}}">Download Manifest</a>
+      </div>
+      <div class="col-xs-12 text-center input-group" ng-show="$ctrl.lot.manifestFileLocation">
+        <span class="input-group-addon" id="basic-addon1">Shareable link:</span>
+        <input class="form-control" type="text" disabled ng-value="$ctrl.lot.getPublicManifestFileUrl()"/>
       </div>
       <div class="col-xs-12" ng-hide="$ctrl.lot.manifestFileLocation">
         <a class="btn btn-primary" href ng-click="$ctrl.uploadManifestPage()">Upload Manifest</a>
@@ -223,12 +227,12 @@
         <h4>Manifest File</h4>
       </div>
       <div class="col-xs-12 text-center" ng-show="$ctrl.lot.manifestFileLocation" style="margin-bottom: 20px;">
-        <a class="btn btn-primary" href="{{$ctrl.lot.manifestFileLocation}}">Download Manifest</a>
+        <a class="btn btn-primary" href="{{$ctrl.lot.getPublicManifestFileUrl()}}">Download Manifest</a>
         <a class="btn btn-primary btn-warning" ng-click="$ctrl.generateManifestFileForScannedInventory()">Refresh Manifest File</a>
       </div>
       <div class="col-xs-12 text-center input-group" ng-show="$ctrl.lot.manifestFileLocation">
-        <span class="input-group-addon" id="basic-addon1">S3 location:</span>
-        <input class="form-control" type="text" disabled ng-model="$ctrl.lot.manifestFileLocation"/>
+        <span class="input-group-addon" id="basic-addon1">Shareable link:</span>
+        <input class="form-control" type="text" disabled ng-value="$ctrl.lot.getPublicManifestFileUrl()"/>
       </div>
       <div class="col-xs-12" ng-hide="$ctrl.lot.manifestFileLocation">
         <a class="btn btn-primary btn-warning" ng-click="$ctrl.generateManifestFileForScannedInventory()">Create Manifest File</a>

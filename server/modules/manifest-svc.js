@@ -17,14 +17,42 @@ const s3 = new S3Client({
 const ExcelBuilder = require('excel/lib/builder');
 
 const __EXPRESSHOP_MANIFESTS_BUCKET__ = 'expresshop-manifests';
-
+const __CLOUDFRONT_DISTRIBUTION_DOMAIN__ = 'manifests.wholesaleninjas.com';
 
 module.exports = {
-  build: build,
-  get: get,
-  list: list,
-  put: put,
+  build,
+  get,
+  list,
+  put,
+  getPublicManifestFileUrl,
+  constants: {
+    MANIFEST_BUCKET: __EXPRESSHOP_MANIFESTS_BUCKET__,
+    CLOUDFRONT_DISTRIBUTION_DOMAIN: __CLOUDFRONT_DISTRIBUTION_DOMAIN__,
+  }
 };
+
+function getPublicManifestFileUrl( s3Location ) {
+
+  if( !s3Location ) {
+    return null;
+  }
+
+  const url = new URL( s3Location );
+
+  if( !url.hostname.startsWith( `${__EXPRESSHOP_MANIFESTS_BUCKET__ }.s3` ) ) {
+    return null;
+  }
+
+  const parts = url.pathname.split( '/' ).filter(Boolean);
+
+  if( parts[0] !== 'public' && parts[0] !== 'private' ) {
+    return null;
+  }
+
+  return `https://${ __CLOUDFRONT_DISTRIBUTION_DOMAIN__ }/${ parts.slice(1).join('/') }`;
+
+}
+
 
 // Build excel and save to S3 or stream back immediately
 function build( sheets, saveAsKey = '', isPublic = false) {

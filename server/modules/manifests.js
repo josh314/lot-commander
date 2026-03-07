@@ -310,6 +310,9 @@ module.exports = function( { lotdb, manifestDb, productData } ) {
     getManifestById,
     saveManifest,
 
+    // passthrough from manifest-svc
+    getPublicManifestFileUrl: manifestSvc.getPublicManifestFileUrl,
+
     // manifest processing/parsing
     getManifestItemsForLot,
     generateLotManifest,

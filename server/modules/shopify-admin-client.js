@@ -152,7 +152,7 @@ class Client {
       const metafield = {
         namespace: 'manifest',
         key: 'file',
-        value: listing.lot.manifestFileLocation,
+        value: this.manifests.getPublicManifestFileUrl( listing.lot.manifestFileLocation ),
         type: 'url',
       };
       productToCreate.metafields.push( metafield );

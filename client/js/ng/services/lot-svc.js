@@ -287,6 +287,7 @@ angular.module('myApp').factory( 'Lot', [
   '$sce',
   'dbEnums',
   'ManifestFileHandlerSvc',
+  'ManifestSvcConstants',
   'MediaSvc',
   'ProductDataSvc',
   'ServiceLocator',
@@ -297,6 +298,7 @@ angular.module('myApp').factory( 'Lot', [
     $sce,
     dbEnums,
     ManifestFileHandlerSvc,
+    ManifestSvcConstants,
     MediaSvc,
     ProductDataSvc,
     ServiceLocator,
@@ -619,6 +621,29 @@ angular.module('myApp').factory( 'Lot', [
       getBodyHtml() {
         return this.listingData && this.listingData.body ? $sce.trustAsHtml( this.listingData.body ) : '';
       }
+
+      getPublicManifestFileUrl() {
+
+        if( !this.manifestFileLocation ) {
+          return null;
+        }
+
+        const url = new URL( this.manifestFileLocation );
+
+        if( !url.hostname.startsWith( `${ ManifestSvcConstants.MANIFEST_BUCKET }.s3` ) ) {
+          return null;
+        }
+
+        const parts = url.pathname.split( '/' ).filter(Boolean);
+
+        if( parts[0] !== 'public' && parts[0] !== 'private' ) {
+          return null;
+        }
+
+        return `https://${ ManifestSvcConstants.CLOUDFRONT_DISTRIBUTION_DOMAIN }/${ parts.slice(1).join('/') }`;
+
+      }
+
 
       /****************************************
        * Status
@@ -1151,7 +1176,7 @@ angular.module('myApp').factory( 'Lot', [
 
           ManifestFileHandlerSvc.parse(
             data,
-            this.manifestFileLocation,
+            this.getPublicManifestFileUrl( this.manifestFileLocation ),
             { skipLastRows: 1 }, //note we are assuming the last row is a totals row
           );
 
