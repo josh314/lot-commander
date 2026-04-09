@@ -4,16 +4,13 @@ const libBarcodes = require('barcodes/lib');
 const { isNumericString } = require('../helpers');
 const { InvalidRequestError } = require('../errors');
 
-const { fromIni } = require('@aws-sdk/credential-providers');
 const {
   S3Client,
 } = require('@aws-sdk/client-s3');
 const { Upload } = require("@aws-sdk/lib-storage");
 
-// Create a new S3 client using credentials from the specified profile
 const s3 = new S3Client({
   region: 'us-east-1',
-  credentials: fromIni({ profile: 'lot-commander' }),
 });
 
 /**********************************************
