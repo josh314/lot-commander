@@ -20,7 +20,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault( process.env.TIMEZONE );
 
-
+const packageJson = require('./package-json');
 const { ClientError, AuthorizationError } = require('./errors');
 
 //====================================================
@@ -391,6 +391,13 @@ class Server {
 
     // Load routes based on layout
     const router = require('./routers')( modules );
+
+    this.app.get('/api/health', ( _req, res ) => {
+      res.json( {
+        status: 'ok',
+        version: packageJson.version
+      } );
+    });
 
     // Login users on all main routes
     this.app.use(
