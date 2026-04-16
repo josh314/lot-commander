@@ -205,7 +205,7 @@ class Client {
         const metafield = {
           namespace: 'manifest',
           key: 'json-location',
-          value: saveManifestJsonResp.Location,
+          value: this.manifests.getPublicManifestFileUrl( saveManifestJsonResp.Location ),
           type: 'single_line_text_field',
         };
         productToCreate.metafields.push( metafield );
