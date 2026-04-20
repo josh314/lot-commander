@@ -35,9 +35,15 @@ const __BUCKETS__ = {
   videos: 'lot-videos'
 };
 
+const __CLOUDFRONT_DISTRIBUTION_DOMAINS__ = {
+  images: 'lot-images.wholesaleninjas.com',
+  videos: 'lot-videos.wholesaleninjas.com'
+};
+
 
 // TODO: thsi seems to work even when there is an explicit region
 const mediaUrl = (type, s3Key) => `https://${ __BUCKETS__[ type ] }.s3.amazonaws.com/${ s3Key }`;
+const publicMediaUrl = (type, s3Key) => `https://${__CLOUDFRONT_DISTRIBUTION_DOMAINS__[ type ] }/${ s3Key }`;
 
 const mediaFilenameFromS3Location = (s3Location) => {
   const p = /https:\/\/.*\.s3(.*)?\.amazonaws\.com\/.*\/(.*)/;
@@ -66,6 +72,7 @@ const parseS3Location = ( s3Location ) => {
   if(match) {
 
     res.bucket = match[1];
+    res.type = res.bucket === __BUCKETS__.images ? 'images' : res.bucket === __BUCKETS__.videos ? 'videos' : null;
     res.region = match[2];
     res.ownerId = match[3];
     res.filename = match[4] && decodeURIComponent(match[4]);
@@ -81,6 +88,19 @@ const parseS3Location = ( s3Location ) => {
   }
 
   return res;
+};
+
+const getPublicMediaUrl = ( s3Location ) => {
+
+  const { type, key } = parseS3Location( s3Location );
+
+  if( type && key ) {
+    return publicMediaUrl( type, key );
+  }
+  else {
+    return null;
+  }
+
 };
 
 const storeImage =  async function( ownerId, pathToFile, filename, opts = {} ) {
@@ -179,7 +199,6 @@ const storeStream = async function( readStream, mediaType, _key, dedup ) {
       Bucket,
       Key: key,
       Body: readStream,
-      ACL: "public-read",
       ContentType: mime.lookup( key ) || 'application/octet-stream',
     },
   });
@@ -220,7 +239,6 @@ const cloneFromS3 = async ( srcS3Location, destId ) => {
     Bucket: bucket, // destination bucket
     Key: destKey, // destination key
     CopySource: src, // source bucket AND key
-    ACL: 'public-read',
     ContentType: mime.lookup( filename ) || 'application/octet-stream',
     MetadataDirective: 'REPLACE'
   });
@@ -391,5 +409,6 @@ module.exports = {
   // helpers
   isMediaServerLink,
   mediaFilenameFromS3Location,
-  parseS3Location
+  parseS3Location,
+  getPublicMediaUrl,
 };

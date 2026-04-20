@@ -56,7 +56,6 @@ function store( { readStream, bucket, folder, name, tags } ) {
     Bucket: bucket || __EXPRESSHOP_DOCUMENTS_BUCKET__,
     Key: folder ? `${folder}/${name}` : name,
     Body: readStream,
-    ACL: 'private'
   };
 
   const tagSet = new URLSearchParams(tags);

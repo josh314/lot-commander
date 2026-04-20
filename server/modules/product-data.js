@@ -237,7 +237,6 @@ class $_ {
       Bucket: 'expresshop-product-data-jobs',
       Key: `jobs/${ ( new Date() ).toISOString().replace(/[-:]/g, '') }.txt`,
       Body: Readable.from( barcodes.map( _ => _ + '\n' ) ),
-      ACL: 'private',
       ContentType: 'text/plain',
       ContentEncoding: 'utf-8',
     };

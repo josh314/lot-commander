@@ -85,14 +85,12 @@ async function get( key ) {
 
 function put( readStream, key, isPublic = false ) {
 
-  const ACL = isPublic ? "public-read" : 'private';
   const fullKey = `${ isPublic ? 'public' : 'private' }/${key}`;
 
   const params = {
     Bucket: __EXPRESSHOP_MANIFESTS_BUCKET__,
     Key: fullKey,
-    Body: readStream,
-    ACL
+    Body: readStream
   };
 
   const upload = new Upload({

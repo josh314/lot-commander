@@ -1,3 +1,6 @@
+const {
+  getPublicMediaUrl
+} = require( './media-server' );
 
 /****************************************************
  * Helpers
@@ -239,7 +242,7 @@ class Client {
 
           const medium = {
             alt: `${ listing.lot.listingData.title } - Image ${ i+1 }`,
-            originalSource: image.s3,
+            originalSource: getPublicMediaUrl( image.s3 ),
             mediaContentType: 'IMAGE',
           };
 
@@ -264,6 +267,9 @@ class Client {
 
       console.log(`New Shopify product created with id ${ createProductResp.product.id }:`);
       console.log( JSON.stringify( createProductResp,null,2) );
+
+      console.log( `Uploaded the following media:` );
+      console.log( JSON.stringify( media, null, 2 ) );
 
       return createProductResp.product;
 
