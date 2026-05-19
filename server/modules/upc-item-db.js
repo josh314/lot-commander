@@ -1,4 +1,4 @@
-const UpcItemDb = require('upc-item-db');
+const UpcItemDb = require('@wazue/upc-item-db');
 const { parseListingTitle } = require('./product-data');
 
 // Helpers
