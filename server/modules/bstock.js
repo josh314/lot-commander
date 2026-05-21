@@ -1,8 +1,6 @@
-const path = require('path');
-
 const bstockWeb = require('bstock/bstock-web');
 
-const imageServer = require(path.join(__basedir, __config.modulesPath, 'image-server'));
+const imageServer = require( '../image-server' );
 
 function boilerplateManifestItems(lot, manifestOptions) {
   let item;
