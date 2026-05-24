@@ -33,4 +33,5 @@ module "gitlab_ecr_ci" {
 
   gitlab_project_path = var.gitlab_project_path
   aws_region          = var.aws_region
+  environment_scope   = "sandbox-autarch"
 }

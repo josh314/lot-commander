@@ -85,26 +85,30 @@ resource "gitlab_project_variable" "aws_role_arn" {
   project = data.gitlab_project.app.id
   key     = "AWS_ROLE_ARN"
   value   = aws_iam_role.gitlab_ci.arn
-  masked  = false
+  masked            = false
+  environment_scope = var.environment_scope
 }
 
 resource "gitlab_project_variable" "aws_default_region" {
   project = data.gitlab_project.app.id
   key     = "AWS_DEFAULT_REGION"
   value   = var.aws_region
-  masked  = false
+  masked            = false
+  environment_scope = var.environment_scope
 }
 
 resource "gitlab_project_variable" "ecr_registry" {
   project = data.gitlab_project.app.id
   key     = "ECR_REGISTRY"
   value   = local.ecr_registry
-  masked  = false
+  masked            = false
+  environment_scope = var.environment_scope
 }
 
 resource "gitlab_project_variable" "ecr_repository" {
   project = data.gitlab_project.app.id
   key     = "ECR_REPOSITORY"
   value   = data.aws_ecr_repository.app.name
-  masked  = false
+  masked            = false
+  environment_scope = var.environment_scope
 }

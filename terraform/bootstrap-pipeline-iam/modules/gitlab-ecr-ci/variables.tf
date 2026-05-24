@@ -13,3 +13,8 @@ variable "ecr_repository_name" {
   type        = string
   default     = "lot-commander"
 }
+
+variable "environment_scope" {
+  description = "GitLab CI/CD environment scope for project variables"
+  type        = string
+}
