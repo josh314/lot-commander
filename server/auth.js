@@ -92,7 +92,7 @@ function authenticate() {
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {
   // if user is authenticated in the session, carry on
-  if ( __config.skipAuth || req.isAuthenticated() )
+  if ( req.isAuthenticated() )
     return next();
 
   // if they aren't redirect them to the login page
@@ -101,7 +101,7 @@ function isLoggedIn(req, res, next) {
 
 function isAuthorized( permission ) {
   return ( req, _res, next ) => {
-    if( __config.skipAuth || req.user.isAuthorized( permission ) ) {
+    if( req.user.isAuthorized( permission ) ) {
       return next();
     }
     return next( new AuthorizationError( req.originalUrl ) );
@@ -110,7 +110,7 @@ function isAuthorized( permission ) {
 
 function isAuthorizedForAll( ...permissions ) {
   return ( req, _res, next ) => {
-    if( __config.skipAuth || !permissions || permissions.reduce( ( isAllowed, _permission ) => isAllowed && req.user.isAuthorized( _permission ), true ) ) {
+    if( !permissions || permissions.reduce( ( isAllowed, _permission ) => isAllowed && req.user.isAuthorized( _permission ), true ) ) {
       return next();
     }
     return next( new AuthorizationError( req.originalUrl ) );
@@ -119,7 +119,7 @@ function isAuthorizedForAll( ...permissions ) {
 
 function isAuthorizedForAny( ...permissions ) {
   return ( req, _res, next ) => {
-    if( __config.skipAuth || !permissions || !permissions.length || permissions.reduce( ( isAllowed, _permission ) => isAllowed || req.user.isAuthorized( _permission ), false ) ) {
+    if( !permissions || !permissions.length || permissions.reduce( ( isAllowed, _permission ) => isAllowed || req.user.isAuthorized( _permission ), false ) ) {
       return next();
     }
     return next( new AuthorizationError( req.originalUrl ) );
@@ -127,7 +127,7 @@ function isAuthorizedForAny( ...permissions ) {
 }
 
 function isSuperuser( req, _res, next ) {
-  if( __config.skipAuth || req.user.isSuperuser ) {
+  if( req.user.isSuperuser ) {
     return next();
   }
   return next( new AuthorizationError( req.originalUrl ) );
