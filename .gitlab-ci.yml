@@ -1,0 +1,49 @@
+stages:
+  - build
+
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+
+.build-and-push:
+  stage: build
+  image: docker:29
+  services:
+    - docker:29-dind
+  id_tokens:
+    AWS_OIDC_TOKEN:
+      aud: sts.amazonaws.com
+  before_script:
+    # apk aws-cli is broken on Alpine 3.20+ (libexpat symbol mismatch)
+    # aws-cli v2 official binary requires glibc; Alpine uses musl — so it can't run either
+    # Installing via pip uses Alpine's system Python (musl-compiled) and avoids both issues
+    - apk add --no-cache python3 py3-pip
+    - pip3 install --break-system-packages --quiet awscli
+    # Write the OIDC token to a file; AWS CLI uses it with AWS_ROLE_ARN to
+    # automatically call sts:AssumeRoleWithWebIdentity — no explicit assume-role call needed
+    - echo "$AWS_OIDC_TOKEN" > /tmp/web-identity-token
+    - export AWS_WEB_IDENTITY_TOKEN_FILE=/tmp/web-identity-token
+    # Authenticate Docker to ECR
+    - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+    # Write .npmrc for GitLab package registry access using the CI job token
+    - echo "@wazue:registry=https://${CI_SERVER_HOST}/api/v4/groups/${CI_PROJECT_NAMESPACE_ID}/-/packages/npm/" > /tmp/.npmrc
+    - echo "//${CI_SERVER_HOST}/api/v4/groups/${CI_PROJECT_NAMESPACE_ID}/-/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> /tmp/.npmrc
+  script:
+    - docker build --secret id=npmrc,src=/tmp/.npmrc -t "$ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHORT_SHA" .
+    - docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHORT_SHA"
+    # tag the image with "latest" and push that tag
+    - docker tag "$ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHORT_SHA" "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+    - docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+    # if a tagged commit, tag with the commit tag and push that tag as well
+    - if [[ -v CI_COMMIT_TAG ]]; then docker tag "$ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHORT_SHA" "$ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_TAG" && docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_TAG"; fi
+
+build-and-push-sandbox-autarch:
+  extends: .build-and-push
+  environment: sandbox-autarch
+  rules:
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+
+build-and-push-wazuezoom:
+  extends: .build-and-push
+  environment: wazuezoom
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
