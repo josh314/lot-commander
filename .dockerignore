@@ -1,0 +1,12 @@
+# scratch files
+__*
+
+# ignore node_modules and dist folders
+node_modules/
+.npmrc
+
+# ignore build output
+dist/
+
+# ignore environment variables
+.env

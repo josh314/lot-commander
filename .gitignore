@@ -1,6 +1,7 @@
 # Node and npm stuff
 node_modules
 npm-debug.log
+.npmrc
 
 # Temp, scratch or intentionally hidden files
 *~
