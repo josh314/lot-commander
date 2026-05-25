@@ -56,8 +56,9 @@ class Server {
     // FAVICON ========================================
     //=================================================
     try {
-      const favicon = path.join(__basedir, this.config.assets.root, 'img/favicon.ico');
+      const favicon = path.resolve( '../distimg/favicon.ico');
       this.app.use(require('serve-favicon')(favicon));
+      debug('Favicon configured at ' + favicon);
     }
     catch(exception) {
       debug('No favicon found.');
@@ -67,9 +68,10 @@ class Server {
     // CONFIGURE VIEW ENGINE ==========================
     //=================================================
 
-    const viewsPath = path.join(__basedir, this.config.views.root);
-    const partialsPath = path.join(__basedir, this.config.views.partials);
-    const layoutsPath = path.join(__basedir, this.config.views.layouts);
+
+    const viewsPath = 'server/views';
+    const partialsPath = path.join( viewsPath, 'partials' );
+    const layoutsPath = path.join( viewsPath, 'layouts' );
     const hbs = require('express-handlebars').create({
       extname: '.hbs',
       defaultLayout: path.resolve(path.join(layoutsPath, 'index')),
@@ -186,7 +188,7 @@ class Server {
 
     // show the login form
     this.app.get('/login', function(req, res) {
-      res.render('login.hbs', { authFlash: req.session.flash });
+      res.render('login.hbs', { authFlash: req.session.flash, layout: false });
     });
 
     this.app.post(

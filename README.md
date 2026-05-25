@@ -28,6 +28,45 @@ npm run dev-server
 
 These utilize linting for both the server code and client code. There are separate `.eslintrc` files for the server and client.
 
+## Configuration
+
+Config is loaded asynchronously at startup by `server/load-config.js` using the following precedence:
+
+1. **`server/config.local.json`** — if present, this file is used and SSM is not contacted. Intended for local development. It is gitignored via the `config.*` pattern.
+2. **AWS SSM Parameter Store** — used in all other environments. The parameter path is `/lot-commander/<APP_ENV>/config`, where `APP_ENV` is a required environment variable (e.g. `production`, `staging`).
+
+The SSM parameter is a SecureString containing the full config as a JSON blob.
+
+### IAM requirements
+
+The identity running the app needs:
+
+- `ssm:GetParameter` on the parameter resource
+- `kms:Decrypt` on the KMS key used to encrypt it (the AWS-managed `aws/ssm` key by default)
+
+Find the key ID for the policy statement with:
+
+```bash
+aws kms describe-key --key-id alias/aws/ssm --query 'KeyMetadata.KeyId' --output text
+```
+
+### Setting the SSM parameter
+
+Use `set-ssm-env-config.js` to upload a local JSON file to SSM:
+
+```bash
+node set-ssm-env-config.js <app-env> <config-file>
+```
+
+For example:
+
+```bash
+node set-ssm-env-config.js production config.production.json
+```
+
+The script validates the JSON before writing and uses `Overwrite: true`, so re-running it safely updates an existing parameter.
+
+
 ## CI/CD — Docker image pipeline
 
 The GitLab CI/CD pipeline builds a Docker image and pushes it to AWS ECR using OIDC-based authentication (no long-lived AWS credentials).

@@ -1,9 +1,9 @@
-const config = require('./config');
+const loadConfig = require('./load-config');
 
 const Server = require('./server');
-const server = new Server(config);
 
-server.init()
+loadConfig()
+  .then( config => new Server(config).init() )
   .then( server => server.listen() )
   .then( async server => {
 

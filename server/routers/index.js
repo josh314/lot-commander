@@ -1,8 +1,6 @@
-const path = require('path');
 const express = require('express');
 
 const quickLots = require('../modules/quick-lots');
-// const bstockDb = require(path.join(__basedir, __config.modulesPath, 'bstock-db'));
 
 // middleware to stick for testing purposes
 // function testLog(s) {
@@ -86,7 +84,7 @@ function routes({
     quickLots
   }) );
 
-  router.use( express.static(path.join(__basedir, __config.assets.root)) );
+  router.use( express.static( 'dist' ) );
 
   //default route. the front-end rendering will all hit this.
   router.get('/{*splat}',
