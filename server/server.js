@@ -156,7 +156,7 @@ class Server {
     //================================================
 
     const AppSession = require( './modules/app-session' );
-    const session = AppSession( {
+    const session = await AppSession( {
       mongoSettings: this.config.dbHosts.mongo,
     });
     this.app.use( session );
