@@ -1,4 +1,4 @@
-FROM node:20 AS deps
+FROM node:24 AS deps
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ COPY . .
 RUN npm run build-client
 
 
-FROM node:20 AS runtime
+FROM node:24 AS runtime
 
 WORKDIR /app
 
