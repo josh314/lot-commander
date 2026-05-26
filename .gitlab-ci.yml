@@ -1,8 +1,19 @@
 stages:
+  - lint
   - build
 
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
+
+lint-server:
+  stage: lint
+  image: node:24-alpine
+  before_script:
+    - echo "@wazue:registry=https://${CI_SERVER_HOST}/api/v4/groups/${CI_PROJECT_NAMESPACE_ID}/-/packages/npm/" > .npmrc
+    - echo "//${CI_SERVER_HOST}/api/v4/groups/${CI_PROJECT_NAMESPACE_ID}/-/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> .npmrc
+    - npm ci --prefer-offline
+  script:
+    - npm run lint-server
 
 .build-and-push:
   stage: build

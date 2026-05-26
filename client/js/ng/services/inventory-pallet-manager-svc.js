@@ -349,7 +349,7 @@ angular.module('myApp').factory( 'InventoryPallet', [
             delete details.isRepacked;
           }
 
-// TODO: this logic doesn't really make sense when a key value is an object/array
+          // TODO: this logic doesn't really make sense when a key value is an object/array
           const isChanged = Object.keys( details ).some( _key => details[ _key ] !== this[ _key ] );
           if( isChanged ) {
             Object.assign( this, details );
