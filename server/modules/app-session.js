@@ -2,7 +2,27 @@
 const session = require('express-session');
 const MongoStore = require('connect-mongodb-session')(session);
 
-module.exports = function( { mongoSettings } ) {
+async function fetchSessionSecrets() {
+  const appEnv = process.env.APP_ENV;
+  if (appEnv) {
+    const parameterName = `/lot-commander/${appEnv}/session-secrets`;
+    console.log(`Loading session secrets from SSM: ${parameterName}`);
+    const { SSMClient, GetParameterCommand } = require('@aws-sdk/client-ssm');
+    const client = new SSMClient({});
+    const response = await client.send(new GetParameterCommand({
+      Name: parameterName,
+      WithDecryption: true,
+    }));
+    return response.Parameter.Value.split(',').map(s => s.trim());
+  }
+
+  if (!process.env.SESSION_SECRET) {
+    throw new Error('No secret set for session cookies!');
+  }
+  return process.env.SESSION_SECRET;
+}
+
+module.exports = async function( { mongoSettings } ) {
 
   const mongoUserStr = mongoSettings.auth && mongoSettings.auth.user && mongoSettings.auth.pwd ? `${mongoSettings.auth.user}:${mongoSettings.auth.pwd}@` : '';
 
@@ -20,14 +40,12 @@ module.exports = function( { mongoSettings } ) {
     collection: `sessions`,
   });
 
-  if(!process.env.SESSION_SECRET) {
-    throw new Error('No secret set for session cookies!');
-  }
+  const secret = await fetchSessionSecrets();
 
   return session({
     resave: true,
     saveUninitialized: true,
-    secret: process.env.SESSION_SECRET,
+    secret,
     store: sessionStore
   });
 

@@ -65,3 +65,37 @@ node set-ssm-env-config.js production config.production.json
 ```
 
 The script validates the JSON before writing and uses `Overwrite: true`, so re-running it safely updates an existing parameter.
+
+## Session Secrets
+
+Session cookie signing uses one or more secrets stored in AWS SSM Parameter Store at:
+
+```
+/lot-commander/<APP_ENV>/session-secrets
+```
+
+The parameter is a `SecureString` containing a comma-delimited list of secrets. At runtime, `server/modules/app-session.js` fetches the parameter and passes the array to `express-session`. Express will sign new cookies with the first secret and accept cookies signed by any secret in the list, enabling zero-downtime secret rotation.
+
+In local development (when `server/config.local.json` is present and `APP_ENV` is not set), the `SESSION_SECRET` environment variable is used instead.
+
+### Rotating secrets
+
+Use `scripts/rotate-session-secret.js` to prepend a new secret and push the updated list to SSM:
+
+```bash
+node scripts/rotate-session-secret.js <app-env> <new-secret>
+```
+
+For example:
+
+```bash
+node scripts/rotate-session-secret.js production my-new-secret-value
+```
+
+The script:
+1. Fetches the existing secret list from SSM (creates the parameter if it doesn't exist yet)
+2. Prepends the new secret
+3. Trims the list to a maximum of **3 secrets**, dropping the oldest
+4. Writes the result back to SSM as a `SecureString`
+
+After deploying the app with the updated parameter, existing sessions signed with the old secret remain valid. Once all instances have restarted and a reasonable session lifetime has elapsed, you can rotate again to drop the old secret entirely.
