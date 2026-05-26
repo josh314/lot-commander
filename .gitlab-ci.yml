@@ -7,7 +7,7 @@ variables:
 
 lint-server:
   stage: lint
-  image: node:24-alpine
+  image: node:24-slim
   before_script:
     - echo "@wazue:registry=https://${CI_SERVER_HOST}/api/v4/groups/${CI_PROJECT_NAMESPACE_ID}/-/packages/npm/" > .npmrc
     - echo "//${CI_SERVER_HOST}/api/v4/groups/${CI_PROJECT_NAMESPACE_ID}/-/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> .npmrc
