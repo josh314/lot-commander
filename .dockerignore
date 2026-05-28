@@ -10,3 +10,6 @@ dist/
 
 # ignore environment variables
 .env
+
+# terraform initialization files
+.terraform
