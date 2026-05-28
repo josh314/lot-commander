@@ -75,8 +75,10 @@ build:
     - docker tag "app:$CI_COMMIT_SHORT_SHA" "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
     - docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHORT_SHA"
     - docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
-    # if a tagged commit, tag with the commit tag and push that tag as well
-    - if [[ -v CI_COMMIT_TAG ]]; then docker tag "app:$CI_COMMIT_SHORT_SHA" "$ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_TAG" && docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_TAG"; fi
+    # if IMAGE_TAG is not set from the environment, fall back to the commit tag (may be empty on non-tag pipelines)
+    - if [[ ! -v IMAGE_TAG ]]; then IMAGE_TAG=$CI_COMMIT_TAG; fi
+    # if IMAGE_TAG is non-empty (either from the environment or from the commit tag), tag and push that as well
+    - if [[ -n "$IMAGE_TAG" ]]; then docker tag "app:$CI_COMMIT_SHORT_SHA" "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" && docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"; fi
 
 push-sandbox-autarch:
   extends: .push
