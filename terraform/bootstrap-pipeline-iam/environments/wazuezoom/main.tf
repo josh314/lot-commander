@@ -24,9 +24,7 @@ provider "aws" {
   region = var.aws_region
 }
 
-provider "gitlab" {
-  token = var.gitlab_token
-}
+provider "gitlab" {}
 
 module "gitlab_ecr_ci" {
   source = "../../modules/gitlab-ecr-ci"
