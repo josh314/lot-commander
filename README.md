@@ -90,7 +90,7 @@ node scripts/rotate-session-secret.js <app-env> <new-secret>
 For example:
 
 ```bash
-node scripts/rotate-session-secret.js production my-new-secret-value
+node scripts/rotate-session-secret.js prod my-new-secret-value
 ```
 
 The script:
@@ -100,6 +100,13 @@ The script:
 4. Writes the result back to SSM as a `SecureString`
 
 After deploying the app with the updated parameter, existing sessions signed with the old secret remain valid. Once all instances have restarted and a reasonable session lifetime has elapsed, you can rotate again to drop the old secret entirely.
+
+A good random secret can be generated with:
+
+```bash
+openssl rand -base64 32
+```
+
 
 ## CI/CD — Docker image pipeline
 
