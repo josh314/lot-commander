@@ -29,7 +29,7 @@ function parseListingTitle( title ) {
   let quantity;
 
   let cleanTitle;
-  if( title ) {
+  if( title && process.env.PARSE_PRODUCT_TITLES_FOR_BUNDLES ) {
 
     for( let i=0; i < parseListingTitlePatterns.length; i++ ) {
       const match = title.match( parseListingTitlePatterns[i] );
