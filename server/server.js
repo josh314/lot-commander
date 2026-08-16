@@ -333,7 +333,7 @@ class Server {
     // const bstock = require( './modules/bstock' );
 
     // Shopify client(s)
-    const shopifyStoreConfig = __config.shopify.stores;
+    const shopifyStoreConfig = this.config.shopify.stores;
 
     const ShopifyGql = require( './modules/shopify-gql' );
     const shopifyGqlClient = {

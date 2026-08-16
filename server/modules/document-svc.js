@@ -13,7 +13,7 @@ const s3 = new S3Client({
   region: 'us-east-1',
 });
 
-const __EXPRESSHOP_DOCUMENTS_BUCKET__ = 'expresshop-documents';
+const __EXPRESSHOP_DOCUMENTS_BUCKET__ = global.__config.s3.documents.bucket;
 
 module.exports = {
   folder: type => id => `${type}-${id}`,

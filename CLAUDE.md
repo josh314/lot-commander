@@ -13,6 +13,7 @@
 - The GitLab provider reads `GITLAB_TOKEN` from the environment — no TF variable needed
 - ECR push IAM role uses GitLab OIDC (`sts:AssumeRoleWithWebIdentity`); trust policy conditions: `sub` (wildcard), `aud` (`sts.amazonaws.com`), `namespace_id`, `project_id`
 - `server/load-config.js` loads config async at startup: if `server/config.local.json` exists it's used (SSM not contacted, gitignored, for local dev); otherwise config is pulled from SSM Parameter Store at `/lot-commander/<APP_ENV>/config` (`APP_ENV` required in that case)
+- `server/config.js` is dead code — nothing `require`s it; treat `server/config.local.json` (gitignored) and the SSM parameter as the only real config sources
 - Session secrets: SSM `SecureString` at `/lot-commander/<APP_ENV>/session-secrets` (comma-delimited list, first signs new cookies, all accepted — enables rotation); locally, `SESSION_SECRET` env var is used instead when `config.local.json` is present and `APP_ENV` is unset
 
 ## CI/CD (`.gitlab-ci.yml`)
@@ -33,6 +34,7 @@
 - Two MongoDB connections at startup: main via `mongoose.createConnection()` in `server.js`, second via `connect-mongodb-session` in `app-session.js`
 - Four separate `S3Client` instances, each with independent connection pools: `media-server.js`, `document-svc.js`, `manifest-svc.js`, `product-data.js`
 - `bstock-db.js` creates its client at module load time using the `__mongooseConnection` global — must be required after `server.init()` completes
+- `global.__config` (set in `Server` constructor, before `init()` runs) is read at module-load time by `media-server.js`, `manifest-svc.js`, `document-svc.js`, `product-data.js` for S3 bucket/CloudFront config — same load-order hazard as `bstock-db.js`'s `__mongooseConnection` use
 
 ## Server Modules (`server/modules/`)
 - No automated test suite exists in this repo (no `*.test.js`/`*.spec.js` anywhere) — verify JS changes with `node -c <file>` and manual/code review, not a test run
