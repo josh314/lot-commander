@@ -52,6 +52,24 @@ Find the key ID for the policy statement with:
 aws kms describe-key --key-id alias/aws/ssm --query 'KeyMetadata.KeyId' --output text
 ```
 
+### S3 buckets
+
+Bucket names and CloudFront domains are part of the config blob, under the `s3` key:
+
+```json
+"s3": {
+  "media": {
+    "buckets": { "images": "...", "videos": "..." },
+    "cloudfrontDomains": { "images": "...", "videos": "..." }
+  },
+  "manifests": { "bucket": "...", "cloudfrontDomain": "..." },
+  "documents": { "bucket": "..." },
+  "productDataJobs": { "bucket": "..." }
+}
+```
+
+`server/modules/media-server.js`, `manifest-svc.js`, `document-svc.js`, and `product-data.js` read these off `global.__config.s3.*` at module-load time rather than through constructor injection (they're plain modules required directly by routers, not `Commander`s wired in `server.js`'s `init()`). This relies on `global.__config` being set in the `Server` constructor before `init()` requires the routers — the same pattern `bstock-db.js` uses for `global.__mongooseConnection`. Any environment's SSM config (or `config.local.json`) must include this `s3` block or these modules will throw on startup.
+
 ### Setting the SSM parameter
 
 Use `set-ssm-env-config.js` to upload a local JSON file to SSM:

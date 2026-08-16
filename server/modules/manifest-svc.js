@@ -13,8 +13,8 @@ const s3 = new S3Client({
 
 const ExcelBuilder = require('@wazue/excel/lib/builder');
 
-const __EXPRESSHOP_MANIFESTS_BUCKET__ = 'expresshop-manifests';
-const __CLOUDFRONT_DISTRIBUTION_DOMAIN__ = 'manifests.wholesaleninjas.com';
+const __EXPRESSHOP_MANIFESTS_BUCKET__ = global.__config.s3.manifests.bucket;
+const __CLOUDFRONT_DISTRIBUTION_DOMAIN__ = global.__config.s3.manifests.cloudfrontDomain;
 
 module.exports = {
   build,

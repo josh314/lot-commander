@@ -234,7 +234,7 @@ class $_ {
   async queueProductDataFetching( barcodes ) {
 
     const params = {
-      Bucket: 'expresshop-product-data-jobs',
+      Bucket: global.__config.s3.productDataJobs.bucket,
       Key: `jobs/${ ( new Date() ).toISOString().replace(/[-:]/g, '') }.txt`,
       Body: Readable.from( barcodes.map( _ => _ + '\n' ) ),
       ContentType: 'text/plain',

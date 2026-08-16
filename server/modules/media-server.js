@@ -30,15 +30,9 @@ const s3 = new S3Client({
 const axios = require('axios');
 const mime = require('mime-types');
 
-const __BUCKETS__ = {
-  images: 'lot-images',
-  videos: 'lot-videos'
-};
+const __BUCKETS__ = global.__config.s3.media.buckets;
 
-const __CLOUDFRONT_DISTRIBUTION_DOMAINS__ = {
-  images: 'lot-images.wholesaleninjas.com',
-  videos: 'lot-videos.wholesaleninjas.com'
-};
+const __CLOUDFRONT_DISTRIBUTION_DOMAINS__ = global.__config.s3.media.cloudfrontDomains;
 
 
 // TODO: thsi seems to work even when there is an explicit region
