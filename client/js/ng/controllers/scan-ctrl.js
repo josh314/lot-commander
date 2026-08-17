@@ -62,6 +62,8 @@ angular.module('myApp').controller( 'ScanCtrl', [
           deleteInventoryItem,
           saveManifestAndContinue,
           saveManifestAndExit,
+          finishScanning,
+          canFinishScanning,
           editShippingItemsModal,
           validateInventory,
           isManifestChanged,
@@ -203,6 +205,45 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
         }
       });
+
+    }
+
+    function canFinishScanning() {
+      return vm.lot && vm.lot.status === 'In Preparation' && !vm.lot.pallet && !vm.lot.unmanifested;
+    }
+
+    async function finishScanning() {
+
+      if( !validateInventory( __INVENTORY_VALIDATION_OPTIONS__ )) {
+
+        const isConfirmed = await ModalSvc.confirm( {
+          header: 'Invalid data',
+          html: `<p>The data for this manifest is invalid with these errors:</p> ${ vm.lot.composeInventoryErrorsHtmlMessage() }`,
+          type: 'error',
+          trueText: 'Finish anyway',
+          falseText: 'Cancel'
+        } );
+
+        if( !isConfirmed ) {
+          return;
+        }
+
+      }
+
+      const lot = await ModalSvc.wait({
+        waitFor: vm.lot.finishScanning(),
+        message: 'Locking Lot and starting AI backfill...',
+      });
+
+      vm.lot.status = lot.status;
+
+      await ModalSvc.message( {
+        header: 'Scanning finished',
+        html: '<p>This Lot is now locked while AI backfill fills in missing product data.</p>',
+        buttonText: 'Continue',
+      });
+
+      navigate.viewLot( vm.lot._id );
 
     }
 

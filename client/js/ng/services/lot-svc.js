@@ -907,7 +907,7 @@ angular.module('myApp').factory( 'Lot', [
         return this._inventory;
       }
 
-      saveManifest() {
+      _prepareInventoryForSave() {
         // This filters out completely empty lines
         this._inventory = this._inventory.filter( item => {
 
@@ -934,9 +934,28 @@ angular.module('myApp').factory( 'Lot', [
           }
         }
 
+        return inventoryData;
+      }
+
+      saveManifest() {
+
+        const inventoryData = this._prepareInventoryForSave();
+
         return this.saveManuallyInputProductData().then( _ => {
 
           return $q.when( api.saveLotManifest( this._id, inventoryData ) );
+
+        });
+
+      }
+
+      finishScanning() {
+
+        const inventoryData = this._prepareInventoryForSave();
+
+        return this.saveManuallyInputProductData().then( _ => {
+
+          return $q.when( api.finishScanning( this._id, inventoryData ) );
 
         });
 
