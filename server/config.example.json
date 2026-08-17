@@ -1,0 +1,98 @@
+{
+  "env": "development",
+  "port": 8080,
+
+  "dbHosts": {
+
+    "mongo": {
+      "host": "127.0.0.1",
+      "port": 27017,
+      "db": "ehdb",
+      "auth": {
+        "user": "REPLACE_ME",
+        "pwd": "REPLACE_ME"
+      }
+    }
+
+  },
+
+  "shopify": {
+
+    "stores": {
+
+      "prod": {
+
+        "name": "your-store-name",
+        "url": "your-store-name.myshopify.com",
+        "id": "gid://shopify/Shop/00000000",
+        "locationId": "gid://shopify/Location/00000000",
+        "auth": {
+          "apiKey": "REPLACE_ME",
+          "password": "REPLACE_ME",
+          "exampleUrl": "",
+          "sharedSecret": "REPLACE_ME",
+          "accessToken": "REPLACE_ME"
+        }
+
+      },
+
+      "staging": {
+        "name": "your-staging-store-name",
+        "url": "your-staging-store-name.myshopify.com",
+        "id": "gid://shopify/Shop/00000000",
+        "auth": {
+          "apiKey": "REPLACE_ME",
+          "password": "REPLACE_ME",
+          "accessToken": "REPLACE_ME",
+          "exampleUrl": "",
+          "sharedSecret": ""
+        }
+      }
+
+    }
+
+  },
+
+  "upcItemDb": {
+    "userKey": "REPLACE_ME"
+  },
+
+  "fnskuToAsin": {
+    "apiKey": "REPLACE_ME"
+  },
+
+  "traject": {
+    "asindataapi": {
+      "apiKey": "REPLACE_ME"
+    }
+  },
+
+  "s3": {
+
+    "media": {
+      "buckets": {
+        "images": "lot-images",
+        "videos": "lot-videos"
+      },
+      "cloudfrontDomains": {
+        "images": "lot-images.wholesaleninjas.com",
+        "videos": "lot-videos.wholesaleninjas.com"
+      }
+    },
+
+    "manifests": {
+      "bucket": "expresshop-manifests",
+      "cloudfrontDomain": "manifests.wholesaleninjas.com"
+    },
+
+    "documents": {
+      "bucket": "expresshop-documents"
+    },
+
+    "productDataJobs": {
+      "bucket": "expresshop-product-data-jobs"
+    }
+
+  }
+
+}

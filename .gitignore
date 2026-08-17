@@ -25,6 +25,7 @@ dist/
 # configuration, settings, deployment and environment
 config/deploy.js
 config.*
+!server/config.example.json
 config-*.js
 settings.js
 .env

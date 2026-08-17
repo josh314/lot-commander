@@ -35,6 +35,8 @@ Config is loaded asynchronously at startup by `server/load-config.js` using the 
 1. **`server/config.local.json`** — if present, this file is used and SSM is not contacted. Intended for local development. It is gitignored via the `config.*` pattern.
 2. **AWS SSM Parameter Store** — used in all other environments. The parameter path is `/lot-commander/<APP_ENV>/config`, where `APP_ENV` is a required environment variable (e.g. `production`, `staging`).
 
+`server/config.example.json` documents the full config shape with placeholder values and is checked into git (explicitly excepted from the `config.*` gitignore pattern). It's the template for both destinations above: copy it to `server/config.local.json` for local development, or fill it in and upload it as the SSM parameter for a deployed environment (see "Setting the SSM parameter" below). Keep it in sync whenever config keys are added or removed.
+
 The SSM parameter is a SecureString containing the full config as a JSON blob.
 
 ### IAM requirements
@@ -70,7 +72,7 @@ Bucket names and CloudFront domains are part of the config blob, under the `s3` 
 
 ### Setting the SSM parameter
 
-Use `set-ssm-env-config.js` to upload a local JSON file to SSM:
+Use `set-ssm-env-config.js` to upload a local JSON file to SSM. Start from `server/config.example.json` and fill in the environment's real values:
 
 ```bash
 node set-ssm-env-config.js <app-env> <config-file>
