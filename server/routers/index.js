@@ -12,6 +12,7 @@ const quickLots = require('../modules/quick-lots');
 
 //routes
 function routes({
+  aiBackfill,
   appSettings,
   // bstock,
   countCommander,
@@ -39,7 +40,7 @@ function routes({
   router.use('/api/users', require('./users')( { users: userDbClient } ) );
 
   // lots api
-  router.use('/api/lots', require( './lots' )( { inventoryCommander, lotdb, manifests } ) );
+  router.use('/api/lots', require( './lots' )( { aiBackfill, inventoryCommander, lotdb, manifests } ) );
 
   // bstock db api
   // router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);

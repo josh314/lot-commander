@@ -104,7 +104,7 @@ function splitBundlePrice( title, price ) {
 angular.module('myApp').factory( 'ProductDataSvc', [ '$q',
   function( $q ) {
 
-    const getProductDataByBarcode = ( barcode, { source, type } = {} ) => $q.when( api.getProductDataByBarcode( barcode, { source, type } ) ).then( resp => resp.product );
+    const getProductDataByBarcode = ( barcode, { source, type, lotId } = {} ) => $q.when( api.getProductDataByBarcode( barcode, { source, type, lotId } ) ).then( resp => resp.product );
 
     const searchForProductData = query => $q.when( api.searchForProductData( query ) ).then( resp => resp.products );
 

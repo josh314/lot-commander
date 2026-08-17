@@ -93,6 +93,11 @@
       "bucket": "expresshop-product-data-jobs"
     }
 
+  },
+
+  "aiBackfill": {
+    "jobsBucket": "REPLACE_ME",
+    "aggregateStateMachineArn": "REPLACE_ME"
   }
 
 }

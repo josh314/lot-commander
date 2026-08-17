@@ -217,6 +217,18 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
     async function scanBarcode( ) {
 
+      if( vm.lot.status === 'Pending Data' ) {
+
+        await ModalSvc.message( {
+          header: 'Backfill in progress',
+          html: '<p>This Lot is locked while AI backfill fills in missing product data. Scanning is disabled until backfill completes.</p>',
+          buttonText: 'OK',
+        });
+
+        return;
+
+      }
+
       const scannedBarcode = vm.scannedBarcode;
 
       const valid = validateBarcode( scannedBarcode );
@@ -233,7 +245,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
             item.waiting = true;
             console.log('waiting for product data for barcode:', item.data.barcode);
 
-            ProductDataSvc.getProductDataByBarcode( item.data.barcode ).then( product => {
+            ProductDataSvc.getProductDataByBarcode( item.data.barcode, { lotId: vm.lot._id } ).then( product => {
               console.log('product data:', product);
               delete item.waiting;
               if(product) {
