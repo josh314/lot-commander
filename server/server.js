@@ -308,7 +308,7 @@ class Server {
     });
 
     const ProductData = require( './modules/product-data' );
-    const productData = new ProductData( Object.assign( { fnskuToAsin, upcItemDb, traject }, models ) );
+    const productData = new ProductData( Object.assign( { fnskuToAsin, upcItemDb, traject, settings: this.config.aiBackfill }, models ) );
 
     // Manifests module
     const manifests = require('./modules/manifests')( { lotdb, manifestDb, productData } );
@@ -371,6 +371,7 @@ class Server {
     //======================================================
 
     const modules = {
+      aiBackfill: this.config.aiBackfill,
       appSettings,
       // bstock,
       countCommander,

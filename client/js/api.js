@@ -1605,11 +1605,11 @@ export function finishOrderPick( orderPickId, isFinished ) {
 *
 ************/
 
-export function getProductDataByBarcode( barcode, { source, type } = {} ) {
+export function getProductDataByBarcode( barcode, { source, type, lotId } = {} ) {
 
   return axios({
     method: 'get',
-    url: `/api/product-data/${ encodeURIComponent( barcode ) }${ source || type ? '?' + getQueryString({ source, type })  : '' }`
+    url: `/api/product-data/${ encodeURIComponent( barcode ) }${ source || type || lotId ? '?' + getQueryString({ source, type, lotId })  : '' }`
   })
     .then( resp => resp.data );
 }

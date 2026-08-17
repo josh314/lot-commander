@@ -6,6 +6,7 @@ const { InvalidRequestError } = require('../errors');
 
 const {
   S3Client,
+  PutObjectCommand,
 } = require('@aws-sdk/client-s3');
 const { Upload } = require("@aws-sdk/lib-storage");
 
@@ -75,6 +76,8 @@ class $_ {
     FallbackProductData,
     fnskuToAsin,
     InternalProductData,
+    Lot,
+    settings,
     traject,
     upcItemDb,
   } ) {
@@ -85,6 +88,8 @@ class $_ {
         FallbackProductData,
         fnskuToAsin,
         InternalProductData,
+        Lot,
+        settings,
         traject,
         upcItemDb,
       }
@@ -92,7 +97,7 @@ class $_ {
 
   }
 
-  async getProductDataByBarcode( barcode, { source, type } ) {
+  async getProductDataByBarcode( barcode, { source, type, lotId } ) {
 
     let product;
 
@@ -117,6 +122,9 @@ class $_ {
       if( product ) {
         product.title = product.title || product.description;
       }
+      else if( lotId ) {
+        await this.createFetchJobIfLotNotLocked( lotId, barcode );
+      }
 
     }
 
@@ -125,6 +133,23 @@ class $_ {
       ...{ barcode },
       ...( product || {} )
     };
+  }
+
+  async createFetchJobIfLotNotLocked( lotId, barcode ) {
+
+    const lot = await this.Lot.findById( lotId ).select( 'status' ).lean();
+
+    if( lot && lot.status === 'Pending Data' ) {
+      return;
+    }
+
+    const params = {
+      Bucket: this.settings.jobsBucket,
+      Key: `fetch/${ lotId }/${ barcode }`,
+    };
+
+    return s3.send( new PutObjectCommand( params ) );
+
   }
 
   getProductDataFromSource( barcode, source, type ) {
