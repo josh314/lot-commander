@@ -74,7 +74,7 @@
 
 	<div class="row well" ng-if="$ctrl.lot.status === 'Pending Data'">
 		<div class="col-xs-12">
-      <div class="alert alert-info">Backfill in progress &mdash; scanning is locked while AI backfill fills in missing product data for this Lot.</div>
+      <div class="alert alert-warning">Backfill in progress &mdash; scanning is locked while AI backfill fills in missing product data for this Lot.</div>
 		</div>
 	</div>
 	<div class="row well" ng-if="$ctrl.lot.status !== 'Pending Data'">
@@ -121,10 +121,15 @@
           <div style="margin-bottom:8px;">
             <a class="btn btn-primary" ng-click="$ctrl.editShippingItemsModal()" ng-hide="$ctrl.lot.numBoxes">Edit Shipping Items</a>
           </div>
-          <div>
+          <div style="margin-bottom:8px;" ng-if="$ctrl.lot.status !== 'Pending Data'">
             <a class="btn btn-success" ng-click="$ctrl.saveManifestAndContinue()" ng-disabled="!$ctrl.isManifestChanged()">Save</a>
-            <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()">Save & finish</a>
-            <a class="btn btn-primary" ng-click="$ctrl.finishScanning()" ng-show="$ctrl.canFinishScanning()">Finish Scanning</a>
+            <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()">Save & exit</a>
+          </div>
+          <div style="margin-bottom:8px;" ng-if="$ctrl.lot.status === 'Pending Data'">
+            <a class="btn btn-success" ng-click="$ctrl.exitWithoutSaving()">Exit</a>
+          </div>
+          <div>
+            <a class="btn btn-warning" ng-click="$ctrl.finishScanning()" ng-show="$ctrl.canFinishScanning()">Finish Scanning</a>
           </div>
 				</div>
 			</div>
@@ -206,6 +211,9 @@
 				</tbody>
 			</table>
 		</div>
-		<div class="col-xs-6"><a class="btn btn-success btn-lg" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()">Save & finish</a></div>
+		<div class="col-xs-6">
+			<a class="btn btn-success btn-lg" ng-click="$ctrl.saveManifestAndExit()" ng-disabled="!$ctrl.validateInventory()" ng-if="$ctrl.lot.status !== 'Pending Data'">Save & exit</a>
+			<a class="btn btn-success btn-lg" ng-click="$ctrl.exitWithoutSaving()" ng-if="$ctrl.lot.status === 'Pending Data'">Exit</a>
+		</div>
 	</div>
 </div>
