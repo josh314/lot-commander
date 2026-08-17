@@ -15,6 +15,10 @@ const productDataSchema = mongoose.Schema({
   brand: String,
   price: Number,
   images: [ String ],
+  source: {
+    type: String,
+    match: /^(manual|ai-backfill:.+)$/
+  },
 
 }, { timestamps: true } ); // note that timestamps will be ignored when this is used as a subschema
 
