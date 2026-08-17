@@ -41,5 +41,11 @@ mongodump-tmp
 angular-console-commands
 demo*
 
+# git worktrees (agent-managed scratch workspaces)
+.worktrees
+
+# subagent-driven-development scratch workspace (ledgers, briefs, review packages)
+.superpowers
+
 # System files
 .DS_Store
