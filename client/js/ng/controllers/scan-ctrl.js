@@ -62,6 +62,7 @@ angular.module('myApp').controller( 'ScanCtrl', [
           deleteInventoryItem,
           saveManifestAndContinue,
           saveManifestAndExit,
+          exitWithoutSaving,
           finishScanning,
           canFinishScanning,
           editShippingItemsModal,
@@ -196,6 +197,12 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
     }
 
+    function exitWithoutSaving() {
+
+      navigate.viewLot( vm.lot._id );
+
+    }
+
     function saveManifestAndExit() {
 
       saveManifest().then( ( { success, manifest: _manifest } ) => {
@@ -229,19 +236,25 @@ angular.module('myApp').controller( 'ScanCtrl', [
         }
 
       }
+      else {
+
+        const isConfirmed = await ModalSvc.confirm( {
+          header: 'Finish Scanning',
+          body: 'This will lock the Lot manifest and start data backfill for any missing product data. Continue?',
+        } );
+
+        if( !isConfirmed ) {
+          return;
+        }
+
+      }
 
       const lot = await ModalSvc.wait({
         waitFor: vm.lot.finishScanning(),
-        message: 'Locking Lot and starting AI backfill...',
+        message: 'Locking Lot and starting data backfill...',
       });
 
       vm.lot.status = lot.status;
-
-      await ModalSvc.message( {
-        header: 'Scanning finished',
-        html: '<p>This Lot is now locked while AI backfill fills in missing product data.</p>',
-        buttonText: 'Continue',
-      });
 
       navigate.viewLot( vm.lot._id );
 
