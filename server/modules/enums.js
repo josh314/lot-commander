@@ -7,7 +7,7 @@ const marketplaceEnum = [
   // 'bstock',
   'wholesaleninjas'
 ];
-const lotStatusEnum = [ 'In Preparation', 'Ready', 'Reviewed', 'Listed', 'Sold', 'Shipped', 'Error', 'Decommissioned' ];
+const lotStatusEnum = [ 'In Preparation', 'Pending Data', 'Ready', 'Reviewed', 'Listed', 'Sold', 'Shipped', 'Error', 'Decommissioned' ];
 const conditionEnum = ['shelf-pull', 'case-packed', 'customer returns', 'salvage'];
 
 
