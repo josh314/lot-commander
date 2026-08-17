@@ -3,8 +3,12 @@ const path = require('path');
 
 const LOCAL_CONFIG_PATH = path.join(__dirname, 'config.local.json');
 
+function isLocal() {
+  return fs.existsSync(LOCAL_CONFIG_PATH);
+}
+
 async function loadConfig() {
-  if (fs.existsSync(LOCAL_CONFIG_PATH)) {
+  if (isLocal()) {
     console.log('Loading config from config.local.json');
     return JSON.parse(fs.readFileSync(LOCAL_CONFIG_PATH, 'utf8'));
   }
@@ -28,3 +32,4 @@ async function loadConfig() {
 }
 
 module.exports = loadConfig;
+module.exports.isLocal = isLocal;
