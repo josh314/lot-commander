@@ -67,6 +67,8 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
 
           verifyListingAndNavigateToSubmission,
           scanItems,
+          finishScanning,
+          canFinishScanning,
           reviewManifest,
           linkManifestBlock,
           openGallery,
@@ -239,6 +241,30 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
       }
 
       return navigate.submitListing( vm.lot._id );
+    }
+
+    function canFinishScanning() {
+      return vm.lot && vm.lot.status === 'In Preparation' && !vm.lot.pallet && !vm.lot.unmanifested;
+    }
+
+    async function finishScanning() {
+
+      const isConfirmed = await ModalSvc.confirm( {
+        header: 'Finish Scanning',
+        body: 'This will lock the Lot and start AI backfill for any missing product data. Continue?',
+      } );
+
+      if( !isConfirmed ) {
+        return;
+      }
+
+      await ModalSvc.wait( {
+        waitFor: vm.lot.finishScanning(),
+        message: 'Locking Lot and starting AI backfill...',
+      } );
+
+      navigate.reload();
+
     }
 
     async function deleteLot() {

@@ -296,6 +296,21 @@ export function saveLotManifest( lotId, inventory ) {
 
 }
 
+export function finishScanning( lotId, inventory ) {
+
+  if( !lotId ) {
+    throw new Error('Must supply lot ID.');
+  }
+
+  return axios({
+    method: 'post',
+    url: `/api/lots/${lotId}/finish-scanning`,
+    data: { inventory }
+  })
+    .then( resp => resp.data && resp.data.lot );
+
+}
+
 export function uploadLotManifestFile( lotId, file, filename ) {
 
   if( !lotId ) {

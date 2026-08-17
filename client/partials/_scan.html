@@ -124,6 +124,7 @@
           <div>
             <a class="btn btn-success" ng-click="$ctrl.saveManifestAndContinue()" ng-disabled="!$ctrl.isManifestChanged()">Save</a>
             <a class="btn btn-success" ng-click="$ctrl.saveManifestAndExit()">Save & finish</a>
+            <a class="btn btn-primary" ng-click="$ctrl.finishScanning()" ng-show="$ctrl.canFinishScanning()">Finish Scanning</a>
           </div>
 				</div>
 			</div>

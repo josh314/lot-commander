@@ -7,15 +7,25 @@ const axios = require('axios');
 
 const formidable = require('formidable');
 
+const {
+  SFNClient,
+  StartExecutionCommand,
+} = require('@aws-sdk/client-sfn');
+
 const auth = require('../auth');
 const helpers = require('../helpers');
 const collage = require('../modules/collage');
 const {
   ChildResourceNotFoundError,
+  IllegalActionError,
   ResourceNotFoundError
 } = require('../errors');
 
 const manifestSvc = require( '../modules/manifest-svc' );
+
+const sfn = new SFNClient({
+  region: 'us-east-1',
+});
 
 module.exports = routes;
 
@@ -56,7 +66,7 @@ function listLotsFilterParamsFromQueryParams( qp ) {
  *
  **********/
 
-function routes({ inventoryCommander, lotdb, manifests }) {
+function routes({ aiBackfill, inventoryCommander, lotdb, manifests }) {
   const router = new express.Router();
 
   /*******************************************
@@ -120,6 +130,11 @@ function routes({ inventoryCommander, lotdb, manifests }) {
     '/:lotId/manifest/',
     auth.isAuthorized( 'EDIT_LOT' ),
     saveManifest
+  );
+  router.post(
+    '/:lotId/finish-scanning',
+    auth.isAuthorized( 'EDIT_LOT' ),
+    finishScanning
   );
 
   router.post(
@@ -369,48 +384,93 @@ function routes({ inventoryCommander, lotdb, manifests }) {
 
   }
 
+  async function saveManifestForLot( lotId, inventory ) {
+
+    const lot = await lotdb.getLotById( lotId );
+
+    if( !lot ) {
+      throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
+    }
+
+    const _data = {
+      _id: lot.manifestId,
+      handle: lot.handle,
+      inventory,
+    };
+
+    const manifest = await manifests.saveManifest( _data );
+
+    if(manifest) {
+
+      const totalUnits = inventory.reduce( ( total, inventoryItem ) => total + ( parseInt( inventoryItem.quantity ) || 0 ), 0 );
+      const estimatedRetailValue = inventory.reduce( ( total, inventoryItem ) => total + ( parseFloat( inventoryItem.price )*parseInt( inventoryItem.quantity ) || 0 ), 0 );
+
+      const lotUpdate = {
+        _id: lot._id,
+        totalUnits,
+        estimatedRetailValue,
+        manifestId: manifest._id,
+      };
+      await lotdb.editLot( lot._id, lotUpdate );
+
+    }
+
+    return manifest;
+
+  }
+
   async function saveManifest( req, res, next ) {
 
     try {
 
       const { lotId } = req.params;
-      const lot = await lotdb.getLotById( lotId );
+      const { inventory } = req.body;
 
-      if( lot ) {
+      const manifest = await saveManifestForLot( lotId, inventory );
 
-        const { inventory } = req.body;
+      res.json( { manifest } );
 
-        const _data = {
-          _id: lot.manifestId,
-          handle: lot.handle,
-          inventory,
-        };
+    }
+    catch(e) {
+      return next( e );
+    }
 
-        const manifest = await manifests.saveManifest( _data );
+  }
 
-        if(manifest) {
+  async function finishScanning( req, res, next ) {
 
-          const totalUnits = inventory.reduce( ( total, inventoryItem ) => total + ( parseInt( inventoryItem.quantity ) || 0 ), 0 );
-          const estimatedRetailValue = inventory.reduce( ( total, inventoryItem ) => total + ( parseFloat( inventoryItem.price )*parseInt( inventoryItem.quantity ) || 0 ), 0 );
+    try {
 
-          const lotUpdate = {
-            _id: lot._id,
-            totalUnits,
-            estimatedRetailValue,
-            manifestId: manifest._id,
-          };
-          await lotdb.editLot( lot._id, lotUpdate );
+      const { lotId } = req.params;
+      const { inventory } = req.body;
 
-        }
+      const existingLot = await lotdb.getLotById( lotId );
 
-        res.json( { manifest } );
-
-      }
-      else {
-
+      if( !existingLot ) {
         throw new ResourceNotFoundError( { type: 'lot', id: lotId } );
-
       }
+
+      if( existingLot.pallet || existingLot.unmanifested ) {
+        throw new IllegalActionError( `Lot ${ lotId } does not use the scanned-inventory flow, so it cannot finish scanning.` );
+      }
+
+      if( existingLot.status !== 'In Preparation' && existingLot.status !== 'Pending Data' ) {
+        throw new IllegalActionError( `Lot ${ lotId } cannot finish scanning from status '${ existingLot.status }'.` );
+      }
+
+      if( inventory ) {
+        await saveManifestForLot( lotId, inventory );
+      }
+
+      const { lot } = await lotdb.editLot( lotId, { status: 'Pending Data' } );
+
+      await sfn.send( new StartExecutionCommand({
+        stateMachineArn: aiBackfill.aggregateStateMachineArn,
+        name: `agg-${ lotId }`,
+        input: JSON.stringify( { lotId } ),
+      }) );
+
+      res.json( { lot: lot || existingLot } );
 
     }
     catch(e) {
