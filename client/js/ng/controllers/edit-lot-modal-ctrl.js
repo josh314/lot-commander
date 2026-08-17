@@ -34,7 +34,7 @@ angular.module('myApp').controller( 'EditLotModalCtrl', [
         {
 
           lot: LotSvc.hydrateLot( lot ),
-          lotStatusEnum: dbEnums.lotStatus,
+          lotStatusEnum: dbEnums.lotStatus.filter( status => status !== 'Pending Data' || lot.status === 'Pending Data' ),
           lotCategoryOptions: [''].concat(palletProperties.category),
           lotTypeEnum: dbEnums.lotType,
           packagingTypeEnum: dbEnums.packagingType,
