@@ -466,7 +466,7 @@ function routes({ aiBackfill, inventoryCommander, lotdb, manifests }) {
 
       await sfn.send( new StartExecutionCommand({
         stateMachineArn: aiBackfill.aggregateStateMachineArn,
-        name: `agg-${ lotId }`,
+        name: `agg-${ lotId }-${ Date.now() }`,
         input: JSON.stringify( { lotId } ),
       }) );
 
