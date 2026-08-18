@@ -99,7 +99,7 @@ Session cookie signing uses one or more secrets stored in AWS SSM Parameter Stor
 
 The parameter is a `SecureString` containing a comma-delimited list of secrets. At runtime, `server/modules/app-session.js` fetches the parameter and passes the array to `express-session`. Express will sign new cookies with the first secret and accept cookies signed by any secret in the list, enabling zero-downtime secret rotation.
 
-In local development (when `server/config.local.json` is present and `APP_ENV` is not set), the `SESSION_SECRET` environment variable is used instead.
+In local development (when `server/config.local.json` is present), the `SESSION_SECRET` environment variable is used instead, regardless of whether `APP_ENV` is also set.
 
 ### Rotating secrets
 

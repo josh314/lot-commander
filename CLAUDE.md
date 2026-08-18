@@ -16,7 +16,7 @@
 - `server/config.js` is dead code — nothing `require`s it; treat `server/config.local.json` (gitignored) and the SSM parameter as the only real config sources
 - `.gitignore`'s `config.*` pattern blanket-excludes any `config.*`-named file — new tracked config files (e.g. `server/config.example.json`) need an explicit `!` exception added
 - `server/config.example.json` is the canonical documented config shape (sanitized, placeholder credentials) — template for both `server/config.local.json` (local dev) and the SSM parameter (deployed envs, via `set-ssm-env-config.js`); keep it in sync when adding new config keys
-- Session secrets: SSM `SecureString` at `/lot-commander/<APP_ENV>/session-secrets` (comma-delimited list, first signs new cookies, all accepted — enables rotation); locally, `SESSION_SECRET` env var is used instead when `config.local.json` is present and `APP_ENV` is unset
+- Session secrets: SSM `SecureString` at `/lot-commander/<APP_ENV>/session-secrets` (comma-delimited list, first signs new cookies, all accepted — enables rotation); locally, `SESSION_SECRET` env var is used instead whenever `config.local.json` is present (`server/load-config.js`'s `isLocal()`), regardless of `APP_ENV` — both `load-config.js` and `app-session.js` must agree on this check, since they previously used different heuristics and could disagree
 
 ## CI/CD (`.gitlab-ci.yml`)
 - `build` job is env-agnostic: tags image `app:$CI_COMMIT_SHORT_SHA`, saves as `image.tar.gz` artifact (3hr expiry)
