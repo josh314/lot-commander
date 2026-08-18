@@ -1,11 +1,9 @@
 import angular from 'angular';
 
 /******************* Change Password Controller ********************/
-angular.module('myApp').controller('ChangeUserPasswordCtrl', [ 'logout', 'sessionTimeout', 'UserSvc',
+angular.module('myApp').controller('ChangeUserPasswordCtrl', [ 'logout', 'UserSvc',
 
-  function( logout, sessionTimeout, UserSvc ){
-    sessionTimeout.timeoutExpired();
-
+  function( logout, UserSvc ){
     const vm = this;
     vm.passwordMismatch = false;
     vm.passwordInvalid = false;

@@ -13,7 +13,6 @@ angular.module('myApp').controller('ShipmentListCtrl', [
   'LocalUserSettingsSvc',
   'LoggedInUser',
   'navigate',
-  'sessionTimeout',
   'ShipmentManagerSvc',
 
   function(
@@ -21,12 +20,9 @@ angular.module('myApp').controller('ShipmentListCtrl', [
     LocalUserSettingsSvc,
     LoggedInUser,
     navigate,
-    sessionTimeout,
     ShipmentManagerSvc,
 
   ) {
-    sessionTimeout.timeoutExpired();
-
     const vm = this;
     // Permissions
     vm.showCreateIncomingShipmentButton = LoggedInUser.hasPermission('CREATE_INCOMING_SHIPMENT');

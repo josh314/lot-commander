@@ -18,7 +18,6 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
   'LoggedInUser',
   'navigate',
   'PalletLotSvc',
-  'sessionTimeout',
   'ShipmentManagerSvc',
 
   function(
@@ -28,7 +27,6 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
     LoggedInUser,
     navigate,
     PalletLotSvc,
-    sessionTimeout,
     ShipmentManagerSvc,
 
   ) {
@@ -38,8 +36,6 @@ angular.module('myApp').controller( 'InventoryPalletViewCtrl', [
     init();
 
     function init() {
-
-      sessionTimeout.timeoutExpired();
 
       vm.displayModes = {
         LIST: __DISPLAY_MODE_LIST__,

@@ -88,7 +88,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
   'navigate',
   'PalletLotSvc',
   'PalletManifestSvc',
-  'sessionTimeout',
   'ShipmentFactory',
   'ShippingItemsSvc',
   'SplitGroupNameModal',
@@ -107,7 +106,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
     navigate,
     PalletLotSvc,
     PalletManifestSvc,
-    sessionTimeout,
     ShipmentFactory,
     ShippingItemsSvc,
     SplitGroupNameModal,
@@ -609,7 +607,6 @@ angular.module('myApp').controller( 'InventoryPalletSplitCtrl', [
 
     async function init() {
 
-      sessionTimeout.timeoutExpired();
       focus('palletHandleFilterInput');
       vm.standardManifestColumns = StandardManifestColumnsConst;
 

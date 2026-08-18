@@ -9,7 +9,6 @@ angular.module('myApp').controller( 'NewLotCtrl', [
   'LotSvc',
   'ModalSvc',
   'navigate',
-  'sessionTimeout',
 
   function(
 
@@ -17,15 +16,12 @@ angular.module('myApp').controller( 'NewLotCtrl', [
     LotSvc,
     ModalSvc,
     navigate,
-    sessionTimeout,
 
   ) {
     const vm = this;
     init();
 
     function init() {
-
-      sessionTimeout.timeoutExpired();
 
       const categories =  [ { displayName: 'None' } ].concat( lotCategories );
 

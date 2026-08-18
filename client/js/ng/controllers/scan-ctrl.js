@@ -19,7 +19,6 @@ angular.module('myApp').controller( 'ScanCtrl', [
   'ModalSvc',
   'navigate',
   'ProductDataSvc',
-  'sessionTimeout',
 
   function(
 
@@ -29,7 +28,6 @@ angular.module('myApp').controller( 'ScanCtrl', [
     ModalSvc,
     navigate,
     ProductDataSvc,
-    sessionTimeout,
 
   ) {
 
@@ -38,7 +36,6 @@ angular.module('myApp').controller( 'ScanCtrl', [
 
     function init() {
 
-      sessionTimeout.timeoutExpired();
       refreshScanInput();
 
       Object.assign(

@@ -56,7 +56,6 @@ angular.module('myApp').controller( 'OrderQueueCtrl', [
   'ModalSvc',
   'navigate',
   'OrderSvc',
-  'sessionTimeout',
   'ShipmentManagerSvc',
 
   function(
@@ -65,7 +64,6 @@ angular.module('myApp').controller( 'OrderQueueCtrl', [
     ModalSvc,
     navigate,
     OrderSvc,
-    sessionTimeout,
     ShipmentManagerSvc
 
   ) {
@@ -74,8 +72,6 @@ angular.module('myApp').controller( 'OrderQueueCtrl', [
     init();
 
     function init() {
-
-      sessionTimeout.timeoutExpired();
 
       Object.assign(
         vm,

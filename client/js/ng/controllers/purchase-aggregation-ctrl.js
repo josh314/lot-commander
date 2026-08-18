@@ -9,18 +9,14 @@ const __TODAY__ = dayjs().startOf('day');
 angular.module('myApp').controller( 'PurchaseAggregationCtrl', [
 
   'LoggedInUser',
-  'sessionTimeout',
   'ShipmentManagerSvc',
 
   function(
 
     LoggedInUser,
-    sessionTimeout,
     ShipmentManagerSvc,
 
   ) {
-
-    sessionTimeout.timeoutExpired();
 
     const vm = this;
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');

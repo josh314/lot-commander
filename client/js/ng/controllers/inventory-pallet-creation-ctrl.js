@@ -52,7 +52,6 @@ angular.module('myApp').controller( 'InventoryPalletCreationCtrl', [
   'LoggedInUser',
   'ModalSvc',
   'navigate',
-  'sessionTimeout',
   'InventoryPalletManagerSvc',
 
   function(
@@ -61,12 +60,9 @@ angular.module('myApp').controller( 'InventoryPalletCreationCtrl', [
     LoggedInUser,
     ModalSvc,
     navigate,
-    sessionTimeout,
     InventoryPalletManagerSvc,
 
   ) {
-    sessionTimeout.timeoutExpired();
-
     const vm = this;
     vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');
 

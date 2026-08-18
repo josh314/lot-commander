@@ -18,7 +18,6 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
   'PackageSvc',
   'PalletLotSvc',
   'PalletManifestSvc',
-  'sessionTimeout',
   'ShipmentManagerSvc',
 
   function (
@@ -33,7 +32,6 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     PackageSvc,
     PalletLotSvc,
     PalletManifestSvc,
-    sessionTimeout,
     ShipmentManagerSvc,
 
   ) {
@@ -905,8 +903,6 @@ angular.module('myApp').controller( 'ShipmentDetailsCtrl', [
     }
 
     const init = () => {
-
-      sessionTimeout.timeoutExpired();
 
       loadShipment().then( updateDocumentList );
 

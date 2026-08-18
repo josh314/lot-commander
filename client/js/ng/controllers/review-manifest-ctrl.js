@@ -10,7 +10,6 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
   'ModalSvc',
   'navigate',
   'ProductDataSvc',
-  'sessionTimeout',
 
   function(
 
@@ -19,7 +18,6 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
     ModalSvc,
     navigate,
     ProductDataSvc,
-    sessionTimeout,
 
   ) {
 
@@ -27,8 +25,6 @@ angular.module('myApp').controller('ReviewManifestCtrl', [
     init();
 
     function init() {
-
-      sessionTimeout.timeoutExpired();
 
       Object.assign(
         vm,

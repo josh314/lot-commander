@@ -57,7 +57,6 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
   'LotSvc',
   'ModalSvc',
   'navigate',
-  'sessionTimeout',
   'ShippingItemsSvc',
 
   function(
@@ -71,13 +70,9 @@ angular.module('myApp').controller( 'SubmitListingCtrl', [
     LotSvc,
     ModalSvc,
     navigate,
-    sessionTimeout,
     ShippingItemsSvc,
 
   ) {
-    sessionTimeout.timeoutExpired();
-
-
     const vm = this;
 
     init();

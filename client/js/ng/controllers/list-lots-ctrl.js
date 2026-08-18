@@ -8,14 +8,12 @@ angular.module('myApp').controller('ListLotsCtrl', [
   'dbEnums',
   'LotSvc',
   'navigate',
-  'sessionTimeout',
 
   function(
 
     dbEnums,
     LotSvc,
-    navigate,
-    sessionTimeout
+    navigate
 
   ) {
 
@@ -24,8 +22,6 @@ angular.module('myApp').controller('ListLotsCtrl', [
 
 
     function init() {
-
-      sessionTimeout.timeoutExpired();
 
       Object.assign(
         vm,

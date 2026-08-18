@@ -29,10 +29,8 @@ class DisplayRate {
 }
 
 /******************* Store Shippinbg Rates Controller *************************/
-angular.module('myApp').controller('StoreShippingRatesCtrl', [ '$scope', 'focus', 'ListingsSvc', 'ModalSvc', 'sessionTimeout',
-  function( $scope, focus, ListingsSvc, ModalSvc, sessionTimeout ) {
-
-    sessionTimeout.timeoutExpired();
+angular.module('myApp').controller('StoreShippingRatesCtrl', [ '$scope', 'focus', 'ListingsSvc', 'ModalSvc',
+  function( $scope, focus, ListingsSvc, ModalSvc ) {
 
     const vm = this;
 

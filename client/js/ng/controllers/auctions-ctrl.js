@@ -3,10 +3,8 @@ import angular from 'angular';
 import * as api from '../../api';
 
 /******************* Open Auctions Controller *************************/
-angular.module('myApp').controller('ListAuctionsCtrl', [ 'LotSvc', 'sessionTimeout',
-  function( LotSvc, sessionTimeout ) {
-    sessionTimeout.timeoutExpired();
-
+angular.module('myApp').controller('ListAuctionsCtrl', [ 'LotSvc',
+  function( LotSvc ) {
     const vm = this;
 
     vm.auctions = [];
@@ -46,4 +44,4 @@ angular.module('myApp').controller('ListAuctionsCtrl', [ 'LotSvc', 'sessionTimeo
 ]);
 
 /******************* Finished Auctions Controller *************************/
-angular.module('myApp').controller('FinishedAuctionsCtrl', ['sessionTimeout', sessionTimeout => sessionTimeout.timeoutExpired() ]);
+angular.module('myApp').controller('FinishedAuctionsCtrl', [ () => {} ]);

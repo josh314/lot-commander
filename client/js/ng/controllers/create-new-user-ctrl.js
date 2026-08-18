@@ -5,19 +5,15 @@ angular.module('myApp').controller( 'CreateUserCtrl', [
 
   'ModalSvc',
   'navigate',
-  'sessionTimeout',
   'UserSvc',
 
   function(
 
     ModalSvc,
     navigate,
-    sessionTimeout,
     UserSvc,
 
   ) {
-
-    sessionTimeout.timeoutExpired();
 
     const vm = this;
 

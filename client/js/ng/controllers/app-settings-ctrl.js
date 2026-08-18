@@ -6,13 +6,11 @@ angular.module('myApp').controller( 'AppSettingsCtrl', [
 
   'AppSettingsSvc',
   'LoggedInUser',
-  'sessionTimeout',
 
   function(
 
     AppSettingsSvc,
-    LoggedInUser,
-    sessionTimeout
+    LoggedInUser
 
   ) {
 
@@ -68,8 +66,6 @@ angular.module('myApp').controller( 'AppSettingsCtrl', [
     init();
 
     function init() {
-
-      sessionTimeout.timeoutExpired();
 
       Object.assign(
         vm,

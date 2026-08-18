@@ -8,14 +8,12 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
   'ModalSvc',
   'navigate',
   'ShippingConfigurationsSvc',
-  'sessionTimeout',
 
   function(
 
     ModalSvc,
     navigate,
     ShippingConfigurationsSvc,
-    sessionTimeout,
 
   ) {
 
@@ -23,8 +21,6 @@ angular.module('myApp').controller( 'ShippingConfigurationsCtrl', [
     init();
 
     function init() {
-
-      sessionTimeout.timeoutExpired();
 
       vm.constants = ShippingConfigurationsSvc.constants;
 

@@ -20,7 +20,6 @@ angular.module('myApp').controller( 'PackagesCtrl', [
   'ModalSvc',
   'navigate',
   'PackageSvc',
-  'sessionTimeout',
 
   function(
 
@@ -31,11 +30,8 @@ angular.module('myApp').controller( 'PackagesCtrl', [
     ModalSvc,
     navigate,
     PackageSvc,
-    sessionTimeout,
 
   ) {
-
-    sessionTimeout.timeoutExpired();
 
     const vm = this;
 
