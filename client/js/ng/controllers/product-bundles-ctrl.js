@@ -24,7 +24,6 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
   'ModalSvc',
   'navigate',
   'ProductBundlesSvc',
-  'sessionTimeout',
 
   function(
 
@@ -32,7 +31,6 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
     ModalSvc,
     navigate,
     ProductBundlesSvc,
-    sessionTimeout,
 
   ) {
 
@@ -40,8 +38,6 @@ angular.module('myApp').controller( 'ProductBundlesCtrl', [
     init();
 
     function init() {
-
-      sessionTimeout.timeoutExpired();
 
       vm.openProductBundleEdit = openProductBundleEdit;
       vm.cancelProductBundleEdit = cancelProductBundleEdit;

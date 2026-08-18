@@ -37,9 +37,8 @@ function Counter($localStorage) {
 
 
 /******************* Counter Tool Controller *************************/
-angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counterToolModal', 'focus', 'navigate', 'sessionTimeout',
-  function($localStorage, counterToolModal, focus, navigate, sessionTimeout) {
-    sessionTimeout.timeoutExpired();
+angular.module('myApp').controller('CounterToolCtrl', ['$localStorage', 'counterToolModal', 'focus', 'navigate',
+  function($localStorage, counterToolModal, focus, navigate) {
     const vm = this;
 
     vm.counter = new Counter($localStorage);

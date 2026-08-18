@@ -37,7 +37,6 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
   'ModalSvc',
   'navigate',
   'PalletManifestSvc',
-  'sessionTimeout',
   'StandardManifestColumnsConst',
 
   function(
@@ -49,7 +48,6 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
     ModalSvc,
     navigate,
     PalletManifestSvc,
-    sessionTimeout,
     StandardManifestColumnsConst,
 
   ) {
@@ -66,7 +64,6 @@ angular.module('myApp').controller( 'InventoryPalletRepackCtrl', [
 
     async function init() {
 
-      sessionTimeout.timeoutExpired();
       focus('palletHandleFilterInput');
       vm.standardManifestColumns = StandardManifestColumnsConst;
 

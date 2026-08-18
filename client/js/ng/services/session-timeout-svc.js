@@ -1,7 +1,7 @@
 import angular from 'angular';
 
 /*********************** Timeout session service ****************************/
-angular.module('myApp').factory('sessionTimeout', ['$cookies', '$state', function($cookies, $state){
+angular.module('myApp').factory('sessionTimeout', ['$cookies', function($cookies){
   const cookieName = 'lotCommander';
 
   function expireTime() {
@@ -27,19 +27,16 @@ angular.module('myApp').factory('sessionTimeout', ['$cookies', '$state', functio
     return loginTimeout;
   }
 
-  function timeoutExpired() {
+  function isExpired() {
     const timeoutValue = new Date(getCurrentTimeout());
     console.log('current timeout value: ' + timeoutValue);
-    if(new Date() > timeoutValue) {
-      console.log('logging out...');
-      $state.go('main.users.logout');
-    }
+    return new Date() > timeoutValue;
   }
 
   function init() {
     console.log('sessionTimeout.init() called');
     let loginTimeout = getCurrentTimeout();
-    if(!loginTimeout) {
+    if(!loginTimeout || new Date(loginTimeout) < new Date()) {
       console.log("init'ing new timeout value");
       loginTimeout = expireTime();
       let lotCommanderCookie = {
@@ -58,7 +55,7 @@ angular.module('myApp').factory('sessionTimeout', ['$cookies', '$state', functio
 
   return {
     init: init,
-    timeoutExpired: timeoutExpired,
+    isExpired: isExpired,
     destroy: destroy
   };
 }]);

@@ -10,7 +10,6 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
   'LoggedInUser',
   'navigate',
   'PalletLotSvc',
-  'sessionTimeout',
   'ShipmentManagerSvc',
 
   function(
@@ -19,7 +18,6 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
     LoggedInUser,
     navigate,
     PalletLotSvc,
-    sessionTimeout,
     ShipmentManagerSvc,
 
   ) {
@@ -28,8 +26,6 @@ angular.module('myApp').controller( 'InventoryPalletsToBeListedCtrl', [
     init();
 
     function init() {
-
-      sessionTimeout.timeoutExpired();
 
       // Permissions
       vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');

@@ -7,6 +7,7 @@
 - `npm run build-client` — production webpack build
 - `npm run debug` — `node inspect` entry point
 - No test suite exists — verify JS with `node -c <file>` (see Server Modules below)
+- No client-side lint script exists either — `node -c` doesn't apply to `client/js/ng` (Angular DI + ES modules); verify client changes with `npm run build-client` (full webpack build catches syntax/wiring errors)
 
 ## Infrastructure
 - Terraform lives in `terraform/` with two root modules: `bootstrap-ecr` and `bootstrap-pipeline-iam`, each with `environments/sandbox-autarch` and `environments/wazuezoom`
@@ -42,6 +43,12 @@
 - No automated test suite exists in this repo (no `*.test.js`/`*.spec.js` anywhere) — verify JS changes with `node -c <file>` and manual/code review, not a test run
 - Existing caching pattern for external API lookups: `fnsku-to-asin.js` and `traject.js` each implement a Mongo-backed `Cache` class (separate collection, TTL checked against `updatedAt`) — persists across restarts. For caching data already backed by a local Mongo model (e.g. `app-settings.js`), prefer a simpler in-memory cache instead
 - Modules are wired in `server.js`'s `init()` (lines 115-440, `Commander` instantiations at ~147-367) as `new XCommander(model, options)`, then bundled into a single dependency object passed to `routers/index.js`
+
+## Client (`client/js/ng/`)
+- AngularJS 1.x + ui-router in `html5Mode` (pushState, no `#`); states and nav structure are centralized in `app.js`'s `stateData` array, not scattered per-feature
+- `RootCtrl` (`root-ctrl.js`) is bound to `<html>` in `server/views/layouts/index.hbs` — it runs once per full page load, NOT per client-side state transition. Logic that must run on every navigation belongs in `app.js`'s `.run()` block (`$stateChangeStart`/`$stateChangeSuccess`), not in `RootCtrl` or scattered across controllers
+- Auth has two independent layers: the server session (Mongo-backed, 24h TTL, `app-session.js`) and a client-only daily-cutoff enforced by the `sessionTimeout` service (`session-timeout-svc.js`) via a `lotCommander` cookie, checked centrally in `app.js`'s `$stateChangeStart` handler — they can desync (e.g. a stale un-cleared cookie forces a client logout right after a fresh server login)
+- `auth.isLoggedIn` (`server.js`) wraps all routes under `/`, including `/api/*`, and does a bare `res.redirect('/login')` on failure — not XHR-aware, so a failed API call gets a redirect response rather than a 401 JSON body
 
 ## WIP / TODO
 - Migrate the config pattern away from SSM Parameter Store to ECS task definition envars (see `server/load-config.js` and the SSM-backed session secrets in Infrastructure above)

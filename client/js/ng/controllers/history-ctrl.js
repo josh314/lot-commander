@@ -2,10 +2,8 @@ import angular from 'angular';
 import * as DisplayEvents from '../../display-events';
 
 /******************* History Controller *************************/
-angular.module('myApp').controller('HistoryCtrl', [ 'EventsSvc', 'sessionTimeout',  
-  function( EventsSvc, sessionTimeout ) {
-    sessionTimeout.init();
-
+angular.module('myApp').controller('HistoryCtrl', [ 'EventsSvc',
+  function( EventsSvc ) {
     const vm = this;
 
     EventsSvc.getEvents().then( events => {

@@ -4,10 +4,8 @@ import dayjs from 'dayjs';
 import { ManualInventory } from '../../manual-inventory.js';
 
 /******************* Manual Inventory Controller *************************/
-angular.module('myApp').controller('ManualInventoryCtrl', [ '$anchorScroll', 'LoggedInUser', 'ManualInventorySvc', 'sessionTimeout', 
-  function( $anchorScroll, LoggedInUser, ManualInventorySvc, sessionTimeout ) {
-    sessionTimeout.timeoutExpired();
-
+angular.module('myApp').controller('ManualInventoryCtrl', [ '$anchorScroll', 'LoggedInUser', 'ManualInventorySvc',
+  function( $anchorScroll, LoggedInUser, ManualInventorySvc ) {
     const TODAY = dayjs().format('YYYY-MM-DD');
 
     const vm = this;

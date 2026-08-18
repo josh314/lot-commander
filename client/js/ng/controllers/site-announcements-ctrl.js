@@ -4,13 +4,11 @@ import angular from 'angular';
 angular.module('myApp').controller( 'SiteAnnouncementsCtrl', [
 
   'ModalSvc',
-  'sessionTimeout',
   'SiteAnnouncementsSvc',
 
   function(
 
     ModalSvc,
-    sessionTimeout,
     SiteAnnouncementsSvc,
 
   ) {
@@ -61,8 +59,6 @@ angular.module('myApp').controller( 'SiteAnnouncementsCtrl', [
     init();
 
     function init() {
-
-      sessionTimeout.timeoutExpired();
 
       Object.assign(
         vm,

@@ -414,19 +414,15 @@ angular.module('myApp').controller('StoreContentCtrl', [
   'LoggedInUser',
   'ModalSvc',
   'StoreContentSvc',
-  'sessionTimeout',
 
   function(
 
     focus,
     LoggedInUser,
     ModalSvc,
-    StoreContentSvc,
-    sessionTimeout
+    StoreContentSvc
 
   ) {
-
-    sessionTimeout.timeoutExpired();
 
     const vm = this;
     vm.showDeveloper = LoggedInUser.isDeveloper();

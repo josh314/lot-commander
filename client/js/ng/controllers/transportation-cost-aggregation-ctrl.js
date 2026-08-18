@@ -8,17 +8,13 @@ const __TODAY__ = dayjs().startOf('day');
 /******************* Transportation Cost Aggregation Controller *************************/
 angular.module('myApp').controller( 'TransportationCostAggregationCtrl', [
 
-  'sessionTimeout',
   'ShipmentManagerSvc',
 
   function(
 
-    sessionTimeout,
     ShipmentManagerSvc,
 
   ) {
-    sessionTimeout.timeoutExpired();
-
     const vm = this;
     init();
 

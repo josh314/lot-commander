@@ -67,7 +67,6 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
   'ManifestFileHandlerSvc',
   'ModalSvc',
   'navigate',
-  'sessionTimeout',
   'ShipmentManagerSvc',
 
   function(
@@ -78,12 +77,9 @@ angular.module('myApp').controller( 'ShipmentCreationCtrl', [
     ManifestFileHandlerSvc,
     ModalSvc,
     navigate,
-    sessionTimeout,
     ShipmentManagerSvc,
 
   ) {
-
-    sessionTimeout.timeoutExpired();
 
     const vm = this;
     init();

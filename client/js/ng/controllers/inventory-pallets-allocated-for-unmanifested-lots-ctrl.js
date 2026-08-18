@@ -8,14 +8,12 @@ angular.module('myApp').controller( 'InventoryPalletsAllocatedForUnmanifestedLot
 
   'InventoryPalletManagerSvc',
   'LoggedInUser',
-  'sessionTimeout',
   'ShipmentManagerSvc',
 
   function(
 
     InventoryPalletManagerSvc,
     LoggedInUser,
-    sessionTimeout,
     ShipmentManagerSvc,
 
   ) {
@@ -24,8 +22,6 @@ angular.module('myApp').controller( 'InventoryPalletsAllocatedForUnmanifestedLot
     init();
 
     function init() {
-
-      sessionTimeout.timeoutExpired();
 
       // Permissions
       vm.showPurchasingData = LoggedInUser.hasPermission('VIEW_PURCHASING_DATA');

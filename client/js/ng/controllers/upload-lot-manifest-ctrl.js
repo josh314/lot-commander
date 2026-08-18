@@ -7,7 +7,6 @@ angular.module('myApp').controller( 'UploadLotManifestCtrl', [
   '$stateParams',
   'fileUpload',
   'ModalSvc',
-  'sessionTimeout',
 
   function(
 
@@ -15,11 +14,8 @@ angular.module('myApp').controller( 'UploadLotManifestCtrl', [
     $stateParams,
     fileUpload,
     ModalSvc,
-    sessionTimeout,
 
   ) {
-    sessionTimeout.timeoutExpired();
-
     const vm = this;
 
     vm.noFileSelected = false;

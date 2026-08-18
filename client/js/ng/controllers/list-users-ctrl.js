@@ -4,18 +4,14 @@ import angular from 'angular';
 angular.module('myApp').controller( 'ListUsersCtrl', [
 
   'ModalSvc',
-  'sessionTimeout',
   'UserSvc',
 
   function(
 
     ModalSvc,
-    sessionTimeout,
     UserSvc,
 
   ){
-
-    sessionTimeout.timeoutExpired();
 
     const __PAGE_SIZE__ = 10;
 

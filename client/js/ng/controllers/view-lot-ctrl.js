@@ -14,7 +14,6 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
   'MediaSvc',
   'ModalSvc',
   'navigate',
-  'sessionTimeout',
 
   function(
 
@@ -25,11 +24,8 @@ angular.module('myApp').controller( 'ViewLotCtrl', [
     MediaSvc,
     ModalSvc,
     navigate,
-    sessionTimeout,
 
   ) {
-
-    sessionTimeout.timeoutExpired();
 
     const vm = this;
     init();

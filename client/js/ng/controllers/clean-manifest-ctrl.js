@@ -7,7 +7,6 @@ angular.module('myApp').controller( 'CleanManifestCtrl', [
   'ManifestSalePriceColumnModalSvc',
   'ModalSvc',
   'navigate',
-  'sessionTimeout',
   'ShipmentManagerSvc',
 
   function(
@@ -16,12 +15,9 @@ angular.module('myApp').controller( 'CleanManifestCtrl', [
     ManifestSalePriceColumnModalSvc,
     ModalSvc,
     navigate,
-    sessionTimeout,
     ShipmentManagerSvc,
 
   ) {
-
-    sessionTimeout.timeoutExpired();
 
     const vm = this;
 

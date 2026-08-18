@@ -3,10 +3,8 @@ import angular from 'angular';
 import * as api from '../../api';
 
 /******************* Manifest Cleaner Controller *************************/
-angular.module('myApp').controller('ListManifestsCtrl', ['$q', 'sessionTimeout',  
-  function($q, sessionTimeout) {
-    sessionTimeout.init();
-
+angular.module('myApp').controller('ListManifestsCtrl', ['$q',
+  function($q) {
     const vm = this;
     vm.manifests = [];
 

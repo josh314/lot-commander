@@ -11,7 +11,6 @@ angular.module('myApp').controller( 'PickOrderController', [
   'ModalSvc',
   'navigate',
   'OrderSvc',
-  'sessionTimeout',
 
   function(
 
@@ -20,7 +19,6 @@ angular.module('myApp').controller( 'PickOrderController', [
     ModalSvc,
     navigate,
     OrderSvc,
-    sessionTimeout,
 
   ) {
 
@@ -29,7 +27,6 @@ angular.module('myApp').controller( 'PickOrderController', [
 
     function init() {
 
-      sessionTimeout.timeoutExpired();
       focus('ScanLabelInput');
 
       Object.assign(
