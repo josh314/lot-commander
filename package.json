@@ -1,6 +1,6 @@
 {
   "name": "lot-commander",
-  "version": "25.2.0",
+  "version": "26.0.0-rc",
   "private": true,
   "description": "Multi-purpose inventory management services for product lots.",
   "main": "server/index.js",
@@ -81,6 +81,7 @@
   },
   "devDependencies": {
     "dependency-cruiser": "^17.3.2",
+    "playwright": "^1.62.1",
     "webpack-dev-server": "^4.15.1"
   }
 }
