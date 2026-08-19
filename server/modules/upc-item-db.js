@@ -65,21 +65,15 @@ class Client {
   }
 
   async getProductData( upc ) {
-    let productData = {
-      barcode: upc
-    };
-
     const resp = await this.upcitemdb.fetchProductData( upc );
 
     if( resp && resp.item ) {
       console.log(`Product data obtained from UpcItemDb for upc ${ upc }.`);
-      productData = Object.assign( productData, processItem( resp.item ) );
-    }
-    else {
-      console.log(`No product data found in UpcItemDb for upc ${ upc }.`);
+      return Object.assign( { barcode: upc }, processItem( resp.item ) );
     }
 
-    return productData;
+    console.log(`No product data found in UpcItemDb for upc ${ upc }.`);
+    return null;
   }
 
   async getProductDataFromCache( upc ) {

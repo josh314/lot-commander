@@ -306,7 +306,7 @@ class $_ {
         }
       }
       catch (e) {
-        'no-op';
+        console.warn(`Traject lookup failed for ${ idType } ${ id }, falling back: ${ e.message }`);
       }
 
       if( result && this.cache && ( !this.cache.hit || forceCacheRefresh ) ) {
