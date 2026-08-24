@@ -146,7 +146,7 @@ class $_ {
     const params = {
       Bucket: this.settings.jobsBucket,
       Key: `fetch/${ lotId }/${ barcode }`,
-      Body: '',
+      Body: Buffer.alloc( 0 ),
     };
 
     return s3.send( new PutObjectCommand( params ) );
