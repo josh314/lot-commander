@@ -73,6 +73,7 @@ function _priceCheck( productData ) {
 class $_ {
 
   constructor( {
+    appSettings,
     FallbackProductData,
     fnskuToAsin,
     InternalProductData,
@@ -85,6 +86,7 @@ class $_ {
     Object.assign(
       this,
       {
+        appSettings,
         FallbackProductData,
         fnskuToAsin,
         InternalProductData,
@@ -136,6 +138,10 @@ class $_ {
   }
 
   async createFetchJobIfLotNotLocked( lotId, barcode ) {
+
+    if( !( await this.appSettings.isEnabled( 'aiBackfillEnabled' ) ) ) {
+      return;
+    }
 
     const lot = await this.Lot.findById( lotId ).select( 'status' ).lean();
 

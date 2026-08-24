@@ -23,6 +23,9 @@
               <span class="col-xs-3" ng-switch-when="number">
                 <input class="form-control" type="number" ng-model="$setting.editValue" ng-disabled="$setting.disableEditValue()" ng-change="$setting.isSaved = false"/>
               </span>
+              <span class="col-xs-3" ng-switch-when="boolean">
+                <input type="checkbox" ng-model="$setting.editValue" ng-disabled="$setting.disableEditValue()" ng-change="$setting.isSaved = false"/>
+              </span>
               <span class="col-xs-3" ng-switch-default>
                 <input class="form-control" type="text" ng-model="$setting.editValue" ng-disabled="$setting.disableEditValue()" ng-change="$setting.isSaved = false"/>
               </span>
