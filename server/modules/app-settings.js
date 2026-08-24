@@ -3,10 +3,13 @@ const {
   ResourceNotFoundError,
 } = require('../errors');
 
+const BOOLEAN_CACHE_TTL_MS = 30 * 1000;
+
 class AppSettingsCommander {
 
   constructor( AppSetting ) {
     this.AppSetting = AppSetting;
+    this.booleanCache = new Map();
   }
 
   async list() {
@@ -35,7 +38,28 @@ class AppSettingsCommander {
 
     await setting.setValue( newValue );
 
+    this.booleanCache.delete( name );
+
     return { setting };
+
+  }
+
+  // Cached boolean read for settings checked on hot paths (e.g. per-request feature flags).
+  // Defaults to `defaultValue` when the setting hasn't been created yet, so existing behavior
+  // is unaffected until an admin explicitly creates/toggles the setting.
+  async isEnabled( name, { defaultValue = true } = {} ) {
+
+    const cached = this.booleanCache.get( name );
+    if( cached && cached.expiresAt > Date.now() ) {
+      return cached.value;
+    }
+
+    const setting = await this.AppSetting.findOne( { name } ).lean();
+    const value = setting ? Boolean( setting.value ) : defaultValue;
+
+    this.booleanCache.set( name, { value, expiresAt: Date.now() + BOOLEAN_CACHE_TTL_MS } );
+
+    return value;
 
   }
 
