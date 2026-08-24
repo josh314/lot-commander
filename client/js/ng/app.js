@@ -219,18 +219,17 @@ angular.module('myApp').config(
 //************************************************************************
 //************************ Run Block *************************************
 //************************************************************************
-angular.module('myApp').run(['$rootScope', '$document', '$state', 'sessionTimeout', function($rootScope, $document, $state, sessionTimeout) {
-  $rootScope.$on('$stateChangeStart', function(event, toState) {
-    if(toState.name === 'main.users.logout') {
+angular.module('myApp').run(['$transitions', '$state', '$document', 'sessionTimeout', function($transitions, $state, $document, sessionTimeout) {
+  $transitions.onBefore({}, function(transition) {
+    if(transition.to().name === 'main.users.logout') {
       return;
     }
     if(sessionTimeout.isExpired()) {
-      event.preventDefault();
-      $state.go('main.users.logout');
+      return $state.target('main.users.logout');
     }
   });
 
-  $rootScope.$on('$stateChangeSuccess', function() {
+  $transitions.onSuccess({}, function() {
     $document.prop('body').scrollTop = $document.prop('documentElement').scrollTop = 0;
   });
 }]);
