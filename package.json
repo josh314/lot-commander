@@ -5,11 +5,11 @@
   "description": "Multi-purpose inventory management services for product lots.",
   "main": "server/index.js",
   "scripts": {
-    "build-client-dev": "webpack --config webpack.dev.js",
-    "build-client": "webpack --mode production --config webpack.prod.js",
+    "build-client-dev-legacy": "webpack --config client-legacy/webpack.dev.js",
+    "build-client-legacy": "webpack --mode production --config client-legacy/webpack.prod.js",
     "debug": "DEBUG=lot-commander node inspect server/index.js",
     "demon": ". .env && nodemon server/index.js",
-    "dev-server": "webpack-dev-server --config webpack.dev.js",
+    "dev-server-legacy": "webpack-dev-server --config client-legacy/webpack.dev.js",
     "lint-server": "eslint --config .eslintrc.server.js server/",
     "ngrok": "ngrok http 9000 --subdomain=josh-wsn --host-header=localhost:9000",
     "start": ". .env && DEBUG=lot-commander node server/index.js"

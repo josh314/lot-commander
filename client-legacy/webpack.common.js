@@ -1,6 +1,6 @@
 const path = require('path');
 
-const clientSrcPath = path.join(__dirname, "client");
+const clientSrcPath = path.join(__dirname, "src");
 
 // webpack plugins
 const webpack = require('webpack');
@@ -73,14 +73,14 @@ module.exports = {
     // overall linting
     // new ESLintPlugin({
     //   overrideConfigFile: path.resolve(__dirname, '.eslintrc.client.js'),
-    //   context: path.join(__dirname, 'client/js/'),
+    //   context: path.join(__dirname, 'src/js/'),
     //   exclude: 'ng',
     // }),
 
     // angularjs linting
     new ESLintPlugin({
       overrideConfigFile: path.resolve(__dirname, '.eslintrc.angularjs.js'),
-      context: path.join(__dirname, 'client/js/'),
+      context: path.join(__dirname, 'src/js/'),
     }),
 
   ],

@@ -20,7 +20,7 @@ module.exports = merge(common, {
 
     hot: true,
 
-    port: 9000,
+    port: 9090,
 
     proxy: {
       '/': {

@@ -2,12 +2,13 @@
 
 ## Commands
 - `npm run demon` — dev server via `nodemon` (loads `.env`, requires local Mongo/config)
-- `npm run dev-server` — `webpack-dev-server` for client
+- `npm run dev-server-legacy` — `webpack-dev-server` for the legacy AngularJS client (renamed from `dev-server` when the client + build tooling moved to `client-legacy/`; see Modernize)
 - `npm run lint-server` — eslint against `server/` using `.eslintrc.server.js`
-- `npm run build-client` — production webpack build
+- `npm run build-client-legacy` — production webpack build of the legacy client (renamed from `build-client`; also `build-client-dev-legacy` for the dev-mode build)
 - `npm run debug` — `node inspect` entry point
 - No test suite exists — verify JS with `node -c <file>` (see Server Modules below)
-- No client-side lint script exists either — `node -c` doesn't apply to `client/js/ng` (Angular DI + ES modules); verify client changes with `npm run build-client` (full webpack build catches syntax/wiring errors)
+- No client-side lint script exists either — `node -c` doesn't apply to `client-legacy/src/js/ng` (Angular DI + ES modules); verify legacy client changes with `npm run build-client-legacy` (full webpack build catches syntax/wiring errors)
+- `sed` on this dev machine is GNU sed, not BSD, despite Darwin — use `sed -i 'script' file`, not the BSD/macOS `sed -i '' 'script' file` (the latter fails with a misleading "can't read \<script\>" error)
 
 ## Infrastructure
 - Terraform lives in `terraform/` with two root modules: `bootstrap-ecr` and `bootstrap-pipeline-iam`, each with `environments/sandbox-autarch` and `environments/wazuezoom`
@@ -50,7 +51,21 @@
 - For an intentionally-empty S3 `PutObjectCommand` body (e.g. `product-data.js`'s fetch-job marker), use `Buffer.alloc(0)`, not `''` — `@smithy/middleware-content-length` only computes/sets `content-length` when `body` is truthy, and `''` is falsy in JS, so an empty string skips the header entirely and re-triggers the SDK's "stream of unknown length" warning it was meant to silence
 - To reproduce/verify AWS SDK request-middleware behavior (e.g. that warning) without real credentials or network access: point `S3Client` at `endpoint: 'http://127.0.0.1:1'` with dummy credentials and `maxAttempts: 1`, then `.send()` and `.catch()` the resulting network error — middleware (incl. `console.warn`s) runs before the failed connection, so console output up to that point reflects real client behavior
 
-## Client (`client/js/ng/`)
+## Modernize
+
+As an upskilling exercise, I wish to modernize this codebase. Since this is an exercise, we are not overly concerned with immediate production-readiness and deployment considerations can be put on the back-burner indefinitely. Also, since this is an exercise, Claude should only provide guidance unless explicitly requested otherwise, so no commits or code generation. Details of the migration:
+
+- Primary focus is the frontend client. A complete rewrite of the frontend client and build system will be initiated. New client source goes in `client/`. The existing client + its build tooling were moved into `client-legacy/` and committed: old `client/` is now `client-legacy/src/`, and the webpack configs + both `.eslintrc.{client,angularjs}.js` moved from root into `client-legacy/` alongside it.
+- Phase 0 of `docs/modernization/PLAN.md` is done and committed, including a fix to `client-legacy/webpack.common.js`'s `ESLintPlugin` `context` paths (both the active and commented-out blocks now correctly say `src/js/`). `client-legacy/webpack.dev.js`'s dev-server port was deliberately changed from `9000` to `9090` — `9000` (already used by `package.json`'s `ngrok` script) is reserved for the new client's dev server, so legacy and new can run simultaneously for side-by-side comparison. `Dockerfile` still runs `npm run build-client`, which no longer exists (renamed `build-client-legacy`, see Commands) — not yet fixed, deployment concerns are back-burnered per this section's intro.
+- New client stack: TypeScript, React, Tailwind, Vite, Vitest, TypeScript-ESLint.
+- The new client is created from scratch and uses the existing backend API (all routes mounted under `/api/*` in `server/routers/index.js`). Built one screen/feature at a time.
+- Auth/permission model the new client must replicate, since none of it is visible from the new API surface alone: the real session is an httpOnly cookie (`app-session.js`); a parallel **non-httpOnly** `user` cookie (JSON — `server.js`'s `res.cookie('user', JSON.stringify(req.user.getPublicInfo()))`) mirrors the user + permissions array for client-side checks (legacy equivalent: `LoggedInUser` service, `client-legacy/src/js/ng/services/logged-in-user-svc.js`); a separate `lotCommander` cookie enforces a client-only daily-cutoff independent of the server session (legacy equivalent: `session-timeout-svc.js`). `/login` (GET+POST) and `/logout` (GET) stay server-rendered outside the SPA in both clients.
+- `auth.isLoggedIn` (`server/auth.js`) gates all of `/`, including `/api/*`, with a bare non-XHR-aware `res.redirect('/login')` on an expired/missing session (same root gap noted in WIP/TODO for the error handler) — the new client's fetch layer must treat a non-JSON/redirected response as "logged out," not assume every response is JSON.
+- We will also do some backend migration to TypeScript but it will be targeted and in-place, only a file at a time.
+- Backend will also use Vite and Vitest when the time comes but we'll not start with that migration right away, just be forward looking for it.
+- Full phased roadmap and per-screen checklists: `docs/modernization/PLAN.md` — check current phase/status there rather than re-deriving it each session.
+
+## Client (`client-legacy/src/js/ng/`)
 - AngularJS 1.x + ui-router in `html5Mode` (pushState, no `#`); states and nav structure are centralized in `app.js`'s `stateData` array, not scattered per-feature
 - `RootCtrl` (`root-ctrl.js`) is bound to `<html>` in `server/views/layouts/index.hbs` — it runs once per full page load, NOT per client-side state transition. Logic that must run on every navigation belongs in `app.js`'s `.run()` block (`$transitions.onBefore`/`.onSuccess`), not in `RootCtrl` or scattered across controllers
 - Legacy ui-router events (`$stateChangeStart`/`$stateChangeSuccess` via `$rootScope.$on`) never fire in this app — they're a polyfill requiring an explicit dependency on the `ui.router.state.events` module, which `app.js`'s module list doesn't include. Use `$transitions.onBefore()`/`.onSuccess()` instead (core to `ui.router`, no extra module needed); redirect by `return`ing `$state.target(...)` from `onBefore`, not by calling `$state.go()` synchronously (gets silently swallowed mid-transition)
