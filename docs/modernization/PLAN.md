@@ -49,7 +49,7 @@ slice exists: build tooling, the authenticated shell (nav + permissions +
 session timeout), and one real screen talking to the real API. `main.home`
 was chosen as that first screen specifically because it has almost no
 business logic (`client-legacy/src/partials/_home.html` is a static
-jumbotron) — so Phase 1 is entirely about the *shell*, not the screen. Every
+jumbotron) — so Phase 2 is entirely about the *shell*, not the screen. Every
 screen after that reuses the shell and just swaps in new feature code.
 
 ---
@@ -102,7 +102,181 @@ build. One stale path is left inside it, and none of it is committed yet.
 
 ---
 
-## Phase 1 — New client scaffold + vertical slice (`main.home`)
+## Phase 1 — Workspace setup
+
+Goal: convert the single-`package.json` repo into three npm workspaces —
+`server`, `client-legacy`, `client` — with a purely coordinating root
+`package.json` that holds no runtime dependencies of its own. This is pure
+restructuring: no application behavior changes, and by the end every
+existing `npm run <script>` command at the root still works exactly as
+before, just delegating into a workspace via `-w`.
+
+Dependency split (verified by grep against actual `require`/`import` usage
+in `server/` and `client-legacy/src/`, not guessed from package names):
+
+- **`server/package.json`** — all Node-only/native-module deps: the five
+  `@aws-sdk/*` packages, `@wazue/barcodes`, `@wazue/excel`,
+  `@wazue/upc-item-db`, `bcryptjs`, `body-parser`, `canvas`,
+  `connect-mongodb-session`, `cookie-parser`, `debug`, `express`,
+  `express-handlebars`, `express-session`, `ffmpeg-ffprobe-static`,
+  `fluent-ffmpeg`, `formidable`, `jsbarcode` (confirmed server-only via
+  `server/modules/print.js` — despite the name, it's not a client-legacy
+  dep), `mime-types`, `mongoose`, `morgan`, `passport`, `passport-local`,
+  `pdfkit`, `serve-favicon`, `sharp`.
+- **`client-legacy/package.json`** — all AngularJS/webpack-build deps:
+  `angular`, `angular-animate`, `angular-cookies`, `angular-sanitize`,
+  `angular-ui-bootstrap`, `angular-ui-router`, `angular-ui-tinymce`,
+  `bootstrap`, `bootswatch`, `copy-webpack-plugin`, `croppie`,
+  `css-loader`, `eslint-config-angular`, `eslint-plugin-angular`,
+  `eslint-plugin-import` (only referenced from
+  `client-legacy/.eslintrc.client.js`, not `.eslintrc.server.js`),
+  `eslint-webpack-plugin`, `less`, `less-loader`, `mini-css-extract-plugin`,
+  `ngstorage`, `path-browserify` (only referenced from
+  `client-legacy/webpack.common.js`'s `resolve.fallback` — a webpack
+  polyfill registration, not a direct import, so grep for it alone won't
+  find a source-file hit and that's expected), `print-js`, `webpack`,
+  `webpack-cli`, `webpack-merge`, `webpack-dev-server`.
+- **Genuinely duplicated, not shared** — `axios`, `dayjs`,`eslint` (`^8.x`), `xlsx-js-style` are each used by both `server/` and `client-legacy/src/`. Give each workspace
+  its own independent entry rather than trying to share one. That's the
+  point of the split: `client-legacy`'s eslint (old `.eslintrc.*` format)
+  and `client`'s upcoming eslint 9 flat config can't share one hoisted
+  `eslint` anyway, so don't build a habit of sharing this one just because
+  the versions happen to match today.
+- **Stays at root** — `dependency-cruiser` (repo-wide dependency-graph
+  tool, not scoped to one workspace) as the only real devDependency.
+  `ngrok` has no package.json entry today (it invokes a globally-installed
+  CLI) and doesn't need one — its script stays at root since tunneling a
+  port isn't a workspace concern.
+- **Needs verification before deciding** — `playwright` has no `require`/
+  `import` anywhere in `server/`, `client-legacy/src/`, or the local
+  `__scripts/`/`scripts/` folders. It may be dead. Re-grep after the move;
+  if still unused, drop it rather than shipping it into whichever
+  workspace looked most plausible.
+
+### 1.1 — Root `package.json`
+
+- [ ] Add `"workspaces": ["server", "client-legacy", "client"]`.
+- [ ] Remove `main` (root no longer runs code directly).
+- [ ] Remove the `dependencies` block entirely; trim `devDependencies` to
+      just `dependency-cruiser` (see `playwright` note above).
+- [ ] Rewrite every script to delegate via `-w`, keeping the **same script
+      names** so nothing calling them (muscle memory, this doc, CI if it
+      ever exists) needs to change: `"demon": "npm run demon -w server"`,
+      `"start": "npm run start -w server"`, `"debug": "npm run debug -w
+      server"`, `"lint-server": "npm run lint -w server"`,
+      `"build-client-legacy": "npm run build -w client-legacy"`,
+      `"build-client-dev-legacy": "npm run build-dev -w client-legacy"`,
+      `"dev-server-legacy": "npm run dev -w client-legacy"`. Leave `ngrok`
+      untouched.
+- [ ] Add a new root script, `"depcruise": "depcruise --config
+      .dependency-cruiser.js ."` — not wired to anything today (it's a
+      devDependency with no script pointing at it yet); this phase is the
+      first real reason to run it, since it's what actually catches a
+      dependency landing in the wrong workspace (see 1.5).
+
+### 1.2 — `server/` workspace
+
+- [ ] Create `server/package.json`: `name: "server"`, `private: true`,
+      `main: "index.js"`, the dependency list above, and scripts renamed
+      now that they run with `server/` as cwd: `"start": ". ../.env &&
+      DEBUG=lot-commander node index.js"`, `"demon": ". ../.env && nodemon
+      index.js"`, `"debug": "DEBUG=lot-commander node inspect index.js"`,
+      `"lint": "eslint --config .eslintrc.server.js ."`.
+- [ ] **`.env` gotcha**: the current root scripts do `. .env && ...`,
+      sourcing the root-level `.env` relative to cwd. Once these scripts
+      live in `server/package.json` and run with cwd `server/`, that
+      becomes `. ../.env` (already reflected above) — leave `.env` itself
+      at repo root (a cross-workspace concern, same reasoning as keeping
+      `dependency-cruiser` at root), don't move or duplicate it.
+- [ ] Move `.eslintrc.server.js` from repo root into `server/`. Its
+      content has no relative-path references, so it moves as-is — only
+      the target argument in the `lint` script changes, from `server/` to
+      `.` (already reflected above).
+- [ ] Move `nodemon.json` from repo root into `server/nodemon.json` and
+      fix its `watch` list, which currently reads `[".env", "server/*"]`
+      relative to the old root-cwd assumption: with cwd now `server/`,
+      change to `["../.env", "."]`. Also change its `events.start`/
+      `events.restart`, which call `npm run lint-server`, to `npm run
+      lint` (the workspace-local script name, not root's delegating name).
+- [ ] `.dependency-cruiser.js` stays at root unchanged — its `^server/`
+      path patterns still match, since `server/` doesn't move, it just
+      gains a `package.json` alongside the files already there.
+
+### 1.3 — `client-legacy/` workspace
+
+- [ ] Create `client-legacy/package.json`: `name: "client-legacy"`,
+      `private: true`, the dependency list above (`webpack-dev-server` as
+      a devDependency, matching its current placement), and scripts
+      renamed now that they run with `client-legacy/` as cwd: `"build":
+      "webpack --mode production --config webpack.prod.js"`, `"build-dev":
+      "webpack --config webpack.dev.js"`, `"dev": "webpack-dev-server
+      --config webpack.dev.js"` (dropping the `client-legacy/` prefix from
+      each config path, since it's implicit in cwd now).
+- [ ] No changes needed inside `webpack.common.js`/`webpack.dev.js`/
+      `webpack.prod.js` — their `__dirname`-based paths (fixed in Phase 0)
+      are already relative to `client-legacy/` itself, not repo root, so
+      they're unaffected by the npm-script cwd change.
+- [ ] `.eslintrc.client.js`/`.eslintrc.angularjs.js` already live in
+      `client-legacy/` since Phase 0 — no move needed; they just start
+      resolving `eslint`/`eslint-plugin-angular`/etc. from
+      `client-legacy/`'s own dependency tree instead of a hoisted root one.
+
+### 1.4 — `client/` stub workspace
+
+- [ ] Create `client/package.json` as a placeholder: `name: "client"`,
+      `private: true`, `version: "0.0.0"`, no real scripts yet — just
+      enough for npm to recognize it as a workspace member. Phase 2 (next)
+      replaces this wholesale via `npm create vite@latest .`, which
+      generates its own `package.json` anyway.
+
+### 1.5 — Verify
+
+- [ ] Delete root `node_modules/` and `package-lock.json`, then run a
+      fresh `npm install` from repo root now that all three workspace
+      `package.json` files exist. Confirm one hoisted root `node_modules`
+      and one regenerated `package-lock.json` in workspace format (no
+      per-workspace lockfiles). Root's unanchored `node_modules` line in
+      `.gitignore` already covers any nested per-workspace `node_modules`
+      npm creates for non-hoistable packages — no `.gitignore` change
+      needed.
+- [ ] Confirm the `@wazue:registry` scoped-registry config in root
+      `.npmrc` still resolves `@wazue/*` packages during this install — a
+      single root-level `.npmrc` applies to the whole workspace install
+      regardless of which workspace declares the dependency, so no
+      `.npmrc` change is needed.
+- [ ] `npm run demon` from root: confirm it still starts the server
+      exactly as before (config loads, Mongo connects, lint-on-start still
+      fires via `nodemon.json`'s `events`).
+- [ ] `npm run lint-server` from root: confirm it still lints `server/`
+      and produces the same output as before the move.
+- [ ] `npm run dev-server-legacy` + `npm run demon` together: confirm the
+      legacy app still logs in and navigates, same as the Phase 0
+      verification.
+- [ ] `npm run build-client-legacy` from root: confirm a clean production
+      build, same as the Phase 0 verification.
+- [ ] `npm run depcruise` from root: confirm no new `no-non-package-json`
+      violations. This is the actual check that the dependency split above
+      landed correctly — dependency-cruiser resolves each file's *nearest*
+      `package.json` (its `combinedDependencies` option defaults to
+      `false`, i.e. not merged up to root), so a file in
+      `client-legacy/src/` importing a package only declared in
+      `server/package.json` (or vice versa) gets flagged here even though
+      it would still resolve fine at runtime via the hoisted root
+      `node_modules` — that gap between "resolves at runtime" and "actually
+      declared in the right workspace" is exactly what this check closes.
+      A violation here means a missed or misplaced entry in the dependency
+      split above, not a bug in the tool.
+- [ ] Update this repo's `README.md` "Development" section to explain the
+      three-workspace layout and give maintainers a script cheatsheet:
+      which root scripts exist, what each delegates to, and the `-w
+      <workspace>` pattern for running a workspace-local script directly.
+- [ ] Commit the whole restructuring as one commit — no code inside
+      `server/` or `client-legacy/` changes, only `package.json` files,
+      the moved config files, and the regenerated lockfile.
+
+---
+
+## Phase 2 — New client scaffold + vertical slice (`main.home`)
 
 Goal: `npm run dev` (new script, see below) serves a React/TS/Tailwind app at
 `client/` that authenticates against the real backend, renders a shell with
@@ -110,18 +284,16 @@ permission-aware nav (even if nav only has one real entry so far), shows the
 home screen, and redirects to `/login` correctly on session expiry — proving
 the pattern every later screen will reuse.
 
-### 1.1 — Scaffold
+### 2.1 — Scaffold
 
-- [ ] Create `client/` fresh (it's currently empty/absent after the Phase 0
-      move) with its own `client/package.json` — keep frontend deps
-      (`react`, `vite`, `tailwindcss`, etc.) separate from the root
-      `package.json`'s backend deps (`express`, `mongoose`, AWS SDK). This
-      mirrors the fact that the two apps have no shared runtime dependencies.
-  - [ ] `npm create vite@latest . -- --template react-ts` inside `client/`
-        (or hand-roll — either way, end state is `client/src/`,
-        `client/index.html`, `client/vite.config.ts`, `client/tsconfig.json`).
-  - [ ] Add root `package.json` scripts that delegate: `"dev": "npm --prefix
-        client run dev"`, `"build-client": "npm --prefix client run build"`
+- [ ] Replace the Phase 1 stub `client/package.json` by running `npm create
+      vite@latest . -- --template react-ts` inside `client/` (or
+      hand-roll — either way, end state is `client/src/`,
+      `client/index.html`, `client/vite.config.ts`, `client/tsconfig.json`,
+      and a Vite-generated `client/package.json` with `name: "client"`
+      preserved so the workspace reference still resolves).
+  - [ ] Add root `package.json` scripts that delegate: `"dev": "npm run dev
+        -w client"`, `"build-client": "npm run build -w client"`
         (deliberately reclaiming the un-suffixed name, since this is the
         client going forward — legacy keeps the `-legacy` suffix).
 - [ ] Add Tailwind: `npm install -D tailwindcss postcss autoprefixer` inside
@@ -143,7 +315,7 @@ the pattern every later screen will reuse.
       direct equivalent of `webpack.dev.js`'s `devServer.proxy` block, and is
       what lets the Vite-served page share cookies with the real session.
 
-### 1.2 — Auth + shell
+### 2.2 — Auth + shell
 
 - [ ] `client/src/lib/auth.ts`: read the non-httpOnly `user` cookie (plain
       JSON, not signed) and expose `{ user, permissions, hasPermission(perm) }`
@@ -170,21 +342,21 @@ the pattern every later screen will reuse.
 - [ ] `client/src/components/AppShell.tsx`: layout with nav bar (brand link →
       home) + a single "Logout" link that does a hard navigation to
       `/logout` (matches legacy: no client-side logout state, just hits the
-      server route) + a content area. Port only what Phase 1 needs from
+      server route) + a content area. Port only what Phase 2 needs from
       `client-legacy/src/js/ng/directives/navbar.js` +
       `client-legacy/src/partials/_navbar.html` — don't try to port the full
       `navbarData`/`stateData` nav tree yet, that grows incrementally as
-      screens are ported in Phase 2. For now the nav can be just the brand
+      screens are ported in Phase 3. For now the nav can be just the brand
       link; add real entries as each screen lands.
 - [ ] `client/src/features/home/HomePage.tsx`: port
       `client-legacy/src/partials/_home.html` — it's just a centered heading, no
       controller logic to port.
 - [ ] `client/src/main.tsx` / router: single route `/` → `AppShell` +
       `HomePage`. (No client-side router library needed yet with one route —
-      defer picking one, e.g. `react-router`, until Phase 2 needs multiple
+      defer picking one, e.g. `react-router`, until Phase 3 needs multiple
       routes; note the decision here when made.)
 
-### 1.3 — Verify
+### 2.3 — Verify
 
 - [ ] `npm run demon` (backend) + `npm run dev` (new client) running
       together; visit the new client's dev URL, confirm it redirects to the
@@ -198,15 +370,14 @@ the pattern every later screen will reuse.
       showing a broken/blank screen.
 - [ ] Click Logout, confirm it hits the real `/logout` route and lands back
       at `/login`.
-- [ ] `npm run build --prefix client` (production build) completes with no
+- [ ] `npm run build -w client` (production build) completes with no
       errors.
-- [ ] `npm run lint --prefix client` and `npm run test --prefix client` both
-      pass (even with zero real tests yet beyond a smoke test for
-      `HomePage`).
+- [ ] `npm run lint -w client` and `npm run test -w client` both pass (even
+      with zero real tests yet beyond a smoke test for `HomePage`).
 
 ---
 
-## Phase 2 — Screen-by-screen migration
+## Phase 3 — Screen-by-screen migration
 
 ### Per-screen checklist (copy this block per screen)
 
@@ -220,9 +391,9 @@ the pattern every later screen will reuse.
       corresponding `server/routers/*.js` + model to confirm the real shape).
 - [ ] Implement + add at least one Vitest test (render + one interaction, or
       one API-mocked data-flow test for read-heavy screens).
-- [ ] Wire the route (add router entry once Phase 2 has picked a router lib).
+- [ ] Wire the route (add router entry once Phase 3 has picked a router lib).
 - [ ] Add the nav entry to `AppShell`'s nav data (respecting `userPermission`
-      via `hasPermission`/the and/or helper from Phase 1.2).
+      via `hasPermission`/the and/or helper from Phase 2.2).
 - [ ] Manually verify against the real backend (not just legacy comparison).
 - [ ] Mark done below.
 ```
@@ -289,7 +460,7 @@ Users
 - [ ] `main.users.list` — List — `list-users-ctrl.js` / `users/_list_users.html`
 - [ ] `main.users.change-password` — Change Password — `change-user-password-ctrl.js` / `users/_change_password.html`
 - [ ] `main.users.create` — New User — `create-new-user-ctrl.js` / `users/_create_user.html`
-- [ ] `main.users.logout` — already handled by Phase 1's hard-nav Logout link; no React component needed.
+- [ ] `main.users.logout` — already handled by Phase 2's hard-nav Logout link; no React component needed.
 
 Other
 - [ ] `main.history` — `history-ctrl.js` / `_history.html`
@@ -308,15 +479,17 @@ directives (`camera-dir.js`, `collage-dir.js`, `editor-listing-dir.js`,
 
 ---
 
-## Phase 3 — Backend TypeScript (not started, forward-looking only)
+## Phase 4 — Backend TypeScript (not started, forward-looking only)
 
-Not begun. Don't start until Phase 1/2 are far enough along that the pattern
+Not begun. Don't start until Phase 2/3 are far enough along that the pattern
 for "one file at a time" is well understood from the frontend side. When it
 starts:
 
-- [ ] Add `typescript` + `@types/node` as root devDependencies (this is the
-      backend, so it stays in root `package.json`, not `client/package.json`).
-- [ ] Add a root `tsconfig.json` with `allowJs: true`, `checkJs: false`
+- [ ] Add `typescript` + `@types/node` as devDependencies in
+      `server/package.json` (this is the backend workspace's own concern —
+      it doesn't belong in the now purely-coordinating root `package.json`,
+      nor in `client/package.json`).
+- [ ] Add `server/tsconfig.json` with `allowJs: true`, `checkJs: false`
       initially (opt in per-file via `// @ts-check` or by converting a file
       to `.ts`, not repo-wide).
 - [ ] Pick the first file deliberately: something small, leaf-level, with no
@@ -334,6 +507,6 @@ starts:
 
 ---
 
-## Phase 4 — Deployment (not started, forward-looking only)
+## Phase 5 — Deployment (not started, forward-looking only)
 
-Deployment was broken by this exercise. If the product of this exercise is ever to be deployed, we must make some adjustments to the `Dockerfile` and `.gitlab-ci.yml` to account for the new folder structure and build system(s).
+Deployment was broken by this exercise. If the product of this exercise is ever to be deployed, we must make some adjustments to the `Dockerfile` and `.gitlab-ci.yml` to account for the new folder structure and build system(s). The Phase 1 workspace split adds one more thing to account for whenever this is picked up: a single root `npm install` now pulls all three workspaces' deps into one `node_modules`, so a size-conscious multi-stage Docker build would need to prune or split that install rather than assuming it's backend-only.
