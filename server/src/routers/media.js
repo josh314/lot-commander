@@ -13,7 +13,7 @@ const {
 
 const mediaServer = require( '../modules/media-server' );
 
-const notFoundImage = fs.readFileSync(path.join(__basedir, '../assets', 'missing-image.jpg'));
+const notFoundImage = fs.readFileSync(path.join(__dirname, '../../../assets', 'missing-image.jpg'));
 
 module.exports = routes;
 

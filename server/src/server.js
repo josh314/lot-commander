@@ -1,6 +1,3 @@
-// App-wide variable refrencing project root
-global.__basedir = __dirname;
-
 //================================================
 // Basic module requires =========================
 //================================================
@@ -69,7 +66,7 @@ class Server {
     //=================================================
 
 
-    const viewsPath = 'server/views';
+    const viewsPath = path.join( __dirname, '../src/views' );
     const partialsPath = path.join( viewsPath, 'partials' );
     const layoutsPath = path.join( viewsPath, 'layouts' );
     const hbs = require('express-handlebars').create({

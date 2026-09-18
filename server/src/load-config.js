@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const LOCAL_CONFIG_PATH = path.join(__dirname, 'config.local.json');
+const LOCAL_CONFIG_PATH = path.join(__dirname, '../config.local.json');
 
 function isLocal() {
   return fs.existsSync(LOCAL_CONFIG_PATH);

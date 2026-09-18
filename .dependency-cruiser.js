@@ -1,13 +1,26 @@
+const knownDeadCode = [ // known unused modules
+  'server/src/modules/bstock.js',
+  'server/src/modules/bstock-db.js',
+  'client-legacy/src/js/graph.js',
+];
+
+const ignoreDependencies = [
+  '^__', // temp and scratch
+  'dist/', // build output
+  ...knownDeadCode
+];
+
+
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
   forbidden: [
     {
       name: "no-unreachable-from-entrypoint",
-      comment: "Not reachable from server/index.js (likely unused).",
+      comment: "Not reachable from server/src/index.js (likely unused).",
       severity: "warn",
 
       from: {
-        path: "^server/index[.]js$"
+        path: "^server/src/index[.]js$"
       },
 
       to: {
@@ -16,7 +29,7 @@ module.exports = {
 
         // ignore files that are expected to be “magically used”
         pathNot: [
-          "^server/index[.]js$",
+          "^server/src/index[.]js$",
 
           // your existing defaults:
           '(^|/)[.][^/]+[.](?:js|cjs|mjs|ts|cts|mts|json)$',
@@ -52,7 +65,11 @@ module.exports = {
           '(^|/)[.][^/]+[.](?:js|cjs|mjs|ts|cts|mts|json)$',                  // dot files
           '[.]d[.]ts$',                                                       // TypeScript declaration files
           '(^|/)tsconfig[.]json$',                                            // TypeScript config
-          '(^|/)(?:babel|webpack)[.]config[.](?:js|cjs|mjs|ts|cts|mts|json)$' // other configs
+          '(^|/)(?:babel|webpack)[.]config[.](?:js|cjs|mjs|ts|cts|mts|json)$', // other configs
+
+          ...ignoreDependencies,
+          'dist/app.js', // a complete bundle will be an orphan
+
         ]
       },
       to: {},
@@ -113,7 +130,13 @@ module.exports = {
         "That's problematic as the package either (1) won't be available on live (2 - worse) will be " +
         "available on live with an non-guaranteed version. Fix it by adding the package to the dependencies " +
         "in your package.json.",
-      from: {},
+      from: {
+
+        pathNot: [
+          ...ignoreDependencies
+        ]
+
+      },
       to: {
         dependencyTypes: [
           'npm-no-pkg',
@@ -127,7 +150,13 @@ module.exports = {
         "This module depends on a module that cannot be found ('resolved to disk'). If it's an npm " +
         'module: add it to your package.json. In all other cases you likely already know what to do.',
       severity: 'error',
-      from: {},
+      from: {
+
+        pathNot: [
+          ...ignoreDependencies
+        ]
+
+      },
       to: {
         couldNotResolve: true
       }
