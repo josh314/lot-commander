@@ -31,18 +31,33 @@ the pattern every later screen will reuse.
         -w client"`, `"build-client": "npm run build -w client"`
         (deliberately reclaiming the un-suffixed name, since this is the
         client going forward — legacy keeps the `-legacy` suffix).
-- [ ] Add Tailwind: `npm install -D tailwindcss postcss autoprefixer` inside
-      `client/`, `npx tailwindcss init -p`, configure `content` to scan
-      `./index.html` and `./src/**/*.{ts,tsx}`, add the three `@tailwind`
-      directives to a `client/src/index.css` imported once from `main.tsx`.
+- [ ] Add Tailwind (v4): `npm install tailwindcss @tailwindcss/vite` inside
+      `client/`; add the `tailwindcss()` plugin to `vite.config.ts`'s
+      `plugins` array; replace `client/src/index.css`'s contents with a
+      single `@import "tailwindcss";` imported once from `main.tsx`. No
+      `tailwind.config.js`/`postcss.config.js`/`autoprefixer`/`init -p` step
+      — v4's Vite plugin auto-detects content and handles vendor prefixing,
+      unlike the v3 PostCSS-plugin flow this step used to describe.
 - [ ] Add Vitest: `npm install -D vitest @testing-library/react
       @testing-library/jest-dom jsdom` inside `client/`; configure
-      `test.environment = 'jsdom'` in `vite.config.ts`; add a `"test": "vitest
-      run"` script.
+      `test.environment = 'jsdom'` in `vite.config.ts`'s `test` property —
+      add `/// <reference types="vitest/config" />` at the top of the file
+      (or import `defineConfig` from `vitest/config` instead of `vite`) so
+      TypeScript recognizes the `test` key; add a `"test": "vitest run"`
+      script.
+  - [ ] `@testing-library/jest-dom` (v6+) ships a dedicated Vitest entry
+        point — create a setup file `vitest.setup.ts` that does
+        `import '@testing-library/jest-dom/vitest'`, wire it via
+        `test.setupFiles` in `vite.config.ts`, and add
+        `"types": ["vitest/globals", "@testing-library/jest-dom"]` to
+        `tsconfig.app.json`'s `compilerOptions` so the custom matchers
+        typecheck. Don't use the bare `import '@testing-library/jest-dom'`
+        from older jest-only guides.
 - [ ] Add TypeScript-ESLint flat config (`client/eslint.config.js`) using
       `typescript-eslint`'s recommended config + `eslint-plugin-react-hooks`;
       add a `"lint": "eslint ."` script. This becomes the client-side lint
       script the root `CLAUDE.md` currently says doesn't exist.
+    - [ ] Add `@stylistic/eslint-plugin` to the ESLint config and configure basic stylistic rules like indentation. See [here](https://eslint.style/rules) for config.
 - [ ] Configure the Vite dev server proxy (`vite.config.ts`'s
       `server.proxy`) to forward `/api`, `/login`, `/logout` to the real
       backend (`http://localhost:8080` or whatever port `npm run demon`
