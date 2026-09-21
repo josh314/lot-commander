@@ -4,15 +4,18 @@
   "private": true,
   "description": "Multi-purpose inventory management services for product lots.",
   "scripts": {
+    "build-client": "npm run build -w client",
     "build-client-dev-legacy": "npm run build-dev -w client-legacy",
     "build-client-legacy": "npm run build -w client-legacy",
     "debug": "npm run debug -w server",
     "demon": "npm run demon -w server",
     "depcruise": "depcruise --config .dependency-cruiser.js .",
+    "dev": "npm run dev -w client",
     "dev-server-legacy": "npm run dev-server -w client-legacy",
     "lint-server": "npm run lint -w server",
     "ngrok": "ngrok http 9000 --subdomain=josh-wsn --host-header=localhost:9000",
-    "start": "npm start -w server"
+    "start": "npm start -w server",
+    "test-client": "npm run test -w client"
   },
   "keywords": [
     "app"

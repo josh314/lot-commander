@@ -21,31 +21,31 @@ the pattern every later screen will reuse.
 
 ## 2.1 — Scaffold
 
-- [ ] Replace the Phase 1 stub `client/package.json` by running `npm create
+- [x] Replace the Phase 1 stub `client/package.json` by running `npm create
       vite@latest . -- --template react-ts` inside `client/` (or
       hand-roll — either way, end state is `client/src/`,
       `client/index.html`, `client/vite.config.ts`, `client/tsconfig.json`,
       and a Vite-generated `client/package.json` with `name: "client"`
       preserved so the workspace reference still resolves).
-  - [ ] Add root `package.json` scripts that delegate: `"dev": "npm run dev
+  - [x] Add root `package.json` scripts that delegate: `"dev": "npm run dev
         -w client"`, `"build-client": "npm run build -w client"`
         (deliberately reclaiming the un-suffixed name, since this is the
         client going forward — legacy keeps the `-legacy` suffix).
-- [ ] Add Tailwind (v4): `npm install tailwindcss @tailwindcss/vite` inside
+- [x] Add Tailwind (v4): `npm install tailwindcss @tailwindcss/vite` inside
       `client/`; add the `tailwindcss()` plugin to `vite.config.ts`'s
       `plugins` array; replace `client/src/index.css`'s contents with a
       single `@import "tailwindcss";` imported once from `main.tsx`. No
       `tailwind.config.js`/`postcss.config.js`/`autoprefixer`/`init -p` step
       — v4's Vite plugin auto-detects content and handles vendor prefixing,
       unlike the v3 PostCSS-plugin flow this step used to describe.
-- [ ] Add Vitest: `npm install -D vitest @testing-library/react
+- [x] Add Vitest: `npm install -D vitest @testing-library/react
       @testing-library/jest-dom jsdom` inside `client/`; configure
       `test.environment = 'jsdom'` in `vite.config.ts`'s `test` property —
       add `/// <reference types="vitest/config" />` at the top of the file
       (or import `defineConfig` from `vitest/config` instead of `vite`) so
       TypeScript recognizes the `test` key; add a `"test": "vitest run"`
       script.
-  - [ ] `@testing-library/jest-dom` (v6+) ships a dedicated Vitest entry
+  - [x] `@testing-library/jest-dom` (v6+) ships a dedicated Vitest entry
         point — create a setup file `vitest.setup.ts` that does
         `import '@testing-library/jest-dom/vitest'`, wire it via
         `test.setupFiles` in `vite.config.ts`, and add
@@ -53,12 +53,12 @@ the pattern every later screen will reuse.
         `tsconfig.app.json`'s `compilerOptions` so the custom matchers
         typecheck. Don't use the bare `import '@testing-library/jest-dom'`
         from older jest-only guides.
-- [ ] Add TypeScript-ESLint flat config (`client/eslint.config.js`) using
+- [x] Add TypeScript-ESLint flat config (`client/eslint.config.js`) using
       `typescript-eslint`'s recommended config + `eslint-plugin-react-hooks`;
       add a `"lint": "eslint ."` script. This becomes the client-side lint
       script the root `CLAUDE.md` currently says doesn't exist.
-    - [ ] Add `@stylistic/eslint-plugin` to the ESLint config and configure basic stylistic rules like indentation. See [here](https://eslint.style/rules) for config.
-- [ ] Configure the Vite dev server proxy (`vite.config.ts`'s
+    - [x] Add `@stylistic/eslint-plugin` to the ESLint config and configure basic stylistic rules like indentation. See [here](https://eslint.style/rules) for config.
+- [x] Configure the Vite dev server proxy (`vite.config.ts`'s
       `server.proxy`) to forward `/api`, `/login`, `/logout` to the real
       backend (`http://localhost:8080` or whatever port `npm run demon`
       binds to per local config) with `changeOrigin: true` — this is the

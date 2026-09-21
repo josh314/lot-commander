@@ -24,7 +24,7 @@ This repo is an npm workspaces monorepo with a purely coordinating root `package
 |---|---|---|
 | `server` | `server/` (source in `server/src/`) | The Express/MongoDB backend. |
 | `client-legacy` | `client-legacy/` | The original AngularJS client + webpack build, being phased out screen-by-screen. |
-| `client` | `client/` | The new React/TypeScript/Vite client — currently a stub; real scaffolding lands in a later phase (see `docs/modernization/PLAN.md`). |
+| `client` | `client/` | The new React/TypeScript/Vite client — scaffolded (Tailwind v4, type-aware ESLint, Vitest); screens are still being ported one at a time (see `docs/modernization/PLAN.md`). |
 | `scripts` | `scripts/` | One-off operational scripts (SSM config upload, session-secret rotation). |
 
 A single `npm install` at the repo root installs all four workspaces' dependencies into one hoisted `node_modules`. Root scripts delegate into a workspace via `-w <workspace>`; you can also run a workspace's own scripts directly with `npm run <script> -w <workspace>`, or `cd` into the workspace and run `npm run <script>` there.
@@ -40,12 +40,18 @@ A single `npm install` at the repo root installs all four workspaces' dependenci
 | `npm run dev-server-legacy` | `client-legacy` | `webpack-dev-server` for the legacy AngularJS client |
 | `npm run build-client-legacy` | `client-legacy` | Production webpack build of the legacy client |
 | `npm run build-client-dev-legacy` | `client-legacy` | Dev-mode webpack build of the legacy client |
+| `npm run dev` | `client` | Vite dev server for the new client, port `9000`; proxies `/api`, `/login`, `/logout` to the backend at `http://localhost:8080` so it can run alongside `npm run demon` and share the real session cookie |
+| `npm run build-client` | `client` | Production build of the new client (`tsc -b && vite build`) |
 | `npm run depcruise` | — (root only) | Runs `dependency-cruiser` across the repo — also the check that a dependency landed in the right workspace's `package.json`, since a flat hoisted `node_modules` would otherwise let any workspace `require()` any other workspace's dependency without it being declared |
-| `npm run ngrok` | — (root only) | Tunnels port 9000, reserved for the new client's future dev server |
+| `npm run ngrok` | — (root only) | Tunnels port 9000, the new client's dev server port |
 
-`client` and `scripts` have no root-level script aliases yet: `client` is still a stub (no real `dev`/`build` scripts until the new client is actually scaffolded), and `scripts/*.js` are one-off CLI utilities invoked directly (e.g. `node scripts/rotate-session-secret.js ...`), not wired as package scripts.
+`npm run lint -w client` and `npm run test -w client` (ESLint and Vitest for the new client) aren't aliased at the root yet — run them with the `-w client` flag or `cd client && npm run lint` / `npm run test`. `scripts/*.js` are one-off CLI utilities invoked directly (e.g. `node scripts/rotate-session-secret.js ...`), not wired as package scripts.
 
 One quirk worth knowing: pressing Ctrl-C during `npm run demon` prints an `npm error Lifecycle script "demon" failed ... code 130` block. This is expected and harmless, not a real failure — `nodemon` deliberately exits with the signal-convention code (128+SIGINT) on interrupt (upstream `nodemon` behavior, unrelated to this repo), and npm's workspace run-script path reports any nonzero exit as a lifecycle failure, unlike a plain non-workspace `npm run`. The server has already shut down correctly by the time this prints.
+
+### Running the new client against the real backend
+
+Run `npm run demon` (backend, port `8080`) and `npm run dev` (new client, port `9000`) in separate terminals. Visit `http://localhost:9000` — the client's Vite dev server proxies `/api`, `/login`, `/logout` through to the backend with `changeOrigin: true`, so cookies and sessions work exactly as they would in production; an unauthenticated visit redirects to the backend's real `/login` page.
 
 ## Configuration
 
