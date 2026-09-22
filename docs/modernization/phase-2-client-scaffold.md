@@ -81,15 +81,16 @@ the pattern every later screen will reuse.
       mount (legacy equivalent: `RootCtrl`); redirect to `/logout` (full page
       nav, not client-side) if `isExpired()` is true on mount or on route
       change.
-- [ ] `client/src/lib/api.ts`: a small `fetch` wrapper for `/api/*` —
-      `credentials: 'include'`, and critically: check
-      `response.headers.get('content-type')?.includes('application/json')`
-      before parsing. `auth.isLoggedIn` (`server/auth.js`) redirects an
-      unauthenticated request to `/login` (HTML), so a naive `.json()` call
-      on an expired session will throw a confusing parse error instead of a
-      clean "logged out" state — treat a non-JSON response as logged-out and
-      redirect to `/login`.
-- [ ] `client/src/components/AppShell.tsx`: layout with nav bar (brand link →
+- [x] `client/src/lib/api.ts`: a small `axios` wrapper for `/api/*` —
+      `withCredentials: true`, and critically: check the response's
+      `content-type` header for `application/json` in both the fulfilled and
+      rejected response-interceptor branches (axios rejects any non-2xx
+      response by default, so both need the check). `auth.isLoggedIn`
+      (`server/auth.js`) redirects an unauthenticated request to `/login`
+      (HTML), so treating that as a normal JSON response would silently
+      misbehave instead of giving a clean "logged out" state — treat a
+      non-JSON response as logged-out and redirect to `/login`.
+- [x] `client/src/components/AppShell.tsx`: layout with nav bar (brand link →
       home) + a single "Logout" link that does a hard navigation to
       `/logout` (matches legacy: no client-side logout state, just hits the
       server route) + a content area. Port only what this phase needs from
@@ -98,10 +99,10 @@ the pattern every later screen will reuse.
       `navbarData`/`stateData` nav tree yet, that grows incrementally as
       screens are ported in Phase 3. For now the nav can be just the brand
       link; add real entries as each screen lands.
-- [ ] `client/src/features/home/HomePage.tsx`: port
+- [x] `client/src/features/home/HomePage.tsx`: port
       `client-legacy/src/partials/_home.html` — it's just a centered heading, no
       controller logic to port.
-- [ ] `client/src/main.tsx` / router: single route `/` → `AppShell` +
+- [x] `client/src/main.tsx` / router: single route `/` → `AppShell` +
       `HomePage`. (No client-side router library needed yet with one route —
       defer picking one, e.g. `react-router`, until Phase 3 needs multiple
       routes; note the decision here when made.)
