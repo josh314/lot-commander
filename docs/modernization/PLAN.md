@@ -10,7 +10,8 @@ Phases 0–3 each have their full checklist/detail in their own file (linked
 below); this doc only carries a condensed summary of each plus the full
 detail for the not-yet-started, forward-looking Phases 4–5.
 
-**Status:** Phase 0 and Phase 1 done and committed. Phase 2 not started.
+**Status:** Phase 0, Phase 1, and Phase 2 done and committed (one noted gap
+in Phase 2's verification — see its doc). Phase 3 not started.
 
 ---
 
@@ -39,12 +40,18 @@ Full detail: [phase-1-workspace-setup.md](./phase-1-workspace-setup.md)
 
 ---
 
-## Phase 2 — New client scaffold + vertical slice (`main.home`) *(not started)*
+## Phase 2 — New client scaffold + vertical slice (`main.home`) *(done, committed)*
 
 Scaffolds the new React/TS/Tailwind/Vite client and ports the authenticated
-shell (nav, permissions, session-timeout cookie) plus the `main.home`
-screen — the first full vertical slice (build tooling + shell + one real
-screen against the real API) that every later screen will build on.
+shell (nav, Zod-validated cookie parsing, flat + compound `and`/`or`
+permission checks) plus the `main.home` screen — the first full vertical
+slice (build tooling + shell + one real screen against the real API) that
+every later screen will build on. The legacy client-side session-timeout
+cookie was deliberately dropped rather than ported (the server session's
+24h TTL already rolls forward on activity, so it wasn't buying any real
+security — see phase-2-client-scaffold.md for the full reasoning). One
+verification gap remains: a session going stale without a full page reload
+isn't yet handled — see phase-2-client-scaffold.md's 2.3.
 
 Full detail: [phase-2-client-scaffold.md](./phase-2-client-scaffold.md)
 

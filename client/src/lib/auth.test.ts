@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 import { User, getLoggedInUser } from './auth'
 import type { UserCookie } from '../schemas/user'
 
-test('User class exists', () => {
+test('User class tests', () => {
 
   const cookie: UserCookie = {
     id: '1',
@@ -27,6 +27,11 @@ test('User class exists', () => {
   expect(user.isDisabled).toBe(false)
   expect(user.hasPermission('unallowed')).toBe(false)
   expect(user.hasPermission('foo')).toBe(true)
+  expect(user.isPermitted('foo')).toBe(true)
+  expect(user.isPermitted('unallowed')).toBe(false)
+  expect(user.isPermitted({ or: ['foo', 'unallowed'] })).toBe(true)
+  expect(user.isPermitted({ and: ['foo', 'bar'] })).toBe(true)
+  expect(user.isPermitted({ and: ['foo', 'unallowed'] })).toBe(false)
 })
 
 
