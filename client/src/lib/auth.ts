@@ -1,14 +1,6 @@
-export interface UserCookie {
-  id: string
-  firstName: string
-  lastName: string
-  username: string
-  roles: string[]
-  permissions: string[]
-  isDeveloper?: boolean
-}
+import { UserCookieSchema } from '../schemas/user'
 
-export class User implements UserCookie {
+export class User {
   id: string
   firstName: string
   lastName: string
@@ -16,11 +8,12 @@ export class User implements UserCookie {
   roles: string[]
   permissions: string[]
   isDeveloper?: boolean
+  isDisabled?: boolean
 
   constructor( cookie: string ) {
 
-    const parsedCookie: UserCookie = JSON.parse(decodeURIComponent(cookie))
-    const { id, firstName, lastName, username, roles, permissions, isDeveloper } = parsedCookie
+    const parsedCookie = UserCookieSchema.parse(JSON.parse(decodeURIComponent(cookie)))
+    const { id, firstName, lastName, username, roles, permissions, isDeveloper, isDisabled } = parsedCookie
 
     this.id = id
     this.firstName = firstName
@@ -29,6 +22,7 @@ export class User implements UserCookie {
     this.roles = roles
     this.permissions = permissions
     this.isDeveloper = isDeveloper
+    this.isDisabled = isDisabled
 
   }
 

@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
-import { type UserCookie, User, getLoggedInUser } from './auth'
+import { User, getLoggedInUser } from './auth'
+import type { UserCookie } from '../schemas/user'
 
 test('User class exists', () => {
 
@@ -10,7 +11,8 @@ test('User class exists', () => {
     username: 'johndoe',
     roles: [ 'foobar' ],
     permissions: [ 'foo', 'bar' ],
-    isDeveloper: false
+    isDeveloper: false,
+    isDisabled: false
   }
 
   const user = new User(encodeURIComponent(JSON.stringify(cookie)))
@@ -22,6 +24,7 @@ test('User class exists', () => {
   expect(user.roles).toEqual([ 'foobar' ])
   expect(user.permissions).toEqual([ 'foo', 'bar' ])
   expect(user.isDeveloper).toBe(false)
+  expect(user.isDisabled).toBe(false)
   expect(user.hasPermission('unallowed')).toBe(false)
   expect(user.hasPermission('foo')).toBe(true)
 })
