@@ -177,6 +177,9 @@ class Server {
     // Authentication ======================
     // =====================================
 
+    const cookieParser = require('cookie-parser');
+    this.app.use(cookieParser());
+
     const UserDbClient = require('./modules/user-db').Client;
     this.users = new UserDbClient( this.mongooseConnection );
 
@@ -195,13 +198,22 @@ class Server {
       auth.authenticate(),
 
       // set site notification cookie
-      async ( _req, res, _next ) => {
+      async ( req, res, _next ) => {
 
         const announcements = await siteAnnouncements.listCurrent();
 
         res.cookie(
           'site-announcements',
           JSON.stringify( { announcements } ),
+          {
+            // maxAge: 900000,
+            httpOnly: false
+          }
+        );
+
+        res.cookie(
+          'user',
+          JSON.stringify( req.user.getPublicInfo() ),
           {
             // maxAge: 900000,
             httpOnly: false
@@ -222,28 +234,6 @@ class Server {
 
       });
 
-    });
-
-    const cookieParser = require('cookie-parser');
-    this.app.use(cookieParser());
-
-    // set a cookie
-    this.app.use(function (req, res, next) {
-      // check if client sent cookie
-      const cookie = req.cookies.user;
-      if ( cookie === undefined && req.user  ) {
-
-        res.cookie(
-          'user',
-          JSON.stringify( req.user.getPublicInfo() ),
-          {
-            // maxAge: 900000,
-            httpOnly: false
-          }
-        );
-
-      }
-      next();
     });
 
     // //===================================================
