@@ -1,26 +1,18 @@
-import { AppShell } from '../components/AppShell';
+import { AppShell } from '../components/AppShell'
 import { HomePage } from '../features/home/HomePage'
-import { ListLots } from '../features/lots/ListLots'
+import { routes as lotsRoutes } from '../features/lots/routes'
+import { type RouteConfigNode, toRouteObjects } from '../lib/route-config'
 
-const routes = [
+const tree: RouteConfigNode[] = [
   {
     Component: AppShell,
     children: [
-      {
-        index: true,
-        Component: HomePage
-      },
-      {
-        path: '/lots',
-        children: [
-          {
-            path: '',
-            Component: ListLots
-          }
-        ]
-      }
-    ]
-  }
+      { index: true, Component: HomePage },
+      ...lotsRoutes,
+      { path: '/logout', nav: { label: 'Logout', isAnchorTag: true } }
+    ],
+  },
 ]
 
-export { routes };
+export const routes = toRouteObjects( tree )
+export const navTree = tree   // handed to Navbar's nav-collecting function separately
