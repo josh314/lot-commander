@@ -1,13 +1,11 @@
 import { useContext } from 'react'
 import { AuthContext } from '../contexts/AuthContext'
 
+import { Outlet } from "react-router";
+
 import { Navbar } from './Navbar'
 
-interface AppShellProps {
-  children: React.ReactNode
-}
-
-export function AppShell( { children }: AppShellProps ) {
+export function AppShell( ) {
 
   const user = useContext(AuthContext)
 
@@ -16,7 +14,7 @@ export function AppShell( { children }: AppShellProps ) {
   return (
     <div>
       <Navbar />
-      { children }
+      <Outlet />
     </div>
   )
 }

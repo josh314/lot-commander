@@ -1,10 +1,12 @@
 import './index.css'
-
+import { routes } from './routes'
 import { useContext, useEffect } from 'react'
 import { AuthContext } from './contexts/AuthContext'
 
-import { AppShell } from './components/AppShell'
-import { HomePage } from './features/home/HomePage'
+import { createBrowserRouter } from 'react-router'
+import { RouterProvider } from 'react-router/dom'
+
+const router = createBrowserRouter(routes)
 
 function App() {
 
@@ -19,9 +21,7 @@ function App() {
 
   return (
     <AuthContext value={user}>
-      <AppShell>
-        <HomePage />
-      </AppShell>
+      <RouterProvider router={router} />
     </AuthContext>
   )
 }
