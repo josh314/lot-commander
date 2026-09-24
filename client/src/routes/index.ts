@@ -3,16 +3,26 @@ import { HomePage } from '../features/home/HomePage'
 import { routes as lotsRoutes } from '../features/lots/routes'
 import { type RouteConfigNode, toRouteObjects } from '../lib/route-config'
 
+const mainRoutes: RouteConfigNode[] = [
+  { index: true, Component: HomePage },
+  ...lotsRoutes,
+]
+
+const footerRoutes: RouteConfigNode[] = [
+  { path: '/logout', nav: { label: 'Logout', isAnchorTag: true } },
+]
+
 const tree: RouteConfigNode[] = [
   {
     Component: AppShell,
-    children: [
-      { index: true, Component: HomePage },
-      ...lotsRoutes,
-      { path: '/logout', nav: { label: 'Logout', isAnchorTag: true } }
-    ],
+    children: [...mainRoutes, ...footerRoutes],
   },
 ]
 
 export const routes = toRouteObjects( tree )
-export const navTree = tree   // handed to Navbar's nav-collecting function separately
+
+// Handed to Sidebar's nav-collecting function separately, as two independent trees:
+// a node's tree membership IS its section (main scrollable nav vs. pinned footer nav),
+// so a nav group can never end up split across both.
+export const navTree = mainRoutes
+export const footerNavTree = footerRoutes
