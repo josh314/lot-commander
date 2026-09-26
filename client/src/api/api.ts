@@ -1,4 +1,3 @@
-// client/src/lib/api.ts
 import axios, { type AxiosError } from 'axios'
 
 export const api = axios.create({
@@ -29,3 +28,21 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+
+export type QueryParamValue = string | number | boolean | undefined
+export type QueryParams<T extends object> = { [K in keyof T]: QueryParamValue }
+
+export function getQueryString<T extends object>(obj: QueryParams<T> | undefined ): string {
+
+  if(!obj) {
+    return ''
+  }
+
+  // filter out undefined values
+  const filteredParams = Object.fromEntries(
+    Object.entries( obj ).filter( ( [_, value] ) => value !== undefined )
+  ) as Record<string, string>
+  return new URLSearchParams( filteredParams ).toString();
+
+}
