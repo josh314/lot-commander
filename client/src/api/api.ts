@@ -1,9 +1,15 @@
-import axios, { type AxiosError } from 'axios'
+import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios'
 
 export const api = axios.create({
   baseURL: '/api',
   withCredentials: true,
 })
+
+export function createResourceClient(basePath: string) {
+  return function resourceRequest<T = unknown>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+    return api<T>({ ...config, url: `${basePath}${config.url ?? ''}` })
+  }
+}
 
 function isJsonResponse(contentType: string | undefined): boolean {
   return (contentType ?? '').includes('application/json')
