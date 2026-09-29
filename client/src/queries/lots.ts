@@ -8,7 +8,7 @@ export function countOptions( queryParams?: CountLotsQP ) {
   return queryOptions({
     queryKey: [ 'lots', 'count', queryParams ],
     queryFn: () => api.lots.count( queryParams ),
-    placeholderData: { count: 0},
+    placeholderData: { count: 0 },
   })
 }
 
@@ -26,6 +26,14 @@ export function listOptions( queryParams?: ListLotsQP ) {
 
 export function useList( queryParams?: ListLotsQP ) {
   return useQuery(listOptions(queryParams))
+}
+
+export function usePaginatedList( queryParams?: ListLotsQP ): { isPending: boolean, error: Error | null, count: number, lots: Lot[] } {
+
+  const { isPending: isCountPending, error: countError, data: countData } = useCount(queryParams)
+  const { isPending: isListPending, error: listError, data: listData } = useList(queryParams)
+
+  return { isPending: isCountPending || isListPending, error: countError ?? listError, count: countData?.count ?? 0, lots: listData ?? [] }
 }
 
 export function getOptions( id: string ) {

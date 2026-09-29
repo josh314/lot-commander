@@ -1,8 +1,12 @@
+import { useState } from 'react'
 import { Link } from 'react-router'
 
+import { ListPaginationControls, type ListPaginationControlsProps } from '../../components/ListPaginationControls'
 import { Lot } from '../../lib/Lot'
 import * as queries from '../../queries'
 
+// TODO: make PAGE_SIZE configurable
+const PAGE_SIZE = 25
 
 function ListLotsTableDataRow( { lot }: { lot: Lot } ) {
   return (
@@ -44,8 +48,11 @@ function ListLotsTable( { children }: { children: React.ReactNode } ) {
 }
 
 export function ListLots() {
+  const [ page, setPage ] = useState(1)
 
-  const { isPending, error, data } = queries.lots.useList( {
+  const { isPending, error, count, lots } = queries.lots.usePaginatedList( {
+    page,
+    num: PAGE_SIZE,
     sort: 'createdAt',
     sort_dir: -1,
   } )
@@ -57,10 +64,19 @@ export function ListLots() {
     return <div>Error: {error.message}</div>
   }
 
-  const lots: Lot[] = data ?? []
+  const pagination: ListPaginationControlsProps = {
+    currentPage: page,
+    pageSize: PAGE_SIZE,
+    totalItems: count,
+    onPageChange: (page: number) => {
+      console.log('Page changed to:', page)
+      setPage(page)
+    }
+  }
 
   return (
     <>
+      <ListPaginationControls {...pagination} />
       <ListLotsTable>
         {lots.map(lot => (
           <ListLotsTableDataRow key={lot.id} lot={lot} />
