@@ -38,6 +38,7 @@ api.interceptors.response.use(
 
 export type QueryParamValue = string | number | boolean | undefined
 export type QueryParams<T extends object> = { [K in keyof T]: QueryParamValue }
+export type SortDir = -1 | 1
 
 export function getQueryString<T extends object>(obj: QueryParams<T> | undefined ): string {
 

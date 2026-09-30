@@ -1,6 +1,7 @@
 import {
   createResourceClient,
-  getQueryString
+  getQueryString,
+  type SortDir
 } from './api'
 import * as schemas from '../schemas'
 
@@ -10,7 +11,7 @@ export type ListLotsPageAndSortQueryParams = {
   page?: number
   num?: number
   sort?: string           // what key to sort by
-  sort_dir?: -1 | 1        // sort direction, -1 for descending, 1 for ascending
+  sort_dir?: SortDir       // sort direction, -1 for descending, 1 for ascending
 }
 
 export type ListLotsFilterParams = {
