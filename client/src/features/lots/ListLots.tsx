@@ -5,6 +5,7 @@ import { ListPaginationControls, type ListPaginationControlsProps } from '../../
 import { Lot } from '../../lib/Lot'
 import * as queries from '../../queries'
 import { buildLotQueryParams, toLotNumberFilter, type FilterStatusOption, type ListFilters, FILTER_STATUS_OPTIONS } from './list-lots-filters'
+import { useDebouncedValue } from '../../hooks'
 
 // TODO: make PAGE_SIZE configurable
 const PAGE_SIZE = 25
@@ -107,7 +108,8 @@ export function ListLots() {
     status: 'All',
   })
 
-  const { isPending, error, count, lots } = queries.lots.usePaginatedList( buildLotQueryParams(page, PAGE_SIZE, filters) )
+  const debouncedFilters = useDebouncedValue({ handle: filters.handle, lotNumber: filters.lotNumber }, 300)
+  const { isPending, error, count, lots } = queries.lots.usePaginatedList( buildLotQueryParams(page, PAGE_SIZE, { ...debouncedFilters, status: filters.status }) )
 
   if(isPending) {
     return <div>Loading...</div>
