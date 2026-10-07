@@ -1,8 +1,8 @@
-import { useContext, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Link, NavLink as RouterNavLink } from 'react-router'
-import { AuthContext } from '../contexts/AuthContext'
 import { buildNavItems, filterNavEntries, isNavGroup, type NavEntry, type NavLink } from '../lib/route-config'
 import { footerNavTree, navTree } from '../routes'
+import { useAuth } from '../hooks'
 
 export const SIDEBAR_WIDTH = 240
 export const HEADER_HEIGHT = 56
@@ -50,7 +50,7 @@ function NavEntryList({ entries }: { entries: NavEntry[] }) {
 }
 
 export function Sidebar() {
-  const user = useContext(AuthContext)
+  const user = useAuth()
   const navEntries = useMemo(() => filterNavEntries(buildNavItems(navTree), user), [user])
   const footerEntries = useMemo(() => filterNavEntries(buildNavItems(footerNavTree), user), [user])
 

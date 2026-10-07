@@ -1,4 +1,4 @@
 import { createContext } from 'react'
-import { type User, getLoggedInUser } from '../lib/auth'
+import { type User } from '../lib/auth'
 
-export const AuthContext = createContext<User | undefined>(getLoggedInUser())
+export const AuthContext = createContext<User | undefined>(undefined)

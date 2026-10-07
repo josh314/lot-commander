@@ -1,6 +1,6 @@
 import { act, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
-import { useDebouncedValue } from './index'
+import { useDebouncedValue } from './debounced-value'
 
 function DebouncedValueProbe( { value, delay }: { value: string, delay: number } ) {
   const debounced = useDebouncedValue( value, delay )
