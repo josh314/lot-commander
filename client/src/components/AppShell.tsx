@@ -4,10 +4,10 @@ import { Outlet } from 'react-router'
 
 import { HEADER_HEIGHT, Sidebar } from './Sidebar'
 import { SidebarToggle, TAB_SIZE } from './SidebarToggle'
-import { useAuth } from '../hooks'
+import { useAuthUser } from '../hooks'
 
 export function AppShell() {
-  const user = useAuth()
+  const user = useAuthUser()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
   if (!user) return null

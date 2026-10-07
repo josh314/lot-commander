@@ -1,7 +1,7 @@
-import { useContext, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { Navigate } from 'react-router'
-import { AuthContext } from '../contexts/AuthContext'
 import type { Permission } from '../lib/auth'
+import { useAuthUser } from '../hooks'
 
 interface RequirePermissionProps {
   permission: Permission
@@ -9,7 +9,7 @@ interface RequirePermissionProps {
 }
 
 export function RequirePermission({ permission, children }: RequirePermissionProps) {
-  const user = useContext(AuthContext)
+  const user = useAuthUser()
 
   if (!user?.isPermitted(permission)) {
     return <Navigate to="/" replace />
