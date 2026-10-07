@@ -125,8 +125,7 @@ describe('filterNavEntries', () => {
     isDisabled: false
   }
 
-  const userDataCookie = encodeURIComponent(JSON.stringify(cookie))
-  const user = new User( userDataCookie )
+  const user = new User( cookie )
 
   test('NavItems with no permissions should always appear', () => {
 

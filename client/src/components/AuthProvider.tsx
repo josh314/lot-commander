@@ -4,10 +4,10 @@ import { getLoggedInUser, type User } from '../lib/auth'
 
 export function AuthProvider({ children, user }: { children: React.ReactNode, user?: User }) {
 
-  const [userState, setUserState] = useState( () => user ?? getLoggedInUser() )
+  const [userState, setUserState] = useState( () => user ?? getLoggedInUser(document.cookie) )
 
   const refreshUser = useCallback(() => {
-    setUserState( getLoggedInUser() )
+    setUserState( getLoggedInUser(document.cookie) )
   }, [])
 
   const value = useMemo(() => ({ user: userState, refreshUser }), [userState, refreshUser])

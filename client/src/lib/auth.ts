@@ -1,4 +1,4 @@
-import { UserCookieSchema } from '../schemas/user'
+import { type UserCookie, UserCookieSchema } from '../schemas/user'
 
 export type Permission = string | { and?: Permission[]; or?: Permission[] };
 
@@ -12,10 +12,10 @@ export class User {
   isDeveloper?: boolean
   isDisabled?: boolean
 
-  constructor( cookie: string ) {
+  constructor( cookie: UserCookie ) {
 
-    const parsedCookie = UserCookieSchema.parse(JSON.parse(decodeURIComponent(cookie)))
-    const { id, firstName, lastName, username, roles, permissions, isDeveloper, isDisabled } = parsedCookie
+
+    const { id, firstName, lastName, username, roles, permissions, isDeveloper, isDisabled } = cookie
 
     this.id = id
     this.firstName = firstName
@@ -48,15 +48,16 @@ export class User {
 
 }
 
-export function getLoggedInUser(): User | undefined {
+export function getLoggedInUser( cookie: string ): User | undefined {
 
-  const match = document.cookie.match(/(?:^|; )user=([^;]*)/)
+  const match = cookie.match(/(?:^|; )user=([^;]*)/)
   if (!match) {
     return undefined
   }
 
   try {
-    return new User(match[1])
+    const parsedCookie = UserCookieSchema.parse(JSON.parse(decodeURIComponent(match[1])))
+    return new User(parsedCookie)
   } catch {
     return undefined
   }
