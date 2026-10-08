@@ -1,6 +1,6 @@
 # Phase 1 — Workspace setup
 
-*(done, committed)* — back to [Frontend Modernization Plan](./PLAN.md)
+*(done, committed)* — back to [Frontend Modernization Plan](../PLAN.md)
 
 Goal: convert the single-`package.json` repo into three npm workspaces —
 `server`, `client-legacy`, `client` — with a purely coordinating root

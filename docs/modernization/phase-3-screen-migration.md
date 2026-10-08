@@ -1,6 +1,6 @@
 # Phase 3 — Screen-by-screen migration
 
-*(not started)* — back to [Frontend Modernization Plan](./PLAN.md)
+*(in progress — Lots list/view done)* — back to [Frontend Modernization Plan](./PLAN.md)
 
 ## Per-screen checklist (copy this block per screen)
 
@@ -24,9 +24,9 @@
 ## Screens (grouped as in `client-legacy/src/js/ng/app.js`'s `stateData`)
 
 Lots
-- [ ] `main.lots.list` — List Lots — `list-lots-ctrl.js` / `_list_lots.html`
+- [x] `main.lots.list` — List Lots — `list-lots-ctrl.js` / `_list_lots.html` — ported as `client/src/features/lots/ListLots.tsx` (filters, pagination; sort controls and page-size control still open, see `docs/modernization-todos/TODO.md`)
 - [ ] `main.lots.new` — New Lot — `new-lot-ctrl.js` / `_new_lot.html`
-- [ ] `main.lots.view` — View Lot — `view-lot-ctrl.js` / `_view_lot.html`
+- [x] `main.lots.view` — View Lot — `view-lot-ctrl.js` / `_view_lot.html` — ported as `client/src/features/lots/LotDetails.tsx`
 - [ ] `main.lots.scan` — Scan — `scan-ctrl.js` / `_scan.html`
 - [ ] `main.lots.review-manifest` — `review-manifest-ctrl.js` / `_review_manifest.html`
 - [ ] `main.lots.submit-listing` — `submit-listing-ctrl.js` / `_submit_listing.html`

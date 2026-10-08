@@ -1,6 +1,6 @@
 # Phase 0 — Stabilize the legacy/new split
 
-*(done, committed)* — back to [Frontend Modernization Plan](./PLAN.md)
+*(done, committed)* — back to [Frontend Modernization Plan](../PLAN.md)
 
 ## Actual `client-legacy/` structure
 

@@ -11,7 +11,9 @@ below); this doc only carries a condensed summary of each plus the full
 detail for the not-yet-started, forward-looking Phases 4–5.
 
 **Status:** Phase 0, Phase 1, and Phase 2 done and committed (one noted gap
-in Phase 2's verification — see its doc). Phase 3 not started.
+in Phase 2's verification — see its doc). Phase 3 in progress — Lots
+(`main.lots.list`, `main.lots.view`) is the first screen group underway;
+see phase-3-screen-migration.md for per-screen status.
 
 ---
 
@@ -22,7 +24,7 @@ build tooling into `client-legacy/`, fixed a stale `ESLintPlugin` context
 path that was silently linting zero files, and verified the legacy build
 and dev server both still work end-to-end.
 
-Full detail: [phase-0-legacy-split.md](./phase-0-legacy-split.md)
+Full detail: [phase-0-legacy-split.md](./archive/phase-0-legacy-split.md)
 
 ---
 
@@ -36,7 +38,7 @@ into `server/src/` — which surfaced and fixed several cwd/`__dirname`-relative
 path bugs (`views/` resolution, `../assets` climb, local config path,
 a stale `dependency-cruiser` entrypoint pattern) along the way.
 
-Full detail: [phase-1-workspace-setup.md](./phase-1-workspace-setup.md)
+Full detail: [phase-1-workspace-setup.md](./archive/phase-1-workspace-setup.md)
 
 ---
 
@@ -49,20 +51,23 @@ slice (build tooling + shell + one real screen against the real API) that
 every later screen will build on. The legacy client-side session-timeout
 cookie was deliberately dropped rather than ported (the server session's
 24h TTL already rolls forward on activity, so it wasn't buying any real
-security — see phase-2-client-scaffold.md for the full reasoning). One
+security — see archive/phase-2-client-scaffold.md for the full reasoning). One
 verification gap remains: a session going stale without a full page reload
-isn't yet handled — see phase-2-client-scaffold.md's 2.3.
+isn't yet handled — see archive/phase-2-client-scaffold.md's 2.3.
 
-Full detail: [phase-2-client-scaffold.md](./phase-2-client-scaffold.md)
+Full detail: [phase-2-client-scaffold.md](./archive/phase-2-client-scaffold.md)
 
 ---
 
-## Phase 3 — Screen-by-screen migration *(not started)*
+## Phase 3 — Screen-by-screen migration *(in progress)*
 
 The per-screen migration checklist template, plus the full inventory of
 AngularJS screens/controllers/partials to port, grouped by nav section
 (Lots, Manifests, Shipments, Inventory Pallets, Orders, Users, etc.), and
-the shared modals/directives to port once and reuse.
+the shared modals/directives to port once and reuse. `main.lots.list` and
+`main.lots.view` are built (list + detail, filters, pagination, real
+`/api/*` calls via the queries/api layers); the rest of the Lots group and
+every other nav section are not yet started.
 
 Full detail: [phase-3-screen-migration.md](./phase-3-screen-migration.md)
 

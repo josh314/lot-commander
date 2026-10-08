@@ -1,6 +1,6 @@
 # Phase 2 — New client scaffold + vertical slice (`main.home`)
 
-*(done, committed — one noted gap, see 2.3)* — back to [Frontend Modernization Plan](./PLAN.md)
+*(done, committed — one noted gap, see 2.3)* — back to [Frontend Modernization Plan](../PLAN.md)
 
 ## Why this order
 
