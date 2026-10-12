@@ -2,7 +2,15 @@
 
 ## Status
 
-Proposed, not yet implemented. Per standing project preference, the user implements all code personally — this document (and any implementation plan written from it) is guidance only. Builds on `PageStack` from `docs/superpowers/specs/2026-10-08-client-design-system-foundation-design.md` — that component must exist (or be implemented alongside this change) for the factory below to have something to wrap with.
+Implemented and committed, but the final design diverged substantially from what follows below — treat this document as the historical record of *why*, not a description of the current code. For current-state facts, see `client/src/lib/route-config.tsx`, `client/src/components/layout/`, and root `CLAUDE.md`'s `Client (client/)` section.
+
+Significant deviations from the design below:
+- `RouteConfigNode` ended up as a four-member discriminated union (`PrefixNode | LayoutNode | PageNode | AnchorNode`), each `never`-padded against the others' fields — not the single flat interface plus runtime throws described in the `toRouteObjects()` changes section. All three runtime guards this spec kept are gone entirely; every invariant (plus some not anticipated here, e.g. index routes can't carry their own `path`) is a compile error instead of a thrown `Error`.
+- The Open Questions entry about AppShell's wrapper was resolved with a genuinely separate branded `Layout` type (own symbol, own `layout()` factory in `components/layout/Layout.tsx`) — not `rawPage()`, and not an alias of it.
+- Both `Page` and `Layout` ended up using Option B (a real `Symbol()`), not Option A's type-only brand.
+- A fourth shape, `PrefixNode` (a pathful grouping node with no layout at all), emerged during implementation and isn't mentioned below — it's distinct from `LayoutNode`, which ended up requiring `layout` rather than treating it as optional.
+
+Per standing project preference, the user implements all code personally — this document (and any implementation plan written from it) was guidance only, not generated code. Builds on `PageStack` from `docs/superpowers/specs/2026-10-08-client-design-system-foundation-design.md`.
 
 ## Context / Current State
 

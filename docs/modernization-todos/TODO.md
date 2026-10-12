@@ -29,6 +29,25 @@ they're done; split into per-area files if this grows too large.
       Options floated: a small config endpoint, or having the API return
       ready-made manifest URLs instead of exposing the raw config. **Blocks**
       the List Manifests page (see Pages).
+- [ ] Nothing enforces that a `layout()`-wrapped component (`components/layout/Layout.tsx`)
+      actually renders an `<Outlet/>` — not fixable at the type level (TS can't
+      see into a component's returned JSX), so the real safeguard is a test.
+      Plan: a sweep test that discovers every `Layout` by walking the real
+      `RouteConfigNode` tree (not one hardcoded test per component, so it
+      automatically covers layouts added later), asserting each renders a
+      synthetic child route's marker content. Two prerequisites, neither
+      done yet:
+      - `routes/index.ts` doesn't export its root `tree` (only the already-
+        flattened `routes`, and `navTree`/`footerNavTree` which are just
+        `mainRoutes`/`footerRoutes` — the root `{ layout: layout(AppShell), ... }`
+        node isn't reachable from anything exported today).
+      - No shared test-render helper exists. `AppShell` needs a real user in
+        `AuthContext` to get past its own `if (!user) return null` (verified:
+        `useAuthUser()` degrades to `undefined` safely with no provider, but
+        AppShell still returns `null` before ever reaching its `<Outlet/>`),
+        and there's no reusable `renderWithProviders()`-style helper yet —
+        only `AuthProvider.test.tsx` touches `AuthProvider` directly. Any
+        future layout under the same provider stack needs the same setup.
 - [ ] Migrate the ModalSvc utility modals
 - [ ] global styling
 
