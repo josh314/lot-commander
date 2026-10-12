@@ -1,55 +1,132 @@
 import { describe, expect, test } from 'vitest'
 import {
+  toRouteObject,
   toRouteObjects,
   buildNavItems,
   isNavGroup,
-  filterNavEntries,
-  type RouteConfigNode,
-  type NavEntry
+  filterNavEntries
+} from './route-config'
+import type {
+  RouteConfigNode,
+  PrefixNode,
+  LayoutNode,
+  IndexPageNode,
+  NormalPageNode,
+  AnchorNode,
+  NavEntry
 } from './route-config'
 import { User } from './auth'
 import type { UserCookie } from '../schemas/user'
+import { layout, page } from '../components/layout'
+import { RequirePermission } from '../components/RequirePermission'
+
+const dummyPage = page(() => null)
+const dummyLayout = layout(() => null)
+
+describe('toRouteObject', () => {
+
+  test('permissioned nodes should render with RequirePermission', () => {
+    const node: RouteConfigNode = {
+      path: '/protected',
+      page: dummyPage,
+      permission: 'VIEW_PROTECTED'
+    }
+    const routeObject = toRouteObject(node)
+    expect(routeObject).toBeDefined()
+    expect((routeObject?.element as React.ReactElement)?.type).toBe(RequirePermission)
+  })
+
+  test('non-permissioned nodes should render without RequirePermission', () => {
+    const node: RouteConfigNode = {
+      path: '/unprotected',
+      page: dummyPage
+    }
+    const routeObject = toRouteObject(node)
+    expect(routeObject).toBeDefined()
+    expect((routeObject?.element as React.ReactElement)?.type).not.toBe(RequirePermission)
+  })
+
+  test('should handle PrefixNode correctly', () => {
+    const node: PrefixNode = {
+      path: '/prefix',
+      children: [
+        { index: true, page: dummyPage }
+      ]
+    }
+    const routeObject = toRouteObject(node)
+    expect(routeObject).toBeDefined()
+    expect(routeObject?.element).toBeUndefined()
+    expect(routeObject?.children).toHaveLength(1)
+  })
+
+  test('should handle LayoutNode correctly', () => {
+    const node: LayoutNode = {
+      layout: dummyLayout,
+      children: [
+        { index: true, page: dummyPage }
+      ]
+    }
+    const routeObject = toRouteObject(node)
+    expect(routeObject).toBeDefined()
+    expect(routeObject?.element).toBeTruthy()
+    expect(routeObject?.children).toHaveLength(1)
+  })
+
+  test('should handle IndexPageNode correctly', () => {
+    const node: IndexPageNode = {
+      index: true,
+      page: dummyPage
+    }
+    const routeObject = toRouteObject(node)
+    expect(routeObject).toBeDefined()
+    expect(routeObject?.element).toBeTruthy()
+    expect(routeObject?.children).toBeUndefined()
+  })
+
+  test('should handle NormalPageNode correctly', () => {
+    const node: NormalPageNode = {
+      path: '/normal',
+      page: dummyPage
+    }
+    const routeObject = toRouteObject(node)
+    expect(routeObject).toBeDefined()
+    expect(routeObject?.element).toBeTruthy()
+    expect(routeObject?.children).toBeUndefined()
+  })
+
+  test('should return undefined for AnchorNode', () => {
+    const node: AnchorNode = {
+      path: '/external',
+      nav: { label: 'External', isAnchorTag: true }
+    }
+    expect(toRouteObject(node)).toBeUndefined()
+  })
+
+})
 
 describe('toRouteObjects', () => {
-
-  test('should throw an error if both index and children are present on the same node', () => {
-
-    const badTree = [
-      {
-        index: true,
-        children: [
-          {
-            path: '/child',
-            Component: () => null
-          }
-        ]
-      }
-    ]
-
-    expect(() => toRouteObjects(badTree)).toThrow()
-  })
 
   test('should maintain the structure of the input tree', () => {
 
     const tree: RouteConfigNode[] = [
       {
         index: true,
-        Component: () => null
+        page: dummyPage
       },
       {
         path: '/path1',
-        Component: () => null
+        page: dummyPage
       },
       {
         path: '/path2',
         children: [
           {
             path: '/sub1',
-            Component: () => null
+            page: dummyPage
           },
           {
             path: '/sub2',
-            Component: () => null
+            page: dummyPage
           }
         ]
       }
@@ -60,7 +137,40 @@ describe('toRouteObjects', () => {
     expect(routeObjects[0].children).toBeUndefined()
     expect(routeObjects[1].children).toBeUndefined()
     expect(routeObjects[2].children).toHaveLength(2)
+    expect(routeObjects[2].element).toBeUndefined()
 
+  })
+
+  test('a layout node wraps its children and renders an element', () => {
+
+    const tree: RouteConfigNode[] = [
+      {
+        layout: dummyLayout,
+        children: [
+          { index: true, page: dummyPage }
+        ]
+      }
+    ]
+
+    const routeObjects = toRouteObjects(tree)
+    expect(routeObjects).toHaveLength(1)
+    expect(routeObjects[0].element).toBeTruthy()
+    expect(routeObjects[0].children).toHaveLength(1)
+  })
+
+  test('anchor nodes should not appear in route objects', () => {
+    const tree: RouteConfigNode[] = [
+      {
+        path: '/internal',
+        page: dummyPage
+      },
+      {
+        path: '/external',
+        nav: { label: 'External', isAnchorTag: true }
+      }
+    ]
+    const routeObjects = toRouteObjects(tree)
+    expect(routeObjects).toHaveLength(1)
   })
 
 })
@@ -72,7 +182,7 @@ describe('buildNavItems', () => {
     const tree: RouteConfigNode[] = [
       {
         path: '/path-without-navigation',
-        Component: () => null
+        page: dummyPage
       },
     ]
 
@@ -87,7 +197,7 @@ describe('buildNavItems', () => {
         children: [
           {
             path: '/sub1',
-            Component: () => null,
+            page: dummyPage,
             nav: {
               label: 'Label',
               group: 'Production'
@@ -95,7 +205,7 @@ describe('buildNavItems', () => {
           },
           {
             path: '/sub2',
-            Component: () => null,
+            page: dummyPage,
           }
         ]
       }

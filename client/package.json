@@ -7,11 +7,13 @@
   "author": "Joshua \"El\" Davis",
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "tsc -b && vite build",
+    "check": "npm run lint && npm run typecheck && npm run test",
+    "dev": "vite",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc -b"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

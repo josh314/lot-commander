@@ -1,10 +1,12 @@
+import { layout, page } from '../components/layout'
+
 import { AppShell } from '../components/AppShell'
 import { HomePage } from '../features/home/HomePage'
 import { routes as lotsRoutes } from '../features/lots/routes'
 import { type RouteConfigNode, toRouteObjects } from '../lib/route-config'
 
 const mainRoutes: RouteConfigNode[] = [
-  { index: true, Component: HomePage },
+  { index: true, page: page(HomePage) },
   ...lotsRoutes,
 ]
 
@@ -14,9 +16,9 @@ const footerRoutes: RouteConfigNode[] = [
 
 const tree: RouteConfigNode[] = [
   {
-    Component: AppShell,
+    layout: layout(AppShell),
     children: [...mainRoutes, ...footerRoutes],
-  },
+  }
 ]
 
 export const routes = toRouteObjects( tree )

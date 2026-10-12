@@ -1,3 +1,4 @@
+import { page } from '../../components/layout';
 import type { RouteConfigNode } from '../../lib/route-config'
 import { ListLots } from './ListLots'
 import { LotDetails } from './LotDetails'
@@ -8,7 +9,7 @@ const routes: RouteConfigNode[] = [
     children: [
       {
         index: true,
-        Component: ListLots,
+        page: page(ListLots),
         nav: {
           label: 'Lots',
           group: 'Production'
@@ -17,9 +18,9 @@ const routes: RouteConfigNode[] = [
       },
       {
         path: ':id',
-        Component: LotDetails,
-        permission: 'VIEW_LOT'
-      }
+        page: page(LotDetails),
+        permission: 'VIEW_LOT',
+      },
     ]
   },
 ]

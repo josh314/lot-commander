@@ -1,65 +1,93 @@
-import type { ComponentType } from 'react'
-import type { RouteObject, LoaderFunction } from 'react-router'
+import type { RouteObject } from 'react-router'
+
 import type { User, Permission } from './auth'
-
 import { RequirePermission } from '../components/RequirePermission'
+import type { Layout, Page } from '../components/layout'
 
-
-export const NAV_GROUPS = ['Production'] as const
-export type NavGroupLabel = typeof NAV_GROUPS[number]
-
-export interface RouteConfigNode {
-  path?: string                // relative segment; omit for pathless layout/index nodes
-  index?: boolean
-  Component?: ComponentType
-  loader?: LoaderFunction       // passed through untouched to the resulting RouteObject
-  permission?: Permission      // gates both rendering and nav visibility
-  nav?: {
-    label: string
-    group?: NavGroupLabel      // nests under a dropdown matching another node's group; omit for a top-level link
-    isAnchorTag?: boolean
-  }
-  children?: RouteConfigNode[]
+interface BaseNode {
+  permission?: Permission
+  nav?: { label: string, group?: NavGroupLabel, isAnchorTag?: boolean }
 }
+
+export interface LayoutNode extends BaseNode {
+  children: RouteConfigNode[]
+  layout: Layout
+  path?: string
+  page?: never
+  index?: never
+}
+
+export interface PrefixNode extends BaseNode {
+  path: string
+  children: RouteConfigNode[]
+  layout?: never
+  page?: never
+  index?: never
+}
+
+export interface IndexPageNode extends BaseNode {
+  index: true
+  page: Page
+  path?: never
+  layout?: never
+  children?: never
+}
+
+export interface NormalPageNode extends BaseNode {
+  path: string
+  page: Page
+  index?: never
+  layout?: never
+  children?: never
+}
+
+export type PageNode = IndexPageNode | NormalPageNode
+
+export interface AnchorNode extends BaseNode {
+  path: string
+  nav: { label: string, group?: NavGroupLabel, isAnchorTag: true }
+  layout?: never
+  page?: never
+  index?: never
+  children?: never
+}
+
+export type RouteConfigNode = PrefixNode | LayoutNode | PageNode | AnchorNode
 
 function joinPaths(prefix: string, segment?: string): string {
   if (!segment) return prefix
   return `${prefix}/${segment}`.replace(/\/{2,}/g, '/')
 }
 
-export function toRouteObjects(nodes: RouteConfigNode[]): RouteObject[] {
-  return nodes
-    .filter(node => !node.nav?.isAnchorTag)
-    .map(({ path, index, Component, loader, permission, children }) => {
+export function toRouteObject( node: RouteConfigNode ): RouteObject | undefined {
+  const { path, index, layout, page, permission, children, nav } = node
 
-      // This function only runs at build time, so we just enforce the following constraints here so it fails loudly in development if the route config is incorrect.
+  if (nav?.isAnchorTag) {
+    return undefined
+  }
 
-      if (index && children) {
-        throw new Error(
-          `Route config error: node${path ? ` "${path}"` : ''} has both index:true and children — index routes cannot have children.`
-        )
-      }
+  const Component = layout?.Component || page?.Component
 
-      if (!Component && !index && !children) {
-        throw new Error(
-          `Route config error: node${path ? ` "${path}"` : ''} has no Component, index, or children — mark it nav.isAnchorTag if it's meant to link outside the SPA.`
-        )
-      }
-
-      return {
-        path,
-        index,
-        loader,
-        element: Component && (
-          permission
-            ? <RequirePermission permission={permission}><Component /></RequirePermission>
-            : <Component />
-        ),
-        children: children && toRouteObjects(children),
-      } as RouteObject
-    })
+  return {
+    path,
+    index,
+    element: Component && (
+      permission
+        ? <RequirePermission permission={permission}><Component /></RequirePermission>
+        : <Component />
+    ),
+    children: children && toRouteObjects(children),
+  } as RouteObject
 }
 
+export function toRouteObjects(nodes: RouteConfigNode[]): RouteObject[] {
+  return nodes
+    .map(toRouteObject)
+    .filter(route => route !== undefined)
+}
+
+export const NAV_GROUPS = ['Development', 'Production'] as const
+export type NavGroupLabel = typeof NAV_GROUPS[number]
 export interface NavLink { label: string; path: string; isAnchorTag?: boolean, permission?: Permission }
 export interface NavGroup { label: string; items: NavLink[] }
 export type NavEntry = NavLink | NavGroup
