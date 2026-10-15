@@ -3,11 +3,13 @@ import { layout, page } from '../components/layout'
 import { AppShell } from '../components/AppShell'
 import { HomePage } from '../features/home/HomePage'
 import { routes as lotsRoutes } from '../features/lots/routes'
+import { routes as styleGuideRoutes } from '../features/style-guide/routes'
 import { type RouteConfigNode, toRouteObjects } from '../lib/route-config'
 
 const mainRoutes: RouteConfigNode[] = [
   { index: true, page: page(HomePage) },
   ...lotsRoutes,
+  ...(import.meta.env.DEV ? styleGuideRoutes : [])
 ]
 
 const footerRoutes: RouteConfigNode[] = [
