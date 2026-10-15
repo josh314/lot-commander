@@ -22,7 +22,7 @@ function NavAnchor({ item }: { item: NavLink }) {
       className={({ isActive }) =>
         `flex h-9 items-center rounded border-l-2 px-3 text-sm ${
           isActive
-            ? 'border-accent bg-white font-medium text-ink'
+            ? 'border-info bg-white font-medium text-ink'
             : 'border-transparent text-ink/80 hover:bg-white'
         }`
       }
@@ -56,7 +56,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className="flex h-screen shrink-0 flex-col border-r border-line bg-panel"
+      className="flex h-screen shrink-0 flex-col border-r border-line bg-shell"
       style={{ width: SIDEBAR_WIDTH }}
     >
       <div className="flex items-center border-b border-line px-4" style={{ height: HEADER_HEIGHT }}>

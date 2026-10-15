@@ -3,14 +3,40 @@
 @theme {
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
 
-  --color-ink: #1a1d21;
-  --color-muted: #6b7178;
-  --color-paper: #f9fafa;
-  --color-panel: #e7e9ec;
-  --color-line: #d3d7db;
-  --color-accent: #d6331c;
+  --color-ink: var(--color-slate-900);
+  --color-muted: var(--color-slate-500);
+  --color-paper: var(--color-slate-50);
+  --color-shell: var(--color-slate-100);
+  --color-line: var(--color-slate-300);
+  --color-surface: var(--color-slate-200);
+
+  /* Semantic colors */
+  --color-primary: var(--color-sky-950);
+  --color-secondary: var(--color-gray-500);
+  --color-success: var(--color-green-700);
+  --color-danger: var(--color-red-700);
+  --color-warning: var(--color-amber-600);
+  --color-info: var(--color-sky-700);
+  /* and their subtle variants */
+  --color-primary-subtle: var(--color-blue-100);
+  --color-secondary-subtle: var(--color-gray-100);
+  --color-success-subtle: var(--color-green-100);
+  --color-danger-subtle: var(--color-red-100);
+  --color-warning-subtle: var(--color-amber-100);
+  --color-info-subtle: var(--color-sky-100);
+
 }
 
 body {
   font-family: var(--font-sans);
+}
+
+@utility no-spinner {
+  appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
 }
