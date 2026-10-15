@@ -1,4 +1,5 @@
 import { useRef, useEffect } from "react"
+import { ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight } from "lucide-react"
 
 export interface ListPaginationControlsProps {
   currentPage: number
@@ -54,20 +55,21 @@ export function ListPaginationControls( { currentPage, pageSize, totalItems, onP
   }
 
   return (
-    <nav>
-      <ul>
-        <li><a href="" onClick={pageChangeButtonHandler(1)}>First</a></li>
-        <li><a href="" onClick={pageChangeButtonHandler(currentPage - 1)}>Previous</a></li>
+    <nav className="flex justify-center my-4">
+      <ul className="flex gap-2">
+        <li><a href="" onClick={pageChangeButtonHandler(1)}><ChevronsLeft /></a></li>
+        <li><a href="" onClick={pageChangeButtonHandler(currentPage - 1)}><ChevronLeft /></a></li>
         <li>
           <input
             ref={inputRef}
-            type="number" min="1" max={totalPages}
+            className="border rounded px-2 mx-2 text-center no-spinner"
+            type="number" min="1" max={totalPages} size={4}
             defaultValue={currentPage}
             onKeyUp={inputKeyHandler}
-          ></input> out of {totalPages} pages
+          ></input>/ {totalPages}
         </li>
-        <li><a href="" onClick={pageChangeButtonHandler(currentPage + 1)}>Next</a></li>
-        <li><a href="" onClick={pageChangeButtonHandler(totalPages)}>Last</a></li>
+        <li><a href="" onClick={pageChangeButtonHandler(currentPage + 1)}><ChevronRight /></a></li>
+        <li><a href="" onClick={pageChangeButtonHandler(totalPages)}><ChevronsRight /></a></li>
       </ul>
     </nav>
   )
