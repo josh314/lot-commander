@@ -110,7 +110,7 @@ openssl rand -base64 32
 
 ## CI/CD — Docker image pipeline
 
-The GitLab CI/CD pipeline builds a Docker image and pushes it to AWS ECR using OIDC-based authentication (no long-lived AWS credentials).
+The GitLab CI/CD pipeline builds a Docker image and pushes it to AWS ECR using OIDC-based authentication (no long-lived AWS credentials). The actual deployment to ECS Fargate is handled downstream by code in [another repository](https://gitlab.com/wazue/lot-commander-ecs-deploy).
 
 ### Terraform bootstrap
 
