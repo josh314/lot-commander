@@ -1,3 +1,5 @@
+**Note**: This project is currently undergoing a major modernization effort. See the `client-next` branch for the work in progress in migrating the client to modern React and Tailwind.
+
 # Lot Commander
 
 Internal app for managing inventory and creating manifested lots.
