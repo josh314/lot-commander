@@ -10,7 +10,7 @@
 
 **Spec:** `docs/superpowers/specs/2026-10-08-client-design-system-foundation-design.md`
 
-**Status:** Implemented and committed, with real divergences from this plan — see each task's Resolution note. Headline gaps: no `Panel` component (built `Surface` instead, a different thing), no tests written for anything in `components/ui/` despite every task below calling for one, `Table`'s API ended up data-prop-shaped rather than children-composed.
+**Status:** Implemented and committed, with real divergences from this plan — see each task's Resolution note. Headline gaps: no `Panel` component (built `Surface` instead, a different thing), `Table`'s API ended up data-prop-shaped rather than children-composed, `Table`/`Header`/`Surface`/`PageStack` still have no tests. One gap that *was* later closed, in separate follow-up sessions beyond this plan's original scope: `Button` and `Form.tsx`'s components (`Input`/`Select`/`TextArea`) now have real tests — see Tasks 2–4's Resolution notes.
 
 ## Global Constraints
 
@@ -28,7 +28,7 @@
 - **Duplicate/missing `id` wiring in `Input`/`Select`.** The existing hand-rolled inputs in `ListLots.tsx` set `id`/`htmlFor` manually; the new components must accept or generate a unique `id` so two instances on one page don't collide and label association (`htmlFor`) stays correct for accessibility. Task 3/4's tests should assert the label's `htmlFor` matches the input's `id`.
 - **The `/style-guide` tree-shake not actually happening.** Easy to assume Vite/Rollup eliminated the dead branch without checking. Task 10 includes an explicit grep of the production build output as a pass/fail check, not just "it should work."
 
-**Resolution on Review Focus:** The stale-`-accent` check held (confirmed zero remaining references anywhere in `client/src`). The tree-shake check was actually run — built and grepped `dist/assets/*.js`, no matches, genuinely verified rather than assumed. The typo'd-lookup-key risk materialized for real (a missing `as const` on `semanticColors`/`buttonSizes` silently widened the types, defeating `Record<...>` exhaustiveness — caught via an empirical `tsc` probe during later review, not by a test, since no `Button.test.tsx` exists). `Input`/`SelectInput` do implement the `useId()` fallback as intended, but nothing tests that two instances don't collide. The 0/1-row `Table` striping case was never tested either way — no test exists to say whether it's actually correct.
+**Resolution on Review Focus:** The stale-`-accent` check held (confirmed zero remaining references anywhere in `client/src`). The tree-shake check was actually run — built and grepped `dist/assets/*.js`, no matches, genuinely verified rather than assumed. The typo'd-lookup-key risk materialized for real (a missing `as const` on `semanticColors`/`buttonSizes` silently widened the types, defeating `Record<...>` exhaustiveness — caught via an empirical `tsc` probe during later review, before `Button.test.tsx` existed to catch it automatically). `Input`/`Select`/`TextArea` do implement the `useId()` fallback (now via a shared `useGeneratedId` hook, `hooks/generated-id.ts`), and this is now directly tested — both the hook itself and a shared "two instances don't collide" check run against all three components via `Form.test.tsx`'s parameterized `testsLabeledControl` runner. The 0/1-row `Table` striping case is still untested either way — no test exists to say whether it's actually correct, still an open gap.
 
 ---
 
@@ -76,7 +76,7 @@
 
 - [ ] Implement + test, verify `npm run test -w client -- Button` passes, commit.
 
-**Resolution:** Implemented and committed, no test written. Prop is named `color`, not `variant` as this task specified. `size` ended up with five steps (`xs`/`sm`/`md`/`lg`/`xl`), not the two (`sm`/`md`) this task and the spec called for.
+**Resolution:** Implemented and committed. Prop is named `color`, not `variant` as this task specified. `size` ended up with five steps (`xs`/`sm`/`md`/`lg`/`xl`), not the two (`sm`/`md`) this task and the spec called for. A test was written in a later follow-up session — `Button.test.tsx` asserts every `color` × `size` combination produces the real expected classes (not just that it renders), plus `onClick` firing and `disabled` suppressing it. Writing that test surfaced that `Button` couldn't forward native props at all (no `onClick`, no `disabled`) — fixed by extending `React.ComponentProps<'button'>` and spreading `...props` through, matching the pattern `Input`/`Select` already used.
 
 ---
 
@@ -101,7 +101,7 @@
 
 - [ ] Implement + test, commit.
 
-**Resolution:** Implemented and committed (as part of `components/ui/Form.tsx`, not a standalone `Input.tsx`), no test written. Went further than this task's spec: types against the native element directly (`ComponentPropsWithRef<'input'>`) and spreads `...props` through, rather than hand-naming `placeholder`/`size`/etc. individually — avoids the prop-list-spiral this task's narrower signature would have led to. The `useId()`-fallback behavior this task asked for is present.
+**Resolution:** Implemented and committed (as part of `components/ui/Form.tsx`, not a standalone `Input.tsx`). Went further than this task's spec: types against the native element directly (`ComponentPropsWithRef<'input'>`) and spreads `...props` through, rather than hand-naming `placeholder`/`size`/etc. individually — avoids the prop-list-spiral this task's narrower signature would have led to. The `useId()`-fallback behavior this task asked for is present, now via a shared `useGeneratedId` hook rather than inline per-component. Tested in a later follow-up session via `Form.test.tsx`'s shared `testsLabeledControl` runner (label/id wiring for both manual and auto-generated ids, no-collision, `onChange`, `disabled`), plus `Input`-specific `placeholder`/`value` tests. Also went beyond this task's scope: a sibling `TextArea` component was added later, sharing the exact same plumbing.
 
 ---
 
@@ -120,7 +120,7 @@
 
 - [ ] Implement + test, commit.
 
-**Resolution:** Implemented as `SelectInput` inside `components/ui/Form.tsx` (not a standalone `Select.tsx`), same `ComponentPropsWithRef<'select'>` pattern as `Input`. No test written.
+**Resolution:** Implemented as `SelectInput` inside `components/ui/Form.tsx` (not a standalone `Select.tsx`), same `ComponentPropsWithRef<'select'>` pattern as `Input`. Later renamed to `Select` (dropping the `Input` suffix once `TextArea` existed alongside it, for a more consistent naming scheme). Tested in the same later follow-up session as `Input`, via the same shared `testsLabeledControl` runner in `Form.test.tsx` — no separate per-component test file or duplicated test logic.
 
 ---
 

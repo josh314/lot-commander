@@ -10,7 +10,7 @@ they're done; split into per-area files if this grows too large.
 - [ ] Add controls to adjust the sort options
 - [ ] Add a control to set page size
 - [ ] Header position is weird (especially horizontally when the page is wide as it's way off to the left while content is centered) — still true after the design-system retrofit; `<PageHeader>` isn't wrapped in the same `flex flex-col items-center` container as the filters/table below it
-- [x] Retrofitted to use the design-system components (`Input`/`SelectInput`/`FieldSet` for filters, `Surface`/`Table` for the list) — see `docs/superpowers/specs/2026-10-08-client-design-system-foundation-design.md`
+- [x] Retrofitted to use the design-system components (`Input`/`Select`/`FieldSet` for filters, `Surface`/`Table` for the list) — see `docs/superpowers/specs/2026-10-08-client-design-system-foundation-design.md`
 
 ### List Manifests (`client/src/features/manifests/ListManifests.tsx` — not yet created)
 - [ ] Blocked on deciding how to serve `ManifestSvcConstants` to the new
@@ -78,22 +78,24 @@ Cross-cutting concern but there's enough of it to get it's own section.
 - [ ] padding
 
 - components
-  - [x] headers — `PageHeader`/`SectionHeader`/`SubsectionHeader` (`components/ui/Header.tsx`); no `actions` slot on `PageHeader` yet, unlike the original spec's design
-  - [x] inputs — `Input`/`TextInput`/`NumberInput`/`SelectInput`/`FieldSet` (`components/ui/Form.tsx`)
-  - [x] buttons
-  - [ ] panels/containers — `Surface` (`components/ui/Surface.tsx`) exists as a generic shrink-wrapped grouping container, but the originally-specced `Panel` (bordered, semantic-color-aware, optional header/footer) was never built — `Surface` is a simpler, different thing, not a drop-in for that design
+  - [x] headers — `PageHeader`/`SectionHeader`/`SubsectionHeader` (`components/ui/Header.tsx`); no `actions` slot on `PageHeader` yet, unlike the original spec's design; still no test
+  - [x] inputs — `Input`/`TextInput`/`NumberInput`/`Select`/`TextArea`/`FieldSet` (`components/ui/Form.tsx`), sharing a `useControlProps` hook + `hooks/generated-id.ts`'s `useGeneratedId`; tested via `Form.test.tsx`'s shared `testsLabeledControl` runner (applied to `Input`/`Select`/`TextArea` alike)
+  - [x] buttons — tested (`Button.test.tsx`: every color x size combination, `onClick`, `disabled`)
+  - [ ] panels/containers — `Surface` (`components/ui/Surface.tsx`) exists as a generic shrink-wrapped grouping container, but the originally-specced `Panel` (bordered, semantic-color-aware, optional header/footer) was never built — `Surface` is a simpler, different thing, not a drop-in for that design; still no test
   - [x] tables
     - [x] striped tables — CSS `nth-child` striping on `<tbody>`, see `components/ui/Table.tsx`
+    - [ ] still no test — the 0-row/1-row striping edge case is unverified either way
 
   - [ ] anchors
     - they aren't given a color to imply clickability
-  - [ ] no automated tests exist yet for any `components/ui/` component — the spec/plan called for a `.test.tsx` per component; none were written
+  - [x] `components/ui/` tests started — `Button`/`Input`/`Select`/`TextArea`/`LabelContainer`/`useGeneratedId` all covered now. Still untested: `Table`, `Header.tsx` (`PageHeader`/`SectionHeader`/`SubsectionHeader`), `Surface`, `PageStack` (`components/layout/`)
 
 ## Server / Backend
 
-- [ ] Apply the stashed fix for `server.js`'s global error handler (doesn't
-      set an HTTP status before `res.json()`, so every error currently
-      returns 200) — see `WIP / TODO` in `CLAUDE.md`.
+- [ ] Fix `server.js`'s global error handler (doesn't set an HTTP status
+      before `res.json()`, so every error currently returns 200) — see
+      `WIP / TODO` in `CLAUDE.md`. A fix was previously stashed but is no
+      longer in `git stash list`; needs re-implementing, not recovering.
 - [ ] Migrate config loading from SSM Parameter Store to ECS task-definition
       envars — see `Infrastructure` in `CLAUDE.md`.
 

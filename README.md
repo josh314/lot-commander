@@ -1,12 +1,6 @@
-<style>
-r { color: Red }
-o { color: Orange }
-g { color: Green }
-</style>
-
 # Lot Commander
 
-<o>**NOTE: This project is currently undergoing a long-term modernization effort to transition from the legacy AngularJS client to a new React/TypeScript/Vite client. Additionally, Typescript is to be introduced on the server side.**</o>
+**NOTE: This project is currently undergoing a long-term modernization effort to transition from the legacy AngularJS client to a new React/TypeScript/Vite client. Additionally, Typescript is to be introduced on the server side.**
 
 Internal app for managing inventory and creating manifested lots.
 
@@ -155,7 +149,7 @@ openssl rand -base64 32
 
 ## CI/CD — Docker image pipeline
 
-<o>**NOTE: CI/CD pipeline will be broken until updated for the new modernization effort.**</o>
+**NOTE: CI/CD pipeline will be broken until updated for the new modernization effort.**
 
 The GitLab CI/CD pipeline builds a Docker image and pushes it to AWS ECR using OIDC-based authentication (no long-lived AWS credentials). The actual deployment to ECS Fargate is handled downstream by code in [another repository](https://gitlab.com/wazue/lot-commander-ecs-deploy).
 
@@ -188,6 +182,6 @@ GitLab CI jobs assume the IAM role via `sts:AssumeRoleWithWebIdentity` using a J
 ## Bootswatch
 
 
-<o>**NOTE: Used only in the legacy AngularJS client for styling.**</o>
+**NOTE: Used only in the legacy AngularJS client for styling.**
 
 For styling, this project uses the Bootswatch project which is a riff on Bootstrap. Note the non-standard version in `package.json`: 3.4.1+1. This is required to pull a tagged commit for a hotfix without which the LESS source won't compile. This commit was never merged in properly into the release branch for version 3 as the Bootswatch team moved onto version 4. 

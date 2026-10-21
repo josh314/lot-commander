@@ -1,0 +1,11 @@
+# client-legacy
+
+Legacy AngularJS client, being phased out — see root `CLAUDE.md`'s `Modernize` section for the migration plan. This file holds legacy-specific gotchas only; cross-cutting/architecture decisions live at the root.
+
+## Client (`client-legacy/src/js/ng/`)
+- AngularJS 1.x + ui-router in `html5Mode` (pushState, no `#`); states and nav structure are centralized in `app.js`'s `stateData` array, not scattered per-feature
+- `RootCtrl` (`root-ctrl.js`) is bound to `<html>` in `server/src/views/layouts/index.hbs` — it runs once per full page load, NOT per client-side state transition. Logic that must run on every navigation belongs in `app.js`'s `.run()` block (`$transitions.onBefore`/`.onSuccess`), not in `RootCtrl` or scattered across controllers
+- Legacy ui-router events (`$stateChangeStart`/`$stateChangeSuccess` via `$rootScope.$on`) never fire in this app — they're a polyfill requiring an explicit dependency on the `ui.router.state.events` module, which `app.js`'s module list doesn't include. Use `$transitions.onBefore()`/`.onSuccess()` instead (core to `ui.router`, no extra module needed); redirect by `return`ing `$state.target(...)` from `onBefore`, not by calling `$state.go()` synchronously (gets silently swallowed mid-transition)
+- Auth has two independent layers: the server session (Mongo-backed, 24h TTL, `app-session.js`) and a client-only daily-cutoff enforced by the `sessionTimeout` service (`session-timeout-svc.js`) via a `lotCommander` cookie, checked centrally in `app.js`'s `$transitions.onBefore` hook — they can desync (e.g. a stale un-cleared cookie forces a client logout right after a fresh server login)
+- `auth.isLoggedIn` (`server.js`) wraps all routes under `/`, including `/api/*`, and does a bare `res.redirect('/login')` on failure — not XHR-aware, so a failed API call gets a redirect response rather than a 401 JSON body
+- To test client-side cookie/timer logic without waiting (no client test suite exists): in the browser console, set the cookie directly (e.g. `document.cookie = 'lotCommander=' + encodeURIComponent(JSON.stringify({timeout: new Date(Date.now()-1000).toISOString()})) + '; path=/'`) and grab any Angular service via `angular.element(document.body).injector().get('serviceName')` to call its methods directly
