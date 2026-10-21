@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 
-import { FieldSet, Input, SelectInput } from '../../components/ui/Form'
+import { FieldSet, Input, Select } from '../../components/ui/Form'
 import { ListPaginationControls, type ListPaginationControlsProps } from '../../components/ListPaginationControls'
 import { Lot } from '../../lib/Lot'
 import * as queries from '../../queries'
@@ -36,11 +36,11 @@ function ListLotNumberFilterInput( { value, onChange }: { value: string, onChang
 function ListStatusFilterInput( { value, onChange }: { value: FilterStatusOption, onChange: (value: { status: FilterStatusOption }) => void } ) {
   return (
 
-    <SelectInput label="Status" value={value} onChange={e => onChange({ status: e.target.value as FilterStatusOption })}>
+    <Select label="Status" value={value} onChange={e => onChange({ status: e.target.value as FilterStatusOption })}>
       {FILTER_STATUS_OPTIONS.map(option => (
         <option key={option} value={option}>{option}</option>
       ))}
-    </SelectInput>
+    </Select>
 
   )
 }

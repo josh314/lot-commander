@@ -8,7 +8,7 @@ import {
   TableHeader,
   TextInput,
   NumberInput,
-  SelectInput,
+  Select,
   Surface,
 } from '../../components/ui/'
 import {
@@ -92,11 +92,11 @@ export function InputSection() {
       <SectionHeader title="Inputs" />
       <TextInput placeholder="Placeholder text" label="Text"/>
       <NumberInput placeholder="##" label="Number" />
-      <SelectInput label="Select">
+      <Select label="Select">
         <option value="option1">Option 1</option>
         <option value="option2">Option 2</option>
         <option value="option3">Option 3</option>
-      </SelectInput>
+      </Select>
     </div>
   )
 }

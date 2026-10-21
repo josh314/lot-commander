@@ -1,38 +1,41 @@
-import { useId, type ComponentPropsWithRef } from 'react';
+import type { ComponentPropsWithRef } from 'react';
+import { useGeneratedId } from '../../hooks/generated-id';
 
 interface InputProps extends ComponentPropsWithRef<'input'> {
   label?: string;
 }
 
-interface SelectInputProps extends ComponentPropsWithRef<'select'> {
+interface SelectProps extends ComponentPropsWithRef<'select'> {
   label?: string;
 }
 
-function renderWithLabel(input: React.ReactNode, label?: string) {
-  return label ? <LabelContainer label={label ?? ""}>{input}</LabelContainer> : input
+interface TextAreaProps extends ComponentPropsWithRef<'textarea'> {
+  label?: string;
 }
-
-export const LabelContainer = ({ children, label }: { children: React.ReactNode, label: string }) => (
-  <div className="inline-flex flex-col">
-    {label && <label className="font-medium text-base mb-1">{label}</label>}
-    {children}
-  </div>
-);
 
 const inputClassName = "p-1.5 border border-line rounded-sm bg-paper";
 
-export function Input({ label, id, className , ...props }: InputProps) {
+function useControlProps({ id, className }: { id?: string; className?: string }) {
+  const controlId = useGeneratedId(id)
+  return { id: controlId, className: `${inputClassName} ${className ?? ''}` }
+}
 
-  const generatedId = useId();
-  const inputId = id ?? generatedId;
+export const LabelContainer = ({ elem, label }: { elem: React.ReactElement<{ id?: string }>, label?: string }) => {
+  if(!label ) return elem;
 
-  const input = <input id={inputId} className={`${inputClassName} ${className ?? ''}`} {...props} />
+  const elemId = elem.props.id;
 
   return (
-    <>
-      {renderWithLabel(input, label)}
-    </>
-  );
+    <div className="inline-flex flex-col">
+      {label && <label className="font-medium text-base mb-1" htmlFor={elemId}>{label}</label>}
+      {elem}
+    </div>
+  )
+}
+
+export function Input({ label, id, className, ...props }: InputProps) {
+  const elem = <input {...useControlProps({ id, className })} {...props} />
+  return <LabelContainer elem={elem} label={label}/>
 }
 
 export function TextInput( props: Omit<InputProps, 'type'> ) {
@@ -43,19 +46,14 @@ export function NumberInput( props: Omit<InputProps, 'type'> ) {
   return <Input {...props} type="number" />;
 }
 
-export function SelectInput({ children, label, id, className, ...props }: SelectInputProps) {
-  const generatedId = useId();
-  const inputId = id ?? generatedId;
+export function Select({ children, label, id, className, ...props }: SelectProps) {
+  const elem = <select {...useControlProps({ id, className })} {...props}>{children}</select>
+  return <LabelContainer elem={elem} label={label}/>
+}
 
-  const input = <select id={inputId} className={`${inputClassName} ${className ?? ''}`} {...props}>
-    {children}
-  </select>;
-
-  return (
-    <>
-      {renderWithLabel(input, label)}
-    </>
-  )
+export function TextArea({ label, id, className, ...props }: TextAreaProps) {
+  const elem = <textarea {...useControlProps({ id, className })} {...props} />
+  return <LabelContainer elem={elem} label={label}/>
 }
 
 export function FieldSet({ children, legend, className }: { children: React.ReactNode, legend?: string, className?: string }) {

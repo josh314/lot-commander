@@ -21,6 +21,8 @@ they're done; split into per-area files if this grows too large.
 
 ## Cross-cutting concerns
 
+- [ ] add title attruibutes to any controls that use icons instead of words
+
 - [ ] Wire `refreshUser()` (`client/src/components/AuthProvider.tsx`) into
       the axios response interceptor (`client/src/api/api.ts`) so a
       stale/expired session is detected from a real API call without
