@@ -220,6 +220,7 @@ class Server {
       req.logout( err => {
 
         if (err) { return next(err); }
+        res.clearCookie('user');
         res.redirect('/');
 
       });
