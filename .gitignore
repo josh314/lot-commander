@@ -6,13 +6,7 @@ npm-debug.log
 # Temp, scratch or intentionally hidden files
 *~
 *\#
-*.josh
-*sandbox
-foo
-__*
-
-#Bower stuff
-bower_components
+__scratch
 
 #compiled stuff
 build/
@@ -21,6 +15,8 @@ ng-app-precache.js
 app.css
 app.css.map
 dist/
+*.tsbuildinfo
+coverage/
 
 # configuration, settings, deployment and environment
 config/deploy.js
@@ -37,10 +33,6 @@ logs/
 dump/
 mongodump-tmp
 
-# assorted
-angular-console-commands
-demo*
-
 # git worktrees (agent-managed scratch workspaces)
 .worktrees
 
@@ -49,3 +41,6 @@ demo*
 
 # System files
 .DS_Store
+
+# Editor
+.vscode
