@@ -1,13 +1,13 @@
 import { useMemo } from 'react'
-import { Link, NavLink as RouterNavLink } from 'react-router'
-import { buildNavItems, filterNavEntries, isNavGroup, type NavEntry, type NavLink } from '../lib/route-config'
+import { Link, NavLink } from 'react-router'
+import { buildNavItems, filterNavEntries, isNavGroup, type NavEntry, type NavLinkConfig } from '../lib/route-config'
 import { footerNavTree, navTree } from '../routes'
 import { useAuthUser } from '../hooks'
 
 export const SIDEBAR_WIDTH = 240
 export const HEADER_HEIGHT = 56
 
-function NavAnchor({ item }: { item: NavLink }) {
+function NavAnchor({ item }: { item: NavLinkConfig }) {
   if (item.isAnchorTag) {
     return (
       <a href={item.path} className="flex h-9 items-center rounded px-3 text-sm text-muted hover:bg-white">
@@ -17,8 +17,9 @@ function NavAnchor({ item }: { item: NavLink }) {
   }
 
   return (
-    <RouterNavLink
+    <NavLink
       to={item.path}
+      end
       className={({ isActive }) =>
         `flex h-9 items-center rounded border-l-2 px-3 text-sm ${
           isActive
@@ -28,7 +29,7 @@ function NavAnchor({ item }: { item: NavLink }) {
       }
     >
       {item.label}
-    </RouterNavLink>
+    </NavLink>
   )
 }
 

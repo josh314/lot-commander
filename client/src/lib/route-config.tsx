@@ -88,9 +88,9 @@ export function toRouteObjects(nodes: RouteConfigNode[]): RouteObject[] {
 
 export const NAV_GROUPS = ['Development', 'Production'] as const
 export type NavGroupLabel = typeof NAV_GROUPS[number]
-export interface NavLink { label: string; path: string; isAnchorTag?: boolean, permission?: Permission }
-export interface NavGroup { label: string; items: NavLink[] }
-export type NavEntry = NavLink | NavGroup
+export interface NavLinkConfig { label: string; path: string; isAnchorTag?: boolean, permission?: Permission }
+export interface NavGroup { label: string; items: NavLinkConfig[] }
+export type NavEntry = NavLinkConfig | NavGroup
 
 export function isNavGroup(entry: NavEntry): entry is NavGroup {
   return 'items' in entry
@@ -104,7 +104,7 @@ export function buildNavItems(nodes: RouteConfigNode[], basePath = ''): NavEntry
     for (const node of list) {
       const path = joinPaths(prefix, node.path)
       if (node.nav) {
-        const link: NavLink = { label: node.nav.label, path, isAnchorTag: node.nav.isAnchorTag, permission: node.permission }
+        const link: NavLinkConfig = { label: node.nav.label, path, isAnchorTag: node.nav.isAnchorTag, permission: node.permission }
         if (node.nav.group) {
           let group = groups.get(node.nav.group)
           if (!group) {
