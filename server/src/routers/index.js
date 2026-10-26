@@ -1,7 +1,5 @@
 const express = require('express');
 
-const quickLots = require('../modules/quick-lots');
-
 // middleware to stick for testing purposes
 // function testLog(s) {
 //   return function testLog(req, res, next) {
@@ -42,9 +40,6 @@ function routes({
   // lots api
   router.use('/api/lots', require( './lots' )( { aiBackfill, inventoryCommander, lotdb, manifests } ) );
 
-  // bstock db api
-  // router.post('/api/bstock-db/auctions/get', auth.isAuthorized('LIST_AUCTIONS'), express.json(), bstockDb.getAuctions);
-
   // product data
   router.use('/api/product-data', require('./product-data')( { productData } ) );
 
@@ -77,13 +72,6 @@ function routes({
 
   // counter app
   router.use('/api/counters', require('./counters')( { countCommander } ) );
-
-  // dynamically created JS scripts for the client
-  router.use('/build', require('./script-builder')( {
-    // bstock,
-    listings,
-    quickLots
-  }) );
 
   router.use( express.static( 'dist' ) );
 

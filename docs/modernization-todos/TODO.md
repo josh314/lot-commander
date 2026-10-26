@@ -103,4 +103,4 @@ Cross-cutting concern but there's enough of it to get it's own section.
 
 - [ ] LAST!: deprecate server features that are no longer needed by the new client
   - [ ] most or all of handlebars?
-  - [ ] the endpoints that create angular scripts
+  - [ ] the HTML shell `server/src/views/layouts/index.hbs` should serve the react app, not the angular scripts — confirmed actively broken as of the bstock/quick-lots/script-builder cleanup (`0cda243`): `app.js`/`app.css` already 404 since `client-legacy/` was deleted (`1572bac`), and `/build/ng-app-server-data.js`/`ng-app-server-code.js` now 404 too since `script-builder.js`'s route was removed. The SPA catch-all (`routers/index.js`'s `router.get('/{*splat}', ...)` → `main.hbs`) currently renders a non-functional page
