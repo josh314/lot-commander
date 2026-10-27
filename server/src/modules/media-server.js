@@ -348,35 +348,31 @@ const remove = async function(s3Location) {
 // };
 
 const deleteLotMedia = async ( lotId, mediaType ) => {
-  try {
-    // 1.) get list of all objects
-    // 2.) delete them in a batch with DeleteObjectsCommand
 
-    const command = new ListObjectsV2Command({ Bucket: __BUCKETS__[ mediaType ], Prefix: lotId });
-    const list = await s3.send( command );
+  // 1.) get list of all objects
+  // 2.) delete them in a batch with DeleteObjectsCommand
 
-    if(list.Contents && list.Contents.length) {
+  const command = new ListObjectsV2Command({ Bucket: __BUCKETS__[ mediaType ], Prefix: lotId });
+  const list = await s3.send( command );
 
-      const keysToDelete = list.Contents.map(object => {
-        return {
-          Key: object.Key
-        };
-      });
+  if(list.Contents && list.Contents.length) {
 
-      const _command = new DeleteObjectsCommand({
-        Bucket: __BUCKETS__[ mediaType ],
-        Delete: {
-          Objects: keysToDelete,
-        }
-      });
+    const keysToDelete = list.Contents.map(object => {
+      return {
+        Key: object.Key
+      };
+    });
 
-      return await s3.send( _command );
-    }
+    const _command = new DeleteObjectsCommand({
+      Bucket: __BUCKETS__[ mediaType ],
+      Delete: {
+        Objects: keysToDelete,
+      }
+    });
 
+    return await s3.send( _command );
   }
-  catch (e) {
-    throw e;
-  }
+
 };
 
 const deleteAllLotMedia = async ( lotId ) => {

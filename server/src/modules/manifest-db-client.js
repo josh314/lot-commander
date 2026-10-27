@@ -41,7 +41,7 @@ class ManifestDbClient {
   saveManifest( manifest ) {
     let manifestDbPromise;
     const itemList = manifest.inventory;
-    const manifestSummaryStr = `${itemList.reduce((sum,item)=> sum = sum + parseInt(item.quantity), 0)} units across ${itemList.length} SKUs.`;
+    const manifestSummaryStr = `${itemList.reduce((sum,item)=> { sum = sum + parseInt(item.quantity); return sum; }, 0)} units across ${itemList.length} SKUs.`;
     if(manifest._id) {
       console.log(`Updating manifest with id ${manifest._id}: ${manifestSummaryStr}`);
       manifestDbPromise = this.updateManifest( manifest );

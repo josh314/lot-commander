@@ -11,7 +11,7 @@
     "check": "npm run lint && npm run typecheck",
     "debug": "DEBUG=lot-commander tsx inspect src/index.js",
     "demon": ". ../.env && nodemon src/index.js",
-    "lint": "eslint ./src",
+    "lint": "eslint ./src ../shared/src",
     "start": ". ../.env && DEBUG=lot-commander tsx src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "typecheck": "tsc --noEmit"
@@ -51,9 +51,12 @@
     "xlsx-js-style": "^1.2.0"
   },
   "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.10.0",
     "@types/node": "^24.19.2",
-    "eslint": "^8.56.0",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
     "tsx": "^4.23.15",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1"
   }
 }

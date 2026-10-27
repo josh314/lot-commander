@@ -194,95 +194,87 @@ class Client {
     let queryCost = 0;
     let availableCost = 1000;
 
-    try {
-      while( getNextPage && queryCost < availableCost ) {
-        const resp = await this.getPage(
-          queryType,
-          nodeQuery,
-          {
-            pageSize: 10,
-            args,
-            searchQuery: searchQuery,
-            debug: debug,
-            cursor: cursor
-          }
-        );
+    while( getNextPage && queryCost < availableCost ) {
+      const resp = await this.getPage(
+        queryType,
+        nodeQuery,
+        {
+          pageSize: 10,
+          args,
+          searchQuery: searchQuery,
+          debug: debug,
+          cursor: cursor
+        }
+      );
 
-        let page;
-        if(resp.errors) {
-          throw new Error(JSON.stringify(resp,null,2));
+      let page;
+      if(resp.errors) {
+        throw new Error(JSON.stringify(resp,null,2));
+      }
+      else {
+        if(debug) {
+          try {
+            console.log(JSON.stringify(resp,null,2));
+          }
+          catch(e) {
+            console.log(resp);
+          }
+        }
+
+        page = queryType === 'shopMetafields' ? resp.data.shop.page : resp.data.page;
+        queryCost = resp.extensions.cost.requestedQueryCost;
+        availableCost = resp.extensions.cost.throttleStatus.currentlyAvailable;
+
+        if(page.edges.length) {
+          items = items.concat(page.edges);
+          getNextPage = page.pageInfo.hasNextPage;
+          cursor = page.edges[page.edges.length-1].cursor;
         }
         else {
-          if(debug) {
-            try {
-              console.log(JSON.stringify(resp,null,2));
-            }
-            catch(e) {
-              console.log(resp);
-            }
-          }
-
-          page = queryType === 'shopMetafields' ? resp.data.shop.page : resp.data.page;
-          queryCost = resp.extensions.cost.requestedQueryCost;
-          availableCost = resp.extensions.cost.throttleStatus.currentlyAvailable;
-
-          if(page.edges.length) {
-            items = items.concat(page.edges);
-            getNextPage = page.pageInfo.hasNextPage;
-            cursor = page.edges[page.edges.length-1].cursor;
-          }
-          else {
-            getNextPage = false;
-          }
+          getNextPage = false;
         }
       }
-
-      const result = {
-        hasNextPage: getNextPage,
-        cursor: cursor,
-        searchQuery: searchQuery,
-        queryCost: queryCost,
-        availableCost: availableCost,
-      };
-
-      result[queryType] = items.map( elem => {
-        return processNode ? processNode(elem.node) : elem;
-      });
-
-      return result;
     }
-    catch(e) {
-      throw e;
-    }
+
+    const result = {
+      hasNextPage: getNextPage,
+      cursor: cursor,
+      searchQuery: searchQuery,
+      queryCost: queryCost,
+      availableCost: availableCost,
+    };
+
+    result[queryType] = items.map( elem => {
+      return processNode ? processNode(elem.node) : elem;
+    });
+
+    return result;
+
   }
 
   async getMetafield( gid ) {
 
-    try {
-      const resp = await this.gqlRequest( {
-        gqlQuery: `
-          {
-            metafield( id: "${ gid }" ) {
-              id
-              namespace
-              key
-              value
-              type
-              ownerType
-              reference
-              createdAt
-              updatedAt
-            }
+    const resp = await this.gqlRequest( {
+      gqlQuery: `
+        {
+          metafield( id: "${ gid }" ) {
+            id
+            namespace
+            key
+            value
+            type
+            ownerType
+            reference
+            createdAt
+            updatedAt
           }
-        `,
-        debug: false
-      });
+        }
+      `,
+      debug: false
+    });
 
-      return resp.data;
-    }
-    catch(e) {
-      throw e;
-    }
+    return resp.data;
+
 
   }
 
@@ -311,12 +303,8 @@ class Client {
       debug: false
     });
 
-    try {
-      return resp.data;
-    }
-    catch(e) {
-      throw e;
-    }
+    return resp.data;
+
   }
 
   async getShopMetafield( namespace, key ) {
@@ -333,12 +321,8 @@ class Client {
       debug: false
     });
 
-    try {
-      return resp.data.shop.metafield ? JSON.parse( resp.data.shop.metafield.value ) : null;
-    }
-    catch(e) {
-      throw e;
-    }
+    return resp.data.shop.metafield ? JSON.parse( resp.data.shop.metafield.value ) : null;
+
   }
 
   async listActiveProducts( { debug, cursor, everydayBargainsOnly } = {} ) {
@@ -428,28 +412,20 @@ class Client {
       debug: false
     });
 
+    const pv = resp.data.productVariant;
+    if( pv ) {
 
-    try {
-
-      const pv = resp.data.productVariant;
-      if( pv ) {
-
-        return {
-          gid: pv.id,
-          title: pv.title,
-          tags: pv.product ? pv.product.tags : [],
-          productGid: pv.product && pv.product.id,
-          productTitle: pv.product && pv.product.title,
-        };
-
-      }
-      else {
-        return null;
-      }
+      return {
+        gid: pv.id,
+        title: pv.title,
+        tags: pv.product ? pv.product.tags : [],
+        productGid: pv.product && pv.product.id,
+        productTitle: pv.product && pv.product.title,
+      };
 
     }
-    catch(e) {
-      throw e;
+    else {
+      return null;
     }
 
   }
@@ -486,12 +462,7 @@ class Client {
       debug: false
     });
 
-    try {
-      return resp;
-    }
-    catch(e) {
-      throw e;
-    }
+    return resp;
   }
 
   async getProductVariantShippingRate( pvid ) {
@@ -513,12 +484,7 @@ class Client {
       debug: false
     });
 
-    try {
-      return parseFloat( resp.data.productVariant.rate.value );
-    }
-    catch(e) {
-      throw e;
-    }
+    return parseFloat( resp.data.productVariant.rate.value );
   }
 
   async setProductVariantShippingRate( pvid, rate ) {
@@ -550,15 +516,11 @@ class Client {
       debug: false
     });
 
-    try {
-      return {
-        id: pvid,
-        rate: parseFloat( resp.data.metafieldsSet.metafields[0].value )
-      };
-    }
-    catch(e) {
-      throw e;
-    }
+    return {
+      id: pvid,
+      rate: parseFloat( resp.data.metafieldsSet.metafields[0].value )
+    };
+
   }
 
   async listProductVariantShippingRates( { debug, cursor, includePallets } = {} ) {
@@ -617,12 +579,7 @@ class Client {
       debug: false
     });
 
-    try {
-      return resp.data.productVariant.bundle && JSON.parse( resp.data.productVariant.bundle.value );
-    }
-    catch(e) {
-      throw e;
-    }
+    return resp.data.productVariant.bundle && JSON.parse( resp.data.productVariant.bundle.value );
 
   }
 
@@ -728,106 +685,94 @@ class Client {
 
   async setShopMetafield( { namespace, key, value, type } ) {
 
-    try {
+    if( value === null || typeof value === 'undefined' || value === '' ) {
+      throw new IllegalActionError(`Invalid metafield value.`, 'BLANK_METAFIELD_VALUE');
+    }
 
-      if( value === null || typeof value === 'undefined' || value === '' ) {
-        throw new IllegalActionError(`Invalid metafield value.`, 'BLANK_METAFIELD_VALUE');
-      }
+    // must stringify (AND quote!) numbers, and escape newlines/whitespace in strings
+    const valueStr = (typeof value  === 'number') ? `"${value}"` : JSON.stringify(value);
 
-      // must stringify (AND quote!) numbers, and escape newlines/whitespace in strings
-      const valueStr = (typeof value  === 'number') ? `"${value}"` : JSON.stringify(value);
-
-      const requestString = `
-        mutation
-        {
-          metafieldsSet(metafields: {
-            namespace: "${ namespace }",
-            key: "${ key }",
-            ownerId: "${ this.storeId }",
-            type: "${ type }",
-            value: ${ valueStr }
-          }) {
-            userErrors {
-              field
-              message
-            }
-            metafields {
-              id
-              namespace
-              key
-              value
-              type
-            }
+    const requestString = `
+      mutation
+      {
+        metafieldsSet(metafields: {
+          namespace: "${ namespace }",
+          key: "${ key }",
+          ownerId: "${ this.storeId }",
+          type: "${ type }",
+          value: ${ valueStr }
+        }) {
+          userErrors {
+            field
+            message
+          }
+          metafields {
+            id
+            namespace
+            key
+            value
+            type
           }
         }
-      `;
-
-      const resp = await this.gqlRequest( {
-        gqlQuery: requestString,
-        debug: false
-      });
-
-      if( resp.data.metafieldsSet.userErrors.length ) {
-        throw new Error( JSON.stringify(resp.data.metafieldsSet.userErrors, null, 2) );
       }
+    `;
 
-      return resp.data.metafieldsSet;
+    const resp = await this.gqlRequest( {
+      gqlQuery: requestString,
+      debug: false
+    });
+
+    if( resp.data.metafieldsSet.userErrors.length ) {
+      throw new Error( JSON.stringify(resp.data.metafieldsSet.userErrors, null, 2) );
     }
-    catch(e) {
-      throw e;
-    }
+
+    return resp.data.metafieldsSet;
+
   }
 
   async removeMetafield( ownerId, namespace, key ) {
 
-    try {
-
-      const gqlQuery = `
-        mutation MetafieldsDelete($metafields: [MetafieldIdentifierInput!]!) {
-          metafieldsDelete(metafields: $metafields) {
-            deletedMetafields {
-              key
-              namespace
-              ownerId
-            }
-            userErrors {
-              field
-              message
-            }
+    const gqlQuery = `
+      mutation MetafieldsDelete($metafields: [MetafieldIdentifierInput!]!) {
+        metafieldsDelete(metafields: $metafields) {
+          deletedMetafields {
+            key
+            namespace
+            ownerId
+          }
+          userErrors {
+            field
+            message
           }
         }
-      `;
-
-      if( !ownerId ) {
-        ownerId = this.storeId;
       }
+    `;
 
-      const variables = {
-        metafields: [
-          {
-            ownerId,
-            namespace,
-            key
-          }
-        ]
-      };
-
-      const resp = await this.gqlRequest( {
-        gqlQuery,
-        variables,
-        debug: false
-      });
-
-      if( resp.data.metafieldsDelete.userErrors.length ) {
-        throw new Error( JSON.stringify(resp.data.metafieldsDelete.userErrors, null, 2) );
-      }
-
-      return { deletedMetafields: resp.data.metafieldsDelete.deletedMetafields };
-
+    if( !ownerId ) {
+      ownerId = this.storeId;
     }
-    catch(e) {
-      throw e;
+
+    const variables = {
+      metafields: [
+        {
+          ownerId,
+          namespace,
+          key
+        }
+      ]
+    };
+
+    const resp = await this.gqlRequest( {
+      gqlQuery,
+      variables,
+      debug: false
+    });
+
+    if( resp.data.metafieldsDelete.userErrors.length ) {
+      throw new Error( JSON.stringify(resp.data.metafieldsDelete.userErrors, null, 2) );
     }
+
+    return { deletedMetafields: resp.data.metafieldsDelete.deletedMetafields };
 
   }
 
@@ -888,12 +833,8 @@ class Client {
       debug: false
     });
 
-    try {
-      return resp.data.productVariant.shippingConfiguration && JSON.parse( resp.data.productVariant.shippingConfiguration.value );
-    }
-    catch(e) {
-      throw e;
-    }
+    return resp.data.productVariant.shippingConfiguration && JSON.parse( resp.data.productVariant.shippingConfiguration.value );
+
   }
 
   async setProductVariantShippingConfiguration( pvid, shippingConfiguration ) {
@@ -929,15 +870,12 @@ class Client {
       debug: false
     });
 
-    try {
-      return {
-        id: pvid,
-        shippingConfiguration: JSON.parse( resp.data.metafieldsSet.metafields[0].value )
-      };
-    }
-    catch(e) {
-      throw e;
-    }
+
+    return {
+      id: pvid,
+      shippingConfiguration: JSON.parse( resp.data.metafieldsSet.metafields[0].value )
+    };
+
   }
 
   async listProductVariantShippingConfigurations( { debug, cursor, includePallets, everydayBargainsOnly } = {} ) {
