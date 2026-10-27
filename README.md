@@ -12,16 +12,17 @@ Currently using Node 24.x.
 
 ### Workspace layout
 
-This repo is an npm workspaces monorepo with a purely coordinating root `package.json` (no runtime dependencies of its own) and four workspaces:
+This repo is an npm workspaces monorepo with a purely coordinating root `package.json` (no runtime dependencies of its own) and three workspaces:
 
 | Workspace | Path | What it is |
 |---|---|---|
 | `server` | `server/` (source in `server/src/`) | The Express/MongoDB backend. |
-| `client-legacy` | `client-legacy/` | The original AngularJS client + webpack build, being phased out screen-by-screen. |
 | `client` | `client/` | The new React/TypeScript/Vite client — scaffolded (Tailwind v4, type-aware ESLint, Vitest); screens are still being ported one at a time (see `docs/modernization/PLAN.md`). |
 | `scripts` | `scripts/` | One-off operational scripts (SSM config upload, session-secret rotation). |
 
-A single `npm install` at the repo root installs all four workspaces' dependencies into one hoisted `node_modules`. Root scripts delegate into a workspace via `-w <workspace>`; you can also run a workspace's own scripts directly with `npm run <script> -w <workspace>`, or `cd` into the workspace and run `npm run <script>` there.
+The original AngularJS client (`client-legacy/`) has been fully removed from the working tree — see tag `26.0.1-rc` if you need to reference the old source (see the `Modernize` section of `CLAUDE.md` for the exact path mapping, since it predates the `client-legacy/` rename).
+
+A single `npm install` at the repo root installs all three workspaces' dependencies into one hoisted `node_modules`. Root scripts delegate into a workspace via `-w <workspace>`; you can also run a workspace's own scripts directly with `npm run <script> -w <workspace>`, or `cd` into the workspace and run `npm run <script>` there.
 
 ### `npm` scripts
 
@@ -30,10 +31,7 @@ A single `npm install` at the repo root installs all four workspaces' dependenci
 | `npm run demon` | `server` | `nodemon`-driven dev server (watches `server/src`), lints on start/restart |
 | `npm start` | `server` | Runs the server once, no watching |
 | `npm run debug` | `server` | `node inspect` entry point |
-| `npm run lint-server` | `server` | ESLint against `server/src` |
-| `npm run dev-server-legacy` | `client-legacy` | `webpack-dev-server` for the legacy AngularJS client |
-| `npm run build-client-legacy` | `client-legacy` | Production webpack build of the legacy client |
-| `npm run build-client-dev-legacy` | `client-legacy` | Dev-mode webpack build of the legacy client |
+| `npm run lint-server` | `server` | ESLint against `server/src` and `shared/src` |
 | `npm run dev` | `client` | Vite dev server for the new client, port `9000`; proxies `/api`, `/login`, `/logout` to the backend at `http://localhost:8080` so it can run alongside `npm run demon` and share the real session cookie |
 | `npm run build-client` | `client` | Production build of the new client (`tsc -b && vite build`) |
 | `npm run depcruise` | — (root only) | Runs `dependency-cruiser` across the repo — also the check that a dependency landed in the right workspace's `package.json`, since a flat hoisted `node_modules` would otherwise let any workspace `require()` any other workspace's dependency without it being declared |
@@ -177,11 +175,3 @@ The script runs `terraform init` and `terraform apply` for both modules in the c
 ### How it works
 
 GitLab CI jobs assume the IAM role via `sts:AssumeRoleWithWebIdentity` using a JWT issued by GitLab's OIDC provider. The role is scoped to the specific GitLab project and grants only the permissions needed to push images to ECR. The pipeline variables (`AWS_ROLE_ARN`, `ECR_REGISTRY`, `ECR_REPOSITORY`, `AWS_DEFAULT_REGION`) are written directly to the GitLab project by Terraform.
-
-
-## Bootswatch
-
-
-**NOTE: Used only in the legacy AngularJS client for styling.**
-
-For styling, this project uses the Bootswatch project which is a riff on Bootstrap. Note the non-standard version in `package.json`: 3.4.1+1. This is required to pull a tagged commit for a hotfix without which the LESS source won't compile. This commit was never merged in properly into the release branch for version 3 as the Bootswatch team moved onto version 4. 

@@ -2,14 +2,14 @@
 
 ## Commands
 - `npm run demon` — dev server via `nodemon`, delegated via `-w server` to `server/nodemon.json`; its `events` hook re-runs `npm run lint` on every start/restart
-- `npm run dev-server-legacy` — `webpack-dev-server` for the legacy AngularJS client (renamed from `dev-server` when the client + build tooling moved to `client-legacy/`; see Modernize)
-- `npm run lint-server` — delegates to `npm run lint -w server`; eslint against `server/src` using `server/.eslintrc.js`
-- `npm run build-client-legacy` — production webpack build of the legacy client (renamed from `build-client`; also `build-client-dev-legacy` for the dev-mode build)
+- `npm run lint-server` — delegates to `npm run lint -w server`; eslint against `server/src` and `shared/src` using `server/eslint.config.mjs` (flat config; `shared/eslint.config.mjs` just re-exports it, since `shared/` isn't an npm workspace and has no `node_modules` of its own to resolve a duplicated config's imports from)
+- ESLint flat config's `files` globs match relative to invocation **cwd**, not the config file's own directory (confirmed empirically) — matters whenever a lint script's targets live outside its own workspace dir (e.g. `server`'s lint script also covering `../shared/src`)
+- `typescript-eslint`'s `projectService` resolves a file's TS project by walking up directories for the nearest `tsconfig.json`, not via some other tsconfig's `include` glob — a directory needs its own discoverable tsconfig or its files fail with "not found by the project service"; `allowDefaultProject` is a narrow allowlist (no `*`/`**`, ~8-file cap) for stray files, not a substitute for a real tsconfig
+- VSCode's ESLint extension resolves which eslint library to load (and legacy vs. flat mode) per-directory by walking up to the nearest `package.json` — a directory with no `package.json` of its own can silently load an unrelated, wrong-version eslint hoisted elsewhere in the repo
 - `npm run depcruise` — runs `dependency-cruiser` repo-wide; also the workspace-boundary check (flags a dependency used in one workspace but declared in another's `package.json`)
 - `npm run debug` — `node inspect` entry point
 - No test suite exists — verify JS with `node -c <file>` (see Server Modules below)
-- No client-side lint script exists either — `node -c` doesn't apply to `client-legacy/src/js/ng` (Angular DI + ES modules); verify legacy client changes with `npm run build-client-legacy` (full webpack build catches syntax/wiring errors)
-- Unlike `client-legacy`, the new `client/` has real standalone scripts: `npm run lint -w client`, `npm run build -w client` (`tsc -b && vite build`), `npm run test -w client` (`vitest run`), `npm run typecheck -w client` (`tsc -b`), `npm run check -w client` (lint + typecheck + test) — `test` alone never runs `tsc`, so passing tests give zero signal about type-level correctness; use `check`/`typecheck` for that
+- The new `client/` has real standalone scripts: `npm run lint -w client`, `npm run build -w client` (`tsc -b && vite build`), `npm run test -w client` (`vitest run`), `npm run typecheck -w client` (`tsc -b`), `npm run check -w client` (lint + typecheck + test) — `test` alone never runs `tsc`, so passing tests give zero signal about type-level correctness; use `check`/`typecheck` for that
 - `sed` on this dev machine is GNU sed, not BSD, despite Darwin — use `sed -i 'script' file`, not the BSD/macOS `sed -i '' 'script' file` (the latter fails with a misleading "can't read \<script\>" error)
 
 ## Infrastructure
@@ -76,8 +76,8 @@ As an upskilling exercise, I wish to modernize this codebase. Since this is an e
   small task surfaces in conversation, rather than letting it live only in
   chat history.
 
-## Client (`client-legacy/`)
-Legacy-specific gotchas moved to `client-legacy/CLAUDE.md`. Cross-cutting auth/architecture decisions stay here under `Modernize`.
+## Client (`client-legacy/`, removed)
+`client-legacy/` has been fully deleted from the working tree (including `client-legacy/CLAUDE.md`), independent of Phase 3's screen-by-screen migration progress. To reference the old AngularJS source (controllers, partials, webpack config, etc.), check out tag `26.0.1-rc` — the last commit before Phase 0's move, so paths there are the pre-rename ones (`client/js/ng/controllers/<x>-ctrl.js`, `client/partials/<x>.html`, etc.), not `client-legacy/src/...`.
 
 ## Client (`client/`)
 `client/`-specific gotchas and conventions moved to `client/CLAUDE.md`. Cross-cutting auth/architecture decisions stay here under `Modernize`.

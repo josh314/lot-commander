@@ -2,6 +2,8 @@
 
 *(in progress — Lots list/view done)* — back to [Frontend Modernization Plan](./PLAN.md)
 
+**`client-legacy/` has been fully removed from the working tree** (ahead of this phase's completion — see root `CLAUDE.md`'s `Modernize` section). Every `client-legacy/...` path below (including the per-screen checklist template) is no longer on disk — check out tag `26.0.1-rc` to read it instead, and note the path mapping: at that tag the old client predates the `client-legacy/` rename, so paths are `client/js/ng/controllers/<x>-ctrl.js`, `client/partials/<x>.html`, etc. (no `client-legacy/src/` prefix).
+
 ## Per-screen checklist (copy this block per screen)
 
 ```
