@@ -1,4 +1,4 @@
-const enums = require('./enums');
+const enums = require( '@shared/enums' );
 const helpers = require('../helpers');
 const {
   ResourceNotFoundError,

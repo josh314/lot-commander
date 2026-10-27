@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const enums = require( '../modules/enums' );
+const enums = require( '@shared/enums' );
 const {
   ChildResourceNotFoundError,
   IllegalActionError,

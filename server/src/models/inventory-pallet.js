@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const enums = require( '../modules/enums' );
+const enums = require( '@shared/enums' );
 const {
   __DEFAULT_PRICE_VALUE_PCT__
 } = require( '../constants' );

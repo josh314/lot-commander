@@ -2,9 +2,12 @@
   "verbose": true,
   "watch": [
     "../.env",
-    "./src"
+    "./src",
+    "../shared"
   ],
   "events": {
-    "start": "npm run lint"
-  }
+    "start": "npm run check"
+  },
+  "exec": "tsx",
+  "ext": "ts,js,json"
 }

@@ -12,7 +12,6 @@ const express = require('express');
 function routes({
   aiBackfill,
   appSettings,
-  // bstock,
   countCommander,
   eventsDbClient,
   fulfillmentCommander,
