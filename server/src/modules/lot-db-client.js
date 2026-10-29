@@ -84,7 +84,7 @@ exports.Client = function( { Lot, countCommander } ) {
     console.log(`${JSON.stringify( _data, null, 2 )}`);
 
     if( !_data.status ) {
-      _data.status = enums.lotStatus[0];
+      _data.status = enums.lotStatuses[0];
     }
 
     if( typeof _data.isDeleted !== 'boolean' ) {

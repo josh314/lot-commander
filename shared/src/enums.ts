@@ -1,4 +1,4 @@
-export const packagingType = [
+export const packagingTypes = [
   'box lot',
   'pallets',
   'pallets:bulky',
@@ -20,11 +20,11 @@ export const lengthUnits = [
 ] as const
 
 
-export const marketplace = [
+export const marketplaces = [
   'wholesaleninjas'
 ] as const
 
-export const lotStatus = [
+export const lotStatuses = [
   'In Preparation',
   'Pending Data',
   'Ready',
@@ -36,17 +36,56 @@ export const lotStatus = [
   'Decommissioned'
 ] as const
 
-export const condition = [
+export const lotCategories = [
+  {
+    key: 'clothing',
+    category: 'clothing',
+    prefix: 'AP',
+    displayName: 'Apparel'
+  },
+  {
+    key: 'cosmetics',
+    category: 'cosmetics',
+    prefix: 'CS',
+    displayName: 'Cosmetics'
+  },
+  {
+    key: 'general-merchandise',
+    category: 'general merchandise',
+    prefix: 'GM',
+    displayName: 'General Merchandise'
+  },
+  {
+    key: 'nail-polish',
+    category: 'cosmetics',
+    prefix: 'NP',
+    displayName: 'Nail Polish'
+  },
+  {
+    key: 'personal-care',
+    category: 'personal care',
+    prefix: 'PC',
+    displayName: 'Personal Care'
+  },
+  {
+    key: 'vitamins-supplements',
+    category: 'personal care',
+    prefix: 'VT',
+    displayName: 'Vitamins & Supplements'
+  },
+] as const
+
+export const conditions = [
   'shelf-pull',
   'case-packed',
   'customer returns',
   'salvage'
 ] as const
 
-export type PackagingType = (typeof packagingType)[number]
+export type PackagingType = (typeof packagingTypes)[number]
 export type WeightUnit = (typeof weightUnits)[number]
 export type LengthUnit = (typeof lengthUnits)[number]
-export type Marketplace = (typeof marketplace)[number]
-export type LotStatus = (typeof lotStatus)[number]
-export type Condition = (typeof condition)[number]
-
+export type Marketplace = (typeof marketplaces)[number]
+export type LotStatus = (typeof lotStatuses)[number]
+export type LotCategory = (typeof lotCategories)[number]
+export type Condition = (typeof conditions)[number]

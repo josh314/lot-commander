@@ -29,7 +29,7 @@ const splitGroupSchema = mongoose.Schema({
   isAllocatedForUnmanifestedLots: Boolean,
   isMissing: Boolean,
   items: [ Object ],
-  packagingType: { type: String, enum: enums.packagingType },
+  packagingType: { type: String, enum: enums.packagingTypes },
   shippingItems: [ shippingItemSchema ],
   images: [ lotMediaDataSchema ],
 });
@@ -85,7 +85,7 @@ const inventoryPalletSchema = mongoose.Schema({
 
   /******* Shipping properties ***************/
 
-  packagingType: { type: String, enum: enums.packagingType },
+  packagingType: { type: String, enum: enums.packagingTypes },
   shippingItems: [ shippingItemSchema ],
 
   isReceived: Boolean,

@@ -30,15 +30,15 @@ const lotSchema = mongoose.Schema({
     ref: 'InventoryPallet'
   },
   description: String,
-  type: { type: String, enum: enums.condition },
+  type: { type: String, enum: enums.conditions },
   category: String,
   totalUnits: Number,
   estimatedRetailValue: Number,
   priceValuePercentage: Number,
-  status: { type: String, enum: enums.lotStatus, required: true },
+  status: { type: String, enum: enums.lotStatuses, required: true },
 
   /*********** Listing properties ************/
-  destinationMarketplace: { type: String, enum: enums.marketplace },
+  destinationMarketplace: { type: String, enum: enums.marketplaces },
   submittedListings: [{
     _id: false,
     marketplace: String,
@@ -80,7 +80,7 @@ const lotSchema = mongoose.Schema({
 
   numBoxes: Number, // DEPRECATED: use shippingItems for new data
 
-  packagingType: { type: String, enum: enums.packagingType },
+  packagingType: { type: String, enum: enums.packagingTypes },
   shippingItems: [ shippingItemSchema ],
 
   isDeleted: Boolean,
