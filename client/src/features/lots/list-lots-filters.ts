@@ -1,4 +1,4 @@
-import type { SortDir } from '../../api/api'
+import type { SortDir } from '@shared/api'
 import { Statuses as LotStatuses, type Status as LotStatus } from '../../schemas/api/lots'
 
 export type FilterStatusOption = LotStatus | 'All'

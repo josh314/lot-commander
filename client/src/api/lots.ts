@@ -1,30 +1,13 @@
 import {
   createResourceClient,
   getQueryString,
-  type SortDir
 } from './api'
 import * as schemas from '../schemas'
+import { lots } from '@shared/api'
 
 const lotsApi = createResourceClient('/lots')
 
-export type ListLotsPageAndSortQueryParams = {
-  page?: number
-  num?: number
-  sort?: string           // what key to sort by
-  sort_dir?: SortDir       // sort direction, -1 for descending, 1 for ascending
-}
-
-export type ListLotsFilterParams = {
-  startDate?: string
-  endDate?: string
-  status?: string
-  lotNumber?: number
-  handle?: string
-}
-
-export type ListLotsQP = ListLotsPageAndSortQueryParams & ListLotsFilterParams
-
-export function list( queryParams?: ListLotsQP ): Promise< schemas.api.lots.ListResponse > {
+export function list( queryParams?: lots.ListQP ): Promise< lots.ListResponse > {
 
   return lotsApi({
     method: 'get',
@@ -34,9 +17,7 @@ export function list( queryParams?: ListLotsQP ): Promise< schemas.api.lots.List
 
 }
 
-export type CountLotsQP = ListLotsFilterParams
-
-export function count( queryParams?: CountLotsQP ): Promise<schemas.api.lots.CountResponse> {
+export function count( queryParams?: lots.CountQP ): Promise<lots.CountResponse> {
 
   return lotsApi({
     method: 'get',
@@ -46,7 +27,7 @@ export function count( queryParams?: CountLotsQP ): Promise<schemas.api.lots.Cou
 
 }
 
-export function get( id: string ): Promise<schemas.api.lots.GetResponse> {
+export function get( id: string ): Promise< lots.GetResponse > {
 
   return lotsApi({
     method: 'get',
@@ -55,3 +36,4 @@ export function get( id: string ): Promise<schemas.api.lots.GetResponse> {
     .then( resp => schemas.api.lots.GetResponseSchema.parse(resp.data) )
 
 }
+

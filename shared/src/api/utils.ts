@@ -1,0 +1,1 @@
+export type SortDir = -1 | 1 // sort direction, -1 for descending, 1 for ascending

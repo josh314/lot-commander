@@ -1,4 +1,4 @@
-import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios'
+import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse, type AxiosHeaderValue } from 'axios'
 
 export const api = axios.create({
   baseURL: '/api',
@@ -11,7 +11,10 @@ export function createResourceClient(basePath: string) {
   }
 }
 
-function isJsonResponse(contentType: string | undefined): boolean {
+function isJsonResponse(contentType: AxiosHeaderValue | undefined): boolean {
+  if( typeof contentType !== 'string') {
+    return false
+  }
   return (contentType ?? '').includes('application/json')
 }
 
@@ -35,10 +38,8 @@ api.interceptors.response.use(
   }
 )
 
-
 export type QueryParamValue = string | number | boolean | undefined
 export type QueryParams<T extends object> = { [K in keyof T]: QueryParamValue }
-export type SortDir = -1 | 1
 
 export function getQueryString<T extends object>(obj: QueryParams<T> | undefined ): string {
 
