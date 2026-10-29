@@ -1,4 +1,4 @@
-**Note**: This project is currently undergoing a major modernization effort. See the `client-next` branch for the work in progress in migrating the client to modern React and Tailwind.
+**Note**: This project is undergoing a major modernization effort — a ground-up rewrite of the frontend client (TypeScript, React, Tailwind, Vite) plus incremental TypeScript migration of the server with new shared types between client and server. See the `stack-refresh` branch for work in progress.
 
 # Lot Commander
 
