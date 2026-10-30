@@ -22,9 +22,9 @@ const bundleSchema = mongoose.Schema({
 
 /***********************
  * Bundle pre-save hook
- * 
+ *
  ******/
-bundleSchema.pre( 'save', function(next) {
+bundleSchema.pre( 'save', function() {
 
   if( typeof this.isPacked !== 'boolean' ) {
     this.isPacked = false;
@@ -34,7 +34,6 @@ bundleSchema.pre( 'save', function(next) {
     this.isDeleted = false;
   }
 
-  next();
 } );
 
 bundleSchema.methods.edit = function( data ) {

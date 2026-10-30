@@ -100,17 +100,16 @@ const inventoryPalletSchema = mongoose.Schema({
  ******/
 
 // Doing this here prevents errors from empty packagingType
-inventoryPalletSchema.pre( 'validate', function(next) {
+inventoryPalletSchema.pre( 'validate', function() {
 
   this.setPackagingTypeFromShippingItems();
   for( let splitGroup of this.splitGroups ) {
     splitGroup.setPackagingTypeFromShippingItems();
   }
 
-  next();
 } );
 
-inventoryPalletSchema.pre( 'save', function(next) {
+inventoryPalletSchema.pre( 'save', function() {
 
   if( typeof this.isReceived !== 'boolean' ) {
     this.isReceived = false;
@@ -173,7 +172,6 @@ inventoryPalletSchema.pre( 'save', function(next) {
     this.note = undefined;
   }
 
-  next();
 } );
 
 inventoryPalletSchema.methods.setPackagingTypeFromShippingItems = function() {

@@ -13,13 +13,11 @@ const siteNotificationSchema = mongoose.Schema({
 }, { collection: 'site-announcements', timestamps: true });
 
 // pre-save hook
-siteNotificationSchema.pre('save', function( next ) {
+siteNotificationSchema.pre('save', function() {
 
   if ( !(typeof this.isActive === 'boolean') ) {
     this.isActive = false;
   }
-
-  next();
 
 });
 

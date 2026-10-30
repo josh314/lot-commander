@@ -31,7 +31,7 @@ const packageSchema = mongoose.Schema({
  * Package pre-save hook
  *
  ******/
-packageSchema.pre( 'save', function(next) {
+packageSchema.pre( 'save', function() {
 
   if( typeof this.isInstantiated !== 'boolean' ) {
     this.isInstantiated = false;
@@ -45,7 +45,6 @@ packageSchema.pre( 'save', function(next) {
     this.isFulfilled = false;
   }
 
-  next();
 } );
 
 packageSchema.methods.edit = function( data ) {

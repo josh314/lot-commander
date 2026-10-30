@@ -95,14 +95,13 @@ const lotSchema = mongoose.Schema({
  ******/
 
 // Doing this here prevents errors from empty packagingType
-lotSchema.pre( 'validate', function(next) {
+lotSchema.pre( 'validate', function() {
 
   this.setPackagingTypeFromShippingItems();
 
-  next();
 } );
 
-lotSchema.pre( 'save', function(next) {
+lotSchema.pre( 'save', function() {
 
   if( typeof this.isDeleted !== 'boolean' ) {
     this.isDeleted = false;
@@ -112,7 +111,6 @@ lotSchema.pre( 'save', function(next) {
     this.priceValuePercentage = __DEFAULT_PRICE_VALUE_PCT__;
   }
 
-  next();
 } );
 
 /***********************

@@ -82,7 +82,7 @@ incomingShipmentSchema.virtual( 'cost' )
  * IncomingShipment pre hooks
  *
  ******/
-incomingShipmentSchema.pre( 'save', function(next) {
+incomingShipmentSchema.pre( 'save', function() {
 
   if( !this.priceValuePercentage || this.priceValuePercentage < 0 ) {
     this.priceValuePercentage = __DEFAULT_PRICE_VALUE_PCT__;
@@ -133,7 +133,6 @@ incomingShipmentSchema.pre( 'save', function(next) {
 
   });
 
-  next();
 } );
 
 /***************************************
