@@ -262,7 +262,7 @@ class Server {
     const appSettings = new AppSettingsCommander( models.AppSetting );
 
     // Counter
-    const CountCommander = require('./modules/count-commander');
+    const { CountCommander } = require('./modules/count-commander');
     const countCommander = new CountCommander( models.Counter );
 
     // Lot DB

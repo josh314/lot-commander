@@ -5,23 +5,23 @@ import { counters } from '@shared/api'
 
 const countersApi = createResourceClient('/counters')
 
-export function getCounter( handle: counters.CounterHandle ): Promise<counters.CounterResponse> {
+export function getCounter( handle: counters.CounterHandle ): Promise<counters.Response> {
 
   return countersApi({
     method: 'get',
     url: `/${ encodeURIComponent( handle ) }`
   })
-    .then( resp => schemas.api.counters.CounterResponseSchema.parse(resp.data) );
+    .then( resp => schemas.api.counters.ResponseSchema.parse(resp.data) );
 
 }
 
-export function incrementCounter( handle: counters.CounterHandle, increment?: number ): Promise<counters.CounterResponse>  {
+export function incrementCounter( handle: counters.CounterHandle, increment?: number ): Promise<counters.Response>  {
 
   if (increment === undefined) {
     increment = 1;
   }
 
-  const incrementRequest: counters.IncrementCounterRequest = {
+  const incrementRequest: counters.IncrementRequest = {
     increment
   }
 
@@ -30,6 +30,6 @@ export function incrementCounter( handle: counters.CounterHandle, increment?: nu
     url: `/${ encodeURIComponent( handle ) }`,
     data: incrementRequest
   })
-    .then( resp => schemas.api.counters.CounterResponseSchema.parse(resp.data) );
+    .then( resp => schemas.api.counters.ResponseSchema.parse(resp.data) );
 
 }

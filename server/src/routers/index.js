@@ -1,5 +1,7 @@
 const express = require('express');
 
+const counters = require('./counters');
+
 // middleware to stick for testing purposes
 // function testLog(s) {
 //   return function testLog(req, res, next) {
@@ -70,7 +72,7 @@ function routes({
   router.use('/api/orders', require('./orders')( { shopifyOrders, fulfillmentCommander } ) );
 
   // counter app
-  router.use('/api/counters', require('./counters')( { countCommander } ) );
+  router.use('/api/counters', counters.createRouter( { countCommander } ) );
 
   router.use( express.static( 'dist' ) );
 

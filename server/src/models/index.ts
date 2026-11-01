@@ -1,22 +1,41 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-const appSetting = require('./app-setting');
-const pkg = require('./package');
-const incomingShipment = require('./incoming-shipment');
-const inventoryPallet = require('./inventory-pallet');
-const bundle = require('./bundle');
-const lot = require('./lot');
-const manifest = require('./manifest');
-const counter = require('./counter');
-const shopifyOrder = require('./shopify-order');
-const shopifyOrderPick = require( './shopify-order-pick' );
-const fallbackProductData = require( './fallback-product-data' );
-const announcement = require( './announcement' );
+import type { Connection } from 'mongoose';
 
-const productData = require( './product-data' );
+import * as appSetting from'./app-setting'
+import * as pkg from './package';
+import * as incomingShipment from './incoming-shipment';
+import * as inventoryPallet from './inventory-pallet';
+import * as bundle from './bundle';
+import * as lot from './lot';
+import * as manifest from './manifest';
+import { counterSchema } from './counter'
+import * as shopifyOrder from './shopify-order';
+import * as shopifyOrderPick from './shopify-order-pick';
+import * as fallbackProductData from './fallback-product-data';
+import * as announcement from './announcement';
+
+import * as productData from './product-data';
+
 
 class ModelCommander {
 
-  constructor( mongooseConnection ) {
+  private conn: Connection;
+  private AppSetting;
+  private IncomingShipment;
+  private Package;
+  private Bundle;
+  private InventoryPallet;
+  private Lot;
+  private Manifest;
+  private Counter;
+  private ShopifyOrder;
+  private ShopifyOrderPick;
+  private FallbackProductData;
+  private Announcement;
+  private InternalProductData;
+
+  constructor( mongooseConnection: Connection ) {
     this.conn = mongooseConnection;
 
     // initialize models
@@ -27,7 +46,7 @@ class ModelCommander {
     this.InventoryPallet = mongooseConnection.model( 'InventoryPallet', inventoryPallet.schema );
     this.Lot = mongooseConnection.model( 'Lot', lot.schema );
     this.Manifest = mongooseConnection.model( 'Manifest', manifest.schema );
-    this.Counter = mongooseConnection.model( 'Counter', counter.schema );
+    this.Counter = mongooseConnection.model( 'Counter', counterSchema )
     this.ShopifyOrder = mongooseConnection.model( 'ShopifyOrder', shopifyOrder.schema );
     this.ShopifyOrderPick = mongooseConnection.model( 'ShopifyOrderPick', shopifyOrderPick.schema );
     this.FallbackProductData = mongooseConnection.model( 'FallbackProductData', fallbackProductData.schema );
