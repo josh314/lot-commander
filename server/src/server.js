@@ -419,12 +419,15 @@ class Server {
       };
 
       if( err instanceof ClientError ) {
+        res.status(400);
         response.message = err.message;
       }
       else if ( err instanceof AuthorizationError ) {
+        res.status(401);
         response.message = `UNAUTHORIZED`;
       }
       else {
+        res.status( err.status || 500 );
         response.message = 'Server Error.';
       }
 
