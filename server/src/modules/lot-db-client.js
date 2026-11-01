@@ -93,6 +93,9 @@ exports.Client = function( { Lot, countCommander } ) {
 
     if( !_data.lotNumber ) {
       const counter = await this.countCommander.incrementCounter( 'pallet-lots' , 1 );
+      if( !counter || typeof counter.count !== 'number' ) {
+        throw new Error('Failed to generate lot number.');
+      }
       _data.lotNumber = counter.count;
     }
 
@@ -283,6 +286,11 @@ exports.Client = function( { Lot, countCommander } ) {
     if( !lot.lotNumber ) {
 
       const counter = await this.countCommander.incrementCounter( 'pallet-lots' , 1 );
+
+      if( !counter || typeof counter.count !== 'number' ) {
+        throw new Error('Failed to generate lot number.');
+      }
+
       lot.lotNumber = counter.count;
 
       return lot.save();

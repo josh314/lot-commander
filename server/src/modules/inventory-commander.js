@@ -1119,6 +1119,9 @@ class InventoryCommander {
         if( !splitGroup.lotNumber ) {
 
           const counter = await this.countCommander.incrementCounter( 'pallet-lots' , 1 );
+          if( !counter || typeof counter.count !== 'number' ) {
+            throw new Error('Failed to generate lot number.');
+          }
 
           splitGroup.lotNumber = counter.count;
 
