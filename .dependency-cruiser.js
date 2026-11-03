@@ -10,6 +10,10 @@ const ignoreDependencies = [
   ...knownDeadCode
 ];
 
+const eslintScripts = [
+  'eslint.config.mjs'
+]
+
 
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
@@ -30,6 +34,8 @@ module.exports = {
         // ignore files that are expected to be “magically used”
         pathNot: [
           "^server/src/index[.]js$",
+
+          ...eslintScripts,
 
           // your existing defaults:
           '(^|/)[.][^/]+[.](?:js|cjs|mjs|ts|cts|mts|json)$',
@@ -129,11 +135,14 @@ module.exports = {
         "This module depends on an npm package that isn't in the 'dependencies' section of your package.json. " +
         "That's problematic as the package either (1) won't be available on live (2 - worse) will be " +
         "available on live with an non-guaranteed version. Fix it by adding the package to the dependencies " +
-        "in your package.json.",
+        "in your package.json. Exception: shared/src/** never builds standalone -- it's always compiled as " +
+        "part of client's or server's own build via the @shared/* path alias, so its real dependencies are " +
+        "(and must be) declared in client/package.json and server/package.json instead.",
       from: {
 
         pathNot: [
-          ...ignoreDependencies
+          ...ignoreDependencies,
+          '^shared/src/',
         ]
 
       },
@@ -203,7 +212,10 @@ module.exports = {
         'from.pathNot re of the not-to-dev-dep rule in the dependency-cruiser configuration',
       from: {
         path: '^(server)',
-        pathNot: '[.](?:spec|test)[.](?:js|mjs|cjs|jsx|ts|mts|cts|tsx)$'
+        pathNot: [
+          ...eslintScripts
+          ,'[.](?:spec|test)[.](?:js|mjs|cjs|jsx|ts|mts|cts|tsx)$'
+        ]
       },
       to: {
         dependencyTypes: [
@@ -334,9 +346,9 @@ module.exports = {
        dependency-cruiser's current working directory). When not provided
        defaults to './tsconfig.json'.
      */
-    // tsConfig: {
-    //   fileName: 'tsconfig.json'
-    // },
+    tsConfig: {
+      fileName: 'tsconfig.depcruise.json'
+    },
 
     /* Webpack configuration to use to get resolve options from.
 
