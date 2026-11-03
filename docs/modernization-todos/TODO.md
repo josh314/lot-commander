@@ -102,3 +102,12 @@ Cross-cutting concern but there's enough of it to get it's own section.
 - [ ] LAST!: deprecate server features that are no longer needed by the new client
   - [ ] most or all of handlebars?
   - [ ] the HTML shell `server/src/views/layouts/index.hbs` should serve the react app, not the angular scripts — confirmed actively broken as of the bstock/quick-lots/script-builder cleanup (`0cda243`): `app.js`/`app.css` already 404 since `client-legacy/` was deleted (`1572bac`), and `/build/ng-app-server-data.js`/`ng-app-server-code.js` now 404 too since `script-builder.js`'s route was removed. The SPA catch-all (`routers/index.js`'s `router.get('/{*splat}', ...)` → `main.hbs`) currently renders a non-functional page
+
+## Deployment & CI/CD
+
+- This is largely backburnered for now but some work on deployment and CI/CD may still be necessary.
+
+- [ ] wouldn't kill us to have the automated linting and tests in a gitlab-ci.yml pipeline
+  - need to ensure `mongodb-memory-server` works correctly in the CI/CD environment. quoting claude: "mongodb-memory-server downloads an official MongoDB binary, which is glibc-linked. .gitlab-ci.yml's build job runs on docker:29 (Alpine/musl), so a glibc binary won't execute there and whatever job eventually runs tests in CI needs a glibc-based image instead (node:24, matching the Dockerfile's own base, would work)"
+
+- [ ] Not a lot commander issue per se but I think Mongo 7 may be long in the tooth now. Not to mention that the local mongo is actually version 5

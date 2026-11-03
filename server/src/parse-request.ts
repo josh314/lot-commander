@@ -1,4 +1,4 @@
-import * as z from 'zod/v4';
+import * as z from 'zod';
 import { InvalidRequestError } from './errors';
 
 export function parseRequest<T extends z.ZodType>(schema: T, value: unknown, name?: string): z.infer<T> {
