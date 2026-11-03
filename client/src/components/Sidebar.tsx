@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Link, NavLink } from 'react-router'
 import { buildNavItems, filterNavEntries, isNavGroup, type NavEntry, type NavLinkConfig } from '../lib/route-config'
-import { footerNavTree, navTree } from '../routes'
+import { mainRouteTree, footerRouteTree } from '../routes/route-trees'
 import { useAuthUser } from '../hooks'
 
 export const SIDEBAR_WIDTH = 240
@@ -52,8 +52,8 @@ function NavEntryList({ entries }: { entries: NavEntry[] }) {
 
 export function Sidebar() {
   const user = useAuthUser()
-  const navEntries = useMemo(() => filterNavEntries(buildNavItems(navTree), user), [user])
-  const footerEntries = useMemo(() => filterNavEntries(buildNavItems(footerNavTree), user), [user])
+  const navEntries = useMemo(() => filterNavEntries(buildNavItems(mainRouteTree), user), [user])
+  const footerEntries = useMemo(() => filterNavEntries(buildNavItems(footerRouteTree), user), [user])
 
   return (
     <aside
