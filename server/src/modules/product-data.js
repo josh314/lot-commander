@@ -125,6 +125,7 @@ class $_ {
         product.title = product.title || product.description;
       }
       else if( lotId ) {
+        // only the no-source lookup path creates a fetch-job marker; an explicit `source` is probe-only
         await this.createFetchJobIfLotNotLocked( lotId, barcode );
       }
 
@@ -152,7 +153,7 @@ class $_ {
     const params = {
       Bucket: this.settings.jobsBucket,
       Key: `fetch/${ lotId }/${ barcode }`,
-      Body: Buffer.alloc( 0 ),
+      Body: Buffer.alloc( 0 ), // '' is falsy, so content-length middleware skips setting the header
     };
 
     return s3.send( new PutObjectCommand( params ) );
