@@ -40,25 +40,6 @@ export function createRouter({ countCommander }: { countCommander: CountCommande
    *
    ****/
 
-  router.post(
-
-    '/',
-
-    auth.isAuthorized( 'CREATE_COUNTER' ),
-
-    async function initializeCounter( req, res ) {
-
-      const { handle, count } = counters.InitializeRequestSchema.parse(req.body);
-
-      const counter = await countCommander.initializeCounter( handle, count );
-
-      const resp: counters.Response = buildCounterResponse(counter);
-
-      res.json( resp );
-    }
-
-  );
-
   router.get(
 
     '/:handle',

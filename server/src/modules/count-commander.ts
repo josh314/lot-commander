@@ -7,11 +7,6 @@ export class CountCommander {
 
   constructor( private Counter: Model<ICounter> ) {}
 
-  initializeCounter( handle: string, count: number ) {
-    const counter = new this.Counter( { handle, count } );
-    return counter.save();
-  }
-
   getCounter( handle: counters.Handle ) {
     return this.Counter.findOne( { handle } );
   }
