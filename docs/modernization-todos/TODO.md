@@ -63,6 +63,8 @@ they're done; split into per-area files if this grows too large.
   - "global" or "container-level" spacing guidance is still not established (e.g. the main viewport, `AppShell`'s own padding is still ad hoc)
 - [x] icon set — chose `lucide-react` (see `CLAUDE.md`'s Client section); installed and in use in `ListPaginationControls.tsx` and the style guide
   
+- [ ] the User Cookie types/schema should be lifted to shared and enforced consistently across client and server
+
 ## Global styling
 
 Cross-cutting concern but there's enough of it to get it's own section.
@@ -92,10 +94,6 @@ Cross-cutting concern but there's enough of it to get it's own section.
 
 ## Server / Backend
 
-- [ ] Fix `server.js`'s global error handler (doesn't set an HTTP status
-      before `res.json()`, so every error currently returns 200) — see
-      `WIP / TODO` in `CLAUDE.md`. A fix was previously stashed but is no
-      longer in `git stash list`; needs re-implementing, not recovering.
 - [ ] Migrate config loading from SSM Parameter Store to ECS task-definition
       envars — see `Infrastructure` in `CLAUDE.md`.
 
