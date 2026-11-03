@@ -7,14 +7,18 @@ import type { ICounter } from '../models/counter';
 import { CountCommander } from '../modules/count-commander';
 import { counters } from '@shared/api';
 
+import { parseRequest } from '../parse-request';
+
 function counterToDTO(counter: HydratedDocument<ICounter>): counters.DTO {
+
   return {
     _id: counter._id.toString(),
-    handle: counters.HandleSchema.parse(counter.handle),
+    handle: counter.handle as counters.Handle,
     count: counter.count,
     createdAt: counter.createdAt.toISOString(),
     updatedAt: counter.updatedAt.toISOString(),
   };
+
 }
 
 function buildCounterResponse(counter: HydratedDocument<ICounter> | null): counters.Response {
@@ -63,7 +67,7 @@ export function createRouter({ countCommander }: { countCommander: CountCommande
 
     async function getCounter( req, res ) {
 
-      const handle = req.params.handle;
+      const handle = parseRequest(counters.HandleSchema, req.params.handle, 'handle');
       const counter = await countCommander.getCounter( handle );
 
       const resp: counters.Response = buildCounterResponse(counter);
@@ -81,8 +85,8 @@ export function createRouter({ countCommander }: { countCommander: CountCommande
 
     async function incrementCounter( req, res ) {
 
-      const handle = req.params.handle;
-      const { increment } = counters.IncrementRequestSchema.parse(req.body);
+      const handle = parseRequest(counters.HandleSchema, req.params.handle, 'handle');
+      const { increment } = parseRequest(counters.IncrementRequestSchema, req.body);
 
       const counter = await countCommander.incrementCounter( handle, increment );
 
