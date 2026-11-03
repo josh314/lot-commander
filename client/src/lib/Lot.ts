@@ -1,7 +1,4 @@
-import * as schemas from "../schemas"
-
-export type LotData = schemas.api.lots.Data
-export type LotStatus = schemas.api.lots.Status
+import { lots } from "@shared/api"
 
 export class Lot {
 
@@ -10,9 +7,9 @@ export class Lot {
   totalUnits?: number
   createdAt?: Date
   updatedAt?: Date
-  status?: LotStatus
+  status?: lots.Status
 
-  constructor( data: LotData ) {
+  constructor( data: lots.DTO ) {
     this.id = data._id
     this.handle = data.handle
     this.totalUnits = data.totalUnits

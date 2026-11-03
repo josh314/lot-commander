@@ -5,13 +5,12 @@ import * as auth from '../auth';
 
 import type { ICounter } from '../models/counter';
 import { CountCommander } from '../modules/count-commander';
-import * as schemas from '../schemas/api';
 import { counters } from '@shared/api';
 
-function counterToDTO(counter: HydratedDocument<ICounter>): counters.Data {
+function counterToDTO(counter: HydratedDocument<ICounter>): counters.DTO {
   return {
     _id: counter._id.toString(),
-    handle: counter.handle,
+    handle: counters.HandleSchema.parse(counter.handle),
     count: counter.count,
     createdAt: counter.createdAt.toISOString(),
     updatedAt: counter.updatedAt.toISOString(),
@@ -45,7 +44,7 @@ export function createRouter({ countCommander }: { countCommander: CountCommande
 
     async function initializeCounter( req, res ) {
 
-      const { handle, count } = schemas.counters.InitializeRequestSchema.parse(req.body);
+      const { handle, count } = counters.InitializeRequestSchema.parse(req.body);
 
       const counter = await countCommander.initializeCounter( handle, count );
 
@@ -83,7 +82,7 @@ export function createRouter({ countCommander }: { countCommander: CountCommande
     async function incrementCounter( req, res ) {
 
       const handle = req.params.handle;
-      const { increment } = schemas.counters.IncrementRequestSchema.parse(req.body);
+      const { increment } = counters.IncrementRequestSchema.parse(req.body);
 
       const counter = await countCommander.incrementCounter( handle, increment );
 

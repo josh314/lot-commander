@@ -1,12 +1,31 @@
-import type { z } from 'zod'
+import * as z from 'zod/v4'
+import * as enums from '../enums'
 
-import { client, server } from '../schemas'
+export const InitializeRequestSchema = z.object({
+  handle: z.string(),
+  count: z.number().int().nonnegative(),
+})
 
-export type CounterHandle = 'pallet-lots'
+export const IncrementRequestSchema = z.object({
+  increment: z.number().int().positive(),
+})
 
-export type IncrementRequest = z.infer<typeof server.api.counters.IncrementRequestSchema>
+export const HandleSchema = z.enum(enums.counterHandles)
 
-export type InitializeRequest = z.infer<typeof server.api.counters.InitializeRequestSchema>
+export const DTOSchema = z.object({
+  _id: z.string(),
+  handle: HandleSchema,
+  count: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string()
+})
 
-export type Data = z.infer<typeof client.api.counters.DataSchema>
-export type Response = z.infer<typeof client.api.counters.ResponseSchema>
+export const ResponseSchema = z.object({
+  counter: z.union([DTOSchema, z.null()])
+})
+
+export type Handle = enums.CounterHandle
+export type IncrementRequest = z.infer<typeof IncrementRequestSchema>
+export type InitializeRequest = z.infer<typeof InitializeRequestSchema>
+export type DTO = z.infer<typeof DTOSchema>
+export type Response = z.infer<typeof ResponseSchema>

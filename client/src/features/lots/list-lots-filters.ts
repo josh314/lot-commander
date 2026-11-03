@@ -1,8 +1,9 @@
 import type { SortDir } from '@shared/api'
-import { Statuses as LotStatuses, type Status as LotStatus } from '../../schemas/api/lots'
+import { lots } from '@shared/api'
+import * as enums from '@shared/enums'
 
-export type FilterStatusOption = LotStatus | 'All'
-export const FILTER_STATUS_OPTIONS: FilterStatusOption[] = ['All', ...Object.values(LotStatuses)]
+export type FilterStatusOption = lots.Status | 'All'
+export const FILTER_STATUS_OPTIONS: FilterStatusOption[] = ['All', ...Object.values(enums.lotStatuses)]
 export interface ListFilters {
   handle: string
   lotNumber: string

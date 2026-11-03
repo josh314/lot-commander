@@ -2,7 +2,6 @@ import {
   createResourceClient,
   getQueryString,
 } from './api'
-import * as schemas from '../schemas'
 import { lots } from '@shared/api'
 
 const lotsApi = createResourceClient('/lots')
@@ -13,7 +12,7 @@ export function list( queryParams?: lots.ListQP ): Promise< lots.ListResponse > 
     method: 'get',
     url: `/?${ getQueryString( queryParams ) }`
   })
-    .then( resp => schemas.api.lots.ListResponseSchema.parse(resp.data) )
+    .then( resp => lots.ListResponseSchema.parse(resp.data) )
 
 }
 
@@ -23,7 +22,7 @@ export function count( queryParams?: lots.CountQP ): Promise<lots.CountResponse>
     method: 'get',
     url: `/count?${ getQueryString( queryParams ) }`
   })
-    .then( resp => schemas.api.lots.CountResponseSchema.parse(resp.data) );
+    .then( resp => lots.CountResponseSchema.parse(resp.data) );
 
 }
 
@@ -33,7 +32,7 @@ export function get( id: string ): Promise< lots.GetResponse > {
     method: 'get',
     url: `/${ id }`
   })
-    .then( resp => schemas.api.lots.GetResponseSchema.parse(resp.data) )
+    .then( resp => lots.GetResponseSchema.parse(resp.data) )
 
 }
 

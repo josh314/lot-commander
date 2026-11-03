@@ -82,10 +82,16 @@ export const conditions = [
   'salvage'
 ] as const
 
+
+export const counterHandles = [
+  'pallet-lots',
+] as const
+
 export type PackagingType = (typeof packagingTypes)[number]
 export type WeightUnit = (typeof weightUnits)[number]
 export type LengthUnit = (typeof lengthUnits)[number]
 export type Marketplace = (typeof marketplaces)[number]
 export type LotStatus = (typeof lotStatuses)[number]
 export type LotCategory = (typeof lotCategories)[number]
+export type CounterHandle = (typeof counterHandles)[number]
 export type Condition = (typeof conditions)[number]
