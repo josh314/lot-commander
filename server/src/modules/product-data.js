@@ -1,7 +1,7 @@
 const { Readable } = require('stream');
 
 const libBarcodes = require('@wazue/barcodes/lib');
-const { isNumericString } = require('../helpers');
+const { isNumericString } = require('@shared/utils');
 const { InvalidRequestError } = require('../errors');
 
 const {

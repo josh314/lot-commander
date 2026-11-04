@@ -92,6 +92,14 @@ Cross-cutting concern but there's enough of it to get it's own section.
     - they aren't given a color to imply clickability
   - [x] `components/ui/` tests started — `Button`/`Input`/`Select`/`TextArea`/`LabelContainer`/`useGeneratedId` all covered now. Still untested: `Table`, `Header.tsx` (`PageHeader`/`SectionHeader`/`SubsectionHeader`), `Surface`, `PageStack` (`components/layout/`)
 
+## shared/ candidates — duplicated client-legacy/server code
+
+Found scanning the `26.0.1-rc` legacy-client tag against `server/`. Still present in current `server/src` too.
+
+- [ ] Shopify GID conversion — `shopify-gql.js`'s `id2Gid`/`gid2Id` vs legacy `client/js/utilities.js`'s `shopifyId2Gid`/`shopifyGid2Id`, same logic
+- [ ] Manifest column names — server's `__STANDARD_COLUMN_NAMES__` (`server/src/modules/manifests.js`) vs legacy `client/js/manifest-constants.js`'s `__STANDARD_MANIFEST_*_COLUMN__` — same concept, already drifted (server has ASIN/single "Unit Price", client has cost/retail/sale variants); should be single-sourced rather than just de-duped
+- [ ] Lower priority: `arrayOfScalarsIsEqual` (server) vs legacy `isEqual` (client, generic deep-equality) — overlapping purpose, not a clean merge
+
 ## Server / Backend
 
 - [ ] Migrate config loading from SSM Parameter Store to ECS task-definition
@@ -102,6 +110,12 @@ Cross-cutting concern but there's enough of it to get it's own section.
 - [ ] LAST!: deprecate server features that are no longer needed by the new client
   - [ ] most or all of handlebars?
   - [ ] the HTML shell `server/src/views/layouts/index.hbs` should serve the react app, not the angular scripts — confirmed actively broken as of the bstock/quick-lots/script-builder cleanup (`0cda243`): `app.js`/`app.css` already 404 since `client-legacy/` was deleted (`1572bac`), and `/build/ng-app-server-data.js`/`ng-app-server-code.js` now 404 too since `script-builder.js`'s route was removed. The SPA catch-all (`routers/index.js`'s `router.get('/{*splat}', ...)` → `main.hbs`) currently renders a non-functional page
+
+## Shared code
+
+- [ ] add an enum for Shopify resource types (e.g., 'Product', 'Order', etc.)
+- [ ] in the shared utils Shopify id functions, narrow the `type` field from string to the above enum
+
 
 ## Deployment & CI/CD
 

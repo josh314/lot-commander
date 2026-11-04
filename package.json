@@ -25,6 +25,7 @@
   "workspaces": [
     "server",
     "client",
-    "scripts"
+    "scripts",
+    "shared"
   ]
 }

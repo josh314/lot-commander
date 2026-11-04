@@ -12,19 +12,18 @@ Currently using Node 24.x.
 
 ### Workspace layout
 
-This repo is an npm workspaces monorepo with a purely coordinating root `package.json` (no runtime dependencies of its own) and three workspaces:
+This repo is an npm workspaces monorepo with a purely coordinating root `package.json` (no runtime dependencies of its own) and four workspaces:
 
 | Workspace | Path | What it is |
 |---|---|---|
-| `server` | `server/` (source in `server/src/`) | The Express/MongoDB backend. |
+| `server` | `server/` (source in `server/src/`) | The Express/MongoDB backend. TypeScript is being introduced file-by-file; Vitest was added for testing, with `mongodb-memory-server` backing tests that depend on real MongoDB behavior (e.g. atomic increments, unique indexes). |
 | `client` | `client/` | The new React/TypeScript/Vite client — scaffolded (Tailwind v4, type-aware ESLint, Vitest); screens are still being ported one at a time (see `docs/modernization/PLAN.md`). |
 | `scripts` | `scripts/` | One-off operational scripts (SSM config upload, session-secret rotation, seeding a new counter handle for local/dev use). |
+| `shared` | `shared/` | TypeScript consumed by both `client` and `server` via the `@shared/*` path alias. It's a workspace mainly so its own tests can run (`npm run test -w shared`) — it still never builds/runs standalone as an app, so its runtime dependencies (e.g. `zod`) stay declared in whichever of `client`/`server` actually compiles a given `shared/src` file, not in `shared/package.json` itself. |
 
 The original AngularJS client (`client-legacy/`) has been fully removed from the working tree — see tag `26.0.1-rc` if you need to reference the old source (see the `Modernize` section of `CLAUDE.md` for the exact path mapping, since it predates the `client-legacy/` rename).
 
-A fourth directory, `shared/`, holds TypeScript consumed by both `client` and `server`. It's deliberately *not* an npm workspace: it never builds or runs standalone, so it has no dependencies of its own to declare. `client` and `server` each resolve it via the `@shared/*` TypeScript path alias (Vite's `resolve.alias` for the client, `tsconfig.json`'s `paths` for the server) — whichever of the two actually compiles a given `shared/src` file at build/run time is the one that must declare its real npm dependencies (e.g. `zod`) in its own `package.json`.
-
-A single `npm install` at the repo root installs all three workspaces' dependencies into one hoisted `node_modules`. Root scripts delegate into a workspace via `-w <workspace>`; you can also run a workspace's own scripts directly with `npm run <script> -w <workspace>`, or `cd` into the workspace and run `npm run <script>` there.
+A single `npm install` at the repo root installs all four workspaces' dependencies into one hoisted `node_modules`. Root scripts delegate into a workspace via `-w <workspace>`; you can also run a workspace's own scripts directly with `npm run <script> -w <workspace>`, or `cd` into the workspace and run `npm run <script>` there.
 
 ### `npm` scripts
 
@@ -36,10 +35,10 @@ A single `npm install` at the repo root installs all three workspaces' dependenc
 | `npm run lint-server` | `server` | ESLint against `server/src` and `shared/src` |
 | `npm run dev` | `client` | Vite dev server for the new client, port `9000`; proxies `/api`, `/login`, `/logout` to the backend at `http://localhost:8080` so it can run alongside `npm run demon` and share the real session cookie |
 | `npm run build-client` | `client` | Production build of the new client (`tsc -b && vite build`) |
-| `npm run depcruise` | — (root only) | Runs `dependency-cruiser` across the repo — also the check that a dependency landed in the right workspace's `package.json`, since a flat hoisted `node_modules` would otherwise let any workspace `require()` any other workspace's dependency without it being declared. `shared/src/**` is an explicit, deliberate exception to this check — see the `shared/` paragraph under Workspace layout for why |
+| `npm run depcruise` | — (root only) | Runs `dependency-cruiser` across the repo — also the check that a dependency landed in the right workspace's `package.json`, since a flat hoisted `node_modules` would otherwise let any workspace `require()` any other workspace's dependency without it being declared. `shared/src/**` is an explicit, deliberate exception to this check — see the `shared` row under Workspace layout for why |
 | `npm run ngrok` | — (root only) | Tunnels port 9000, the new client's dev server port |
 
-`npm run lint -w client` and `npm run test -w client` (ESLint and Vitest for the new client) aren't aliased at the root yet — run them with the `-w client` flag or `cd client && npm run lint` / `npm run test`. `scripts/*.js` are one-off CLI utilities invoked directly (e.g. `node scripts/rotate-session-secret.js ...`), not wired as package scripts.
+`npm run lint -w client`, `npm run test -w client` (ESLint and Vitest for the new client), and `npm run test -w server` / `npm run check -w server` (Vitest, and lint + typecheck + test, for the server) aren't aliased at the root yet — run them with the `-w <workspace>` flag or `cd <workspace> && npm run <script>`. `scripts/*.js` are one-off CLI utilities invoked directly (e.g. `node scripts/rotate-session-secret.js ...`), not wired as package scripts.
 
 One quirk worth knowing: pressing Ctrl-C during `npm run demon` prints an `npm error Lifecycle script "demon" failed ... code 130` block. This is expected and harmless, not a real failure — `nodemon` deliberately exits with the signal-convention code (128+SIGINT) on interrupt (upstream `nodemon` behavior, unrelated to this repo), and npm's workspace run-script path reports any nonzero exit as a lifecycle failure, unlike a plain non-workspace `npm run`. The server has already shut down correctly by the time this prints.
 

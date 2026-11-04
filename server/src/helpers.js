@@ -1,12 +1,7 @@
 const { pipeline } = require('stream/promises');
 
 module.exports = {
-  isDigit,
-  isNumericString,
   appendPopulationQueries,
-  arrayOfScalarsIsEqual,
-  getRandomArrayIndex,
-  snake2Camel,
   populationPathsFromQuery,
   setPackagingTypeFromShippingItems,
   streamToBuffer,
@@ -18,38 +13,8 @@ module.exports = {
  *
  *********/
 
-function isDigit(c) {
-  return ('0123456789'.split('')).includes(c);
-}
-
-function isNumericString( s ) {
-  return typeof s === 'string' && s.split('').every(isDigit);
-}
-
-function getRandomArrayIndex( arr ) {
-  return Math.floor(Math.random() * arr.length ); // 0 <= Math.random() < 1
-}
-
 function snake2Camel( str ) {
   return str.split('_').map( (s, idx) => idx ? s.slice(0,1).toUpperCase() + s.slice(1) : s ).join('');
-}
-
-
-function arrayOfScalarsIsEqual( a1, a2 ) {
-  if( a1.length !== a2.length ) {
-    return false;
-  }
-
-  for( let i=0; i<a1.length; i++ ) {
-
-    if( a1[i] !== a2[i] ) {
-      return false;
-    }
-
-  }
-
-  return true;
-
 }
 
 async function streamToBuffer(stream) {
