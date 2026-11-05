@@ -27,7 +27,7 @@ describe('buildLotQueryParams', () => {
       page,
       num,
       sort: 'createdAt',
-      sort_dir: -1,
+      sortDir: -1,
       handle: 'test',
       lotNumber: 123,
       status: 'Ready'
@@ -43,7 +43,7 @@ describe('buildLotQueryParams', () => {
       page,
       num,
       sort: 'createdAt',
-      sort_dir: -1,
+      sortDir: -1,
       handle: undefined,
       lotNumber: undefined,
       status: undefined

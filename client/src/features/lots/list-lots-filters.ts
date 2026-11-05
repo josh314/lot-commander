@@ -21,7 +21,7 @@ export function buildLotQueryParams(page: number, num: number, filters: ListFilt
     page,
     num,
     sort: 'createdAt',
-    sort_dir: -1 as SortDir,
+    sortDir: -1 as SortDir,
     handle: filters.handle || undefined,
     lotNumber: toLotNumberFilter(filters.lotNumber),
     status: filters.status === 'All' ? undefined : filters.status,

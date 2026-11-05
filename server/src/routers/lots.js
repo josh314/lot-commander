@@ -193,7 +193,7 @@ function routes({ aiBackfill, inventoryCommander, lotdb, manifests }) {
 
         // sorting
         sort: req.query.sort,
-        sortDir: req.query.sort_dir ? parseInt(req.query.sort_dir) : undefined,
+        sortDir: req.query.sortDir ? parseInt(req.query.sortDir) : undefined,
 
         // filters
         filterParams: listLotsFilterParamsFromQueryParams( req.query ),
