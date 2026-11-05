@@ -1,7 +1,7 @@
 import * as z from 'zod/v4'
 
 import * as enums from '../enums'
-import type { SortDir } from './utils'
+import type { RequestListQueryParams } from './utils'
 
 
 export const CountResponseSchema = z.object({
@@ -33,14 +33,6 @@ export type DTO = z.infer<typeof DTOSchema>
 export type ListResponse = z.infer<typeof ListResponseSchema>
 export type GetResponse = z.infer<typeof GetResponseSchema>
 
-
-export type ListPageAndSortQueryParams = {
-  page?: number
-  num?: number
-  sort?: string           // what key to sort by
-  sort_dir?: SortDir
-}
-
 export type ListFilterParams = {
   startDate?: string
   endDate?: string
@@ -49,5 +41,5 @@ export type ListFilterParams = {
   handle?: string
 }
 
-export type ListQP = ListPageAndSortQueryParams & ListFilterParams
+export type ListQP = RequestListQueryParams & ListFilterParams
 export type CountQP = ListFilterParams
