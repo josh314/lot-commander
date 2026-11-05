@@ -6,7 +6,7 @@
     "../shared"
   ],
   "events": {
-    "start": "npm run check"
+    "start": "npm run lint && npm run typecheck"
   },
   "exec": "tsx",
   "ext": "ts,js,json"

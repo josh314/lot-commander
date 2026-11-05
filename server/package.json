@@ -8,7 +8,7 @@
   "type": "commonjs",
   "main": "src/index.js",
   "scripts": {
-    "check": "npm run lint && npm run typecheck",
+    "check": "npm run lint && npm run typecheck && npm run test",
     "debug": "DEBUG=lot-commander tsx inspect src/index.js",
     "demon": ". ../.env && nodemon src/index.js",
     "lint": "eslint ./src ../shared/src",
