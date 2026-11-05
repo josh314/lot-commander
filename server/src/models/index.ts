@@ -13,7 +13,7 @@ import { counterSchema } from './counter'
 import * as shopifyOrder from './shopify-order';
 import * as shopifyOrderPick from './shopify-order-pick';
 import * as fallbackProductData from './fallback-product-data';
-import * as announcement from './announcement';
+import { siteAnnouncementSchema } from './announcement';
 
 import * as productData from './product-data';
 
@@ -46,11 +46,12 @@ class ModelCommander {
     this.InventoryPallet = mongooseConnection.model( 'InventoryPallet', inventoryPallet.schema );
     this.Lot = mongooseConnection.model( 'Lot', lot.schema );
     this.Manifest = mongooseConnection.model( 'Manifest', manifest.schema );
-    this.Counter = mongooseConnection.model( 'Counter', counterSchema )
     this.ShopifyOrder = mongooseConnection.model( 'ShopifyOrder', shopifyOrder.schema );
     this.ShopifyOrderPick = mongooseConnection.model( 'ShopifyOrderPick', shopifyOrderPick.schema );
     this.FallbackProductData = mongooseConnection.model( 'FallbackProductData', fallbackProductData.schema );
-    this.Announcement = mongooseConnection.model( 'Announcement', announcement.schema );
+
+    this.Announcement = mongooseConnection.model( 'Announcement', siteAnnouncementSchema );
+    this.Counter = mongooseConnection.model( 'Counter', counterSchema )
 
     this.InternalProductData = mongooseConnection.model( 'InternalProductData', productData.schema, "internal-product-data" );
 

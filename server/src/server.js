@@ -145,8 +145,8 @@ class Server {
     this.models = models;
 
     // initialize site notifications module
-    const SiteAnnouncements = require('./modules/site-announcements');
-    const siteAnnouncements = new SiteAnnouncements( models );
+    const { AnnouncementSvc } = require('./modules/site-announcements');
+    const siteAnnouncements = new AnnouncementSvc( models.Announcement );
 
     //================================================
     // Cookies & Session =============================

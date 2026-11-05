@@ -1,6 +1,7 @@
 const express = require('express');
 
 const counters = require('./counters');
+const announcements = require('./announcements');
 
 // middleware to stick for testing purposes
 // function testLog(s) {
@@ -32,7 +33,7 @@ function routes({
 
   const router = new express.Router();
 
-  router.use( '/api/announcements', require('./announcements')( { siteAnnouncements } ) );
+  router.use( '/api/announcements', announcements.createRouter( siteAnnouncements ) );
 
   router.use('/api/app-settings', require('./app-settings')( { appSettings } ) );
 
