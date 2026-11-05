@@ -73,7 +73,7 @@ function routes({
   router.use('/api/orders', require('./orders')( { shopifyOrders, fulfillmentCommander } ) );
 
   // counter app
-  router.use('/api/counters', counters.createRouter( { countCommander } ) );
+  router.use('/api/counters', counters.createRouter( countCommander ) );
 
   router.use( express.static( 'dist' ) );
 

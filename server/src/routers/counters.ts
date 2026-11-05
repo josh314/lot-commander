@@ -4,7 +4,7 @@ import { HydratedDocument } from 'mongoose';
 import * as auth from '../auth';
 
 import type { ICounter } from '../models/counter';
-import { CountCommander } from '../modules/count-commander';
+import type{ CountCommander } from '../modules/count-commander';
 import { counters } from '@shared/api';
 
 import { parseRequest } from '../parse-request';
@@ -31,7 +31,7 @@ function buildCounterResponse(counter: HydratedDocument<ICounter> | null): count
  *
  **********/
 
-export function createRouter({ countCommander }: { countCommander: CountCommander }) {
+export function createRouter( countCommander: CountCommander ) {
   const router: Router = Router();
 
   /*******************************************
