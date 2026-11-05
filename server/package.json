@@ -12,6 +12,7 @@
     "debug": "DEBUG=lot-commander tsx inspect src/index.js",
     "demon": ". ../.env && nodemon src/index.js",
     "lint": "eslint ./src ../shared/src",
+    "ngrok": "ngrok http 8080 --subdomain=josh-wsn --host-header=localhost:8080",
     "start": ". ../.env && DEBUG=lot-commander tsx src/index.js",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
