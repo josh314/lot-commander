@@ -7,29 +7,15 @@ import {
   ResourceNotFoundError,
 } from '../errors'
 
+import { buildMongoListQuery } from '../utils'
+
 export class AnnouncementSvc {
 
   constructor( private Announcement: Model<ISiteAnnouncement> ) {}
 
   async list( qp: api.announcements.ListRequestQueryParams )  {
 
-    const { num, page, sort, sortDir, ...rest } = qp
-    const filterParams = { ...rest }
-    const _num = num ?? 20
-    const skip = ((page ?? 1) - 1) * _num
-
-
-    let sortField
-    if ( sort ) {
-      sortField = sort
-    }
-    else {
-      sortField = 'createdAt'
-    }
-
-    const sortParams = {
-      [ sortField ] : sortDir || 1
-    }
+    const { skip, num: _num, sortParams, filterParams } = buildMongoListQuery( qp )
 
     return this.Announcement.find( filterParams  ).skip( skip ).limit( _num ).sort( sortParams ).exec()
 
@@ -65,7 +51,7 @@ export class AnnouncementSvc {
 
   async edit( announcementId: string, data: api.announcements.EditRequestBody ) {
 
-    const announcement = await this.Announcement.findByIdAndUpdate( announcementId, data, { new: true } )
+    const announcement = await this.Announcement.findByIdAndUpdate( announcementId, data, { returnDocument: 'after' } )
 
     if( !announcement ) {
       throw new ResourceNotFoundError( { type: 'announcement', id: announcementId } )
