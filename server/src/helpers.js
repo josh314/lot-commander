@@ -3,7 +3,6 @@ const { pipeline } = require('stream/promises');
 module.exports = {
   appendPopulationQueries,
   populationPathsFromQuery,
-  setPackagingTypeFromShippingItems,
   streamToBuffer,
 };
 
@@ -103,49 +102,5 @@ function appendPopulationQueries( query, populationPaths ) {
   }
 
   return query.populate( pathObjects );
-
-}
-
-
-/**********************************************
- * Others
- * ========================
- *
- *********/
-
-function setPackagingTypeFromShippingItems( $_ ) {
-
-  // This is a generic function for use with any object that has shippingItems and packagingType fields
-  if( $_.shippingItems ) {
-
-    const hasPalletShippingItem = $_.shippingItems.some( shippingItem => {
-      return shippingItem.weight === 2000 &&
-        shippingItem.weightUnits === 'pounds' &&
-        shippingItem.height === 60 &&
-        shippingItem.heightUnits === 'inches' &&
-        shippingItem.width === 48 &&
-        shippingItem.widthUnits === 'inches' &&
-        shippingItem.length === 48 &&
-        shippingItem.lengthUnits === 'inches';
-    } );
-
-    if( hasPalletShippingItem ) {
-      $_.packagingType = 'pallets:bulky';
-    }
-    else {
-
-      if( $_.shippingItems && $_.shippingItems.length >= 8 ) {
-        $_.packagingType = 'pallets';
-      }
-      else if ( $_.shippingItems && $_.shippingItems.length < 8 ) {
-        $_.packagingType = 'box lot';
-      }
-
-    }
-
-  }
-  else {
-    $_.packagingType = 'box lot';
-  }
 
 }
