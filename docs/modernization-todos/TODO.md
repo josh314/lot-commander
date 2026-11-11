@@ -105,11 +105,25 @@ Found scanning the `26.0.1-rc` legacy-client tag against `server/`. Still presen
 - [ ] Migrate config loading from SSM Parameter Store to ECS task-definition
       envars — see `Infrastructure` in `CLAUDE.md`.
 
+- [ ] Two copies of `setPackagingTypeFromShippingItems` currently exist:
+      `server/src/models/shipping-item.ts` (`$_`-param version, still needed
+      by untouched `server/src/models/inventory-pallet.js`) and
+      `server/src/models/set-packaging-type-from-shipping-items.ts`
+      (`this`-bound version, used by the new `lot.ts`). These are no longer
+      meant to be identical: the pallet-size predicate in
+      `set-packaging-type-from-shipping-items.ts` was deliberately changed
+      from exact-equality (`=== 2000/60/48/48`) to `>=`, and this is now the
+      intended criterion going forward. When `inventory-pallet.js`/
+      `splitGroupSchema` are migrated to TS, update their copy to the same
+      `>=` criterion and collapse to one shared implementation.
+
 - [ ] non-handlebars login page
 
 - [ ] LAST!: deprecate server features that are no longer needed by the new client
   - [ ] most or all of handlebars?
   - [ ] the HTML shell `server/src/views/layouts/index.hbs` should serve the react app, not the angular scripts — confirmed actively broken as of the bstock/quick-lots/script-builder cleanup (`0cda243`): `app.js`/`app.css` already 404 since `client-legacy/` was deleted (`1572bac`), and `/build/ng-app-server-data.js`/`ng-app-server-code.js` now 404 too since `script-builder.js`'s route was removed. The SPA catch-all (`routers/index.js`'s `router.get('/{*splat}', ...)` → `main.hbs`) currently renders a non-functional page
+  - [ ] after the server is typed, can remove logic or throws (and tests of such logic) that only trigger on invalid type paths (e.g., `getMediaArray` with an invalid `MediaType`)
+    - [ ] throw logic in `getMediaArray` and the test of this logic
 
 ## Shared code
 
