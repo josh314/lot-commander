@@ -1,4 +1,4 @@
-import { Schema, InferSchemaType } from 'mongoose'
+import { Schema, InferSchemaType, HydratedDocument, Model } from 'mongoose'
 
 import * as enums from '@shared/enums'
 
@@ -23,4 +23,6 @@ export const counterSchema = new Schema(
   },
 )
 
-export type ICounter = InferSchemaType<typeof counterSchema>;
+export type CounterData = InferSchemaType<typeof counterSchema>
+export type Counter = HydratedDocument<CounterData>
+export type CounterModel = Model<CounterData>

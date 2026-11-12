@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
-import { counterSchema, type ICounter } from '../models/counter'
+import { counterSchema } from '../models/counter'
 import { CountCommander } from './count-commander'
 
 describe('CountCommander', () => {
@@ -12,7 +12,7 @@ describe('CountCommander', () => {
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
     connection = await mongoose.createConnection(mongod.getUri()).asPromise()
-    const Counter = connection.model<ICounter>('Counter', counterSchema)
+    const Counter = connection.model('Counter', counterSchema)
     commander = new CountCommander(Counter)
     await Counter.create({ handle: 'pallet-lots', count: 0 })
   })

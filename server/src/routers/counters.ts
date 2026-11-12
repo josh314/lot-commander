@@ -1,15 +1,14 @@
 import { Router } from 'express';
-import { HydratedDocument } from 'mongoose';
 
 import * as auth from '../auth';
 
-import type { ICounter } from '../models/counter';
+import type { Counter } from '../models/counter';
 import type{ CountCommander } from '../modules/count-commander';
 import { counters } from '@shared/api';
 
 import { parseRequest } from '../parse-request';
 
-function counterToDTO(counter: HydratedDocument<ICounter>): counters.DTO {
+function counterToDTO(counter: Counter): counters.DTO {
 
   return {
     _id: counter._id.toString(),
@@ -21,7 +20,7 @@ function counterToDTO(counter: HydratedDocument<ICounter>): counters.DTO {
 
 }
 
-function buildCounterResponse(counter: HydratedDocument<ICounter> | null): counters.Response {
+function buildCounterResponse(counter: Counter | null): counters.Response {
   return { counter: counter ? counterToDTO(counter) : null };
 }
 

@@ -1,11 +1,10 @@
-import type { Model } from 'mongoose';
-import type { ICounter } from '../models/counter';
+import type { CounterModel } from '../models/counter';
 
 import { counters } from '@shared/api';
 
 export class CountCommander {
 
-  constructor( private Counter: Model<ICounter> ) {}
+  constructor( private Counter: CounterModel ) {}
 
   getCounter( handle: counters.Handle ) {
     return this.Counter.findOne( { handle } );
