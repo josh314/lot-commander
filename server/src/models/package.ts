@@ -1,4 +1,5 @@
-import { Schema, Model, HydratedDocument, Types,  } from 'mongoose'
+import { Schema, Model, HydratedDocument } from 'mongoose'
+import type { DataRecord } from './utils'
 
 export interface PackageData {
   handle: string
@@ -17,11 +18,7 @@ export interface PackageData {
   fulfilledDate?: Date
 }
 
-export type PackageRecord = PackageData & {
-  _id: Types.ObjectId
-  createdAt: Date
-  updatedAt: Date
-}
+export type PackageRecord = DataRecord<PackageData>
 
 export interface PackageMethods {
   edit(data: Partial<PackageData>): Promise<Package>
