@@ -1,5 +1,5 @@
-import type { Model } from 'mongoose'
-import type { ISiteAnnouncement } from '../models/announcement'
+
+import type { AnnouncementModel } from '../models/announcement'
 
 import * as api from '@shared/api'
 
@@ -11,7 +11,7 @@ import { buildMongoListQuery } from '../utils'
 
 export class AnnouncementSvc {
 
-  constructor( private Announcement: Model<ISiteAnnouncement> ) {}
+  constructor( private Announcement: AnnouncementModel ) {}
 
   async list( qp: api.announcements.ListRequestQueryParams )  {
 

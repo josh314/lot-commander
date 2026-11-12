@@ -1,5 +1,5 @@
 
-import { Schema, DefaultTimestampProps } from 'mongoose'
+import { Schema, HydratedDocument, InferSchemaType, Model } from 'mongoose'
 
 /*******************************
  * Site Announcement schema
@@ -7,13 +7,7 @@ import { Schema, DefaultTimestampProps } from 'mongoose'
  *
  ******/
 
-export interface ISiteAnnouncement extends DefaultTimestampProps {
-  header: string
-  body: string
-  isActive: boolean
-}
-
-export const siteAnnouncementSchema = new Schema<ISiteAnnouncement>(
+export const announcementSchema = new Schema(
 
   {
     header: { type: String, required: true },
@@ -23,3 +17,7 @@ export const siteAnnouncementSchema = new Schema<ISiteAnnouncement>(
 
   { collection: 'site-announcements', timestamps: true }
 )
+
+export type AnnouncementData = InferSchemaType<typeof announcementSchema>
+export type Announcement = HydratedDocument<AnnouncementData>
+export type AnnouncementModel = Model<AnnouncementData>

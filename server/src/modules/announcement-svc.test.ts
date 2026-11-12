@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
-import { siteAnnouncementSchema, type ISiteAnnouncement } from '../models/announcement'
-import { AnnouncementSvc } from './site-announcements'
+import { announcementSchema } from '../models/announcement'
+import { AnnouncementSvc } from './announcement-svc'
 
 import { ResourceNotFoundError } from '../errors'
 
@@ -14,7 +14,7 @@ describe('AnnouncementSvc', () => {
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
     connection = await mongoose.createConnection(mongod.getUri()).asPromise()
-    const Announcement = connection.model<ISiteAnnouncement>('Announcement', siteAnnouncementSchema)
+    const Announcement = connection.model('Announcement', announcementSchema)
     svc = new AnnouncementSvc( Announcement )
 
     await Announcement.create({ header: 'Heads up', body: 'This is a test announcement.', isActive: true })

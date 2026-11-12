@@ -15,7 +15,7 @@ import * as productData from './product-data';
 
 import { lotSchema } from './lot'
 import { counterSchema } from './counter'
-import { siteAnnouncementSchema } from './announcement'
+import { announcementSchema } from './announcement'
 
 class ModelCommander {
 
@@ -50,7 +50,7 @@ class ModelCommander {
     this.FallbackProductData = mongooseConnection.model( 'FallbackProductData', fallbackProductData.schema );
     this.InternalProductData = mongooseConnection.model( 'InternalProductData', productData.schema, "internal-product-data" );
 
-    this.Announcement = mongooseConnection.model( 'Announcement', siteAnnouncementSchema )
+    this.Announcement = mongooseConnection.model( 'Announcement', announcementSchema )
     this.Counter = mongooseConnection.model( 'Counter', counterSchema )
     this.Lot = mongooseConnection.model( 'Lot', lotSchema )
 

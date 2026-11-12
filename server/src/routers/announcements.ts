@@ -1,15 +1,14 @@
 import { Router } from 'express'
-import { HydratedDocument } from 'mongoose'
 
 import * as auth from '../auth'
 
-import type { ISiteAnnouncement } from '../models/announcement'
-import { AnnouncementSvc } from '../modules/site-announcements'
+import type { Announcement } from '../models/announcement'
+import { AnnouncementSvc } from '../modules/announcement-svc'
 import * as api from '@shared/api'
 
 import { parseRequest } from '../parse-request'
 
-function announcementToDTO( announcement: HydratedDocument<ISiteAnnouncement> ): api.announcements.DTO {
+function announcementToDTO( announcement: Announcement ): api.announcements.DTO {
   return {
     _id: announcement._id.toString(),
     header: announcement.header,
