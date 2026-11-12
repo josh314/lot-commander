@@ -3,7 +3,6 @@
 import type { Connection } from 'mongoose';
 
 import * as appSetting from'./app-setting'
-import * as pkg from './package';
 import * as incomingShipment from './incoming-shipment';
 import * as inventoryPallet from './inventory-pallet';
 import * as bundle from './bundle';
@@ -14,15 +13,15 @@ import * as fallbackProductData from './fallback-product-data';
 import * as productData from './product-data';
 
 import { lotSchema } from './lot'
-import { counterSchema } from './counter'
-import { announcementSchema } from './announcement'
+import { counterSchema, type CounterModel } from './counter'
+import { announcementSchema, type AnnouncementModel } from './announcement'
+import { packageSchema, type PackageData, type PackageModel } from './package'
 
 class ModelCommander {
 
   private conn: Connection;
   private AppSetting;
   private IncomingShipment;
-  private Package;
   private Bundle;
   private InventoryPallet;
   private Manifest;
@@ -32,8 +31,9 @@ class ModelCommander {
   private InternalProductData;
 
   private Lot
-  private Counter
-  private Announcement
+  private Counter: CounterModel
+  private Announcement: AnnouncementModel
+  private Package: PackageModel
 
   constructor( mongooseConnection: Connection ) {
     this.conn = mongooseConnection;
@@ -41,7 +41,6 @@ class ModelCommander {
     // initialize models
     this.AppSetting = mongooseConnection.model( 'AppSetting', appSetting.schema );
     this.IncomingShipment = mongooseConnection.model( 'IncomingShipment', incomingShipment.schema );
-    this.Package = mongooseConnection.model( 'Package', pkg.schema );
     this.Bundle = mongooseConnection.model( 'Bundle', bundle.schema );
     this.InventoryPallet = mongooseConnection.model( 'InventoryPallet', inventoryPallet.schema );
     this.Manifest = mongooseConnection.model( 'Manifest', manifest.schema );
@@ -53,6 +52,7 @@ class ModelCommander {
     this.Announcement = mongooseConnection.model( 'Announcement', announcementSchema )
     this.Counter = mongooseConnection.model( 'Counter', counterSchema )
     this.Lot = mongooseConnection.model( 'Lot', lotSchema )
+    this.Package = mongooseConnection.model<PackageData, PackageModel>( 'Package', packageSchema )
 
   }
 
