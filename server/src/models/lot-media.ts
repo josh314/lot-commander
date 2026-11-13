@@ -1,5 +1,5 @@
 
-import * as mongoose from 'mongoose'
+import { Schema, HydratedDocument } from 'mongoose'
 
 /*******************************
  * LotMediaDataSchema schema
@@ -7,14 +7,20 @@ import * as mongoose from 'mongoose'
  *
  ******/
 
-export interface ILotMediaData {
+export interface LotMediaData {
   filename?: string
   s3?: string
   primary?: boolean
   isProcessing?: boolean
 }
 
-export const lotMediaDataSchema = new mongoose.Schema<ILotMediaData, object, ILotMediaDataMethods>(
+export interface LotMediaMethods {
+  finishProcessing: ( s3Location: string ) => LotMedia
+}
+
+export type LotMedia = HydratedDocument<LotMediaData, LotMediaMethods>
+
+export const lotMediaSchema = new Schema<LotMediaData, object, LotMediaMethods>(
 
   {
     filename: String,
@@ -33,9 +39,3 @@ export const lotMediaDataSchema = new mongoose.Schema<ILotMediaData, object, ILo
     }
   }
 )
-
-export interface ILotMediaDataMethods {
-  finishProcessing: ( s3Location: string ) => ILotMediaData
-}
-
-export type THydratedLotMediaData = ILotMediaData & ILotMediaDataMethods & { _id: mongoose.Types.ObjectId }

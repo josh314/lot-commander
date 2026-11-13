@@ -12,7 +12,7 @@ import * as shopifyOrderPick from './shopify-order-pick';
 import * as fallbackProductData from './fallback-product-data';
 import * as productData from './product-data';
 
-import { lotSchema } from './lot'
+import { lotSchema, type LotData, type LotModel } from './lot'
 import { counterSchema, type CounterModel } from './counter'
 import { announcementSchema, type AnnouncementModel } from './announcement'
 import { packageSchema, type PackageData, type PackageModel } from './package'
@@ -30,7 +30,7 @@ class ModelCommander {
   private FallbackProductData;
   private InternalProductData;
 
-  private Lot
+  private Lot: LotModel
   private Counter: CounterModel
   private Announcement: AnnouncementModel
   private Package: PackageModel
@@ -51,7 +51,7 @@ class ModelCommander {
 
     this.Announcement = mongooseConnection.model( 'Announcement', announcementSchema )
     this.Counter = mongooseConnection.model( 'Counter', counterSchema )
-    this.Lot = mongooseConnection.model( 'Lot', lotSchema )
+    this.Lot = mongooseConnection.model<LotData, LotModel>( 'Lot', lotSchema )
     this.Package = mongooseConnection.model<PackageData, PackageModel>( 'Package', packageSchema )
 
   }

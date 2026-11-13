@@ -1,8 +1,10 @@
-import { Schema, Model, Types } from 'mongoose'
+import { Schema, Model, Types, HydratedDocument } from 'mongoose'
+import type { DataRecord } from './utils'
 import { shippingItemSchema, type ShippingItem } from './shipping-item'
-import { lotMediaDataSchema, type ILotMediaData, type THydratedLotMediaData } from './lot-media-data'
+import { lotMediaSchema, type LotMediaData, type LotMedia } from './lot-media'
 import { setPackagingTypeFromShippingItems } from './set-packaging-type-from-shipping-items'
 import * as enums from '@shared/enums'
+import type { LotStatus, Condition, Marketplace, PackagingType } from '@shared/enums'
 import { ChildResourceNotFoundError, IllegalActionError } from '../errors'
 import { __DEFAULT_PRICE_VALUE_PCT__ } from '../constants'
 
@@ -14,31 +16,39 @@ import { __DEFAULT_PRICE_VALUE_PCT__ } from '../constants'
 
 export type MediaType = 'images' | 'videos'
 
-export interface ILot {
+interface SubmittedListing {
+  marketplace: string
+  dateSubmitted: Date
+  success: boolean
+  message: string
+  shopify: {
+    store: string
+    productId: number
+    productVariantId: number
+    handle: string
+  }
+}
+
+interface ThirdPartyManifest {
+  dbId?: string
+  blockId?: string
+  filename?: string
+}
+
+export interface LotData {
 
   handle: string
   lotNumber?: number
   pallet?: string
   description?: string
-  type?: string
+  type?: Condition
   category?: string
   totalUnits?: number
   estimatedRetailValue?: number
   priceValuePercentage?: number
-  status: string
-  destinationMarketplace?: string
-  submittedListings: Types.DocumentArray<{
-    marketplace: string
-    dateSubmitted: Date
-    success: boolean
-    message: string
-    shopify: {
-      store: string
-      productId: number
-      productVariantId: number
-      handle: string
-    }
-  }>
+  status: LotStatus
+  destinationMarketplace?: Marketplace
+  submittedListings: Array<SubmittedListing>
   listingData?: {
     title: string
     body: string
@@ -46,42 +56,52 @@ export interface ILot {
   listedDate?: Date
   soldDate?: Date
   shippedDate?: Date
-  images: Types.DocumentArray<ILotMediaData>
-  videos: Types.DocumentArray<ILotMediaData>
+  images: Array<LotMedia>
+  videos: Array<LotMedia>
   unmanifested?: boolean
   manifestId?: string
-  thirdPartyManifests: Types.DocumentArray<{
-    dbId?: string
-    blockId?: string
-    filename?: string
-  }>
+  thirdPartyManifests: Array<ThirdPartyManifest>
   manifestFileLocation?: string
   numBoxes?: number
-  packagingType?: string
-  shippingItems: Types.DocumentArray<ShippingItem>
+  packagingType?: PackagingType
+  shippingItems: Array<ShippingItem>
   isDeleted?: boolean
+
 }
+
+export type LotRecord =  DataRecord<LotData>
 
 interface MediaSaveOptions {
   save?: boolean
 }
 
-interface ILotMethods {
+type LotMediaArray = Types.DocumentArray<LotMedia>
+
+interface LotMethods {
   setPackagingTypeFromShippingItems: () => void
-  edit: (data: Partial<ILot>) => Promise<ILot>
-  ship: () => Promise<ILot>
-  unship: () => Promise<ILot>
-  markAsSold: (date: string) => Promise<ILot>
-  getMediaArray: (mediaType: MediaType) => Types.DocumentArray<THydratedLotMediaData>
-  getMedia: ( mediaId: string | Types.ObjectId, mediaType: MediaType) => THydratedLotMediaData | null
-  getMediaOrThrow: ( mediaId: string | Types.ObjectId, mediaType: MediaType) => THydratedLotMediaData
-  addMedia: ( media: ILotMediaData, mediaType: MediaType, options?: MediaSaveOptions) => Promise<{ lot: ILot, media: ILotMediaData }>
-  removeMedia: ( mediaId: string | Types.ObjectId, mediaType: MediaType, options?: MediaSaveOptions) => ILot | Promise<ILot>
-  setPrimaryMedia: ( mediaId: string | Types.ObjectId, mediaType: MediaType, options?: MediaSaveOptions ) => ILot | Promise<ILot>
-  finishProcessingMedia: ( mediaId: string | Types.ObjectId, mediaType: MediaType, s3Location: string, options?: MediaSaveOptions) => Promise<{ lot: ILot, media: ILotMediaData | null }>
+  edit: (data: Partial<LotData>) => Promise<Lot>
+  ship: () => Promise<Lot>
+  unship: () => Promise<Lot>
+  markAsSold: (date: string) => Promise<Lot>
+  getMediaArray: (mediaType: MediaType) => LotMediaArray
+  getMedia: ( mediaId: string | Types.ObjectId, mediaType: MediaType) => LotMedia | null
+  getMediaOrThrow: ( mediaId: string | Types.ObjectId, mediaType: MediaType) => LotMedia
+  addMedia: ( media: LotMediaData, mediaType: MediaType, options?: MediaSaveOptions) => Promise<{ lot: Lot, media: LotMedia }>
+  removeMedia: ( mediaId: string | Types.ObjectId, mediaType: MediaType, options?: MediaSaveOptions) => Lot | Promise<Lot>
+  setPrimaryMedia: ( mediaId: string | Types.ObjectId, mediaType: MediaType, options?: MediaSaveOptions ) => Lot | Promise<Lot>
+  finishProcessingMedia: ( mediaId: string | Types.ObjectId, mediaType: MediaType, s3Location: string, options?: MediaSaveOptions) => Promise<{ lot: Lot, media: LotMedia | null }>
 }
 
-export type LotModelType = Model<ILot, object, ILotMethods>
+// overwrite HydratedDocument to include arrays as Types.DocumentArray for certain fields
+export type Lot = HydratedDocument<LotRecord, LotMethods> & {
+  submittedListings: Types.DocumentArray<SubmittedListing>
+  images: LotMediaArray
+  videos: LotMediaArray
+  thirdPartyManifests: Types.DocumentArray<ThirdPartyManifest>
+  shippingItems: Types.DocumentArray<ShippingItem>
+}
+
+export type LotModel = Model<LotData, object, LotMethods, object, Lot, unknown, LotRecord>
 
 /*************************************************
  * Schema
@@ -90,7 +110,7 @@ export type LotModelType = Model<ILot, object, ILotMethods>
  ********/
 
 // define the schema for our lot model
-export const lotSchema = new Schema<ILot, LotModelType, ILotMethods>(
+export const lotSchema = new Schema<LotData, LotModel, LotMethods, object, object, object, object, LotRecord, Lot>(
 
   {
     handle: {
@@ -135,8 +155,8 @@ export const lotSchema = new Schema<ILot, LotModelType, ILotMethods>(
     soldDate: Date,
     shippedDate: Date,
 
-    images: [ lotMediaDataSchema ],
-    videos: [ lotMediaDataSchema ],
+    images: [ lotMediaSchema ],
+    videos: [ lotMediaSchema ],
 
     /*********** Manifest properties ************/
     unmanifested: Boolean, //marks a generic lot with unmanifested items.
@@ -156,7 +176,7 @@ export const lotSchema = new Schema<ILot, LotModelType, ILotMethods>(
     packagingType: { type: String, enum: enums.packagingTypes },
     shippingItems: [ shippingItemSchema ],
 
-    isDeleted: Boolean,
+    isDeleted: { type: Boolean, default: false, required: true },
 
   },
 
@@ -168,7 +188,7 @@ export const lotSchema = new Schema<ILot, LotModelType, ILotMethods>(
     methods: {
       setPackagingTypeFromShippingItems,
 
-      edit: function( data: Partial<ILot> ) {
+      edit: function( data: Partial<LotData> ) {
 
         Object.assign( this, data )
         return this.save()
@@ -207,7 +227,7 @@ export const lotSchema = new Schema<ILot, LotModelType, ILotMethods>(
           /* eslint-enable @typescript-eslint/restrict-template-expressions */
         }
 
-        return this[ mediaType ] as Types.DocumentArray<THydratedLotMediaData>
+        return this[ mediaType ]
       },
 
       getMedia: function( mediaId: string | Types.ObjectId, mediaType: MediaType ) {
@@ -232,20 +252,21 @@ export const lotSchema = new Schema<ILot, LotModelType, ILotMethods>(
         return media
       },
 
-      addMedia: async function( media: ILotMediaData, mediaType: MediaType, { save } = { save: true } ) {
+      addMedia: async function( media: LotMediaData, mediaType: MediaType, { save } = { save: true } ) {
 
         const arr = this.getMediaArray( mediaType )
-        arr.push( Object.assign( media, { _id: new Types.ObjectId() } ) )
+        const newMedia = arr.create( media )
+        arr.push( newMedia )
 
         if( save ) {
           await this.save()
         }
 
-        return { lot: this, media }
+        return { lot: this, media: newMedia }
 
       },
 
-      removeMedia: function( mediaId: string | Types.ObjectId, mediaType: MediaType, { save } = { save: true } ): ILot | Promise<ILot> {
+      removeMedia: function( mediaId: string | Types.ObjectId, mediaType: MediaType, { save } = { save: true } ) {
 
         const arr = this.getMediaArray( mediaType )
 
@@ -314,10 +335,6 @@ lotSchema.pre( 'validate', function() {
 } )
 
 lotSchema.pre( 'save', function() {
-
-  if( typeof this.isDeleted !== 'boolean' ) {
-    this.isDeleted = false
-  }
 
   if( !this.priceValuePercentage || this.priceValuePercentage < 0 ) {
     this.priceValuePercentage = __DEFAULT_PRICE_VALUE_PCT__
