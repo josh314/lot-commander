@@ -5,7 +5,6 @@ import type { Connection } from 'mongoose';
 import * as appSetting from'./app-setting'
 import * as incomingShipment from './incoming-shipment';
 import * as inventoryPallet from './inventory-pallet';
-import * as bundle from './bundle';
 import * as manifest from './manifest';
 import * as shopifyOrder from './shopify-order';
 import * as shopifyOrderPick from './shopify-order-pick';
@@ -16,13 +15,13 @@ import { lotSchema, type LotData, type LotModel } from './lot'
 import { counterSchema, type CounterModel } from './counter'
 import { announcementSchema, type AnnouncementModel } from './announcement'
 import { packageSchema, type PackageData, type PackageModel } from './package'
+import { bundleSchema, type BundleData, type BundleModel } from './bundle'
 
 class ModelCommander {
 
   private conn: Connection;
   private AppSetting;
   private IncomingShipment;
-  private Bundle;
   private InventoryPallet;
   private Manifest;
   private ShopifyOrder;
@@ -34,6 +33,7 @@ class ModelCommander {
   private Counter: CounterModel
   private Announcement: AnnouncementModel
   private Package: PackageModel
+  private Bundle: BundleModel
 
   constructor( mongooseConnection: Connection ) {
     this.conn = mongooseConnection;
@@ -41,7 +41,6 @@ class ModelCommander {
     // initialize models
     this.AppSetting = mongooseConnection.model( 'AppSetting', appSetting.schema );
     this.IncomingShipment = mongooseConnection.model( 'IncomingShipment', incomingShipment.schema );
-    this.Bundle = mongooseConnection.model( 'Bundle', bundle.schema );
     this.InventoryPallet = mongooseConnection.model( 'InventoryPallet', inventoryPallet.schema );
     this.Manifest = mongooseConnection.model( 'Manifest', manifest.schema );
     this.ShopifyOrder = mongooseConnection.model( 'ShopifyOrder', shopifyOrder.schema );
@@ -53,6 +52,7 @@ class ModelCommander {
     this.Counter = mongooseConnection.model( 'Counter', counterSchema )
     this.Lot = mongooseConnection.model<LotData, LotModel>( 'Lot', lotSchema )
     this.Package = mongooseConnection.model<PackageData, PackageModel>( 'Package', packageSchema )
+    this.Bundle = mongooseConnection.model<BundleData, BundleModel>( 'Bundle', bundleSchema )
 
   }
 

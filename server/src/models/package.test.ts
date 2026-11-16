@@ -32,4 +32,11 @@ describe('Package model initialization', () => {
     await pkg.save()
     expect(getSpy).toHaveResolved()
   })
+
+  it('Default values', () => {
+    const pkg = new Package({})
+    expect(pkg.isInstantiated).toBe(false)
+    expect(pkg.isFulfilled).toBe(false)
+    expect(pkg.isDeleted).toBe(false)
+  })
 })

@@ -87,6 +87,13 @@ export const counterHandles = [
   'pallet-lots',
 ] as const
 
+
+export const bundleTypes = [
+  'cosmetics',
+  'cosmetics__maybelline',
+  'cosmetics__loreal',
+] as const
+
 export type PackagingType = (typeof packagingTypes)[number]
 export type WeightUnit = (typeof weightUnits)[number]
 export type LengthUnit = (typeof lengthUnits)[number]
@@ -95,3 +102,4 @@ export type LotStatus = (typeof lotStatuses)[number]
 export type LotCategory = (typeof lotCategories)[number]
 export type CounterHandle = (typeof counterHandles)[number]
 export type Condition = (typeof conditions)[number]
+export type BundleType = (typeof bundleTypes)[number]
