@@ -1,7 +1,7 @@
-import { Schema, Model, Types, HydratedDocument } from 'mongoose'
-import type { DataRecord } from './utils'
+import { Schema, Types, HydratedDocument } from 'mongoose'
+import type { DataRecord, ModelFor } from './utils'
 import { shippingItemSchema, type ShippingItem } from './shipping-item'
-import { lotMediaSchema, type LotMediaData, type LotMedia } from './lot-media'
+import { lotMediaSchema, type LotMediaData, type LotMedia, type LotMediaArray } from './lot-media'
 import { setPackagingTypeFromShippingItems } from './set-packaging-type-from-shipping-items'
 import * as enums from '@shared/enums'
 import type { LotStatus, Condition, Marketplace, PackagingType } from '@shared/enums'
@@ -39,7 +39,7 @@ export interface LotData {
 
   handle: string
   lotNumber?: number
-  pallet?: string
+  pallet?: Types.ObjectId
   description?: string
   type?: Condition
   category?: string
@@ -75,8 +75,6 @@ interface MediaSaveOptions {
   save?: boolean
 }
 
-type LotMediaArray = Types.DocumentArray<LotMedia>
-
 interface LotMethods {
   setPackagingTypeFromShippingItems: () => void
   edit: (data: Partial<LotData>) => Promise<Lot>
@@ -94,14 +92,12 @@ interface LotMethods {
 
 // overwrite HydratedDocument to include arrays as Types.DocumentArray for certain fields
 export type Lot = HydratedDocument<LotRecord, LotMethods> & {
-  submittedListings: Types.DocumentArray<SubmittedListing>
   images: LotMediaArray
   videos: LotMediaArray
-  thirdPartyManifests: Types.DocumentArray<ThirdPartyManifest>
   shippingItems: Types.DocumentArray<ShippingItem>
 }
 
-export type LotModel = Model<LotData, object, LotMethods, object, Lot, unknown, LotRecord>
+export type LotModel = ModelFor<LotData, LotMethods, Lot, LotRecord>
 
 /*************************************************
  * Schema
@@ -255,7 +251,7 @@ export const lotSchema = new Schema<LotData, LotModel, LotMethods, object, objec
       addMedia: async function( media: LotMediaData, mediaType: MediaType, { save } = { save: true } ) {
 
         const arr = this.getMediaArray( mediaType )
-        const newMedia = arr.create( media )
+        const newMedia = arr.create( { ...media, _id: new Types.ObjectId() } )
         arr.push( newMedia )
 
         if( save ) {

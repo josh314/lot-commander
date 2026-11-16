@@ -1,20 +1,20 @@
-import { Schema, Model, HydratedDocument } from 'mongoose'
-import type { DataRecord } from './utils'
+import { Schema, Types, HydratedDocument } from 'mongoose'
+import type { DataRecord, ModelFor } from './utils'
 
 export interface PackageData {
-  handle: string
-  units: number
-  productId: string
-  productTitle: string
-  category: string
-  condition: string
-  isInstantiated: boolean
+  handle?: string
+  units?: number
+  productId?: string
+  productTitle?: string
+  category?: string
+  condition?: string
+  isInstantiated?: boolean
   instantiatedDate?: Date
-  isDeleted: boolean
+  isDeleted?: boolean
   deletedDate?: Date
-  pallet?: string
-  shipment?: string
-  isFulfilled: boolean
+  pallet?: Types.ObjectId
+  shipment?: Types.ObjectId
+  isFulfilled?: boolean
   fulfilledDate?: Date
 }
 
@@ -32,7 +32,7 @@ export interface PackageMethods {
 
 export type Package = HydratedDocument<PackageRecord, PackageMethods>
 
-export type PackageModel = Model<PackageData, object, PackageMethods, object, Package, unknown, PackageRecord>
+export type PackageModel = ModelFor<PackageData, PackageMethods, Package, PackageRecord>
 
 
 export const packageSchema = new Schema<PackageData, PackageModel, PackageMethods, object, object, object, object, PackageRecord, Package>({
@@ -44,9 +44,9 @@ export const packageSchema = new Schema<PackageData, PackageModel, PackageMethod
 
   category: String,
   condition: String,
-  isInstantiated: Boolean,
+  isInstantiated: { type: Boolean, default: false, required: true },
   instantiatedDate: Date,
-  isDeleted: Boolean,
+  isDeleted: { type: Boolean, default: false, required: true },
   deletedDate: Date,
   pallet: {
     type: Schema.Types.ObjectId,
@@ -57,7 +57,7 @@ export const packageSchema = new Schema<PackageData, PackageModel, PackageMethod
     ref: 'IncomingShipment'
   },
 
-  isFulfilled: Boolean,
+  isFulfilled: { type: Boolean, default: false, required: true },
   fulfilledDate: Date
 
 }, {
@@ -102,23 +102,3 @@ export const packageSchema = new Schema<PackageData, PackageModel, PackageMethod
   }
 
 })
-
-// /***********************
-//  * Package pre-save hook
-//  *
-//  ******/
-packageSchema.pre( 'save', function() {
-
-  if( typeof this.isInstantiated !== 'boolean' ) {
-    this.isInstantiated = false
-  }
-
-  if( typeof this.isDeleted !== 'boolean' ) {
-    this.isDeleted = false
-  }
-
-  if( typeof this.isFulfilled !== 'boolean' ) {
-    this.isFulfilled = false
-  }
-
-} )

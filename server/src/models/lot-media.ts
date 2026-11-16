@@ -1,5 +1,5 @@
 
-import { Schema, HydratedDocument } from 'mongoose'
+import { Schema, HydratedDocument, Types } from 'mongoose'
 
 /*******************************
  * LotMediaDataSchema schema
@@ -19,6 +19,8 @@ export interface LotMediaMethods {
 }
 
 export type LotMedia = HydratedDocument<LotMediaData, LotMediaMethods>
+
+export type LotMediaArray = Types.DocumentArray<LotMedia>
 
 export const lotMediaSchema = new Schema<LotMediaData, object, LotMediaMethods>(
 
