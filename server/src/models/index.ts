@@ -2,12 +2,13 @@
 
 import type { Connection } from 'mongoose';
 
-import * as appSetting from'./app-setting'
 import * as incomingShipment from './incoming-shipment';
 import * as inventoryPallet from './inventory-pallet';
 import * as shopifyOrder from './shopify-order';
 import * as shopifyOrderPick from './shopify-order-pick';
 
+
+import { appSettingSchema, type AppSettingData, type AppSettingModel } from './app-setting';
 import { lotSchema, type LotData, type LotModel } from './lot'
 import { counterSchema, type CounterData,type CounterModel } from './counter'
 import { announcementSchema, type AnnouncementData, type AnnouncementModel } from './announcement'
@@ -19,13 +20,13 @@ import { manifestSchema, type ManifestData, type ManifestModel } from './manifes
 
 class ModelCommander {
 
-  private AppSetting;
   private IncomingShipment;
   private InventoryPallet;
   private ShopifyOrder;
   private ShopifyOrderPick;
 
   private conn: Connection
+  private AppSetting: AppSettingModel
   private Lot: LotModel
   private Counter: CounterModel
   private Announcement: AnnouncementModel
@@ -39,12 +40,13 @@ class ModelCommander {
     this.conn = mongooseConnection;
 
     // initialize models
-    this.AppSetting = mongooseConnection.model( 'AppSetting', appSetting.schema );
     this.IncomingShipment = mongooseConnection.model( 'IncomingShipment', incomingShipment.schema );
     this.InventoryPallet = mongooseConnection.model( 'InventoryPallet', inventoryPallet.schema );
     this.ShopifyOrder = mongooseConnection.model( 'ShopifyOrder', shopifyOrder.schema );
     this.ShopifyOrderPick = mongooseConnection.model( 'ShopifyOrderPick', shopifyOrderPick.schema );
 
+
+    this.AppSetting = mongooseConnection.model<AppSettingData, AppSettingModel>( 'AppSetting', appSettingSchema )
     this.Announcement = mongooseConnection.model<AnnouncementData, AnnouncementModel>( 'Announcement', announcementSchema )
     this.Counter = mongooseConnection.model<CounterData, CounterModel>( 'Counter', counterSchema )
     this.Lot = mongooseConnection.model<LotData, LotModel>( 'Lot', lotSchema )
