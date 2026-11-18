@@ -19,6 +19,12 @@ export const lengthUnits = [
   'centimeters'
 ] as const
 
+export const categories = [
+  'clothing',
+  'cosmetics',
+  'general merchandise',
+  'personal care'
+] as const
 
 export const marketplaces = [
   'wholesaleninjas'
@@ -103,6 +109,7 @@ export type LotStatus = (typeof lotStatuses)[number]
 export type LotCategory = (typeof lotCategories)[number]
 export type CounterHandle = (typeof counterHandles)[number]
 export type Condition = (typeof conditions)[number]
+export type Category = (typeof categories)[number]
 export type BundleType = (typeof bundleTypes)[number]
 
 /************** App Setting Type System **************

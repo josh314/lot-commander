@@ -1,4 +1,4 @@
-import type { ShippingItem } from './shipping-item'
+import { type ShippingItem, isPalletSized } from './shipping-item'
 
 export interface HasPackagingType {
   shippingItems?: Array<ShippingItem> | null
@@ -10,16 +10,7 @@ export function setPackagingTypeFromShippingItems( this: HasPackagingType ) {
 
   if( this.shippingItems ) {
 
-    const hasPalletShippingItem = this.shippingItems.some( (shippingItem: ShippingItem) => {
-      return (shippingItem.weight && shippingItem.weight >= 2000) &&
-        shippingItem.weightUnits === 'pounds' &&
-        (shippingItem.height && shippingItem.height >= 60) &&
-        shippingItem.heightUnits === 'inches' &&
-        (shippingItem.width && shippingItem.width >= 48) &&
-        shippingItem.widthUnits === 'inches' &&
-        (shippingItem.length && shippingItem.length >= 48) &&
-        shippingItem.lengthUnits === 'inches'
-    } )
+    const hasPalletShippingItem = this.shippingItems.some( (shippingItem: ShippingItem) => isPalletSized(shippingItem) )
 
     if( hasPalletShippingItem ) {
       this.packagingType = 'pallets:bulky'

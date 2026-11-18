@@ -1,4 +1,4 @@
-import { Schema, InferSchemaType } from 'mongoose'
+import { Schema, InferSchemaType, Types } from 'mongoose'
 import { weightUnits, lengthUnits } from '@shared/enums'
 
 /*******************************
@@ -6,6 +6,32 @@ import { weightUnits, lengthUnits } from '@shared/enums'
  * =============================
  *
  ******/
+
+export interface ShippingItemData {
+  weight?: number | null
+  weightUnits?: string | null
+  height?: number | null
+  heightUnits?: string | null
+  width?: number | null
+  widthUnits?: string | null
+  length?: number | null
+  lengthUnits?: string | null
+}
+
+export type ShippingItemMethods = {
+  isPallet: () => boolean
+}
+
+export function isPalletSized(item: ShippingItemData): boolean {
+  return item.weight === 2000 &&
+         item.weightUnits === 'pounds' &&
+         item.height === 60 &&
+         item.heightUnits === 'inches' &&
+         item.width === 48 &&
+         item.widthUnits === 'inches' &&
+         item.length === 48 &&
+         item.lengthUnits === 'inches'
+}
 
 export const shippingItemSchema = new Schema(
 
@@ -23,14 +49,7 @@ export const shippingItemSchema = new Schema(
   {
     methods: {
       isPallet: function() {
-        return this.weight === 2000 &&
-              this.weightUnits === 'pounds' &&
-              this.height === 60 &&
-              this.heightUnits === 'inches' &&
-              this.width === 48 &&
-              this.widthUnits === 'inches' &&
-              this.length === 48 &&
-              this.lengthUnits === 'inches'
+        return isPalletSized(this)
       }
     }
   }
@@ -38,44 +57,4 @@ export const shippingItemSchema = new Schema(
 )
 
 export type ShippingItem = InferSchemaType<typeof shippingItemSchema>
-
-interface EntityWithShippingItemsAndPackagingType {
-  shippingItems?: Array<ShippingItem>
-  packagingType?: string
-}
-
-export function setPackagingTypeFromShippingItems( $_: EntityWithShippingItemsAndPackagingType ) {
-
-  if( $_.shippingItems ) {
-
-    const hasPalletShippingItem = $_.shippingItems.some( (shippingItem: ShippingItem) => {
-      return shippingItem.weight === 2000 &&
-        shippingItem.weightUnits === 'pounds' &&
-        shippingItem.height === 60 &&
-        shippingItem.heightUnits === 'inches' &&
-        shippingItem.width === 48 &&
-        shippingItem.widthUnits === 'inches' &&
-        shippingItem.length === 48 &&
-        shippingItem.lengthUnits === 'inches'
-    } )
-
-    if( hasPalletShippingItem ) {
-      $_.packagingType = 'pallets:bulky'
-    }
-    else {
-
-      if( $_.shippingItems && $_.shippingItems.length >= 8 ) {
-        $_.packagingType = 'pallets'
-      }
-      else if ( $_.shippingItems && $_.shippingItems.length < 8 ) {
-        $_.packagingType = 'box lot'
-      }
-
-    }
-
-  }
-  else {
-    $_.packagingType = 'box lot'
-  }
-
-}
+export type ShippingItemArray = Types.DocumentArray<ShippingItem>
