@@ -418,7 +418,7 @@ describe('setPrimaryMedia', () => {
 
 })
 
-describe('validation hook', () => {
+describe('pre-validation hook', () => {
 
   const pallet = { weight: 2000, weightUnits: 'pounds', height: 60, heightUnits: 'inches', width: 48, widthUnits: 'inches', length: 48, lengthUnits: 'inches' }
 
@@ -448,6 +448,18 @@ describe('validation hook', () => {
     lot.shippingItems.push(pallet)
     await lot.save()
     expect(lot.packagingType).toBe('pallets:bulky')
+  })
+
+
+  it('Falsey strings are undefined', async () => {
+    const lot = new Lot({
+      handle: 'test-handle',
+      type: '',
+      category: ''
+    })
+    await lot.validate()
+    expect(lot.category).toBe(undefined)
+    expect(lot.type).toBe(undefined)
   })
 
 })

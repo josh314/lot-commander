@@ -4,7 +4,7 @@ import { shippingItemSchema, type ShippingItem } from './shipping-item'
 import { lotMediaSchema, type LotMediaData, type LotMedia, type LotMediaArray } from './lot-media'
 import { setPackagingTypeFromShippingItems } from './set-packaging-type-from-shipping-items'
 import * as enums from '@shared/enums'
-import type { LotStatus, Condition, Marketplace, PackagingType } from '@shared/enums'
+import type { LotStatus, Condition, Marketplace, PackagingType, Category } from '@shared/enums'
 import { ChildResourceNotFoundError, IllegalActionError } from '../errors'
 import { __DEFAULT_PRICE_VALUE_PCT__ } from '../constants'
 
@@ -42,7 +42,7 @@ export interface LotData {
   pallet?: Types.ObjectId
   description?: string
   type?: Condition
-  category?: string
+  category?: Category
   totalUnits?: number
   estimatedRetailValue?: number
   priceValuePercentage?: number
@@ -120,7 +120,7 @@ export const lotSchema = new Schema<LotData, LotModel, LotMethods, object, objec
     },
     description: String,
     type: { type: String, enum: enums.conditions },
-    category: String,
+    category: { type: String, enum: enums.categories },
     totalUnits: Number,
     estimatedRetailValue: Number,
     priceValuePercentage: Number,
@@ -327,6 +327,14 @@ export const lotSchema = new Schema<LotData, LotModel, LotMethods, object, objec
 lotSchema.pre( 'validate', function() {
 
   this.setPackagingTypeFromShippingItems()
+
+  if( !this.category ) {
+    this.category = undefined
+  }
+
+  if( !this.type ) {
+    this.type = undefined
+  }
 
 } )
 
